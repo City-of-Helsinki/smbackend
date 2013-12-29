@@ -1,0 +1,4 @@
+Django
+django-tastypie
+django-linguo
+-e git+https://github.com/juyrjola/munigeo#egg=django-munigeo
