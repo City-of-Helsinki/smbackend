@@ -1,4 +1,7 @@
 Django
 django-tastypie
 django-linguo
+requests
+requests_cache
 -e git+https://github.com/juyrjola/munigeo#egg=django-munigeo
+pytz
