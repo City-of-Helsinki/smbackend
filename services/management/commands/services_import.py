@@ -9,6 +9,8 @@ from django.core.management.base import BaseCommand
 from django import db
 from django.conf import settings
 from django.db import transaction
+from django.contrib.gis.geos import Point
+from django.contrib.gis.gdal import SpatialReference, CoordTransform
 
 from munigeo.models import *
 from munigeo.importer.sync import ModelSyncher
@@ -17,6 +19,7 @@ from services.models import *
 requests_cache.install_cache('services_import')
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v2/'
+GK25_SRID = 3879
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
@@ -52,6 +55,7 @@ class Command(BaseCommand):
             obj.translate(**args)
             obj._changed = True
 
+    @db.transaction.atomic
     def import_organizations(self):
         obj_list = self.pk_get_list('organization')
         syncher = ModelSyncher(Organization.objects.all(), lambda obj: obj.id)
@@ -76,6 +80,7 @@ class Command(BaseCommand):
         syncher.finish()
         self.org_syncher = syncher
 
+    @db.transaction.atomic
     def import_departments(self):
         obj_list = self.pk_get_list('department')
         syncher = ModelSyncher(Department.objects.all(), lambda obj: obj.id)
@@ -104,6 +109,7 @@ class Command(BaseCommand):
         syncher.finish()
         self.dept_syncher = syncher
 
+    @db.transaction.atomic
     def import_services(self):
         obj_list = self.pk_get_list('service')
         syncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
@@ -129,63 +135,88 @@ class Command(BaseCommand):
             syncher.mark(obj)
         syncher.finish()
 
+    @db.transaction.atomic
+    def _import_unit(self, syncher, info):
+        obj = syncher.get(info['id'])
+        if not obj:
+            obj = Unit(id=info['id'])
+            obj._changed = True
+
+        self._save_translated_field(obj, 'name', info, 'name')
+        self._save_translated_field(obj, 'street_address', info, 'street_address')
+
+        self._save_translated_field(obj, 'www_url', info, 'www')
+
+        org_id = info['org_id']
+        org = self.org_syncher.get(org_id)
+        assert org != None
+        if obj.organization_id != org_id:
+            obj.organization = org
+            obj._changed = True
+
+        if 'dept_id' in info:
+            dept_id = info['dept_id']
+            dept = self.dept_syncher.get(dept_id)
+            assert dept != None
+        else:
+            #print("%s does not have department id" % obj)
+            dept = None
+            dept_id = None
+        if obj.department_id != dept_id:
+            obj.department = dept
+            obj._changed = True
+
+        fields = ['address_zip', 'address_postal_full', 'phone', 'email']
+        for field in fields:
+            val = info.get(field, None)
+            if getattr(obj, field) != val:
+                setattr(obj, field, val)
+                obj._changed = True
+
+        url = info.get('data_source_url', None)
+        if url:
+            if not url.startswith('http'):
+                url = 'http://%s' % url
+        if obj.data_source_url != url:
+            obj._changed = True
+            obj.data_source_url = url
+
+        n = info.get('northing_etrs_gk25', 0)
+        e = info.get('easting_etrs_gk25', 0)
+        if n and e:
+            # Workaround for Jupperin avanto
+            if e < 25000000:
+                e *= 10
+            p = Point(e, n, srid=GK25_SRID)
+            srid = settings.PROJECTION_SRID
+            if srid != GK25_SRID:
+                p.transform(srid)
+            location = p
+        else:
+            location = None
+
+        if location and obj.location:
+            # If the distance is less than 10cm, assume the location
+            # hasn't changed.
+            assert obj.location.srid == settings.PROJECTION_SRID
+            if location.distance(obj.location) < 0.10:
+                location = obj.location
+        if location != obj.location:
+            obj._changed = True
+            obj.location = location
+
+        if obj._changed:
+            print("%s changed" % obj)
+            obj.origin_last_modified_time = datetime.now(timezone.get_default_timezone())
+            obj.save()
+        syncher.mark(obj)
+
     def import_units(self):
         obj_list = self.pk_get_list('unit')
         syncher = ModelSyncher(Unit.objects.all(), lambda obj: obj.id)
 
-        for d in obj_list:
-            obj = syncher.get(d['id'])
-            if not obj:
-                obj = Unit(id=d['id'])
-                obj._changed = True
-
-            self._save_translated_field(obj, 'name', d, 'name')
-            self._save_translated_field(obj, 'street_address', d, 'street_address')
-
-            self._save_translated_field(obj, 'www_url', d, 'www')
-
-            if 'dept_id' in d:
-                dept_id = d['dept_id']
-                dept = self.dept_syncher.get(dept_id)
-                assert dept != None
-            else:
-                #print("%s does not have department id" % obj)
-                dept = None
-                dept_id = None
-            if obj.department_id != dept_id:
-                obj.department = dept
-                obj._changed = True
-
-            org_id = d['org_id']
-            org = self.org_syncher.get(org_id)
-            if not org:
-                print(d)
-            assert org != None
-            if obj.organization_id != org_id:
-                obj.organization = org
-                obj._changed = True
-
-            fields = ['address_zip', 'address_postal_full', 'phone', 'email']
-            for field in fields:
-                val = d.get(field, None)
-                if getattr(obj, field) != val:
-                    setattr(obj, field, val)
-                    obj._changed = True
-
-            url = d.get('data_source_url', None)
-            if url:
-                if not url.startswith('http'):
-                    url = 'http://%s' % url
-            if obj.data_source_url != url:
-                obj._changed = True
-                obj.data_source_url = url
-
-            if obj._changed:
-                print("%s changed" % obj)
-                obj.origin_last_modified_time = datetime.now(timezone.get_default_timezone())
-                obj.save()
-            syncher.mark(obj)
-
+        for info in obj_list:
+            self._import_unit(syncher, info)
         syncher.finish()
 
     def handle(self, **options):

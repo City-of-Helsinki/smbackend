@@ -67,7 +67,7 @@ class Unit(with_metaclass(MultilingualModelBase, MultilingualModel)):
     id = models.IntegerField(primary_key=True)
     data_source_url = models.URLField(null=True)
     name = models.CharField(max_length=200, db_index=True)
-    location = models.PointField(null=True)
+    location = models.PointField(null=True, srid=settings.PROJECTION_SRID)
     department = models.ForeignKey(Department, null=True)
     organization = models.ForeignKey(Organization)
 
