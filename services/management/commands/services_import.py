@@ -141,6 +141,9 @@ class Command(BaseCommand):
         if not obj:
             obj = Unit(id=info['id'])
             obj._changed = True
+            obj._created = True
+        else:
+            obj._created = False
 
         self._save_translated_field(obj, 'name', info, 'name')
         self._save_translated_field(obj, 'street_address', info, 'street_address')
@@ -209,11 +212,19 @@ class Command(BaseCommand):
             print("%s changed" % obj)
             obj.origin_last_modified_time = datetime.now(timezone.get_default_timezone())
             obj.save()
+
+        service_ids = sorted(info.get('service_ids', []))
+        obj_service_ids = sorted(obj.services.values_list('id', flat=True))
+        if obj_service_ids != service_ids:
+            if not obj._created:
+                print("%s service set changed: %s -> %s" % (obj, obj_service_ids, service_ids))
+            obj.services = service_ids
+
         syncher.mark(obj)
 
     def import_units(self):
         obj_list = self.pk_get_list('unit')
-        syncher = ModelSyncher(Unit.objects.all(), lambda obj: obj.id)
+        syncher = ModelSyncher(Unit.objects.all().prefetch_related('services'), lambda obj: obj.id)
 
         for info in obj_list:
             self._import_unit(syncher, info)
