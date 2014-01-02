@@ -44,7 +44,7 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    #'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
@@ -81,6 +81,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+TASTYPIE_DEFAULT_FORMATS = ['json']
 
 PROJECTION_SRID = 3067 # ETRS
 
