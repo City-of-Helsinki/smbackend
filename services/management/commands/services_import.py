@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand
 from django import db
 from django.conf import settings
 from django.db import transaction
-from django.contrib.gis.geos import Point
+from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 
 from munigeo.models import *
@@ -184,19 +184,17 @@ class Command(BaseCommand):
             obj._changed = True
             obj.data_source_url = url
 
-        n = info.get('northing_etrs_gk25', 0)
-        e = info.get('easting_etrs_gk25', 0)
+        n = info.get('latitude', 0)
+        e = info.get('longitude', 0)
+        location = None
         if n and e:
-            # Workaround for Jupperin avanto
-            if e < 25000000:
-                e *= 10
-            p = Point(e, n, srid=GK25_SRID)
-            srid = settings.PROJECTION_SRID
-            if srid != GK25_SRID:
-                p.transform(srid)
-            location = p
-        else:
-            location = None
+            p = Point(e, n, srid=4326) # GPS coordinate system
+            if p.within(self.bounding_box):
+                if self.target_srid != 4326:
+                    p.transform(self.gps_to_target_ct)
+                location = p
+            else:
+                print("Invalid coordinates (%f, %f) for %s" % (n, e, obj))
 
         if location and obj.location:
             # If the distance is less than 10cm, assume the location
@@ -224,6 +222,15 @@ class Command(BaseCommand):
 
     def import_units(self):
         obj_list = self.pk_get_list('unit')
+        self.target_srid = settings.PROJECTION_SRID
+        self.bounding_box = Polygon.from_bbox(settings.BOUNDING_BOX)
+        self.bounding_box.set_srid(4326)
+        gps_srs = SpatialReference(4326)
+        target_srs = SpatialReference(self.target_srid)
+        target_to_gps_ct = CoordTransform(target_srs, gps_srs)
+        self.bounding_box.transform(target_to_gps_ct)
+        self.gps_to_target_ct = CoordTransform(gps_srs, target_srs)
+
         syncher = ModelSyncher(Unit.objects.all().prefetch_related('services'), lambda obj: obj.id)
 
         for info in obj_list:

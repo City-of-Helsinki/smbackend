@@ -84,7 +84,10 @@ USE_TZ = True
 
 TASTYPIE_DEFAULT_FORMATS = ['json']
 
-PROJECTION_SRID = 3067 # ETRS
+PROJECTION_SRID = 3067 # ETRS TM35-FIN
+# The Finnish national grid coordinates in TM35-FIN according to JHS-180
+# specification. We use it as a bounding box.
+BOUNDING_BOX = [-548576, 6291456, 1548576, 8388608]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
