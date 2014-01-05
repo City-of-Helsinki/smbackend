@@ -89,6 +89,12 @@ PROJECTION_SRID = 3067 # ETRS TM35-FIN
 # specification. We use it as a bounding box.
 BOUNDING_BOX = [-548576, 6291456, 1548576, 8388608]
 
+# If no country specified (for example through a REST API call), use this
+# as default.
+DEFAULT_COUNTRY = 'fi'
+# The word used for municipality in the OCD identifiers in the default country.
+DEFAULT_OCD_MUNICIPALITY = 'kunta'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 

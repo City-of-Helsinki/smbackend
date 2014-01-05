@@ -10,6 +10,7 @@ from django.contrib.gis.geos import Polygon
 from django.contrib.gis.gdal import SRSException, SpatialReference, CoordTransform
 
 from services.models import *
+from munigeo.models import *
 
 # Use the GPS coordinate system by default
 DEFAULT_SRID = 4326
@@ -104,6 +105,9 @@ class ServiceResource(TranslatableCachedResource):
     class Meta:
         queryset = Service.objects.all()
         excludes = ['lft', 'rght', 'tree_id']
+        filtering = {
+            'level': ['exact', 'lt', 'lte', 'gt', 'gte']
+        }
 
 class UnitResource(TranslatableCachedResource):
     organization = fields.ForeignKey(OrganizationResource, 'organization')
@@ -114,6 +118,19 @@ class UnitResource(TranslatableCachedResource):
         orm_filters = super(UnitResource, self).build_filters(filters)
         if not filters:
             return orm_filters
+
+        if 'municipality' in filters:
+            val = filters['municipality'].lower()
+            if val.startswith('ocd-division'):
+                ocd_id = val
+            else:
+                ocd_id = 'ocd-division/country:%s/%s:%s' % (settings.DEFAULT_COUNTRY, settings.DEFAULT_OCD_MUNICIPALITY, val)
+            try:
+                muni = Municipality.objects.get(ocd_id=ocd_id)
+            except Municipality.DoesNotExist:
+                raise NotFound("municipality with ID '%s' not found" % ocd_id)
+
+            orm_filters['location__within'] = muni.geometry.boundary
 
         if 'bbox' in filters:
             srid = filters.get('srid', None)
