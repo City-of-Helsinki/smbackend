@@ -108,6 +108,7 @@ class ServiceResource(TranslatableCachedResource):
 class UnitResource(TranslatableCachedResource):
     organization = fields.ForeignKey(OrganizationResource, 'organization')
     department = fields.ForeignKey(DepartmentResource, 'department', null=True)
+    services = fields.ManyToManyField(ServiceResource, 'services', null=True)
 
     def build_filters(self, filters=None):
         orm_filters = super(UnitResource, self).build_filters(filters)
@@ -143,5 +144,8 @@ class UnitResource(TranslatableCachedResource):
     class Meta:
         queryset = Unit.geo_objects.all()
         excludes = ['location']
+        filtering = {
+            'services': ALL_WITH_RELATIONS
+        }
 
 all_resources = [DepartmentResource, OrganizationResource, ServiceResource, UnitResource]
