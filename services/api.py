@@ -3,13 +3,54 @@ import json
 from django.conf import settings
 from tastypie import fields
 from tastypie.resources import ModelResource
-from tastypie.exceptions import InvalidFilterError, BadRequest
+from tastypie.exceptions import InvalidFilterError, ApiFieldError, BadRequest
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.cache import SimpleCache
+from django.contrib.gis.geos import Polygon
+from django.contrib.gis.gdal import SRSException, SpatialReference, CoordTransform
 
 from services.models import *
 
+# Use the GPS coordinate system by default
+DEFAULT_SRID = 4326
+
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
+
+def poly_from_bbox(bbox_val):
+    points = bbox_val.split(',')
+    if len(points) != 4:
+        raise InvalidFilterError("bbox must be in format 'left,bottom,right,top'")
+    try:
+        points = [float(p) for p in points]
+    except ValueError:
+        raise InvalidFilterError("bbox values must be floating point or integers")
+    poly = Polygon.from_bbox(points)
+    return poly
+
+def srid_to_srs(srid):
+    if not srid:
+        srid = DEFAULT_SRID
+    try:
+        srid = int(srid)
+    except ValueError:
+        raise InvalidFilterError("'srid' must be an integer")
+    try:
+        srs = SpatialReference(srid)
+    except SRSException:
+        raise InvalidFilterError("SRID %d not found (try 4326 for GPS coordinate system)" % srid)
+    return srs
+
+def build_bbox_filter(srid, bbox_val, field_name):
+    poly = poly_from_bbox(bbox_val)
+    srs = srid_to_srs(srid)
+    poly.set_srid(srs.srid)
+
+    if srid != settings.PROJECTION_SRID:
+        source_srs = SpatialReference(settings.PROJECTION_SRID)
+        ct = CoordTransform(srs, source_srs)
+        poly.transform(ct)
+
+    return {"%s__within" % field_name: poly}
 
 class TranslatableCachedResource(ModelResource):
     def __init__(self, api_name=None):
@@ -19,21 +60,30 @@ class TranslatableCachedResource(ModelResource):
     def dehydrate(self, bundle):
         bundle = super(TranslatableCachedResource, self).dehydrate(bundle)
         obj = bundle.obj
-        for f_name in obj._meta.translatable_fields:
-            if f_name in bundle.data:
-                del bundle.data[f_name]
+        for field_name in obj._meta.translatable_fields:
+            if field_name in bundle.data:
+                del bundle.data[field_name]
+
+            # Remove the pre-existing data in the bundle.
             for lang in LANGUAGES:
-                key = "%s_%s" % (f_name, lang)
+                key = "%s_%s" % (field_name, lang)
                 if key in bundle.data:
                     del bundle.data[key]
 
             d = {}
             default_lang = LANGUAGES[0]
-            d[default_lang] = getattr(obj, f_name)
+            d[default_lang] = getattr(obj, field_name)
             for lang in LANGUAGES[1:]:
-                key = "%s_%s" % (f_name, lang)
+                key = "%s_%s" % (field_name, lang)
                 d[lang] = getattr(bundle.obj, key)
-            bundle.data[f_name] = d
+
+            # If no text provided, leave the field as null
+            for key, val in d.items():
+                if val != None:
+                    break
+            else:
+                d = None
+            bundle.data[field_name] = d
 
         return bundle
     #_meta.translatable_fields
@@ -59,15 +109,39 @@ class UnitResource(TranslatableCachedResource):
     organization = fields.ForeignKey(OrganizationResource, 'organization')
     department = fields.ForeignKey(DepartmentResource, 'department', null=True)
 
+    def build_filters(self, filters=None):
+        orm_filters = super(UnitResource, self).build_filters(filters)
+        if not filters:
+            return orm_filters
+
+        if 'bbox' in filters:
+            srid = filters.get('srid', None)
+            bbox_filter = build_bbox_filter(srid, filters['bbox'], 'location')
+            orm_filters.update(bbox_filter)
+
+        return orm_filters
+
+    def dehydrate_location(self, bundle):
+        srid = bundle.request.GET.get('srid', None)
+        srs = srid_to_srs(srid)
+        geom = bundle.obj.location
+        if srs.srid != geom.srid:
+            ct = CoordTransform(geom.srs, srs)
+            geom.transform(ct)
+        location_str = geom.geojson
+        return json.loads(location_str)
+
     def dehydrate(self, bundle):
         bundle = super(UnitResource, self).dehydrate(bundle)
         obj = bundle.obj
-        location_str = bundle.obj.location.geojson
-        bundle.data['location'] = json.loads(location_str)
+
+        if obj.location != None:
+            bundle.data['location'] = self.dehydrate_location(bundle)
+
         return bundle
 
     class Meta:
-        queryset = Unit.objects.all()
+        queryset = Unit.geo_objects.all()
         excludes = ['location']
 
 all_resources = [DepartmentResource, OrganizationResource, ServiceResource, UnitResource]

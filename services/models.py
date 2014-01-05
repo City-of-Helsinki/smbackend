@@ -83,6 +83,7 @@ class Unit(with_metaclass(MultilingualModelBase, MultilingualModel)):
     services = models.ManyToManyField(Service)
 
     objects = MultilingualManager()
+    geo_objects = models.GeoManager()
 
     class Meta:
         translate = ('name', 'www_url', 'street_address')
