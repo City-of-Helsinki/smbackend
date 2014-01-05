@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import sys
+import re
 from datetime import datetime
+from optparse import make_option
 
 import requests
 import requests_cache
-from optparse import make_option
 from django.core.management.base import BaseCommand
 from django import db
 from django.conf import settings
@@ -16,26 +18,38 @@ from munigeo.models import *
 from munigeo.importer.sync import ModelSyncher
 from services.models import *
 
-requests_cache.install_cache('services_import')
-
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v2/'
 GK25_SRID = 3879
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
-    option_list = BaseCommand.option_list + (
-    )
+    option_list = list(BaseCommand.option_list + (
+        make_option('--cached', dest='cached', action='store_true', help='cache HTTP requests'),
+        make_option('--single', dest='single', action='store', metavar='ID', type='string', help='import only single entity'),
+    ))
+
+    importer_types = ['organizations', 'departments', 'units', 'services']
+
+    def __init__(self):
+        super(Command, self).__init__()
+        for imp in self.importer_types:
+            method = "import_%s" % imp
+            assert getattr(self, method, False), "No importer defined for %s" % method
+            opt = make_option('--%s' % imp, dest=imp, action='store_true', help='import %s' % imp)
+            self.option_list.append(opt)
 
     def clean_text(self, text):
         #text = text.replace('\n', ' ')
         #text = text.replace(u'\u00a0', ' ')
         # remove consecutive whitespaces
-        #text = re.sub(r'\s\s+', ' ', text, re.U)
+        text = re.sub(r'\s\s+', ' ', text, re.U)
         text = text.strip()
         return text
 
-    def pk_get_list(self, resource_name):
+    def pk_get(self, resource_name, res_id=None):
         url = "%s%s/" % (URL_BASE, resource_name)
+        if res_id != None:
+            url = "%s%s/" % (url, res_id)
         resp = requests.get(url)
         assert resp.status_code == 200
         return resp.json()
@@ -57,7 +71,7 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def import_organizations(self):
-        obj_list = self.pk_get_list('organization')
+        obj_list = self.pk_get('organization')
         syncher = ModelSyncher(Organization.objects.all(), lambda obj: obj.id)
 
         for d in obj_list:
@@ -82,7 +96,7 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def import_departments(self):
-        obj_list = self.pk_get_list('department')
+        obj_list = self.pk_get('department')
         syncher = ModelSyncher(Department.objects.all(), lambda obj: obj.id)
 
         for d in obj_list:
@@ -95,7 +109,10 @@ class Command(BaseCommand):
                 obj._changed = True
                 obj.abbr = d['abbr']
 
-            org_obj = self.org_syncher.get(d['org_id'])
+            if self.org_syncher:
+                org_obj = self.org_syncher.get(d['org_id'])
+            else:
+                org_obj = Organization.objects.get(id=d['org_id'])
             assert org_obj
             if obj.organization_id != d['org_id']:
                 obj._changed = True
@@ -111,7 +128,7 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def import_services(self):
-        obj_list = self.pk_get_list('service')
+        obj_list = self.pk_get('service')
         syncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
 
         for d in obj_list:
@@ -151,7 +168,10 @@ class Command(BaseCommand):
         self._save_translated_field(obj, 'www_url', info, 'www')
 
         org_id = info['org_id']
-        org = self.org_syncher.get(org_id)
+        if self.org_syncher:
+            org = self.org_syncher.get(info['org_id'])
+        else:
+            org = Organization.objects.get(id=info['org_id'])
         assert org != None
         if obj.organization_id != org_id:
             obj.organization = org
@@ -159,7 +179,10 @@ class Command(BaseCommand):
 
         if 'dept_id' in info:
             dept_id = info['dept_id']
-            dept = self.dept_syncher.get(dept_id)
+            if self.dept_syncher:
+                dept = self.dept_syncher.get(dept_id)
+            else:
+                dept = Department.objects.get(id=dept_id)
             assert dept != None
         else:
             #print("%s does not have department id" % obj)
@@ -207,7 +230,11 @@ class Command(BaseCommand):
             obj.location = location
 
         if obj._changed:
-            print("%s changed" % obj)
+            if obj._created:
+                verb = "created"
+            else:
+                verb = "changed"
+            print("%s %s" % (obj, verb))
             obj.origin_last_modified_time = datetime.now(timezone.get_default_timezone())
             obj.save()
 
@@ -221,7 +248,14 @@ class Command(BaseCommand):
         syncher.mark(obj)
 
     def import_units(self):
-        obj_list = self.pk_get_list('unit')
+        if self.options['single']:
+            obj_id = self.options['single']
+            obj_list = [self.pk_get('unit', obj_id)]
+            queryset = Unit.objects.filter(id=obj_id)
+        else:
+            obj_list = self.pk_get('unit')
+            queryset = Unit.objects.all().prefetch_related('services')
+
         self.target_srid = settings.PROJECTION_SRID
         self.bounding_box = Polygon.from_bbox(settings.BOUNDING_BOX)
         self.bounding_box.set_srid(4326)
@@ -231,18 +265,26 @@ class Command(BaseCommand):
         self.bounding_box.transform(target_to_gps_ct)
         self.gps_to_target_ct = CoordTransform(gps_srs, target_srs)
 
-        syncher = ModelSyncher(Unit.objects.all().prefetch_related('services'), lambda obj: obj.id)
-
+        syncher = ModelSyncher(queryset, lambda obj: obj.id)
         for info in obj_list:
             self._import_unit(syncher, info)
         syncher.finish()
 
     def handle(self, **options):
-        print("Importing organizations...")
-        self.import_organizations()
-        print("Importing departments...")
-        self.import_departments()
-        print("Importing services...")
-        self.import_services()
-        print("Importing units...")
-        self.import_units()
+        self.options = options
+        self.org_syncher = None
+        self.dept_syncher = None
+
+        if options['cached']:
+            requests_cache.install_cache('services_import')
+
+        import_count = 0
+        for imp in self.importer_types:
+            if not self.options[imp]:
+                continue
+            method = getattr(self, "import_%s" % imp)
+            print("Importing %s..." % imp)
+            method()
+            import_count += 1
+        if not import_count:
+            sys.stderr.write("Nothing to import.\n")
