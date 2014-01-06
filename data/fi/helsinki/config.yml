@@ -1,0 +1,49 @@
+name: Helsinki
+origin_id: 91
+
+paths:
+    division: divisions
+
+divisions:
+    major_district:
+        name: Suurpiiri
+        file: suurpiiri.tab
+        fields:
+            name:
+                fi: NIMI
+                sv: NIMI_SE
+            origin_id: TUNNUS
+
+    district:
+        name: Peruspiiri
+        file: peruspiiri.tab
+        fields:
+            name:
+                fi: NIMI
+                sv: NIMI_SE
+            origin_id: TUNNUS
+
+    neighbourhood:
+        name: Kaupunginosa
+        file: kaupunginosa.tab
+        fields:
+            name:
+                fi: NIMI
+                sv: NIMI_SE
+            origin_id: TUNNUS
+
+    voting_district:
+        name: Äänestysalue
+        file: halke_aanestysalue.tab
+        fields:
+            origin_id: TUNNUS
+
+    #health_station:
+    #    name: Terveysasemat
+    #    file: terveysasema_aluejako.tab
+    #    fields:
+    #        origin_id: TUNNUS
+
+    #rescue_district:
+    #    name: Suojelupiiri
+    #    file: 
