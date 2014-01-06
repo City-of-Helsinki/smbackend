@@ -1,12 +1,13 @@
 import json
+import re
 
 from django.conf import settings
 from tastypie import fields
 from tastypie.resources import ModelResource
-from tastypie.exceptions import InvalidFilterError, ApiFieldError, BadRequest
+from tastypie.exceptions import InvalidFilterError, ApiFieldError, BadRequest, NotFound
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.cache import SimpleCache
-from django.contrib.gis.geos import Polygon
+from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection
 from django.contrib.gis.gdal import SRSException, SpatialReference, CoordTransform
 
 from services.models import *
@@ -109,6 +110,14 @@ class ServiceResource(TranslatableCachedResource):
             'level': ['exact', 'lt', 'lte', 'gt', 'gte']
         }
 
+
+def make_muni_ocd_id(name, rest=None):
+    s = 'ocd-division/country:%s/%s:%s' % (settings.DEFAULT_COUNTRY, settings.DEFAULT_OCD_MUNICIPALITY, name)
+    if rest:
+        s += '/' + rest
+    return s
+
+
 class UnitResource(TranslatableCachedResource):
     organization = fields.ForeignKey(OrganizationResource, 'organization')
     department = fields.ForeignKey(DepartmentResource, 'department', null=True)
@@ -124,13 +133,42 @@ class UnitResource(TranslatableCachedResource):
             if val.startswith('ocd-division'):
                 ocd_id = val
             else:
-                ocd_id = 'ocd-division/country:%s/%s:%s' % (settings.DEFAULT_COUNTRY, settings.DEFAULT_OCD_MUNICIPALITY, val)
+                ocd_id = make_muni_ocd_id(val)
             try:
                 muni = Municipality.objects.get(ocd_id=ocd_id)
             except Municipality.DoesNotExist:
-                raise NotFound("municipality with ID '%s' not found" % ocd_id)
+                raise InvalidFilterError("municipality with ID '%s' not found" % ocd_id)
 
             orm_filters['location__within'] = muni.geometry.boundary
+        else:
+            muni = None
+
+        if 'district' in filters:
+            # Districts can be specified with form:
+            # district=helsinki/kaupunginosa:kallio,vantaa/äänestysalue:5
+            d_list = filters['district'].lower().split(',')
+            div_list = []
+            for district_path in d_list:
+                ocd_id_base = r'[\w0-9~_.-]+'
+                match_re = r'(%s)/([\w_]+):(%s)' % (ocd_id_base, ocd_id_base)
+                m = re.match(match_re, district_path, re.U)
+                if not m:
+                    raise InvalidFilterError("'district' must be of form 'muni/type:id'")
+
+                arr = district_path.split('/')
+                muni_ocd_id = make_muni_ocd_id(arr.pop(0), '/'.join(arr))
+                try:
+                    div = AdministrativeDivision.objects.select_related('geometry').get(ocd_id=muni_ocd_id)
+                except AdministrativeDivision.DoesNotExist:
+                    raise InvalidFilterError("administrative division with OCD ID '%s' not found" % muni_ocd_id)
+                div_list.append(div)
+
+            div_geom = [div.geometry.boundary for div in div_list]
+            if div_list:
+                mp = div_list.pop(0).geometry.boundary
+                for div in div_list:
+                    mp += div.geometry.boundary
+            orm_filters['location__within'] = mp
 
         if 'bbox' in filters:
             srid = filters.get('srid', None)
