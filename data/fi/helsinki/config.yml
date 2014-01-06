@@ -5,38 +5,48 @@ paths:
     division: divisions
 
 divisions:
-    major_district:
-        name: Suurpiiri
-        file: suurpiiri.tab
-        fields:
-            name:
-                fi: NIMI
-                sv: NIMI_SE
-            origin_id: TUNNUS
+  - type: major_district
+    name: Suurpiiri
+    file: suurpiiri.tab
+    ocd_id: suurpiiri
+    fields:
+        name:
+            fi: NIMI
+            sv: NIMI_SE
+        origin_id: TUNNUS
+        ocd_id: NIMI
 
-    district:
-        name: Peruspiiri
-        file: peruspiiri.tab
-        fields:
-            name:
-                fi: NIMI
-                sv: NIMI_SE
-            origin_id: TUNNUS
+  - type: district
+    name: Peruspiiri
+    parent: major_district
+    ocd_id: peruspiiri
+    file: peruspiiri.tab
+    fields:
+        name:
+            fi: NIMI
+            sv: NIMI_SE
+        origin_id: TUNNUS
+        parent_id: SUURPIIRI_TUNNUS
+        ocd_id: NIMI
 
-    neighbourhood:
-        name: Kaupunginosa
-        file: kaupunginosa.tab
-        fields:
-            name:
-                fi: NIMI
-                sv: NIMI_SE
-            origin_id: TUNNUS
+  - type: neighborhood
+    name: Kaupunginosa
+    ocd_id: kaupunginosa
+    file: kaupunginosa.tab
+    fields:
+        name:
+            fi: NIMI
+            sv: NIMI_SE
+        origin_id: TUNNUS
+        ocd_id: NIMI
 
-    voting_district:
-        name: Äänestysalue
-        file: halke_aanestysalue.tab
-        fields:
-            origin_id: TUNNUS
+  - type: voting_district
+    name: Äänestysalue
+    ocd_id: äänestysalue
+    file: halke_aanestysalue.tab
+    fields:
+        origin_id: TUNNUS
+        ocd_id: TUNNUS
 
     #health_station:
     #    name: Terveysasemat
