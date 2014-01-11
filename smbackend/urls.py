@@ -1,12 +1,16 @@
 from django.conf.urls import patterns, include, url
 from tastypie.api import Api
 from services.api import all_resources
+from munigeo.api import all_resources as munigeo_resources
 
 # from django.contrib import admin
 # admin.autodiscover()
 
 v1_api = Api(api_name='v1')
 for res in all_resources:
+    v1_api.register(res())
+
+for res in munigeo_resources:
     v1_api.register(res())
 
 urlpatterns = patterns('',

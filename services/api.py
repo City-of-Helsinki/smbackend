@@ -6,89 +6,13 @@ from tastypie import fields
 from tastypie.resources import ModelResource
 from tastypie.exceptions import InvalidFilterError, ApiFieldError, BadRequest, NotFound
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
-from tastypie.cache import SimpleCache
 from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection
-from django.contrib.gis.gdal import SRSException, SpatialReference, CoordTransform
+from django.contrib.gis.gdal import CoordTransform
 
 from services.models import *
 from munigeo.models import *
+from munigeo.api import build_bbox_filter, srid_to_srs, TranslatableCachedResource
 
-# Use the GPS coordinate system by default
-DEFAULT_SRID = 4326
-
-LANGUAGES = [x[0] for x in settings.LANGUAGES]
-
-def poly_from_bbox(bbox_val):
-    points = bbox_val.split(',')
-    if len(points) != 4:
-        raise InvalidFilterError("bbox must be in format 'left,bottom,right,top'")
-    try:
-        points = [float(p) for p in points]
-    except ValueError:
-        raise InvalidFilterError("bbox values must be floating point or integers")
-    poly = Polygon.from_bbox(points)
-    return poly
-
-def srid_to_srs(srid):
-    if not srid:
-        srid = DEFAULT_SRID
-    try:
-        srid = int(srid)
-    except ValueError:
-        raise InvalidFilterError("'srid' must be an integer")
-    try:
-        srs = SpatialReference(srid)
-    except SRSException:
-        raise InvalidFilterError("SRID %d not found (try 4326 for GPS coordinate system)" % srid)
-    return srs
-
-def build_bbox_filter(srid, bbox_val, field_name):
-    poly = poly_from_bbox(bbox_val)
-    srs = srid_to_srs(srid)
-    poly.set_srid(srs.srid)
-
-    if srid != settings.PROJECTION_SRID:
-        source_srs = SpatialReference(settings.PROJECTION_SRID)
-        ct = CoordTransform(srs, source_srs)
-        poly.transform(ct)
-
-    return {"%s__within" % field_name: poly}
-
-class TranslatableCachedResource(ModelResource):
-    def __init__(self, api_name=None):
-        super(TranslatableCachedResource, self).__init__(api_name)
-        self._meta.cache = SimpleCache(timeout=3600)
-
-    def dehydrate(self, bundle):
-        bundle = super(TranslatableCachedResource, self).dehydrate(bundle)
-        obj = bundle.obj
-        for field_name in obj._meta.translatable_fields:
-            if field_name in bundle.data:
-                del bundle.data[field_name]
-
-            # Remove the pre-existing data in the bundle.
-            for lang in LANGUAGES:
-                key = "%s_%s" % (field_name, lang)
-                if key in bundle.data:
-                    del bundle.data[key]
-
-            d = {}
-            default_lang = LANGUAGES[0]
-            d[default_lang] = getattr(obj, field_name)
-            for lang in LANGUAGES[1:]:
-                key = "%s_%s" % (field_name, lang)
-                d[lang] = getattr(bundle.obj, key)
-
-            # If no text provided, leave the field as null
-            for key, val in d.items():
-                if val != None:
-                    break
-            else:
-                d = None
-            bundle.data[field_name] = d
-
-        return bundle
-    #_meta.translatable_fields
 
 class OrganizationResource(TranslatableCachedResource):
     class Meta:
