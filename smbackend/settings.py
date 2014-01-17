@@ -37,13 +37,17 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'tastypie',
     'linguo',
+    'corsheaders',
+
     'munigeo',
     'services',
 )
 
 MIDDLEWARE_CLASSES = (
+    'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     #'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -82,6 +86,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+CORS_ORIGIN_ALLOW_ALL = True
 TASTYPIE_DEFAULT_FORMATS = ['json']
 
 PROJECTION_SRID = 3067 # ETRS TM35-FIN
