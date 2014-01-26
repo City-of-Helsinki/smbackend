@@ -13,12 +13,13 @@ from django.conf import settings
 from django.db import transaction
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
+from django.utils.translation import activate, get_language
 
 from munigeo.models import *
 from munigeo.importer.sync import ModelSyncher
 from services.models import *
 
-URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v2/'
+URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v3/'
 GK25_SRID = 3879
 
 class Command(BaseCommand):
@@ -43,6 +44,8 @@ class Command(BaseCommand):
         #text = text.replace(u'\u00a0', ' ')
         # remove consecutive whitespaces
         text = re.sub(r'\s\s+', ' ', text, re.U)
+        # remove nil bytes
+        text = text.replace(u'\u0000', ' ')
         text = text.strip()
         return text
 
@@ -62,17 +65,23 @@ class Command(BaseCommand):
                 val = self.clean_text(info[key])
             else:
                 val = None
-            if getattr(obj, key, None) == val:
+            obj_key = '%s_%s' % (obj_field_name, lang)
+            obj_val = getattr(obj, obj_key, None)
+            if obj_val == val:
                 continue
-            args['language'] = lang
-            args[obj_field_name] = val
-            obj.translate(**args)
+
+            setattr(obj, obj_key, val)
+            if lang == 'fi':
+                setattr(obj, obj_field_name, val)
             obj._changed = True
 
     @db.transaction.atomic
-    def import_organizations(self):
+    def import_organizations(self, noop=False):
         obj_list = self.pk_get('organization')
         syncher = ModelSyncher(Organization.objects.all(), lambda obj: obj.id)
+        self.org_syncher = syncher
+        if noop:
+            return
 
         for d in obj_list:
             obj = syncher.get(d['id'])
@@ -92,12 +101,14 @@ class Command(BaseCommand):
             syncher.mark(obj)
 
         syncher.finish()
-        self.org_syncher = syncher
 
     @db.transaction.atomic
-    def import_departments(self):
+    def import_departments(self, noop=False):
         obj_list = self.pk_get('department')
         syncher = ModelSyncher(Department.objects.all(), lambda obj: obj.id)
+        self.dept_syncher = syncher
+        if noop:
+            return
 
         for d in obj_list:
             obj = syncher.get(d['id'])
@@ -119,12 +130,10 @@ class Command(BaseCommand):
                 obj.organization = org_obj
 
             if obj._changed:
-                print("%s changed" % obj)
                 obj.save()
             syncher.mark(obj)
 
         syncher.finish()
-        self.dept_syncher = syncher
 
     @db.transaction.atomic
     def import_services(self):
@@ -163,9 +172,11 @@ class Command(BaseCommand):
             obj._created = False
 
         self._save_translated_field(obj, 'name', info, 'name')
+        self._save_translated_field(obj, 'description', info, 'desc')
         self._save_translated_field(obj, 'street_address', info, 'street_address')
 
         self._save_translated_field(obj, 'www_url', info, 'www')
+        self._save_translated_field(obj, 'picture_caption', info, 'picture_caption')
 
         org_id = info['org_id']
         if self.org_syncher:
@@ -178,11 +189,24 @@ class Command(BaseCommand):
             obj._changed = True
 
         if 'dept_id' in info:
+            new_dept = None
+            if info['dept_id'] == 'TASKE':
+                print("Overriding department for %s" % info['name_fi'])
+                info['dept_id'] = 'KANSLIA'
+            elif info['dept_id'] in ('1008-NOBIL', '1009-ULK'):
+                print("Removing %s dept from %s" % (info['dept_id'], info['name_fi']))
+                del info['dept_id']
+
+        if 'dept_id' in info:
             dept_id = info['dept_id']
             if self.dept_syncher:
                 dept = self.dept_syncher.get(dept_id)
             else:
-                dept = Department.objects.get(id=dept_id)
+                try:
+                    dept = Department.objects.get(id=dept_id)
+                except Department.DoesNotExist:
+                    print("Department %s does not exist" % dept_id)
+                    raise
             assert dept != None
         else:
             #print("%s does not have department id" % obj)
@@ -192,7 +216,7 @@ class Command(BaseCommand):
             obj.department = dept
             obj._changed = True
 
-        fields = ['address_zip', 'address_postal_full', 'phone', 'email']
+        fields = ['address_zip', 'address_postal_full', 'phone', 'email', 'provider_type', 'picture_url']
         for field in fields:
             val = info.get(field, None)
             if getattr(obj, field) != val:
@@ -248,13 +272,18 @@ class Command(BaseCommand):
         syncher.mark(obj)
 
     def import_units(self):
+        if not getattr(self, 'org_syncher', None):
+            self.import_organizations(noop=True)
+        if not getattr(self, 'dept_syncher', None):
+            self.import_departments(noop=True)
+
         if self.options['single']:
             obj_id = self.options['single']
             obj_list = [self.pk_get('unit', obj_id)]
             queryset = Unit.objects.filter(id=obj_id)
         else:
             obj_list = self.pk_get('unit')
-            queryset = Unit.objects.all().prefetch_related('services')
+            queryset = Unit.objects.all().select_related('services')
 
         self.target_srid = settings.PROJECTION_SRID
         self.bounding_box = Polygon.from_bbox(settings.BOUNDING_BOX)
@@ -266,7 +295,7 @@ class Command(BaseCommand):
         self.gps_to_target_ct = CoordTransform(gps_srs, target_srs)
 
         syncher = ModelSyncher(queryset, lambda obj: obj.id)
-        for info in obj_list:
+        for idx, info in enumerate(obj_list):
             self._import_unit(syncher, info)
         syncher.finish()
 
@@ -278,6 +307,11 @@ class Command(BaseCommand):
         if options['cached']:
             requests_cache.install_cache('services_import')
 
+        # Activate the default language for the duration of the import
+        # to make sure translated fields are populated correctly.
+        old_lang = get_language()
+        activate(settings.LANGUAGES[0][0])
+
         import_count = 0
         for imp in self.importer_types:
             if not self.options[imp]:
@@ -288,3 +322,4 @@ class Command(BaseCommand):
             import_count += 1
         if not import_count:
             sys.stderr.write("Nothing to import.\n")
+        activate(old_lang)

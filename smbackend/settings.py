@@ -38,6 +38,8 @@ INSTALLED_APPS = (
     'tastypie',
     'linguo',
     'corsheaders',
+    'django_extensions',
+    'modeltranslation',
 
     'munigeo',
     'services',
@@ -70,13 +72,15 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
+gettext = lambda s: s
 LANGUAGES = (
-    ('fi', _('Finnish')),
-    ('sv', _('Swedish')),
-    ('en', _('English')),
+    ('fi', gettext('Finnish')),
+    ('sv', gettext('Swedish')),
+    ('en', gettext('English')),
 
 )
 LANGUAGE_CODE = 'fi'
+MODELTRANSLATION_DEFAULT_LANGUAGE = LANGUAGE_CODE
 
 TIME_ZONE = 'Europe/Helsinki'
 
