@@ -67,20 +67,23 @@ class UnitResource(TranslatableCachedResource):
         else:
             muni = None
 
-        if 'district' in filters:
-            # Districts can be specified with form:
-            # district=helsinki/kaupunginosa:kallio,vantaa/äänestysalue:5
-            d_list = filters['district'].lower().split(',')
+        if 'division' in filters:
+            # Divisions can be specified with form:
+            # division=helsinki/kaupunginosa:kallio,vantaa/äänestysalue:5
+            d_list = filters['division'].lower().split(',')
             div_list = []
-            for district_path in d_list:
-                ocd_id_base = r'[\w0-9~_.-]+'
-                match_re = r'(%s)/([\w_]+):(%s)' % (ocd_id_base, ocd_id_base)
-                m = re.match(match_re, district_path, re.U)
-                if not m:
-                    raise InvalidFilterError("'district' must be of form 'muni/type:id'")
+            for division_path in d_list:
+                if division_path.startswith('ocd-division'):
+                    muni_ocd_id = division_path
+                else:
+                    ocd_id_base = r'[\w0-9~_.-]+'
+                    match_re = r'(%s)/([\w_]+):(%s)' % (ocd_id_base, ocd_id_base)
+                    m = re.match(match_re, division_path, re.U)
+                    if not m:
+                        raise InvalidFilterError("'division' must be of form 'muni/type:id'")
 
-                arr = district_path.split('/')
-                muni_ocd_id = make_muni_ocd_id(arr.pop(0), '/'.join(arr))
+                    arr = division_path.split('/')
+                    muni_ocd_id = make_muni_ocd_id(arr.pop(0), '/'.join(arr))
                 try:
                     div = AdministrativeDivision.objects.select_related('geometry').get(ocd_id=muni_ocd_id)
                 except AdministrativeDivision.DoesNotExist:
@@ -121,10 +124,11 @@ class UnitResource(TranslatableCachedResource):
         return bundle
 
     class Meta:
-        queryset = Unit.geo_objects.all()
+        queryset = Unit.geo_objects.all().select_related('organization').prefetch_related('services')
         excludes = ['location']
         filtering = {
-            'services': ALL_WITH_RELATIONS
+            'services': ALL_WITH_RELATIONS,
+            'name': ALL
         }
 
 all_resources = [DepartmentResource, OrganizationResource, ServiceResource, UnitResource]
