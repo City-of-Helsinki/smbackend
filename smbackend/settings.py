@@ -36,7 +36,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'tastypie',
-    'linguo',
     'corsheaders',
     'django_extensions',
     'modeltranslation',
