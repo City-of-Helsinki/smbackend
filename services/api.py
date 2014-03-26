@@ -31,7 +31,8 @@ class ServiceResource(TranslatableCachedResource):
         queryset = Service.objects.all()
         excludes = ['lft', 'rght', 'tree_id']
         filtering = {
-            'level': ['exact', 'lt', 'lte', 'gt', 'gte']
+            'level': ['exact', 'lt', 'lte', 'gt', 'gte'],
+            'parent': ALL_WITH_RELATIONS,
         }
 
 
