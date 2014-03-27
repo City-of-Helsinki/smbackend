@@ -1,5 +1,7 @@
 Django
-django-tastypie
+djangorestframework
+markdown
+django-filter
 django-modeltranslation
 requests
 requests_cache

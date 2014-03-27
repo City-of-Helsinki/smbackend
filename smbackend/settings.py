@@ -35,7 +35,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
     'django.contrib.gis',
-    'tastypie',
+    'rest_framework',
     'corsheaders',
     'django_extensions',
     'modeltranslation',
@@ -107,6 +107,12 @@ DEFAULT_OCD_MUNICIPALITY = 'kunta'
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    'PAGINATE_BY': 20,
+    'URL_FIELD_NAME': 'resource_uri',
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+}
 
 try:
     from local_settings import *

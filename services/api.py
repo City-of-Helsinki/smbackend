@@ -2,39 +2,122 @@ import json
 import re
 
 from django.conf import settings
-from tastypie import fields
-from tastypie.resources import ModelResource
-from tastypie.exceptions import InvalidFilterError, ApiFieldError, BadRequest, NotFound
-from tastypie.constants import ALL, ALL_WITH_RELATIONS
+#from tastypie import fields
+#from tastypie.resources import ModelResource
+#from tastypie.exceptions import InvalidFilterError, ApiFieldError, BadRequest, NotFound
+#from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection
 from django.contrib.gis.gdal import CoordTransform
+from modeltranslation.translator import translator, NotRegistered
+from rest_framework import serializers, viewsets
 
 from services.models import *
 from munigeo.models import *
+
+LANGUAGES = [x[0] for x in settings.LANGUAGES]
+
+class MPTTModelSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super(MPTTModelSerializer, self).__init__(*args, **kwargs)
+        for field_name in 'lft', 'rght', 'tree_id':
+            if field_name in self.fields:
+                del self.fields[field_name]
+
+class GeoModelSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super(GeoModelSerializer, self).__init__(*args, **kwargs)
+
+class TranslatedModelSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super(TranslatedModelSerializer, self).__init__(*args, **kwargs)
+        model = self.Meta.model
+        try:
+            trans_opts = translator.get_options_for_model(model)
+        except NotRegistered:
+            self.translated_fields = []
+            return
+
+        self.translated_fields = trans_opts.fields.keys()
+        # Remove the pre-existing data in the bundle.
+        for field_name in self.translated_fields:
+            for lang in LANGUAGES:
+                key = "%s_%s" % (field_name, lang)
+                if key in self.fields:
+                    del self.fields[key]
+            del self.fields[field_name]
+
+    def to_native(self, obj):
+        ret = super(TranslatedModelSerializer, self).to_native(obj)
+        if obj is None:
+            return ret
+
+        for field_name in self.translated_fields:
+            d = {}
+            default_lang = LANGUAGES[0]
+            d[default_lang] = getattr(obj, field_name)
+            for lang in LANGUAGES[1:]:
+                key = "%s_%s" % (field_name, lang)  
+                val = getattr(obj, key, None)
+                if val == None:
+                    continue 
+                d[lang] = val
+
+            # If no text provided, leave the field as null
+            for key, val in d.items():
+                if val != None:
+                    break
+            else:
+                d = None
+            ret[field_name] = d
+
+        return ret
+
+class OrganizationSerializer(TranslatedModelSerializer):
+    class Meta:
+        model = Organization
+
+class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Organization.objects.all()
+    serializer_class = OrganizationSerializer
+
+
+class DepartmentSerializer(TranslatedModelSerializer):
+    class Meta:
+        model = Department
+
+class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+
+
+class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer):
+    class Meta:
+        model = Service
+
+class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+    filter_fields = ['level', 'parent']
+
+
+class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer):
+    class Meta:
+        model = Unit
+
+class UnitViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Unit.objects.all()
+    serializer_class = UnitSerializer
+
+
+all_resources = {
+    'organization': OrganizationViewSet,
+    'department': DepartmentViewSet,
+    'service': ServiceViewSet,
+    'unit': UnitViewSet,
+}
+
+"""
 from munigeo.api import build_bbox_filter, srid_to_srs, TranslatableCachedResource
-
-
-class OrganizationResource(TranslatableCachedResource):
-    class Meta:
-        queryset = Organization.objects.all()
-
-class DepartmentResource(TranslatableCachedResource):
-    organization = fields.ForeignKey(OrganizationResource, 'organization')
-
-    class Meta:
-        queryset = Department.objects.all()
-
-class ServiceResource(TranslatableCachedResource):
-    parent = fields.ForeignKey('services.api.ServiceResource', 'parent', null=True)
-
-    class Meta:
-        queryset = Service.objects.all()
-        excludes = ['lft', 'rght', 'tree_id']
-        filtering = {
-            'level': ['exact', 'lt', 'lte', 'gt', 'gte'],
-            'parent': ALL_WITH_RELATIONS,
-        }
-
 
 def make_muni_ocd_id(name, rest=None):
     s = 'ocd-division/country:%s/%s:%s' % (settings.DEFAULT_COUNTRY, settings.DEFAULT_OCD_MUNICIPALITY, name)
@@ -133,3 +216,4 @@ class UnitResource(TranslatableCachedResource):
         }
 
 all_resources = [DepartmentResource, OrganizationResource, ServiceResource, UnitResource]
+"""
