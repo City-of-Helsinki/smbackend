@@ -7,6 +7,7 @@ from django.conf import settings
 #from tastypie.exceptions import InvalidFilterError, ApiFieldError, BadRequest, NotFound
 #from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection
+from django.contrib.gis.db.models.fields import GeometryField
 from django.contrib.gis.gdal import CoordTransform
 from modeltranslation.translator import translator, NotRegistered
 from rest_framework import serializers, viewsets
@@ -26,11 +27,35 @@ class MPTTModelSerializer(serializers.ModelSerializer):
 class GeoModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super(GeoModelSerializer, self).__init__(*args, **kwargs)
+        model = self.opts.model
+        self.geo_fields = []
+        model_fields = [f.name for f in model._meta.fields]
+        for field_name in self.fields:
+            if not field_name in model_fields:
+                continue
+            field = model._meta.get_field(field_name)
+            if not isinstance(field, GeometryField):
+                continue
+            self.geo_fields.append(field_name)
+            del self.fields[field_name]
+
+    def to_native(self, obj):
+        ret = super(GeoModelSerializer, self).to_native(obj)
+        if obj is None:
+            return ret
+        for field_name in self.geo_fields:
+            val = getattr(obj, field_name)
+            if val == None:
+                ret[field_name] = None
+                continue
+            s = val.geojson
+            ret[field_name] = json.loads(s)
+        return ret
 
 class TranslatedModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super(TranslatedModelSerializer, self).__init__(*args, **kwargs)
-        model = self.Meta.model
+        model = self.opts.model
         try:
             trans_opts = translator.get_options_for_model(model)
         except NotRegistered:
@@ -72,7 +97,8 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
 
         return ret
 
-class OrganizationSerializer(TranslatedModelSerializer):
+
+class OrganizationSerializer(serializers.HyperlinkedModelSerializer, TranslatedModelSerializer):
     class Meta:
         model = Organization
 
@@ -81,7 +107,7 @@ class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = OrganizationSerializer
 
 
-class DepartmentSerializer(TranslatedModelSerializer):
+class DepartmentSerializer(serializers.HyperlinkedModelSerializer, TranslatedModelSerializer):
     class Meta:
         model = Department
 
@@ -90,7 +116,7 @@ class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DepartmentSerializer
 
 
-class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer):
+class ServiceSerializer(serializers.HyperlinkedModelSerializer, TranslatedModelSerializer, MPTTModelSerializer):
     class Meta:
         model = Service
 
@@ -100,7 +126,7 @@ class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
     filter_fields = ['level', 'parent']
 
 
-class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer):
+class UnitSerializer(serializers.HyperlinkedModelSerializer, TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer):
     class Meta:
         model = Unit
 
