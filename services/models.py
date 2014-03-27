@@ -71,8 +71,7 @@ class Unit(models.Model):
 
     services = models.ManyToManyField(Service)
 
-    objects = models.Manager()
-    geo_objects = models.GeoManager()
+    objects = models.GeoManager()
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)

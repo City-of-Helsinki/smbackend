@@ -12,6 +12,7 @@ from django.contrib.gis.gdal import CoordTransform
 from modeltranslation.translator import translator, NotRegistered
 from rest_framework import serializers, viewsets
 
+from munigeo.api import build_bbox_filter, srid_to_srs
 from services.models import *
 from munigeo.models import *
 
@@ -39,6 +40,9 @@ class GeoModelSerializer(serializers.ModelSerializer):
             self.geo_fields.append(field_name)
             del self.fields[field_name]
 
+        # SRS is deduced in ViewSet and passed from there
+        self.srs = kwargs['context'].get('srs', None)
+
     def to_native(self, obj):
         ret = super(GeoModelSerializer, self).to_native(obj)
         if obj is None:
@@ -48,6 +52,11 @@ class GeoModelSerializer(serializers.ModelSerializer):
             if val == None:
                 ret[field_name] = None
                 continue
+            if self.srs:
+                if self.srs.srid != val.srid:
+                    ct = CoordTransform(val.srs, self.srs)
+                    val.transform(ct)
+
             s = val.geojson
             ret[field_name] = json.loads(s)
         return ret
@@ -130,20 +139,6 @@ class UnitSerializer(serializers.HyperlinkedModelSerializer, TranslatedModelSeri
     class Meta:
         model = Unit
 
-class UnitViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Unit.objects.all()
-    serializer_class = UnitSerializer
-
-
-all_resources = {
-    'organization': OrganizationViewSet,
-    'department': DepartmentViewSet,
-    'service': ServiceViewSet,
-    'unit': UnitViewSet,
-}
-
-"""
-from munigeo.api import build_bbox_filter, srid_to_srs, TranslatableCachedResource
 
 def make_muni_ocd_id(name, rest=None):
     s = 'ocd-division/country:%s/%s:%s' % (settings.DEFAULT_COUNTRY, settings.DEFAULT_OCD_MUNICIPALITY, name)
@@ -152,16 +147,24 @@ def make_muni_ocd_id(name, rest=None):
     return s
 
 
-class UnitResource(TranslatableCachedResource):
-    organization = fields.ForeignKey(OrganizationResource, 'organization')
-    department = fields.ForeignKey(DepartmentResource, 'department', null=True)
-    services = fields.ManyToManyField(ServiceResource, 'services', null=True)
+class UnitViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Unit.objects.select_related('organization').prefetch_related('services')
+    serializer_class = UnitSerializer
+    filter_fields = ['services']
 
-    def build_filters(self, filters=None):
-        orm_filters = super(UnitResource, self).build_filters(filters)
-        if not filters:
-            return orm_filters
+    def initial(self, request, *args, **kwargs):
+        super(UnitViewSet, self).initial(request, *args, **kwargs)
+        srid = request.QUERY_PARAMS.get('srid', None)
+        self.srs = srid_to_srs(srid)
 
+    def get_serializer_context(self):
+        ret = super(UnitViewSet, self).get_serializer_context()
+        ret['srs'] = self.srs
+        return ret
+
+    def get_queryset(self):
+        queryset = super(UnitViewSet, self).get_queryset()
+        filters = self.request.QUERY_PARAMS
         if 'municipality' in filters:
             val = filters['municipality'].lower()
             if val.startswith('ocd-division'):
@@ -173,9 +176,7 @@ class UnitResource(TranslatableCachedResource):
             except Municipality.DoesNotExist:
                 raise InvalidFilterError("municipality with ID '%s' not found" % ocd_id)
 
-            orm_filters['location__within'] = muni.geometry.boundary
-        else:
-            muni = None
+            queryset = queryset.filter(location__within=muni.geometry.boundary)
 
         if 'division' in filters:
             # Divisions can be specified with form:
@@ -205,41 +206,14 @@ class UnitResource(TranslatableCachedResource):
                 mp = div_list.pop(0).geometry.boundary
                 for div in div_list:
                     mp += div.geometry.boundary
-            orm_filters['location__within'] = mp
 
-        if 'bbox' in filters:
-            srid = filters.get('srid', None)
-            bbox_filter = build_bbox_filter(srid, filters['bbox'], 'location')
-            orm_filters.update(bbox_filter)
+            queryset = queryset.filter(location__within=mp)
 
-        return orm_filters
+        return queryset
 
-    def dehydrate_location(self, bundle):
-        srid = bundle.request.GET.get('srid', None)
-        srs = srid_to_srs(srid)
-        geom = bundle.obj.location
-        if srs.srid != geom.srid:
-            ct = CoordTransform(geom.srs, srs)
-            geom.transform(ct)
-        location_str = geom.geojson
-        return json.loads(location_str)
-
-    def dehydrate(self, bundle):
-        bundle = super(UnitResource, self).dehydrate(bundle)
-        obj = bundle.obj
-
-        if obj.location != None:
-            bundle.data['location'] = self.dehydrate_location(bundle)
-
-        return bundle
-
-    class Meta:
-        queryset = Unit.geo_objects.all().select_related('organization').prefetch_related('services')
-        excludes = ['location']
-        filtering = {
-            'services': ALL_WITH_RELATIONS,
-            'name': ALL
-        }
-
-all_resources = [DepartmentResource, OrganizationResource, ServiceResource, UnitResource]
-"""
+all_resources = {
+    'organization': OrganizationViewSet,
+    'department': DepartmentViewSet,
+    'service': ServiceViewSet,
+    'unit': UnitViewSet,
+}
