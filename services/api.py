@@ -134,6 +134,13 @@ class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ServiceSerializer
     filter_fields = ['level', 'parent']
 
+    def get_queryset(self):
+        queryset = super(ServiceViewSet, self).get_queryset()
+        args = self.request.QUERY_PARAMS
+        if 'ancestor' in args:
+            val = args['ancestor']
+            queryset = queryset.by_ancestor(val)
+        return queryset
 
 class UnitSerializer(serializers.HyperlinkedModelSerializer, TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer):
     class Meta:
