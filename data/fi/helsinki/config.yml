@@ -29,6 +29,32 @@ divisions:
         parent_id: SUURPIIRI_TUNNUS
         ocd_id: NIMI
 
+  - type: sub_district
+    name: Osa-alue
+    parent: district
+    ocd_id: osa-alue
+    file: osaalue.tab
+    fields:
+        name:
+            fi: NIMI
+            sv: NIMI_SE
+        origin_id: TUNNUS
+        parent_id: PERUSPIIRI_TUNNUS
+        ocd_id: NIMI
+
+  - type: small_district
+    name: Pienalue
+    parent: sub_district
+    parent_in_ocd_id: true
+    ocd_id: pienalue
+    file: pienalue.tab
+    fields:
+        nimi:
+            fi: PIENALUE_TUNNUS
+        origin_id: PIENALUE_TUNNUS
+        parent_id: OSAALUE_TUNNUS
+        ocd_id: PIENALUE_TUNNUS
+
   - type: neighborhood
     name: Kaupunginosa
     ocd_id: kaupunginosa
