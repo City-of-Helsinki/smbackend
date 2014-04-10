@@ -25,5 +25,5 @@ urlpatterns = patterns('',
 
     # url(r'^', include(v1_api.urls)),
     # url(r'^admin/', include(admin.site.urls)),
-    url(r'^', include(router.urls))
+    url(r'^v1/', include(router.urls))
 )
