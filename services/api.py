@@ -2,19 +2,16 @@ import json
 import re
 
 from django.conf import settings
-#from tastypie import fields
-#from tastypie.resources import ModelResource
-#from tastypie.exceptions import InvalidFilterError, ApiFieldError, BadRequest, NotFound
-#from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection
 from django.contrib.gis.db.models.fields import GeometryField
 from django.contrib.gis.gdal import CoordTransform
 from modeltranslation.translator import translator, NotRegistered
 from rest_framework import serializers, viewsets
 
-from munigeo.api import build_bbox_filter, srid_to_srs
 from services.models import *
 from munigeo.models import *
+
+from .geoapi import GeoModelSerializer, srid_to_srs, build_bbox_filter
 
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
 
@@ -24,42 +21,6 @@ class MPTTModelSerializer(serializers.ModelSerializer):
         for field_name in 'lft', 'rght', 'tree_id':
             if field_name in self.fields:
                 del self.fields[field_name]
-
-class GeoModelSerializer(serializers.ModelSerializer):
-    def __init__(self, *args, **kwargs):
-        super(GeoModelSerializer, self).__init__(*args, **kwargs)
-        model = self.opts.model
-        self.geo_fields = []
-        model_fields = [f.name for f in model._meta.fields]
-        for field_name in self.fields:
-            if not field_name in model_fields:
-                continue
-            field = model._meta.get_field(field_name)
-            if not isinstance(field, GeometryField):
-                continue
-            self.geo_fields.append(field_name)
-            del self.fields[field_name]
-
-        # SRS is deduced in ViewSet and passed from there
-        self.srs = kwargs['context'].get('srs', None)
-
-    def to_native(self, obj):
-        ret = super(GeoModelSerializer, self).to_native(obj)
-        if obj is None:
-            return ret
-        for field_name in self.geo_fields:
-            val = getattr(obj, field_name)
-            if val == None:
-                ret[field_name] = None
-                continue
-            if self.srs:
-                if self.srs.srid != val.srid:
-                    ct = CoordTransform(val.srs, self.srs)
-                    val.transform(ct)
-
-            s = val.geojson
-            ret[field_name] = json.loads(s)
-        return ret
 
 class TranslatedModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
@@ -107,7 +68,7 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
         return ret
 
 
-class OrganizationSerializer(serializers.HyperlinkedModelSerializer, TranslatedModelSerializer):
+class OrganizationSerializer(TranslatedModelSerializer):
     class Meta:
         model = Organization
 
@@ -116,7 +77,7 @@ class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = OrganizationSerializer
 
 
-class DepartmentSerializer(serializers.HyperlinkedModelSerializer, TranslatedModelSerializer):
+class DepartmentSerializer(TranslatedModelSerializer):
     class Meta:
         model = Department
 
@@ -125,7 +86,7 @@ class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DepartmentSerializer
 
 
-class ServiceSerializer(serializers.HyperlinkedModelSerializer, TranslatedModelSerializer, MPTTModelSerializer):
+class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer):
     class Meta:
         model = Service
 
@@ -142,7 +103,7 @@ class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.by_ancestor(val)
         return queryset
 
-class UnitSerializer(serializers.HyperlinkedModelSerializer, TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer):
+class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer):
     class Meta:
         model = Unit
 
