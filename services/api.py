@@ -2,6 +2,7 @@ import json
 import re
 
 from django.conf import settings
+from django.db.models import Q
 from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection
 from django.contrib.gis.db.models.fields import GeometryField
 from django.contrib.gis.gdal import CoordTransform
@@ -145,6 +146,14 @@ class UnitViewSet(viewsets.ReadOnlyModelViewSet):
                 raise InvalidFilterError("municipality with ID '%s' not found" % ocd_id)
 
             queryset = queryset.filter(location__within=muni.geometry.boundary)
+
+        val = filters.get('service', '').lower()
+        if val:
+            query = Q()
+            for srv_id in val.split(','):
+                srv_list = Service.objects.all().by_ancestor(srv_id)
+                query |= Q(services__in=srv_list)
+            queryset = queryset.filter(query).distinct()
 
         if 'division' in filters:
             # Divisions can be specified with form:
