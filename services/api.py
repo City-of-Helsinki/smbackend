@@ -88,6 +88,8 @@ class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer):
+    children = serializers.PrimaryKeyRelatedField(many=True)
+
     class Meta:
         model = Service
 
