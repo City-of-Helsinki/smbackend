@@ -155,6 +155,7 @@ class UnitViewSet(viewsets.ReadOnlyModelViewSet):
             for srv_id in val.split(','):
                 srv_list = Service.objects.all().by_ancestor(srv_id)
                 query |= Q(services__in=srv_list)
+                query |= Q(services=srv_id)
             queryset = queryset.filter(query).distinct()
 
         if 'division' in filters:
