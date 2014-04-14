@@ -9,4 +9,5 @@ requests_cache
 pytz
 django-cors-headers
 django-extensions
-psycopgq
+psycopg2
+django-mptt

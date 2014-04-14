@@ -7,6 +7,7 @@ from optparse import make_option
 
 import requests
 import requests_cache
+import pytz
 from django.core.management.base import BaseCommand
 from django import db
 from django.conf import settings
@@ -21,6 +22,8 @@ from services.models import *
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v3/'
 GK25_SRID = 3879
+
+UTC_TIMEZONE = pytz.timezone('UTC')
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
@@ -45,7 +48,7 @@ class Command(BaseCommand):
         # remove consecutive whitespaces
         text = re.sub(r'\s\s+', ' ', text, re.U)
         # remove nil bytes
-        text = text.replace(u'\u0000', ' ')
+        text = text.replace('\u0000', ' ')
         text = text.strip()
         return text
 
@@ -259,7 +262,7 @@ class Command(BaseCommand):
             else:
                 verb = "changed"
             print("%s %s" % (obj, verb))
-            obj.origin_last_modified_time = datetime.now(timezone.get_default_timezone())
+            obj.origin_last_modified_time = datetime.now(UTC_TIMEZONE)
             obj.save()
 
         service_ids = sorted(info.get('service_ids', []))
