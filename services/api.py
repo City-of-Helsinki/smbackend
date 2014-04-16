@@ -7,13 +7,18 @@ from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection
 from django.contrib.gis.db.models.fields import GeometryField
 from django.contrib.gis.gdal import CoordTransform
 from modeltranslation.translator import translator, NotRegistered
-from rest_framework import serializers, viewsets
+from rest_framework import serializers, viewsets, generics
+from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
+
+from haystack.query import SearchQuerySet
+from haystack.inputs import AutoQuery
 
 from services.models import *
 from munigeo.models import *
 from munigeo.api import AdministrativeDivisionSerializer, GeoModelSerializer, \
     GeoModelViewSet
+
 
 all_views = []
 def register_view(klass, name, base_name=None):
@@ -204,20 +209,14 @@ class UnitViewSet(GeoModelViewSet, viewsets.ReadOnlyModelViewSet):
 
 register_view(UnitViewSet, 'unit')
 
-from rest_framework.response import Response
+class SearchSerializer(serializers.Serializer):
+    def to_native(self, obj):
+        return {'name': str(obj.object)}
 
-class AutoCompleteViewSet(generics.ListAPIView):
-    def get_serializer_context(self):
-        """
-        Extra context provided to the serializer class.
-        """
-        return {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self
-        }
 
-    """
+class SearchViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
+    serializer_class = SearchSerializer
+
     def list(self, request, *args, **kwargs):
         # If the incoming language is not specified, go with the default.
         lang_code = request.QUERY_PARAMS.get('language', LANGUAGES[0])
@@ -225,11 +224,20 @@ class AutoCompleteViewSet(generics.ListAPIView):
             raise ParseError("Invalid language supplied. Supported languages: %s" %
                              ','.join(LANGUAGES))
 
-        val = request.QUERY_PARAMS.get('input', '').strip()
-        if not val:
-            raise ParseError("Supply search terms with 'input='")
+        input_val = request.QUERY_PARAMS.get('input', '').strip()
+        q_val = request.QUERY_PARAMS.get('q', '').strip()
+        if not input_val and not q_val:
+            raise ParseError("Supply search terms with 'q=' or autocomplete entry with 'input='")
+        if input_val and q_val:
+            raise ParseError("Supply either 'q' or 'input', not both")
 
-        self.object_list = []
+        queryset = SearchQuerySet()
+        if input_val:
+            queryset = queryset.autocomplete(autosuggest="Kallion t")
+        else:
+            queryset = queryset.filter(text=AutoQuery(q_val))
+
+        self.object_list = queryset
 
         # Switch between paginated or standard style responses
         page = self.paginate_queryset(self.object_list)
@@ -240,6 +248,7 @@ class AutoCompleteViewSet(generics.ListAPIView):
 
         return Response(serializer.data)
 
+    """
     def list(self, request):
         resp = []
         context = self.get_serializer_context()
@@ -273,4 +282,4 @@ class AutoCompleteViewSet(generics.ListAPIView):
         return Response(resp)
     """
 
-register_view(AutoCompleteViewSet, 'autocomplete', base_name='autocomplete')
+register_view(SearchViewSet, 'search', base_name='search')
