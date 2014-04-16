@@ -2,6 +2,7 @@ import json
 import re
 
 from django.conf import settings
+from django.utils import translation
 from django.db.models import Q
 from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection
 from django.contrib.gis.db.models.fields import GeometryField
@@ -19,6 +20,8 @@ from munigeo.models import *
 from munigeo.api import AdministrativeDivisionSerializer, GeoModelSerializer, \
     GeoModelViewSet
 
+# This allows us to find a serializer for Haystack search results
+serializers_by_model = {}
 
 all_views = []
 def register_view(klass, name, base_name=None):
@@ -26,6 +29,10 @@ def register_view(klass, name, base_name=None):
     if base_name is not None:
         entry['base_name'] = base_name
     all_views.append(entry)
+
+    if klass.serializer_class and hasattr(klass.serializer_class.Meta, 'model'):
+        model = klass.serializer_class.Meta.model
+        serializers_by_model[model] = klass.serializer_class
 
 
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
@@ -63,9 +70,7 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
 
         for field_name in self.translated_fields:
             d = {}
-            default_lang = LANGUAGES[0]
-            d[default_lang] = getattr(obj, field_name)
-            for lang in LANGUAGES[1:]:
+            for lang in LANGUAGES:
                 key = "%s_%s" % (field_name, lang)  
                 val = getattr(obj, key, None)
                 if val == None:
@@ -210,8 +215,14 @@ class UnitViewSet(GeoModelViewSet, viewsets.ReadOnlyModelViewSet):
 register_view(UnitViewSet, 'unit')
 
 class SearchSerializer(serializers.Serializer):
-    def to_native(self, obj):
-        return {'name': str(obj.object)}
+    def to_native(self, search_result):
+        model = search_result.model
+        assert model in serializers_by_model, "Serializer for %s not found" % model
+        ser_class = serializers_by_model[model]
+        data = ser_class(search_result.object, context=self.context).data
+        data['object_type'] = model._meta.model_name
+        data['score'] = search_result.score
+        return data
 
 
 class SearchViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
@@ -219,8 +230,8 @@ class SearchViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         # If the incoming language is not specified, go with the default.
-        lang_code = request.QUERY_PARAMS.get('language', LANGUAGES[0])
-        if lang_code not in LANGUAGES:
+        self.lang_code = request.QUERY_PARAMS.get('language', LANGUAGES[0])
+        if self.lang_code not in LANGUAGES:
             raise ParseError("Invalid language supplied. Supported languages: %s" %
                              ','.join(LANGUAGES))
 
@@ -231,13 +242,16 @@ class SearchViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
         if input_val and q_val:
             raise ParseError("Supply either 'q' or 'input', not both")
 
+        old_language = translation.get_language()[:2]
+        translation.activate(self.lang_code)
+
         queryset = SearchQuerySet()
         if input_val:
-            queryset = queryset.autocomplete(autosuggest="Kallion t")
+            queryset = queryset.filter(autosuggest=input_val)
         else:
             queryset = queryset.filter(text=AutoQuery(q_val))
 
-        self.object_list = queryset
+        self.object_list = queryset.load_all()
 
         # Switch between paginated or standard style responses
         page = self.paginate_queryset(self.object_list)
@@ -246,7 +260,11 @@ class SearchViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
         else:
             serializer = self.get_serializer(self.object_list, many=True)
 
-        return Response(serializer.data)
+        resp = Response(serializer.data)
+
+        translation.activate(old_language)
+
+        return resp
 
     """
     def list(self, request):
