@@ -115,7 +115,11 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'PAGINATE_BY': 20,
     'URL_FIELD_NAME': 'resource_uri',
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.UnicodeJSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
 }
 
 HAYSTACK_CONNECTIONS = {}
