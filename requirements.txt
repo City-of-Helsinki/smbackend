@@ -13,3 +13,4 @@ psycopg2
 django-mptt
 django-haystack
 pysolr
+lxml

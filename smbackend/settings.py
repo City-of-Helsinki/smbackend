@@ -118,15 +118,19 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 }
 
-HAYSTACK_CONNECTIONS = {
-    'default': { 
-        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://127.0.0.1:8080/smbackend',
+HAYSTACK_CONNECTIONS = {}
+for lang_code, _ in LANGUAGES:
+    d = {
+        'ENGINE': 'smbackend.multilingual_solr.MultilingualSolrEngine',
+        'URL': 'http://127.0.0.1:8080/smbackend/core_%s' % lang_code,
         'INCLUDE_SPELLING': True,
         'TIMEOUT': 60,
-        'BATCH_SIZE': 1000,
-    },
-}
+        'BATCH_SIZE': 2000,
+    }
+    if not 'default' in HAYSTACK_CONNECTIONS:
+        HAYSTACK_CONNECTIONS['default'] = d
+    HAYSTACK_CONNECTIONS['default_%s' % lang_code] = d
+
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
 
 
