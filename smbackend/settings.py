@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'django_extensions',
     'modeltranslation',
+    'haystack',
 
     'munigeo',
     'services',
@@ -116,6 +117,18 @@ REST_FRAMEWORK = {
     'URL_FIELD_NAME': 'resource_uri',
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 }
+
+HAYSTACK_CONNECTIONS = {
+    'default': { 
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://127.0.0.1:8080/smbackend',
+        'INCLUDE_SPELLING': True,
+        'TIMEOUT': 60,
+        'BATCH_SIZE': 1000,
+    },
+}
+HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
+
 
 try:
     from local_settings import *

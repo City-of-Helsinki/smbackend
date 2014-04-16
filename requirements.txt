@@ -11,3 +11,5 @@ django-cors-headers
 django-extensions
 psycopg2
 django-mptt
+django-haystack
+pysolr

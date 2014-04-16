@@ -12,9 +12,8 @@ from rest_framework.exceptions import ParseError
 
 from services.models import *
 from munigeo.models import *
-from munigeo.api import AdministrativeDivisionSerializer
-
-from .geoapi import GeoModelSerializer, srid_to_srs, build_bbox_filter
+from munigeo.api import AdministrativeDivisionSerializer, GeoModelSerializer, \
+    GeoModelViewSet
 
 all_views = []
 def register_view(klass, name, base_name=None):
@@ -135,15 +134,10 @@ def make_muni_ocd_id(name, rest=None):
     return s
 
 
-class UnitViewSet(viewsets.ReadOnlyModelViewSet):
+class UnitViewSet(GeoModelViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Unit.objects.select_related('organization').prefetch_related('services')
     serializer_class = UnitSerializer
     filter_fields = ['services']
-
-    def initial(self, request, *args, **kwargs):
-        super(UnitViewSet, self).initial(request, *args, **kwargs)
-        srid = request.QUERY_PARAMS.get('srid', None)
-        self.srs = srid_to_srs(srid)
 
     def get_serializer_context(self):
         ret = super(UnitViewSet, self).get_serializer_context()
@@ -212,7 +206,7 @@ register_view(UnitViewSet, 'unit')
 
 from rest_framework.response import Response
 
-class AutoCompleteViewSet(viewsets.ViewSet):
+class AutoCompleteViewSet(generics.ListAPIView):
     def get_serializer_context(self):
         """
         Extra context provided to the serializer class.
@@ -223,7 +217,8 @@ class AutoCompleteViewSet(viewsets.ViewSet):
             'view': self
         }
 
-    def list(self, request):
+    """
+    def list(self, request, *args, **kwargs):
         # If the incoming language is not specified, go with the default.
         lang_code = request.QUERY_PARAMS.get('language', LANGUAGES[0])
         if lang_code not in LANGUAGES:
@@ -234,6 +229,18 @@ class AutoCompleteViewSet(viewsets.ViewSet):
         if not val:
             raise ParseError("Supply search terms with 'input='")
 
+        self.object_list = []
+
+        # Switch between paginated or standard style responses
+        page = self.paginate_queryset(self.object_list)
+        if page is not None:
+            serializer = self.get_pagination_serializer(page)
+        else:
+            serializer = self.get_serializer(self.object_list, many=True)
+
+        return Response(serializer.data)
+
+    def list(self, request):
         resp = []
         context = self.get_serializer_context()
 
@@ -264,5 +271,6 @@ class AutoCompleteViewSet(viewsets.ViewSet):
             resp.append(ser_obj)
 
         return Response(resp)
+    """
 
 register_view(AutoCompleteViewSet, 'autocomplete', base_name='autocomplete')
