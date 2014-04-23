@@ -1,4 +1,5 @@
 # based on http://anthony-tresontani.github.io/Django/2012/09/20/multilingual-search/
+import re
 from django.conf import settings
 from django.utils import translation
 from haystack import connections
@@ -11,25 +12,26 @@ def get_using(language, alias=DEFAULT_ALIAS):
     return using
 
 class MultilingualSolrSearchBackend(SolrSearchBackend):
-    def update(self, index, iterable, commit=True, multilingual=True):
-        if multilingual:
-            initial_language = translation.get_language()[:2]
-            # retrieve unique backend name
-            backends = []
-            for language, __ in settings.LANGUAGES:
-                using = get_using(language, alias=self.connection_alias)
-                # Ensure each backend is called only once
-                if using in backends:
-                    continue
-                else:
-                    backends.append(using)
-                translation.activate(language)
-                backend = connections[using].get_backend()
-                backend.update(index, iterable, commit, multilingual=False)
-            translation.activate(initial_language)
-        else:
-            print("[%s]" % self.connection_alias)
-            super(MultilingualSolrSearchBackend, self).update(index, iterable, commit)
+    def update(self, index, iterable, commit=True):
+        # do not allow calling update on a multilingual backend
+        if re.search(r'_[\w]{2}$', self.connection_alias):
+            return
+        initial_language = translation.get_language()[:2]
+        # retrieve unique backend name
+        backends = []
+        for language, __ in settings.LANGUAGES:
+            using = get_using(language, alias=self.connection_alias)
+            # Ensure each backend is called only once
+            if using in backends:
+                continue
+            else:
+                backends.append(using)
+            translation.activate(language)
+            backend = connections[using].get_backend()
+            print('[%s]' % using)
+            super(MultilingualSolrSearchBackend, backend).update(index, iterable, commit)
+
+        translation.activate(initial_language)
 
 class MultilingualSolrSearchQuery(SolrSearchQuery):
     def __init__(self, using=DEFAULT_ALIAS):
