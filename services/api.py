@@ -18,7 +18,7 @@ from haystack.inputs import AutoQuery
 from services.models import *
 from munigeo.models import *
 from munigeo.api import AdministrativeDivisionSerializer, GeoModelSerializer, \
-    GeoModelViewSet
+    GeoModelAPIView
 
 # This allows us to find a serializer for Haystack search results
 serializers_by_model = {}
@@ -144,7 +144,7 @@ def make_muni_ocd_id(name, rest=None):
     return s
 
 
-class UnitViewSet(GeoModelViewSet, viewsets.ReadOnlyModelViewSet):
+class UnitViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
     queryset = Unit.objects.select_related('organization').prefetch_related('services')
     serializer_class = UnitSerializer
     filter_fields = ['services']
@@ -225,7 +225,7 @@ class SearchSerializer(serializers.Serializer):
         return data
 
 
-class SearchViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
+class SearchViewSet(GeoModelAPIView, viewsets.ViewSetMixin, generics.ListAPIView):
     serializer_class = SearchSerializer
 
     def list(self, request, *args, **kwargs):
