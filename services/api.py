@@ -166,7 +166,7 @@ class UnitViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
             try:
                 muni = Municipality.objects.get(ocd_id=ocd_id)
             except Municipality.DoesNotExist:
-                raise InvalidFilterError("municipality with ID '%s' not found" % ocd_id)
+                raise ParseError("municipality with ID '%s' not found" % ocd_id)
 
             queryset = queryset.filter(location__within=muni.geometry.boundary)
 
@@ -189,17 +189,17 @@ class UnitViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
                     muni_ocd_id = division_path
                 else:
                     ocd_id_base = r'[\w0-9~_.-]+'
-                    match_re = r'(%s)/([\w_]+):(%s)' % (ocd_id_base, ocd_id_base)
+                    match_re = r'(%s)/([\w_-]+):(%s)' % (ocd_id_base, ocd_id_base)
                     m = re.match(match_re, division_path, re.U)
                     if not m:
-                        raise InvalidFilterError("'division' must be of form 'muni/type:id'")
+                        raise ParseError("'division' must be of form 'muni/type:id'")
 
                     arr = division_path.split('/')
                     muni_ocd_id = make_muni_ocd_id(arr.pop(0), '/'.join(arr))
                 try:
                     div = AdministrativeDivision.objects.select_related('geometry').get(ocd_id=muni_ocd_id)
                 except AdministrativeDivision.DoesNotExist:
-                    raise InvalidFilterError("administrative division with OCD ID '%s' not found" % muni_ocd_id)
+                    raise ParseError("administrative division with OCD ID '%s' not found" % muni_ocd_id)
                 div_list.append(div)
 
             div_geom = [div.geometry.boundary for div in div_list]
