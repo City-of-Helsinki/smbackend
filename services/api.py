@@ -61,7 +61,6 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
                 key = "%s_%s" % (field_name, lang)
                 if key in self.fields:
                     del self.fields[key]
-            del self.fields[field_name]
 
     def to_native(self, obj):
         ret = super(TranslatedModelSerializer, self).to_native(obj)
@@ -69,6 +68,8 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
             return ret
 
         for field_name in self.translated_fields:
+            if not field_name in self.fields:
+                continue
             d = {}
             for lang in LANGUAGES:
                 key = "%s_%s" % (field_name, lang)  
@@ -131,8 +132,59 @@ class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
 
 register_view(ServiceViewSet, 'service')
 
+class JSONAPISerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super(JSONAPISerializer, self).__init__(*args, **kwargs)
+        context = kwargs.get('context', {})
+        if 'only' in context:
+            keep_fields = set(context['only'] + ['id'])
+            for field_name in list(self.fields.keys()):
+                if field_name in keep_fields:
+                    continue
+                del self.fields[field_name]
 
-class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer):
+class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
+    def initial(self, request, *args, **kwargs):
+        ret = super(JSONAPIViewSet, self).initial(request, *args, **kwargs)
+
+        include = self.request.QUERY_PARAMS.get('include', '')
+        self.include_fields = [x.strip() for x in include.split(',') if x]
+
+        only = self.request.QUERY_PARAMS.get('only', '')
+        if only:
+            self.only_fields = [x.strip() for x in only.split(',') if x]
+        else:
+            self.only_fields = None
+
+        return ret
+
+    def get_queryset(self):
+        queryset = super(JSONAPIViewSet, self).get_queryset()
+        model = queryset.model
+        if self.only_fields:
+            model_fields = model._meta.fields
+            # Verify all field names are valid
+            for field_name in self.only_fields:
+                for field in model_fields:
+                    if field.name == field_name:
+                        break
+                else:
+                    raise ParseError("field '%s' supplied in 'only' not found" % field_name)
+            queryset = queryset.only(*self.only_fields)
+        return queryset
+
+    def get_serializer_context(self):
+        context = super(JSONAPIViewSet, self).get_serializer_context()
+
+        context['include'] = self.include_fields
+        if self.only_fields:
+            context['only'] = self.only_fields
+
+        return context
+
+
+class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer,
+                     JSONAPISerializer):
     class Meta:
         model = Unit
 
@@ -144,8 +196,8 @@ def make_muni_ocd_id(name, rest=None):
     return s
 
 
-class UnitViewSet(GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
-    queryset = Unit.objects.select_related('organization').prefetch_related('services')
+class UnitViewSet(GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
+    queryset = Unit.objects.all()
     serializer_class = UnitSerializer
     filter_fields = ['services']
 
