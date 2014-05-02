@@ -185,8 +185,19 @@ class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
 
 class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer,
                      JSONAPISerializer):
+
+    def __init__(self, *args, **kwargs):
+        super(UnitSerializer, self).__init__(*args, **kwargs)
+        self.fields['root_services'] = serializers.SerializerMethodField('root_services')
+
     class Meta:
         model = Unit
+
+    def root_services(self, obj):
+        tree_ids = set(s.tree_id for s in obj.services.all())
+        return map(lambda x: x.id,
+                   Service.objects.filter(level=0).filter(
+                       tree_id__in=tree_ids))
 
 
 def make_muni_ocd_id(name, rest=None):
