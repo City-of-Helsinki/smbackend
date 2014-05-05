@@ -111,8 +111,22 @@ class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
 register_view(DepartmentViewSet, 'department')
 
 
+
+def root_services(services):
+    tree_ids = set(s.tree_id for s in services)
+    return map(lambda x: x.id,
+               Service.objects.filter(level=0).filter(
+                   tree_id__in=tree_ids))
+
 class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer):
     children = serializers.PrimaryKeyRelatedField(many=True)
+
+    def __init__(self, *args, **kwargs):
+        super(ServiceSerializer, self).__init__(*args, **kwargs)
+        self.fields['root'] = serializers.SerializerMethodField('root_services')
+
+    def root_services(self, obj):
+        return next(root_services([obj]))
 
     class Meta:
         model = Service
@@ -190,14 +204,12 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
         super(UnitSerializer, self).__init__(*args, **kwargs)
         self.fields['root_services'] = serializers.SerializerMethodField('root_services')
 
+    def root_services(self, obj):
+        return root_services(obj.services.all())
+
     class Meta:
         model = Unit
 
-    def root_services(self, obj):
-        tree_ids = set(s.tree_id for s in obj.services.all())
-        return map(lambda x: x.id,
-                   Service.objects.filter(level=0).filter(
-                       tree_id__in=tree_ids))
 
 
 def make_muni_ocd_id(name, rest=None):
