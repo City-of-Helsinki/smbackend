@@ -245,6 +245,11 @@ class UnitViewSet(GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet
 
             queryset = queryset.filter(location__within=muni.geometry.boundary)
 
+        if 'provider_type' in filters:
+            val = filters.get('provider_type')
+            pr_ids = val.split(',')
+            queryset = queryset.filter(provider_type__in=pr_ids)
+
         val = filters.get('service', '').lower()
         if val:
             query = Q()
