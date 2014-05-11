@@ -4,6 +4,7 @@ import sys
 import re
 from datetime import datetime
 from optparse import make_option
+import logging
 
 import requests
 import requests_cache
@@ -318,6 +319,7 @@ class Command(BaseCommand):
         if not getattr(self, 'dept_syncher', None):
             self.import_departments(noop=True)
 
+        self.logger.info("Fetching units")
         if self.options['single']:
             obj_id = self.options['single']
             obj_list = [self.pk_get('unit', obj_id)]
@@ -325,6 +327,18 @@ class Command(BaseCommand):
         else:
             obj_list = self.pk_get('unit')
             queryset = Unit.objects.all().select_related('services', 'keywords')
+
+        self.logger.info("Fetching unit connections")
+        if self.options['single']:
+            connections = [self.pk_get('connection', obj_id)]
+        else:
+            connections = self.pk_get('connection')
+        conn_by_unit = {}
+        for conn in connections:
+            unit_id = conn['unit_id']
+            if unit_id not in conn_by_unit:
+                conn_by_unit[unit_id] = []
+            conn_by_unit[unit_id].append(conn)
 
         self.target_srid = settings.PROJECTION_SRID
         self.bounding_box = Polygon.from_bbox(settings.BOUNDING_BOX)
@@ -337,6 +351,8 @@ class Command(BaseCommand):
 
         syncher = ModelSyncher(queryset, lambda obj: obj.id)
         for idx, info in enumerate(obj_list):
+            conn_list = conn_by_unit.get(info['id'], [])
+            info['connections'] = conn_list
             self._import_unit(syncher, info)
         syncher.finish()
 
@@ -344,6 +360,7 @@ class Command(BaseCommand):
         self.options = options
         self.org_syncher = None
         self.dept_syncher = None
+        self.logger = logging.getLogger(__name__)
 
         if options['cached']:
             requests_cache.install_cache('services_import')
