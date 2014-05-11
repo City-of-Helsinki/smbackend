@@ -192,15 +192,6 @@ class Command(BaseCommand):
             obj._changed = True
 
         if 'dept_id' in info:
-            new_dept = None
-            if info['dept_id'] == 'TASKE':
-                print("Overriding department for %s" % info['name_fi'])
-                info['dept_id'] = 'KANSLIA'
-            elif info['dept_id'] in ('1008-NOBIL', '1009-ULK'):
-                print("Removing %s dept from %s" % (info['dept_id'], info['name_fi']))
-                del info['dept_id']
-
-        if 'dept_id' in info:
             dept_id = info['dept_id']
             if self.dept_syncher:
                 dept = self.dept_syncher.get(dept_id)
