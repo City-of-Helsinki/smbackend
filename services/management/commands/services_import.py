@@ -33,6 +33,7 @@ class Command(BaseCommand):
     ))
 
     importer_types = ['organizations', 'departments', 'units', 'services']
+    supported_languages = ['fi', 'sv', 'en']
 
     def __init__(self):
         super(Command, self).__init__()
@@ -164,6 +165,26 @@ class Command(BaseCommand):
             syncher.mark(obj)
         syncher.finish()
 
+    def _save_searchwords(self, obj, info, language):
+        field_name = 'extra_searchwords_%s' % language
+        if not field_name in info:
+            new_kw_set = set()
+        else:
+            kws = [x.strip() for x in info[field_name].split(',')]
+            kws = [x for x in kws if x]
+            new_kw_set = set()
+            for kw in kws:
+                if not kw in self.keywords[language]:
+                    kw_obj = Keyword(name=kw, language=language)
+                    kw_obj.save()
+                    self.keywords[language][kw] = kw_obj
+                    self.keywords_by_id[kw_obj.pk] = kw_obj
+                else:
+                    kw_obj = self.keywords[language][kw]
+                new_kw_set.add(kw_obj.pk)
+
+        obj.new_keywords |= new_kw_set
+
     @db.transaction.atomic
     def _import_unit(self, syncher, info):
         obj = syncher.get(info['id'])
@@ -254,6 +275,7 @@ class Command(BaseCommand):
                 verb = "changed"
             print("%s %s" % (obj, verb))
             obj.origin_last_modified_time = datetime.now(UTC_TIMEZONE)
+            obj._changed = False
             obj.save()
 
         service_ids = sorted(info.get('service_ids', []))
@@ -262,10 +284,35 @@ class Command(BaseCommand):
             if not obj._created:
                 print("%s service set changed: %s -> %s" % (obj, obj_service_ids, service_ids))
             obj.services = service_ids
+            obj._changed = True
+
+
+        obj.new_keywords = set()
+        for lang in self.supported_languages:
+            self._save_searchwords(obj, info, lang)
+
+        old_kw_set = set(obj.keywords.all().values_list('pk', flat=True))
+        if old_kw_set != obj.new_keywords:
+            old_kw_str = ', '.join([self.keywords_by_id[x].name for x in old_kw_set])
+            new_kw_str = ', '.join([self.keywords_by_id[x].name for x in obj.new_keywords])
+            print("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
+            obj.keywords = list(obj.new_keywords)
+            obj._changed = True
+
+        if obj._changed:
+            obj.origin_last_modified_time = datetime.now(UTC_TIMEZONE)
+            obj.save(update_fields=['origin_last_modified_time'])
 
         syncher.mark(obj)
 
     def import_units(self):
+        self.keywords = {}
+        for lang in self.supported_languages:
+            kw_list = Keyword.objects.filter(language=lang)
+            kw_dict = {kw.name: kw for kw in kw_list}
+            self.keywords[lang] = kw_dict
+        self.keywords_by_id = {kw.pk: kw for kw in Keyword.objects.all()}
+
         if not getattr(self, 'org_syncher', None):
             self.import_organizations(noop=True)
         if not getattr(self, 'dept_syncher', None):
@@ -277,7 +324,7 @@ class Command(BaseCommand):
             queryset = Unit.objects.filter(id=obj_id)
         else:
             obj_list = self.pk_get('unit')
-            queryset = Unit.objects.all().select_related('services')
+            queryset = Unit.objects.all().select_related('services', 'keywords')
 
         self.target_srid = settings.PROJECTION_SRID
         self.bounding_box = Polygon.from_bbox(settings.BOUNDING_BOX)

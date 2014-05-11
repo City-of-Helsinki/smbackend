@@ -18,6 +18,14 @@ def get_translated(obj, attr):
     return val
 
 
+class Keyword(models.Model):
+    language = models.CharField(max_length=10, choices=settings.LANGUAGES, db_index=True)
+    name = models.CharField(max_length=100, db_index=True)
+
+    class Meta:
+        unique_together = (('language', 'name'),)
+
+
 class ServiceQuerySet(QuerySet):
     def by_ancestor(self, ancestor):
         manager = self.model.objects
@@ -102,6 +110,7 @@ class Unit(models.Model):
 
     services = models.ManyToManyField(Service)
     divisions = models.ManyToManyField(AdministrativeDivision)
+    keywords = models.ManyToManyField(Keyword)
 
     objects = models.GeoManager()
 
