@@ -6,6 +6,8 @@ from mptt.models import MPTTModel, TreeForeignKey, TreeManager
 from django.conf import settings
 from django.db.models import Q
 
+from munigeo.models import AdministrativeDivision, Municipality
+
 DEFAULT_LANG = settings.LANGUAGES[0][0]
 
 def get_translated(obj, attr):
@@ -91,6 +93,7 @@ class Unit(models.Model):
     email = models.EmailField(max_length=50, null=True)
     www_url = models.URLField(max_length=400, null=True)
     address_postal_full = models.CharField(max_length=100, null=True)
+    municipality = models.ForeignKey(Municipality, null=True, db_index=True)
 
     picture_url = models.URLField(max_length=200, null=True)
     picture_caption = models.CharField(max_length=200, null=True)
@@ -98,6 +101,7 @@ class Unit(models.Model):
     origin_last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
     services = models.ManyToManyField(Service)
+    divisions = models.ManyToManyField(AdministrativeDivision)
 
     objects = models.GeoManager()
 
