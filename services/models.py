@@ -18,12 +18,16 @@ def get_translated(obj, attr):
     return val
 
 
+@python_2_unicode_compatible
 class Keyword(models.Model):
     language = models.CharField(max_length=10, choices=settings.LANGUAGES, db_index=True)
     name = models.CharField(max_length=100, db_index=True)
 
     class Meta:
         unique_together = (('language', 'name'),)
+
+    def __str__(self):
+        return "%s (%s)" % (self.name, self.language)
 
 
 class ServiceQuerySet(QuerySet):
@@ -82,6 +86,7 @@ class Department(models.Model):
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
+
 @python_2_unicode_compatible
 class Unit(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -112,7 +117,23 @@ class Unit(models.Model):
     divisions = models.ManyToManyField(AdministrativeDivision)
     keywords = models.ManyToManyField(Keyword)
 
+    connection_hash = models.CharField(max_length=40, null=True,
+        help_text='Automatically generated hash of connection info')
+
     objects = models.GeoManager()
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
+
+
+@python_2_unicode_compatible
+class UnitConnection(models.Model):
+    unit = models.ForeignKey(Unit, db_index=True, related_name='connections')
+    type = models.IntegerField()
+    name = models.CharField(max_length=400)
+    www_url = models.URLField(null=True, max_length=400)
+    section = models.CharField(max_length=20)
+    contact_person = models.CharField(max_length=50, null=True)
+    email = models.CharField(max_length=50, null=True)
+    phone = models.CharField(max_length=50, null=True)
+    phone_mobile = models.CharField(max_length=50, null=True)

@@ -2,9 +2,11 @@
 
 import sys
 import re
+import json
 from datetime import datetime
 from optparse import make_option
 import logging
+import hashlib
 
 import requests
 import requests_cache
@@ -62,13 +64,16 @@ class Command(BaseCommand):
         assert resp.status_code == 200
         return resp.json()
 
-    def _save_translated_field(self, obj, obj_field_name, info, info_field_name):
+    def _save_translated_field(self, obj, obj_field_name, info, info_field_name, max_length=None):
         args = {}
         for lang in ('fi', 'sv', 'en'):
             key = '%s_%s' % (info_field_name, lang)
             if key in info:
                 val = self.clean_text(info[key])
             else:
+                val = None
+            if max_length and val and len(val) > max_length:
+                self.logger.warning("%s: field '%s' too long" % (obj, obj_field_name))
                 val = None
             obj_key = '%s_%s' % (obj_field_name, lang)
             obj_val = getattr(obj, obj_key, None)
@@ -299,6 +304,46 @@ class Command(BaseCommand):
             print("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
             obj.keywords = list(obj.new_keywords)
             obj._changed = True
+
+        if info['connections']:
+            conn_json = json.dumps(info['connections'], ensure_ascii=False, sort_keys=True).encode('utf8')
+            conn_hash = hashlib.sha1(conn_json).hexdigest()
+        else:
+            conn_hash = None
+
+        if obj.connection_hash != conn_hash:
+            self.logger.info("%s connection set changed (%s vs. %s)" % (obj, obj.connection_hash, conn_hash))
+            obj.connections.all().delete()
+            for conn in info['connections']:
+                c = UnitConnection(unit=obj)
+                self._save_translated_field(c, 'name', conn, 'name', max_length=400)
+                self._save_translated_field(c, 'www_url', conn, 'www')
+                c.section = conn['section_type'].lower()
+                c.type = int(conn['connection_type'])
+                fields = ['contact_person', 'email', 'phone', 'phone_mobile']
+                for field in fields:
+                    val = info.get(field, None)
+                    if getattr(c, field) != val:
+                        setattr(c, field, val)
+                        c._changed = True
+                c.save()
+            obj.connection_hash = conn_hash
+            obj.save(update_fields=['connection_hash'])
+
+        """
+        conn_by_type = {}
+        for conn in info['connections']:
+            conn_type = key_from_conn(conn)
+            if conn_type not in conn_by_type:
+                conn_by_type[conn_type] = {}
+            d = conn_by_type[conn_type]
+            for key, val in conn.items():
+                if key in d:
+                    if d[key] != val:
+                        self.logger.warning("%s: conflict in connections (%s vs. %s)" % (obj, d[key], val))
+                else:
+                    d[key] = val
+        """
 
         if obj._changed:
             obj.origin_last_modified_time = datetime.now(UTC_TIMEZONE)
