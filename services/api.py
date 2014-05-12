@@ -197,8 +197,19 @@ class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
         return context
 
 
+class UnitConnectionSerializer(TranslatedModelSerializer):
+    class Meta:
+        model = UnitConnection
+
+class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = UnitConnection.objects.all()
+    serializer_class = UnitConnectionSerializer
+
+register_view(UnitConnectionViewSet, 'unit_connection')
+
 class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer,
                      JSONAPISerializer):
+    connections = UnitConnectionSerializer(many=True)
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
