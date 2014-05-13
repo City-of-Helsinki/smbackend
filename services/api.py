@@ -210,10 +210,10 @@ register_view(UnitConnectionViewSet, 'unit_connection')
 class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer,
                      JSONAPISerializer):
     connections = UnitConnectionSerializer(many=True)
-    root_services = serializers.SerializerMethodField('root_services')
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
+        self.fields['root_services'] = serializers.SerializerMethodField('root_services')
 
     def to_native(self, obj):
         ret = super(UnitSerializer, self).to_native(obj)
