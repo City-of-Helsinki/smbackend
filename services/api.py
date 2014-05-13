@@ -4,7 +4,7 @@ import re
 from django.conf import settings
 from django.utils import translation
 from django.db.models import Q
-from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection
+from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection, Point
 from django.contrib.gis.db.models.fields import GeometryField
 from django.contrib.gis.gdal import CoordTransform
 from modeltranslation.translator import translator, NotRegistered
@@ -215,6 +215,12 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
 
+    def to_native(self, obj):
+        ret = super(UnitSerializer, self).to_native(obj)
+        if hasattr(obj, 'distance'):
+            ret['distance'] = obj.distance.m
+        return ret
+
     def root_services(self, obj):
         return root_services(obj.services.all())
 
@@ -233,7 +239,6 @@ def make_muni_ocd_id(name, rest=None):
 class UnitViewSet(GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
-    filter_fields = ['services']
 
     def get_serializer_context(self):
         ret = super(UnitViewSet, self).get_serializer_context()
@@ -261,8 +266,9 @@ class UnitViewSet(GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet
             pr_ids = val.split(',')
             queryset = queryset.filter(provider_type__in=pr_ids)
 
-        val = filters.get('service', '').lower()
+        val = filters.get('service', None)
         if val:
+            val = val.lower()
             query = Q()
             for srv_id in val.split(','):
                 srv_list = Service.objects.all().by_ancestor(srv_id)
@@ -300,6 +306,15 @@ class UnitViewSet(GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet
                     mp += div.geometry.boundary
 
             queryset = queryset.filter(location__within=mp)
+
+        if 'lat' in filters and 'lon' in filters:
+            try:
+                lat = float(filters['lat'])
+                lon = float(filters['lon'])
+            except ValueError:
+                raise ParseError("'lat' and 'lon' need to be floating point numbers")
+            point = Point(lon, lat, srid=4326)
+            queryset = queryset.distance(point).order_by('distance')
 
         return queryset
 
