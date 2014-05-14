@@ -217,7 +217,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
 
     def to_native(self, obj):
         ret = super(UnitSerializer, self).to_native(obj)
-        if hasattr(obj, 'distance'):
+        if hasattr(obj, 'distance') and obj.distance:
             ret['distance'] = obj.distance.m
         return ret
 
