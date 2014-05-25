@@ -62,10 +62,13 @@ class Service(MPTTModel):
     name = models.CharField(max_length=200, db_index=True)
     parent = TreeForeignKey('self', null=True, related_name='children')
 
+    identical_to = models.ForeignKey('self', null=True, related_name='duplicates')
+
     objects = ServiceManager()
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
+
 
 @python_2_unicode_compatible
 class Organization(models.Model):

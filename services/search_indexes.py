@@ -19,3 +19,6 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return Service
+
+    def index_queryset(self, using=None):
+        return self.get_model().objects.filter(identical_to=None)

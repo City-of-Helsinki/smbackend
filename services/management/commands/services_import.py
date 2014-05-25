@@ -7,6 +7,7 @@ from datetime import datetime
 from optparse import make_option
 import logging
 import hashlib
+from pprint import pprint
 
 import requests
 import requests_cache
@@ -35,7 +36,7 @@ class Command(BaseCommand):
         make_option('--single', dest='single', action='store', metavar='ID', type='string', help='import only single entity'),
     ))
 
-    importer_types = ['organizations', 'departments', 'units', 'services']
+    importer_types = ['organizations', 'departments', 'services', 'units']
     supported_languages = ['fi', 'sv', 'en']
 
     def __init__(self):
@@ -45,6 +46,7 @@ class Command(BaseCommand):
             assert getattr(self, method, False), "No importer defined for %s" % method
             opt = make_option('--%s' % imp, dest=imp, action='store_true', help='import %s' % imp)
             self.option_list.append(opt)
+        self.services = {}
 
     def clean_text(self, text):
         #text = text.replace('\n', ' ')
@@ -84,6 +86,15 @@ class Command(BaseCommand):
             if lang == 'fi':
                 setattr(obj, obj_field_name, val)
             obj._changed = True
+
+    def _set_field(self, obj, field_name, val):
+        if not hasattr(obj, field_name):
+            print(vars(obj))
+        obj_val = getattr(obj, field_name)
+        if obj_val == val:
+            return
+        setattr(obj, field_name, val)
+        obj._changed = True
 
     @db.transaction.atomic
     def import_organizations(self, noop=False):
@@ -145,17 +156,97 @@ class Command(BaseCommand):
 
         syncher.finish()
 
+    def mark_service_depths(self, service_dict, srv, level):
+        srv['level'] = level
+        if not 'child_ids' in srv:
+            return
+        for child_id in srv['child_ids']:
+            child = service_dict[child_id]
+            self.mark_service_depths(service_dict, child, level + 1)
+
+    def detect_duplicate_services(self, service_list):
+        service_dict = {srv['id']: srv for srv in service_list}
+        # Mark the tree depth for each service for later sorting starting
+        # from root nodes.
+        for srv in service_list:
+            if not 'parent_id' in srv:
+                self.mark_service_depths(service_dict, srv, 0)
+            srv['units'] = []
+            srv['child_ids_dupes'] = srv['child_ids']
+
+        unit_list = self._fetch_units()
+
+        for unit in unit_list:
+            service_ids = sorted(unit.get('service_ids', []))
+            # Make note of what units supply each service. If the unit sets
+            # and names for services match, we treat them as identical.
+            for srv_id in service_ids:
+                srv = service_dict[srv_id]
+                srv['units'].append(unit['id'])
+
+        srv_by_name = {}
+        for srv in service_list:
+            name = srv['name_fi'].lower()
+            if name not in srv_by_name:
+                srv_by_name[name] = []
+            srv_by_name[name].append(srv)
+
+        count = 0
+        # Go through the list starting from the leaves.
+        for srv in sorted(service_list, key=lambda x: (-x['level'], x['id'])):
+            srv['duplicates'] = []
+            if 'identical_to' in srv:
+                continue
+            duplicate_names = srv_by_name[srv['name_fi'].lower()]
+            if len(duplicate_names) < 2:
+                continue
+            for srv2 in duplicate_names:
+                if srv2 == srv:
+                    continue
+                un1 = sorted(srv['units'])
+                un2 = sorted(srv2['units'])
+                if un1 != un2:
+                    continue
+                ch1 = sorted(srv['child_ids_dupes'])
+                ch2 = sorted(srv2['child_ids_dupes'])
+                if ch1 != ch2:
+                    continue
+                srv['duplicates'].append(srv2['id'])
+                srv2['identical_to'] = srv['id']
+                if 'parent_id' in srv2:
+                    # Replace the ID of the child with the ID of the duplicate
+                    parent = service_dict[srv2['parent_id']]
+                    parent['child_ids_dupes'] = [srv['id'] if x == srv2['id'] else x for x in parent['child_ids_dupes']]
+                count += 1
+
+        self.logger.info("Found %d duplicate services" % count)
+
     @db.transaction.atomic
     def import_services(self):
-        obj_list = self.pk_get('service')
+        srv_list = self.pk_get('service')
         syncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
 
-        for d in obj_list:
+        self.detect_duplicate_services(srv_list)
+
+        dupes = []
+        for d in srv_list:
             obj = syncher.get(d['id'])
             if not obj:
                 obj = Service(id=d['id'])
                 obj._changed = True
             self._save_translated_field(obj, 'name', d, 'name')
+
+            if 'identical_to' in d:
+                master = syncher.get(d['identical_to'])
+                # If the master entry hasn't been saved yet, we save the
+                # duplicate information later.
+                if not master:
+                    dupes.append((obj, d['identical_to']))
+                    d['identical_to'] = None
+            else:
+                d['identical_to'] = None
+
+            self._set_field(obj, 'identical_to_id', d['identical_to'])
 
             if 'parent_id' in d:
                 parent = syncher.get(d['parent_id'])
@@ -169,6 +260,11 @@ class Command(BaseCommand):
             if obj._changed:
                 obj.save()
             syncher.mark(obj)
+
+        for obj, master_id in dupes:
+            obj.identical_to_id = master_id
+            obj.save(update_fields=['identical_to'])
+
         syncher.finish()
 
     def _save_searchwords(self, obj, info, language):
@@ -284,6 +380,7 @@ class Command(BaseCommand):
             obj._changed = False
             obj.save()
 
+
         service_ids = sorted(info.get('service_ids', []))
         obj_service_ids = sorted(obj.services.values_list('id', flat=True))
         if obj_service_ids != service_ids:
@@ -304,6 +401,7 @@ class Command(BaseCommand):
             print("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
             obj.keywords = list(obj.new_keywords)
             obj._changed = True
+
 
         if info['connections']:
             conn_json = json.dumps(info['connections'], ensure_ascii=False, sort_keys=True).encode('utf8')
@@ -330,6 +428,7 @@ class Command(BaseCommand):
             obj.connection_hash = conn_hash
             obj.save(update_fields=['connection_hash'])
 
+
         """
         conn_by_type = {}
         for conn in info['connections']:
@@ -351,6 +450,14 @@ class Command(BaseCommand):
 
         syncher.mark(obj)
 
+    def _fetch_units(self):
+        if hasattr(self, 'unit_list'):
+            return self.unit_list
+        self.logger.info("Fetching units")
+        obj_list = self.pk_get('unit')
+        self.unit_list = obj_list
+        return obj_list
+
     def import_units(self):
         self.keywords = {}
         for lang in self.supported_languages:
@@ -364,13 +471,12 @@ class Command(BaseCommand):
         if not getattr(self, 'dept_syncher', None):
             self.import_departments(noop=True)
 
-        self.logger.info("Fetching units")
         if self.options['single']:
             obj_id = self.options['single']
             obj_list = [self.pk_get('unit', obj_id)]
             queryset = Unit.objects.filter(id=obj_id)
         else:
-            obj_list = self.pk_get('unit')
+            obj_list = self._fetch_units()
             queryset = Unit.objects.all().select_related('services', 'keywords')
 
         self.logger.info("Fetching unit connections")
