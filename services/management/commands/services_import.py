@@ -228,8 +228,36 @@ class Command(BaseCommand):
 
         self.detect_duplicate_services(srv_list)
 
+        additional_root_services = [
+            {
+                'name_fi': 'Asuminen ja kaupunkiympäristö',
+                'name_en': 'Housing and urban environment',
+                'id': 50000
+            }, {
+                'name_fi': 'Työ, talous ja hallinto',
+                'name_en': 'Employment, economy and administration',
+                'id': 50001
+            }, {
+                'name_fi': 'Kulttuuri, liikunta ja vapaa-aika',
+                'name_en': 'Culture, sports and leisure',
+                'id': 50002
+            }, {
+                'name_fi': 'Liikenne ja kartat',
+                'name_en': 'Traffic and maps',
+                'id': 50003
+            },
+        ]
+
+        service_to_new_root = {
+            25298: 50000, 25142: 50000,
+            26098: 50001, 26300: 50001, 26244: 50001,
+            25622: 50002, 28128: 50002, 25954: 50002,
+            25554: 50003, 25476: 50003
+        }
+
         dupes = []
-        for d in srv_list:
+
+        def handle_service(d):
             obj = syncher.get(d['id'])
             if not obj:
                 obj = Service(id=d['id'])
@@ -248,6 +276,10 @@ class Command(BaseCommand):
 
             self._set_field(obj, 'identical_to_id', d['identical_to'])
 
+            new_root = service_to_new_root.get(d['id'])
+            if new_root:
+                d['parent_id'] = new_root
+
             if 'parent_id' in d:
                 parent = syncher.get(d['parent_id'])
                 assert parent
@@ -260,6 +292,11 @@ class Command(BaseCommand):
             if obj._changed:
                 obj.save()
             syncher.mark(obj)
+
+        for d in additional_root_services:
+            handle_service(d)
+        for d in srv_list:
+            handle_service(d)
 
         for obj, master_id in dupes:
             obj.identical_to_id = master_id
