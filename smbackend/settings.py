@@ -41,7 +41,6 @@ INSTALLED_APPS = (
     'modeltranslation',
     'haystack',
     'south',
-
     'munigeo',
     'services',
 )
