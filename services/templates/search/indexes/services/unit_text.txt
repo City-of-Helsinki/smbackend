@@ -1,0 +1,6 @@
+{{object.name}}
+{% for kw in object.lang_keywords %}
+{{kw.name}}
+{% endfor %}
+{{object.description}}
+{{object.street_address}}

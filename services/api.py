@@ -219,7 +219,12 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
         ret = super(UnitSerializer, self).to_native(obj)
         if hasattr(obj, 'distance') and obj.distance:
             ret['distance'] = obj.distance.m
-        if 'include' in self.context and 'department' in self.context['include']:
+
+        if 'keywords' in ret:
+            ret['keywords'] = [{'language': kw.language, 'name': kw.name} for kw in obj.keywords.all()]
+
+        include_fields = self.context.get('include', [])
+        if 'department' in include_fields:
             dep_json = DepartmentSerializer(obj.department, context=self.context).data
             ret['department'] = dep_json
         return ret
