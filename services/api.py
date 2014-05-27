@@ -219,7 +219,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
         ret = super(UnitSerializer, self).to_native(obj)
         if hasattr(obj, 'distance') and obj.distance:
             ret['distance'] = obj.distance.m
-        if 'department' in self.context['include']:
+        if 'include' in self.context and 'department' in self.context['include']:
             dep_json = DepartmentSerializer(obj.department, context=self.context).data
             ret['department'] = dep_json
         return ret
@@ -229,7 +229,6 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
 
     class Meta:
         model = Unit
-
 
 
 def make_muni_ocd_id(name, rest=None):
