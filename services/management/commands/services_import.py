@@ -2,6 +2,7 @@
 
 import sys
 import re
+import os
 import json
 from datetime import datetime
 from optparse import make_option
@@ -351,6 +352,32 @@ class Command(BaseCommand):
             obj.organization = org
             obj._changed = True
 
+        if not 'address_city_fi' in info and 'latitude' in info and 'longitude' in info:
+            self.logger.warning("%s: coordinates present but no city" % obj)
+        municipality_id = None
+        muni_name = info.get('address_city_fi', None)
+        if not muni_name and 'address_zip' in info:
+            muni_name = 'no-city'
+        if muni_name:
+            muni_name = muni_name.lower()
+            if muni_name in ('helsingin kaupunki',):
+                muni_name = 'helsinki'
+            elif muni_name in ('vantaan kaupunki',):
+                muni_name = 'vantaa'
+            elif muni_name in ('espoon kaupunki',):
+                muni_name = 'espoo'
+            if muni_name not in self.muni_by_name:
+                postcode = info.get('address_zip', None)
+                muni_name = self.postcodes.get(postcode, None)
+                if muni_name:
+                    self.logger.warning('%s: municipality to %s based on post code %s (was %s)' % (obj, muni_name, postcode, info.get('address_city_fi')))
+                    muni_name = muni_name.lower()
+            if muni_name:
+                muni = self.muni_by_name[muni_name]
+                municipality_id = muni.id
+
+        self._set_field(obj, 'municipality_id', municipality_id)
+
         if 'dept_id' in info:
             dept_id = info['dept_id']
             if self.dept_syncher:
@@ -495,6 +522,17 @@ class Command(BaseCommand):
         self.unit_list = obj_list
         return obj_list
 
+    def _load_postcodes(self):
+        path = os.path.join(settings.BASE_DIR, 'data', 'fi', 'postcodes.txt')
+        self.postcodes = {}
+        try:
+            f = open(path, 'r')
+        except FileNotFoundError:
+            return
+        for l in f.readlines():
+            code, muni = l.split(',')
+            self.postcodes[code] = muni.strip()
+
     def import_units(self):
         self.keywords = {}
         for lang in self.supported_languages:
@@ -502,6 +540,10 @@ class Command(BaseCommand):
             kw_dict = {kw.name: kw for kw in kw_list}
             self.keywords[lang] = kw_dict
         self.keywords_by_id = {kw.pk: kw for kw in Keyword.objects.all()}
+
+        self._load_postcodes()
+
+        self.muni_by_name = {muni.name_fi.lower(): muni for muni in Municipality.objects.all()}
 
         if not getattr(self, 'org_syncher', None):
             self.import_organizations(noop=True)
