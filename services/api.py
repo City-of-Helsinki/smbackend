@@ -232,7 +232,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
         if 'department' in include_fields:
             dep_json = DepartmentSerializer(obj.department, context=self.context).data
             ret['department'] = dep_json
-        if 'municipality' in include_fields:
+        if 'municipality' in include_fields and obj.municipality:
             muni_json = MunicipalitySerializer(obj.municipality, context=self.context).data
             ret['municipality'] = muni_json
 
