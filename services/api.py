@@ -18,7 +18,7 @@ from haystack.inputs import AutoQuery
 from services.models import *
 from munigeo.models import *
 from munigeo.api import AdministrativeDivisionSerializer, GeoModelSerializer, \
-    GeoModelAPIView
+    GeoModelAPIView, MunicipalitySerializer
 
 # This allows us to find a serializer for Haystack search results
 serializers_by_model = {}
@@ -221,12 +221,21 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
             ret['distance'] = obj.distance.m
 
         if 'keywords' in ret:
-            ret['keywords'] = [{'language': kw.language, 'name': kw.name} for kw in obj.keywords.all()]
+            kw_dict = {}
+            for kw in obj.keywords.all():
+                if not kw.language in kw_dict:
+                    kw_dict[kw.language] = []
+                kw_dict[kw.language].append(kw.name)
+            ret['keywords'] = kw_dict
 
         include_fields = self.context.get('include', [])
         if 'department' in include_fields:
             dep_json = DepartmentSerializer(obj.department, context=self.context).data
             ret['department'] = dep_json
+        if 'municipality' in include_fields:
+            muni_json = MunicipalitySerializer(obj.municipality, context=self.context).data
+            ret['municipality'] = muni_json
+
         return ret
 
     def root_services(self, obj):
