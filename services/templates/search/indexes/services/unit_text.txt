@@ -3,4 +3,7 @@
 {{kw.name}}
 {% endfor %}
 {{object.description}}
+{% if object.municipality %}
+{{object.municipality.name}}
+{% endif %}
 {{object.street_address}}
