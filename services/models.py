@@ -122,11 +122,28 @@ class Unit(models.Model):
 
     connection_hash = models.CharField(max_length=40, null=True,
         help_text='Automatically generated hash of connection info')
+    accessibility_property_hash = models.CharField(max_length=40, null=True,
+        help_text='Automatically generated hash of accessibility property info')
 
     objects = models.GeoManager()
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
+
+
+@python_2_unicode_compatible
+class AccessibilityVariable(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
+class UnitAccessibilityProperty(models.Model):
+    unit = models.ForeignKey(Unit, db_index=True, related_name='accessibility_properties')
+    variable = models.ForeignKey(AccessibilityVariable)
+    value = models.CharField(max_length=100)
 
 
 @python_2_unicode_compatible

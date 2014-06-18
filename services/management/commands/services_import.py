@@ -473,6 +473,13 @@ class Command(BaseCommand):
         else:
             conn_hash = None
 
+        if info['accessibility_properties']:
+            acp_json = json.dumps(info['accessibility_properties'], ensure_ascii=False, sort_keys=True).encode('utf8')
+            acp_hash = hashlib.sha1(acp_json).hexdigest()
+        else:
+            acp_hash = None
+
+
         if obj.connection_hash != conn_hash:
             self.logger.info("%s connection set changed (%s vs. %s)" % (obj, obj.connection_hash, conn_hash))
             obj.connections.all().delete()
@@ -492,6 +499,25 @@ class Command(BaseCommand):
             obj.connection_hash = conn_hash
             obj.save(update_fields=['connection_hash'])
 
+
+        if obj.accessibility_property_hash != acp_hash:
+            self.logger.info("%s accessibility property set changed (%s vs. %s)" %
+                             (obj, obj.accessibility_property_hash, acp_hash))
+            obj.accessibility_properties.all().delete()
+            for acp in info['accessibility_properties']:
+                uap = UnitAccessibilityProperty(unit=obj)
+                var_id = acp['variable_id']
+                if var_id not in self.accessibility_variables:
+                    var = AccessibilityVariable(id=var_id, name=acp['variable_name'])
+                    var.save()
+                else:
+                    var = self.accessibility_variables[var_id]
+                uap.variable = var
+                uap.value = acp['value']
+                uap.save()
+
+            obj.accessibility_property_hash = acp_hash
+            obj.save(update_fields=['accessibility_property_hash'])
 
         """
         conn_by_type = {}
@@ -570,6 +596,19 @@ class Command(BaseCommand):
                 conn_by_unit[unit_id] = []
             conn_by_unit[unit_id].append(conn)
 
+        self.accessibility_variables = {x.id: x for x in AccessibilityVariable.objects.all()}
+        self.logger.info("Fetching accessibility properties")
+        if self.options['single']:
+            acc_properties = [self.pk_get('accessibility_property', obj_id)]
+        else:
+            acc_properties = self.pk_get('accessibility_property')
+        acc_by_unit = {}
+        for ap in acc_properties:
+            unit_id = ap['unit_id']
+            if unit_id not in acc_by_unit:
+                acc_by_unit[unit_id] = []
+            acc_by_unit[unit_id].append(ap)
+
         self.target_srid = settings.PROJECTION_SRID
         self.bounding_box = Polygon.from_bbox(settings.BOUNDING_BOX)
         self.bounding_box.set_srid(4326)
@@ -583,6 +622,8 @@ class Command(BaseCommand):
         for idx, info in enumerate(obj_list):
             conn_list = conn_by_unit.get(info['id'], [])
             info['connections'] = conn_list
+            acp_list = acc_by_unit.get(info['id'], [])
+            info['accessibility_properties'] = acp_list
             self._import_unit(syncher, info)
         syncher.finish()
 
