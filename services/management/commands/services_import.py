@@ -292,6 +292,7 @@ class Command(BaseCommand):
 
             if obj._changed:
                 obj.save()
+                self.services_changed = True
             syncher.mark(obj)
 
         for d in additional_root_services:
@@ -451,6 +452,8 @@ class Command(BaseCommand):
             if not obj._created:
                 print("%s service set changed: %s -> %s" % (obj, obj_service_ids, service_ids))
             obj.services = service_ids
+            # Update root service cache
+            obj.root_services = ','.join(str(x) for x in obj.get_root_services())
             obj._changed = True
 
 
@@ -627,11 +630,22 @@ class Command(BaseCommand):
             self._import_unit(syncher, info)
         syncher.finish()
 
+    @db.transaction.atomic
+    def update_root_services(self):
+        print("Updating unit root services...")
+        for unit in Unit.objects.all().only('id', 'root_services'):
+            new_srv_list = ','.join([str(x) for x in unit.get_root_services()])
+            if new_srv_list != unit.root_services:
+                unit.root_services = new_srv_list
+                unit.origin_last_modified_time = datetime.now(UTC_TIMEZONE)
+                unit.save(update_fields=['root_services', 'origin_last_modified_time'])
+
     def handle(self, **options):
         self.options = options
         self.org_syncher = None
         self.dept_syncher = None
         self.logger = logging.getLogger(__name__)
+        self.services_changed = False
 
         if options['cached']:
             requests_cache.install_cache('services_import')
@@ -649,6 +663,10 @@ class Command(BaseCommand):
             print("Importing %s..." % imp)
             method()
             import_count += 1
+
+        if self.services_changed:
+            self.update_root_services()
+
         if not import_count:
             sys.stderr.write("Nothing to import.\n")
         activate(old_lang)

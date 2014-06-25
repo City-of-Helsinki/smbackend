@@ -125,10 +125,19 @@ class Unit(models.Model):
     accessibility_property_hash = models.CharField(max_length=40, null=True,
         help_text='Automatically generated hash of accessibility property info')
 
+    # Cached fields for better performance
+    root_services = models.CommaSeparatedIntegerField(max_length=50, null=True)
+
     objects = models.GeoManager()
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
+
+    def get_root_services(self):
+        tree_ids = self.services.all().values_list('tree_id', flat=True).distinct()
+        qs = Service.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
+        srv_list = qs.values_list('id', flat=True).distinct()
+        return sorted(srv_list)
 
 
 @python_2_unicode_compatible

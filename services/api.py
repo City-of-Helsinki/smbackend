@@ -111,7 +111,6 @@ class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
 register_view(DepartmentViewSet, 'department')
 
 
-
 def root_services(services):
     tree_ids = set(s.tree_id for s in services)
     return map(lambda x: x.id,
@@ -213,7 +212,6 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
-        self.fields['root_services'] = serializers.SerializerMethodField('root_services')
 
     def to_native(self, obj):
         ret = super(UnitSerializer, self).to_native(obj)
@@ -228,6 +226,12 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
                 kw_dict[kw.language].append(kw.name)
             ret['keywords'] = kw_dict
 
+        if 'root_services' in ret:
+            if obj.root_services == None:
+                ret['root_services'] = None
+            else:
+                ret['root_services'] = [int(x) for x in obj.root_services.split(',')]
+
         include_fields = self.context.get('include', [])
         if 'department' in include_fields:
             dep_json = DepartmentSerializer(obj.department, context=self.context).data
@@ -237,9 +241,6 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
             ret['municipality'] = muni_json
 
         return ret
-
-    def root_services(self, obj):
-        return root_services(obj.services.all())
 
     class Meta:
         model = Unit
@@ -286,12 +287,12 @@ class UnitViewSet(GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet
         val = filters.get('service', None)
         if val:
             val = val.lower()
-            query = Q()
+            srv_list = set()
             for srv_id in val.split(','):
-                srv_list = Service.objects.all().by_ancestor(srv_id)
-                query |= Q(services__in=srv_list)
-                query |= Q(services=srv_id)
-            queryset = queryset.filter(query).distinct()
+                srv_list |= set(Service.objects.all().by_ancestor(srv_id).values_list('id', flat=True))
+                srv_list.add(int(srv_id))
+
+            queryset = queryset.filter(services__in=list(srv_list)).distinct()
 
         if 'division' in filters:
             # Divisions can be specified with form:
