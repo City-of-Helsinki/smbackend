@@ -291,6 +291,7 @@ class Command(BaseCommand):
                 obj._changed = True
 
             if obj._changed:
+                obj.unit_count = obj.get_unit_count()
                 obj.save()
                 self.services_changed = True
             syncher.mark(obj)
@@ -452,6 +453,10 @@ class Command(BaseCommand):
             if not obj._created:
                 print("%s service set changed: %s -> %s" % (obj, obj_service_ids, service_ids))
             obj.services = service_ids
+
+            for srv_id in service_ids:
+                self.count_services.add(srv_id)
+
             # Update root service cache
             obj.root_services = ','.join(str(x) for x in obj.get_root_services())
             obj._changed = True
@@ -640,12 +645,29 @@ class Command(BaseCommand):
                 unit.origin_last_modified_time = datetime.now(UTC_TIMEZONE)
                 unit.save(update_fields=['root_services', 'origin_last_modified_time'])
 
+    @db.transaction.atomic
+    def update_unit_counts(self):
+        srv_set = self.count_services
+        current_set = srv_set
+        for i in range(0, 20): # Make sure we don't loop endlessly (shouldn't have 20 deep tree anyway)
+            parent_ids = Service.objects.filter(id__in=current_set).values_list('parent', flat=True)
+            if not parent_ids:
+                break
+            srv_set |= set(parent_ids)
+            current_set = parent_ids
+        print("Updating unit counts for %d services..." % len(srv_set))
+        srv_list = Service.objects.filter(id__in=srv_set)
+        for srv in srv_list:
+            srv.unit_count = srv.get_unit_count()
+            srv.save(update_fields=['unit_count'])
+
     def handle(self, **options):
         self.options = options
         self.org_syncher = None
         self.dept_syncher = None
         self.logger = logging.getLogger(__name__)
         self.services_changed = False
+        self.count_services = set()
 
         if options['cached']:
             requests_cache.install_cache('services_import')
@@ -666,6 +688,8 @@ class Command(BaseCommand):
 
         if self.services_changed:
             self.update_root_services()
+        if self.count_services:
+            self.update_unit_counts()
 
         if not import_count:
             sys.stderr.write("Nothing to import.\n")

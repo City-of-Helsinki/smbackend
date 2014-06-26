@@ -61,6 +61,7 @@ class Service(MPTTModel):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=200, db_index=True)
     parent = TreeForeignKey('self', null=True, related_name='children')
+    unit_count = models.PositiveIntegerField()
 
     identical_to = models.ForeignKey('self', null=True, related_name='duplicates')
 
@@ -68,6 +69,11 @@ class Service(MPTTModel):
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
+
+    def get_unit_count(self):
+        srv_list = set(Service.objects.all().by_ancestor(self).values_list('id', flat=True))
+        srv_list.add(self.id)
+        return Unit.objects.filter(services__in=list(srv_list)).distinct().count()
 
 
 @python_2_unicode_compatible
