@@ -446,6 +446,7 @@ class Command(BaseCommand):
             obj._changed = False
             obj.save()
 
+        update_fields = []
 
         service_ids = sorted(info.get('service_ids', []))
         obj_service_ids = sorted(obj.services.values_list('id', flat=True))
@@ -459,6 +460,7 @@ class Command(BaseCommand):
 
             # Update root service cache
             obj.root_services = ','.join(str(x) for x in obj.get_root_services())
+            update_fields.append('root_services')
             obj._changed = True
 
 
@@ -505,7 +507,7 @@ class Command(BaseCommand):
                         c._changed = True
                 c.save()
             obj.connection_hash = conn_hash
-            obj.save(update_fields=['connection_hash'])
+            update_fields.append('connection_hash')
 
 
         if obj.accessibility_property_hash != acp_hash:
@@ -525,7 +527,7 @@ class Command(BaseCommand):
                 uap.save()
 
             obj.accessibility_property_hash = acp_hash
-            obj.save(update_fields=['accessibility_property_hash'])
+            update_fields.append('accessibility_property_hash')
 
         """
         conn_by_type = {}
@@ -544,7 +546,7 @@ class Command(BaseCommand):
 
         if obj._changed:
             obj.origin_last_modified_time = datetime.now(UTC_TIMEZONE)
-            obj.save(update_fields=['origin_last_modified_time'])
+            obj.save(update_fields=update_fields)
 
         syncher.mark(obj)
 
@@ -642,8 +644,7 @@ class Command(BaseCommand):
             new_srv_list = ','.join([str(x) for x in unit.get_root_services()])
             if new_srv_list != unit.root_services:
                 unit.root_services = new_srv_list
-                unit.origin_last_modified_time = datetime.now(UTC_TIMEZONE)
-                unit.save(update_fields=['root_services', 'origin_last_modified_time'])
+                unit.save(update_fields=['root_services'])
 
     @db.transaction.atomic
     def update_unit_counts(self):
