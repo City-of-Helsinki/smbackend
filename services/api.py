@@ -117,7 +117,18 @@ def root_services(services):
                Service.objects.filter(level=0).filter(
                    tree_id__in=tree_ids))
 
-class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer):
+class JSONAPISerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super(JSONAPISerializer, self).__init__(*args, **kwargs)
+        context = kwargs.get('context', {})
+        if 'only' in context:
+            keep_fields = set(context['only'] + ['id'])
+            for field_name in list(self.fields.keys()):
+                if field_name in keep_fields:
+                    continue
+                del self.fields[field_name]
+
+class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
     children = serializers.PrimaryKeyRelatedField(many=True)
 
     def __init__(self, *args, **kwargs):
@@ -129,32 +140,6 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer):
 
     class Meta:
         model = Service
-
-class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Service.objects.all()
-    serializer_class = ServiceSerializer
-    filter_fields = ['level', 'parent']
-
-    def get_queryset(self):
-        queryset = super(ServiceViewSet, self).get_queryset()
-        args = self.request.QUERY_PARAMS
-        if 'ancestor' in args:
-            val = args['ancestor']
-            queryset = queryset.by_ancestor(val)
-        return queryset
-
-register_view(ServiceViewSet, 'service')
-
-class JSONAPISerializer(serializers.ModelSerializer):
-    def __init__(self, *args, **kwargs):
-        super(JSONAPISerializer, self).__init__(*args, **kwargs)
-        context = kwargs.get('context', {})
-        if 'only' in context:
-            keep_fields = set(context['only'] + ['id'])
-            for field_name in list(self.fields.keys()):
-                if field_name in keep_fields:
-                    continue
-                del self.fields[field_name]
 
 class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
     def initial(self, request, *args, **kwargs):
@@ -205,6 +190,21 @@ class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UnitConnectionSerializer
 
 register_view(UnitConnectionViewSet, 'unit_connection')
+
+class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+    filter_fields = ['level', 'parent']
+
+    def get_queryset(self):
+        queryset = super(ServiceViewSet, self).get_queryset()
+        args = self.request.QUERY_PARAMS
+        if 'ancestor' in args:
+            val = args['ancestor']
+            queryset = queryset.by_ancestor(val)
+        return queryset
+
+register_view(ServiceViewSet, 'service')
 
 class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer,
                      JSONAPISerializer):
