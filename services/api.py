@@ -135,6 +135,13 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPIS
         super(ServiceSerializer, self).__init__(*args, **kwargs)
         self.fields['root'] = serializers.SerializerMethodField('root_services')
 
+    def to_native(self, obj):
+        ret = super(ServiceSerializer, self).to_native(obj)
+        include_fields = self.context.get('include', [])
+        if 'ancestors' in include_fields:
+            ret['ancestors'] = [a.id for a in obj.get_ancestors(ascending=True)]
+        return ret
+
     def root_services(self, obj):
         return next(root_services([obj]))
 
