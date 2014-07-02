@@ -251,7 +251,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
 
     class Meta:
         model = Unit
-        exclude = ['connection_hash']
+        exclude = ['connection_hash', 'accessibility_property_hash']
 
 
 def make_muni_ocd_id(name, rest=None):
