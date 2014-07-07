@@ -52,6 +52,7 @@ MIDDLEWARE_CLASSES = (
     'corsheaders.middleware.CorsMiddleware',
     #'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'profiler.middleware.ProfilerMiddleware',
 )
 
 ROOT_URLCONF = 'smbackend.urls'
