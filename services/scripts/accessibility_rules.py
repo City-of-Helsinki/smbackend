@@ -23,6 +23,11 @@ KEYS = {
     14: 'shortcoming_sv',
     15: 'shortcoming_en',
 }
+FINAL_KEYS = KEYS.copy()
+del FINAL_KEYS[13]
+del FINAL_KEYS[14]
+del FINAL_KEYS[15]
+FINAL_KEYS[-1] = 'shortcoming'
 
 class ParseError(Exception):
     pass
@@ -58,8 +63,9 @@ class Compound(Expression):
                 print("Error, trying to change operator of a compound expression.")
     def val(self):
         return {
-            self.operator: [s.val() for s in self.operands],
-            'messages': self.messages,
+            'operator': self.operator,
+            'id': self.eid,
+            'operands': [s.val() for s in self.operands],
         }
     def __str__(self):
         just = "\n" + self.indent()
@@ -85,13 +91,15 @@ class Comparison(Expression):
             nexts = self.next_sibling.eid
         else:
             nexts = '<none>'
-        return {self.operator: [self.variable, self.value],
-                'messages': self.messages,
+        return {
+            'operator': self.operator,
+            'operands': [self.variable, self.value],
+            'id': self.eid
         }
     def __str__(self):
         just = ''.ljust(self.depth*2)
         ret = "\n" + just
-        ret += " ".join([("[%s] " % str(self.variable) + self.variable_path), self.operator, self.value])
+        ret += " ".join([("#%s [%s] " % (self.eid, str(self.variable)) + self.variable_path), self.operator, self.value])
         if len(self.messages):
             ret += "\n" + just
             ret += ("\n" + just).join(["%s: %s" % (i,v) for i,v in self.messages.items()])
@@ -138,7 +146,7 @@ def operator(string):
     else:
         return (None, None)
 
-def parse_case_names(string):
+def parse_language_versions(string):
     return [{'fi': fi, 'sv': sv, 'en': en}
             for (fi, sv, en) in
             [case.split(';') for case in string.split(':')]]
@@ -147,8 +155,8 @@ def update_messages(row, expression):
     for i, key in KEYS.items():
         current = row[i]
         if current is not None and current.strip() != '':
-            if key == 'case_names':
-                current = parse_case_names(current)
+            if key in ['case_names', 'shortcoming_title'] :
+                current = parse_language_versions(current)
             expression.messages[key] = current
     shortcoming = {}
     for lang in LANGUAGES:
@@ -158,7 +166,8 @@ def update_messages(row, expression):
             continue
         del expression.messages[key]
         shortcoming[lang] = msg
-    expression.messages['shortcoming'] = shortcoming
+    if len(shortcoming):
+        expression.messages['shortcoming'] = shortcoming
 
 def build_comparison(iterator, row, depth=0):
     try:
@@ -229,7 +238,7 @@ def rescope_messages(expression):
     next_sibling = expression.next_sibling
     if next_sibling is None:# or type(next_sibling) != type(expression):
         return
-    for i, key in KEYS.items():
+    for i, key in FINAL_KEYS.items():
         current = expression.messages.get(key)
         if not current:
             continue
@@ -244,14 +253,16 @@ def rescope_messages(expression):
                 expression.parent.messages[key] = current
                 del expression.messages[key]
 
-# def gather_messages(expression):
-#     if expression == None or not isinstance(expression, Expression):
-#         return {}
-#     elif isinstance(expression, Comparison):
-#         return {expression.eid: expression.messages}
-#     elif isinstance(expression, Compound):
-#         ret = {expression.eid: expression.messages}
-#         for e in expression.operands
+def gather_messages(expression):
+    if expression == None or not isinstance(expression, Expression):
+        return {}
+    ret = {}
+    if len(expression.messages):
+        ret.update({expression.eid: expression.messages})
+    if isinstance(expression, Compound):
+        for e in expression.operands:
+            ret.update(gather_messages(e))
+    return ret
 
 def build_tree(reader):
     tree = {}
@@ -276,24 +287,26 @@ def build_tree(reader):
         tree[acid] = build_expression(it, row, depth=0)
     for acid, expression in tree.items():
         rescope_messages(expression)
-    # messages = {}
-    # for acid, expression in tree.items():
-    #     messages.update(gather_messages(expression))
-    return tree
+    messages = {}
+    for acid, expression in tree.items():
+        messages.update(gather_messages(expression))
+    return tree, messages
 
 def parse_accessibility_rules(filename):
     with open(filename, 'r') as f:
         reader = csv.reader(f, delimiter=';', quotechar='"')
         return build_tree(reader)
 
+WIDTH = 140
 if __name__ == '__main__':
     if len(argv) != 2:
         print("Please provide the input csv filename "
               "as the first and only parameter")
         sys.exit(1)
-    tree = parse_accessibility_rules(argv[1])
+    tree, messages = parse_accessibility_rules(argv[1])
     for i, v in tree.items():
         print("Case " + i)
         print(v.messages['case_names'])
         print(str(v))
-        pprint.pprint(v.val())
+        pprint.pprint(v.val(), width=WIDTH)
+    pprint.pprint(messages, width=WIDTH)
