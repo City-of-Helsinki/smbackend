@@ -12,6 +12,10 @@ import traceback
 A module for parsing accessibility rules and sentences from
 an csv exported from an excel file. The csv file
 must be in UTF-8 format with UNIX linefeeds.
+
+Also, any syntax errors in the logical expressions
+should be fixed. The parser will try to report
+unbalanced parentheses.
 """
 
 LANGUAGES = ['fi', 'sv', 'en']
