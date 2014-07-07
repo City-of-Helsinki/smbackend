@@ -7,6 +7,8 @@ import pprint
 import itertools
 import traceback
 
+LANGUAGES = ['fi', 'sv', 'en']
+
 # CSV row indices
 EXPRESSION = 0
 VARIABLE = 4
@@ -148,6 +150,15 @@ def update_messages(row, expression):
             if key == 'case_names':
                 current = parse_case_names(current)
             expression.messages[key] = current
+    shortcoming = {}
+    for lang in LANGUAGES:
+        key = 'shortcoming_%s' % lang
+        msg = expression.messages.get(key)
+        if not msg:
+            continue
+        del expression.messages[key]
+        shortcoming[lang] = msg
+    expression.messages['shortcoming'] = shortcoming
 
 def build_comparison(iterator, row, depth=0):
     try:
