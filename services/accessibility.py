@@ -8,15 +8,11 @@ class AccessibilityRules(object):
         self.filename = filename
         self.modified_time = None
         self.tree = None
-        self._messages = None
-    def values(self):
+        self.messages = None
+    def get_data(self):
         if self.is_data_file_modified():
             self._parse()
-        return self.tree
-    def messages(self):
-        if self.is_data_file_modified():
-            self._parse()
-        return self._messages
+        return self.tree, self.messages
     def is_data_file_modified(self):
         datafile = self.find_data_file(self.filename)
         new_time = os.path.getmtime(datafile)
@@ -31,7 +27,7 @@ class AccessibilityRules(object):
                 return full_path
         raise FileNotFoundError("Data file '%s' not found" % data_file)
     def _parse(self):
-        tree, self._messages = (
+        tree, self.messages = (
             accessibility_rules.parse_accessibility_rules(
                 self.find_data_file(self.filename)))
         self.tree = dict([(case, val.val()) for case, val in tree.items()])
