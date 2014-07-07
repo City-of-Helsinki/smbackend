@@ -1,11 +1,18 @@
 import sys
 from sys import argv
+from collections import OrderedDict as odict
 import codecs
 import csv
 import re
 import pprint
 import itertools
 import traceback
+
+"""
+A module for parsing accessibility rules and sentences from
+an csv exported from an excel file. The csv file
+must be in UTF-8 format with UNIX linefeeds.
+"""
 
 LANGUAGES = ['fi', 'sv', 'en']
 
@@ -23,11 +30,10 @@ KEYS = {
     14: 'shortcoming_sv',
     15: 'shortcoming_en',
 }
-FINAL_KEYS = KEYS.copy()
-del FINAL_KEYS[13]
-del FINAL_KEYS[14]
-del FINAL_KEYS[15]
-FINAL_KEYS[-1] = 'shortcoming'
+FINAL_KEYS = [
+    k for k in KEYS.values() if k not in
+    ['shortcoming_fi', 'shortcoming_sv', 'shorcoming_en']]
+FINAL_KEYS.append('shortcoming')
 
 class ParseError(Exception):
     pass
@@ -238,11 +244,11 @@ def rescope_messages(expression):
     next_sibling = expression.next_sibling
     if next_sibling is None:# or type(next_sibling) != type(expression):
         return
-    for i, key in FINAL_KEYS.items():
+    for key in FINAL_KEYS:
         current = expression.messages.get(key)
         if not current:
             continue
-        if key == 'case_names':
+        if key in ['case_names', 'shortcoming_title']:
             if expression.parent is not None:
                 expression.parent.messages[key] = current
                 del expression.messages[key]
@@ -265,8 +271,8 @@ def gather_messages(expression):
     return ret
 
 def build_tree(reader):
-    tree = {}
-    row_groups = {}
+    tree = odict()
+    row_groups = odict()
     _, row = next_line(reader)
     accessibility_case_id = None
     while True:
@@ -299,14 +305,20 @@ def parse_accessibility_rules(filename):
 
 WIDTH = 140
 if __name__ == '__main__':
-    if len(argv) != 2:
-        print("Please provide the input csv filename "
-              "as the first and only parameter")
+    if len(argv) != 3:
+        print("Please provide the desired operation and the input csv filename "
+              "as the first and second parameters.\n\nOperation is one of\n"
+              "  values, messages or debug.")
         sys.exit(1)
-    tree, messages = parse_accessibility_rules(argv[1])
-    for i, v in tree.items():
-        print("Case " + i)
-        print(v.messages['case_names'])
-        print(str(v))
-        pprint.pprint(v.val(), width=WIDTH)
-    pprint.pprint(messages, width=WIDTH)
+    op, filename = argv[1], argv[2]
+    tree, messages = parse_accessibility_rules(filename)
+    if op == 'debug':
+        for i, v in tree.items():
+            print("Case " + i)
+            print(v.messages['case_names'])
+            print(str(v))
+    elif op == 'values':
+        for i, v in tree.items():
+            pprint.pprint(v.val(), width=WIDTH)
+    elif op == 'messages':
+        pprint.pprint(messages, width=WIDTH)
