@@ -21,6 +21,5 @@ urlpatterns = patterns('',
 
     # url(r'^', include(v1_api.urls)),
     # url(r'^admin/', include(admin.site.urls)),
-    url(r'^v1/accessibility', AccessibilityRuleView.as_view()),
     url(r'^v1/', include(router.urls))
 )

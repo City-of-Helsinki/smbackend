@@ -200,6 +200,16 @@ class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):
 
 register_view(UnitConnectionViewSet, 'unit_connection')
 
+
+class UnitAccessibilityPropertySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UnitAccessibilityProperty
+
+class UnitAccessibilityPropertyViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = UnitAccessibilityProperty.objects.all()
+    serializer_class = UnitAccessibilityPropertySerializer
+
+
 class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
@@ -218,9 +228,18 @@ register_view(ServiceViewSet, 'service')
 class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer,
                      JSONAPISerializer):
     connections = UnitConnectionSerializer(many=True)
+    accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
+        for f in ('connections', 'accessibility_properties'):
+            if f not in self.fields:
+                continue
+            ser = self.fields[f]
+            if 'id' in ser.fields:
+                del ser.fields['id']
+            if 'unit' in ser.fields:
+                del ser.fields['unit']
 
     def to_native(self, obj):
         ret = super(UnitSerializer, self).to_native(obj)
@@ -399,46 +418,15 @@ class SearchViewSet(GeoModelAPIView, viewsets.ViewSetMixin, generics.ListAPIView
 
         return resp
 
-    """
-    def list(self, request):
-        resp = []
-        context = self.get_serializer_context()
-
-        filter_name = "name_%s__icontains" % lang_code
-        obj_hits = Service.objects.filter(**{filter_name: val})
-        klass = ServiceSerializer
-        for obj in obj_hits[0:5]:
-            ser_obj = klass(obj, context=context).data
-            ser_obj['object_type'] = 'service'
-            resp.append(ser_obj)
-
-        filter_name = "name_%s__icontains" % lang_code
-        obj_hits = Unit.objects.filter(**{filter_name: val})
-        klass = UnitSerializer
-        for obj in obj_hits[0:5]:
-            ser_obj = klass(obj, context=context).data
-            ser_obj['object_type'] = 'unit'
-            resp.append(ser_obj)
-
-        filter_name = "name_%s__icontains" % lang_code
-        ad_types = ['neighborhood', 'district', 'sub-district']
-        obj_hits = AdministrativeDivision.objects.filter(type__type__in=ad_types).\
-            filter(**{filter_name: val})
-        klass = AdministrativeDivisionSerializer
-        for obj in obj_hits[0:5]:
-            ser_obj = klass(obj, context=context).data
-            ser_obj['object_type'] = 'administrative_division'
-            resp.append(ser_obj)
-
-        return Response(resp)
-    """
-
 register_view(SearchViewSet, 'search', base_name='search')
 
-class AccessibilityRuleView(APIView):
+class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
     serializer_class = None
-    def get(self, request, format=None):
+
+    def list(self, request, *args, **kwargs):
         rules, messages = accessibility_rules.get_data()
         return Response({
             'rules': rules,
             'messages': messages})
+
+register_view(AccessibilityRuleView, 'accessibility_rule', base_name='accessibility_rule')
