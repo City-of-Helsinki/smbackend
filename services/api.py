@@ -11,11 +11,13 @@ from modeltranslation.translator import translator, NotRegistered
 from rest_framework import serializers, viewsets, generics
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
+from rest_framework.views import APIView
 
 from haystack.query import SearchQuerySet
 from haystack.inputs import AutoQuery
 
 from services.models import *
+from services.accessibility import RULES as accessibility_rules
 from munigeo.models import *
 from munigeo.api import AdministrativeDivisionSerializer, GeoModelSerializer, \
     GeoModelAPIView, MunicipalitySerializer
@@ -432,3 +434,11 @@ class SearchViewSet(GeoModelAPIView, viewsets.ViewSetMixin, generics.ListAPIView
     """
 
 register_view(SearchViewSet, 'search', base_name='search')
+
+class AccessibilityRuleView(APIView):
+    serializer_class = None
+    def get(self, request, format=None):
+        rules, messages = accessibility_rules.get_data()
+        return Response({
+            'rules': rules,
+            'messages': messages})

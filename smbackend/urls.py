@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from services.api import all_views as services_views
+from services.api import AccessibilityRuleView
 from rest_framework import routers
 from munigeo.api import all_views as munigeo_views
 
@@ -20,5 +21,6 @@ urlpatterns = patterns('',
 
     # url(r'^', include(v1_api.urls)),
     # url(r'^admin/', include(admin.site.urls)),
+    url(r'^v1/accessibility', AccessibilityRuleView.as_view()),
     url(r'^v1/', include(router.urls))
 )
