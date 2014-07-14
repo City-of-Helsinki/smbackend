@@ -35,6 +35,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'raven.contrib.django.raven_compat',
     'rest_framework',
     'corsheaders',
     'django_extensions',
@@ -141,6 +142,9 @@ for lang_code, _ in LANGUAGES:
 
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
 
+RAVEN_CONFIG = {
+    'dsn': 'http://c2e9eca8812d405e901515ebd9303768:0089b5aed48a4f18989905191007a24d@83.136.249.107/sentry/3',
+}
 
 try:
     from local_settings import *

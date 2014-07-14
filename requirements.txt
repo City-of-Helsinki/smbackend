@@ -15,3 +15,4 @@ django-haystack
 pysolr
 lxml
 South
+raven
