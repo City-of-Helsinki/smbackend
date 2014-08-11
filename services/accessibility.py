@@ -30,8 +30,14 @@ class AccessibilityRules(object):
         tree, self.messages = (
             accessibility_rules.parse_accessibility_rules(
                 self.find_data_file(self.filename)))
-        self.tree = dict([(case, val.val()) for case, val in tree.items()])
- 
+
+        self.tree = {}
+        mode_letters = 'ABC'
+        for case, expression in tree.items():
+            for mode in range(0, len(expression.messages['case_names'])):
+                expression.set_mode(mode)
+                self.tree[str(case) + mode_letters[mode]] = expression.val()
+
 if hasattr(settings, 'PROJECT_ROOT'):
     root_dir = settings.PROJECT_ROOT
 else:
