@@ -161,9 +161,16 @@ class Command(BaseCommand):
         srv['level'] = level
         if not 'child_ids' in srv:
             return
+        remove_ids = []
         for child_id in srv['child_ids']:
+            if child_id not in service_dict:
+                self.logger.error("Child service %d for service %d not found" % (child_id, srv['id']))
+                remove_ids.append(child_id)
+                continue
             child = service_dict[child_id]
             self.mark_service_depths(service_dict, child, level + 1)
+        for child_id in remove_ids:
+            srv['child_ids'].remove(child_id)
 
     def detect_duplicate_services(self, service_list):
         service_dict = {srv['id']: srv for srv in service_list}
@@ -178,12 +185,20 @@ class Command(BaseCommand):
         unit_list = self._fetch_units()
 
         for unit in unit_list:
-            service_ids = sorted(unit.get('service_ids', []))
+            service_ids = unit.get('service_ids', [])
             # Make note of what units supply each service. If the unit sets
             # and names for services match, we treat them as identical.
-            for srv_id in service_ids:
+            remove_ids = []
+            for srv_id in sorted(service_ids):
+                if srv_id not in service_dict:
+                    self.logger.error("Service %d (in unit %d) not found" % (srv_id, unit['id']))
+                    remove_ids.append(srv_id)
+                    continue
                 srv = service_dict[srv_id]
                 srv['units'].append(unit['id'])
+
+            for srv_id in remove_ids:
+                service_ids.remove(srv_id)
 
         srv_by_name = {}
         for srv in service_list:
