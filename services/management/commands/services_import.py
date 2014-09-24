@@ -415,10 +415,14 @@ class Command(BaseCommand):
             obj._changed = True
 
         fields = ['address_zip', 'address_postal_full', 'phone', 'email', 'provider_type', 'picture_url']
-        for field in fields:
-            val = info.get(field, None)
-            if getattr(obj, field) != val:
-                setattr(obj, field, val)
+        for field_name in fields:
+            val = info.get(field_name, None)
+            if getattr(obj, field_name) != val:
+                setattr(obj, field_name, val)
+                field = obj._meta.get_field(field_name)
+                max_length = getattr(field, 'max_length', 0)
+                if max_length and len(val) > max_length:
+                    self.logger.error("Field '%s' too long (data: %s)" % (field_name, val))
                 obj._changed = True
 
         url = info.get('data_source_url', None)
