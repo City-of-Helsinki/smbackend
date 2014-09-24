@@ -305,7 +305,7 @@ class UnitViewSet(GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet
             except Municipality.DoesNotExist:
                 raise ParseError("municipality with ID '%s' not found" % ocd_id)
 
-            queryset = queryset.filter(location__within=muni.geometry.boundary)
+            queryset = queryset.filter(municipality=muni)
 
         if 'provider_type' in filters:
             val = filters.get('provider_type')
