@@ -112,7 +112,7 @@ class Unit(models.Model):
     street_address = models.CharField(max_length=100, null=True)
     address_zip = models.CharField(max_length=10, null=True)
     phone = models.CharField(max_length=30, null=True)
-    email = models.EmailField(max_length=50, null=True)
+    email = models.EmailField(max_length=100, null=True)
     www_url = models.URLField(max_length=400, null=True)
     address_postal_full = models.CharField(max_length=100, null=True)
     municipality = models.ForeignKey(Municipality, null=True, db_index=True)
