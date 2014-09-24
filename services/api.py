@@ -301,7 +301,7 @@ class UnitViewSet(GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet
             else:
                 ocd_id = make_muni_ocd_id(val)
             try:
-                muni = Municipality.objects.get(ocd_id=ocd_id)
+                muni = Municipality.objects.get(division__ocd_id=ocd_id)
             except Municipality.DoesNotExist:
                 raise ParseError("municipality with ID '%s' not found" % ocd_id)
 
