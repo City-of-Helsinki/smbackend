@@ -124,9 +124,9 @@ class JSONAPISerializer(serializers.ModelSerializer):
         super(JSONAPISerializer, self).__init__(*args, **kwargs)
         context = kwargs.get('context', {})
         if 'only' in context:
-            keep_fields = set(context['only'] + ['id'])
+            self.keep_fields = set(context['only'] + ['id'])
             for field_name in list(self.fields.keys()):
-                if field_name in keep_fields:
+                if field_name in self.keep_fields:
                     continue
                 del self.fields[field_name]
 
@@ -135,13 +135,17 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPIS
 
     def __init__(self, *args, **kwargs):
         super(ServiceSerializer, self).__init__(*args, **kwargs)
-        self.fields['root'] = serializers.SerializerMethodField('root_services')
+        keep_fields = getattr(self, 'keep_fields', [])
+        if not keep_fields or 'root' in keep_fields:
+            self.fields['root'] = serializers.SerializerMethodField('root_services')
 
     def to_native(self, obj):
         ret = super(ServiceSerializer, self).to_native(obj)
         include_fields = self.context.get('include', [])
         if 'ancestors' in include_fields:
-            ret['ancestors'] = [a.id for a in obj.get_ancestors(ascending=True)]
+            ancestors = obj.get_ancestors(ascending=True)
+            ser = ServiceSerializer(ancestors, many=True, context={'only': ['name']})
+            ret['ancestors'] = ser.data
         return ret
 
     def root_services(self, obj):
@@ -267,6 +271,12 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSer
         if 'municipality' in include_fields and obj.municipality:
             muni_json = MunicipalitySerializer(obj.municipality, context=self.context).data
             ret['municipality'] = muni_json
+        if 'services' in include_fields:
+            context = self.context.copy()
+            context['ancestors'] = True
+            services_json = ServiceSerializer(obj.services.all(), context=context).data
+            ret['services'] = services_json
+        return ret
 
         return ret
 
@@ -368,10 +378,17 @@ register_view(UnitViewSet, 'unit')
 
 class SearchSerializer(serializers.Serializer):
     def to_native(self, search_result):
+        if not search_result or not search_result.model:
+            return None
         model = search_result.model
         assert model in serializers_by_model, "Serializer for %s not found" % model
         ser_class = serializers_by_model[model]
-        data = ser_class(search_result.object, context=self.context).data
+        context = self.context.copy()
+        if ser_class == UnitSerializer:
+            context['include'] = 'services'
+        elif ser_class == ServiceSerializer:
+            context['include'] = 'ancestors'
+        data = ser_class(search_result.object, context=context).data
         data['object_type'] = model._meta.model_name
         data['score'] = search_result.score
         return data
