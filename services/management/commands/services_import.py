@@ -421,7 +421,7 @@ class Command(BaseCommand):
                 setattr(obj, field_name, val)
                 field = obj._meta.get_field(field_name)
                 max_length = getattr(field, 'max_length', 0)
-                if max_length and len(val) > max_length:
+                if max_length and val and len(val) > max_length:
                     self.logger.error("Field '%s' too long (data: %s)" % (field_name, val))
                 obj._changed = True
 
