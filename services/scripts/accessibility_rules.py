@@ -389,7 +389,7 @@ def build_tree(reader):
     return tree, messages
 
 def parse_accessibility_rules(filename):
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding='utf8') as f:
         reader = csv.reader(f, delimiter=';', quotechar='"')
         return build_tree(reader)
 
