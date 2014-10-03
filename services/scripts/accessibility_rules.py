@@ -299,7 +299,7 @@ def build_expression(iterator, row, depth=0, requirement_id=None):
     parenthesis_depth = parenthesis(row[EXPRESSION], OPENING_PARENTHESIS)
     next_expression_id = Expression.eid + 1
     if depth == 1:
-        requirement_id = next_expression_id
+        requirement_id = str(next_expression_id)
 
     first_line = row[-1]
     if parenthesis_depth is None:
