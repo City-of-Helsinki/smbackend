@@ -105,11 +105,14 @@ class Compound(Expression):
         operands = [s.val() for s in self.operands
                     if s.val() and s.include()]
         if len(operands):
-            return {
+            ret = {
                 'operator': self.operator,
                 'id': self.id(),
-                'operands': operands,
+                'operands': operands
             }
+            if self.requirement_id:
+                ret['requirement_id'] = self.requirement_id
+            return ret
         else:
             return None
     def __str__(self):
@@ -138,11 +141,14 @@ class Comparison(Expression):
             nexts = self.next_sibling.eid
         else:
             nexts = '<none>'
-        return {
+        ret = {
             'operator': self.operator,
             'operands': [self.variable, self.value],
-            'id': self.id(),
+            'id': self.id()
         }
+        if self.requirement_id:
+            ret['requirement_id'] = self.requirement_id
+        return ret
     def __str__(self):
         just = ''.ljust(self.depth*2)
         ret = "\n" + just
@@ -242,7 +248,7 @@ def update_flags(row, expression):
     if not completely_empty:
         expression.flags = bits
 
-def build_comparison(iterator, row, depth=0):
+def build_comparison(iterator, row, depth=0, requirement_id=None):
     try:
         variable, operator, value = int(row[VARIABLE]), row[OPERATOR], row[VALUE]
     except ValueError as e:
@@ -264,7 +270,7 @@ def build_comparison(iterator, row, depth=0):
     update_flags(row, expression)
     return expression
 
-def build_compound(iterator, depth=0):
+def build_compound(iterator, depth=0, requirement_id=None):
     row = next(iterator)
     compound = Compound(depth)
     while parenthesis(row[EXPRESSION], CLOSING_PARENTHESIS) is None:
@@ -272,7 +278,7 @@ def build_compound(iterator, depth=0):
         if op_depth is not None:
             compound.set_operator(op)
         else:
-            child = build_expression(iterator, row, depth=depth+1)
+            child = build_expression(iterator, row, depth=depth+1, requirement_id=requirement_id)
             child.parent = compound
             compound.add_operand(child)
         try:
@@ -288,19 +294,23 @@ def build_compound(iterator, depth=0):
         return compound.operands[0]
     return compound
 
-def build_expression(iterator, row, depth=0):
+def build_expression(iterator, row, depth=0, requirement_id=None):
     result = None
     parenthesis_depth = parenthesis(row[EXPRESSION], OPENING_PARENTHESIS)
     next_expression_id = Expression.eid + 1
+    if depth == 1:
+        requirement_id = next_expression_id
+
     first_line = row[-1]
     if parenthesis_depth is None:
-        expression = build_comparison(iterator, row, depth=depth)
+        expression = build_comparison(iterator, row, depth=depth, requirement_id=requirement_id)
     else:
         try:
-            expression = build_compound(iterator, depth=depth)
+            expression = build_compound(iterator, depth=depth, requirement_id=requirement_id)
         except ParseError as e:
             exit_on_error(str(e), lineno=first_line)
     expression.first_line = row[-1]
+    expression.requirement_id = requirement_id
     return expression
 
 def rescope(expression, rescope_key):
