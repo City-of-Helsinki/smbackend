@@ -22,6 +22,9 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, model_attr='name', use_template=False)
     autosuggest = indexes.EdgeNgramField(model_attr='name')
 
+    def get_updated_field(self):
+        return 'last_modified_time'
+
     def get_model(self):
         return Service
 

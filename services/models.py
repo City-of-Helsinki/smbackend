@@ -63,6 +63,8 @@ class Service(MPTTModel):
     parent = TreeForeignKey('self', null=True, related_name='children')
     unit_count = models.PositiveIntegerField()
 
+    last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
+
     identical_to = models.ForeignKey('self', null=True, related_name='duplicates')
 
     objects = ServiceManager()

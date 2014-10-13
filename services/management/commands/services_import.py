@@ -307,6 +307,7 @@ class Command(BaseCommand):
 
             if obj._changed:
                 obj.unit_count = obj.get_unit_count()
+                obj.last_modified_time = datetime.now(UTC_TIMEZONE)
                 obj.save()
                 self.services_changed = True
             syncher.mark(obj)
