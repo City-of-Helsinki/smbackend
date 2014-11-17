@@ -111,7 +111,8 @@ class Compound(Expression):
                 'operator': self.operator,
                 'id': self.id(),
                 'operands': operands,
-                'msg': self.message_id
+                'msg': self.message_id,
+                'path': self.variable_path
             }
             if self.requirement_id:
                 ret['requirement_id'] = self.requirement_id
@@ -148,7 +149,8 @@ class Comparison(Expression):
             'operator': self.operator,
             'operands': [self.variable, self.value],
             'id': self.id(),
-            'msg': self.message_id
+            'msg': self.message_id,
+            'path': self.variable_path
         }
         if self.requirement_id:
             ret['requirement_id'] = self.requirement_id
@@ -267,7 +269,9 @@ def build_comparison(iterator, row, depth=0, requirement_id=None):
     expression = Comparison(depth, variable, operator, value)
     match = VARIABLE_NAME.match(row[EXPRESSION])
     if match:
-        expression.variable_path = match.group(1)
+        path = match.group(1).split('.')
+        path[0] = path[0].lower()
+        expression.variable_path = path
     else:
         print('nomatch')
     update_messages(row, expression)
@@ -292,6 +296,11 @@ def build_compound(iterator, depth=0, requirement_id=None):
     depth = parenthesis(row[EXPRESSION], CLOSING_PARENTHESIS)
     if depth is None:
         raise ParseError('Unclosed compound expression (aka mismatched parentheses(.')
+    for operand in compound.operands:
+        if operand.variable_path[0] != 'service_point':
+            compound.variable_path = operand.variable_path[0:1]
+            break
+
     if len(compound.operands) == 1:
         compound.operands[0].parent = compound.parent
         compound.operands[0].messages = compound.messages
