@@ -28,9 +28,10 @@ VALUE = 6
 QRS_KEY = 9
 KEYS = {
     7: 'case_names',
-    8: 'shortcoming_title',
-    10: 'requirement',
-    11: 'shortcoming_summary',
+    # The keys below are not currently used.
+    # 8: 'shortcoming_title',
+    # 10: 'requirement',
+    # 11: 'shortcoming_summary',
     13: 'shortcoming_fi',
     14: 'shortcoming_sv',
     15: 'shortcoming_en',
@@ -55,6 +56,7 @@ class Expression(object):
         self.first_line = None
         self.flags = None
         self.mode = 0
+        self.message_id = None
     def id(self):
         return str(self.eid)
     def indent(self):
@@ -108,7 +110,8 @@ class Compound(Expression):
             ret = {
                 'operator': self.operator,
                 'id': self.id(),
-                'operands': operands
+                'operands': operands,
+                'msg': self.message_id
             }
             if self.requirement_id:
                 ret['requirement_id'] = self.requirement_id
@@ -144,7 +147,8 @@ class Comparison(Expression):
         ret = {
             'operator': self.operator,
             'operands': [self.variable, self.value],
-            'id': self.id()
+            'id': self.id(),
+            'msg': self.message_id
         }
         if self.requirement_id:
             ret['requirement_id'] = self.requirement_id
@@ -347,28 +351,50 @@ def rescope(expression, rescope_key):
                 setattr(expression.parent, rescope_key, current)
                 setattr(expression, rescope_key, None)
 
+messages = []
+message_ids = {}
+message_id_incr = 0
+PRIMARY_KEY = 'fi'
+def save_message(multilingual_message):
+    global messages, message_ids, message_id_incr
+    if multilingual_message is None:
+        return None
+    # de-duplicate messages based on PRIMARY KEY contents
+    msg_key = multilingual_message[PRIMARY_KEY]
+    msg_id = None
+    if msg_key not in message_ids:
+        msg_id = message_id_incr
+        message_id_incr += 1
+        message_ids[msg_key] = msg_id
+    msg_id = message_ids[msg_key]
+    for lang, message in multilingual_message.items():
+        try:
+            current_message = messages[msg_id]
+        except IndexError:
+            messages.append({})
+            current_message = messages[msg_id]
+        if lang not in current_message:
+            current_message[lang] = multilingual_message[lang]
+        else:
+            if current_message[lang] != multilingual_message[lang]:
+                exit_on_error("Mismatching translations: {} != {} (orig: {})".format(
+                    current_message[lang], multilingual_message[lang],
+                    current_message[PRIMARY_KEY]))
+    return msg_id
+
 def gather_messages(expression):
     if expression == None or not isinstance(expression, Expression):
         return {}
-    ret = {}
-    messages = expression.messages
-    if len(messages):
-        case_names = messages.get('case_names')
-        if case_names:
-            for mode, msg in enumerate(case_names):
-                ret.update({
-                    str(expression.eid) + Compound.id_suffix[mode]: {'case_names': msg}
-                })
-        ret.update({expression.eid: dict(
-            [(k, v) for k, v in expression.messages.items()
-             if k != 'case_names']
-        )})
+    if len(expression.messages):
+        if 'shortcoming' in expression.messages:
+            msg_id = save_message(expression.messages['shortcoming'])
+            expression.message_id = msg_id
     if isinstance(expression, Compound):
         for e in expression.operands:
-            ret.update(gather_messages(e))
-    return ret
+            gather_messages(e)
 
 def build_tree(reader):
+    global messages
     tree = odict()
     row_groups = odict()
     _, row = next_line(reader)
@@ -392,16 +418,15 @@ def build_tree(reader):
     for acid, expression in tree.items():
         rescope(expression, 'messages')
         rescope(expression, 'flags')
-    messages = {}
     for acid, expression in tree.items():
-        messages.update(gather_messages(expression))
-
+        gather_messages(expression)
     return tree, messages
 
 def parse_accessibility_rules(filename):
     with open(filename, 'r', encoding='utf8') as f:
         reader = csv.reader(f, delimiter=';', quotechar='"')
-        return build_tree(reader)
+        tree = build_tree(reader)
+        return tree
 
 WIDTH = 140
 if __name__ == '__main__':
@@ -415,7 +440,6 @@ if __name__ == '__main__':
     if op == 'debug':
         for i, v in tree.items():
             print("Case " + i)
-            print(v.messages['case_names'])
             print(str(v))
     elif op == 'values':
         key_qualifiers = 'ABC'
