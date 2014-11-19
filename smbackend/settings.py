@@ -127,18 +127,57 @@ REST_FRAMEWORK = {
     ),
 }
 
-HAYSTACK_CONNECTIONS = {}
-for lang_code, _ in LANGUAGES:
-    d = {
-        'ENGINE': 'smbackend.multilingual_solr.MultilingualSolrEngine',
-        'URL': 'http://127.0.0.1:8080/smbackend/core_%s' % lang_code,
-        'INCLUDE_SPELLING': True,
-        'TIMEOUT': 60,
-        'BATCH_SIZE': 2000,
+CUSTOM_MAPPINGS = {
+    'autosuggest': {
+        'search_analyzer': 'standard',
+        'index_analyzer': 'edgengram_analyzer',
+        'analyzer': None
+    },
+    'text': {
+        'analyzer': 'default'
     }
-    if not 'default' in HAYSTACK_CONNECTIONS:
-        HAYSTACK_CONNECTIONS['default'] = d
-    HAYSTACK_CONNECTIONS['default_%s' % lang_code] = d
+}
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'multilingual_haystack.backends.MultilingualSearchEngine',
+    },
+    'default-fi': {
+        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
+        'URL': 'http://localhost:9200/',
+        'INDEX_NAME': 'servicemap-fi',
+        'MAPPINGS': CUSTOM_MAPPINGS,
+        'SETTINGS': {
+            "analysis": {
+                "analyzer": {
+                    "default": {
+                        "tokenizer": "finnish",
+                        "filter": ["lowercase", "voikko_filter"]
+                    }
+                },
+                "filter": {
+                    "voikko_filter": {
+                        "type": "voikko",
+                        "expandCompounds": True
+                    }
+                }
+            }
+        }
+    },
+    'default-sv': {
+        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
+        'URL': 'http://localhost:9200/',
+        'INDEX_NAME': 'servicemap-sv',
+    },
+    'default-en': {
+        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
+        'URL': 'http://localhost:9200/',
+        'INDEX_NAME': 'servicemap-en',
+    },
+}
 
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
 
