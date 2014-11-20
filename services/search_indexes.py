@@ -30,3 +30,9 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         return self.get_model().objects.filter(identical_to=None)
+
+    def prepare(self, obj):
+        data = super(ServiceIndex, self).prepare(obj)
+        # if obj.name == 'NAME_TO_BOOST':
+        #     data['boost'] = 1.1
+        return data

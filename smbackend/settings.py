@@ -127,16 +127,13 @@ REST_FRAMEWORK = {
     ),
 }
 
-CUSTOM_MAPPINGS = {
-    'autosuggest': {
-        'search_analyzer': 'standard',
-        'index_analyzer': 'edgengram_analyzer',
-        'analyzer': None
-    },
-    'text': {
-        'analyzer': 'default'
-    }
-}
+import json
+def read_config(name):
+    return json.load(open(
+        os.path.join(
+            BASE_DIR,
+            'smbackend',
+            'elasticsearch/{}.json'.format(name))))
 
 HAYSTACK_CONNECTIONS = {
     'default': {
@@ -147,23 +144,8 @@ HAYSTACK_CONNECTIONS = {
         'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
         'URL': 'http://localhost:9200/',
         'INDEX_NAME': 'servicemap-fi',
-        'MAPPINGS': CUSTOM_MAPPINGS,
-        'SETTINGS': {
-            "analysis": {
-                "analyzer": {
-                    "default": {
-                        "tokenizer": "finnish",
-                        "filter": ["lowercase", "voikko_filter"]
-                    }
-                },
-                "filter": {
-                    "voikko_filter": {
-                        "type": "voikko",
-                        "expandCompounds": True
-                    }
-                }
-            }
-        }
+        'MAPPINGS': read_config('mappings_finnish')['modelresult']['properties'],
+        'SETTINGS': read_config('settings_finnish')
     },
     'default-sv': {
         'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',

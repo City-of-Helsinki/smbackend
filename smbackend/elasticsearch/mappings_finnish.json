@@ -1,0 +1,16 @@
+{
+    "modelresult": {
+        "properties": {
+            "autosuggest": {
+                "type": "string",
+                "search_analyzer": "autosuggest_query",
+                "index_analyzer": "edgengram_analyzer",
+                "analyzer": null
+            },
+            "text": {
+                "type": "string",
+                "analyzer": "default"
+            }
+        }
+    }
+}
