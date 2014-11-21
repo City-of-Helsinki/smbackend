@@ -32,15 +32,6 @@
                 "side": "front",
                 "type": "edgeNGram"
             }
-        },
-        "tokenizer": {
-            "servicemap_edgengram_tokenizer": {
-                "max_gram": "15",
-                "min_gram": "1",
-                "side": "front",
-                "type": "edgeNGram",
-                "token_chars": [ "letter", "digit" ]
-            }
         }
     }
 }
