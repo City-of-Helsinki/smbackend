@@ -62,6 +62,7 @@ class Service(MPTTModel):
     name = models.CharField(max_length=200, db_index=True)
     parent = TreeForeignKey('self', null=True, related_name='children')
     unit_count = models.PositiveIntegerField()
+    keywords = models.ManyToManyField(Keyword)
 
     last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 

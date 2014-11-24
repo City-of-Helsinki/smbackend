@@ -305,6 +305,8 @@ class Command(BaseCommand):
                 obj.parent = parent
                 obj._changed = True
 
+            self._sync_searchwords(obj, d)
+
             if obj._changed:
                 obj.unit_count = obj.get_unit_count()
                 obj.last_modified_time = datetime.now(UTC_TIMEZONE)
@@ -342,6 +344,19 @@ class Command(BaseCommand):
                 new_kw_set.add(kw_obj.pk)
 
         obj.new_keywords |= new_kw_set
+
+    def _sync_searchwords(self, obj, info):
+        obj.new_keywords = set()
+        for lang in self.supported_languages:
+            self._save_searchwords(obj, info, lang)
+
+        old_kw_set = set(obj.keywords.all().values_list('pk', flat=True))
+        if old_kw_set != obj.new_keywords:
+            old_kw_str = ', '.join([self.keywords_by_id[x].name for x in old_kw_set])
+            new_kw_str = ', '.join([self.keywords_by_id[x].name for x in obj.new_keywords])
+            print("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
+            obj.keywords = list(obj.new_keywords)
+            obj._changed = True
 
     @db.transaction.atomic
     def _import_unit(self, syncher, info):
@@ -483,19 +498,7 @@ class Command(BaseCommand):
             update_fields.append('root_services')
             obj._changed = True
 
-
-        obj.new_keywords = set()
-        for lang in self.supported_languages:
-            self._save_searchwords(obj, info, lang)
-
-        old_kw_set = set(obj.keywords.all().values_list('pk', flat=True))
-        if old_kw_set != obj.new_keywords:
-            old_kw_str = ', '.join([self.keywords_by_id[x].name for x in old_kw_set])
-            new_kw_str = ', '.join([self.keywords_by_id[x].name for x in obj.new_keywords])
-            print("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
-            obj.keywords = list(obj.new_keywords)
-            obj._changed = True
-
+        self._sync_searchwords(obj, info)
 
         if info['connections']:
             conn_json = json.dumps(info['connections'], ensure_ascii=False, sort_keys=True).encode('utf8')
@@ -590,13 +593,6 @@ class Command(BaseCommand):
             self.postcodes[code] = muni.strip()
 
     def import_units(self):
-        self.keywords = {}
-        for lang in self.supported_languages:
-            kw_list = Keyword.objects.filter(language=lang)
-            kw_dict = {kw.name: kw for kw in kw_list}
-            self.keywords[lang] = kw_dict
-        self.keywords_by_id = {kw.pk: kw for kw in Keyword.objects.all()}
-
         self._load_postcodes()
 
         self.muni_by_name = {muni.name_fi.lower(): muni for muni in Municipality.objects.all()}
@@ -689,6 +685,12 @@ class Command(BaseCommand):
         self.logger = logging.getLogger(__name__)
         self.services_changed = False
         self.count_services = set()
+        self.keywords = {}
+        for lang in self.supported_languages:
+            kw_list = Keyword.objects.filter(language=lang)
+            kw_dict = {kw.name: kw for kw in kw_list}
+            self.keywords[lang] = kw_dict
+        self.keywords_by_id = {kw.pk: kw for kw in Keyword.objects.all()}
 
         if options['cached']:
             requests_cache.install_cache('services_import')
