@@ -1,9 +1,4 @@
 {{object.name}}
-{% for kw in object.lang_keywords %}
-{{kw.name}}
-{% endfor %}
-{{object.description}}
-{% if object.municipality %}
-{{object.municipality.name}}
-{% endif %}
-{{object.street_address}}
+{% if object.description %}{{object.description}}{% endif %}
+{% if object.municipality %}{{object.municipality.name}}{% endif %}
+{% if object.street_address %}{{object.street_address}}{% endif %}

@@ -10,6 +10,16 @@
             "text": {
                 "type": "string",
                 "analyzer": "default"
+            },
+            "autosuggest_extra_searchwords": {
+                "type": "string",
+                "search_analyzer": "autosuggest_query",
+                "index_analyzer": "edgengram_analyzer",
+                "analyzer": null
+            },
+            "extra_searchwords": {
+                "type": "string",
+                "analyzer": "default"
             }
         }
     }

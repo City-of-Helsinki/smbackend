@@ -416,9 +416,9 @@ class SearchViewSet(GeoModelAPIView, viewsets.ViewSetMixin, generics.ListAPIView
 
         queryset = SearchQuerySet()
         if input_val:
-            queryset = queryset.filter(autosuggest=input_val)
+            queryset = queryset.filter(autosuggest=input_val).filter_or(autosuggest_extra_searchwords=input_val)
         else:
-            queryset = queryset.filter(text=AutoQuery(q_val))
+            queryset = queryset.filter(text=AutoQuery(q_val)).filter_or(extra_searchwords=q_val)
 
         self.object_list = queryset.load_all()
 

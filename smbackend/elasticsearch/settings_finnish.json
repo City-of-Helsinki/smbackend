@@ -7,12 +7,12 @@
             },
             "autosuggest_query": {
                 "tokenizer": "finnish",
-                "filter": ["lowercase", "voikko_filter", "autosuggest_truncate", "haystack_edgengram"]
+                "filter": ["lowercase", "voikko_filter", "autosuggest_truncate"],
+                "type": "custom"
             },
             "edgengram_analyzer": {
                 "filter": [
-                    "lowercase", "voikko_filter", "haystack_edgengram"
-                ],
+                    "lowercase", "voikko_filter", "haystack_edgengram"],
                 "tokenizer": "finnish",
                 "type": "custom"
             }
