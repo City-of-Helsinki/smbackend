@@ -162,6 +162,7 @@ HAYSTACK_CONNECTIONS = {
 }
 
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
+HAYSTACK_SIGNAL_PROCESSOR = 'services.search_indexes.DeleteOnlySignalProcessor'
 
 try:
     from local_settings import *

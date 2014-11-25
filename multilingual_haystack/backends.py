@@ -7,24 +7,29 @@ from haystack.backends import BaseEngine, BaseSearchBackend, BaseSearchQuery
 from haystack.constants import DEFAULT_ALIAS
 from haystack.utils.loading import load_backend
 
-
 class MultilingualSearchBackend(BaseSearchBackend):
-    def update(self, index, iterable, commit=True):
+    def _operate(self, method_name, *args, **kwargs):
         initial_language = translation.get_language()[:2]
-        # retrieve unique backend name
-        backends = []
+        backends = set()
         for language, _ in settings.LANGUAGES:
             using = '%s-%s' % (self.connection_alias, language)
             # Ensure each backend is called only once
             if using in backends:
                 continue
             else:
-                backends.append(using)
+                backends.add(using)
             translation.activate(language)
             backend = connections[using].get_backend()
-            backend.parent_class.update(backend, index, iterable, commit)
-
+            fn = getattr(backend.parent_class, method_name)
+            fn(backend, *args, **kwargs)
         translation.activate(initial_language)
+
+    def update(self, *args, **kwargs):
+        self._operate('update', *args, **kwargs)
+
+    def remove(self, *args, **kwargs):
+        self._operate('remove', *args, **kwargs)
+
     def clear(self, **kwargs):
         return
 

@@ -1,6 +1,21 @@
-from haystack import indexes
+from haystack import indexes, signals
 from .models import Unit, Service
 from django.utils.translation import get_language
+from django.db import models
+
+class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
+    """
+    Delete models from index automatically.
+    """
+    def setup(self):
+        models.signals.post_delete.connect(self.handle_delete)
+        # TODO: ?
+        # Efficient would be going through all backends & collecting all models
+        # being used, then hooking up signals only for those.
+
+    def teardown(self):
+        # Naive (listen to all model saves).
+        models.signals.post_delete.disconnect(self.handle_delete)
 
 
 class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
