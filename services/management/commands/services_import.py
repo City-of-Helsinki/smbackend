@@ -21,7 +21,7 @@ from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.utils.translation import activate, get_language
 
-from munigeo.models import *
+from munigeo.models import Municipality
 from munigeo.importer.sync import ModelSyncher
 from services.models import *
 
@@ -594,7 +594,6 @@ class Command(BaseCommand):
 
     def import_units(self):
         self._load_postcodes()
-
         self.muni_by_name = {muni.name_fi.lower(): muni for muni in Municipality.objects.all()}
 
         if not getattr(self, 'org_syncher', None):
