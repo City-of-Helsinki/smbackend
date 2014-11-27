@@ -21,7 +21,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-python manage.py update_index -a 1 -r >> $LOG_FILE 2>&1
+python manage.py update_index -a 1 >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     cat $LOG_FILE
     exit 1
