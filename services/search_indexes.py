@@ -1,7 +1,7 @@
 from haystack import indexes, signals
-from .models import Unit, Service
 from django.utils.translation import get_language
 from django.db import models
+from django.db.models.loading import get_model
 
 class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
     """
@@ -24,8 +24,12 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     extra_searchwords = indexes.CharField()
     autosuggest_extra_searchwords = indexes.CharField()
 
+    def __init__(self, *args, **kwargs):
+        super(*args, **kwargs)
+        self.model = None
+
     def get_model(self):
-        return None
+        return self.model
 
     def _prepare_extra_searchwords(self, obj):
         return ' '.join([category.name for category in obj.keywords.filter(language=get_language())])
@@ -39,20 +43,21 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
 
 class UnitIndex(ServiceMapBaseIndex):
 
+    def __init__(self, *args, **kwargs):
+        super(*args, **kwargs)
+        self.model = get_model('services', 'Unit')
+
     def get_updated_field(self):
         return 'origin_last_modified_time'
 
-    def get_model(self):
-        return Unit
-
-
 class ServiceIndex(ServiceMapBaseIndex):
+
+    def __init__(self, *args, **kwargs):
+        super(*args, **kwargs)
+        self.model = get_model('services', 'Service')
 
     def get_updated_field(self):
         return 'last_modified_time'
-
-    def get_model(self):
-        return Service
 
     def index_queryset(self, using=None):
         return self.get_model().objects.filter(identical_to=None)
