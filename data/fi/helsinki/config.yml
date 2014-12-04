@@ -80,6 +80,8 @@ divisions:
     fields:
         origin_id: tunnus
         ocd_id: tunnus
+        name:
+            fi: tunnus
         service_point_id: toimipiste_id
 
   - type: rescue_district
