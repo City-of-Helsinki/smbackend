@@ -49,8 +49,6 @@ divisions:
     ocd_id: pienalue
     file: pienalue.tab
     fields:
-        nimi:
-            fi: PIENALUE_TUNNUS
         origin_id: PIENALUE_TUNNUS
         parent_id: OSAALUE_TUNNUS
         ocd_id: PIENALUE_TUNNUS
@@ -74,12 +72,35 @@ divisions:
         origin_id: TUNNUS
         ocd_id: TUNNUS
 
-    #health_station:
-    #    name: Terveysasemat
-    #    file: terveysasema_aluejako.tab
-    #    fields:
-    #        origin_id: TUNNUS
+  - type: health_station_district
+    name: Terveysasema-aluejako
+    ocd_id: terveysasema-alue
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:sote_terveysasema_aluejako'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        service_point_id: toimipiste_id
 
-    #rescue_district:
-    #    name: Suojelupiiri
-    #    file: 
+  - type: rescue_district
+    name: Suojelulohko
+    ocd_id: suojelulohko
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:pel_suojelulohko'
+    fields:
+        origin_id: suojelulohko_tunnus
+        ocd_id: suojelulohko_nimi
+        name:
+            fi: suojelulohko_nimi
+            sv: suojelulohko_nimi_se
+
+  - type: income_support_district
+    name: Toimeentulotukialue
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:sote_toimeentulotukialue'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        name:
+            fi: nimi
+        service_point_id: toimipiste_id
