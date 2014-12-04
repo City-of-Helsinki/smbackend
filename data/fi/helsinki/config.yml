@@ -96,6 +96,7 @@ divisions:
 
   - type: income_support_district
     name: Toimeentulotukialue
+    ocd_id: toimeentulotukialue
     wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
     wfs_layer: 'hel:sote_toimeentulotukialue'
     fields:
