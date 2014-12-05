@@ -269,7 +269,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             dep_json = DepartmentSerializer(obj.department, context=self.context).data
             ret['department'] = dep_json
         if 'municipality' in include_fields and obj.municipality:
-            muni_json = MunicipalitySerializer(obj.municipality, context=self.context).data
+            muni_json = munigeo_api.MunicipalitySerializer(obj.municipality, context=self.context).data
             ret['municipality'] = muni_json
         if 'services' in include_fields:
             context = self.context.copy()
