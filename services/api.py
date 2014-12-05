@@ -19,8 +19,8 @@ from haystack.inputs import AutoQuery
 from services.models import *
 from services.accessibility import RULES as accessibility_rules
 from munigeo.models import *
-from munigeo.api import AdministrativeDivisionSerializer, GeoModelSerializer, \
-    GeoModelAPIView, MunicipalitySerializer
+from munigeo import api as munigeo_api
+
 
 # This allows us to find a serializer for Haystack search results
 serializers_by_model = {}
@@ -229,8 +229,8 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 
 register_view(ServiceViewSet, 'service')
 
-class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer, GeoModelSerializer,
-                     JSONAPISerializer):
+class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
+                     munigeo_api.GeoModelSerializer, JSONAPISerializer):
     connections = UnitConnectionSerializer(many=True)
     accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
 
@@ -292,7 +292,7 @@ def make_muni_ocd_id(name, rest=None):
     return s
 
 
-class UnitViewSet(GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
+class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
 
@@ -394,7 +394,7 @@ class SearchSerializer(serializers.Serializer):
         return data
 
 
-class SearchViewSet(GeoModelAPIView, viewsets.ViewSetMixin, generics.ListAPIView):
+class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics.ListAPIView):
     serializer_class = SearchSerializer
 
     def list(self, request, *args, **kwargs):
@@ -447,3 +447,28 @@ class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
             'messages': messages})
 
 register_view(AccessibilityRuleView, 'accessibility_rule', base_name='accessibility_rule')
+
+class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSerializer):
+    def to_native(self, obj):
+        ret = super(AdministrativeDivisionSerializer, self).to_native(obj)
+
+        req = self.context.get('request', None)
+        if req:
+            unit_include = req.QUERY_PARAMS.get('unit_include', None)
+        else:
+            unit_include = None
+        if ret['service_point_id'] and unit_include:
+            params = self.context
+            try:
+                unit = Unit.objects.get(id=ret['service_point_id'])
+            except Unit.DoesNotExist:
+                unit = None
+            ser = UnitSerializer(unit, context={'only': unit_include.split(',')})
+            ret['unit'] = ser.data
+
+        return ret
+
+class AdministrativeDivisionViewSet(munigeo_api.AdministrativeDivisionViewSet):
+    serializer_class = AdministrativeDivisionSerializer
+
+register_view(AdministrativeDivisionViewSet, 'administrative_division')

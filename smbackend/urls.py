@@ -8,8 +8,16 @@ from munigeo.api import all_views as munigeo_views
 # admin.autodiscover()
 
 router = routers.DefaultRouter()
+
+registered_api_views = set()
+
 for view in services_views + munigeo_views:
     kwargs = {}
+    if view['name'] in registered_api_views:
+        continue
+    else:
+        registered_api_views.add(view['name'])
+
     if 'base_name' in view:
         kwargs['base_name'] = view['base_name']
     router.register(view['name'], view['class'], **kwargs)
