@@ -7,9 +7,18 @@
                 "index_analyzer": "edgengram_analyzer",
                 "analyzer": null
             },
+            "autosuggest_exact": {
+                "type": "string",
+                "search_quote_analyzer": "autosuggest_exact_query",
+                "search_analyzer": "autosuggest_exact_query",
+                "index_analyzer": "autosuggest_exact",
+                "analyzer": null
+            },
             "text": {
                 "type": "string",
-                "analyzer": "default"
+                "index_analyzer": "fulltext_index",
+                "search_analyzer": "fulltext_query",
+                "analyzer": null
             },
             "autosuggest_extra_searchwords": {
                 "type": "string",

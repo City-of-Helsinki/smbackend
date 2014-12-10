@@ -1,19 +1,52 @@
 {
     "analysis": {
         "analyzer": {
-            "default": {
+            "fulltext_index": {
                 "tokenizer": "finnish",
-                "filter": ["lowercase", "voikko_filter"]
+                "filter": [
+                    "lowercase",
+                    "voikko_filter"
+                ]
+            },
+            "fulltext_query": {
+                "tokenizer": "finnish",
+                "filter": [
+                    "lowercase",
+                    "keyword_repeat",
+                    "voikko_filter_noncompounds",
+                    "unique"
+                ]
             },
             "autosuggest_query": {
                 "tokenizer": "finnish",
-                "filter": ["lowercase", "voikko_filter", "autosuggest_truncate"],
+                "filter": [
+                    "lowercase",
+                    "keyword_repeat",
+                    "voikko_filter_noncompounds",
+                    "autosuggest_truncate",
+                    "unique"
+                ],
                 "type": "custom"
             },
             "edgengram_analyzer": {
                 "filter": [
-                    "lowercase", "voikko_filter", "haystack_edgengram"],
+                    "lowercase",
+                    "keyword_repeat",
+                    "voikko_filter",
+                    "haystack_edgengram",
+                    "unique"
+                ],
                 "tokenizer": "finnish",
+                "type": "custom"
+            },
+            "autosuggest_exact": {
+                "tokenizer": "keyword",
+                "filter": ["lowercase", "haystack_edgengram"],
+                "type": "custom"
+            },
+            "autosuggest_exact_query": {
+                "tokenizer": "keyword",
+                "filter": ["lowercase", "autosuggest_truncate"],
                 "type": "custom"
             }
         },
@@ -21,6 +54,10 @@
             "voikko_filter": {
                 "type": "voikko",
                 "expandCompounds": true
+            },
+            "voikko_filter_noncompounds": {
+                "type": "voikko",
+                "expandCompounds": false
             },
             "autosuggest_truncate": {
                 "type": "truncate",

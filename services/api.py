@@ -416,7 +416,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         queryset = SearchQuerySet()
         if input_val:
-            queryset = queryset.filter(autosuggest=input_val).filter_or(autosuggest_extra_searchwords=input_val)
+            queryset = queryset.filter(autosuggest=input_val).filter_or(autosuggest_extra_searchwords=input_val).filter_or(autosuggest_exact__exact=input_val)
         else:
             queryset = queryset.filter(text=AutoQuery(q_val)).filter_or(extra_searchwords=q_val)
 
