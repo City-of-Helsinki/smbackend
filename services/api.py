@@ -6,7 +6,7 @@ from django.utils import translation
 from django.db.models import Q
 from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection, Point
 from django.contrib.gis.db.models.fields import GeometryField
-from django.contrib.gis.gdal import CoordTransform
+from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from modeltranslation.translator import translator, NotRegistered
 from rest_framework import serializers, viewsets, generics
 from rest_framework.response import Response
@@ -371,6 +371,16 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 raise ParseError("'lat' and 'lon' need to be floating point numbers")
             point = Point(lon, lat, srid=4326)
             queryset = queryset.distance(point).order_by('distance')
+
+        if 'bbox' in filters:
+            val = self.request.QUERY_PARAMS.get('bbox', None)
+            if 'bbox_srid' in filters:
+                ref = SpatialReference(filters.get('bbox_srid', None))
+            else:
+                ref = self.srs
+            if val:
+                bbox_filter = munigeo_api.build_bbox_filter(ref, val, 'location')
+                queryset = queryset.filter(**bbox_filter)
 
         return queryset
 
