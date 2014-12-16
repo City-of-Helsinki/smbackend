@@ -332,6 +332,17 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
             queryset = queryset.filter(services__in=list(srv_list)).distinct()
 
+        val = filters.get('exclude_services', None)
+        if val:
+            val = val.lower()
+            srv_list = set()
+            for srv_id in val.split(','):
+                srv_list |= set(Service.objects.all().by_ancestor(srv_id).values_list('id', flat=True))
+                srv_list.add(int(srv_id))
+
+            queryset = queryset.exclude(services__in=list(srv_list)).distinct()
+
+
         if 'division' in filters:
             # Divisions can be specified with form:
             # division=helsinki/kaupunginosa:kallio,vantaa/äänestysalue:5
