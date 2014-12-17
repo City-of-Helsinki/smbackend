@@ -107,3 +107,33 @@ divisions:
         name:
             fi: nimi
         service_point_id: toimipiste_id
+
+  - type: postcode_area
+    name: Postinumeroalue
+    ocd_id: postinumero
+    parent_ocd_id: 'ocd-division/country:fi'
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:kvkmo_postinumeroalue'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+
+  - type: local_school_district_fi
+    name: Oppilaaksiottoalue (suomi)
+    ocd_id: oppilaaksiottoalue
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:opev_2013_14_oppilaaksiottoalue_alakoulu_suomi'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        service_point_id: toimipiste_id
+
+  - type: local_school_district_sv
+    name: Oppilaaksiottoalue (ruotsi)
+    ocd_id: oppilaaksiottoalue
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:opev_2013_14_oppilaaksiottoalue_alakoulu_suomi'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        service_point_id: toimipiste_id
