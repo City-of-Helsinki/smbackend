@@ -118,9 +118,9 @@ divisions:
         origin_id: tunnus
         ocd_id: tunnus
 
-  - type: local_school_district_fi
-    name: Oppilaaksiottoalue (suomi)
-    ocd_id: oppilaaksiottoalue
+  - type: lower_comprehensive_school_district_fi
+    name: Oppilaaksiottoalue, alakoulu
+    ocd_id: oppilaaksiottoalue_alakoulu
     wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
     wfs_layer: 'hel:opev_2013_14_oppilaaksiottoalue_alakoulu_suomi'
     fields:
@@ -128,12 +128,44 @@ divisions:
         ocd_id: tunnus
         service_point_id: toimipiste_id
 
-  - type: local_school_district_sv
-    name: Oppilaaksiottoalue (ruotsi)
-    ocd_id: oppilaaksiottoalue
+  - type: lower_comprehensive_school_district_sv
+    name: Oppilaaksiottoalue, alakoulu (ruotsi)
+    ocd_id: oppilaaksiottoalue_alakoulu_sv
     wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
-    wfs_layer: 'hel:opev_2013_14_oppilaaksiottoalue_alakoulu_suomi'
+    wfs_layer: 'hel:opev_2013_14_oppilaaksiottoalue_alakoulu_ruotsi'
     fields:
         origin_id: tunnus
         ocd_id: tunnus
+        service_point_id: toimipiste_id
+
+  - type: upper_comprehensive_school_district_fi
+    name: Oppilaaksiottoalue, yläkoulu
+    ocd_id: oppilaaksiottoalue_ylakoulu
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:opev_2013_14_oppilaaksiottoalue_ylakoulu_suomi'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        service_point_id: toimipiste_id
+
+  - type: upper_comprehensive_school_district_sv
+    name: Oppilaaksiottoalue, yläkoulu (ruotsi)
+    ocd_id: oppilaaksiottoalue_ylakoulu_sv
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:opev_2013_14_oppilaaksiottoalue_ylakoulu_ruotsi'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        service_point_id: toimipiste_id
+
+  - type: maternity_clinic_district
+    name: Neuvola-alue
+    ocd_id: neuvola-alue
+    wfs_url: 'http://geoserver.hel.fi/geoserver/hel/ows?service=WFS'
+    wfs_layer: 'hel:sote_neuvola_aluejako'
+    fields:
+        origin_id: tunnus
+        ocd_id: tunnus
+        name:
+            fi: tunnus
         service_point_id: toimipiste_id
