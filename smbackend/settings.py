@@ -41,7 +41,6 @@ INSTALLED_APPS = (
     'django_extensions',
     'modeltranslation',
     'haystack',
-    'south',
     'munigeo',
     'services',
 )
