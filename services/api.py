@@ -484,8 +484,9 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
                 unit = Unit.objects.get(id=ret['service_point_id'])
             except Unit.DoesNotExist:
                 unit = None
-            ser = UnitSerializer(unit, context={'only': unit_include.split(',')})
-            ret['unit'] = ser.data
+            if unit:
+                ser = UnitSerializer(unit, context={'only': unit_include.split(',')})
+                ret['unit'] = ser.data
 
         return ret
 
