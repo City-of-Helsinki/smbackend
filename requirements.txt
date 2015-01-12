@@ -14,5 +14,4 @@ django-mptt
 django-haystack
 lxml
 raven
-pyelasticsearch
 elasticsearch
