@@ -381,6 +381,16 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             except ValueError:
                 raise ParseError("'lat' and 'lon' need to be floating point numbers")
             point = Point(lon, lat, srid=4326)
+            queryset = queryset.distance(point)
+
+            if 'distance' in filters:
+                try:
+                    distance = float(filters['distance'])
+                    if not distance > 0:
+                        raise ValueError()
+                except ValueError:
+                    raise ParseError("'distance' needs to be a floating point number")
+                queryset = queryset.filter(location__distance_lte=(point, distance))
             queryset = queryset.distance(point).order_by('distance')
 
         if 'bbox' in filters:
@@ -396,6 +406,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         return queryset
 
 register_view(UnitViewSet, 'unit')
+
 
 class SearchSerializer(serializers.Serializer):
     def to_native(self, search_result):
