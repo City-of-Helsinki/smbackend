@@ -248,18 +248,22 @@ class Command(BaseCommand):
             {
                 'name_fi': 'Asuminen ja kaupunkiympäristö',
                 'name_en': 'Housing and urban environment',
+                'name_sv': 'Boende och stadsmiljö',
                 'id': 50000
             }, {
                 'name_fi': 'Työ, talous ja hallinto',
                 'name_en': 'Employment, economy and administration',
+                'name_sv': 'Arbete, ekonomi och förvaltning',
                 'id': 50001
             }, {
                 'name_fi': 'Kulttuuri, liikunta ja vapaa-aika',
                 'name_en': 'Culture, sports and leisure',
+                'name_sv': 'Kultur, motion och fritid',
                 'id': 50002
             }, {
                 'name_fi': 'Liikenne ja kartat',
                 'name_en': 'Traffic and maps',
+                'name_sv': 'Trafik och kartor',
                 'id': 50003
             },
         ]
