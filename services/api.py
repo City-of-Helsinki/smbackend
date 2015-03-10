@@ -436,6 +436,13 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             raise ParseError("Invalid language supplied. Supported languages: %s" %
                              ','.join(LANGUAGES))
 
+        context = {}
+        only = self.request.QUERY_PARAMS.get('only', '')
+        if only:
+            self.only_fields = [x.strip() for x in only.split(',') if x]
+        else:
+            self.only_fields = None
+
         input_val = request.QUERY_PARAMS.get('input', '').strip()
         q_val = request.QUERY_PARAMS.get('q', '').strip()
         if not input_val and not q_val:
@@ -466,6 +473,12 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         translation.activate(old_language)
 
         return resp
+
+    def get_serializer_context(self):
+        context = super(SearchViewSet, self).get_serializer_context()
+        if self.only_fields:
+            context['only'] = self.only_fields
+        return context
 
 register_view(SearchViewSet, 'search', base_name='search')
 
