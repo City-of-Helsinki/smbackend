@@ -44,6 +44,9 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
 
 class UnitIndex(ServiceMapBaseIndex):
 
+    def read_queryset(self, using=None):
+        return self.get_model().objects.only('id', 'name', 'location', 'root_services')
+
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
         self.model = get_model('services', 'Unit')

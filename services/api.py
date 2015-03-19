@@ -278,8 +278,6 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             ret['services'] = services_json
         return ret
 
-        return ret
-
     class Meta:
         model = Unit
         exclude = ['connection_hash', 'accessibility_property_hash']
@@ -407,20 +405,29 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
 register_view(UnitViewSet, 'unit')
 
-
 class SearchSerializer(serializers.Serializer):
+    def __init__(self, *args, **kwargs):
+        super(SearchSerializer, self).__init__(*args, **kwargs)
+        self.serializer_by_model = {}
+
+    def get_result_serializer(self, model, instance):
+        ser = self.serializer_by_model.get(model)
+        if not ser:
+            ser_class = serializers_by_model[model]
+            assert model in serializers_by_model, "Serializer for %s not found" % model
+            ser = ser_class(context=self.context.copy())
+            self.serializer_by_model[model] = ser
+        ser.object = instance
+        ser._data = None
+        return ser
+
     def to_native(self, search_result):
         if not search_result or not search_result.model:
             return None
         model = search_result.model
-        assert model in serializers_by_model, "Serializer for %s not found" % model
-        ser_class = serializers_by_model[model]
-        context = self.context.copy()
-        if ser_class == UnitSerializer:
-            context['include'] = 'services'
-        elif ser_class == ServiceSerializer:
-            context['include'] = 'ancestors'
-        data = ser_class(search_result.object, context=context).data
+        serializer = self.get_result_serializer(
+            model, search_result.object)
+        data = serializer.data
         data['object_type'] = model._meta.model_name
         data['score'] = search_result.score
         return data
