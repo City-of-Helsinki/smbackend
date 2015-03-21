@@ -466,13 +466,26 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         queryset = SearchQuerySet()
         municipality = request.QUERY_PARAMS.get('municipality')
-        if municipality:
-            print(municipality)
-            queryset = queryset.filter(municipality=municipality)
         if input_val:
-            queryset = queryset.filter(autosuggest=input_val).filter_or(autosuggest_extra_searchwords=input_val).filter_or(autosuggest_exact__exact=input_val)
+            queryset = (
+                queryset
+                .filter(autosuggest=input_val)
+                .filter_or(autosuggest_extra_searchwords=input_val)
+                .filter_or(autosuggest_exact__exact=input_val)
+            )
         else:
-            queryset = queryset.filter(text=AutoQuery(q_val)).filter_or(extra_searchwords=q_val)
+            queryset = (
+                queryset
+                .filter(text=AutoQuery(q_val))
+                .filter_or(extra_searchwords=q_val)
+            )
+        if municipality:
+            municipality_queryset = (
+                SearchQuerySet()
+                .filter(municipality=municipality)
+                .filter_or(django_ct='services.service')
+            )
+            queryset &= municipality_queryset
 
         Unit.search_objects.fields = self.only_fields
         self.object_list = queryset.load_all()
