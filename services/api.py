@@ -466,6 +466,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         else:
             queryset = queryset.filter(text=AutoQuery(q_val)).filter_or(extra_searchwords=q_val)
 
+        Unit.search_objects.fields = self.only_fields
         self.object_list = queryset.load_all()
 
         # Switch between paginated or standard style responses

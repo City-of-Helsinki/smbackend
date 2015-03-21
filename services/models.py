@@ -98,6 +98,12 @@ class Department(models.Model):
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
+class UnitSearchManager(models.GeoManager):
+    def get_queryset(self):
+        qs = super(UnitSearchManager, self).get_queryset()
+        if self.fields:
+            qs = qs.only(*self.fields)
+        return qs
 
 @python_2_unicode_compatible
 class Unit(models.Model):
@@ -138,6 +144,7 @@ class Unit(models.Model):
     root_services = models.CommaSeparatedIntegerField(max_length=50, null=True)
 
     objects = models.GeoManager()
+    search_objects = UnitSearchManager()
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
