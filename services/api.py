@@ -302,6 +302,10 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     def get_queryset(self):
         queryset = super(UnitViewSet, self).get_queryset()
         filters = self.request.QUERY_PARAMS
+        if 'id' in filters:
+            id_list = filters['id'].split(',')
+            queryset = queryset.filter(id__in=id_list)
+
         if 'municipality' in filters:
             val = filters['municipality'].lower()
             if val.startswith('ocd-division'):
@@ -461,6 +465,10 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         translation.activate(self.lang_code)
 
         queryset = SearchQuerySet()
+        municipality = request.QUERY_PARAMS.get('municipality')
+        if municipality:
+            print(municipality)
+            queryset = queryset.filter(municipality=municipality)
         if input_val:
             queryset = queryset.filter(autosuggest=input_val).filter_or(autosuggest_extra_searchwords=input_val).filter_or(autosuggest_exact__exact=input_val)
         else:

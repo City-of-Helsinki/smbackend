@@ -43,6 +43,7 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
 
 
 class UnitIndex(ServiceMapBaseIndex):
+    municipality = indexes.CharField(model_attr='municipality_id', null=True)
 
     def read_queryset(self, using=None):
         return self.get_model().search_objects
