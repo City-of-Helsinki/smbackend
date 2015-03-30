@@ -222,6 +222,9 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = super(ServiceViewSet, self).get_queryset()
         args = self.request.QUERY_PARAMS
+        if 'id' in args:
+            id_list = args['id'].split(',')
+            queryset = queryset.filter(id__in=id_list)
         if 'ancestor' in args:
             val = args['ancestor']
             queryset = queryset.by_ancestor(val)
