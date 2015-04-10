@@ -1,17 +1,23 @@
-Django
-djangorestframework
-markdown
-django-filter
-django-modeltranslation
-requests
-requests_cache
--e git+https://github.com/juyrjola/munigeo#egg=django-munigeo
-pytz
-django-cors-headers
-django-extensions
-psycopg2
-django-mptt
-django-haystack
-lxml
-raven
-elasticsearch
+Django==1.7.7
+djangorestframework==2.3.13
+Markdown==2.4.1
+django-filter==0.7
+django-modeltranslation==0.8.1
+requests==2.3.0
+requests-cache==0.4.4
+-e git+https://github.com/juyrjola/munigeo@f4bb2de93cde10f2ac8583d9585d4c7761036101#egg=django_munigeo-master
+pytz==2014.3
+django-cors-headers==0.12
+django-extensions==1.3.7
+psycopg2==2.5.3
+django-mptt==0.7.1
+django-haystack==2.3.1
+lxml==3.3.5
+raven==5.0.0
+elasticsearch==1.3.0
+pip-tools==0.3.5
+
+## The following requirements were added by pip --freeze:
+PyYAML==3.11
+six==1.9.0
+urllib3==1.10.2

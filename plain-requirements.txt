@@ -1,0 +1,19 @@
+Django
+djangorestframework
+Markdown
+django-filter
+django-modeltranslation
+requests
+requests_cache
+-e git+https://github.com/juyrjola/munigeo#egg=django-munigeo
+pytz
+django-cors-headers
+django-extensions
+psycopg2
+django-mptt
+django-haystack
+lxml
+raven
+elasticsearch
+pip-tools
+
