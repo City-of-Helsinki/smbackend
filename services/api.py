@@ -32,7 +32,10 @@ def register_view(klass, name, base_name=None):
         entry['base_name'] = base_name
     all_views.append(entry)
 
-    if klass.serializer_class and hasattr(klass.serializer_class.Meta, 'model'):
+    if (klass.serializer_class and
+        hasattr(klass.serializer_class, 'Meta') and
+        hasattr(klass.serializer_class.Meta, 'model')
+    ):
         model = klass.serializer_class.Meta.model
         serializers_by_model[model] = klass.serializer_class
 
@@ -49,7 +52,7 @@ class MPTTModelSerializer(serializers.ModelSerializer):
 class TranslatedModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super(TranslatedModelSerializer, self).__init__(*args, **kwargs)
-        model = self.opts.model
+        model = self.Meta.model
         try:
             trans_opts = translator.get_options_for_model(model)
         except NotRegistered:
@@ -64,8 +67,8 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
                 if key in self.fields:
                     del self.fields[key]
 
-    def to_native(self, obj):
-        ret = super(TranslatedModelSerializer, self).to_native(obj)
+    def to_representation(self, obj):
+        ret = super(TranslatedModelSerializer, self).to_representation(obj)
         if obj is None:
             return ret
 
@@ -131,7 +134,7 @@ class JSONAPISerializer(serializers.ModelSerializer):
                 del self.fields[field_name]
 
 class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
-    children = serializers.PrimaryKeyRelatedField(many=True)
+    children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     def __init__(self, *args, **kwargs):
         super(ServiceSerializer, self).__init__(*args, **kwargs)
@@ -139,8 +142,8 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPIS
         if not keep_fields or 'root' in keep_fields:
             self.fields['root'] = serializers.SerializerMethodField('root_services')
 
-    def to_native(self, obj):
-        ret = super(ServiceSerializer, self).to_native(obj)
+    def to_representation(self, obj):
+        ret = super(ServiceSerializer, self).to_representation(obj)
         include_fields = self.context.get('include', [])
         if 'ancestors' in include_fields:
             ancestors = obj.get_ancestors(ascending=True)
@@ -243,13 +246,13 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             if f not in self.fields:
                 continue
             ser = self.fields[f]
-            if 'id' in ser.fields:
-                del ser.fields['id']
-            if 'unit' in ser.fields:
-                del ser.fields['unit']
+            if 'id' in ser.child.fields:
+                del ser.child.fields['id']
+            if 'unit' in ser.child.fields:
+                del ser.child.fields['unit']
 
-    def to_native(self, obj):
-        ret = super(UnitSerializer, self).to_native(obj)
+    def to_representation(self, obj):
+        ret = super(UnitSerializer, self).to_representation(obj)
         if hasattr(obj, 'distance') and obj.distance:
             ret['distance'] = obj.distance.m
 
@@ -277,7 +280,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
         if 'services' in include_fields:
             context = self.context.copy()
             context['ancestors'] = True
-            services_json = ServiceSerializer(obj.services.all(), context=context).data
+            services_json = ServiceSerializer(obj.services.all(), context=context, many=True).data
             ret['services'] = services_json
         return ret
 
@@ -422,13 +425,16 @@ class SearchSerializer(serializers.Serializer):
         if not ser:
             ser_class = serializers_by_model[model]
             assert model in serializers_by_model, "Serializer for %s not found" % model
-            ser = ser_class(context=self.context.copy())
+            ser = ser_class(context=self.context.copy(), many=False)
             self.serializer_by_model[model] = ser
-        ser.object = instance
-        ser._data = None
+        # TODO: another way to serialize with new data without
+        # costly Serializer instantiation
+        ser.instance = instance
+        if hasattr(ser, '_data'):
+            del ser._data
         return ser
 
-    def to_native(self, search_result):
+    def to_representation(self, search_result):
         if not search_result or not search_result.model:
             return None
         model = search_result.model
@@ -495,12 +501,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         # Switch between paginated or standard style responses
         page = self.paginate_queryset(self.object_list)
-        if page is not None:
-            serializer = self.get_pagination_serializer(page)
-        else:
-            serializer = self.get_serializer(self.object_list, many=True)
-
-        resp = Response(serializer.data)
+        serializer = self.get_serializer(page, many=True)
+        resp = self.get_paginated_response(serializer.data)
 
         translation.activate(old_language)
 
@@ -526,8 +528,8 @@ class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
 register_view(AccessibilityRuleView, 'accessibility_rule', base_name='accessibility_rule')
 
 class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSerializer):
-    def to_native(self, obj):
-        ret = super(AdministrativeDivisionSerializer, self).to_native(obj)
+    def to_representation(self, obj):
+        ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
 
         req = self.context.get('request', None)
         if req:

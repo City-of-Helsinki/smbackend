@@ -114,8 +114,9 @@ DEFAULT_OCD_MUNICIPALITY = 'kunta'
 STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
-    'PAGINATE_BY': 20,
+    'PAGE_SIZE': 20,
     'PAGINATE_BY_PARAM': 'page_size',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'MAX_PAGINATE_BY': 1000,
     'URL_FIELD_NAME': 'resource_uri',
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
