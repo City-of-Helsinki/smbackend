@@ -5,7 +5,7 @@ django-filter==0.9.2
 django-modeltranslation==0.8.1
 requests==2.6.0
 requests-cache==0.4.9
--e git+https://github.com/juyrjola/munigeo@f4bb2de93cde10f2ac8583d9585d4c7761036101#egg=django_munigeo-master
+-e git+https://github.com/tituomin/munigeo@aad185a9877fad5906081e9e34e6100988932f2e#egg=django_munigeo-master
 pytz==2015.2
 django-cors-headers==1.0.0
 django-extensions==1.5.2
