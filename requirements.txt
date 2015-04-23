@@ -11,7 +11,9 @@ django-cors-headers==1.0.0
 django-extensions==1.5.2
 psycopg2==2.6
 django-mptt==0.7.1
-django-haystack==2.3.1
+# django-haystack==2.3.1 Isn't compatible with Django >1.7 + Raven, use the following
+# until 2.4.0 has been released.
+-e git+https://github.com/django-haystack/django-haystack.git@97475f2813a36e402296d5f2389fe10cd4cd1e0b#egg=django-haystack
 lxml==3.4.2
 raven==5.2.0
 elasticsearch==1.4.0
