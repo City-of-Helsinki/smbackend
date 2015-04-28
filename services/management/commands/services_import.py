@@ -534,8 +534,8 @@ class Command(BaseCommand):
                         c._changed = True
                 c.save()
             obj.connection_hash = conn_hash
+            obj._changed = True
             update_fields.append('connection_hash')
-
 
         if obj.accessibility_property_hash != acp_hash:
             self.logger.info("%s accessibility property set changed (%s vs. %s)" %
@@ -554,6 +554,7 @@ class Command(BaseCommand):
                 uap.save()
 
             obj.accessibility_property_hash = acp_hash
+            obj._changed = True
             update_fields.append('accessibility_property_hash')
 
         """
