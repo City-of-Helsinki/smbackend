@@ -9,7 +9,6 @@ from haystack.utils.loading import load_backend
 
 class MultilingualSearchBackend(BaseSearchBackend):
     def _operate(self, method_name, *args, **kwargs):
-        initial_language = translation.get_language()[:2]
         backends = set()
         for language, _ in settings.LANGUAGES:
             using = '%s-%s' % (self.connection_alias, language)
@@ -18,11 +17,10 @@ class MultilingualSearchBackend(BaseSearchBackend):
                 continue
             else:
                 backends.add(using)
-            translation.activate(language)
-            backend = connections[using].get_backend()
-            fn = getattr(backend.parent_class, method_name)
-            fn(backend, *args, **kwargs)
-        translation.activate(initial_language)
+            with translation.override(language):
+                backend = connections[using].get_backend()
+                fn = getattr(backend.parent_class, method_name)
+                fn(backend, *args, **kwargs)
 
     def update(self, *args, **kwargs):
         self._operate('update', *args, **kwargs)
