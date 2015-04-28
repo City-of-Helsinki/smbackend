@@ -81,7 +81,7 @@ class Service(MPTTModel):
 
 @python_2_unicode_compatible
 class Organization(models.Model):
-    id = models.IntegerField(max_length=20, primary_key=True)
+    id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=200, db_index=True)
     data_source_url = models.URLField(max_length=200)
 
