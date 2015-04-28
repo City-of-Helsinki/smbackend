@@ -5,7 +5,7 @@ django-filter
 django-modeltranslation
 requests
 requests_cache
--e git+https://github.com/tituomin/munigeo#egg=django-munigeo
+-e git+https://github.com/City-of-Helsinki/munigeo#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions
