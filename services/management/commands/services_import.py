@@ -611,7 +611,7 @@ class Command(BaseCommand):
             queryset = Unit.objects.filter(id=obj_id)
         else:
             obj_list = self._fetch_units()
-            queryset = Unit.objects.all().select_related('services', 'keywords')
+            queryset = Unit.objects.all().prefetch_related('services', 'keywords')
 
         self.logger.info("Fetching unit connections")
         if self.options['single']:
