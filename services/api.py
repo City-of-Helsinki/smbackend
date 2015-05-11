@@ -465,6 +465,11 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             self.only_fields = [x.strip() for x in only.split(',') if x]
         else:
             self.only_fields = None
+        include = self.request.QUERY_PARAMS.get('include', '')
+        if only:
+            self.include_fields = [x.strip() for x in include.split(',') if x]
+        else:
+            self.include_fields = None
 
         input_val = request.QUERY_PARAMS.get('input', '').strip()
         q_val = request.QUERY_PARAMS.get('q', '').strip()
@@ -500,6 +505,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             queryset &= municipality_queryset
 
         Unit.search_objects.fields = self.only_fields
+        Unit.search_objects.include_fields = self.include_fields
         self.object_list = queryset.load_all()
 
         # Switch between paginated or standard style responses
@@ -515,6 +521,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         context = super(SearchViewSet, self).get_serializer_context()
         if self.only_fields:
             context['only'] = self.only_fields
+        if self.include_fields:
+            context['include'] = self.include_fields
         return context
 
 register_view(SearchViewSet, 'search', base_name='search')
