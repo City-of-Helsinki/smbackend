@@ -435,12 +435,23 @@ class SearchSerializer(serializers.Serializer):
         super(SearchSerializer, self).__init__(*args, **kwargs)
         self.serializer_by_model = {}
 
+    def _strip_context(self, context, model):
+        if model == Unit:
+            key = 'unit'
+        else:
+            key = 'service'
+        for spec in ['include', 'only']:
+            if spec in context:
+                context[spec] = context[spec].get(key, [])
+        return context
+
     def get_result_serializer(self, model, instance):
         ser = self.serializer_by_model.get(model)
         if not ser:
             ser_class = serializers_by_model[model]
             assert model in serializers_by_model, "Serializer for %s not found" % model
-            ser = ser_class(context=self.context.copy(), many=False)
+            context = self._strip_context(self.context.copy(), model)
+            ser = ser_class(context=context, many=False)
             self.serializer_by_model[model] = ser
         # TODO: another way to serialize with new data without
         # costly Serializer instantiation
@@ -472,16 +483,19 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                              ','.join(LANGUAGES))
 
         context = {}
-        only = self.request.QUERY_PARAMS.get('only', '')
-        if only:
-            self.only_fields = [x.strip() for x in only.split(',') if x]
-        else:
-            self.only_fields = None
-        include = self.request.QUERY_PARAMS.get('include', '')
-        if only:
-            self.include_fields = [x.strip() for x in include.split(',') if x]
-        else:
-            self.include_fields = None
+
+        specs = {
+            'only_fields': self.request.QUERY_PARAMS.get('only', None),
+            'include_fields': self.request.QUERY_PARAMS.get('include', None)
+        }
+        for key in specs.keys():
+            if specs[key]:
+                setattr(self, key, {})
+                fields = [x.strip().split('.') for x in specs[key].split(',') if x]
+                for f in fields:
+                    getattr(self, key).setdefault(f[0], []).append(f[1])
+            else:
+                setattr(self, key, None)
 
         input_val = request.QUERY_PARAMS.get('input', '').strip()
         q_val = request.QUERY_PARAMS.get('q', '').strip()
