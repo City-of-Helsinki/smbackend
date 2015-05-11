@@ -286,8 +286,12 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             ret['municipality'] = muni_json
         # Not using actual serializer instances below is a performance optimization.
         if 'services' in include_fields:
-            services_json = [{'id': s.id, 'name': s.name_fi}
-                             for s in obj.services.all()]
+            services_json = []
+            for s in obj.services.all():
+                name = {}
+                for lang in LANGUAGES:
+                    name[lang] = getattr(s, 'name_{0}'.format(lang))
+                    services_json.append({'id': s.id, 'name': name})
             ret['services'] = services_json
         if 'accessibility_properties' in include_fields:
             acc_props = [{'variable': s.variable_id, 'value': s.value}
