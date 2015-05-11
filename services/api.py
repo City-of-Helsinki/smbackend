@@ -179,15 +179,19 @@ class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = super(JSONAPIViewSet, self).get_queryset()
         model = queryset.model
         if self.only_fields:
-            model_fields = model._meta.fields
-            # Verify all field names are valid
+            model_fields = model._meta.get_fields()
+            #Verify all field names are valid
             for field_name in self.only_fields:
                 for field in model_fields:
                     if field.name == field_name:
                         break
                 else:
                     raise ParseError("field '%s' supplied in 'only' not found" % field_name)
-            queryset = queryset.only(*self.only_fields)
+            fields = self.only_fields.copy()
+            if 'parent' in fields:
+                fields.remove('parent')
+                fields.append('parent_id')
+            queryset = queryset.only(*fields)
         return queryset
 
     def get_serializer_context(self):
