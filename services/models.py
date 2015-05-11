@@ -101,8 +101,8 @@ class Department(models.Model):
 class UnitSearchManager(models.GeoManager):
     def get_queryset(self):
         qs = super(UnitSearchManager, self).get_queryset()
-        if self.fields:
-            qs = qs.only(*self.fields)
+        if self.only_fields:
+            qs = qs.only(*self.only_fields)
         if self.include_fields:
             for f in self.include_fields:
                 qs = qs.prefetch_related(f)
