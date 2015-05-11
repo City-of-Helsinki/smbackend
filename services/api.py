@@ -284,11 +284,15 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
         if 'municipality' in include_fields and obj.municipality:
             muni_json = munigeo_api.MunicipalitySerializer(obj.municipality, context=self.context).data
             ret['municipality'] = muni_json
+        # Not using actual serializer instances below is a performance optimization.
         if 'services' in include_fields:
-            context = self.context.copy()
-            context['ancestors'] = True
-            services_json = ServiceSerializer(obj.services.all(), context=context, many=True).data
+            services_json = [{'id': s.id, 'name': s.name_fi}
+                             for s in obj.services.all()]
             ret['services'] = services_json
+        if 'accessibility_properties' in include_fields:
+            acc_props = [{'variable': s.variable_id, 'value': s.value}
+                         for s in obj.accessibility_properties.all()]
+            ret['accessibility_properties'] = acc_props
         return ret
 
     class Meta:
