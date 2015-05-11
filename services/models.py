@@ -103,8 +103,9 @@ class UnitSearchManager(models.GeoManager):
         qs = super(UnitSearchManager, self).get_queryset()
         if self.fields:
             qs = qs.only(*self.fields)
-        for f in self.include_fields:
-            qs = qs.prefetch_related(f)
+        if self.include_fields:
+            for f in self.include_fields:
+                qs = qs.prefetch_related(f)
         return qs
 
 @python_2_unicode_compatible
