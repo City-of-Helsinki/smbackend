@@ -149,6 +149,9 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPIS
             ancestors = obj.get_ancestors(ascending=True)
             ser = ServiceSerializer(ancestors, many=True, context={'only': ['name']})
             ret['ancestors'] = ser.data
+        only_fields = self.context.get('only', [])
+        if 'parent' in only_fields:
+            ret['parent'] = obj.parent_id
         return ret
 
     def root_services(self, obj):
