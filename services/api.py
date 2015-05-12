@@ -530,8 +530,11 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             )
             queryset &= municipality_queryset
 
-        Unit.search_objects.only_fields = self.only_fields['unit']
-        Unit.search_objects.include_fields = self.include_fields['unit']
+        only = getattr(self, 'only_fields') or {}
+        include = getattr(self, 'include_fields') or {}
+        Unit.search_objects.only_fields = only.get('unit')
+        Unit.search_objects.include_fields = include.get('unit')
+
         self.object_list = queryset.load_all()
 
         # Switch between paginated or standard style responses
