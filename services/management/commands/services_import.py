@@ -76,7 +76,8 @@ class Command(BaseCommand):
             else:
                 val = None
             if max_length and val and len(val) > max_length:
-                self.logger.warning("%s: field '%s' too long" % (obj, obj_field_name))
+                if self.verbosity:
+                    self.logger.warning("%s: field '%s' too long" % (obj, obj_field_name))
                 val = None
             obj_key = '%s_%s' % (obj_field_name, lang)
             obj_val = getattr(obj, obj_key, None)
@@ -235,7 +236,8 @@ class Command(BaseCommand):
                     parent['child_ids_dupes'] = [srv['id'] if x == srv2['id'] else x for x in parent['child_ids_dupes']]
                 count += 1
 
-        self.logger.info("Found %d duplicate services" % count)
+        if self.verbosity:
+            self.logger.info("Found %d duplicate services" % count)
 
     @db.transaction.atomic
     def import_services(self):
@@ -358,7 +360,8 @@ class Command(BaseCommand):
         if old_kw_set != obj.new_keywords:
             old_kw_str = ', '.join([self.keywords_by_id[x].name for x in old_kw_set])
             new_kw_str = ', '.join([self.keywords_by_id[x].name for x in obj.new_keywords])
-            print("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
+            if self.verbosity:
+                print("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
             obj.keywords = list(obj.new_keywords)
             obj._changed = True
 
@@ -390,7 +393,8 @@ class Command(BaseCommand):
             obj._changed = True
 
         if not 'address_city_fi' in info and 'latitude' in info and 'longitude' in info:
-            self.logger.warning("%s: coordinates present but no city" % obj)
+            if self.verbosity:
+                self.logger.warning("%s: coordinates present but no city" % obj)
         municipality_id = None
         muni_name = info.get('address_city_fi', None)
         if not muni_name and 'address_zip' in info:
@@ -407,7 +411,8 @@ class Command(BaseCommand):
                 postcode = info.get('address_zip', None)
                 muni_name = self.postcodes.get(postcode, None)
                 if muni_name:
-                    self.logger.warning('%s: municipality to %s based on post code %s (was %s)' % (obj, muni_name, postcode, info.get('address_city_fi')))
+                    if self.verbosity:
+                        self.logger.warning('%s: municipality to %s based on post code %s (was %s)' % (obj, muni_name, postcode, info.get('address_city_fi')))
                     muni_name = muni_name.lower()
             if muni_name:
                 muni = self.muni_by_name[muni_name]
@@ -441,7 +446,7 @@ class Command(BaseCommand):
                 setattr(obj, field_name, val)
                 field = obj._meta.get_field(field_name)
                 max_length = getattr(field, 'max_length', 0)
-                if max_length and val and len(val) > max_length:
+                if max_length and val and len(val) > max_length and self.verbosity:
                     self.logger.error("Field '%s' too long (data: %s)" % (field_name, val))
                 obj._changed = True
 
@@ -463,7 +468,8 @@ class Command(BaseCommand):
                     p.transform(self.gps_to_target_ct)
                 location = p
             else:
-                print("Invalid coordinates (%f, %f) for %s" % (n, e, obj))
+                if self.verbosity:
+                    print("Invalid coordinates (%f, %f) for %s" % (n, e, obj))
 
         if location and obj.location:
             # If the distance is less than 10cm, assume the location
@@ -480,7 +486,8 @@ class Command(BaseCommand):
                 verb = "created"
             else:
                 verb = "changed"
-            print("%s %s" % (obj, verb))
+            if self.verbosity:
+                print("%s %s" % (obj, verb))
             obj.origin_last_modified_time = datetime.now(UTC_TIMEZONE)
             obj._changed = False
             obj.save()
@@ -490,7 +497,7 @@ class Command(BaseCommand):
         service_ids = sorted(info.get('service_ids', []))
         obj_service_ids = sorted(obj.services.values_list('id', flat=True))
         if obj_service_ids != service_ids:
-            if not obj._created:
+            if not obj._created and self.verbosity:
                 print("%s service set changed: %s -> %s" % (obj, obj_service_ids, service_ids))
             obj.services = service_ids
 
@@ -518,7 +525,8 @@ class Command(BaseCommand):
 
 
         if obj.connection_hash != conn_hash:
-            self.logger.info("%s connection set changed (%s vs. %s)" % (obj, obj.connection_hash, conn_hash))
+            if self.verbosity:
+                self.logger.info("%s connection set changed (%s vs. %s)" % (obj, obj.connection_hash, conn_hash))
             obj.connections.all().delete()
             for conn in info['connections']:
                 c = UnitConnection(unit=obj)
@@ -538,8 +546,9 @@ class Command(BaseCommand):
             update_fields.append('connection_hash')
 
         if obj.accessibility_property_hash != acp_hash:
-            self.logger.info("%s accessibility property set changed (%s vs. %s)" %
-                             (obj, obj.accessibility_property_hash, acp_hash))
+            if self.verbosity:
+                self.logger.info("%s accessibility property set changed (%s vs. %s)" %
+                                 (obj, obj.accessibility_property_hash, acp_hash))
             obj.accessibility_properties.all().delete()
             for acp in info['accessibility_properties']:
                 uap = UnitAccessibilityProperty(unit=obj)
@@ -581,7 +590,8 @@ class Command(BaseCommand):
     def _fetch_units(self):
         if hasattr(self, 'unit_list'):
             return self.unit_list
-        self.logger.info("Fetching units")
+        if self.verbosity:
+            self.logger.info("Fetching units")
         obj_list = self.pk_get('unit')
         self.unit_list = obj_list
         return obj_list
@@ -614,7 +624,8 @@ class Command(BaseCommand):
             obj_list = self._fetch_units()
             queryset = Unit.objects.all().prefetch_related('services', 'keywords')
 
-        self.logger.info("Fetching unit connections")
+        if self.verbosity:
+            self.logger.info("Fetching unit connections")
         if self.options['single']:
             connections = [self.pk_get('connection', obj_id)]
         else:
@@ -627,7 +638,8 @@ class Command(BaseCommand):
             conn_by_unit[unit_id].append(conn)
 
         self.accessibility_variables = {x.id: x for x in AccessibilityVariable.objects.all()}
-        self.logger.info("Fetching accessibility properties")
+        if self.verbosity:
+            self.logger.info("Fetching accessibility properties")
         if self.options['single']:
             acc_properties = [self.pk_get('accessibility_property', obj_id)]
         else:
@@ -659,7 +671,8 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def update_root_services(self):
-        print("Updating unit root services...")
+        if self.verbosity:
+            print("Updating unit root services...")
         for unit in Unit.objects.all().only('id', 'root_services'):
             new_srv_list = ','.join([str(x) for x in unit.get_root_services()])
             if new_srv_list != unit.root_services:
@@ -676,7 +689,8 @@ class Command(BaseCommand):
                 break
             srv_set |= set(parent_ids)
             current_set = parent_ids
-        print("Updating unit counts for %d services..." % len(srv_set))
+        if self.verbosity:
+            print("Updating unit counts for %d services..." % len(srv_set))
         srv_list = Service.objects.filter(id__in=srv_set)
         for srv in srv_list:
             srv.unit_count = srv.get_unit_count()
@@ -684,6 +698,7 @@ class Command(BaseCommand):
 
     def handle(self, **options):
         self.options = options
+        self.verbosity = int(options.get('verbosity', 1))
         self.org_syncher = None
         self.dept_syncher = None
         self.logger = logging.getLogger(__name__)
@@ -709,7 +724,8 @@ class Command(BaseCommand):
             if not self.options[imp]:
                 continue
             method = getattr(self, "import_%s" % imp)
-            print("Importing %s..." % imp)
+            if self.verbosity:
+                print("Importing %s..." % imp)
             method()
             import_count += 1
 
