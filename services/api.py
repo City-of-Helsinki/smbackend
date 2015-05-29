@@ -272,7 +272,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             ret['keywords'] = kw_dict
 
         if 'root_services' in ret:
-            if obj.root_services == None:
+            if obj.root_services == None or obj.root_services == '':
                 ret['root_services'] = None
             else:
                 ret['root_services'] = [int(x) for x in obj.root_services.split(',')]
