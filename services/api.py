@@ -521,6 +521,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 queryset
                 .filter(text=AutoQuery(q_val))
                 .filter_or(extra_searchwords=q_val)
+                .filter_or(address=q_val)
             )
         if municipality:
             municipality_queryset = (
@@ -592,3 +593,8 @@ class AdministrativeDivisionViewSet(munigeo_api.AdministrativeDivisionViewSet):
     serializer_class = AdministrativeDivisionSerializer
 
 register_view(AdministrativeDivisionViewSet, 'administrative_division')
+
+class AddressViewSet(munigeo_api.AddressViewSet):
+    serializer_class = munigeo_api.AddressSerializer
+
+register_view(AddressViewSet, 'address')

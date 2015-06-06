@@ -73,3 +73,12 @@ class ServiceIndex(ServiceMapBaseIndex):
     #     # if obj.name == 'NAME_TO_BOOST':
     #     #     data['boost'] = 1.1
     #     return data
+
+class AddressIndex(indexes.SearchIndex, indexes.Indexable):
+    text = indexes.CharField(use_template=False, document=True)
+    address = indexes.CharField(use_template=True)
+
+    def get_model(self):
+        return get_model('munigeo', 'Address')
+    def prepare_text(self, obj):
+        return ''
