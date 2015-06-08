@@ -577,12 +577,17 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
             unit_include = req.QUERY_PARAMS.get('unit_include', None)
         else:
             unit_include = None
-        if ret['service_point_id'] and unit_include:
+        service_point_id = ret['service_point_id']
+        if service_point_id and unit_include:
             params = self.context
             try:
-                unit = Unit.objects.get(id=ret['service_point_id'])
+                unit = Unit.objects.get(id=service_point_id)
             except Unit.DoesNotExist:
-                unit = None
+                try:
+                    unit_alias = UnitAlias.objects.get(second=service_point_id)
+                    unit = unit_alias.first
+                except UnitAlias.DoesNotExist:
+                    unit = None
             if unit:
                 ser = UnitSerializer(unit, context={'only': unit_include.split(',')})
                 ret['unit'] = ser.data

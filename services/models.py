@@ -185,3 +185,11 @@ class UnitConnection(models.Model):
     email = models.EmailField(max_length=100, null=True)
     phone = models.CharField(max_length=50, null=True)
     phone_mobile = models.CharField(max_length=50, null=True)
+
+@python_2_unicode_compatible
+class UnitAlias(models.Model):
+    first = models.ForeignKey(Unit, related_name='aliases')
+
+    # Not a foreign key, might need
+    # to reference nonexistent models
+    second = models.IntegerField(db_index=True, unique=True)

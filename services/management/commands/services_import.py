@@ -4,6 +4,7 @@ import sys
 import re
 import os
 import json
+import csv
 from datetime import datetime
 from optparse import make_option
 import logging
@@ -37,7 +38,7 @@ class Command(BaseCommand):
         make_option('--single', dest='single', action='store', metavar='ID', type='string', help='import only single entity'),
     ))
 
-    importer_types = ['organizations', 'departments', 'services', 'units']
+    importer_types = ['organizations', 'departments', 'services', 'units', 'aliases']
     supported_languages = ['fi', 'sv', 'en']
 
     def __init__(self):
@@ -668,6 +669,42 @@ class Command(BaseCommand):
             info['accessibility_properties'] = acp_list
             self._import_unit(syncher, info)
         syncher.finish()
+
+    def import_aliases(self):
+        path = os.path.join(settings.BASE_DIR, 'data', 'school_ids.csv')
+        try:
+            f = open(path, 'r')
+        except FileNotFoundError:
+            print("Aliases file {} not found".format(path))
+            return
+        RELEVANT_COLS = [3, 5] # IMPORTANT: verify the ids are in these columns
+        value_sets = {}
+        reader = csv.reader(f, delimiter=',')
+        next(reader)
+        for row in reader:
+            primary_id = row[1]
+            value_sets[primary_id] = set(
+                row[col] for col in RELEVANT_COLS
+                if row[col] and row[col].strip != ""
+            )
+        if len(value_sets) == 0:
+            print("No aliases found in file.")
+            return
+        counts = {'success': 0, 'duplicate': 0}
+        for primary, aliases in value_sets.items():
+            unit = Unit.objects.get(pk=primary)
+            for alias in aliases:
+                alias_object = UnitAlias(first=unit, second=alias)
+                try:
+                    alias_object.save()
+                    counts['success'] += 1
+                except db.IntegrityError:
+                    counts['duplicate'] += 1
+                    pass
+        if counts['success']:
+            print("Imported {} aliases.".format(counts['success']))
+        if counts['duplicate']:
+            print("Skipped {} aliases already in database.".format(counts['duplicate']))
 
     @db.transaction.atomic
     def update_root_services(self):
