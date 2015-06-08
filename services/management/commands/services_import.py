@@ -690,9 +690,12 @@ class Command(BaseCommand):
         if len(value_sets) == 0:
             print("No aliases found in file.")
             return
-        counts = {'success': 0, 'duplicate': 0}
+        counts = {'success': 0, 'duplicate': 0, 'notfound': 0}
         for primary, aliases in value_sets.items():
-            unit = Unit.objects.get(pk=primary)
+            try:
+                unit = Unit.objects.get(pk=primary)
+            except Unit.DoesNotExist:
+                counts['notfound'] += 1
             for alias in aliases:
                 alias_object = UnitAlias(first=unit, second=alias)
                 try:
@@ -703,6 +706,8 @@ class Command(BaseCommand):
                     pass
         if counts['success']:
             print("Imported {} aliases.".format(counts['success']))
+        if counts['notfound']:
+            print("{} units not found.".format(counts['notfound']))
         if counts['duplicate']:
             print("Skipped {} aliases already in database.".format(counts['duplicate']))
 
