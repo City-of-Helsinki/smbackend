@@ -1,1 +1,0 @@
-{{object.street}} {{object.number}}{% if object.number_end %}-{{object.number_end}}{% endif %}{% if object.letter %}{{object.letter}}{% endif %} {{object.street.municipality}}

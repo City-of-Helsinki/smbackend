@@ -76,9 +76,25 @@ class ServiceIndex(ServiceMapBaseIndex):
 
 class AddressIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(use_template=False, document=True)
-    address = indexes.CharField(use_template=True)
+    address = indexes.CharField(use_template=False)
 
     def get_model(self):
         return get_model('munigeo', 'Address')
     def prepare_text(self, obj):
         return ''
+    def prepare_address(self, obj):
+        number_end = ""
+        letter = ""
+        if obj.number_end:
+            number_end = "-" + obj.number_end
+        if obj.letter:
+            letter = obj.letter
+        return "{street} {number}{number_end}{letter} {municipality}".format(
+            street=obj.street,
+            number=obj.number,
+            number_end=number_end,
+            letter=letter,
+            municipality=obj.street.municipality
+        )
+    def get_updated_field(self):
+        return 'modified_at'
