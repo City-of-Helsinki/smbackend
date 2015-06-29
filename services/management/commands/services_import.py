@@ -517,14 +517,6 @@ class Command(BaseCommand):
             conn_hash = hashlib.sha1(conn_json).hexdigest()
         else:
             conn_hash = None
-
-        if info['accessibility_properties']:
-            acp_json = json.dumps(info['accessibility_properties'], ensure_ascii=False, sort_keys=True).encode('utf8')
-            acp_hash = hashlib.sha1(acp_json).hexdigest()
-        else:
-            acp_hash = None
-
-
         if obj.connection_hash != conn_hash:
             if self.verbosity:
                 self.logger.info("%s connection set changed (%s vs. %s)" % (obj, obj.connection_hash, conn_hash))
@@ -546,6 +538,11 @@ class Command(BaseCommand):
             obj._changed = True
             update_fields.append('connection_hash')
 
+        if info['accessibility_properties']:
+            acp_json = json.dumps(info['accessibility_properties'], ensure_ascii=False, sort_keys=True).encode('utf8')
+            acp_hash = hashlib.sha1(acp_json).hexdigest()
+        else:
+            acp_hash = None
         if obj.accessibility_property_hash != acp_hash:
             if self.verbosity:
                 self.logger.info("%s accessibility property set changed (%s vs. %s)" %
@@ -566,6 +563,27 @@ class Command(BaseCommand):
             obj.accessibility_property_hash = acp_hash
             obj._changed = True
             update_fields.append('accessibility_property_hash')
+
+        if info['sources']:
+            id_json = json.dumps(info['sources'], ensure_ascii=False, sort_keys=True).encode('utf8')
+            id_hash = hashlib.sha1(id_json).hexdigest()
+        else:
+            id_hash = None
+        if obj.identifier_hash != id_hash:
+            if self.verbosity:
+                self.logger.info("%s identifier set changed (%s vs. %s)" %
+                                 (obj, obj.identifier_hash, id_hash))
+            obj.identifiers.all().delete()
+            for uid in info['sources']:
+                ui = UnitIdentifier(unit=obj)
+                ui.namespace = uid.get('source')
+                ui.value = uid.get('id')
+                ui.save()
+
+            obj.identifier_hash = id_hash
+            obj._changed = True
+            update_fields.append('identifier_hash')
+
 
         """
         conn_by_type = {}

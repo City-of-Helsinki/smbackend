@@ -142,6 +142,8 @@ class Unit(models.Model):
         help_text='Automatically generated hash of connection info')
     accessibility_property_hash = models.CharField(max_length=40, null=True,
         help_text='Automatically generated hash of accessibility property info')
+    identifier_hash = models.CharField(max_length=40, null=True,
+        help_text='Automatically generated hash of other identifiers')
 
     # Cached fields for better performance
     root_services = models.CommaSeparatedIntegerField(max_length=50, null=True)
@@ -157,6 +159,13 @@ class Unit(models.Model):
         qs = Service.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         srv_list = qs.values_list('id', flat=True).distinct()
         return sorted(srv_list)
+
+
+@python_2_unicode_compatible
+class UnitIdentifier(models.Model):
+    unit = models.ForeignKey(Unit, db_index=True, related_name='identifiers')
+    namespace = models.CharField(max_length=50)
+    value = models.CharField(max_length=100)
 
 
 @python_2_unicode_compatible

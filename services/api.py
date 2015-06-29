@@ -224,6 +224,12 @@ class UnitAccessibilityPropertyViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UnitAccessibilityPropertySerializer
 
 
+class UnitIdentifierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UnitIdentifier
+        exclude = ['unit', 'id']
+
+
 class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
@@ -246,6 +252,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                      munigeo_api.GeoModelSerializer, JSONAPISerializer):
     connections = UnitConnectionSerializer(many=True)
     accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
+    identifiers = UnitIdentifierSerializer(many=True)
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
