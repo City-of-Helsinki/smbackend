@@ -7,8 +7,11 @@ from django.conf import settings
 from django.db.models import Q
 
 from munigeo.models import AdministrativeDivision, Municipality
+from munigeo.utils import get_default_srid
 
 DEFAULT_LANG = settings.LANGUAGES[0][0]
+PROJECTION_SRID = get_default_srid()
+
 
 def get_translated(obj, attr):
     key = "%s_%s" % (attr, DEFAULT_LANG)
@@ -117,7 +120,7 @@ class Unit(models.Model):
 
     provider_type = models.IntegerField()
 
-    location = models.PointField(null=True, srid=settings.PROJECTION_SRID)
+    location = models.PointField(null=True, srid=PROJECTION_SRID)
     department = models.ForeignKey(Department, null=True)
     organization = models.ForeignKey(Organization)
 

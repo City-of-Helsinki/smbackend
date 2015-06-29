@@ -475,7 +475,7 @@ class Command(BaseCommand):
         if location and obj.location:
             # If the distance is less than 10cm, assume the location
             # hasn't changed.
-            assert obj.location.srid == settings.PROJECTION_SRID
+            assert obj.location.srid == PROJECTION_SRID
             if location.distance(obj.location) < 0.10:
                 location = obj.location
         if location != obj.location:
@@ -670,7 +670,7 @@ class Command(BaseCommand):
                 acc_by_unit[unit_id] = []
             acc_by_unit[unit_id].append(ap)
 
-        self.target_srid = settings.PROJECTION_SRID
+        self.target_srid = PROJECTION_SRID
         self.bounding_box = Polygon.from_bbox(settings.BOUNDING_BOX)
         self.bounding_box.set_srid(4326)
         gps_srs = SpatialReference(4326)

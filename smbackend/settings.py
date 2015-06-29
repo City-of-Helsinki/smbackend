@@ -97,7 +97,7 @@ USE_TZ = True
 CORS_ORIGIN_ALLOW_ALL = True
 TASTYPIE_DEFAULT_FORMATS = ['json']
 
-PROJECTION_SRID = 3067 # ETRS TM35-FIN
+DEFAULT_SRID = 3067  # ETRS TM35-FIN
 # The Finnish national grid coordinates in TM35-FIN according to JHS-180
 # specification. We use it as a bounding box.
 BOUNDING_BOX = [-548576, 6291456, 1548576, 8388608]
