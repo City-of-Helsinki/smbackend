@@ -308,7 +308,10 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
 
     class Meta:
         model = Unit
-        exclude = ['connection_hash', 'accessibility_property_hash']
+        exclude = [
+            'connection_hash', 'accessibility_property_hash',
+            'identifier_hash',
+        ]
 
 
 def make_muni_ocd_id(name, rest=None):
