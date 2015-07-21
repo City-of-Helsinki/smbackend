@@ -15,13 +15,13 @@ echo --------------------------------- >> $LOG_FILE
     
 cd $ROOT_PATH
 
-python manage.py services_import --traceback --organizations --departments --services --units >> $LOG_FILE 2>&1
+nice python manage.py services_import --traceback --organizations --departments --services --units >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     cat $LOG_FILE
     exit 1
 fi
 
-python manage.py update_index -a 1 >> $LOG_FILE 2>&1
+nice python manage.py update_index -a 1 >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     cat $LOG_FILE
     exit 1
