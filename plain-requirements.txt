@@ -15,5 +15,4 @@ django-haystack
 lxml
 raven
 elasticsearch
-pip-tools
 djangorestframework-jsonp
