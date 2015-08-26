@@ -712,16 +712,16 @@ class Command(BaseCommand):
         for primary, aliases in value_sets.items():
             try:
                 unit = Unit.objects.get(pk=primary)
+                for alias in aliases:
+                    alias_object = UnitAlias(first=unit, second=alias)
+                    try:
+                        alias_object.save()
+                        counts['success'] += 1
+                    except db.IntegrityError:
+                        counts['duplicate'] += 1
+                        pass
             except Unit.DoesNotExist:
                 counts['notfound'] += 1
-            for alias in aliases:
-                alias_object = UnitAlias(first=unit, second=alias)
-                try:
-                    alias_object.save()
-                    counts['success'] += 1
-                except db.IntegrityError:
-                    counts['duplicate'] += 1
-                    pass
         if counts['success']:
             print("Imported {} aliases.".format(counts['success']))
         if counts['notfound']:
