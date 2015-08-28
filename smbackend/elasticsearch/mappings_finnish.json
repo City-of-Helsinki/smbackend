@@ -28,7 +28,7 @@
             },
             "extra_searchwords": {
                 "type": "string",
-                "analyzer": "default"
+                "analyzer": null
             }
         }
     }
