@@ -355,26 +355,40 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             pr_ids = val.split(',')
             queryset = queryset.filter(provider_type__in=pr_ids)
 
-        val = filters.get('service', None)
-        if val:
-            val = val.lower()
+        level = filters.get('level', None)
+        level_specs = None
+        if level:
+            if level != 'all':
+                level_specs = settings.LEVELS.get(level)
+
+        def services_by_ancestors(service_ids):
             srv_list = set()
-            for srv_id in val.split(','):
+            for srv_id in service_ids:
                 srv_list |= set(Service.objects.all().by_ancestor(srv_id).values_list('id', flat=True))
                 srv_list.add(int(srv_id))
+            return list(srv_list)
 
-            queryset = queryset.filter(services__in=list(srv_list)).distinct()
+        services = filters.get('service', None)
+        service_ids = None
+        if services:
+            services = services.lower()
+            service_ids = services.split(',')
+        elif level_specs:
+            if level_specs['type'] == 'include':
+                service_ids = level_specs['services']
+        if service_ids:
+            queryset = queryset.filter(services__in=services_by_ancestors(service_ids)).distinct()
 
+        service_ids = None
         val = filters.get('exclude_services', None)
         if val:
             val = val.lower()
-            srv_list = set()
-            for srv_id in val.split(','):
-                srv_list |= set(Service.objects.all().by_ancestor(srv_id).values_list('id', flat=True))
-                srv_list.add(int(srv_id))
-
-            queryset = queryset.exclude(services__in=list(srv_list)).distinct()
-
+            service_ids = val.split(',')
+        elif level_specs:
+            if level_specs['type'] == 'exclude':
+                service_ids = level_specs['services']
+        if service_ids:
+            queryset = queryset.exclude(services__in=services_by_ancestors(service_ids)).distinct()
 
         if 'division' in filters:
             # Divisions can be specified with form:

@@ -108,6 +108,30 @@ DEFAULT_COUNTRY = 'fi'
 # The word used for municipality in the OCD identifiers in the default country.
 DEFAULT_OCD_MUNICIPALITY = 'kunta'
 
+# Levels are groups or profiles of thematically related services
+LEVELS = {
+    'common': {
+        'type': 'include', # one of: {'exclude', 'include'}
+        # The service ids below are either included or excluded according
+        # to the type above.
+        'services': [
+            25002, # health stations
+            26444, # basic education
+            26414, # pre school education
+            27722 # municipal day care
+            # 25344, # recycling
+            # 25480, # public libraries
+        ]
+    },
+    'customer_service': {
+        'type': 'exclude',
+        'services': [
+            25658, # statues & art
+            25538  # wlan hotspots
+        ]
+    }
+}
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
