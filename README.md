@@ -14,9 +14,9 @@ You might need to start a new shell for the virtualenvwrapper commands to activa
 
 1. Make a Python virtual environment.
 
-`
+    ```
 mkvirtualenv -p /usr/bin/python3.4 smbackend
-`
+```
 
 2. Install pip requirements.
 
@@ -33,7 +33,7 @@ echo "CREATE EXTENSION postgis;" | psql smbackend
 
 4. Modify `local_settings.py` to contain the local database info.
 
-`
+   ```
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -43,19 +43,19 @@ DATABASES = {
         'PASSWORD': 'smbackend',
     }
 }
-`
+```
 
 5. Create database tables.
 
-`
+    ```
 ./manage.py syncdb
 ./manage.py migrate
-`
+```
 
 6. Import geo data.
 
-`
+    ```
 ./manage.py geo_import finland --municipalities
 ./manage.py geo_import helsinki --divisions
-`
+```
 
