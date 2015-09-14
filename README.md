@@ -20,18 +20,16 @@ mkvirtualenv -p /usr/bin/python3.4 smbackend
 
 2. Install pip requirements.
 
-`
-pip install -r requirements.txt
-`
-
+    ```pip install -r requirements.txt```
+ 
 3. Setup the PostGIS database.
 
-`
+    ```
 sudo su postgres
 createuser -R -S -D -P smbackend
 createdb -O smbackend -T template0 -l fi_FI.UTF8 -E utf8 smbackend
 echo "CREATE EXTENSION postgis;" | psql smbackend
-`
+```
 
 4. Modify `local_settings.py` to contain the local database info.
 
