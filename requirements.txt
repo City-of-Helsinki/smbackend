@@ -5,7 +5,7 @@ django-filter==0.10.0
 django-modeltranslation==0.10
 requests==2.7.0
 requests-cache==0.4.10
--e git+https://github.com/City-of-Helsinki/munigeo@cf0cafc1d8ac6d24745a7558c7a22233f17e2993#egg=django_munigeo-master
+-e git+https://github.com/City-of-Helsinki/munigeo@414b2665436234428a01816b1654d67063b0e12a#egg=django_munigeo-master
 pytz==2015.4
 django-cors-headers==1.1.0
 django-extensions==1.5.5
