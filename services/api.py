@@ -552,6 +552,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 SearchQuerySet()
                 .filter(municipality=municipality)
                 .filter_or(django_ct='services.service')
+                .filter_or(django_ct='munigeo.address')
             )
             queryset &= municipality_queryset
 
