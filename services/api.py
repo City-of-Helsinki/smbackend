@@ -22,23 +22,7 @@ from services.serializers import *
 from munigeo.models import *
 from munigeo import api as munigeo_api
 
-# This allows us to find a serializer for Haystack search results
-serializers_by_model = {}
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
-
-all_views = []
-def register_view(klass, name, base_name=None):
-    entry = {'class': klass, 'name': name}
-    if base_name is not None:
-        entry['base_name'] = base_name
-    all_views.append(entry)
-
-    if (klass.serializer_class and
-        hasattr(klass.serializer_class, 'Meta') and
-        hasattr(klass.serializer_class.Meta, 'model')
-    ):
-        model = klass.serializer_class.Meta.model
-        serializers_by_model[model] = klass.serializer_class
 
 class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Organization.objects.all()
