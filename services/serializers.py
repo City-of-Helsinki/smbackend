@@ -226,10 +226,10 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             if 'unit' in ser.child.fields:
                 del ser.child.fields['unit']
 
-    def make_cache_key(self, params, obj):
+    def make_cache_key(self, params, pk):
         params = self.context.get('request').QUERY_PARAMS
         representation_key = self._representation_spec_key(params)
-        return "sm_unit_{}_{}".format(representation_key, obj.pk)
+        return "sm_unit_{}_{}".format(representation_key, pk)
 
     def _representation_spec_key(self, params):
         only = sorted(params.get('only', []))
@@ -239,12 +239,13 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
         key_str = '/'.join(key_path).encode('utf-8')
         return hashlib.md5(key_str).hexdigest()
 
-    def to_representation(self, obj):
-        cache_key = self.make_cache_key('unit', obj)
+    def to_representation(self, pk):
+        cache_key = self.make_cache_key('unit', pk)
         data = cache.get(cache_key)
 
         if data:
             return data
+        obj = Unit.objects.get(pk=pk)
 
         ret = super(UnitSerializer, self).to_representation(obj)
         if hasattr(obj, 'distance') and obj.distance:

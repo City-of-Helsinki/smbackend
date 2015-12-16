@@ -243,7 +243,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 bbox_filter = munigeo_api.build_bbox_filter(ref, val, 'location')
                 queryset = queryset.filter(**bbox_filter)
 
-        return queryset
+        return queryset.values_list('id', flat=True)
 
 register_view(UnitViewSet, 'unit')
 
