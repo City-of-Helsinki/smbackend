@@ -16,7 +16,6 @@ lxml==3.4.4
 raven==5.4.4
 elasticsearch==1.6.0
 djangorestframework-jsonp==1.0.0
-## The following requirements were added by pip freeze:
-PyYAML==3.11
-six==1.9.0
+python-memcached==1.57
+## The following requirements were added by pip --freeze:
 urllib3==1.11

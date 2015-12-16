@@ -16,3 +16,4 @@ lxml
 raven
 elasticsearch
 djangorestframework-jsonp
+python-memcached
