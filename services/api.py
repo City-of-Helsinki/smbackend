@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 from rest_framework.views import APIView
 
-from haystack.query import SearchQuerySet
+from haystack.query import SearchQuerySet, ValuesListSearchQuerySet
 from haystack.inputs import AutoQuery
 
 from services.models import *
@@ -313,9 +313,10 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         Unit.search_objects.only_fields = only.get('unit')
         Unit.search_objects.include_fields = include.get('unit')
 
-        self.object_list = queryset.load_all()
+        self.object_list = queryset.values_list('id', 'score', flat=False)
 
         # Switch between paginated or standard style responses
+
         page = self.paginate_queryset(self.object_list)
         serializer = self.get_serializer(page, many=True)
         resp = self.get_paginated_response(serializer.data)

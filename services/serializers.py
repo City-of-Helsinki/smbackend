@@ -24,7 +24,7 @@ def register_view(klass, name, base_name=None):
         hasattr(klass.serializer_class.Meta, 'model')
     ):
         model = klass.serializer_class.Meta.model
-        serializers_by_model[model] = klass.serializer_class
+        serializers_by_model[name] = klass.serializer_class
 
 class MPTTModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
@@ -113,6 +113,7 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPIS
             self.fields['root'] = serializers.SerializerMethodField('root_services')
 
     def to_representation(self, obj):
+        print(obj)
         ret = super(ServiceSerializer, self).to_representation(obj)
         include_fields = self.context.get('include', [])
         if 'ancestors' in include_fields:
@@ -158,6 +159,7 @@ class SearchSerializer(serializers.Serializer):
         return context
 
     def get_result_serializer(self, model, instance):
+        print('get_result_serializer', model, instance)
         ser = self.serializer_by_model.get(model)
         if not ser:
             ser_class = serializers_by_model[model]
@@ -173,14 +175,14 @@ class SearchSerializer(serializers.Serializer):
         return ser
 
     def to_representation(self, search_result):
-        if not search_result or not search_result.model:
+        if not search_result:
             return None
-        model = search_result.model
-        serializer = self.get_result_serializer(
-            model, search_result.object)
+        result, score = search_result
+        app, model, pk = result.split('.')
+        serializer = self.get_result_serializer(model, pk)
         data = serializer.data
-        data['object_type'] = model._meta.model_name
-        data['score'] = search_result.score
+        data['object_type'] = model
+        data['score'] = score
         return data
 
 class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSerializer):
