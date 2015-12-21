@@ -139,10 +139,9 @@ STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
-    'PAGINATE_BY_PARAM': 'page_size',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'MAX_PAGINATE_BY': 1000,
+    'DEFAULT_PAGINATION_CLASS': 'services.api_pagination.Pagination',
     'URL_FIELD_NAME': 'resource_uri',
+    'UNAUTHENTICATED_USER': None,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -188,7 +187,31 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
 HAYSTACK_SIGNAL_PROCESSOR = 'services.search_indexes.DeleteOnlySignalProcessor'
 
-try:
-    from local_settings import *
-except ImportError:
-    pass
+# local_settings.py can be used to override environment-specific settings
+# like database and email that differ between development and production.
+f = os.path.join(BASE_DIR, "local_settings.py")
+if os.path.exists(f):
+    import sys
+    import imp
+    module_name = "%s.local_settings" % ROOT_URLCONF.split('.')[0]
+    module = imp.new_module(module_name)
+    module.__file__ = f
+    sys.modules[module_name] = module
+    exec(open(f, "rb").read())
+
+if 'SECRET_KEY' not in locals():
+    secret_file = os.path.join(BASE_DIR, '.django_secret')
+    try:
+        SECRET_KEY = open(secret_file).read().strip()
+    except IOError:
+        import random
+        system_random = random.SystemRandom()
+        try:
+            SECRET_KEY = ''.join([system_random.choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(64)])
+            secret = open(secret_file, 'w')
+            import os
+            os.chmod(secret_file, 0o0600)
+            secret.write(SECRET_KEY)
+            secret.close()
+        except IOError:
+            Exception('Please create a %s file with random characters to generate your secret key!' % secret_file)

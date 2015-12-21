@@ -1,7 +1,8 @@
 from haystack import indexes, signals
 from django.utils.translation import get_language
 from django.db import models
-from django.db.models.loading import get_model
+from django.apps import apps
+
 
 class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
     """
@@ -50,7 +51,7 @@ class UnitIndex(ServiceMapBaseIndex):
 
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
-        self.model = get_model('services', 'Unit')
+        self.model = apps.get_model(app_label='services', model_name='Unit')
 
     def get_updated_field(self):
         return 'origin_last_modified_time'
@@ -59,7 +60,7 @@ class ServiceIndex(ServiceMapBaseIndex):
 
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
-        self.model = get_model('services', 'Service')
+        self.model = apps.get_model(app_label='services', model_name='Service')
 
     def get_updated_field(self):
         return 'last_modified_time'
