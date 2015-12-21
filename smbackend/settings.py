@@ -150,38 +150,19 @@ REST_FRAMEWORK = {
     ),
 }
 
-import json
-def read_config(name):
-    return json.load(open(
-        os.path.join(
-            BASE_DIR,
-            'smbackend',
-            'elasticsearch/{}.json'.format(name))))
-
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'multilingual_haystack.backends.MultilingualSearchEngine',
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
     },
     'default-fi': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': 'http://localhost:9200/',
-        'INDEX_NAME': 'servicemap-fi',
-        'MAPPINGS': read_config('mappings_finnish')['modelresult']['properties'],
-        'SETTINGS': read_config('settings_finnish')
-    },
-    'default-sv': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': 'http://localhost:9200/',
-        'INDEX_NAME': 'servicemap-sv',
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
     },
     'default-en': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': 'http://localhost:9200/',
-        'INDEX_NAME': 'servicemap-en',
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
     },
+    'default-sv': {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
+    }
 }
 
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
