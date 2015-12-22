@@ -6,7 +6,6 @@ def make_cache_key(params, model_name, pk):
     return "sm_{}_{}_{}".format(model_name, representation_key, pk)
 
 def _representation_spec_key(params):
-    print(params)
     only = sorted(params.get('only', []))
     include = sorted(params.get('include', []))
     srid = params.get('srid') or []
@@ -18,7 +17,6 @@ class SerializerCache(object):
     def _make_key(self, pk):
         #params = self.context.get('request').QUERY_PARAMS
         ret = make_cache_key(self.context, self.cache_model_name, pk)
-        print(ret)
         return ret
     def cache_get(self, pk):
         return cache.get(self._make_key(pk))
