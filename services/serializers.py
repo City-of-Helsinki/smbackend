@@ -2,10 +2,10 @@ from django.conf import settings
 from django.core.cache import cache
 from rest_framework import serializers
 from services.models import *
+from services.cache import SerializerCache
 from munigeo.models import *
 from munigeo import api as munigeo_api
 from modeltranslation.translator import translator, NotRegistered
-import hashlib
 
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
 
@@ -103,16 +103,23 @@ def root_services(services):
                Service.objects.filter(level=0).filter(
                    tree_id__in=tree_ids))
 
-class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
+class ServiceSerializer(SerializerCache, TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
     children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     def __init__(self, *args, **kwargs):
         super(ServiceSerializer, self).__init__(*args, **kwargs)
         keep_fields = getattr(self, 'keep_fields', [])
+        self.cache_model_name = 'service'
         if not keep_fields or 'root' in keep_fields:
             self.fields['root'] = serializers.SerializerMethodField('root_services')
 
-    def to_representation(self, obj):
+    def to_representation(self, pk):
+        data = self.cache_get(pk)
+        if data:
+            return data
+
+        obj = Service.objects.get(pk=pk)
+
         ret = super(ServiceSerializer, self).to_representation(obj)
         include_fields = self.context.get('include', [])
         if 'ancestors' in include_fields:
@@ -122,6 +129,7 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPIS
         only_fields = self.context.get('only', [])
         if 'parent' in only_fields:
             ret['parent'] = obj.parent_id
+        self.cache_set(pk, ret)
         return ret
 
     def root_services(self, obj):
@@ -147,18 +155,14 @@ class SearchSerializer(serializers.Serializer):
         super(SearchSerializer, self).__init__(*args, **kwargs)
         self.serializer_by_model = {}
 
-    def _strip_context(self, context, model):
-        if model == Unit:
-            key = 'unit'
-        else:
-            key = 'service'
+    def _strip_context(self, context, key):
         for spec in ['include', 'only']:
             if spec in context:
-                context[spec] = context[spec].get(key, [])
+                val = context[spec].get(key, [])
+                context[spec] = val
         return context
 
     def get_result_serializer(self, model, instance):
-        print('get_result_serializer', model, instance)
         ser = self.serializer_by_model.get(model)
         if not ser:
             ser_class = serializers_by_model[model]
@@ -210,22 +214,7 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
 
         return ret
 
-
-def make_cache_key(params, model_name, pk):
-    representation_key = _representation_spec_key(params, model_name)
-    return "sm_{}_{}_{}".format(model_name, representation_key, pk)
-
-def _representation_spec_key(params, model_name):
-    assert model_name != None
-    only = sorted(params.get('only', []))
-    include = sorted(params.get('include', []))
-    srid = params.get('srid') or []
-    key_path = only + include + srid
-    key_str = '/'.join(key_path).encode('utf-8')
-    return hashlib.md5(key_str).hexdigest()
-
-
-class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
+class UnitSerializer(SerializerCache, TranslatedModelSerializer, MPTTModelSerializer,
                      munigeo_api.GeoModelSerializer, JSONAPISerializer):
     connections = UnitConnectionSerializer(many=True)
     accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
@@ -233,6 +222,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
+        self.cache_model_name = 'unit'
         for f in ('connections', 'accessibility_properties'):
             if f not in self.fields:
                 continue
@@ -243,9 +233,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                 del ser.child.fields['unit']
 
     def to_representation(self, pk):
-        params = self.context.get('request').QUERY_PARAMS
-        cache_key = make_cache_key(params, 'unit', pk)
-        data = cache.get(cache_key)
+        data = self.cache_get(pk)
         if data:
             return data
 
@@ -290,7 +278,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                          for s in obj.accessibility_properties.all()]
             ret['accessibility_properties'] = acc_props
 
-        cache.set(cache_key, ret)
+        self.cache_set(pk, ret)
         return ret
 
     class Meta:
