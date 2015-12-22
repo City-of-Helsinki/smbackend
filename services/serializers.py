@@ -113,7 +113,6 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPIS
             self.fields['root'] = serializers.SerializerMethodField('root_services')
 
     def to_representation(self, obj):
-        print(obj)
         ret = super(ServiceSerializer, self).to_representation(obj)
         include_fields = self.context.get('include', [])
         if 'ancestors' in include_fields:
@@ -211,6 +210,21 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
 
         return ret
 
+
+def make_cache_key(params, model_name, pk):
+    representation_key = _representation_spec_key(params, model_name)
+    return "sm_{}_{}_{}".format(model_name, representation_key, pk)
+
+def _representation_spec_key(params, model_name):
+    assert model_name != None
+    only = sorted(params.get('only', []))
+    include = sorted(params.get('include', []))
+    srid = params.get('srid') or []
+    key_path = only + include + srid
+    key_str = '/'.join(key_path).encode('utf-8')
+    return hashlib.md5(key_str).hexdigest()
+
+
 class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                      munigeo_api.GeoModelSerializer, JSONAPISerializer):
     connections = UnitConnectionSerializer(many=True)
@@ -228,25 +242,13 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             if 'unit' in ser.child.fields:
                 del ser.child.fields['unit']
 
-    def make_cache_key(self, params, pk):
-        params = self.context.get('request').QUERY_PARAMS
-        representation_key = self._representation_spec_key(params)
-        return "sm_unit_{}_{}".format(representation_key, pk)
-
-    def _representation_spec_key(self, params):
-        only = sorted(params.get('only', []))
-        include = sorted(params.get('include', []))
-        srid = params.get('srid') or []
-        key_path = only + include + srid
-        key_str = '/'.join(key_path).encode('utf-8')
-        return hashlib.md5(key_str).hexdigest()
-
     def to_representation(self, pk):
-        cache_key = self.make_cache_key('unit', pk)
+        params = self.context.get('request').QUERY_PARAMS
+        cache_key = make_cache_key(params, 'unit', pk)
         data = cache.get(cache_key)
-
         if data:
             return data
+
         obj = Unit.objects.get(pk=pk)
 
         ret = super(UnitSerializer, self).to_representation(obj)
