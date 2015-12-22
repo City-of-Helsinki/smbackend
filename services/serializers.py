@@ -123,7 +123,7 @@ class ServiceSerializer(SerializerCache, TranslatedModelSerializer, MPTTModelSer
         ret = super(ServiceSerializer, self).to_representation(obj)
         include_fields = self.context.get('include', [])
         if 'ancestors' in include_fields:
-            ancestors = obj.get_ancestors(ascending=True)
+            ancestors = obj.get_ancestors(ascending=True).values_list('id', flat=True)
             ser = ServiceSerializer(ancestors, many=True, context={'only': ['name']})
             ret['ancestors'] = ser.data
         only_fields = self.context.get('only', [])
