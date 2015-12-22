@@ -103,7 +103,7 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
         if 'ancestor' in args:
             val = args['ancestor']
             queryset = queryset.by_ancestor(val)
-        return queryset
+        return queryset.values_list('id', flat=True)
 
 register_view(ServiceViewSet, 'service')
 
