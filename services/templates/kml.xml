@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0">
+  <Document>
+    <atom:author>
+      <atom:name>Helsingin, Espoon ja Vantaan kaupungit</atom:name>
+    </atom:author>
+    <atom:link href="http://www.hel.fi/palvelukartta"/>
+    <Style id="st101DA5">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_101DA5.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="st0E80EB">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_0E80EB.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="st00FF00">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_00FF00.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="stFEF50C">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_FEF50C.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="st008000">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_008000.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="stEC69B1">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_EC69B1.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="stE0000F">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_E0000F.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <ScreenOverlay id="logo">
+      <name>(c) Helsingin, Espoon ja Vantaan kaupungit</name>
+      <description>Tiedot ovat peräisin &lt;a href='http://www.hel.fi/palvelukartta'&gt;Helsingin palvelukartasta&lt;/href&gt;</description>
+      <Icon>
+        <href>http://www.hel.fi/palvelukartta/images/kml/kmlcopy.png</href>
+      </Icon>
+      <overlayXY x="0.2" y="0.98" xunits="fraction" yunits="fraction"/>
+      <screenXY x="0.2" y="0.98" xunits="fraction" yunits="fraction"/>
+      <size x="-1" y="-1" xunits="fraction" yunits="fraction"/>
+    </ScreenOverlay>
+    <Placemark id="9292">
+      <name>SEURE Henkilöstöpalvelut Oy</name>
+      <description><![CDATA[Fredrikinkatu 51-53 B, 00100 Helsinki<br>09 310 8810<br><a href="http://www.seure.fi/fi-FI/">kotisivut</a>]]></description>
+      <address>Fredrikinkatu 51-53 B, 00100 Helsinki</address>
+      <phoneNumber>09 310 8810</phoneNumber>
+      <Snippet maxLine="1">Fredrikinkatu 51-53 B, 00100 Helsinki / 09 310 8810</Snippet>
+      <styleUrl>#stEC69B1</styleUrl>
+      <Point>
+        <coordinates>24.9339499735404,60.1670023058521,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="28416">
+      <name>Työllisyyspalvelut, Kaupunginkanslia, Helsinki</name>
+      <description><![CDATA[Ensi linja 1, 00530 Helsinki<br>09 310 43017<br><a href="http://www.helsinkirekry.fi/">kotisivut</a>]]></description>
+      <address>Ensi linja 1, 00530 Helsinki</address>
+      <phoneNumber>09 310 43017</phoneNumber>
+      <Snippet maxLine="1">Ensi linja 1, 00530 Helsinki / 09 310 43017</Snippet>
+      <styleUrl>#stEC69B1</styleUrl>
+      <Point>
+        <coordinates>24.9420808473613,60.1832336921939,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="17900">
+      <name>Uudenmaan TE-toimisto, Helsinki / Itäkeskus</name>
+      <description><![CDATA[Asiakkaankatu 3 A, 4. krs, 00930 Helsinki<br><br><a href="http://toimistot.te-palvelut.fi/helsinki-itakeskus">kotisivut</a>]]></description>
+      <address>Asiakkaankatu 3 A, 4. krs, 00930 Helsinki</address>
+      <Snippet maxLine="1">Asiakkaankatu 3 A, 4. krs, 00930 Helsinki</Snippet>
+      <styleUrl>#stEC69B1</styleUrl>
+      <Point>
+        <coordinates>25.0804526652418,60.2083530754909,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="17926">
+      <name>Uudenmaan TE-toimisto, Helsinki / keskusta</name>
+      <description><![CDATA[Antinkatu 1 2. krs, 00100 Helsinki<br><br><a href="http://toimistot.te-palvelut.fi/helsinki-keskusta">kotisivut</a>]]></description>
+      <address>Antinkatu 1 2. krs, 00100 Helsinki</address>
+      <Snippet maxLine="1">Antinkatu 1 2. krs, 00100 Helsinki</Snippet>
+      <styleUrl>#stEC69B1</styleUrl>
+      <Point>
+        <coordinates>24.9316191164936,60.1705194975986,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="44240">
+      <name>Uudenmaan TE-toimisto, Helsinki / Pasila</name>
+      <description><![CDATA[Ratapihantie 7, 00520 Helsinki<br><br><a href="http://toimistot.te-palvelut.fi/helsinki-pasila">kotisivut</a>]]></description>
+      <address>Ratapihantie 7, 00520 Helsinki</address>
+      <Snippet maxLine="1">Ratapihantie 7, 00520 Helsinki</Snippet>
+      <styleUrl>#stEC69B1</styleUrl>
+      <Point>
+        <coordinates>24.9347323791306,60.19935011887,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>
