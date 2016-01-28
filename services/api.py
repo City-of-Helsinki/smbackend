@@ -298,7 +298,10 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                 name = {}
                 for lang in LANGUAGES:
                     name[lang] = getattr(s, 'name_{0}'.format(lang))
-                services_json.append({'id': s.id, 'name': name, 'root': s.get_root().id})
+                data = {'id': s.id, 'name': name, 'root': s.get_root().id}
+                if s.identical_to:
+                    data['identical_to'] = getattr(s.identical_to, 'id', None)
+                services_json.append(data)
             ret['services'] = services_json
         if 'accessibility_properties' in include_fields:
             acc_props = [{'variable': s.variable_id, 'value': s.value}
