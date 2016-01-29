@@ -21,6 +21,16 @@ from services.accessibility import RULES as accessibility_rules
 from munigeo.models import *
 from munigeo import api as munigeo_api
 
+from rest_framework import renderers
+from rest_framework_jsonp.renderers import JSONPRenderer
+import pprint
+from django.template.loader import render_to_string
+from django.utils.module_loading import import_string
+
+if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']:
+    DEFAULT_RENDERERS = [import_string(renderer_module) for renderer_module in settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']]
+else:
+    DEFAULT_RENDERERS = ()
 
 # This allows us to find a serializer for Haystack search results
 serializers_by_model = {}
@@ -248,6 +258,7 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 
 register_view(ServiceViewSet, 'service')
 
+
 class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                      munigeo_api.GeoModelSerializer, JSONAPISerializer):
     connections = UnitConnectionSerializer(many=True)
@@ -324,9 +335,19 @@ def make_muni_ocd_id(name, rest=None):
     return s
 
 
+class KmlRenderer(renderers.BaseRenderer):
+    media_type = 'application/xml'
+    format = 'xml'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        return render_to_string('kml.xml', data)
+
+
 class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
+
+    renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
 
     def get_serializer_context(self):
         ret = super(UnitViewSet, self).get_serializer_context()
