@@ -336,8 +336,8 @@ def make_muni_ocd_id(name, rest=None):
 
 
 class KmlRenderer(renderers.BaseRenderer):
-    media_type = 'application/xml'
-    format = 'xml'
+    media_type = 'application/vnd.google-earth.kml+xml'
+    format = 'kml'
 
     def render(self, data, media_type=None, renderer_context=None):
         lang_code = renderer_context['request'].QUERY_PARAMS.get('language', LANGUAGES[0])
