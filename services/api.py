@@ -356,7 +356,11 @@ class KmlRenderer(renderers.BaseRenderer):
             raise ParseError("Invalid language supplied. Supported languages: %s" %
                              ','.join(LANGUAGES))
         resp['lang_code'] = lang_code
-        resp['places'] = [get_fields(place, lang_code, settings.KML_TRANSLATABLE_FIELDS) for place in data['results']]
+        if data.get('results', None):
+            d = data['results']
+        else:
+            d = [data]
+        resp['places'] = [get_fields(place, lang_code, settings.KML_TRANSLATABLE_FIELDS) for place in d]
         return render_to_string('kml.xml', resp)
 
 
