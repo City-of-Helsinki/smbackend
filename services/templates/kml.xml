@@ -82,6 +82,8 @@
         <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
       </BalloonStyle>
     </Style>
+{%  comment %}
+TODO: ScreenOverlay does not work according to Google Maps, see about a fix
     <ScreenOverlay id="logo">
       <name>(c) Helsingin, Espoon ja Vantaan kaupungit</name>
       <description>Tiedot ovat peräisin &lt;a href='http://palvelukartta.hel.fi/'&gt;Helsingin palvelukartasta&lt;/href&gt;</description>
@@ -92,6 +94,7 @@
       <screenXY x="0.2" y="0.98" xunits="fraction" yunits="fraction"/>
       <size x="-1" y="-1" xunits="fraction" yunits="fraction"/>
     </ScreenOverlay>
+{% endcomment %}
   {% for place in results %}
       <Placemark id="{{ place.id }}">
       <name>{{ place.name.fi }}</name>
