@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0">
+  <Document>
+    <atom:author>
+      <atom:name>Helsingin, Espoon ja Vantaan kaupungit</atom:name>
+    </atom:author>
+    <atom:link href="http://www.hel.fi/palvelukartta"/>
+    <Style id="st101DA5">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_101DA5.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}</span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="st0E80EB">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_0E80EB.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="st00FF00">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_00FF00.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="stFEF50C">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_FEF50C.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="st008000">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_008000.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="stEC69B1">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_EC69B1.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="stE0000F">
+      <IconStyle>
+        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
+        <Icon>
+          <href>http://www.hel.fi/palvelukartta/images/kml/circle_E0000F.gif</href>
+        </Icon>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
+      </BalloonStyle>
+    </Style>
+{%  comment %}
+TODO: ScreenOverlay does not work according to Google Maps, see about a fix
+    <ScreenOverlay id="logo">
+      <name>(c) Helsingin, Espoon ja Vantaan kaupungit</name>
+      <description>Tiedot ovat peräisin &lt;a href='http://palvelukartta.hel.fi/'&gt;Helsingin palvelukartasta&lt;/href&gt;</description>
+      <Icon>
+        <href>http://www.hel.fi/palvelukartta/images/kml/kmlcopy.png</href>
+      </Icon>
+      <overlayXY x="0.2" y="0.98" xunits="fraction" yunits="fraction"/>
+      <screenXY x="0.2" y="0.98" xunits="fraction" yunits="fraction"/>
+      <size x="-1" y="-1" xunits="fraction" yunits="fraction"/>
+    </ScreenOverlay>
+{% endcomment %}
+  {% for place in places %}
+      <Placemark id="{{ place.id }}">
+      <name>{{ place.name }}</name>
+      <description><![CDATA[{{ place.street_address|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }}<br>{{ place.phone|default_if_none:"" }}<br>{{ place.www_url|default_if_none:"" }}]]></description>
+      <address>{{ place.street_address }}, {{ place.address_zip }} {{ place.municipality|capfirst }}</address>
+      <phoneNumber>{{ place.phone }}</phoneNumber>
+      <Snippet maxLine="1">{{ place.street_address|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }} {% if place.phone %}/ {{ place.phone }}{% endif %}</Snippet>
+      <styleUrl>#stEC69B1</styleUrl>
+      <Point>
+      {% with coordinates=place.location.coordinates %}<coordinates>{{ coordinates.0|stringformat:"f" }},{{ coordinates.1|stringformat:"f" }}</coordinates>{% endwith %}
+      </Point>
+    </Placemark>
+{% endfor %}
+  </Document>
+</kml>

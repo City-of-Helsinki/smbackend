@@ -168,6 +168,8 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
 HAYSTACK_SIGNAL_PROCESSOR = 'services.search_indexes.DeleteOnlySignalProcessor'
 
+KML_TRANSLATABLE_FIELDS = ['name', 'street_address', 'www_url']
+
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
 f = os.path.join(BASE_DIR, "local_settings.py")

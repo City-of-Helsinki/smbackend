@@ -21,6 +21,16 @@ from services.accessibility import RULES as accessibility_rules
 from munigeo.models import *
 from munigeo import api as munigeo_api
 
+from rest_framework import renderers
+from rest_framework_jsonp.renderers import JSONPRenderer
+import pprint
+from django.template.loader import render_to_string
+from django.utils.module_loading import import_string
+
+if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']:
+    DEFAULT_RENDERERS = [import_string(renderer_module) for renderer_module in settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']]
+else:
+    DEFAULT_RENDERERS = ()
 
 # This allows us to find a serializer for Haystack search results
 serializers_by_model = {}
@@ -248,6 +258,7 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 
 register_view(ServiceViewSet, 'service')
 
+
 class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                      munigeo_api.GeoModelSerializer, JSONAPISerializer):
     connections = UnitConnectionSerializer(many=True)
@@ -324,9 +335,40 @@ def make_muni_ocd_id(name, rest=None):
     return s
 
 
+
+
+def get_fields(place, lang_code, fields):
+    for field in fields:
+        p = place[field]
+        if p:
+            place[field] = p[lang_code]
+    return place
+
+
+class KmlRenderer(renderers.BaseRenderer):
+    media_type = 'application/vnd.google-earth.kml+xml'
+    format = 'kml'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        resp = {}
+        lang_code = renderer_context['view'].request.query_params.get('language', LANGUAGES[0])
+        if lang_code not in LANGUAGES:
+            raise ParseError("Invalid language supplied. Supported languages: %s" %
+                             ','.join(LANGUAGES))
+        resp['lang_code'] = lang_code
+        if data.get('results', None):
+            d = data['results']
+        else:
+            d = [data]
+        resp['places'] = [get_fields(place, lang_code, settings.KML_TRANSLATABLE_FIELDS) for place in d]
+        return render_to_string('kml.xml', resp)
+
+
 class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
+
+    renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
 
     def get_serializer_context(self):
         ret = super(UnitViewSet, self).get_serializer_context()
