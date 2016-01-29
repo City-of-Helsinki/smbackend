@@ -101,7 +101,7 @@
       <Snippet maxLine="1">{{ place.street_address.fi|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }} {% if place.phone %}/ {{ place.phone }}{% endif %}</Snippet>
       <styleUrl>#stEC69B1</styleUrl>
       <Point>
-      {% with coordinates=place.location.coordinates %}<coordinates>{{ coordinates.0 }},{{ coordinates.1 }}</coordinates>{% endwith %}
+      {% with coordinates=place.location.coordinates %}<coordinates>{{ coordinates.0|stringformat:"f" }},{{ coordinates.1|stringformat:"f" }}</coordinates>{% endwith %}
       </Point>
     </Placemark>
 {% endfor %}
