@@ -340,6 +340,11 @@ class KmlRenderer(renderers.BaseRenderer):
     format = 'xml'
 
     def render(self, data, media_type=None, renderer_context=None):
+        lang_code = renderer_context['request'].QUERY_PARAMS.get('language', LANGUAGES[0])
+        if lang_code not in LANGUAGES:
+            raise ParseError("Invalid language supplied. Supported languages: %s" %
+                             ','.join(LANGUAGES))
+        data['lang_code'] = lang_code
         return render_to_string('kml.xml', data)
 
 
