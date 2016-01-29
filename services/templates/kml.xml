@@ -13,7 +13,11 @@
         </Icon>
       </IconStyle>
       <BalloonStyle>
-        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Helsingin Palvelukartta</a></span>]]></text>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}</span>]]></text>
       </BalloonStyle>
     </Style>
     <Style id="st0E80EB">
@@ -24,7 +28,12 @@
         </Icon>
       </IconStyle>
       <BalloonStyle>
-        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Helsingin Palvelukartta</a></span>]]></text>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
       </BalloonStyle>
     </Style>
     <Style id="st00FF00">
@@ -35,7 +44,12 @@
         </Icon>
       </IconStyle>
       <BalloonStyle>
-        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Helsingin Palvelukartta</a></span>]]></text>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
       </BalloonStyle>
     </Style>
     <Style id="stFEF50C">
@@ -46,7 +60,12 @@
         </Icon>
       </IconStyle>
       <BalloonStyle>
-        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
       </BalloonStyle>
     </Style>
     <Style id="st008000">
@@ -57,7 +76,12 @@
         </Icon>
       </IconStyle>
       <BalloonStyle>
-        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
       </BalloonStyle>
     </Style>
     <Style id="stEC69B1">
@@ -68,7 +92,12 @@
         </Icon>
       </IconStyle>
       <BalloonStyle>
-        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
       </BalloonStyle>
     </Style>
     <Style id="stE0000F">
@@ -79,7 +108,12 @@
         </Icon>
       </IconStyle>
       <BalloonStyle>
-        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>
+        {% if lang_code == 'fi' %}Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Palvelukartta</a>
+        {% elif lang_code == 'sv' %}Källa: <a href="http://servicekarta.hel.fi/unit/$[id]">Servicekarta</a>
+        {% elif lang_code == 'en' %}Source: <a href="http://servicemap.hel.fi/unit/$[id]">Servicemap</a>
+        {% endif %}
+        </span>]]></text>
       </BalloonStyle>
     </Style>
 {%  comment %}
@@ -95,13 +129,13 @@ TODO: ScreenOverlay does not work according to Google Maps, see about a fix
       <size x="-1" y="-1" xunits="fraction" yunits="fraction"/>
     </ScreenOverlay>
 {% endcomment %}
-  {% for place in results %}
+  {% for place in places %}
       <Placemark id="{{ place.id }}">
-      <name>{{ place.name.fi }}</name>
-      <description><![CDATA[{{ place.street_address.fi|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }}<br>{{ place.phone|default_if_none:"" }}<br>{{ place.www_url.fi|default_if_none:"" }}]]></description>
-      <address>{{ place.street_address.fi }}, {{ place.address_zip }} {{ place.municipality|capfirst }}</address>
+      <name>{{ place.name }}</name>
+      <description><![CDATA[{{ place.street_address|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }}<br>{{ place.phone|default_if_none:"" }}<br>{{ place.www_url|default_if_none:"" }}]]></description>
+      <address>{{ place.street_address }}, {{ place.address_zip }} {{ place.municipality|capfirst }}</address>
       <phoneNumber>{{ place.phone }}</phoneNumber>
-      <Snippet maxLine="1">{{ place.street_address.fi|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }} {% if place.phone %}/ {{ place.phone }}{% endif %}</Snippet>
+      <Snippet maxLine="1">{{ place.street_address|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }} {% if place.phone %}/ {{ place.phone }}{% endif %}</Snippet>
       <styleUrl>#stEC69B1</styleUrl>
       <Point>
       {% with coordinates=place.location.coordinates %}<coordinates>{{ coordinates.0|stringformat:"f" }},{{ coordinates.1|stringformat:"f" }}</coordinates>{% endwith %}
