@@ -13,7 +13,7 @@
         </Icon>
       </IconStyle>
       <BalloonStyle>
-        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Helsingin Palvelukartta</a></span>]]></text>
       </BalloonStyle>
     </Style>
     <Style id="st0E80EB">
@@ -24,7 +24,7 @@
         </Icon>
       </IconStyle>
       <BalloonStyle>
-        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Helsingin Palvelukartta</a></span>]]></text>
       </BalloonStyle>
     </Style>
     <Style id="st00FF00">
@@ -35,7 +35,7 @@
         </Icon>
       </IconStyle>
       <BalloonStyle>
-        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://www.hel.fi/palvelukartta?lang=fi&id=$[id]">Helsingin Palvelukartta</a></span>]]></text>
+        <text><![CDATA[<b>$[name]</b><br><br>$[description]<br><br><span style='font-family:"Arial Narrow",Helvetica,sans-serif;font-size:12px'>Lähde: <a href="http://palvelukartta.hel.fi/unit/$[id]">Helsingin Palvelukartta</a></span>]]></text>
       </BalloonStyle>
     </Style>
     <Style id="stFEF50C">
@@ -84,7 +84,7 @@
     </Style>
     <ScreenOverlay id="logo">
       <name>(c) Helsingin, Espoon ja Vantaan kaupungit</name>
-      <description>Tiedot ovat peräisin &lt;a href='http://www.hel.fi/palvelukartta'&gt;Helsingin palvelukartasta&lt;/href&gt;</description>
+      <description>Tiedot ovat peräisin &lt;a href='http://palvelukartta.hel.fi/'&gt;Helsingin palvelukartasta&lt;/href&gt;</description>
       <Icon>
         <href>http://www.hel.fi/palvelukartta/images/kml/kmlcopy.png</href>
       </Icon>
@@ -92,57 +92,18 @@
       <screenXY x="0.2" y="0.98" xunits="fraction" yunits="fraction"/>
       <size x="-1" y="-1" xunits="fraction" yunits="fraction"/>
     </ScreenOverlay>
-    <Placemark id="9292">
-      <name>SEURE Henkilöstöpalvelut Oy</name>
-      <description><![CDATA[Fredrikinkatu 51-53 B, 00100 Helsinki<br>09 310 8810<br><a href="http://www.seure.fi/fi-FI/">kotisivut</a>]]></description>
-      <address>Fredrikinkatu 51-53 B, 00100 Helsinki</address>
-      <phoneNumber>09 310 8810</phoneNumber>
-      <Snippet maxLine="1">Fredrikinkatu 51-53 B, 00100 Helsinki / 09 310 8810</Snippet>
+  {% for place in results %}
+      <Placemark id="{{ place.id }}">
+      <name>{{ place.name.fi }}</name>
+      <description><![CDATA[{{ place.street_address.fi|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }}<br>{{ place.phone|default_if_none:"" }}<br>{{ place.www_url.fi|default_if_none:"" }}]]></description>
+      <address>{{ place.street_address.fi }}, {{ place.address_zip }} {{ place.municipality|capfirst }}</address>
+      <phoneNumber>{{ place.phone }}</phoneNumber>
+      <Snippet maxLine="1">{{ place.street_address.fi|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }} {% if place.phone %}/ {{ place.phone }}{% endif %}</Snippet>
       <styleUrl>#stEC69B1</styleUrl>
       <Point>
-        <coordinates>24.9339499735404,60.1670023058521,0</coordinates>
+      {% with coordinates=place.location.coordinates %}<coordinates>{{ coordinates.0 }},{{ coordinates.1 }}</coordinates>{% endwith %}
       </Point>
     </Placemark>
-    <Placemark id="28416">
-      <name>Työllisyyspalvelut, Kaupunginkanslia, Helsinki</name>
-      <description><![CDATA[Ensi linja 1, 00530 Helsinki<br>09 310 43017<br><a href="http://www.helsinkirekry.fi/">kotisivut</a>]]></description>
-      <address>Ensi linja 1, 00530 Helsinki</address>
-      <phoneNumber>09 310 43017</phoneNumber>
-      <Snippet maxLine="1">Ensi linja 1, 00530 Helsinki / 09 310 43017</Snippet>
-      <styleUrl>#stEC69B1</styleUrl>
-      <Point>
-        <coordinates>24.9420808473613,60.1832336921939,0</coordinates>
-      </Point>
-    </Placemark>
-    <Placemark id="17900">
-      <name>Uudenmaan TE-toimisto, Helsinki / Itäkeskus</name>
-      <description><![CDATA[Asiakkaankatu 3 A, 4. krs, 00930 Helsinki<br><br><a href="http://toimistot.te-palvelut.fi/helsinki-itakeskus">kotisivut</a>]]></description>
-      <address>Asiakkaankatu 3 A, 4. krs, 00930 Helsinki</address>
-      <Snippet maxLine="1">Asiakkaankatu 3 A, 4. krs, 00930 Helsinki</Snippet>
-      <styleUrl>#stEC69B1</styleUrl>
-      <Point>
-        <coordinates>25.0804526652418,60.2083530754909,0</coordinates>
-      </Point>
-    </Placemark>
-    <Placemark id="17926">
-      <name>Uudenmaan TE-toimisto, Helsinki / keskusta</name>
-      <description><![CDATA[Antinkatu 1 2. krs, 00100 Helsinki<br><br><a href="http://toimistot.te-palvelut.fi/helsinki-keskusta">kotisivut</a>]]></description>
-      <address>Antinkatu 1 2. krs, 00100 Helsinki</address>
-      <Snippet maxLine="1">Antinkatu 1 2. krs, 00100 Helsinki</Snippet>
-      <styleUrl>#stEC69B1</styleUrl>
-      <Point>
-        <coordinates>24.9316191164936,60.1705194975986,0</coordinates>
-      </Point>
-    </Placemark>
-    <Placemark id="44240">
-      <name>Uudenmaan TE-toimisto, Helsinki / Pasila</name>
-      <description><![CDATA[Ratapihantie 7, 00520 Helsinki<br><br><a href="http://toimistot.te-palvelut.fi/helsinki-pasila">kotisivut</a>]]></description>
-      <address>Ratapihantie 7, 00520 Helsinki</address>
-      <Snippet maxLine="1">Ratapihantie 7, 00520 Helsinki</Snippet>
-      <styleUrl>#stEC69B1</styleUrl>
-      <Point>
-        <coordinates>24.9347323791306,60.19935011887,0</coordinates>
-      </Point>
-    </Placemark>
+{% endfor %}
   </Document>
 </kml>
