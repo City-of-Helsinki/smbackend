@@ -368,7 +368,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
 
-    renderer_classes = [KmlRenderer]
+    renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
 
     def get_serializer_context(self):
         ret = super(UnitViewSet, self).get_serializer_context()
