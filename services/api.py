@@ -23,7 +23,6 @@ from munigeo import api as munigeo_api
 
 from rest_framework import renderers
 from rest_framework_jsonp.renderers import JSONPRenderer
-import pprint
 from django.template.loader import render_to_string
 from django.utils.module_loading import import_string
 
@@ -356,11 +355,8 @@ class KmlRenderer(renderers.BaseRenderer):
             raise ParseError("Invalid language supplied. Supported languages: %s" %
                              ','.join(LANGUAGES))
         resp['lang_code'] = lang_code
-        if data.get('results', None):
-            d = data['results']
-        else:
-            d = [data]
-        resp['places'] = [get_fields(place, lang_code, settings.KML_TRANSLATABLE_FIELDS) for place in d]
+        places = data.get('results', [data])
+        resp['places'] = [get_fields(place, lang_code, settings.KML_TRANSLATABLE_FIELDS) for place in places]
         return render_to_string('kml.xml', resp)
 
 
