@@ -493,6 +493,17 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         return queryset
 
+    def _add_content_disposition_header(self, response):
+        if isinstance(response.accepted_renderer, KmlRenderer):
+            header = "attachment; filename={}".format('palvelukartta.kml')
+            response['Content-Disposition'] = header
+        return response
+
+    def list(self, request):
+        response = super(UnitViewSet, self).list(request)
+        response.add_post_render_callback(self._add_content_disposition_header)
+        return response
+
 register_view(UnitViewSet, 'unit')
 
 class SearchSerializer(serializers.Serializer):
