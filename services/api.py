@@ -339,8 +339,10 @@ def make_muni_ocd_id(name, rest=None):
 def get_fields(place, lang_code, fields):
     for field in fields:
         p = place[field]
-        if p:
+        if p and lang_code in p:
             place[field] = p[lang_code]
+        else:
+            place[field] = ''
     return place
 
 
