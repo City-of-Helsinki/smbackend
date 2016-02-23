@@ -11,7 +11,13 @@ def post_service_request(request):
         return HttpResponseNotAllowed(['POST'])
     payload = request.POST.copy()
     outgoing = payload.dict()
-    outgoing['api_key'] = settings.OPEN311['API_KEY']
+    if outgoing.get('internal_feedback', False):
+        if 'internal_feedback' in outgoing
+            del outgoing['internal_feedback']
+        api_key = settings.OPEN311['INTERNAL_FEEDBACK_API_KEY']
+    else:
+        api_key = settings.OPEN311['API_KEY']
+    outgoing['api_key'] = api_key
     url = settings.OPEN311['URL_BASE']
     session = get_session()
     r = session.post(url, data=outgoing)
