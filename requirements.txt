@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
--e git+https://github.com/City-of-Helsinki/munigeo@414b2665436234428a01816b1654d67063b0e12a#egg=django_munigeo-master
+-e git+https://github.com/City-of-Helsinki/munigeo@f55019119199010d5e2624c7a07ed9c8d09ba93c#egg=django_munigeo-master
 django-cors-headers==1.1.0
 django-extensions==1.5.5
 django-filter==0.10.0
