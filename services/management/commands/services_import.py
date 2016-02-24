@@ -756,6 +756,25 @@ class Command(BaseCommand):
             srv.unit_count = srv.get_unit_count()
             srv.save(update_fields=['unit_count'])
 
+    @db.transaction.atomic
+    def update_division_units(self):
+        rescue_stations = Unit.objects.filter(services__id=26194)
+        rescue_areas = AdministrativeDivision.objects.filter(type__type='rescue_area')
+        # TODO: request this data to be added to pel_suojelupiiri
+        mapping = {
+            1: 8953,
+            2: 8954,
+            3: 8952,
+            4: 8955,
+            5: 8956,
+            6: 8958,
+            7: 8957,
+            8: 8957
+        }
+        for area in rescue_areas:
+            area.service_point_id = mapping[int(area.origin_id)]
+            area.save()
+
     def handle(self, **options):
         self.options = options
         self.verbosity = int(options.get('verbosity', 1))
@@ -793,6 +812,7 @@ class Command(BaseCommand):
             self.update_root_services()
         if self.count_services:
             self.update_unit_counts()
+        self.update_division_units()
 
         if not import_count:
             sys.stderr.write("Nothing to import.\n")
