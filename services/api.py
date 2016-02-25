@@ -549,9 +549,11 @@ class SearchSerializer(serializers.Serializer):
         data['score'] = search_result.score
         return data
 
+KML_REGEXP = re.compile(settings.KML_REGEXP)
 
 class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics.ListAPIView):
     serializer_class = SearchSerializer
+    renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
 
     def list(self, request, *args, **kwargs):
         # If the incoming language is not specified, go with the default.
@@ -586,6 +588,11 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         translation.activate(self.lang_code)
 
         queryset = SearchQuerySet()
+
+        if hasattr(request, 'accepted_media_type') and re.match(KML_REGEXP, request.accepted_media_type):
+            queryset = queryset.models(Unit)
+            self.only_fields['unit'].extend(['street_address', 'www_url'])
+
         municipality = request.QUERY_PARAMS.get('municipality')
         if input_val:
             queryset = (

@@ -169,6 +169,7 @@ HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
 HAYSTACK_SIGNAL_PROCESSOR = 'services.search_indexes.DeleteOnlySignalProcessor'
 
 KML_TRANSLATABLE_FIELDS = ['name', 'street_address', 'www_url']
+KML_REGEXP = 'application/vnd.google-earth\.kml'
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
