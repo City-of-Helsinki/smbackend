@@ -495,7 +495,7 @@ class Command(BaseCommand):
             obj._changed = False
             obj.save()
 
-        update_fields = []
+        update_fields = ['origin_last_modified_time']
 
         service_ids = sorted(info.get('service_ids', []))
         obj_service_ids = sorted(obj.services.values_list('id', flat=True))
