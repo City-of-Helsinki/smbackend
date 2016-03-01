@@ -358,13 +358,15 @@ class Command(BaseCommand):
             self._save_searchwords(obj, info, lang)
 
         old_kw_set = set(obj.keywords.all().values_list('pk', flat=True))
-        if old_kw_set != obj.new_keywords:
+        if old_kw_set == obj.new_keywords:
+            return
+
+        if self.verbosity:
             old_kw_str = ', '.join([self.keywords_by_id[x].name for x in old_kw_set])
             new_kw_str = ', '.join([self.keywords_by_id[x].name for x in obj.new_keywords])
-            if self.verbosity:
-                print("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
-            obj.keywords = list(obj.new_keywords)
-            obj._changed = True
+            print("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
+        obj.keywords = list(obj.new_keywords)
+        obj._changed = True
 
     @db.transaction.atomic
     def _import_unit(self, syncher, info):
