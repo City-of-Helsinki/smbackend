@@ -85,12 +85,16 @@ class Compound(Expression):
         if len(self.operands) > 1:
             self.operands[-2].next_sibling = operand
 
-    def set_operator(self, operator):
+    def set_operator(self, operator, row):
         if self.operator is None:
             self.operator = operator
         else:
             if operator != self.operator:
-                print("Error, trying to change operator of a compound expression.")
+                msg = """
+Error, trying to change operator of a compound expression at {}.
+Probable cause: missing closing parenthesis right before said line.
+                """.format(row[-1])
+                print(msg)
     def set_mode(self, mode):
         self.mode = mode
         for o in self.operands:
@@ -284,7 +288,7 @@ def build_compound(iterator, depth=0, requirement_id=None):
     while parenthesis(row[EXPRESSION], CLOSING_PARENTHESIS) is None:
         op_depth, op = operator(row[EXPRESSION])
         if op_depth is not None:
-            compound.set_operator(op)
+            compound.set_operator(op, row)
         else:
             child = build_expression(iterator, row, depth=depth+1, requirement_id=requirement_id)
             child.parent = compound
@@ -369,6 +373,14 @@ def save_message(multilingual_message):
     if multilingual_message is None:
         return None
     # de-duplicate messages based on PRIMARY KEY contents
+    for lang, val in multilingual_message.items():
+        val = val.replace('#3', '')
+        if lang == 'en':
+            multilingual_message[lang] = re.sub('#[12]ntrance', 'Entrance', val)
+        elif lang == 'fi':
+            multilingual_message[lang] = re.sub('#[12]isään', 'Sisään', val)
+        elif lang == 'sv':
+            multilingual_message[lang] = re.sub('#[12]ngång', 'Ingång', val)
     msg_key = multilingual_message[PRIMARY_KEY]
     msg_id = None
     if msg_key not in message_ids:
@@ -384,11 +396,11 @@ def save_message(multilingual_message):
             current_message = messages[msg_id]
         if lang not in current_message:
             current_message[lang] = multilingual_message[lang]
-        else:
-            if current_message[lang] != multilingual_message[lang]:
-                exit_on_error("Mismatching translations: {} != {} (orig: {})".format(
-                    current_message[lang], multilingual_message[lang],
-                    current_message[PRIMARY_KEY]))
+        # else:
+        #     if current_message[lang] != multilingual_message[lang]:
+        #         exit_on_error("Mismatching translations: {} != {} (orig: {})".format(
+        #             current_message[lang], multilingual_message[lang],
+        #             current_message[PRIMARY_KEY]))
     return msg_id
 
 def gather_messages(expression):
