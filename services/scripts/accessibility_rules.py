@@ -116,7 +116,8 @@ Probable cause: missing closing parenthesis right before said line.
                 'id': self.id(),
                 'operands': operands,
                 'msg': self.message_id,
-                'path': self.variable_path
+                'path': self.variable_path,
+                'source': self.first_line
             }
             if self.requirement_id:
                 ret['requirement_id'] = self.requirement_id
@@ -154,7 +155,8 @@ class Comparison(Expression):
             'operands': [self.variable, self.value],
             'id': self.id(),
             'msg': self.message_id,
-            'path': self.variable_path
+            'path': self.variable_path,
+            'source': self.first_line
         }
         if self.requirement_id:
             ret['requirement_id'] = self.requirement_id
