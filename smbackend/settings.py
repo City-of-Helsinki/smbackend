@@ -127,7 +127,8 @@ LEVELS = {
         'type': 'exclude',
         'services': [
             25658, # statues & art
-            25538  # wlan hotspots
+            25538, # wlan hotspots
+            34796  # parking vending machines
         ]
     }
 }
