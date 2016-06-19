@@ -45,6 +45,7 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
 
 class UnitIndex(ServiceMapBaseIndex):
     municipality = indexes.CharField(model_attr='municipality_id', null=True)
+    services = indexes.MultiValueField()
 
     def read_queryset(self, using=None):
         return self.get_model().search_objects
@@ -55,6 +56,9 @@ class UnitIndex(ServiceMapBaseIndex):
 
     def get_updated_field(self):
         return 'origin_last_modified_time'
+
+    def prepare_services(self, obj):
+        return [service.id for service in obj.services.all()]
 
 class ServiceIndex(ServiceMapBaseIndex):
 

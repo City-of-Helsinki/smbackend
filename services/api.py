@@ -593,7 +593,6 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             queryset = queryset.models(Unit)
             self.only_fields['unit'].extend(['street_address', 'www_url'])
 
-        municipality = request.QUERY_PARAMS.get('municipality')
         if input_val:
             queryset = (
                 queryset
@@ -608,6 +607,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 .filter_or(extra_searchwords=q_val)
                 .filter_or(address=q_val)
             )
+        municipality = request.QUERY_PARAMS.get('municipality')
         if municipality:
             municipality_queryset = (
                 SearchQuerySet()
@@ -616,6 +616,10 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 .filter_or(django_ct='munigeo.address')
             )
             queryset &= municipality_queryset
+        service = request.QUERY_PARAMS.get('service')
+        if service:
+            services = service.split(',')
+            queryset = queryset.filter(django_ct='services.unit').filter(services__in=services)
 
         only = getattr(self, 'only_fields') or {}
         include = getattr(self, 'include_fields') or {}
