@@ -23,5 +23,6 @@ pyyaml==3.11
 raven==5.4.4
 requests-cache==0.4.10
 requests==2.7.0
+python-dateutil==2.5.3
 six==1.9.0                # via django-extensions
 urllib3==1.11             # via elasticsearch
