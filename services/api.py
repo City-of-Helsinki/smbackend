@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 from rest_framework.views import APIView
 
-from haystack.query import SearchQuerySet
+from haystack.query import SearchQuerySet, SQ
 from haystack.inputs import AutoQuery
 
 from services.models import *
@@ -381,17 +381,23 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             queryset = queryset.filter(id__in=id_list)
 
         if 'municipality' in filters:
-            val = filters['municipality'].lower()
-            if val.startswith('ocd-division'):
-                ocd_id = val
-            else:
-                ocd_id = make_muni_ocd_id(val)
-            try:
-                muni = Municipality.objects.get(division__ocd_id=ocd_id)
-            except Municipality.DoesNotExist:
-                raise ParseError("municipality with ID '%s' not found" % ocd_id)
+            val = filters['municipality'].lower().strip()
+            if len(val) > 0:
+                municipalities = val.split(',')
+                muni_sq = SQ()
+                for municipality_raw in municipalities:
+                    municipality = municipality_raw.strip()
+                    if municipality.startswith('ocd-division'):
+                        ocd_id = municipality
+                    else:
+                        ocd_id = make_muni_ocd_id(municipality)
+                    try:
+                        muni = Municipality.objects.get(division__ocd_id=ocd_id)
+                        muni_sq |= SQ(municipality=muni)
+                    except Municipality.DoesNotExist:
+                        raise ParseError("municipality with ID '%s' not found" % ocd_id)
 
-            queryset = queryset.filter(municipality=muni)
+                queryset = queryset.filter(muni_sq)
 
         if 'provider_type' in filters:
             val = filters.get('provider_type')
