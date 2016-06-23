@@ -2,3 +2,4 @@
 {% if object.description %}{{object.description}}{% endif %}
 {% if object.municipality %}{{object.municipality.name}}{% endif %}
 {% if object.street_address %}{{object.street_address}}{% endif %}
+{% if object.department %}{{object.department.name}}{% endif %}
