@@ -384,7 +384,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             val = filters['municipality'].lower().strip()
             if len(val) > 0:
                 municipalities = val.split(',')
-                muni_sq = SQ()
+                muni_sq = Q()
                 for municipality_raw in municipalities:
                     municipality = municipality_raw.strip()
                     if municipality.startswith('ocd-division'):
@@ -393,7 +393,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                         ocd_id = make_muni_ocd_id(municipality)
                     try:
                         muni = Municipality.objects.get(division__ocd_id=ocd_id)
-                        muni_sq |= SQ(municipality=muni)
+                        muni_sq |= Q(municipality=muni)
                     except Municipality.DoesNotExist:
                         raise ParseError("municipality with ID '%s' not found" % ocd_id)
 
