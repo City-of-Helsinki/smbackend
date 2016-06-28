@@ -631,7 +631,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         types = request.QUERY_PARAMS.get('type', '').split(',')
         for t in types:
             if t == 'service':
-                models.add(Services)
+                models.add(Service)
             elif t == 'unit':
                 models.add(Unit)
             elif t == 'address':
