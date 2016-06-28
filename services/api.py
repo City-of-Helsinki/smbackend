@@ -613,15 +613,16 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 .filter_or(extra_searchwords=q_val)
                 .filter_or(address=q_val)
             )
-        municipality = request.QUERY_PARAMS.get('municipality')
-        if municipality:
-            municipality_queryset = (
-                SearchQuerySet()
-                .filter(municipality=municipality)
-                .filter_or(django_ct='services.service')
-                .filter_or(django_ct='munigeo.address')
-            )
-            queryset &= municipality_queryset
+        if 'municipality' in request.QUERY_PARAMS:
+            val = request.QUERY_PARAMS['municipality'].lower().strip()
+            if len(val) > 0:
+                municipalities = val.split(',')
+                muni_q_objects = [SQ(municipality=m.strip()) for m in municipalities]
+                muni_q = muni_q_objects.pop()
+                for q in muni_q_objects:
+                    muni_q |= q
+                queryset = queryset.filter(SQ(muni_q | SQ(django_ct='services.service') | SQ(django_ct='munigeo.address')))
+
         service = request.QUERY_PARAMS.get('service')
         if service:
             services = service.split(',')
