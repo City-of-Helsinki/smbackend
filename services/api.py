@@ -627,6 +627,18 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             services = service.split(',')
             queryset = queryset.filter(django_ct='services.unit').filter(services__in=services)
 
+        models = set()
+        types = request.QUERY_PARAMS.get('type', '').split(',')
+        for t in types:
+            if t == 'service':
+                models.add(Services)
+            elif t == 'unit':
+                models.add(Unit)
+            elif t == 'address':
+                models.add(Address)
+        if len(models) > 0:
+            queryset = queryset.models(*list(models))
+
         only = getattr(self, 'only_fields') or {}
         include = getattr(self, 'include_fields') or {}
         Unit.search_objects.only_fields = only.get('unit')
