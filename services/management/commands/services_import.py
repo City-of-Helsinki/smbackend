@@ -49,6 +49,7 @@ class Command(BaseCommand):
             opt = make_option('--%s' % imp, dest=imp, action='store_true', help='import %s' % imp)
             self.option_list.append(opt)
         self.services = {}
+        self.existing_service_ids = None
 
     def clean_text(self, text):
         #text = text.replace('\n', ' ')
@@ -497,7 +498,10 @@ class Command(BaseCommand):
 
         update_fields = ['origin_last_modified_time']
 
-        service_ids = sorted(info.get('service_ids', []))
+        service_ids = sorted([
+            sid for sid in info.get('service_ids', [])
+            if sid in self.existing_service_ids])
+
         obj_service_ids = sorted(obj.services.values_list('id', flat=True))
         if obj_service_ids != service_ids:
             if not obj._created and self.verbosity:
@@ -631,6 +635,8 @@ class Command(BaseCommand):
     def import_units(self):
         self._load_postcodes()
         self.muni_by_name = {muni.name_fi.lower(): muni for muni in Municipality.objects.all()}
+        if self.existing_service_ids == None or len(self.existing_service_ids) < 1:
+            self.existing_service_ids = set(Service.objects.values_list('id', flat=True))
 
         if not getattr(self, 'org_syncher', None):
             self.import_organizations(noop=True)
