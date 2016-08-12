@@ -653,10 +653,7 @@ class Command(BaseCommand):
 
         if self.verbosity:
             self.logger.info("Fetching unit connections")
-        if self.options['single']:
-            connections = [self.pk_get('connection', obj_id)]
-        else:
-            connections = self.pk_get('connection')
+        connections = self.pk_get('connection')
         conn_by_unit = {}
         for conn in connections:
             unit_id = conn['unit_id']
@@ -667,10 +664,7 @@ class Command(BaseCommand):
         self.accessibility_variables = {x.id: x for x in AccessibilityVariable.objects.all()}
         if self.verbosity:
             self.logger.info("Fetching accessibility properties")
-        if self.options['single']:
-            acc_properties = [self.pk_get('accessibility_property', obj_id)]
-        else:
-            acc_properties = self.pk_get('accessibility_property')
+        acc_properties = self.pk_get('accessibility_property')
         acc_by_unit = {}
         for ap in acc_properties:
             unit_id = ap['unit_id']
