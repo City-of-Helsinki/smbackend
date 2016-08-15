@@ -193,7 +193,7 @@ class UnitConnection(models.Model):
     name = models.CharField(max_length=400)
     www_url = models.URLField(null=True, max_length=400)
     section = models.CharField(max_length=20)
-    contact_person = models.CharField(max_length=50, null=True)
+    contact_person = models.CharField(max_length=80, null=True)
     email = models.EmailField(max_length=100, null=True)
     phone = models.CharField(max_length=50, null=True)
     phone_mobile = models.CharField(max_length=50, null=True)

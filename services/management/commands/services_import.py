@@ -536,6 +536,11 @@ class Command(BaseCommand):
                 fields = ['contact_person', 'email', 'phone', 'phone_mobile']
                 for field in fields:
                     val = conn.get(field, None)
+                    if val and len(val) > UnitConnection._meta.get_field(field).max_length:
+                        self.logger.info(
+                            "Ignoring too long value of field {} in unit {} connections".format(
+                                field, obj.pk))
+                        continue
                     if getattr(c, field) != val:
                         setattr(c, field, val)
                         c._changed = True
