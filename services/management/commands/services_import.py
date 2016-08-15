@@ -535,7 +535,7 @@ class Command(BaseCommand):
                 c.type = int(conn['connection_type'])
                 fields = ['contact_person', 'email', 'phone', 'phone_mobile']
                 for field in fields:
-                    val = info.get(field, None)
+                    val = conn.get(field, None)
                     if getattr(c, field) != val:
                         setattr(c, field, val)
                         c._changed = True
