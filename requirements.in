@@ -18,3 +18,4 @@ elasticsearch
 djangorestframework-jsonp
 pip-tools
 python-dateutil
+ijson
