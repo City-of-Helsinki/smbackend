@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection, Point
 from django.contrib.gis.db.models.fields import GeometryField
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
+from django.shortcuts import get_object_or_404
 from modeltranslation.translator import translator, NotRegistered
 from rest_framework import serializers, viewsets, generics
 from rest_framework.response import Response
@@ -506,6 +507,16 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             header = "attachment; filename={}".format('palvelukartta.kml')
             response['Content-Disposition'] = header
         return response
+
+    def retrieve(self, request, pk=None):
+        queryset = Unit.objects.all()
+        try:
+            unit = Unit.objects.get(pk=pk)
+        except Unit.DoesNotExist:
+            unit_alias = get_object_or_404(UnitAlias, second=pk)
+            unit = unit_alias.first
+        serializer = UnitSerializer(unit, context=self.get_serializer_context())
+        return Response(serializer.data)
 
     def list(self, request):
         response = super(UnitViewSet, self).list(request)
