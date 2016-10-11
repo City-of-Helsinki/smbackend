@@ -515,7 +515,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         except Unit.DoesNotExist:
             unit_alias = get_object_or_404(UnitAlias, second=pk)
             unit = unit_alias.first
-        serializer = UnitSerializer(unit, context=self.get_serializer_context())
+        serializer = self.serializer_class(unit, context=self.get_serializer_context())
         return Response(serializer.data)
 
     def list(self, request):
