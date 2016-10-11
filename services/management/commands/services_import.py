@@ -31,6 +31,22 @@ GK25_SRID = 3879
 
 UTC_TIMEZONE = pytz.timezone('UTC')
 
+SERVICE_IDS_TO_SKIP = set([
+    # TODO
+    # These services have routes as geometries,
+    # should be skipped until we have the
+    # route geometries imported from LIPAS.
+    33376,
+    33377,
+    33378,
+    33482,
+    33483,
+    33484,
+    33485,
+    33486,
+    33492
+])
+
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
     option_list = list(BaseCommand.option_list + (
@@ -282,6 +298,9 @@ class Command(BaseCommand):
         dupes = []
 
         def handle_service(d):
+            if d['id'] in SERVICE_IDS_TO_SKIP:
+                return
+
             obj = syncher.get(d['id'])
             if not obj:
                 obj = Service(id=d['id'])
@@ -501,6 +520,13 @@ class Command(BaseCommand):
         service_ids = sorted([
             sid for sid in info.get('service_ids', [])
             if sid in self.existing_service_ids])
+
+        intersection = SERVICE_IDS_TO_SKIP.intersection(
+            set((s for s in info.get('service_ids', []))))
+        if len(intersection) > 0:
+            # Do not import units with services that need to be skipped
+            print('Skipping service id {} in unit {}.'.format(intersection, info['id']))
+            return
 
         obj_service_ids = sorted(obj.services.values_list('id', flat=True))
         if obj_service_ids != service_ids:
