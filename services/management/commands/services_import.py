@@ -504,6 +504,13 @@ class Command(BaseCommand):
             obj._changed = True
             obj.location = location
 
+        intersection = SERVICE_IDS_TO_SKIP.intersection(
+            set((s for s in info.get('service_ids', []))))
+        if len(intersection) > 0:
+            # Do not import units with services that need to be skipped
+            print('Skipping service id {} in unit {}.'.format(intersection, info['id']))
+            return
+
         if obj._changed:
             if obj._created:
                 verb = "created"
@@ -520,13 +527,6 @@ class Command(BaseCommand):
         service_ids = sorted([
             sid for sid in info.get('service_ids', [])
             if sid in self.existing_service_ids])
-
-        intersection = SERVICE_IDS_TO_SKIP.intersection(
-            set((s for s in info.get('service_ids', []))))
-        if len(intersection) > 0:
-            # Do not import units with services that need to be skipped
-            print('Skipping service id {} in unit {}.'.format(intersection, info['id']))
-            return
 
         obj_service_ids = sorted(obj.services.values_list('id', flat=True))
         if obj_service_ids != service_ids:
