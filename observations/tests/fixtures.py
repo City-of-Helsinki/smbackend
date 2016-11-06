@@ -50,8 +50,8 @@ def unit(service):
 @pytest.fixture
 def observable_property(service, unit):
     p = ObservableProperty.objects.create(
-        id='skiing_track_condition',
-        name='Skiing track condition',
+        id='skiing_trail_condition',
+        name='Skiing trail condition',
         observation_type='observations.CategoricalObservation'
     )
     p.services.add(service)
@@ -66,7 +66,7 @@ def observable_property(service, unit):
         internal_value=1,
         identifier='good',
         name='Good condition',
-        description='The track is in good condition',
+        description='The trail is in good condition',
         property=p
     ),
     AllowedValue.objects.create(

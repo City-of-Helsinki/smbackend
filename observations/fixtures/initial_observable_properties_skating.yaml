@@ -1,0 +1,35 @@
+- model: observations.ObservableProperty
+  pk: ice_skating_field_condition
+  fields:
+    name: Ice skating field condition
+    observation_type: observations.CategoricalObservation
+    services:
+      - 33418
+- model: observations.AllowedValue
+  fields:
+    internal_value: 0
+    identifier: closed
+    name: Closed
+    description: The field is closed
+    property_id: ice_skating_field_condition
+- model: observations.AllowedValue
+  fields:
+    internal_value: 1
+    identifier: plowing
+    name: Plowing
+    description: Plowing (finished?)
+    property_id: ice_skating_field_condition
+- model: observations.AllowedValue
+  fields:
+    internal_value: 2
+    identifier: freezing
+    name: Freezing
+    description: Freezing
+    property_id: ice_skating_field_condition
+- model: observations.AllowedValue
+  fields:
+    internal_value: 3
+    identifier: freezing_started
+    name: Freezing started
+    description: Freezing the field has been started
+    property_id: ice_skating_field_condition
