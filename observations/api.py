@@ -5,17 +5,17 @@ from .serializers import ObservationSerializer
 from django.apps import apps
 
 from services.api import (
-    JSONAPIViewSet, ServiceSerializer, UnitSerializer,
+    JSONAPIViewSetMixin, ServiceSerializer, UnitSerializer,
     ServiceViewSet, UnitViewSet, TranslatedModelSerializer)
 
-class ObservationViewSet(JSONAPIViewSet):
+class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Observation.objects.all()
     serializer_class = ObservationSerializer
 
 class AllowedValueSerializer(TranslatedModelSerializer):
     class Meta:
         model = models.AllowedValue
-        exclude = ('id', 'internal_value')
+        exclude = ('id', 'internal_value', 'property')
 
 class ObservablePropertySerializer(TranslatedModelSerializer):
     allowed_values = AllowedValueSerializer(many=True, read_only=True)

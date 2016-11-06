@@ -137,7 +137,7 @@ class Unit(models.Model):
 
     origin_last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
-    services = models.ManyToManyField(Service)
+    services = models.ManyToManyField(Service, related_name='units')
     divisions = models.ManyToManyField(AdministrativeDivision)
     keywords = models.ManyToManyField(Keyword)
 

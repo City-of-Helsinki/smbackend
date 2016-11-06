@@ -27,6 +27,10 @@ def test__get_observable_properties_for_unit(api_client, observable_property):
         if prop['observation_type'] == 'categorical':
             assert 'allowed_values' in prop
             assert len(prop['allowed_values']) > 0
+            for v in prop['allowed_values']:
+                assert 'identifier' in v
+                assert 'name' in v
+                assert 'description' in v
 
 @pytest.mark.django_db
 def test__get_observable_properties_for_service(api_client, observable_property):

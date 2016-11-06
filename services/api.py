@@ -170,9 +170,10 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPIS
     class Meta:
         model = Service
 
-class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
+
+class JSONAPIViewSetMixin:
     def initial(self, request, *args, **kwargs):
-        ret = super(JSONAPIViewSet, self).initial(request, *args, **kwargs)
+        ret = super(JSONAPIViewSetMixin, self).initial(request, *args, **kwargs)
 
         include = self.request.QUERY_PARAMS.get('include', '')
         self.include_fields = [x.strip() for x in include.split(',') if x]
@@ -186,7 +187,7 @@ class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
         return ret
 
     def get_queryset(self):
-        queryset = super(JSONAPIViewSet, self).get_queryset()
+        queryset = super(JSONAPIViewSetMixin, self).get_queryset()
         model = queryset.model
         if self.only_fields:
             model_fields = model._meta.get_fields()
@@ -205,7 +206,7 @@ class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset
 
     def get_serializer_context(self):
-        context = super(JSONAPIViewSet, self).get_serializer_context()
+        context = super(JSONAPIViewSetMixin, self).get_serializer_context()
 
         context['include'] = self.include_fields
         if self.only_fields:
@@ -213,6 +214,8 @@ class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
 
         return context
 
+class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
+    pass
 
 class UnitConnectionSerializer(TranslatedModelSerializer):
     class Meta:

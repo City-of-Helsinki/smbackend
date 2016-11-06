@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from services.api import all_views as services_views
 from services.api import AccessibilityRuleView
+from observations.api import views as observations_views
 from rest_framework import routers
 from munigeo.api import all_views as munigeo_views
 
@@ -11,7 +12,7 @@ router = routers.DefaultRouter()
 
 registered_api_views = set()
 
-for view in services_views + munigeo_views:
+for view in services_views + munigeo_views + observations_views:
     kwargs = {}
     if view['name'] in registered_api_views:
         continue

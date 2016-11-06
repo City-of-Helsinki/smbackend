@@ -37,14 +37,14 @@ def unit(service):
     unit.services.add(service)
     return unit
 
-@pytest.mark.django_db
-@pytest.fixture
-def categorical_observation(unit, observable_property):
-    return CategoricalObservation.objects.create(
-        time=d.datetime.now(),
-        unit=unit,
-        property=observable_property,
-        value=1)
+# @pytest.mark.django_db
+# @pytest.fixture
+# def categorical_observation(unit, observable_property):
+#     return CategoricalObservation.objects.create(
+#         time=d.datetime.now(),
+#         unit=unit,
+#         property=observable_property,
+#         value=1)
 
 @pytest.mark.django_db
 @pytest.fixture
