@@ -1,32 +1,18 @@
 from rest_framework import serializers, viewsets
+from rest_framework.exceptions import ValidationError
 from . import models
-from .serializers import ObservationSerializer
+from .serializers import *
+from django.utils import timezone
 
-from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
+
 
 from services.api import (
-    JSONAPIViewSetMixin, ServiceSerializer, UnitSerializer,
-    ServiceViewSet, UnitViewSet, TranslatedModelSerializer)
+    JSONAPIViewSetMixin, ServiceViewSet, UnitViewSet)
 
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Observation.objects.all()
     serializer_class = ObservationSerializer
-
-class AllowedValueSerializer(TranslatedModelSerializer):
-    class Meta:
-        model = models.AllowedValue
-        exclude = ('id', 'internal_value', 'property')
-
-class ObservablePropertySerializer(TranslatedModelSerializer):
-    allowed_values = AllowedValueSerializer(many=True, read_only=True)
-    class Meta:
-        model = models.ObservableProperty
-    def to_representation(self, obj):
-        data = super(ObservablePropertySerializer, self).to_representation(obj)
-        ModelClass = apps.get_model(obj.observation_type)
-        data['observation_type'] = ModelClass.get_type()
-        return data
-        
 
 class ObservableSerializerMixin:
     def to_representation(self, obj):

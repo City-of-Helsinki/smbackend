@@ -1,7 +1,10 @@
 import pytest
 from fixtures import *
+from observations.models import Observation
 from data import observation_raw_data
 from rest_framework.reverse import reverse
+from django.utils import timezone
+from datetime import timedelta, datetime
 
 @pytest.mark.django_db
 def test__create_observation(api_client, observable_property, unit):
@@ -9,11 +12,28 @@ def test__create_observation(api_client, observable_property, unit):
         'unit-detail',
         kwargs={'pk': unit.pk}) + '?include=observable_properties'
     response = api_client.get(url)
-    print(response.data)
     observable_properties = response.data['observable_properties']
     assert len(observable_properties) > 0
+    assert Observation.objects.count() == 0
+    count = 0
     for prop in observable_properties:
-        otype = prop['observation_type']
-        raw_data = observation_raw_data(otype, unit)
-        url = reverse('observation-list')
-        api_client.post(url, raw_data)
+        otype = prop['id']
+        for raw_data in observation_raw_data(otype, unit, allowed_values=[
+                v['identifier'] for v in prop['allowed_values']
+        ]):
+            print(raw_data)
+            url = reverse('observation-list')
+            current_time = timezone.now()
+            response = api_client.post(url, raw_data)
+
+            assert response.status_code == 201
+            count += 1
+            data = response.data
+            observation_time = datetime.strptime(
+                data['time'],
+                "%Y-%m-%dT%H:%M:%S.%f%z")
+            assert observation_time - current_time < timedelta(seconds=1)
+            assert data['value'] == raw_data['value']
+            assert data['property'] == raw_data['property']
+            assert data['unit'] == raw_data['unit']
+    assert Observation.objects.count() == count

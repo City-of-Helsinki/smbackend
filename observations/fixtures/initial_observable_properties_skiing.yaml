@@ -1,0 +1,86 @@
+- model: observations.ObservableProperty
+  pk: ski_trail_condition
+  fields:
+    name: Ski trail condition
+    observation_type: observations.CategoricalObservation
+    services:
+      - 33483
+      - 33492
+- model: observations.AllowedValue
+  fields:
+    internal_value: 0
+    identifier: closed
+    name: Closed
+    description: Closed
+    property_id: ski_trail_condition
+- model: observations.AllowedValue
+  fields:
+    internal_value: 1
+    identifier: good
+    name: Good condition
+    description: In good condition
+    property_id: ski_trail_condition
+- model: observations.AllowedValue
+  fields:
+    internal_value: 2
+    identifier: satisfactory
+    name: Satisfactory condition
+    description: In satisfactory condition
+    property_id: ski_trail_condition
+- model: observations.AllowedValue
+  fields:
+    internal_value: 3
+    identifier: poor
+    name: Poor condition
+    description: In poor condition
+    property_id: ski_trail_condition
+- model: observations.AllowedValue
+  fields:
+    internal_value: 4
+    identifier: snowless
+    name: Snowless
+    description: Without snow
+    property_id: ski_trail_condition
+- model: observations.AllowedValue
+  fields:
+    internal_value: 5
+    identifier: event
+    name: Closed due to training or a competition
+    description: The trail is closed because it is being used for a competition or a training event
+    property_id: ski_trail_condition
+- model: observations.AllowedValue
+  fields:
+    internal_value: 6
+    identifier: littered
+    name: Littered
+    description: The trail is littered
+    property_id: ski_trail_condition
+- model: observations.AllowedValue
+  fields:
+    internal_value: 7
+    identifier: groomed
+    name: Groomed with no tracks
+    description: The trail has been groomed but lacks ski tracks or grooves
+    property_id: ski_trail_condition
+- model: observations.AllowedValue
+  fields:
+    internal_value: 8
+    identifier: snowmaking
+    name: Closed due to snowmaking
+    description: The trail is closed because snowmaking is in progress
+    property_id: ski_trail_condition
+- model: observations.ObservableProperty
+  pk: ski_trail_maintenance
+  fields:
+    name: Ski trail maintenance status
+    observation_type: observations.CategoricalObservation
+    services:
+      - 33483
+      - 33492
+- model: observations.AllowedValue
+  fields:
+    internal_value: 1
+    identifier: maintenance_finished
+    name: Maintenance finished
+    description: The trail has been groomed
+    property_id: ski_trail_maintenance
