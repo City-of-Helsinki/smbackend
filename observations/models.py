@@ -33,6 +33,8 @@ class AllowedValue(models.Model):
     internal_value = models.SmallIntegerField()
     identifier = models.CharField(
         max_length=50, null=False, blank=False, db_index=True)
+    quality = models.CharField(
+        max_length=50, null=False, blank=False, db_index=True)
     name = models.CharField(
         max_length=100, null=False,
         blank=False, db_index=True)
