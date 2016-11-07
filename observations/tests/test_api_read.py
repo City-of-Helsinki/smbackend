@@ -57,3 +57,7 @@ def test__get_observable_properties_for_service(api_client, observable_property)
        match_observable_property_object_to_dict(
            observable_property, returned_property)
 
+# @pytest.mark.django_db
+# def test__get_units_with_observations_sorted_by_latest_first(api_client, categorical_observations):
+#     response = api_client.get(
+#         reverse('unit-list') + '?include=observations&observation_count=5')

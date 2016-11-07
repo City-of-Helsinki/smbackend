@@ -55,7 +55,8 @@ class Observation(PolymorphicModel):
         help_text='Exact time the observation was made')
     unit = models.ForeignKey(
         services_models.Unit, blank=False, null=False,
-        help_text='The unit the observation is about')
+        help_text='The unit the observation is about',
+        related_name='observations')
     property = models.ForeignKey(
         ObservableProperty,
         blank=False, null=False,
