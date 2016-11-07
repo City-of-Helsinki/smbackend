@@ -12,24 +12,28 @@
     name: Closed
     description: The field is closed
     property_id: ice_skating_field_condition
+    quality: unusable
 - model: observations.AllowedValue
   fields:
     internal_value: 1
-    identifier: plowing
-    name: Plowing
-    description: Plowing (finished?)
+    identifier: plowed
+    name: Plowed
+    description: The field has been plowed
     property_id: ice_skating_field_condition
+    quality: satisfactory
 - model: observations.AllowedValue
   fields:
     internal_value: 2
-    identifier: freezing
-    name: Freezing
-    description: Freezing
+    identifier: frozen
+    name: Frozen
+    description: The field has been frozen
     property_id: ice_skating_field_condition
+    quality: good
 - model: observations.AllowedValue
   fields:
     internal_value: 3
     identifier: freezing_started
     name: Freezing started
-    description: Freezing the field has been started
+    description: Freezing of the field has been started
     property_id: ice_skating_field_condition
+    quality: unusable

@@ -13,6 +13,7 @@
     name: Closed
     description: Closed
     property_id: ski_trail_condition
+    quality: unusable
 - model: observations.AllowedValue
   fields:
     internal_value: 1
@@ -20,6 +21,7 @@
     name: Good condition
     description: In good condition
     property_id: ski_trail_condition
+    quality: good
 - model: observations.AllowedValue
   fields:
     internal_value: 2
@@ -27,6 +29,7 @@
     name: Satisfactory condition
     description: In satisfactory condition
     property_id: ski_trail_condition
+    quality: satisfactory
 - model: observations.AllowedValue
   fields:
     internal_value: 3
@@ -34,6 +37,7 @@
     name: Poor condition
     description: In poor condition
     property_id: ski_trail_condition
+    quality: unusable
 - model: observations.AllowedValue
   fields:
     internal_value: 4
@@ -41,6 +45,7 @@
     name: Snowless
     description: Without snow
     property_id: ski_trail_condition
+    quality: unusable
 - model: observations.AllowedValue
   fields:
     internal_value: 5
@@ -48,6 +53,7 @@
     name: Closed due to training or a competition
     description: The trail is closed because it is being used for a competition or a training event
     property_id: ski_trail_condition
+    quality: unusable
 - model: observations.AllowedValue
   fields:
     internal_value: 6
@@ -55,6 +61,7 @@
     name: Littered
     description: The trail is littered
     property_id: ski_trail_condition
+    quality: satisfactory
 - model: observations.AllowedValue
   fields:
     internal_value: 7
@@ -62,6 +69,7 @@
     name: Groomed with no tracks
     description: The trail has been groomed but lacks ski tracks or grooves
     property_id: ski_trail_condition
+    quality: satisfactory
 - model: observations.AllowedValue
   fields:
     internal_value: 8
@@ -69,6 +77,7 @@
     name: Closed due to snowmaking
     description: The trail is closed because snowmaking is in progress
     property_id: ski_trail_condition
+    quality: unusable
 - model: observations.ObservableProperty
   pk: ski_trail_maintenance
   fields:
@@ -84,3 +93,4 @@
     name: Maintenance finished
     description: The trail has been groomed
     property_id: ski_trail_maintenance
+    quality: good
