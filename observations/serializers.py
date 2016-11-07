@@ -4,6 +4,7 @@ from services.api import (
 
 from django.apps import apps
 from rest_framework import serializers
+from django.utils import timezone
 
 from . import models
 from services.api import JSONAPISerializer
@@ -26,11 +27,16 @@ class ObservablePropertySerializer(TranslatedModelSerializer):
 class ObservationSerializer(serializers.BaseSerializer):
     def to_representation(self, obj):
         observable_property = obj.property
+        allowed_value = obj.property.allowed_values.get(internal_value=obj.value)
+        name = allowed_value.name
+        description = allowed_value.description
         return dict(
             unit=int(obj.unit_id),
             property=observable_property.id,
             time=timezone.localtime(obj.time).strftime('%Y-%m-%dT%H:%M:%S.%f%z'),
-            value=observable_property.get_external_value(obj.value))
+            value=observable_property.get_external_value(obj.value),
+            name=name,
+        )
     def to_internal_value(self, data):
         if 'time' in data:
             raise ValidationError(

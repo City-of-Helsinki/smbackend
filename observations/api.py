@@ -2,7 +2,6 @@ from rest_framework import serializers, viewsets
 from rest_framework.exceptions import ValidationError
 from . import models
 from .serializers import *
-from django.utils import timezone
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -17,11 +16,12 @@ class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
 class ObservableSerializerMixin:
     def to_representation(self, obj):
         data = super(ObservableSerializerMixin, self).to_representation(obj)
-        if 'observable_properties' not in self.context.get('include', []):
-            return data
-
-        data['observable_properties'] = ObservablePropertySerializer(
-            self.get_observable_properties(obj), many=True).data
+        if 'observable_properties' in self.context.get('include', []):
+            data['observable_properties'] = ObservablePropertySerializer(
+                self.get_observable_properties(obj), many=True).data
+        if 'observations' in self.context.get('include', []):
+            count = self.context.get('observation_count', 3)
+            data['observations'] = ObservationSerializer(obj.observations.order_by('-time')[:count], many=True).data
         return data
 
 class ObservableServiceSerializer(ObservableSerializerMixin, ServiceSerializer):
