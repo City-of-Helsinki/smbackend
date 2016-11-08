@@ -28,7 +28,8 @@ class ObservationSerializer(serializers.BaseSerializer):
     def to_representation(self, obj):
         observable_property = obj.property
         allowed_value = obj.property.allowed_values.get(internal_value=obj.value)
-        name = allowed_value.name
+        serialized_allowed_value = AllowedValueSerializer(allowed_value, read_only=True).data
+        name = serialized_allowed_value['name']
         description = allowed_value.description
         return dict(
             unit=int(obj.unit_id),
