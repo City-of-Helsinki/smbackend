@@ -9,31 +9,47 @@
   fields:
     internal_value: 0
     identifier: closed
-    name: Closed
-    description: The field is closed
+    name_fi: Suljettu
+    name_sv: Stängd
+    name_en: Closed
+    description_fi: Kenttä on suljettu
+    description_sv: MISSING_TRANSLATION
+    description_en: The field is closed
     property_id: ice_skating_field_condition
     quality: unusable
 - model: observations.AllowedValue
   fields:
     internal_value: 1
     identifier: plowed
-    name: Plowed
-    description: The field has been plowed
+    name_fi: Aurattu
+    name_sv: MISSING_TRANSLATION
+    name_en: Plowed
+    description_fi: Kenttä on aurattu
+    description_sv: MISSING_TRANSLATION
+    description_en: The field has been plowed
     property_id: ice_skating_field_condition
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
     internal_value: 2
     identifier: frozen
-    name: Frozen
-    description: The field has been frozen
+    name_fi: Jäädytetty
+    name_sv: MISSING_TRANSLATION
+    name_en: Frozen
+    description_fi: Kenttä on jäädytetty
+    description_sv: MISSING_TRANSLATION
+    description_en: The field has been frozen
     property_id: ice_skating_field_condition
     quality: good
 - model: observations.AllowedValue
   fields:
     internal_value: 3
     identifier: freezing_started
-    name: Freezing started
-    description: Freezing of the field has been started
+    name_fi: Jäädytys aloitettu
+    name_sv: MISSING_TRANSLATION
+    name_en: Freezing started
+    description_fi: Kentän jäädytys on aloitettu
+    description_sv: MISSING_TRANSLATION
+    description_en: Freezing of the field has been started
     property_id: ice_skating_field_condition
     quality: unusable
