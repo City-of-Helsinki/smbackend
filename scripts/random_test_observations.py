@@ -4,7 +4,7 @@ import sys
 import json
 import random
 
-values = ['closed', 'plowing', 'freezing', 'freezing_started']
+values = ['closed', 'plowed', 'frozen', 'freezing_started']
 
 def main(base_url):
     response = requests.get(
