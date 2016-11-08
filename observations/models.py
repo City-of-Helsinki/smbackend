@@ -69,6 +69,8 @@ class Observation(PolymorphicModel):
         if self.property.allowed_values.count() == 0:
             return value
         return self.property.allowed_values.get(identifier=value).internal_value
+    class Meta:
+        ordering = ['-time']
 
 class CategoricalObservation(Observation):
     value = models.SmallIntegerField()
