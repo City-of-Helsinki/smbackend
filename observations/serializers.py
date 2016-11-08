@@ -32,6 +32,7 @@ class ObservationSerializer(serializers.BaseSerializer):
         description = allowed_value.description
         return dict(
             unit=int(obj.unit_id),
+            id=obj.id,
             property=observable_property.id,
             time=timezone.localtime(obj.time).strftime('%Y-%m-%dT%H:%M:%S.%f%z'),
             value=observable_property.get_external_value(obj.value),
