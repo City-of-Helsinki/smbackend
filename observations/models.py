@@ -34,7 +34,8 @@ class AllowedValue(models.Model):
     identifier = models.CharField(
         max_length=50, null=False, blank=False, db_index=True)
     quality = models.CharField(
-        max_length=50, null=False, blank=False, db_index=True)
+        max_length=50, null=False, blank=False, db_index=True,
+        default='unknown')
     name = models.CharField(
         max_length=100, null=False,
         blank=False, db_index=True)

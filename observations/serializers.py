@@ -35,6 +35,7 @@ class ObservationSerializer(serializers.BaseSerializer):
             property=observable_property.id,
             time=timezone.localtime(obj.time).strftime('%Y-%m-%dT%H:%M:%S.%f%z'),
             value=observable_property.get_external_value(obj.value),
+            quality=allowed_value.quality,
             name=name,
         )
     def to_internal_value(self, data):
