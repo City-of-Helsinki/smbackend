@@ -15,37 +15,43 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='AllowedValue',
             fields=[
-                ('id', models.AutoField(serialize=False, verbose_name='ID', primary_key=True, auto_created=True)),
-                ('internal_value', models.SmallIntegerField()),
-                ('identifier', models.CharField(db_index=True, max_length=50)),
-                ('name', models.CharField(db_index=True, max_length=100)),
+                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
+                ('identifier', models.CharField(max_length=50, db_index=True)),
+                ('quality', models.CharField(default='unknown', max_length=50, db_index=True)),
+                ('name', models.CharField(max_length=100, db_index=True)),
+                ('name_fi', models.CharField(max_length=100, db_index=True, null=True)),
+                ('name_sv', models.CharField(max_length=100, db_index=True, null=True)),
+                ('name_en', models.CharField(max_length=100, db_index=True, null=True)),
                 ('description', models.TextField()),
+                ('description_fi', models.TextField(null=True)),
+                ('description_sv', models.TextField(null=True)),
+                ('description_en', models.TextField(null=True)),
             ],
         ),
         migrations.CreateModel(
             name='ObservableProperty',
             fields=[
                 ('id', models.CharField(serialize=False, primary_key=True, max_length=50)),
-                ('name', models.CharField(db_index=True, max_length=100)),
-                ('measurement_unit', models.CharField(null=True, max_length=20)),
+                ('name', models.CharField(max_length=100, db_index=True)),
+                ('measurement_unit', models.CharField(max_length=20, null=True)),
                 ('observation_type', models.CharField(max_length=80)),
-                ('services', models.ManyToManyField(related_name='observable_properties', to='services.Service')),
+                ('services', models.ManyToManyField(to='services.Service', related_name='observable_properties')),
             ],
         ),
         migrations.CreateModel(
             name='Observation',
             fields=[
-                ('id', models.AutoField(serialize=False, verbose_name='ID', primary_key=True, auto_created=True)),
+                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
                 ('time', models.DateTimeField(help_text='Exact time the observation was made', db_index=True)),
             ],
             options={
-                'abstract': False,
+                'ordering': ['-time'],
             },
         ),
         migrations.CreateModel(
             name='CategoricalObservation',
             fields=[
-                ('observation_ptr', models.OneToOneField(serialize=False, to='observations.Observation', primary_key=True, parent_link=True, auto_created=True)),
+                ('observation_ptr', models.OneToOneField(serialize=False, to='observations.Observation', primary_key=True, auto_created=True, parent_link=True)),
                 ('value', models.SmallIntegerField()),
             ],
             options={
@@ -56,7 +62,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ContinuousObservation',
             fields=[
-                ('observation_ptr', models.OneToOneField(serialize=False, to='observations.Observation', primary_key=True, parent_link=True, auto_created=True)),
+                ('observation_ptr', models.OneToOneField(serialize=False, to='observations.Observation', primary_key=True, auto_created=True, parent_link=True)),
                 ('value', models.FloatField()),
             ],
             options={
@@ -67,7 +73,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DescriptiveObservation',
             fields=[
-                ('observation_ptr', models.OneToOneField(serialize=False, to='observations.Observation', primary_key=True, parent_link=True, auto_created=True)),
+                ('observation_ptr', models.OneToOneField(serialize=False, to='observations.Observation', primary_key=True, auto_created=True, parent_link=True)),
                 ('value', models.TextField()),
             ],
             options={
@@ -78,7 +84,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='observation',
             name='polymorphic_ctype',
-            field=models.ForeignKey(editable=False, null=True, related_name='polymorphic_observations.observation_set+', to='contenttypes.ContentType'),
+            field=models.ForeignKey(to='contenttypes.ContentType', related_name='polymorphic_observations.observation_set+', editable=False, null=True),
         ),
         migrations.AddField(
             model_name='observation',
@@ -88,15 +94,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='observation',
             name='unit',
-            field=models.ForeignKey(to='services.Unit', help_text='The unit the observation is about'),
+            field=models.ForeignKey(to='services.Unit', help_text='The unit the observation is about', related_name='observations'),
         ),
         migrations.AddField(
             model_name='allowedvalue',
             name='property',
-            field=models.ForeignKey(to='observations.ObservableProperty', related_name='allowed_values'),
+            field=models.ForeignKey(related_name='allowed_values', to='observations.ObservableProperty'),
         ),
         migrations.AlterUniqueTogether(
             name='allowedvalue',
-            unique_together=set([('identifier', 'property'), ('internal_value', 'property')]),
+            unique_together=set([('identifier', 'property')]),
         ),
     ]
