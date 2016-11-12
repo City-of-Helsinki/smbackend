@@ -36,15 +36,15 @@ SERVICE_IDS_TO_SKIP = set([
     # These services have routes as geometries,
     # should be skipped until we have the
     # route geometries imported from LIPAS.
-    33376,
-    33377,
-    33378,
-    33482,
-    33483,
-    33484,
-    33485,
-    33486,
-    33492
+    33376, # ulkoilualue
+    33377, # retkeilyalue
+    33378, # monikäyttöalue
+    33482, # kuntorata
+    33483, # latu
+    33484, # kävelyreitti
+    33485, # luontopolku
+    33486, # retkeilyreitti
+    33492  # koirahiihtolatu
 ])
 
 class Command(BaseCommand):
