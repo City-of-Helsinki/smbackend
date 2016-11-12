@@ -7,7 +7,6 @@
       - 33418
 - model: observations.AllowedValue
   fields:
-    internal_value: 0
     identifier: closed
     name_fi: Suljettu
     name_sv: Stängd
@@ -19,7 +18,6 @@
     quality: unusable
 - model: observations.AllowedValue
   fields:
-    internal_value: 1
     identifier: plowed
     name_fi: Aurattu
     name_sv: MISSING_TRANSLATION
@@ -31,7 +29,6 @@
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
-    internal_value: 2
     identifier: frozen
     name_fi: Jäädytetty
     name_sv: MISSING_TRANSLATION
@@ -43,7 +40,6 @@
     quality: good
 - model: observations.AllowedValue
   fields:
-    internal_value: 3
     identifier: freezing_started
     name_fi: Jäädytys aloitettu
     name_sv: MISSING_TRANSLATION

@@ -8,7 +8,6 @@
       - 33492
 - model: observations.AllowedValue
   fields:
-    internal_value: 0
     identifier: closed
     name: Closed
     description: Closed
@@ -16,7 +15,6 @@
     quality: unusable
 - model: observations.AllowedValue
   fields:
-    internal_value: 1
     identifier: good
     name: Good condition
     description: In good condition
@@ -24,7 +22,6 @@
     quality: good
 - model: observations.AllowedValue
   fields:
-    internal_value: 2
     identifier: satisfactory
     name: Satisfactory condition
     description: In satisfactory condition
@@ -32,7 +29,6 @@
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
-    internal_value: 3
     identifier: poor
     name: Poor condition
     description: In poor condition
@@ -40,7 +36,6 @@
     quality: unusable
 - model: observations.AllowedValue
   fields:
-    internal_value: 4
     identifier: snowless
     name: Snowless
     description: Without snow
@@ -48,7 +43,6 @@
     quality: unusable
 - model: observations.AllowedValue
   fields:
-    internal_value: 5
     identifier: event
     name: Closed due to training or a competition
     description: The trail is closed because it is being used for a competition or a training event
@@ -56,7 +50,6 @@
     quality: unusable
 - model: observations.AllowedValue
   fields:
-    internal_value: 6
     identifier: littered
     name: Littered
     description: The trail is littered
@@ -64,7 +57,6 @@
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
-    internal_value: 7
     identifier: groomed
     name: Groomed with no tracks
     description: The trail has been groomed but lacks ski tracks or grooves
@@ -72,7 +64,6 @@
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
-    internal_value: 8
     identifier: snowmaking
     name: Closed due to snowmaking
     description: The trail is closed because snowmaking is in progress
@@ -88,7 +79,6 @@
       - 33492
 - model: observations.AllowedValue
   fields:
-    internal_value: 1
     identifier: maintenance_finished
     name: Maintenance finished
     description: The trail has been groomed

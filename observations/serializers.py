@@ -12,7 +12,7 @@ from services.api import JSONAPISerializer
 class AllowedValueSerializer(TranslatedModelSerializer):
     class Meta:
         model = models.AllowedValue
-        exclude = ('id', 'internal_value', 'property')
+        exclude = ('id', 'property')
 
 class ObservablePropertySerializer(TranslatedModelSerializer):
     allowed_values = AllowedValueSerializer(many=True, read_only=True)
@@ -27,7 +27,7 @@ class ObservablePropertySerializer(TranslatedModelSerializer):
 class ObservationSerializer(serializers.BaseSerializer):
     def to_representation(self, obj):
         observable_property = obj.property
-        allowed_value = obj.property.allowed_values.get(internal_value=obj.value)
+        allowed_value = obj.property.allowed_values.get(pk=obj.value)
         serialized_allowed_value = AllowedValueSerializer(allowed_value, read_only=True).data
         name = serialized_allowed_value['name']
         description = allowed_value.description
@@ -56,6 +56,7 @@ class ObservationSerializer(serializers.BaseSerializer):
         observable_property = models.ObservableProperty.objects.get(id=property)
         validated_data['value'] = observable_property.get_internal_value(
             validated_data['value'])
+        print(validated_data['value'])
         observation_type = observable_property.observation_type
         ModelClass = apps.get_model(observation_type)
         return ModelClass.objects.create(**validated_data)

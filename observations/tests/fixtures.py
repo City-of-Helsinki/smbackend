@@ -67,21 +67,18 @@ def observable_property(service, unit):
     )
     p.services.add(service)
     AllowedValue.objects.create(
-        internal_value=0,
         identifier='no_snow',
         name='No snow',
         description='There is no snow',
         property=p
     ),
     AllowedValue.objects.create(
-        internal_value=1,
         identifier='good',
         name='Good condition',
         description='The trail is in good condition',
         property=p
     ),
     AllowedValue.objects.create(
-        internal_value=2,
         identifier='poor',
         name='Poor condition',
         description='Poor skiing condition',
