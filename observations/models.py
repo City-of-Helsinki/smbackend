@@ -22,15 +22,14 @@ class ObservableProperty(models.Model):
         return "%s (%s)" % (self.name, self.id)
     def get_internal_value(self, value):
         if self.allowed_values.count():
-            return self.allowed_values.get(identifier=value).internal_value
+            return self.allowed_values.get(identifier=value).pk
         return value
     def get_external_value(self, value):
         if self.allowed_values.count():
-            return self.allowed_values.get(internal_value=value).identifier
+            return self.allowed_values.get(pk=value).identifier
 
 class AllowedValue(models.Model):
     # Currently only works for categorical observations
-    internal_value = models.SmallIntegerField()
     identifier = models.CharField(
         max_length=50, null=False, blank=False, db_index=True)
     quality = models.CharField(
@@ -46,8 +45,7 @@ class AllowedValue(models.Model):
         related_name='allowed_values')
     class Meta:
         unique_together = (
-            ('identifier', 'property'),
-            ('internal_value', 'property'),)
+            ('identifier', 'property'),)
 
 class Observation(PolymorphicModel):
     """An observation is a measured/observed value of
