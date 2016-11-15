@@ -321,6 +321,14 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             acc_props = [{'variable': s.variable_id, 'value': s.value}
                          for s in obj.accessibility_properties.all()]
             ret['accessibility_properties'] = acc_props
+
+        if not 'request' in self.context:
+            return ret
+        qparams = self.context['request'].query_params
+        if qparams.get('geometry', '').lower() in ('true', '1'):
+            geom = obj.geometry.path # TODO: different geom types
+            ret['geometry'] = munigeo_api.geom_to_json(geom, self.srs)
+
         return ret
 
     class Meta:

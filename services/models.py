@@ -163,6 +163,11 @@ class Unit(models.Model):
         srv_list = qs.values_list('id', flat=True).distinct()
         return sorted(srv_list)
 
+class UnitGeometry(models.Model):
+    unit = models.OneToOneField(Unit, related_name='geometry')
+    objects = models.GeoManager()
+    path = models.MultiLineStringField(srid=PROJECTION_SRID)
+
 
 @python_2_unicode_compatible
 class UnitIdentifier(models.Model):
