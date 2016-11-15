@@ -27,7 +27,7 @@ class ObservablePropertySerializer(TranslatedModelSerializer):
 class ObservationSerializer(serializers.BaseSerializer):
     def to_representation(self, obj):
         observable_property = obj.property
-        allowed_value = obj.property.allowed_values.get(pk=obj.value)
+        allowed_value = obj.value
         serialized_allowed_value = AllowedValueSerializer(allowed_value, read_only=True).data
         name = serialized_allowed_value['name']
         description = allowed_value.description

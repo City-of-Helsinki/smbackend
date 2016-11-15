@@ -22,11 +22,11 @@ class ObservableProperty(models.Model):
         return "%s (%s)" % (self.name, self.id)
     def get_internal_value(self, value):
         if self.allowed_values.count():
-            return self.allowed_values.get(identifier=value).pk
+            return self.allowed_values.get(identifier=value)
         return value
     def get_external_value(self, value):
         if self.allowed_values.count():
-            return self.allowed_values.get(pk=value).identifier
+            return value.identifier
 
 class AllowedValue(models.Model):
     # Currently only works for categorical observations
@@ -66,12 +66,15 @@ class Observation(PolymorphicModel):
     def get_internal_value(value):
         if self.property.allowed_values.count() == 0:
             return value
-        return self.property.allowed_values.get(identifier=value).internal_value
+        return self.property.allowed_values.get(identifier=value)
     class Meta:
         ordering = ['-time']
 
 class CategoricalObservation(Observation):
-    value = models.SmallIntegerField()
+    value = models.ForeignKey(
+        AllowedValue, blank=False, null=False,
+        db_column='id',
+        related_name='instances')
     @staticmethod
     def get_type():
         return 'categorical'
