@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    'polymorphic',
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
     'django.contrib.gis',
