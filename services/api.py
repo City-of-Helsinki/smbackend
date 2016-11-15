@@ -326,9 +326,11 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             return ret
         qparams = self.context['request'].query_params
         if qparams.get('geometry', '').lower() in ('true', '1'):
-            geom = obj.geometry.path # TODO: different geom types
-            ret['geometry'] = munigeo_api.geom_to_json(geom, self.srs)
-
+            try:
+                geom = obj.geometry.path # TODO: different geom types
+                ret['geometry'] = munigeo_api.geom_to_json(geom, self.srs)
+            except UnitGeometry.DoesNotExist:
+                ret['geometry'] = None
         return ret
 
     class Meta:
