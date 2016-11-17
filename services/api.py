@@ -377,7 +377,7 @@ class KmlRenderer(renderers.BaseRenderer):
 
 
 class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
-    queryset = Unit.objects.all()
+    queryset = Unit.objects.prefetch_related('observations__value').prefetch_related('observations__property__allowed_values').prefetch_related('services').all()
     serializer_class = UnitSerializer
 
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
