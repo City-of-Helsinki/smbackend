@@ -25,8 +25,7 @@ class ObservableProperty(models.Model):
             return self.allowed_values.get(identifier=value)
         return value
     def get_external_value(self, value):
-        if self.allowed_values.count():
-            return value.identifier
+        return getattr(value, 'identifier')
 
 class AllowedValue(models.Model):
     # Currently only works for categorical observations
