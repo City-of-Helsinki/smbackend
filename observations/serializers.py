@@ -49,14 +49,24 @@ class ObservationSerializer(serializers.BaseSerializer):
             unit_id=data['unit'],
             property_id=data['property'],
             time=timezone.now(),
-            value=data['value']
+            value=data['value'],
+            add_maintenance_observation=data.get('serviced', False)
         )
     def create(self, validated_data):
         property = validated_data['property_id']
         observable_property = models.ObservableProperty.objects.get(id=property)
         validated_data['value'] = observable_property.get_internal_value(
             validated_data['value'])
-        print(validated_data['value'])
         observation_type = observable_property.observation_type
         ModelClass = apps.get_model(observation_type)
+        if (validated_data['add_maintenance_observation']):
+            if validated_data['property_id'] == 'ski_trail_condition':
+                observable_property = models.ObservableProperty.objects.get(id='ski_trail_maintenance')
+                MaintenanceModelClass = apps.get_model(observable_property.observation_type)
+                obj = MaintenanceModelClass.objects.create(
+                    unit_id=validated_data['unit_id'],
+                    property_id='ski_trail_maintenance',
+                    time=validated_data['time'],
+                    value=observable_property.get_internal_value('maintenance_finished'))
+        del validated_data['add_maintenance_observation']
         return ModelClass.objects.create(**validated_data)
