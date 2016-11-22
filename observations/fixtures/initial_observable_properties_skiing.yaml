@@ -9,63 +9,72 @@
 - model: observations.AllowedValue
   fields:
     identifier: closed
-    name: Closed
+    name_en: Closed
+    name_fi: Suljettu
     description: Closed
     property_id: ski_trail_condition
     quality: unusable
 - model: observations.AllowedValue
   fields:
     identifier: good
-    name: Good condition
+    name_en: Good condition
+    name_fi: Hyvä
     description: In good condition
     property_id: ski_trail_condition
     quality: good
 - model: observations.AllowedValue
   fields:
     identifier: satisfactory
-    name: Satisfactory condition
+    name_en: Satisfactory condition
+    name_fi: Tyydyttävä
     description: In satisfactory condition
     property_id: ski_trail_condition
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
     identifier: poor
-    name: Poor condition
+    name_en: Poor condition
+    name_fi: Heikko
     description: In poor condition
     property_id: ski_trail_condition
     quality: unusable
 - model: observations.AllowedValue
   fields:
     identifier: snowless
-    name: Snowless
+    name_en: Snowless
+    name_fi: Lumenpuute
     description: Without snow
     property_id: ski_trail_condition
     quality: unusable
 - model: observations.AllowedValue
   fields:
     identifier: event
-    name: Closed due to training or a competition
+    name_en: Closed due to training or a competition
+    name_fi: Kilpailut/harjoitukset
     description: The trail is closed because it is being used for a competition or a training event
     property_id: ski_trail_condition
     quality: unusable
 - model: observations.AllowedValue
   fields:
     identifier: littered
-    name: Littered
+    name_en: Littered
+    name_fi: Roskainen
     description: The trail is littered
     property_id: ski_trail_condition
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
     identifier: groomed
-    name: Groomed with no tracks
+    name_en: Groomed with no tracks
+    name_fi: Latu pohjattu (ei latu-uraa)
     description: The trail has been groomed but lacks ski tracks or grooves
     property_id: ski_trail_condition
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
     identifier: snowmaking
-    name: Closed due to snowmaking
+    name_en: Closed due to snowmaking
+    name_fi: Lumetus kesken
     description: The trail is closed because snowmaking is in progress
     property_id: ski_trail_condition
     quality: unusable
@@ -80,6 +89,7 @@
 - model: observations.AllowedValue
   fields:
     identifier: maintenance_finished
-    name: Maintenance finished
+    name_en: Maintenance finished
+    name_fi: Kunnostettu
     description: The trail has been groomed
     property_id: ski_trail_maintenance
