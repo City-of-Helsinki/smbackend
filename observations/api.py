@@ -20,8 +20,11 @@ class ObservableSerializerMixin:
             data['observable_properties'] = ObservablePropertySerializer(
                 self.get_observable_properties(obj), many=True).data
         if 'observations' in self.context.get('include', []):
-            count = self.context.get('observation_count', 3)
-            data['observations'] = ObservationSerializer(obj.observations, many=True).data
+            properties = self.get_observable_properties(obj)
+            observations = []
+            for prop in properties:
+                observations.append(obj.observations.filter(property=prop).order_by('-time').first())
+            data['observations'] = ObservationSerializer(observations, many=True).data
         return data
 
 class ObservableServiceSerializer(ObservableSerializerMixin, ServiceSerializer):
@@ -30,7 +33,7 @@ class ObservableServiceSerializer(ObservableSerializerMixin, ServiceSerializer):
 
 class ObservableUnitSerializer(ObservableSerializerMixin, UnitSerializer):
     def get_observable_properties(self, unit):
-        return unit.services.observable_properties
+        return models.ObservableProperty.objects.filter(services__in=unit.services.all())
 
 UnitViewSet.serializer_class = ObservableUnitSerializer
 ServiceViewSet.serializer_class = ObservableServiceSerializer
