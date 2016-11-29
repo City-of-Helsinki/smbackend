@@ -503,6 +503,11 @@ class Command(BaseCommand):
         if location != obj.location:
             obj._changed = True
             obj.location = location
+            # Assumption: this importer receives only
+            # point geometries and any other geometries
+            # are imported after the unit and point has been
+            # imported.
+            obj.geometry = location
 
         intersection = SERVICE_IDS_TO_SKIP.intersection(
             set((s for s in info.get('service_ids', []))))

@@ -121,6 +121,7 @@ class Unit(models.Model):
     provider_type = models.IntegerField()
 
     location = models.PointField(null=True, srid=PROJECTION_SRID)
+    geometry = models.GeometryField(srid=PROJECTION_SRID, null=True)
     department = models.ForeignKey(Department, null=True)
     organization = models.ForeignKey(Organization)
 
@@ -162,11 +163,6 @@ class Unit(models.Model):
         qs = Service.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         srv_list = qs.values_list('id', flat=True).distinct()
         return sorted(srv_list)
-
-class UnitGeometry(models.Model):
-    unit = models.OneToOneField(Unit, related_name='geometry')
-    objects = models.GeoManager()
-    path = models.MultiLineStringField(srid=PROJECTION_SRID)
 
 
 @python_2_unicode_compatible
