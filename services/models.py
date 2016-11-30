@@ -6,12 +6,31 @@ from mptt.models import MPTTModel, TreeForeignKey, TreeManager
 from django.conf import settings
 from django.db.models import Q
 
+from django.contrib.postgres.fields import HStoreField
+
 from munigeo.models import AdministrativeDivision, Municipality
 from munigeo.utils import get_default_srid
 
 DEFAULT_LANG = settings.LANGUAGES[0][0]
 PROJECTION_SRID = get_default_srid()
 
+"""
+This is an example models.py which contains all model definition.
+"""
+import django.db
+from django.db.models.signals import pre_migrate
+from django.dispatch import receiver
+import sys
+
+@receiver(pre_migrate, sender=sys.modules[__name__])
+def setup_postgres_hstore(sender, **kwargs):
+    """
+    Always create PostgreSQL HSTORE extension if it doesn't already exist
+    on the database before syncing the database.
+    Requires PostgreSQL 9.1 or newer.
+    """
+    cursor = django.db.connection.cursor()
+    cursor.execute("CREATE EXTENSION IF NOT EXISTS hstore")
 
 def get_translated(obj, attr):
     key = "%s_%s" % (attr, DEFAULT_LANG)
@@ -132,6 +151,8 @@ class Unit(models.Model):
     www_url = models.URLField(max_length=400, null=True)
     address_postal_full = models.CharField(max_length=100, null=True)
     municipality = models.ForeignKey(Municipality, null=True, db_index=True)
+
+    extensions = HStoreField(null=True)
 
     picture_url = models.URLField(max_length=250, null=True)
     picture_caption = models.CharField(max_length=200, null=True)
