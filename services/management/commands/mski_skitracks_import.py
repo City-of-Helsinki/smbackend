@@ -3,7 +3,7 @@
 from optparse import make_option
 import logging
 import json
-import datetime
+from django.utils import timezone
 
 from django.core.management.base import BaseCommand
 from django import db
@@ -70,18 +70,19 @@ class Command(BaseCommand):
         text = text.strip()
         return text
 
-    def unit_defaults(self, name, geometry, point):
+    def unit_defaults(self, uid, geometry, point):
         return {
-            'name_fi': name,
+            'id': uid,
             'provider_type': 101,
-            'origin_last_modified_time': datetime.datetime.now(),
-            'organization_id': 91,
+            'origin_last_modified_time': timezone.now(),
             'geometry': geometry,
-            'location': point
+            'location': point,
+            'data_source': 'manual_import'
         }
 
     def import_helsinki_units(self, filename):
         geojson = json.load(open(filename, 'r'))
+        uid = self.get_lowest_high_unit_id()
         for feature in geojson['features']:
             properties = feature['properties']
             geometry = feature['geometry']
@@ -93,13 +94,20 @@ class Command(BaseCommand):
                 # There are some tracks with fake route coordinates
                 # standing in for a point coord
                 multilinestring = None
-            defaults = self.unit_defaults(properties['NIMI'], multilinestring, point)
+            defaults = self.unit_defaults(uid, multilinestring, point)
+            defaults['municipality_id'] = 'helsinki'
+            defaults['organization_id'] = 91
+            print('creating helsinki', uid)
             unit, created = Unit.objects.get_or_create(
-                pk=properties['unit_id'],
+                name_fi=properties['NIMI'],
                 defaults=defaults)
             unit.services.add(self.ski_service)
+            uid -= 1
 
     def get_lowest_high_unit_id(self):
+        MAX_PK = 2147483647
+        if not Unit.objects.filter(pk=MAX_PK).exists():
+            return MAX_PK
         uid = Unit.objects.aggregate(db.models.Max('id'))['id__max']
         while True:
             try:
@@ -123,11 +131,14 @@ class Command(BaseCommand):
                 multilinestring = MultiLineString(GEOSGeometry(feat.geom.wkt))
 
             defaults = self.unit_defaults(
-                feat.get('nimi'),
+                uid,
                 multilinestring,
                 Point(feat.geom[0][0], feat.geom[0][1]))
+            defaults['municipality_id'] = 'vantaa'
+            defaults['organization_id'] = 92
+            print('creating vantaa', uid)
             unit, created = Unit.objects.get_or_create(
-                pk=uid,
+                name_fi=feat.get('nimi'),
                 defaults=defaults)
             unit.services.add(self.ski_service)
             uid -= 1
@@ -138,7 +149,6 @@ class Command(BaseCommand):
         uid = self.get_lowest_high_unit_id()
         lyr = ds[0]
         for feat in lyr:
-            print(feat.get('NIMI'))
             if type(feat.geom) == django.contrib.gis.gdal.geometries.MultiLineString:
                 multilinestring = GEOSGeometry(feat.geom.wkt)
             else:
@@ -151,11 +161,14 @@ class Command(BaseCommand):
             converted_multilinestring = (
                 MultiLineString((converted_multilinestring_coords), srid=3879))
             defaults = self.unit_defaults(
-                feat.get('NIMI'),
+                uid,
                 converted_multilinestring,
                 Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3879))
+            defaults['municipality_id'] = 'espoo'
+            defaults['organization_id'] = 49
+            print('creating espoo', uid)
             unit, created = Unit.objects.get_or_create(
-                pk=uid,
+                name_fi=feat.get('NIMI'),
                 defaults=defaults)
             unit.services.add(self.ski_service)
             uid -= 1
@@ -164,10 +177,18 @@ class Command(BaseCommand):
         self.options = options
         self.verbosity = int(options.get('verbosity', 1))
         self.logger = logging.getLogger(__name__)
-        self.ski_service = Service.objects.get(pk=33483)
+        defaults = {
+            'name_fi': 'Latu',
+            'name_sv': 'Skidspår',
+            'name_en': 'Ski track',
+            'unit_count': 0,
+            'last_modified_time': timezone.now()
+        }
+        self.ski_service, created = Service.objects.get_or_create(pk=33483, defaults=defaults)
         if self.options.get('helsinki_filename', False):
             self.import_helsinki_units(self.options['helsinki_filename'])
         if self.options.get('vantaa_filename', False):
             self.import_vantaa_units(self.options['vantaa_filename'])
         if self.options.get('espoo_filename', False):
             self.import_espoo_units(self.options['espoo_filename'])
+        self.ski_service.unit_count = self.ski_service.get_unit_count()
