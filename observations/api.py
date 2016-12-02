@@ -24,7 +24,9 @@ class ObservableSerializerMixin:
             observations = []
             for prop in properties:
                 observations.append(obj.observations.filter(property=prop).order_by('-time').first())
-            data['observations'] = ObservationSerializer(observations, many=True).data
+            data['observations'] = [
+                ObservationSerializer(observation).data
+                for observation in observations if observation]
         return data
 
 class ObservableServiceSerializer(ObservableSerializerMixin, ServiceSerializer):
