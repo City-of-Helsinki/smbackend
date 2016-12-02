@@ -260,7 +260,7 @@ class Command(BaseCommand):
     @db.transaction.atomic
     def import_services(self):
         srv_list = self.pk_get('service')
-        syncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
+        syncher = ModelSyncher(Service.objects.exclude(pk__in=SERVICE_IDS_TO_SKIP), lambda obj: obj.id)
 
         self.detect_duplicate_services(srv_list)
 
