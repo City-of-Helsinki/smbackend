@@ -80,6 +80,7 @@ class Command(BaseCommand):
             'data_source': 'manual_import'
         }
 
+    @db.transaction.atomic
     def import_helsinki_units(self, filename):
         geojson = json.load(open(filename, 'r'))
         uid = self.get_lowest_high_unit_id()
@@ -116,6 +117,7 @@ class Command(BaseCommand):
                 break
         return uid
 
+    @db.transaction.atomic
     def import_vantaa_units(self, filename):
         ds = DataSource(filename)
         assert(len(ds) == 1)
@@ -141,6 +143,7 @@ class Command(BaseCommand):
             unit.services.add(self.ski_service)
             uid -= 1
 
+    @db.transaction.atomic
     def import_espoo_units(self, filename):
         ds = DataSource(filename)
         assert len(ds) == 1
