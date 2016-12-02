@@ -40,7 +40,7 @@ SERVICE_IDS_TO_SKIP = set([
     33377, # retkeilyalue
     33378, # monikäyttöalue
     33482, # kuntorata
-    #33483, # latu
+    33483, # latu
     33484, # kävelyreitti
     33485, # luontopolku
     33486, # retkeilyreitti
