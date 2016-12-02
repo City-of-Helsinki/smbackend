@@ -327,7 +327,7 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
         qparams = self.context['request'].query_params
         if qparams.get('geometry', '').lower() in ('true', '1'):
             geom = obj.geometry # TODO: different geom types
-            if geom:
+            if geom and obj.geometry != obj.location:
                 ret['geometry'] = munigeo_api.geom_to_json(geom, self.srs)
 
         if 'data_source' in ret:
