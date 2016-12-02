@@ -329,6 +329,9 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             geom = obj.geometry # TODO: different geom types
             if geom:
                 ret['geometry'] = munigeo_api.geom_to_json(geom, self.srs)
+
+        if 'data_source' in ret:
+            del ret['data_source']
         return ret
 
     class Meta:
