@@ -152,6 +152,7 @@ class Unit(models.Model):
     address_postal_full = models.CharField(max_length=100, null=True)
     municipality = models.ForeignKey(Municipality, null=True, db_index=True)
 
+    data_source = models.CharField(max_length=20, null=True)
     extensions = HStoreField(null=True)
 
     picture_url = models.URLField(max_length=250, null=True)

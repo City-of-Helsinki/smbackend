@@ -481,6 +481,11 @@ class Command(BaseCommand):
             obj._changed = True
             obj.data_source_url = url
 
+        data_source = 'tprek'
+        if obj.data_source != data_source:
+            obj._changed = True
+            obj.data_source = data_source
+
         n = info.get('latitude', 0)
         e = info.get('longitude', 0)
         location = None
@@ -715,7 +720,7 @@ class Command(BaseCommand):
             queryset = Unit.objects.filter(id=obj_id)
         else:
             obj_list = self._fetch_units()
-            queryset = Unit.objects.all().prefetch_related('services', 'keywords')
+            queryset = Unit.objects.filter(data_source='tprek').prefetch_related('services', 'keywords')
 
         syncher = ModelSyncher(queryset, lambda obj: obj.id)
         for idx, info in enumerate(obj_list):
