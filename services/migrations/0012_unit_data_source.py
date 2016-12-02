@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='unit',
             name='data_source',
-            field=models.CharField(null=True, max_length=20),
+            field=models.CharField(null=True, max_length=20, default='tprek'),
+            preserve_default=False
         ),
     ]
