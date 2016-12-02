@@ -679,14 +679,6 @@ class Command(BaseCommand):
         if not getattr(self, 'dept_syncher', None):
             self.import_departments(noop=True)
 
-        if self.options['single']:
-            obj_id = self.options['single']
-            obj_list = [self.pk_get('unit', obj_id)]
-            queryset = Unit.objects.filter(id=obj_id)
-        else:
-            obj_list = self._fetch_units()
-            queryset = Unit.objects.all().prefetch_related('services', 'keywords')
-
         if self.verbosity:
             self.logger.info("Fetching unit connections")
         connections = self.pk_get('connection')
@@ -716,6 +708,14 @@ class Command(BaseCommand):
         target_to_gps_ct = CoordTransform(target_srs, gps_srs)
         self.bounding_box.transform(target_to_gps_ct)
         self.gps_to_target_ct = CoordTransform(gps_srs, target_srs)
+
+        if self.options['single']:
+            obj_id = self.options['single']
+            obj_list = [self.pk_get('unit', obj_id)]
+            queryset = Unit.objects.filter(id=obj_id)
+        else:
+            obj_list = self._fetch_units()
+            queryset = Unit.objects.all().prefetch_related('services', 'keywords')
 
         syncher = ModelSyncher(queryset, lambda obj: obj.id)
         for idx, info in enumerate(obj_list):
