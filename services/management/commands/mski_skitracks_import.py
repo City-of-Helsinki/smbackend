@@ -97,7 +97,6 @@ class Command(BaseCommand):
             defaults = self.unit_defaults(uid, multilinestring, point)
             defaults['municipality_id'] = 'helsinki'
             defaults['organization_id'] = 91
-            print('creating helsinki', uid)
             unit, created = Unit.objects.get_or_create(
                 name_fi=properties['NIMI'],
                 defaults=defaults)
@@ -136,7 +135,6 @@ class Command(BaseCommand):
                 Point(feat.geom[0][0], feat.geom[0][1]))
             defaults['municipality_id'] = 'vantaa'
             defaults['organization_id'] = 92
-            print('creating vantaa', uid)
             unit, created = Unit.objects.get_or_create(
                 name_fi=feat.get('nimi'),
                 defaults=defaults)
@@ -166,7 +164,6 @@ class Command(BaseCommand):
                 Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3879))
             defaults['municipality_id'] = 'espoo'
             defaults['organization_id'] = 49
-            print('creating espoo', uid)
             unit, created = Unit.objects.get_or_create(
                 name_fi=feat.get('NIMI'),
                 defaults=defaults)
