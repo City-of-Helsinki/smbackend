@@ -22,8 +22,7 @@ class ObservableSerializerMixin:
         if 'observations' in self.context.get('include', []):
             observations = self.get_observations(obj)
             if observations:
-                data['observations'] = [
-                    ObservationSerializer(observations, many=True).data]
+                data['observations'] = ObservationSerializer(observations, many=True).data
         return data
 
 class ObservableServiceSerializer(ObservableSerializerMixin, ServiceSerializer):
