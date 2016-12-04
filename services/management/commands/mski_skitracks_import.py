@@ -5,6 +5,8 @@ import logging
 import json
 from django.utils import timezone
 
+import re
+
 from django.core.management.base import BaseCommand
 from django import db
 from django.conf import settings
@@ -51,6 +53,39 @@ HELSINKI_GROUPS = {
     }
 }
 
+HELSINKI_LIGHTING = {
+    'Valaistu': 'yes',
+    'Ei valaistu': 'no',
+    'Osittain valaistu': 'partly',
+    None: 'unknown'
+}
+
+ESPOO_LIGHTING = {
+    'Valaistu latu': 'yes',
+    'Ei valaistu': 'no',
+    'Valaisematon latu': 'no',
+    'Valaisematon latu,ei poh': 'no',
+    'Osittain valaistu latu': 'partly',
+    '': 'unknown',
+    None: 'unknown'
+}
+
+HELSINKI_TECHNIQUES = {
+    'Perinteinen/Vapaa': 'classic/free',
+    'Vapaa/Perinteinen': 'classic/free',
+    'Perinteinen': 'classic',
+    'Vapaa': 'free',
+    'Osittain luistelu': 'skating_in_parts',
+    None: 'unknown',
+    '': 'unknown'
+}
+
+VANTAA_MAINTENANCE_GROUPS = {
+    'keski': 'keski',
+    'l�nsi': 'länsi',
+    'it�': 'itä'
+}
+
 
 class Command(BaseCommand):
     help = "Import ski track units from GeoJSON derived from mSki"
@@ -70,22 +105,35 @@ class Command(BaseCommand):
         text = text.strip()
         return text
 
-    def unit_defaults(self, uid, geometry, point):
+    def unit_defaults(self, uid, geometry, point, extra_fields):
         return {
             'id': uid,
             'provider_type': 101,
             'origin_last_modified_time': timezone.now(),
             'geometry': geometry,
             'location': point,
-            'data_source': 'manual_import'
+            'data_source': 'manual_import',
+            'extensions': extra_fields
         }
 
     @db.transaction.atomic
     def import_helsinki_units(self, filename):
         geojson = json.load(open(filename, 'r'))
         uid = self.get_lowest_high_unit_id()
+        def get_lighting(p):
+            return HELSINKI_LIGHTING[p.get('VALAISTUS', None)]
+        def get_technique(p):
+            return HELSINKI_TECHNIQUES[p.get('TYYLI')]
+        def get_length(p):
+            return p.get('PITUUS') or 'unknown'
+
         for feature in geojson['features']:
             properties = feature['properties']
+            extra_fields = {
+                'lighting': get_lighting(properties),
+                'skiing_technique': get_technique(properties),
+                'length': get_length(properties)
+            }
             geometry = feature['geometry']
             point = Point(geometry['coordinates'][0][0])
             linestrings = [LineString(ls) for ls in geometry['coordinates']]
@@ -95,14 +143,19 @@ class Command(BaseCommand):
                 # There are some tracks with fake route coordinates
                 # standing in for a point coord
                 multilinestring = None
-            defaults = self.unit_defaults(uid, multilinestring, point)
+            defaults = self.unit_defaults(uid, multilinestring, point, extra_fields)
             defaults['municipality_id'] = 'helsinki'
             defaults['organization_id'] = 91
-            unit, created = Unit.objects.get_or_create(
+            try:
+                unit = Unit.objects.get(name_fi=properties['NIMI'])
+                defaults['id'] = unit.id
+            except Unit.DoesNotExist:
+                defaults['id'] = uid
+                uid -= 1
+            unit, created = Unit.objects.update_or_create(
                 name_fi=properties['NIMI'],
                 defaults=defaults)
             unit.services.add(self.ski_service)
-            uid -= 1
 
     def get_lowest_high_unit_id(self):
         MAX_PK = 2147483647
@@ -124,6 +177,7 @@ class Command(BaseCommand):
         lyr = ds[0]
         srs = lyr.srs
         uid = self.get_lowest_high_unit_id()
+
         for feat in lyr:
             assert feat.geom_type == 'LineString'
             if type(feat.geom) == django.contrib.gis.gdal.geometries.MultiLineString:
@@ -131,17 +185,29 @@ class Command(BaseCommand):
             else:
                 multilinestring = MultiLineString(GEOSGeometry(feat.geom.wkt))
 
+            length = re.sub('[^0-9]+km', '', feat.get('pituus'))
+            extra_fields = {
+                'maintenance_group': VANTAA_MAINTENANCE_GROUPS[feat.get('piiri_nimi')],
+                'length': length,
+                'origin_id': str(feat.get('latu_id'))
+            }
             defaults = self.unit_defaults(
                 uid,
                 multilinestring,
-                Point(feat.geom[0][0], feat.geom[0][1]))
+                Point(feat.geom[0][0], feat.geom[0][1]),
+                extra_fields)
             defaults['municipality_id'] = 'vantaa'
             defaults['organization_id'] = 92
-            unit, created = Unit.objects.get_or_create(
+            try:
+                unit = Unit.objects.get(name_fi=feat.get('NIMI'))
+                defaults['id'] = unit.id
+            except Unit.DoesNotExist:
+                defaults['id'] = uid
+                uid -= 1
+            unit, created = Unit.objects.update_or_create(
                 name_fi=feat.get('nimi'),
                 defaults=defaults)
             unit.services.add(self.ski_service)
-            uid -= 1
 
     @db.transaction.atomic
     def import_espoo_units(self, filename):
@@ -161,13 +227,29 @@ class Command(BaseCommand):
 
             converted_multilinestring = (
                 MultiLineString((converted_multilinestring_coords), srid=3879))
+            length = feat.get('PITUUS')
+            if len(length) == 0:
+                length = 'unknown'
+            extra_fields = {
+                'lighting': ESPOO_LIGHTING[feat.get('VALAISTUS')],
+                'skiing_technique': HELSINKI_TECHNIQUES[feat.get('TYYLI')],
+                'length': length
+            }
             defaults = self.unit_defaults(
                 uid,
                 converted_multilinestring,
-                Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3879))
+                Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3879),
+                extra_fields
+            )
             defaults['municipality_id'] = 'espoo'
             defaults['organization_id'] = 49
-            unit, created = Unit.objects.get_or_create(
+            try:
+                unit = Unit.objects.get(name_fi=feat.get('NIMI'))
+                defaults['id'] = unit.id
+            except Unit.DoesNotExist:
+                defaults['id'] = uid
+                uid -= 1
+            unit, created = Unit.objects.update_or_create(
                 name_fi=feat.get('NIMI'),
                 defaults=defaults)
             unit.services.add(self.ski_service)
