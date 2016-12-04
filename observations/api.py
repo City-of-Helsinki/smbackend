@@ -36,7 +36,7 @@ class ObservableUnitSerializer(ObservableSerializerMixin, UnitSerializer):
     def get_observable_properties(self, unit):
         return models.ObservableProperty.objects.filter(services__in=unit.services.all())
     def get_observations(self, unit):
-        return unit.observation_set.all()
+        return unit.observation_set
 
 UnitViewSet.serializer_class = ObservableUnitSerializer
 ServiceViewSet.serializer_class = ObservableServiceSerializer
