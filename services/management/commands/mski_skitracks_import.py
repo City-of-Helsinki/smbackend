@@ -31,26 +31,56 @@ def espoo_coordinates_to_gk25(x, y):
         (a + (c * y) + (d * x)))
 
 HELSINKI_GROUPS = {
-    'skiing': {
-        2147483643: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483641: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483608: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483616: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483630: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483631: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483633: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483642: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483637: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483634: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483610: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483609: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483612: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483615: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483614: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483628: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        2147483629: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' },
-        214748362: { 'maintenance_subgroup_id': 'ita', 'maintenance_subgroup_name': 'Itä' } # TOODO: ID faulty
-    }
+    'Hermanni - Viikki': 'itä',
+    'Herttoniemi 1.0 km': 'itä',
+    'Herttoniemi 2.0 km': 'itä',
+    'Hevossalmen uimaranta - Yliskylä': 'itä',
+    'Laajasalo kuntorata': 'itä',
+    'Malmin lentokenttä 5.7 km': 'itä',
+    'Merirastila': 'itä',
+    'Mustavuori - Talosaari/Husö': 'itä',
+    'Mustavuori - Vuosaarensilta': 'itä',
+    'Mustavuori 2.125 km': 'itä',
+    'Mustavuori 1.0 km': 'itä',
+    'Mustikkamaa': 'itä',
+    'Paloheinä 1.8 km': 'itä',
+    'Sakarinmäen koulu': 'itä',
+    'Salmi 3 km': 'itä',
+    'Siltamäki': 'itä',
+    'Taivaskallio - Tuomarinkartano - Paloheinä 11.5 km': 'itä',
+    'Tali 6.5 km': 'itä',
+    'Tapulin kuntorata': 'itä',
+    'Herttoniemi 3.0 5.0 km': 'länsi',
+    'Kannelmäki peltolatu': 'länsi',
+    'Kivikko 3.745 km': 'länsi',
+    'Kivinokka - Viikki 4.8 km': 'länsi',
+    'Lassila - Kannelmäki - Keskuspuisto': 'länsi',
+    'Malminkartano': 'länsi',
+    'Maunulan kuntorata 1.5 km': 'länsi',
+    'Oulunkylä kuntorata': 'länsi',
+    'Paloheinä 3.0 km': 'länsi',
+    'Paloheinä 5.2 km': 'länsi',
+    'Paloheinä 7.5 km': 'länsi',
+    'Paloheinä metsälenkki': 'länsi',
+    'Paloheinä peltolatu': 'länsi',
+    'Paloheinä vetokoiralatu': 'länsi',
+    'Pirkkola - Laakso 5.5 km': 'länsi',
+    'Pirkkola - Pitkäkoski 5.5 km': 'länsi',
+    'Pirkkola 3.0 km': 'länsi',
+    'Pitkäkoski - Niskala': 'länsi',
+    'Pitäjänmäki kuntorata': 'länsi',
+    'Pukinmäki peltolatu': 'länsi',
+    'Tali - Haaga - Pirkkola': 'länsi',
+    'Tuomarinkylä peltolatu': 'länsi',
+    'Salmi 3 km': 'salmi',
+    'Salmi 5 km': 'salmi',
+    'Salmi 6 km': 'salmi',
+    'Salmi 10 km': 'salmi',
+    'Luukki peltolatu': 'luukki',
+    'Luukki Golf': 'luukki',
+    'Pirttimäki 3 km': 'pirttimäki',
+    'Pirttimäki 6.4 km': 'pirttimäki',
+    'Pirttimäki 8.3 km': 'pirttimäki'
 }
 
 HELSINKI_LIGHTING = {
@@ -126,13 +156,17 @@ class Command(BaseCommand):
             return HELSINKI_TECHNIQUES[p.get('TYYLI')]
         def get_length(p):
             return p.get('PITUUS') or 'unknown'
+        def get_maintenance_group(p):
+            return HELSINKI_GROUPS[p.get('NIMI')]
 
         for feature in geojson['features']:
             properties = feature['properties']
             extra_fields = {
                 'lighting': get_lighting(properties),
                 'skiing_technique': get_technique(properties),
-                'length': get_length(properties)
+                'length': get_length(properties),
+                'maintenance_group': get_maintenance_group(properties),
+                'maintenance_organization': '91'
             }
             geometry = feature['geometry']
             point = Point(geometry['coordinates'][0][0])
@@ -188,6 +222,7 @@ class Command(BaseCommand):
             length = re.sub('[^0-9]+km', '', feat.get('pituus'))
             extra_fields = {
                 'maintenance_group': VANTAA_MAINTENANCE_GROUPS[feat.get('piiri_nimi')],
+                'maintenance_organization': '92',
                 'length': length,
                 'origin_id': str(feat.get('latu_id'))
             }
@@ -233,6 +268,8 @@ class Command(BaseCommand):
             extra_fields = {
                 'lighting': ESPOO_LIGHTING[feat.get('VALAISTUS')],
                 'skiing_technique': HELSINKI_TECHNIQUES[feat.get('TYYLI')],
+                'maintenance_group': 'kaikki',
+                'maintenance_organization': '49',
                 'length': length
             }
             defaults = self.unit_defaults(
