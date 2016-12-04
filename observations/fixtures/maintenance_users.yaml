@@ -1,12 +1,27 @@
 - model: 'auth.User'
+  pk: 1
   fields:
     username: helsinkiliikunta
     email: dev@hel.fi
 - model: 'auth.User'
+  pk: 2
   fields:
     username: vantaaliikunta
     email: dev@hel.fi
 - model: 'auth.User'
+  pk: 3
   fields:
     username: espooliikunta
     email: dev@hel.fi
+- model: 'observations.UserOrganization'
+  fields:
+      organization_id: 91
+      user_id: 1
+- model: 'observations.UserOrganization'
+  fields:
+      organization_id: 92
+      user_id: 2
+- model: 'observations.UserOrganization'
+  fields:
+      organization_id: 49
+      user_id: 3
