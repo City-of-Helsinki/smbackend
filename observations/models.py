@@ -13,6 +13,7 @@ class ObservableProperty(models.Model):
     "ice condition" or something similar.
 
     """
+    # TODO move back to sequential id field
     id = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=100, null=False, blank=False, db_index=True)
     measurement_unit = models.CharField(max_length=20, null=True, blank=False)
@@ -56,7 +57,8 @@ class Observation(PolymorphicModel):
     unit = models.ForeignKey(
         services_models.Unit, blank=False, null=False,
         help_text='The unit the observation is about',
-        related_name='observations')
+        related_name='observation_history')
+    units = models.ManyToManyField(services_models.Unit, through='UnitLatestObservation', null=True)
     property = models.ForeignKey(
         ObservableProperty,
         blank=False, null=False,
@@ -91,3 +93,16 @@ class DescriptiveObservation(Observation):
     @staticmethod
     def get_type():
         return 'descriptive'
+
+class UnitLatestObservation(models.Model):
+    unit = models.ForeignKey(
+        services_models.Unit,
+        null=False, blank=False,
+        related_name='latest_observations')
+    property = models.ForeignKey(
+        ObservableProperty, null=False, blank=False)
+    observation = models.ForeignKey(
+        Observation, null=False, blank=False)
+    class Meta:
+        unique_together = (
+            ('unit', 'property'),)
