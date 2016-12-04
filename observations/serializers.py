@@ -69,6 +69,7 @@ class ObservationSerializer(serializers.BaseSerializer):
                         unit_id=validated_data['unit_id'],
                         property_id='ski_trail_maintenance',
                         time=validated_data['time'],
+                        auth=validated_data['auth'],
                         value=observable_property.get_internal_value('maintenance_finished'))
                     models.UnitLatestObservation.objects.update_or_create(
                         unit_id=validated_data['unit_id'],
