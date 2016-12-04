@@ -514,6 +514,10 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 bbox_filter = munigeo_api.build_bbox_filter(ref, val, 'location')
                 queryset = queryset.filter(**bbox_filter)
 
+        maintenance_organization = self.request.QUERY_PARAMS.get('maintenance_organization')
+        if maintenance_organization:
+            queryset = queryset.filter(extensions__maintenance_organization=maintenance_organization)
+
         if 'observations' in self.include_fields:
             return queryset.prefetch_related('observation_set__property__allowed_values').prefetch_related('observation_set__value')
         return queryset
