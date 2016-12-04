@@ -5,6 +5,7 @@ from services.api import (
 from django.apps import apps
 from rest_framework import serializers
 from django.utils import timezone
+from django.db import transaction
 
 from . import models
 from services.api import JSONAPISerializer
@@ -59,14 +60,24 @@ class ObservationSerializer(serializers.BaseSerializer):
             validated_data['value'])
         observation_type = observable_property.observation_type
         ModelClass = apps.get_model(observation_type)
-        if (validated_data['add_maintenance_observation']):
-            if validated_data['property_id'] == 'ski_trail_condition':
-                observable_property = models.ObservableProperty.objects.get(id='ski_trail_maintenance')
-                MaintenanceModelClass = apps.get_model(observable_property.observation_type)
-                obj = MaintenanceModelClass.objects.create(
-                    unit_id=validated_data['unit_id'],
-                    property_id='ski_trail_maintenance',
-                    time=validated_data['time'],
-                    value=observable_property.get_internal_value('maintenance_finished'))
-        del validated_data['add_maintenance_observation']
-        return ModelClass.objects.create(**validated_data)
+        with transaction.atomic():
+            if (validated_data['add_maintenance_observation']):
+                if validated_data['property_id'] == 'ski_trail_condition':
+                    observable_property = models.ObservableProperty.objects.get(id='ski_trail_maintenance')
+                    MaintenanceModelClass = apps.get_model(observable_property.observation_type)
+                    obj = MaintenanceModelClass.objects.create(
+                        unit_id=validated_data['unit_id'],
+                        property_id='ski_trail_maintenance',
+                        time=validated_data['time'],
+                        value=observable_property.get_internal_value('maintenance_finished'))
+                    models.UnitLatestObservation.objects.update_or_create(
+                        unit_id=validated_data['unit_id'],
+                        property_id='ski_trail_maintenance',
+                        defaults={'observation_id': obj.pk})
+            del validated_data['add_maintenance_observation']
+            obj = ModelClass.objects.create(**validated_data)
+            models.UnitLatestObservation.objects.update_or_create(
+                unit_id=validated_data['unit_id'],
+                property_id=validated_data['property_id'],
+                defaults={'observation_id': obj.pk})
+            return obj

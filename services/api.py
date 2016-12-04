@@ -178,12 +178,13 @@ class JSONAPIViewSetMixin:
         include = self.request.QUERY_PARAMS.get('include', '')
         self.include_fields = [x.strip() for x in include.split(',') if x]
 
+        self.only_fields = None
         only = self.request.QUERY_PARAMS.get('only', '')
+        include_geometry = self.request.QUERY_PARAMS.get('geometry', '').lower() in ('true', '1')
         if only:
             self.only_fields = [x.strip() for x in only.split(',') if x]
-        else:
-            self.only_fields = None
-
+            if include_geometry:
+                self.only_fields.append('geometry')
         return ret
 
     def get_queryset(self):
@@ -378,7 +379,7 @@ class KmlRenderer(renderers.BaseRenderer):
 
 
 class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
-    queryset = Unit.objects.prefetch_related('observations__value').prefetch_related('observations__property__allowed_values').prefetch_related('services').all()
+    queryset = Unit.objects.prefetch_related('services').prefetch_related('observation_set__value').all()
     serializer_class = UnitSerializer
 
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
