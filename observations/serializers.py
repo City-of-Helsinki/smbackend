@@ -50,8 +50,8 @@ class ObservationSerializer(serializers.BaseSerializer):
             property_id=data['property'],
             time=timezone.now(),
             value=data['value'],
-            add_maintenance_observation=data.get('serviced', False)
-        )
+            add_maintenance_observation=data.get('serviced', False))
+
     def create(self, validated_data):
         property = validated_data['property_id']
         observable_property = models.ObservableProperty.objects.get(id=property)
