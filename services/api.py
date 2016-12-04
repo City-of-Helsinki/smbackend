@@ -379,7 +379,7 @@ class KmlRenderer(renderers.BaseRenderer):
 
 
 class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
-    queryset = Unit.objects.prefetch_related('services').prefetch_related('observation_set__value').all()
+    queryset = Unit.objects.all()
     serializer_class = UnitSerializer
 
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
@@ -514,6 +514,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 bbox_filter = munigeo_api.build_bbox_filter(ref, val, 'location')
                 queryset = queryset.filter(**bbox_filter)
 
+        if 'observations' in self.include_fields:
+            return queryset.prefetch_related('observation_set__property__allowed_values').prefetch_related('observation_set__value')
         return queryset
 
     def _add_content_disposition_header(self, response):

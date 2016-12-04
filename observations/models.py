@@ -22,7 +22,7 @@ class ObservableProperty(models.Model):
     def __str__(self):
         return "%s (%s)" % (self.name, self.id)
     def get_internal_value(self, value):
-        if self.allowed_values.count():
+        if self.observation_type == 'observations.CategoricalObservation':
             return self.allowed_values.get(identifier=value)
         return value
     def get_external_value(self, value):
@@ -58,7 +58,7 @@ class Observation(PolymorphicModel):
         services_models.Unit, blank=False, null=False,
         help_text='The unit the observation is about',
         related_name='observation_history')
-    units = models.ManyToManyField(services_models.Unit, through='UnitLatestObservation', null=True)
+    units = models.ManyToManyField(services_models.Unit, through='UnitLatestObservation')
     property = models.ForeignKey(
         ObservableProperty,
         blank=False, null=False,

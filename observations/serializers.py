@@ -31,11 +31,10 @@ class ObservationSerializer(serializers.BaseSerializer):
         allowed_value = obj.value
         serialized_allowed_value = AllowedValueSerializer(allowed_value, read_only=True).data
         name = serialized_allowed_value['name']
-        description = allowed_value.description
         return dict(
             unit=int(obj.unit_id),
             id=obj.id,
-            property=observable_property.id,
+            property=obj.property_id,
             time=timezone.localtime(obj.time).strftime('%Y-%m-%dT%H:%M:%S.%f%z'),
             value=observable_property.get_external_value(obj.value),
             quality=allowed_value.quality,
