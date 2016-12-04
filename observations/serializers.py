@@ -46,6 +46,7 @@ class ObservationSerializer(serializers.BaseSerializer):
                 'The observation time cannot be explicitly set. '
                 'It is always the current time.')
         return dict(
+            auth=self.context['auth'],
             unit_id=data['unit'],
             property_id=data['property'],
             time=timezone.now(),

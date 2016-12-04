@@ -1,3 +1,17 @@
 from django.shortcuts import render
+from rest_framework.response import Response
 
-# Create your views here.
+from .models import PluralityAuthToken
+import rest_framework.authtoken.views
+
+class ObtainPluralityAuthToken(rest_framework.authtoken.views.ObtainAuthToken):
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        # Unlike the super class, always creates
+        # a new token
+        token = PluralityAuthToken.objects.create(user=user)
+        return Response({'token': token.key})
+
+obtain_auth_token = ObtainPluralityAuthToken.as_view()

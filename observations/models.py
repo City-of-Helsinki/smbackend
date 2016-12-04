@@ -1,7 +1,11 @@
 from django.conf import settings
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 from services import models as services_models
 from polymorphic.models import PolymorphicModel
+import binascii
+import os
+from rest_framework import exceptions
 
 class ObservableProperty(models.Model):
     """Specifies the detailed interpretation of observations.
@@ -59,6 +63,8 @@ class Observation(PolymorphicModel):
         help_text='The unit the observation is about',
         related_name='observation_history')
     units = models.ManyToManyField(services_models.Unit, through='UnitLatestObservation')
+    auth = models.ForeignKey(
+        'PluralityAuthToken', null=False)
     property = models.ForeignKey(
         ObservableProperty,
         blank=False, null=False,
@@ -106,3 +112,44 @@ class UnitLatestObservation(models.Model):
     class Meta:
         unique_together = (
             ('unit', 'property'),)
+
+import rest_framework.authtoken.models
+import rest_framework.authentication
+
+AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+class PluralityAuthToken(models.Model):
+    """
+    A token class which can have multiple active tokens per user.
+    """
+    key = models.CharField(max_length=40, primary_key=True)
+    user = models.ForeignKey(AUTH_USER_MODEL, related_name='auth_tokens', null=False)
+    created = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        # Work around for a bug in Django:
+        # https://code.djangoproject.com/ticket/19422
+        #
+        # Also see corresponding ticket:
+        # https://github.com/tomchristie/django-rest-framework/issues/705
+        abstract = 'rest_framework.authtoken' not in settings.INSTALLED_APPS
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        return super(PluralityAuthToken, self).save(*args, **kwargs)
+
+    def generate_key(self):
+        return binascii.hexlify(os.urandom(20)).decode()
+
+    def __str__(self):
+        return self.key
+
+class PluralityTokenAuthentication(rest_framework.authentication.TokenAuthentication):
+    model = PluralityAuthToken
+    def authenticate_credentials(self, key):
+        user, token = super(PluralityTokenAuthentication, self).authenticate_credentials(key)
+        if not token.active:
+            raise exceptions.AuthenticationFailed(_('Token inactive or deleted.'))
+        return (token.user, token)
+
