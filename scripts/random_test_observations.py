@@ -3,6 +3,7 @@ import requests
 import sys
 import json
 import random
+import os
 
 values = {
     33418: {'ice_skating_field_condition': ['closed', 'plowed', 'frozen', 'freezing_started']},
@@ -34,7 +35,9 @@ def main(base_url):
                        value=random.choice(v),
                        property=prop,
                        unit=uid
-                   ))
+                   ),
+                   headers={'Authorization': 'Token ' + os.environ['API_TOKEN']}
+               )
                if response.status_code != 201:
                    print('error')
                    sys.stderr.write(response.text)

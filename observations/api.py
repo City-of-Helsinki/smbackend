@@ -1,5 +1,6 @@
 from rest_framework import serializers, viewsets
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, AuthenticationFailed
+from django.utils.translation import ugettext_lazy as _
 from . import models
 from .serializers import *
 
@@ -12,6 +13,12 @@ from services.api import (
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Observation.objects.all()
     serializer_class = ObservationSerializer
+    def create(self, request, *args, **kwargs):
+        if (request.auth == None):
+            raise AuthenticationFailed(_('Authentication required.'))
+        return super(ObservationViewSet, self).create(request, *args, **kwargs)
+    def get_serializer_context(self):
+        return {'user': self.request.user, 'auth': self.request.auth}
 
 class ObservableSerializerMixin:
     def to_representation(self, obj):

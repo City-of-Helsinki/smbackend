@@ -33,11 +33,13 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = (
     'polymorphic',
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'django.contrib.postgres',
     'raven.contrib.django.raven_compat',
+    'rest_framework.authtoken',
     'rest_framework',
     'corsheaders',
     'django_extensions',
@@ -147,6 +149,9 @@ REST_FRAMEWORK = {
     'URL_FIELD_NAME': 'resource_uri',
     'UNAUTHENTICATED_USER': None,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'observations.models.PluralityTokenAuthentication',
+    ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',

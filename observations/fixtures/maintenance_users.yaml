@@ -1,0 +1,12 @@
+- model: 'auth.User'
+  fields:
+    username: helsinkiliikunta
+    email: dev@hel.fi
+- model: 'auth.User'
+  fields:
+    username: vantaaliikunta
+    email: dev@hel.fi
+- model: 'auth.User'
+  fields:
+    username: espooliikunta
+    email: dev@hel.fi
