@@ -1,0 +1,82 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-12-05 11:44+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: observations/api.py:18
+msgid "Authentication required."
+msgstr ""
+
+#: observations/models.py:153
+msgid "Token inactive or deleted."
+msgstr ""
+
+#: services/management/commands/mski_skitracks_import.py:87
+msgid "_illuminated"
+msgstr "illuminated"
+
+#: services/management/commands/mski_skitracks_import.py:88
+msgid "_not_illuminated"
+msgstr "not illuminated"
+
+#: services/management/commands/mski_skitracks_import.py:89
+msgid "_partly_illuminated"
+msgstr "partly illuminated"
+
+#: services/management/commands/mski_skitracks_import.py:90
+msgid "_unknown"
+msgstr "unknown"
+
+#: services/management/commands/mski_skitracks_import.py:91
+msgid "_classic/free"
+msgstr "classic/free"
+
+#: services/management/commands/mski_skitracks_import.py:92
+msgid "_classic"
+msgstr "classic"
+
+#: services/management/commands/mski_skitracks_import.py:93
+msgid "_free"
+msgstr "free"
+
+#: services/management/commands/mski_skitracks_import.py:94
+msgid "_skating_in_parts"
+msgstr "skating in parts"
+
+#: smbackend/settings.py:86
+msgid "Finnish"
+msgstr ""
+
+#: smbackend/settings.py:87
+msgid "Swedish"
+msgstr ""
+
+#: smbackend/settings.py:88
+msgid "English"
+msgstr ""
+
+#: src/django-munigeo-master/munigeo/models.py:19
+msgid "Type name of the division (e.g. muni, school_district)"
+msgstr ""
+
+#: src/django-munigeo-master/munigeo/models.py:21
+msgid "Human-readable name for the division"
+msgstr ""
+
+#: src/django-munigeo-master/munigeo/models.py:71
+msgid "Open Civic Data identifier"
+msgstr ""
