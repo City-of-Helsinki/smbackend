@@ -41,11 +41,13 @@ SERVICE_IDS_TO_SKIP = set([
     33378, # monikäyttöalue
     33482, # kuntorata
     33483, # latu
+    33492, # koirahiihtolatu
     33484, # kävelyreitti
     33485, # luontopolku
-    33486, # retkeilyreitti
-    33492  # koirahiihtolatu
+    33486 # retkeilyreitti
 ])
+
+ICE_SKATING_SERVICES = [33420,33418,33419,33417]
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
@@ -514,12 +516,24 @@ class Command(BaseCommand):
             # imported.
             obj.geometry = location
 
-        intersection = SERVICE_IDS_TO_SKIP.intersection(
-            set((s for s in info.get('service_ids', []))))
+        service_set = set((s for s in info.get('service_ids', [])))
+        intersection = SERVICE_IDS_TO_SKIP.intersection(service_set)
         if len(intersection) > 0:
             # Do not import units with services that need to be skipped
             print('Skipping service id {} in unit {}.'.format(intersection, info['id']))
             return
+
+        intersection = set(ICE_SKATING_SERVICES).intersection(service_set)
+        if len(intersection) > 0:
+            maintenance_organization = str(obj.organization_id)
+            maintenance_group = 'kaikki'
+            if obj.extensions == None:
+                obj.extensions = {}
+            if (obj.extensions.get('maintenance_organization') != maintenance_organization or
+                obj.extensions.get('maintenance_group') != maintenance_group):
+                obj._changed = True
+            obj.extensions['maintenance_organization'] = maintenance_organization
+            obj.extensions['maintenance_group'] = maintenance_group
 
         if obj._changed:
             if obj._created:
