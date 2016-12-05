@@ -341,6 +341,9 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                          for s in obj.accessibility_properties.all()]
             ret['accessibility_properties'] = acc_props
 
+        if 'connections' in include_fields:
+            ret['connections'] = UnitConnectionSerializer(obj.connections, many=True).data
+
         if not 'request' in self.context:
             return ret
         qparams = self.context['request'].query_params
@@ -541,7 +544,9 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             queryset = queryset.filter(extensions__maintenance_organization=maintenance_organization)
 
         if 'observations' in self.include_fields:
-            return queryset.prefetch_related('observation_set__property__allowed_values').prefetch_related('observation_set__value')
+            queryset = queryset.prefetch_related('observation_set__property__allowed_values').prefetch_related('observation_set__value')
+        if 'connections' in self.include_fields:
+            queryset = queryset.prefetch_related('connections')
         return queryset
 
     def _add_content_disposition_header(self, response):
