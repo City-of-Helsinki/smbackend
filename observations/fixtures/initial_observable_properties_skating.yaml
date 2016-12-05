@@ -4,7 +4,10 @@
     name: Ice skating field condition
     observation_type: observations.CategoricalObservation
     services:
+      - 33420
       - 33418
+      - 33419
+      - 33417
 - model: observations.AllowedValue
   fields:
     identifier: closed
