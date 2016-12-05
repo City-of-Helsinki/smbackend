@@ -262,7 +262,6 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 
 register_view(ServiceViewSet, 'service')
 
-
 class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                      munigeo_api.GeoModelSerializer, JSONAPISerializer):
     connections = UnitConnectionSerializer(many=True)
@@ -279,6 +278,25 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                 del ser.child.fields['id']
             if 'unit' in ser.child.fields:
                 del ser.child.fields['unit']
+
+    def handle_extension_translations(self, extensions):
+        if extensions == None or len(extensions) == 0:
+            return extensions
+        result = {}
+        for key, value in extensions.items():
+            print(key)
+            translations = {}
+            for lang in LANGUAGES:
+                with translation.override(lang):
+                    translated_value = translation.ugettext(value)
+                    if translated_value != value:
+                        translations[lang] = translated_value
+                    translated_value = None
+            if len(translations) > 0:
+                result[key] = translations
+            else:
+                result[key] = value
+        return result
 
     def to_representation(self, obj):
         ret = super(UnitSerializer, self).to_representation(obj)
@@ -330,7 +348,11 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             geom = obj.geometry # TODO: different geom types
             if geom and obj.geometry != obj.location:
                 ret['geometry'] = munigeo_api.geom_to_json(geom, self.srs)
+        elif 'geometry' in ret:
+            del ret['geometry']
 
+        if 'extensions' in ret:
+            ret['extensions'] = self.handle_extension_translations(ret['extensions'])
         if 'data_source' in ret:
             del ret['data_source']
         return ret

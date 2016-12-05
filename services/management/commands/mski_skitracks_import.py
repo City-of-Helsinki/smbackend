@@ -4,6 +4,7 @@ from optparse import make_option
 import logging
 import json
 from django.utils import timezone
+from django.utils.translation import ugettext_noop as _
 
 import re
 
@@ -83,31 +84,40 @@ HELSINKI_GROUPS = {
     'Pirttimäki 8.3 km': 'pirttimäki'
 }
 
+ILLUMINATED = _('_illuminated')
+NOT_ILLUMINATED = _('_not_illuminated')
+PARTLY_ILLUMINATED = _('_partly_illuminated')
+UNKNOWN = _('_unknown')
+CLASSIC_OR_FREE = _('_classic/free')
+CLASSIC = _('_classic')
+FREE = _('_free')
+SKATING_IN_PARTS = _('_skating_in_parts')
+
 HELSINKI_LIGHTING = {
-    'Valaistu': 'yes',
-    'Ei valaistu': 'no',
-    'Osittain valaistu': 'partly',
-    None: 'unknown'
+    'Valaistu': ILLUMINATED,
+    'Ei valaistu': NOT_ILLUMINATED,
+    'Osittain valaistu': PARTLY_ILLUMINATED,
+    None: UNKNOWN
 }
 
 ESPOO_LIGHTING = {
-    'Valaistu latu': 'yes',
-    'Ei valaistu': 'no',
-    'Valaisematon latu': 'no',
-    'Valaisematon latu,ei poh': 'no',
-    'Osittain valaistu latu': 'partly',
-    '': 'unknown',
-    None: 'unknown'
+    'Valaistu latu': ILLUMINATED,
+    'Ei valaistu': NOT_ILLUMINATED,
+    'Valaisematon latu': NOT_ILLUMINATED,
+    'Valaisematon latu,ei poh': NOT_ILLUMINATED,
+    'Osittain valaistu latu': PARTLY_ILLUMINATED,
+    '':  UNKNOWN,
+    None: UNKNOWN
 }
 
 HELSINKI_TECHNIQUES = {
-    'Perinteinen/Vapaa': 'classic/free',
-    'Vapaa/Perinteinen': 'classic/free',
-    'Perinteinen': 'classic',
-    'Vapaa': 'free',
-    'Osittain luistelu': 'skating_in_parts',
-    None: 'unknown',
-    '': 'unknown'
+    'Perinteinen/Vapaa': CLASSIC_OR_FREE,
+    'Vapaa/Perinteinen': CLASSIC_OR_FREE,
+    'Perinteinen': CLASSIC,
+    'Vapaa': FREE,
+    'Osittain luistelu': SKATING_IN_PARTS,
+    None: UNKNOWN,
+    '': UNKNOWN
 }
 
 VANTAA_MAINTENANCE_GROUPS = {
@@ -155,7 +165,7 @@ class Command(BaseCommand):
         def get_technique(p):
             return HELSINKI_TECHNIQUES[p.get('TYYLI')]
         def get_length(p):
-            return p.get('PITUUS') or 'unknown'
+            return p.get('PITUUS') or None
         def get_maintenance_group(p):
             return HELSINKI_GROUPS[p.get('NIMI')]
 
@@ -264,7 +274,7 @@ class Command(BaseCommand):
                 MultiLineString((converted_multilinestring_coords), srid=3879))
             length = feat.get('PITUUS')
             if len(length) == 0:
-                length = 'unknown'
+                length = None
             extra_fields = {
                 'lighting': ESPOO_LIGHTING[feat.get('VALAISTUS')],
                 'skiing_technique': HELSINKI_TECHNIQUES[feat.get('TYYLI')],
