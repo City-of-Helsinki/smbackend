@@ -64,7 +64,7 @@ class Observation(PolymorphicModel):
         related_name='observation_history')
     units = models.ManyToManyField(services_models.Unit, through='UnitLatestObservation')
     auth = models.ForeignKey(
-        'PluralityAuthToken', null=False)
+        'PluralityAuthToken', null=True)
     property = models.ForeignKey(
         ObservableProperty,
         blank=False, null=False,
@@ -121,7 +121,7 @@ class PluralityAuthToken(models.Model):
     """
     A token class which can have multiple active tokens per user.
     """
-    key = models.CharField(max_length=40, primary_key=True)
+    key = models.CharField(max_length=40, primary_key=False, db_index=True)
     user = models.ForeignKey(AUTH_USER_MODEL, related_name='auth_tokens', null=False)
     created = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
