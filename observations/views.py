@@ -12,6 +12,10 @@ class ObtainPluralityAuthToken(rest_framework.authtoken.views.ObtainAuthToken):
         # Unlike the super class, always creates
         # a new token
         token = PluralityAuthToken.objects.create(user=user)
-        return Response({'token': token.key, 'maintenance_organization': str(user.organization.organization.pk)})
+        return Response({
+            'token': token.key,
+            'maintenance_organization': str(user.organization.organization.pk),
+            'login_identifier': token.id
+        })
 
 obtain_auth_token = ObtainPluralityAuthToken.as_view()
