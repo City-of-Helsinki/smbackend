@@ -286,6 +286,9 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
         for key, value in extensions.items():
             print(key)
             translations = {}
+            if value == None or value == 'None':
+                result[key] = None
+                continue
             for lang in LANGUAGES:
                 with translation.override(lang):
                     translated_value = translation.ugettext(value)

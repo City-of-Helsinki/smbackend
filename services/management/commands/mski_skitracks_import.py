@@ -230,6 +230,8 @@ class Command(BaseCommand):
                 multilinestring = MultiLineString(GEOSGeometry(feat.geom.wkt))
 
             length = re.sub('[^0-9]+km', '', feat.get('pituus'))
+            if len(length) == 0:
+                length = None
             extra_fields = {
                 'maintenance_group': VANTAA_MAINTENANCE_GROUPS[feat.get('piiri_nimi')],
                 'maintenance_organization': '92',
@@ -314,6 +316,14 @@ class Command(BaseCommand):
             'last_modified_time': timezone.now()
         }
         self.ski_service, created = Service.objects.get_or_create(pk=33483, defaults=defaults)
+        defaults = {
+            'name_fi': 'Koiralatu',
+            'name_sv': 'Hyndskidspår',
+            'name_en': 'Dog ski track',
+            'unit_count': 0,
+            'last_modified_time': timezone.now()
+        }
+        self.dog_ski_service, created = Service.objects.get_or_create(pk=33492, defaults=defaults)
         if self.options.get('helsinki_filename', False):
             self.import_helsinki_units(self.options['helsinki_filename'])
         if self.options.get('vantaa_filename', False):
