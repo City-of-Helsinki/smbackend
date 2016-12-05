@@ -515,6 +515,9 @@ class Command(BaseCommand):
             # are imported after the unit and point has been
             # imported.
             obj.geometry = location
+        if obj.geometry == None and obj.location != None:
+            obj._changed = True
+            obj.geometry = obj.location
 
         service_set = set((s for s in info.get('service_ids', [])))
         intersection = SERVICE_IDS_TO_SKIP.intersection(service_set)
