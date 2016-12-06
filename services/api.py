@@ -284,7 +284,6 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             return extensions
         result = {}
         for key, value in extensions.items():
-            print(key)
             translations = {}
             if value == None or value == 'None':
                 result[key] = None
@@ -544,7 +543,9 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         maintenance_organization = self.request.QUERY_PARAMS.get('maintenance_organization')
         if maintenance_organization:
-            queryset = queryset.filter(extensions__maintenance_organization=maintenance_organization)
+            queryset = queryset.filter(
+                Q(extensions__maintenance_organization=maintenance_organization) |
+                Q(extensions__additional_maintenance_organization=maintenance_organization))
 
         if 'observations' in self.include_fields:
             queryset = queryset.prefetch_related('observation_set__property__allowed_values').prefetch_related('observation_set__value')
