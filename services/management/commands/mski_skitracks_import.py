@@ -171,12 +171,15 @@ class Command(BaseCommand):
 
         for feature in geojson['features']:
             properties = feature['properties']
+            maintenance_organization = '91'
+            if properties.get('NIMI') == 'Siltamäki':
+                maintenance_organization = '92'
             extra_fields = {
                 'lighting': get_lighting(properties),
                 'skiing_technique': get_technique(properties),
                 'length': get_length(properties),
                 'maintenance_group': get_maintenance_group(properties),
-                'maintenance_organization': '91'
+                'maintenance_organization': '92'
             }
             geometry = feature['geometry']
             point = Point(geometry['coordinates'][0][0])
@@ -277,11 +280,14 @@ class Command(BaseCommand):
             length = feat.get('PITUUS')
             if len(length) == 0:
                 length = None
+            maintenance_organization = '49'
+            if feat.get('NIMI') == 'Tali 6.5 km':
+                maintenance_organization = '91'
             extra_fields = {
                 'lighting': ESPOO_LIGHTING[feat.get('VALAISTUS')],
                 'skiing_technique': HELSINKI_TECHNIQUES[feat.get('TYYLI')],
                 'maintenance_group': 'kaikki',
-                'maintenance_organization': '49',
+                'maintenance_organization': maintenance_organization,
                 'length': length
             }
             defaults = self.unit_defaults(
