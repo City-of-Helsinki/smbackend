@@ -49,7 +49,7 @@ HELSINKI_GROUPS = {
     'Salmi 3 km': 'itä',
     'Siltamäki': 'itä',
     'Taivaskallio - Tuomarinkartano - Paloheinä 11.5 km': 'itä',
-    'Tali 6.5 km': 'itä',
+    'Tali 6.5 km': 'länsi',
     'Tapulin kuntorata': 'itä',
     'Herttoniemi 3.0 5.0 km': 'länsi',
     'Kannelmäki peltolatu': 'länsi',
@@ -266,6 +266,8 @@ class Command(BaseCommand):
         uid = self.get_lowest_high_unit_id()
         lyr = ds[0]
         for feat in lyr:
+            if feat.get('NIMI') == 'Tali 6.5 km':
+                continue
             if type(feat.geom) == django.contrib.gis.gdal.geometries.MultiLineString:
                 multilinestring = GEOSGeometry(feat.geom.wkt)
             else:
@@ -281,8 +283,6 @@ class Command(BaseCommand):
             if len(length) == 0:
                 length = None
             maintenance_organization = '49'
-            if feat.get('NIMI') == 'Tali 6.5 km':
-                maintenance_organization = '91'
             extra_fields = {
                 'lighting': ESPOO_LIGHTING[feat.get('VALAISTUS')],
                 'skiing_technique': HELSINKI_TECHNIQUES[feat.get('TYYLI')],
