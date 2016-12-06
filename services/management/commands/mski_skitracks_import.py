@@ -179,7 +179,7 @@ class Command(BaseCommand):
                 'skiing_technique': get_technique(properties),
                 'length': get_length(properties),
                 'maintenance_group': get_maintenance_group(properties),
-                'maintenance_organization': '92'
+                'maintenance_organization': maintenance_organization
             }
             geometry = feature['geometry']
             point = Point(geometry['coordinates'][0][0])
