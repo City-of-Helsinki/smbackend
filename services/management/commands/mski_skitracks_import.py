@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+# Note: this module expects the names of
+# the skiing tracks to remain the same.
+# Otherwise duplicate tracks are introduced.
+
 from optparse import make_option
 import logging
 import json
@@ -126,6 +130,9 @@ VANTAA_MAINTENANCE_GROUPS = {
     'it�': 'itä'
 }
 
+def _report_counts(municipality, created, updated):
+    print("Imported skiing tracks for {}:\n{} created / {} updated".format(
+        municipality, created, updated))
 
 class Command(BaseCommand):
     help = "Import ski track units from GeoJSON derived from mSki"
@@ -145,9 +152,8 @@ class Command(BaseCommand):
         text = text.strip()
         return text
 
-    def unit_defaults(self, uid, geometry, point, extra_fields):
+    def unit_defaults(self, geometry, point, extra_fields):
         return {
-            'id': uid,
             'provider_type': 101,
             'origin_last_modified_time': timezone.now(),
             'geometry': geometry,
@@ -155,6 +161,23 @@ class Command(BaseCommand):
             'data_source': 'manual_import',
             'extensions': extra_fields
         }
+
+    def _create_or_update_unit(self, uid, name, defaults):
+        units = Unit.objects.filter(name_fi=name, services=self.ski_service)
+        if len(units) == 1:
+            units.update(**defaults)
+            units[0].services.add(self.ski_service)
+            return (uid, False)
+        elif len(units) == 0:
+            unit = Unit.objects.create(
+                name_fi=name,
+                id=uid,
+                **defaults)
+            unit.services.add(self.ski_service)
+            return (uid - 1, True)
+        else:
+            print('Error, too many matches for {}'.format(name))
+            return (uid, False)
 
     @db.transaction.atomic
     def import_helsinki_units(self, filename):
@@ -169,11 +192,15 @@ class Command(BaseCommand):
         def get_maintenance_group(p):
             return HELSINKI_GROUPS[p.get('NIMI')]
 
+        created = 0
+        updated = 0
         for feature in geojson['features']:
             properties = feature['properties']
             maintenance_organization = '91'
             if properties.get('NIMI') == 'Siltamäki':
                 maintenance_organization = '92'
+            elif properties.get('NIMI').find('Pirttimäki') == 0:
+                maintenance_organization = '49'
             extra_fields = {
                 'lighting': get_lighting(properties),
                 'skiing_technique': get_technique(properties),
@@ -190,19 +217,15 @@ class Command(BaseCommand):
                 # There are some tracks with fake route coordinates
                 # standing in for a point coord
                 multilinestring = None
-            defaults = self.unit_defaults(uid, multilinestring, point, extra_fields)
+            defaults = self.unit_defaults(multilinestring, point, extra_fields)
             defaults['municipality_id'] = 'helsinki'
             defaults['organization_id'] = 91
-            try:
-                unit = Unit.objects.get(name_fi=properties['NIMI'], services=self.ski_service)
-                defaults['id'] = unit.id
-            except Unit.DoesNotExist:
-                defaults['id'] = uid
-                uid -= 1
-            unit, created = Unit.objects.update_or_create(
-                name_fi=properties['NIMI'],
-                defaults=defaults)
-            unit.services.add(self.ski_service)
+            uid, did_create = self._create_or_update_unit(uid, properties['NIMI'], defaults)
+            if did_create:
+                created += 1
+            else:
+                updated += 1
+        _report_counts('helsinki', created, updated)
 
     def get_lowest_high_unit_id(self):
         MAX_PK = 2147483647
@@ -225,6 +248,8 @@ class Command(BaseCommand):
         srs = lyr.srs
         uid = self.get_lowest_high_unit_id()
 
+        created = 0
+        updated = 0
         for feat in lyr:
             assert feat.geom_type == 'LineString'
             if type(feat.geom) == django.contrib.gis.gdal.geometries.MultiLineString:
@@ -242,30 +267,18 @@ class Command(BaseCommand):
                 'origin_id': str(feat.get('latu_id'))
             }
             defaults = self.unit_defaults(
-                uid,
                 multilinestring,
                 Point(feat.geom[0][0], feat.geom[0][1]),
                 extra_fields)
             defaults['municipality_id'] = 'vantaa'
             defaults['organization_id'] = 92
-            try:
-                units = Unit.objects.filter(name_fi=feat.get('nimi'), services=self.ski_service)
-                if len(units) == 1:
-                    del defaults['id']
-                    units.update(**defaults)
-                    units[0].services.add(self.ski_service)
-                elif len(units) == 0:
-                    print('Error, no name match for {}'.format(feat.get('nimi')))
-                else:
-                    print('Error, too many matches for {}'.format(feat.get('nimi')))
-            except Unit.DoesNotExist:
-                del defaults['id']
-                unit = Unit.objects.create(
-                    name_fi=feat.get('nimi'),
-                    id=uid,
-                    **defaults)
-                uid -= 1
-                unit.services.add(self.ski_service)
+            uid, did_create = self._create_or_update_unit(uid, feat.get('nimi'), defaults)
+            if did_create:
+                created += 1
+            else:
+                updated += 1
+        _report_counts('vantaa', created, updated)
+
 
     @db.transaction.atomic
     def import_espoo_units(self, filename):
@@ -273,8 +286,16 @@ class Command(BaseCommand):
         assert len(ds) == 1
         uid = self.get_lowest_high_unit_id()
         lyr = ds[0]
+        created = 0
+        updated = 0
         for feat in lyr:
-            if feat.get('NIMI') == 'Tali 6.5 km':
+            if feat.get('NIMI') in [
+                    'Tali 6.5 km',
+                    'Pirttimäki 3.0 km',
+                    'Pirttimäki 6.4 km',
+                    'Pirttimäki 8.3 km']:
+                # These are Helsinki's tracks,
+                # and the maintainer is set to Espoo in the Helsinki importer
                 continue
             if type(feat.geom) == django.contrib.gis.gdal.geometries.MultiLineString:
                 multilinestring = GEOSGeometry(feat.geom.wkt)
@@ -299,24 +320,18 @@ class Command(BaseCommand):
                 'length': length
             }
             defaults = self.unit_defaults(
-                uid,
                 converted_multilinestring,
                 Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3879),
                 extra_fields
             )
             defaults['municipality_id'] = 'espoo'
             defaults['organization_id'] = 49
-            try:
-                unit = Unit.objects.get(name_fi=feat.get('NIMI'), services=self.ski_service)
-                defaults['id'] = unit.id
-            except Unit.DoesNotExist:
-                defaults['id'] = uid
-                uid -= 1
-            unit, created = Unit.objects.update_or_create(
-                name_fi=feat.get('NIMI'),
-                defaults=defaults)
-            unit.services.add(self.ski_service)
-            uid -= 1
+            uid, did_create = self._create_or_update_unit(uid, feat.get('NIMI'), defaults)
+            if did_create:
+                created += 1
+            else:
+                updated += 1
+        _report_counts('espoo', created, updated)
 
     def handle(self, **options):
         self.options = options
