@@ -14,9 +14,6 @@ from munigeo.utils import get_default_srid
 DEFAULT_LANG = settings.LANGUAGES[0][0]
 PROJECTION_SRID = get_default_srid()
 
-"""
-This is an example models.py which contains all model definition.
-"""
 import django.db
 from django.db.models.signals import pre_migrate
 from django.dispatch import receiver
