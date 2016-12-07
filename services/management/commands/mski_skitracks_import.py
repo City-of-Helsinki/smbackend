@@ -337,19 +337,22 @@ class Command(BaseCommand):
         self.options = options
         self.verbosity = int(options.get('verbosity', 1))
         self.logger = logging.getLogger(__name__)
+        parent = Service.objects.get(pk=33470)
         defaults = {
             'name_fi': 'Latu',
             'name_sv': 'Skidspår',
             'name_en': 'Ski track',
             'unit_count': 0,
+            'parent': parent,
             'last_modified_time': timezone.now()
         }
         self.ski_service, created = Service.objects.get_or_create(pk=33483, defaults=defaults)
         defaults = {
             'name_fi': 'Koiralatu',
-            'name_sv': 'Hyndskidspår',
+            'name_sv': 'Hundskidspår',
             'name_en': 'Dog ski track',
             'unit_count': 0,
+            'parent': parent,
             'last_modified_time': timezone.now()
         }
         self.dog_ski_service, created = Service.objects.get_or_create(pk=33492, defaults=defaults)

@@ -5,7 +5,7 @@
     observation_type: observations.CategoricalObservation
     services:
       - 33483
-      #- 33492
+      - 33492
 - model: observations.AllowedValue
   fields:
     identifier: closed
