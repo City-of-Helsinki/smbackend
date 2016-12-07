@@ -346,7 +346,7 @@ class Command(BaseCommand):
             'parent': parent,
             'last_modified_time': timezone.now()
         }
-        self.ski_service, created = Service.objects.get_or_create(pk=33483, defaults=defaults)
+        self.ski_service, created = Service.objects.update_or_create(pk=33483, defaults=defaults)
         defaults = {
             'name_fi': 'Koiralatu',
             'name_sv': 'Hundskidspår',
@@ -355,7 +355,7 @@ class Command(BaseCommand):
             'parent': parent,
             'last_modified_time': timezone.now()
         }
-        self.dog_ski_service, created = Service.objects.get_or_create(pk=33492, defaults=defaults)
+        self.dog_ski_service, created = Service.objects.update_or_create(pk=33492, defaults=defaults)
         if self.options.get('helsinki_filename', False):
             self.import_helsinki_units(self.options['helsinki_filename'])
         if self.options.get('vantaa_filename', False):
