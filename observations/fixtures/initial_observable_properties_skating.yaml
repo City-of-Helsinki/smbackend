@@ -1,0 +1,54 @@
+- model: observations.ObservableProperty
+  pk: ice_skating_field_condition
+  fields:
+    name: Ice skating field condition
+    observation_type: observations.CategoricalObservation
+    services:
+      - 33420
+      - 33418
+      - 33419
+      - 33417
+- model: observations.AllowedValue
+  fields:
+    identifier: closed
+    name_fi: Suljettu
+    name_sv: Stängd
+    name_en: Closed
+    description_fi: Kenttä on suljettu
+    description_sv: MISSING_TRANSLATION
+    description_en: The field is closed
+    property_id: ice_skating_field_condition
+    quality: unusable
+- model: observations.AllowedValue
+  fields:
+    identifier: plowed
+    name_fi: Aurattu
+    name_sv: MISSING_TRANSLATION
+    name_en: Plowed
+    description_fi: Kenttä on aurattu
+    description_sv: MISSING_TRANSLATION
+    description_en: The field has been plowed
+    property_id: ice_skating_field_condition
+    quality: satisfactory
+- model: observations.AllowedValue
+  fields:
+    identifier: frozen
+    name_fi: Jäädytetty
+    name_sv: MISSING_TRANSLATION
+    name_en: Frozen
+    description_fi: Kenttä on jäädytetty
+    description_sv: MISSING_TRANSLATION
+    description_en: The field has been frozen
+    property_id: ice_skating_field_condition
+    quality: good
+- model: observations.AllowedValue
+  fields:
+    identifier: freezing_started
+    name_fi: Jäädytys aloitettu
+    name_sv: MISSING_TRANSLATION
+    name_en: Freezing started
+    description_fi: Kentän jäädytys on aloitettu
+    description_sv: MISSING_TRANSLATION
+    description_en: Freezing of the field has been started
+    property_id: ice_skating_field_condition
+    quality: unusable

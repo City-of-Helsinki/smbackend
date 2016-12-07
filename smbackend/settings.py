@@ -32,10 +32,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    'polymorphic',
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'django.contrib.postgres',
     'raven.contrib.django.raven_compat',
+    'rest_framework.authtoken',
     'rest_framework',
     'corsheaders',
     'django_extensions',
@@ -43,6 +47,7 @@ INSTALLED_APPS = (
     'haystack',
     'munigeo',
     'services',
+    'observations'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -144,6 +149,9 @@ REST_FRAMEWORK = {
     'URL_FIELD_NAME': 'resource_uri',
     'UNAUTHENTICATED_USER': None,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'observations.models.PluralityTokenAuthentication',
+    ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
@@ -171,6 +179,10 @@ HAYSTACK_SIGNAL_PROCESSOR = 'services.search_indexes.DeleteOnlySignalProcessor'
 
 KML_TRANSLATABLE_FIELDS = ['name', 'street_address', 'www_url']
 KML_REGEXP = 'application/vnd.google-earth\.kml'
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.

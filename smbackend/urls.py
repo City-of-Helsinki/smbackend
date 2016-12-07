@@ -1,7 +1,9 @@
 from django.conf.urls import patterns, include, url
 from services.api import all_views as services_views
 from services.api import AccessibilityRuleView
+from observations.api import views as observations_views
 from rest_framework import routers
+from observations.views import obtain_auth_token
 from munigeo.api import all_views as munigeo_views
 
 # from django.contrib import admin
@@ -11,7 +13,7 @@ router = routers.DefaultRouter()
 
 registered_api_views = set()
 
-for view in services_views + munigeo_views:
+for view in services_views + munigeo_views + observations_views:
     kwargs = {}
     if view['name'] in registered_api_views:
         continue
@@ -30,5 +32,6 @@ urlpatterns = patterns('',
     # url(r'^', include(v1_api.urls)),
     # url(r'^admin/', include(admin.site.urls)),
     url(r'^open311/', 'services.views.post_service_request', name='services'),
-    url(r'^v1/', include(router.urls))
+    url(r'^v1/', include(router.urls)),
+    url(r'^v1/api-token-auth/', obtain_auth_token)
 )

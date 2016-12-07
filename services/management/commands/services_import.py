@@ -36,16 +36,18 @@ SERVICE_IDS_TO_SKIP = set([
     # These services have routes as geometries,
     # should be skipped until we have the
     # route geometries imported from LIPAS.
-    33376,
-    33377,
-    33378,
-    33482,
-    33483,
-    33484,
-    33485,
-    33486,
-    33492
+    33376, # ulkoilualue
+    33377, # retkeilyalue
+    33378, # monikäyttöalue
+    33482, # kuntorata
+    33483, # latu
+    33492, # koirahiihtolatu
+    33484, # kävelyreitti
+    33485, # luontopolku
+    33486 # retkeilyreitti
 ])
+
+ICE_SKATING_SERVICES = [33420,33418,33419,33417]
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
@@ -260,7 +262,7 @@ class Command(BaseCommand):
     @db.transaction.atomic
     def import_services(self):
         srv_list = self.pk_get('service')
-        syncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
+        syncher = ModelSyncher(Service.objects.exclude(pk__in=SERVICE_IDS_TO_SKIP), lambda obj: obj.id)
 
         self.detect_duplicate_services(srv_list)
 
@@ -481,6 +483,11 @@ class Command(BaseCommand):
             obj._changed = True
             obj.data_source_url = url
 
+        data_source = 'tprek'
+        if obj.data_source != data_source:
+            obj._changed = True
+            obj.data_source = data_source
+
         n = info.get('latitude', 0)
         e = info.get('longitude', 0)
         location = None
@@ -503,13 +510,33 @@ class Command(BaseCommand):
         if location != obj.location:
             obj._changed = True
             obj.location = location
+            # Assumption: this importer receives only
+            # point geometries and any other geometries
+            # are imported after the unit and point has been
+            # imported.
+            obj.geometry = location
+        if obj.geometry == None and obj.location != None:
+            obj._changed = True
+            obj.geometry = obj.location
 
-        intersection = SERVICE_IDS_TO_SKIP.intersection(
-            set((s for s in info.get('service_ids', []))))
+        service_set = set((s for s in info.get('service_ids', [])))
+        intersection = SERVICE_IDS_TO_SKIP.intersection(service_set)
         if len(intersection) > 0:
             # Do not import units with services that need to be skipped
             print('Skipping service id {} in unit {}.'.format(intersection, info['id']))
             return
+
+        intersection = set(ICE_SKATING_SERVICES).intersection(service_set)
+        if len(intersection) > 0:
+            maintenance_organization = str(obj.organization_id)
+            maintenance_group = 'kaikki'
+            if obj.extensions == None:
+                obj.extensions = {}
+            if (obj.extensions.get('maintenance_organization') != maintenance_organization or
+                obj.extensions.get('maintenance_group') != maintenance_group):
+                obj._changed = True
+            obj.extensions['maintenance_organization'] = maintenance_organization
+            obj.extensions['maintenance_group'] = maintenance_group
 
         if obj._changed:
             if obj._created:
@@ -674,14 +701,6 @@ class Command(BaseCommand):
         if not getattr(self, 'dept_syncher', None):
             self.import_departments(noop=True)
 
-        if self.options['single']:
-            obj_id = self.options['single']
-            obj_list = [self.pk_get('unit', obj_id)]
-            queryset = Unit.objects.filter(id=obj_id)
-        else:
-            obj_list = self._fetch_units()
-            queryset = Unit.objects.all().prefetch_related('services', 'keywords')
-
         if self.verbosity:
             self.logger.info("Fetching unit connections")
         connections = self.pk_get('connection')
@@ -711,6 +730,14 @@ class Command(BaseCommand):
         target_to_gps_ct = CoordTransform(target_srs, gps_srs)
         self.bounding_box.transform(target_to_gps_ct)
         self.gps_to_target_ct = CoordTransform(gps_srs, target_srs)
+
+        if self.options['single']:
+            obj_id = self.options['single']
+            obj_list = [self.pk_get('unit', obj_id)]
+            queryset = Unit.objects.filter(id=obj_id)
+        else:
+            obj_list = self._fetch_units()
+            queryset = Unit.objects.filter(data_source='tprek').prefetch_related('services', 'keywords')
 
         syncher = ModelSyncher(queryset, lambda obj: obj.id)
         for idx, info in enumerate(obj_list):

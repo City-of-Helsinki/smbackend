@@ -1,0 +1,27 @@
+- model: 'auth.User'
+  pk: 1
+  fields:
+    username: helsinkiliiku
+    email: dev@hel.fi
+- model: 'auth.User'
+  pk: 2
+  fields:
+    username: vantaaliiku
+    email: dev@hel.fi
+- model: 'auth.User'
+  pk: 3
+  fields:
+    username: espooliiku
+    email: dev@hel.fi
+- model: 'observations.UserOrganization'
+  fields:
+      organization_id: 91
+      user_id: 1
+- model: 'observations.UserOrganization'
+  fields:
+      organization_id: 92
+      user_id: 2
+- model: 'observations.UserOrganization'
+  fields:
+      organization_id: 49
+      user_id: 3

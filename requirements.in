@@ -18,3 +18,5 @@ elasticsearch
 djangorestframework-jsonp
 pip-tools
 python-dateutil
+pytest-django
+django-polymorphic

@@ -170,23 +170,25 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPIS
     class Meta:
         model = Service
 
-class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
+
+class JSONAPIViewSetMixin:
     def initial(self, request, *args, **kwargs):
-        ret = super(JSONAPIViewSet, self).initial(request, *args, **kwargs)
+        ret = super(JSONAPIViewSetMixin, self).initial(request, *args, **kwargs)
 
         include = self.request.QUERY_PARAMS.get('include', '')
         self.include_fields = [x.strip() for x in include.split(',') if x]
 
+        self.only_fields = None
         only = self.request.QUERY_PARAMS.get('only', '')
+        include_geometry = self.request.QUERY_PARAMS.get('geometry', '').lower() in ('true', '1')
         if only:
             self.only_fields = [x.strip() for x in only.split(',') if x]
-        else:
-            self.only_fields = None
-
+            if include_geometry:
+                self.only_fields.append('geometry')
         return ret
 
     def get_queryset(self):
-        queryset = super(JSONAPIViewSet, self).get_queryset()
+        queryset = super(JSONAPIViewSetMixin, self).get_queryset()
         model = queryset.model
         if self.only_fields:
             model_fields = model._meta.get_fields()
@@ -205,7 +207,7 @@ class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset
 
     def get_serializer_context(self):
-        context = super(JSONAPIViewSet, self).get_serializer_context()
+        context = super(JSONAPIViewSetMixin, self).get_serializer_context()
 
         context['include'] = self.include_fields
         if self.only_fields:
@@ -213,6 +215,8 @@ class JSONAPIViewSet(viewsets.ReadOnlyModelViewSet):
 
         return context
 
+class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
+    pass
 
 class UnitConnectionSerializer(TranslatedModelSerializer):
     class Meta:
@@ -258,7 +262,6 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 
 register_view(ServiceViewSet, 'service')
 
-
 class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                      munigeo_api.GeoModelSerializer, JSONAPISerializer):
     connections = UnitConnectionSerializer(many=True)
@@ -275,6 +278,27 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                 del ser.child.fields['id']
             if 'unit' in ser.child.fields:
                 del ser.child.fields['unit']
+
+    def handle_extension_translations(self, extensions):
+        if extensions == None or len(extensions) == 0:
+            return extensions
+        result = {}
+        for key, value in extensions.items():
+            translations = {}
+            if value == None or value == 'None':
+                result[key] = None
+                continue
+            for lang in LANGUAGES:
+                with translation.override(lang):
+                    translated_value = translation.ugettext(value)
+                    if translated_value != value:
+                        translations[lang] = translated_value
+                    translated_value = None
+            if len(translations) > 0:
+                result[key] = translations
+            else:
+                result[key] = value
+        return result
 
     def to_representation(self, obj):
         ret = super(UnitSerializer, self).to_representation(obj)
@@ -318,6 +342,24 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             acc_props = [{'variable': s.variable_id, 'value': s.value}
                          for s in obj.accessibility_properties.all()]
             ret['accessibility_properties'] = acc_props
+
+        if 'connections' in include_fields:
+            ret['connections'] = UnitConnectionSerializer(obj.connections, many=True).data
+
+        if not 'request' in self.context:
+            return ret
+        qparams = self.context['request'].query_params
+        if qparams.get('geometry', '').lower() in ('true', '1'):
+            geom = obj.geometry # TODO: different geom types
+            if geom and obj.geometry != obj.location:
+                ret['geometry'] = munigeo_api.geom_to_json(geom, self.srs)
+        elif 'geometry' in ret:
+            del ret['geometry']
+
+        if 'extensions' in ret:
+            ret['extensions'] = self.handle_extension_translations(ret['extensions'])
+        if 'data_source' in ret:
+            del ret['data_source']
         return ret
 
     class Meta:
@@ -478,7 +520,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             except ValueError:
                 raise ParseError("'lat' and 'lon' need to be floating point numbers")
             point = Point(lon, lat, srid=4326)
-            queryset = queryset.distance(point)
 
             if 'distance' in filters:
                 try:
@@ -488,7 +529,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 except ValueError:
                     raise ParseError("'distance' needs to be a floating point number")
                 queryset = queryset.filter(location__distance_lte=(point, distance))
-            queryset = queryset.distance(point).order_by('distance')
+            queryset = queryset.distance(point, field_name='geometry').order_by('distance')
 
         if 'bbox' in filters:
             val = self.request.QUERY_PARAMS.get('bbox', None)
@@ -500,6 +541,16 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 bbox_filter = munigeo_api.build_bbox_filter(ref, val, 'location')
                 queryset = queryset.filter(**bbox_filter)
 
+        maintenance_organization = self.request.QUERY_PARAMS.get('maintenance_organization')
+        if maintenance_organization:
+            queryset = queryset.filter(
+                Q(extensions__maintenance_organization=maintenance_organization) |
+                Q(extensions__additional_maintenance_organization=maintenance_organization))
+
+        if 'observations' in self.include_fields:
+            queryset = queryset.prefetch_related('observation_set__property__allowed_values').prefetch_related('observation_set__value')
+        if 'connections' in self.include_fields:
+            queryset = queryset.prefetch_related('connections')
         return queryset
 
     def _add_content_disposition_header(self, response):
@@ -515,7 +566,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         except Unit.DoesNotExist:
             unit_alias = get_object_or_404(UnitAlias, second=pk)
             unit = unit_alias.first
-        serializer = UnitSerializer(unit, context=self.get_serializer_context())
+        serializer = self.serializer_class(unit, context=self.get_serializer_context())
         return Response(serializer.data)
 
     def list(self, request):
