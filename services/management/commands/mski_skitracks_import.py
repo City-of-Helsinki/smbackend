@@ -194,7 +194,7 @@ class Command(BaseCommand):
             defaults['municipality_id'] = 'helsinki'
             defaults['organization_id'] = 91
             try:
-                unit = Unit.objects.get(name_fi=properties['NIMI'])
+                unit = Unit.objects.get(name_fi=properties['NIMI'], services=self.ski_service)
                 defaults['id'] = unit.id
             except Unit.DoesNotExist:
                 defaults['id'] = uid
@@ -249,15 +249,23 @@ class Command(BaseCommand):
             defaults['municipality_id'] = 'vantaa'
             defaults['organization_id'] = 92
             try:
-                unit = Unit.objects.get(name_fi=feat.get('NIMI'))
-                defaults['id'] = unit.id
+                units = Unit.objects.filter(name_fi=feat.get('nimi'), services=self.ski_service)
+                if len(units) == 1:
+                    del defaults['id']
+                    units.update(**defaults)
+                    units[0].services.add(self.ski_service)
+                elif len(units) == 0:
+                    print('Error, no name match for {}'.format(feat.get('nimi')))
+                else:
+                    print('Error, too many matches for {}'.format(feat.get('nimi')))
             except Unit.DoesNotExist:
-                defaults['id'] = uid
+                del defaults['id']
+                unit = Unit.objects.create(
+                    name_fi=feat.get('nimi'),
+                    id=uid,
+                    **defaults)
                 uid -= 1
-            unit, created = Unit.objects.update_or_create(
-                name_fi=feat.get('nimi'),
-                defaults=defaults)
-            unit.services.add(self.ski_service)
+                unit.services.add(self.ski_service)
 
     @db.transaction.atomic
     def import_espoo_units(self, filename):
@@ -299,7 +307,7 @@ class Command(BaseCommand):
             defaults['municipality_id'] = 'espoo'
             defaults['organization_id'] = 49
             try:
-                unit = Unit.objects.get(name_fi=feat.get('NIMI'))
+                unit = Unit.objects.get(name_fi=feat.get('NIMI'), services=self.ski_service)
                 defaults['id'] = unit.id
             except Unit.DoesNotExist:
                 defaults['id'] = uid
