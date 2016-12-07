@@ -258,8 +258,7 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
         if 'ancestor' in args:
             val = args['ancestor']
             queryset = queryset.by_ancestor(val)
-        # TODO: enable ski services here
-        return queryset.exclude(pk__in=[33483,33492])
+        return queryset
 
 register_view(ServiceViewSet, 'service')
 
