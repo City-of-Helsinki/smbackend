@@ -297,6 +297,10 @@ class Command(BaseCommand):
                 # These are Helsinki's tracks,
                 # and the maintainer is set to Espoo in the Helsinki importer
                 continue
+            name = feat.get('NIMI')
+            if name.find('Aurattu ulkoilureitti') == 0:
+                # Do not import these
+                continue
             if type(feat.geom) == django.contrib.gis.gdal.geometries.MultiLineString:
                 multilinestring = GEOSGeometry(feat.geom.wkt)
             else:
