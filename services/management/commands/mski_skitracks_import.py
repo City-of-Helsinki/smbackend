@@ -175,7 +175,7 @@ class Command(BaseCommand):
         if len(units) == 1:
             units.update(**defaults)
             units[0].services.add(self.ski_service)
-            return (uid, False)
+            return (uid, False, units[0])
         elif len(units) == 0:
             print('no name match for', name)
             unit = Unit.objects.create(
@@ -183,10 +183,10 @@ class Command(BaseCommand):
                 id=uid,
                 **defaults)
             unit.services.add(self.ski_service)
-            return (uid - 1, True)
+            return (uid - 1, True, unit)
         else:
             print('Error, too many matches for {}'.format(name))
-            return (uid, False)
+            return (uid, False, None)
 
     @db.transaction.atomic
     def import_helsinki_units(self, filename):
@@ -240,11 +240,14 @@ class Command(BaseCommand):
                 multilinestring, point, extra_fields, street_address, address_zip, www_url)
             defaults['municipality_id'] = municipality
             defaults['organization_id'] = 91
-            uid, did_create = self._create_or_update_unit(uid, properties['NIMI'], defaults)
+            uid, did_create, unit = self._create_or_update_unit(uid, properties['NIMI'], defaults)
             if did_create:
                 created += 1
             else:
                 updated += 1
+            if street_address:
+                self.add_public_transportation_connection(unit, street_address, municipality)
+
         _report_counts('helsinki', created, updated)
 
     def get_lowest_high_unit_id(self):
@@ -286,7 +289,7 @@ class Command(BaseCommand):
                 extra_fields, None, None, None)
             defaults['municipality_id'] = 'vantaa'
             defaults['organization_id'] = 92
-            uid, did_create = self._create_or_update_unit(uid, feat.get('nimi'), defaults)
+            uid, did_create, unit = self._create_or_update_unit(uid, feat.get('nimi'), defaults)
             if did_create:
                 created += 1
             else:
@@ -307,6 +310,28 @@ class Command(BaseCommand):
         except:
             print('address not found', street_address_match.group(1), '--', street_address_match.group(2))
             return None
+
+    def add_public_transportation_connection(self, unit, street_address, municipality):
+        string = '{},+{}'.format(street_address.lower(), municipality).replace(' ', '+')
+        url = 'http://www.reittiopas.fi/{lang}/?to_in={address}'
+        defaults = {
+            "name_en": "Public transport to here",
+            "name_sv": "Kollektivtrafik till platsen",
+            "name_fi": "Joukkoliikenneyhteydet tänne",
+            "www_url_en": url.format(lang='en', address=string),
+            "www_url_sv": url.format(lang='sv', address=string),
+            "www_url_fi": url.format(lang='fi', address=string),
+            "contact_person": None,
+            "email": None,
+            "phone": None,
+            "phone_mobile": None
+        }
+        return UnitConnection.objects.update_or_create(
+            type=215,
+            section='traffic',
+            unit=unit,
+            defaults=defaults)
+
 
     @db.transaction.atomic
     def import_espoo_units(self, filename):
@@ -368,11 +393,14 @@ class Command(BaseCommand):
             )
             defaults['municipality_id'] = 'espoo'
             defaults['organization_id'] = 49
-            uid, did_create = self._create_or_update_unit(uid, feat.get('NIMI'), defaults)
+            uid, did_create, unit = self._create_or_update_unit(uid, feat.get('NIMI'), defaults)
             if did_create:
                 created += 1
             else:
                 updated += 1
+            if street_address:
+                self.add_public_transportation_connection(unit, street_address, 'espoo')
+
         _report_counts('espoo', created, updated)
 
     def handle(self, **options):
