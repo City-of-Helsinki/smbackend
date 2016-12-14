@@ -23,6 +23,9 @@ from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.utils import LayerMapping
 
 from services.models import *
+from munigeo.models import Address
+
+ADDRESS_RE = re.compile('([^0-9]+) ([0-9]+)([^0-9]*)')
 
 def espoo_coordinates_to_gk25(x, y):
     a = 6600290.731951121200000
@@ -107,6 +110,7 @@ HELSINKI_LIGHTING = {
 
 ESPOO_LIGHTING = {
     'Valaistu latu': ILLUMINATED,
+    'Valaistu': ILLUMINATED,
     'Ei valaistu': NOT_ILLUMINATED,
     'Valaisematon latu': NOT_ILLUMINATED,
     'Valaisematon latu,ei poh': NOT_ILLUMINATED,
@@ -153,14 +157,17 @@ class Command(BaseCommand):
         text = text.strip()
         return text
 
-    def unit_defaults(self, geometry, point, extra_fields):
+    def unit_defaults(self, geometry, point, extra_fields, street_address, address_zip, www_url):
         return {
             'provider_type': 101,
             'origin_last_modified_time': timezone.now(),
             'geometry': geometry,
             'location': point,
             'data_source': 'manual_import',
-            'extensions': extra_fields
+            'extensions': extra_fields,
+            'street_address': street_address,
+            'address_zip': address_zip,
+            'www_url': www_url
         }
 
     def _create_or_update_unit(self, uid, name, defaults):
@@ -170,6 +177,7 @@ class Command(BaseCommand):
             units[0].services.add(self.ski_service)
             return (uid, False)
         elif len(units) == 0:
+            print('no name match for', name)
             unit = Unit.objects.create(
                 name_fi=name,
                 id=uid,
@@ -210,7 +218,6 @@ class Command(BaseCommand):
                 'maintenance_organization': maintenance_organization
             }
             geometry = feature['geometry']
-            point = Point(geometry['coordinates'][0][0])
             linestrings = [LineString(ls) for ls in geometry['coordinates']]
             multilinestring = MultiLineString(linestrings)
             geom_src = geometry['coordinates']
@@ -218,8 +225,20 @@ class Command(BaseCommand):
                 # There are some tracks with fake route coordinates
                 # standing in for a point coord
                 multilinestring = None
-            defaults = self.unit_defaults(multilinestring, point, extra_fields)
-            defaults['municipality_id'] = 'helsinki'
+            street_address = properties.get('street_address')
+            www_url = properties.get('www_url')
+            address_zip = properties.get('address_zip')
+
+            municipality = properties.get('municipality', 'helsinki')
+            point = None
+            if street_address:
+                point = self.geocode_street_address(street_address, municipality)
+            if point is None:
+                point = Point(geometry['coordinates'][0][0])
+
+            defaults = self.unit_defaults(
+                multilinestring, point, extra_fields, street_address, address_zip, www_url)
+            defaults['municipality_id'] = municipality
             defaults['organization_id'] = 91
             uid, did_create = self._create_or_update_unit(uid, properties['NIMI'], defaults)
             if did_create:
@@ -230,16 +249,10 @@ class Command(BaseCommand):
 
     def get_lowest_high_unit_id(self):
         MAX_PK = 2147483647
-        if not Unit.objects.filter(pk=MAX_PK).exists():
+        result = Unit.objects.filter(pk__gt=MAX_PK-100000).order_by('pk')
+        if len(result) == 0:
             return MAX_PK
-        uid = Unit.objects.aggregate(db.models.Max('id'))['id__max']
-        while True:
-            try:
-                Unit.objects.get(pk=uid)
-                uid -= 1
-            except Unit.DoesNotExist as e:
-                break
-        return uid
+        return result.first().pk - 1
 
     @db.transaction.atomic
     def import_vantaa_units(self, filename):
@@ -270,7 +283,7 @@ class Command(BaseCommand):
             defaults = self.unit_defaults(
                 multilinestring,
                 Point(feat.geom[0][0], feat.geom[0][1]),
-                extra_fields)
+                extra_fields, None, None, None)
             defaults['municipality_id'] = 'vantaa'
             defaults['organization_id'] = 92
             uid, did_create = self._create_or_update_unit(uid, feat.get('nimi'), defaults)
@@ -280,6 +293,20 @@ class Command(BaseCommand):
                 updated += 1
         _report_counts('vantaa', created, updated)
 
+    def geocode_street_address(self, street_address, municipality):
+        street_address_match = ADDRESS_RE.match(street_address)
+        street = street_address_match.group(1)
+        number = street_address_match.group(2)
+        letter = street_address_match.group(3)
+        try:
+            a = Address.objects.get(
+                street__municipality_id=municipality,
+                street__name_fi=street,
+                number=number)
+            return a.location
+        except:
+            print('address not found', street_address_match.group(1), '--', street_address_match.group(2))
+            return None
 
     @db.transaction.atomic
     def import_espoo_units(self, filename):
@@ -324,10 +351,20 @@ class Command(BaseCommand):
                 'maintenance_organization': maintenance_organization,
                 'length': length
             }
+            street_address = feat.get('street_add')
+            www_url = 'http://www.espoo.fi/liikunta'
+            address_zip = feat.get('zip')
+            point = None
+            if street_address:
+                point = self.geocode_street_address(street_address, 'espoo')
+            if point is None:
+                point = Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3879)
+
             defaults = self.unit_defaults(
                 converted_multilinestring,
-                Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3879),
-                extra_fields
+                point,
+                extra_fields,
+                street_address, address_zip, www_url
             )
             defaults['municipality_id'] = 'espoo'
             defaults['organization_id'] = 49
