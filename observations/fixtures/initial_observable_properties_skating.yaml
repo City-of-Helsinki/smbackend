@@ -15,40 +15,40 @@
     name_sv: Stängd
     name_en: Closed
     description_fi: Kenttä on suljettu
-    description_sv: MISSING_TRANSLATION
     description_en: The field is closed
+    description_sv: Planen är stängd
     property_id: ice_skating_field_condition
     quality: unusable
 - model: observations.AllowedValue
   fields:
     identifier: plowed
     name_fi: Aurattu
-    name_sv: MISSING_TRANSLATION
-    name_en: Plowed
+    name_en: Cleared of snow
+    name_sv: Plogad
     description_fi: Kenttä on aurattu
-    description_sv: MISSING_TRANSLATION
-    description_en: The field has been plowed
+    description_en: The field is cleared of snow
+    description_sv: Planen är plogad
     property_id: ice_skating_field_condition
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
     identifier: frozen
     name_fi: Jäädytetty
-    name_sv: MISSING_TRANSLATION
     name_en: Frozen
+    name_sv: Isad
     description_fi: Kenttä on jäädytetty
-    description_sv: MISSING_TRANSLATION
-    description_en: The field has been frozen
+    description_sv: Planen är isad
+    description_en: The field is ice-covered
     property_id: ice_skating_field_condition
     quality: good
 - model: observations.AllowedValue
   fields:
     identifier: freezing_started
     name_fi: Jäädytys aloitettu
-    name_sv: MISSING_TRANSLATION
-    name_en: Freezing started
+    name_en: The icing has begun
+    name_sv: Isningen har inletts
     description_fi: Kentän jäädytys on aloitettu
-    description_sv: MISSING_TRANSLATION
+    description_sv: Isningen av planen har inletts
     description_en: Freezing of the field has been started
     property_id: ice_skating_field_condition
     quality: unusable

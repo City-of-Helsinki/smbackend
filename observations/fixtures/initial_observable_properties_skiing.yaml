@@ -11,6 +11,7 @@
     identifier: closed
     name_en: Closed
     name_fi: Suljettu
+    name_sv: Stängd
     description: Closed
     property_id: ski_trail_condition
     quality: unusable
@@ -19,6 +20,7 @@
     identifier: good
     name_en: Good condition
     name_fi: Hyvä
+    name_sv: Bra
     description: In good condition
     property_id: ski_trail_condition
     quality: good
@@ -27,6 +29,7 @@
     identifier: satisfactory
     name_en: Satisfactory condition
     name_fi: Tyydyttävä
+    name_sv: Hyfsad
     description: In satisfactory condition
     property_id: ski_trail_condition
     quality: satisfactory
@@ -35,6 +38,7 @@
     identifier: poor
     name_en: Poor condition
     name_fi: Heikko
+    name_sv: Svag
     description: In poor condition
     property_id: ski_trail_condition
     quality: unusable
@@ -43,6 +47,7 @@
     identifier: snowless
     name_en: Snowless
     name_fi: Lumenpuute
+    name_sv: Snöbrist
     description: Without snow
     property_id: ski_trail_condition
     quality: unusable
@@ -51,6 +56,7 @@
     identifier: event
     name_en: Closed due to training or a competition
     name_fi: Kilpailut/harjoitukset
+    name_sv: Tävlingar/träningar
     description: The trail is closed because it is being used for a competition or a training event
     property_id: ski_trail_condition
     quality: unusable
@@ -59,6 +65,7 @@
     identifier: littered
     name_en: Littered
     name_fi: Roskainen
+    name_sv: Skräpig
     description: The trail is littered
     property_id: ski_trail_condition
     quality: satisfactory
@@ -67,6 +74,7 @@
     identifier: groomed
     name_en: Groomed with no tracks
     name_fi: Latu pohjattu (ei latu-uraa)
+    name_sv: Grunden lagd (inget skidspår)
     description: The trail has been groomed but lacks ski tracks or grooves
     property_id: ski_trail_condition
     quality: satisfactory
@@ -75,6 +83,7 @@
     identifier: snowmaking
     name_en: Closed due to snowmaking
     name_fi: Lumetus kesken
+    name_sv: Snöproduktionen oavslutad
     description: The trail is closed because snowmaking is in progress
     property_id: ski_trail_condition
     quality: unusable
@@ -91,5 +100,6 @@
     identifier: maintenance_finished
     name_en: Maintenance finished
     name_fi: Kunnostettu
+    name_sv: Iståndsatt
     description: The trail has been groomed
     property_id: ski_trail_maintenance
