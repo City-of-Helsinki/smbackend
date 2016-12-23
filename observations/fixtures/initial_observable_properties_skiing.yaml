@@ -27,10 +27,10 @@
 - model: observations.AllowedValue
   fields:
     identifier: satisfactory
-    name_en: Satisfactory condition
+    name_en: Decent
     name_fi: Tyydyttävä
     name_sv: Hyfsad
-    description: In satisfactory condition
+    description: In decent condition
     property_id: ski_trail_condition
     quality: satisfactory
 - model: observations.AllowedValue
@@ -45,7 +45,7 @@
 - model: observations.AllowedValue
   fields:
     identifier: snowless
-    name_en: Snowless
+    name_en: Lack of snow
     name_fi: Lumenpuute
     name_sv: Snöbrist
     description: Without snow
@@ -72,7 +72,7 @@
 - model: observations.AllowedValue
   fields:
     identifier: groomed
-    name_en: Groomed with no tracks
+    name_en: Foundation laid (no skiing trail)
     name_fi: Latu pohjattu (ei latu-uraa)
     name_sv: Grunden lagd (inget skidspår)
     description: The trail has been groomed but lacks ski tracks or grooves
@@ -81,7 +81,7 @@
 - model: observations.AllowedValue
   fields:
     identifier: snowmaking
-    name_en: Closed due to snowmaking
+    name_en: Snowmaking unfinished
     name_fi: Lumetus kesken
     name_sv: Snöproduktionen oavslutad
     description: The trail is closed because snowmaking is in progress

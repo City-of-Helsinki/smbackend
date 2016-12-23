@@ -34,7 +34,7 @@
   fields:
     identifier: frozen
     name_fi: Jäädytetty
-    name_en: Frozen
+    name_en: Ice-covered
     name_sv: Isad
     description_fi: Kenttä on jäädytetty
     description_sv: Planen är isad
