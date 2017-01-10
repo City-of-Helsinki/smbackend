@@ -27,16 +27,28 @@ from munigeo.models import Address
 
 ADDRESS_RE = re.compile('([^0-9]+) ([0-9]+)([^0-9]*)')
 
-def espoo_coordinates_to_gk25(x, y):
-    a = 6600290.731951121200000
-    b = 25443205.726901203000000
-    c = 0.999869662254702
-    d = -0.015128383929030
-    e = 0.015134113397130
-    f = 0.999867560105837
-    return (
-        (b + (e * y) + (f * x)),
-        (a + (c * y) + (d * x)))
+def gk25_converter(a=0, b=0, c=1, d=0, e=0, f=1):
+    def converter(x, y):
+        return (
+            (b + (e * y) + (f * x)),
+            (a + (c * y) + (d * x)))
+    return converter
+
+espoo_coordinates_to_gk25 = gk25_converter(
+    a=6600290.731951121200000,
+    b=25443205.726901203000000,
+    c=0.999869662254702,
+    d=-0.015128383929030,
+    e=0.015134113397130,
+    f=0.999867560105837)
+
+helsinki_coordinates_to_gk25 = gk25_converter(
+    a=6654650.14636,
+    b=25447166.49457,
+    c=0.99998725362,
+    d=-0.00120230340,
+    e=0.00120230340,
+    f=0.99998725362)
 
 HELSINKI_GROUPS = {
     'Hermanni - Viikki': 'itä',
