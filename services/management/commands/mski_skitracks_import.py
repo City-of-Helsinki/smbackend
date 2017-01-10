@@ -202,21 +202,27 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def import_helsinki_units(self, filename):
-        geojson = json.load(open(filename, 'r'))
+        ds = DataSource(filename)
+        assert len(ds) == 1
         uid = self.get_lowest_high_unit_id()
         def get_lighting(p):
-            return HELSINKI_LIGHTING[p.get('VALAISTUS', None)]
+            return HELSINKI_LIGHTING[p.get('VALAISTUS')]
         def get_technique(p):
             return HELSINKI_TECHNIQUES[p.get('TYYLI')]
         def get_length(p):
-            return p.get('PITUUS') or None
+            l = p.get('PITUUS')
+            if len(l) == 0:
+                l = None
+            return l
         def get_maintenance_group(p):
-            return HELSINKI_GROUPS[p.get('NIMI')]
+            n = p.get('NIMI')
+            return HELSINKI_GROUPS[n]
 
         created = 0
         updated = 0
-        for feature in geojson['features']:
-            properties = feature['properties']
+        lyr = ds[0]
+        for feat in lyr:
+            properties = feat
             maintenance_organization = '91'
             if properties.get('NIMI') == 'Siltamäki':
                 maintenance_organization = '92'
@@ -229,14 +235,18 @@ class Command(BaseCommand):
                 'maintenance_group': get_maintenance_group(properties),
                 'maintenance_organization': maintenance_organization
             }
-            geometry = feature['geometry']
-            linestrings = [LineString(ls) for ls in geometry['coordinates']]
-            multilinestring = MultiLineString(linestrings)
-            geom_src = geometry['coordinates']
-            if len(geom_src) == 1 and len(geom_src[0]) == 2:
-                # There are some tracks with fake route coordinates
-                # standing in for a point coord
-                multilinestring = None
+            if type(feat.geom) == django.contrib.gis.gdal.geometries.MultiLineString:
+                multilinestring = GEOSGeometry(feat.geom.wkt)
+            else:
+                multilinestring = MultiLineString(GEOSGeometry(feat.geom.wkt))
+            converted_multilinestring_coords = []
+            for line in multilinestring:
+                converted_multilinestring_coords.append(
+                    LineString(tuple((helsinki_coordinates_to_gk25(point[0], point[1]) for point in line))))
+
+            converted_multilinestring = (
+                MultiLineString((converted_multilinestring_coords), srid=3879))
+
             street_address = properties.get('street_address')
             www_url = properties.get('www_url')
             address_zip = properties.get('address_zip')
@@ -246,10 +256,14 @@ class Command(BaseCommand):
             if street_address:
                 point = self.geocode_street_address(street_address, municipality)
             if point is None:
-                point = Point(geometry['coordinates'][0][0])
+                point = Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3879)
 
             defaults = self.unit_defaults(
-                multilinestring, point, extra_fields, street_address, address_zip, www_url)
+                converted_multilinestring,
+                point,
+                extra_fields,
+                street_address, address_zip, www_url
+            )
             defaults['municipality_id'] = municipality
             defaults['organization_id'] = 91
             uid, did_create, unit = self._create_or_update_unit(uid, properties['NIMI'], defaults)
