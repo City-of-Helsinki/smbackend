@@ -117,7 +117,8 @@ HELSINKI_LIGHTING = {
     'Valaistu': ILLUMINATED,
     'Ei valaistu': NOT_ILLUMINATED,
     'Osittain valaistu': PARTLY_ILLUMINATED,
-    None: UNKNOWN
+    None: UNKNOWN,
+    '': UNKNOWN
 }
 
 ESPOO_LIGHTING = {
@@ -228,11 +229,16 @@ class Command(BaseCommand):
                 maintenance_organization = '92'
             elif properties.get('NIMI').find('Pirttimäki') == 0:
                 maintenance_organization = '49'
+            try:
+                maintenance_group = get_maintenance_group(properties)
+            except KeyError:
+                print('Missing maintenance group for', properties.get('NIMI'), ', skipping')
+                continue
             extra_fields = {
                 'lighting': get_lighting(properties),
                 'skiing_technique': get_technique(properties),
                 'length': get_length(properties),
-                'maintenance_group': get_maintenance_group(properties),
+                'maintenance_group': maintenance_group,
                 'maintenance_organization': maintenance_organization
             }
             if type(feat.geom) == django.contrib.gis.gdal.geometries.MultiLineString:
@@ -247,11 +253,19 @@ class Command(BaseCommand):
             converted_multilinestring = (
                 MultiLineString((converted_multilinestring_coords), srid=3879))
 
-            street_address = properties.get('street_address')
+            street_address = properties.get('address')
             www_url = properties.get('www_url')
-            address_zip = properties.get('address_zip')
+            address_zip = properties.get('zip')
+            if len(street_address) == 0:
+                street_address = None
+            if len(www_url) == 0:
+                www_url = None
+            if len(address_zip) == 0:
+                address_zip = None
 
-            municipality = properties.get('municipality', 'helsinki')
+            municipality = properties.get('city')
+            if municipality is None or len(municipality) == 0:
+                municipality = 'helsinki'
             point = None
             if street_address:
                 point = self.geocode_street_address(street_address, municipality)
