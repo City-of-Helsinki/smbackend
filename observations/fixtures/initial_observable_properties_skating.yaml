@@ -5,6 +5,7 @@
     observation_type: observations.CategoricalObservation
     services:
       - 33420
+      - 33421
       - 33418
       - 33419
       - 33417
