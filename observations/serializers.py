@@ -1,13 +1,9 @@
-from services.api import (
-    ServiceSerializer, UnitSerializer,
-    TranslatedModelSerializer)
-
 from rest_framework import serializers
 from django.utils import timezone
 from django.db import transaction
 
+from services.api import TranslatedModelSerializer
 from . import models
-from services.api import JSONAPISerializer
 
 class AllowedValueSerializer(TranslatedModelSerializer):
     class Meta:
