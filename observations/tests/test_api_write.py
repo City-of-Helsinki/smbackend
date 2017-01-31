@@ -29,10 +29,9 @@ def test__create_observation(api_client, observable_property, unit, user):
     count = 0
     for prop in observable_properties:
         otype = prop['id']
-        for raw_data in observation_raw_data(otype, unit, allowed_values=[
-                v['identifier'] for v in prop['allowed_values']
-        ]):
-            print(raw_data)
+        allowed_values = [
+            v['identifier'] for v in prop['allowed_values']]
+        for raw_data in observation_raw_data(otype, unit, allowed_values=allowed_values):
             url = reverse('observation-list')
             current_time = timezone.now()
             response = api_client.post(url, raw_data)
