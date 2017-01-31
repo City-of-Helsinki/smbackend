@@ -33,5 +33,5 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
     url(r'^open311/', 'services.views.post_service_request', name='services'),
     url(r'^v1/', include(router.urls)),
-    url(r'^v1/api-token-auth/', obtain_auth_token)
+    url(r'^v1/api-token-auth/', obtain_auth_token, name='api-auth-token')
 )
