@@ -2,7 +2,6 @@ from services.api import (
     ServiceSerializer, UnitSerializer,
     TranslatedModelSerializer)
 
-from django.apps import apps
 from rest_framework import serializers
 from django.utils import timezone
 from django.db import transaction
@@ -21,8 +20,7 @@ class ObservablePropertySerializer(TranslatedModelSerializer):
         model = models.ObservableProperty
     def to_representation(self, obj):
         data = super(ObservablePropertySerializer, self).to_representation(obj)
-        ModelClass = apps.get_model(obj.observation_type)
-        data['observation_type'] = ModelClass.get_type()
+        data['observation_type'] = obj.get_observation_type()
         return data
 
 class ObservationSerializer(serializers.BaseSerializer):
@@ -59,7 +57,6 @@ class ObservationSerializer(serializers.BaseSerializer):
         validated_data['value'] = observable_property.get_internal_value(
             validated_data['value'])
         observation_type = observable_property.observation_type
-        ModelClass = apps.get_model(observation_type)
         with transaction.atomic():
             if (validated_data['add_maintenance_observation']):
                 if validated_data['property_id'] == 'ski_trail_condition':
@@ -76,7 +73,7 @@ class ObservationSerializer(serializers.BaseSerializer):
                         property_id='ski_trail_maintenance',
                         defaults={'observation_id': obj.pk})
             del validated_data['add_maintenance_observation']
-            obj = ModelClass.objects.create(**validated_data)
+            obj = observable_property.create_observation(**validated_data)
             models.UnitLatestObservation.objects.update_or_create(
                 unit_id=validated_data['unit_id'],
                 property_id=validated_data['property_id'],

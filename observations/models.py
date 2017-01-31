@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.apps import apps
 from django.utils.translation import ugettext_lazy as _
 from services import models as services_models
 from polymorphic.models import PolymorphicModel
@@ -25,6 +26,12 @@ class ObservableProperty(models.Model):
     observation_type = models.CharField(max_length=80, null=False, blank=False)
     def __str__(self):
         return "%s (%s)" % (self.name, self.id)
+    def get_observation_model(self):
+        return apps.get_model(self.observation_type)
+    def get_observation_type(self):
+        return self.get_observation_model().get_type()
+    def create_observation(self, **validated_data):
+        return self.get_observation_model().objects.create(**validated_data)
     def get_internal_value(self, value):
         if self.observation_type == 'observations.CategoricalObservation':
             return self.allowed_values.get(identifier=value)
