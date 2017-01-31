@@ -47,4 +47,5 @@ def test__create_observation(api_client, observable_property, unit, user):
             assert data['value'] == raw_data['value']
             assert data['property'] == raw_data['property']
             assert data['unit'] == raw_data['unit']
+    assert count > 0
     assert Observation.objects.count() == count
