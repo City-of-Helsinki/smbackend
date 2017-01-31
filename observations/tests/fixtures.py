@@ -86,3 +86,13 @@ def observable_property(service, unit):
     )
     return p
 
+@pytest.mark.django_db
+@pytest.fixture
+def descriptive_property(service, unit):
+    p = ObservableProperty.objects.create(
+        id='notice',
+        name='Notice',
+        observation_type='observations.DescriptiveObservation'
+    )
+    p.services.add(service)
+    return p
