@@ -12,12 +12,14 @@ def api_client():
 @pytest.mark.django_db
 @pytest.fixture
 def user():
-    user = User.objects.create(username='test_user')
+    USERNAME='test_user'
+    PASSWORD='test_password'
+    user = User.objects.create(username=USERNAME)
     organization = Organization.objects.create(name_fi='test_org', id=1)
     UserOrganization.objects.create(user=user, organization=organization)
-    user.set_password('test_password')
+    user.set_password(PASSWORD)
     user.save()
-    return user
+    return {'username': USERNAME, 'password': PASSWORD}
 
 @pytest.mark.django_db
 @pytest.fixture
