@@ -30,7 +30,7 @@
     description_en: The field is cleared of snow
     description_sv: Planen är plogad
     property_id: ice_skating_field_condition
-    quality: satisfactory
+    quality: good
 - model: observations.AllowedValue
   fields:
     identifier: frozen
