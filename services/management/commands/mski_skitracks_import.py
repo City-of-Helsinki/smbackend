@@ -398,13 +398,19 @@ class Command(BaseCommand):
                 multilinestring = GEOSGeometry(feat.geom.wkt)
             else:
                 multilinestring = MultiLineString(GEOSGeometry(feat.geom.wkt))
-            converted_multilinestring_coords = []
-            for line in multilinestring:
-                converted_multilinestring_coords.append(
-                    LineString(tuple((espoo_coordinates_to_gk25(point[0], point[1]) for point in line))))
+            if lyr.srs is not None and lyr.srs['PROJCS'] == 'ETRS89_TM35FIN_E_N':
+                # support layers with the correct srs
+                converted_multilinestring = multilinestring
+            else:
+                # else assume the coordinates are in Espoo coordinates
+                converted_multilinestring_coords = []
+                for line in multilinestring:
+                    converted_multilinestring_coords.append(
+                        LineString(tuple((espoo_coordinates_to_gk25(point[0], point[1]) for point in line))))
 
-            converted_multilinestring = (
-                MultiLineString((converted_multilinestring_coords), srid=3879))
+                converted_multilinestring = (
+                    MultiLineString((converted_multilinestring_coords), srid=3879))
+
             length = feat.get('PITUUS')
             if len(length) == 0:
                 length = None
