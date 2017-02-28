@@ -336,6 +336,8 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                 data = {'id': s.id, 'name': name, 'root': s.get_root().id}
                 if s.identical_to:
                     data['identical_to'] = getattr(s.identical_to, 'id', None)
+                if s.level is not None:
+                    data['level'] = s.level
                 services_json.append(data)
             ret['services'] = services_json
         if 'accessibility_properties' in include_fields:
