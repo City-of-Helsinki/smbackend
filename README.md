@@ -24,16 +24,25 @@ mkvirtualenv -p /usr/bin/python3.4 smbackend
  
 3. Setup the PostGIS database.
 
-    ```
+Local setup:
+
+```
 sudo su postgres
 createuser -R -S -D -P smbackend
 createdb -O smbackend -T template0 -l fi_FI.UTF8 -E utf8 smbackend
 echo "CREATE EXTENSION postgis;" | psql smbackend
 ```
 
+Docker setup (modify as needed, starts the database on local port 8765):
+```
+docker run --name smbackend-psql -e POSTGRES_USER=smbackend -e POSTGRES_PASSWORD=smbackend -p 8765:5432 -d mdillon/postgis
+# you'll need the hstore extension enabled:
+echo "CREATE EXTENSION hstore;" | docker exec -i smbackend-psql psql -U smbackend
+```
+
 4. Modify `local_settings.py` to contain the local database info.
 
-   ```
+```
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -47,14 +56,20 @@ DATABASES = {
 
 5. Create database tables.
 
-    ```
+```
 ./manage.py syncdb
 ./manage.py migrate
 ```
 
+If these commands fail with: `django.core.exceptions.ImproperlyConfigured: GEOS is required and has not been detected.`,
+then install the GEOS library. On a Mac this can be achieved with HomeBrew:
+```
+brew install geos
+```
+
 6. Import geo data.
 
-    ```
+```
 ./manage.py geo_import finland --municipalities
 ./manage.py geo_import helsinki --divisions
 ```
@@ -99,4 +114,19 @@ HAYSTACK_CONNECTIONS = {
         'INDEX_NAME': 'servicemap-en',
     },
 }
+```
+
+
+Troubleshooting
+---------------
+
+The error:
+```
+OSError: dlopen(/usr/local/lib/libgdal.dylib, 6): Symbol not found: _GEOSArea
+```
+Can be fixed by adding this to local_settings.py:
+```python
+GDAL_LIBRARY_PATH = "/usr/local/lib/libgdal.dylib"
+import ctypes
+ctypes.CDLL(GDAL_LIBRARY_PATH)
 ```
