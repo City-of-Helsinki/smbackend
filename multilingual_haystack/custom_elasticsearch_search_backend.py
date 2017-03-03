@@ -89,6 +89,11 @@ class CustomEsSearchQuerySet(SearchQuerySet):
     """
     usage example:
     SearchQuerySet().filter(text='konsertti').decay({'gauss': {'end_time' : {'origin': '2014-05-07', 'scale' : '10d' }}}
+
+    another usage example via manage.py shell:
+    >>> from django.utils import translation
+    >>> translation.activate('fi')
+    >>> SearchQuerySet().filter(text='konsertti')
     """
 
     def decay(self, function_dict):
