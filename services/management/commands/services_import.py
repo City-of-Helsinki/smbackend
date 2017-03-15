@@ -440,10 +440,15 @@ class Command(BaseCommand):
                         self.logger.warning('%s: municipality to %s based on post code %s (was %s)' % (obj, muni_name, postcode, info.get('address_city_fi')))
                     muni_name = muni_name.lower()
             if muni_name:
-                muni = self.muni_by_name[muni_name]
-                municipality_id = muni.id
+                muni = self.muni_by_name.get(muni_name)
+                if muni:
+                    municipality_id = muni.id
+                else:
+                    if self.verbosity:
+                        self.logger.warning('%s: municipality %s not found from current Municipalities' % (obj, muni_name))
 
-        self._set_field(obj, 'municipality_id', municipality_id)
+        if municipality_id:
+            self._set_field(obj, 'municipality_id', municipality_id)
 
         if 'dept_id' in info:
             dept_id = info['dept_id']
