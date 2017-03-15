@@ -20,3 +20,4 @@ pip-tools
 python-dateutil
 pytest-django
 django-polymorphic
+requests-mock

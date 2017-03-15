@@ -218,6 +218,7 @@ class UnitConnection(models.Model):
     phone = models.CharField(max_length=50, null=True)
     phone_mobile = models.CharField(max_length=50, null=True)
 
+
 @python_2_unicode_compatible
 class UnitAlias(models.Model):
     first = models.ForeignKey(Unit, related_name='aliases')
