@@ -6,4 +6,8 @@ data/
 .idea
 venv_smbackend
 .env
+.DS_Store
+.cache
 Procfile
+smbackend/test/fixtures/munigeo.json
+smbackend/test/tpr_mock_data/*.json

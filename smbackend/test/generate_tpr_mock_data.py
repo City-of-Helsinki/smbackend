@@ -6,7 +6,7 @@ TPR_MOCK_DIR = os.path.join(os.path.dirname(__file__), 'tpr_mock_data')
 
 if __name__ == '__main__':
     print("Generating mock data for the TPR tests")
-    endpoints = ['connection', 'unit', 'organization', 'service', 'accessibility_property']
+    endpoints = ['connection', 'unit', 'organization', 'service', 'accessibility_property', 'department']
     for endpoint in endpoints:
         response = requests.get('%s%s/' % (TPR_URL, endpoint))
         with open(os.path.join(TPR_MOCK_DIR, '%s.json' % endpoint), 'wt') as fh:
