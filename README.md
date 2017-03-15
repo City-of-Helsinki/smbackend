@@ -14,7 +14,7 @@ You might need to start a new shell for the virtualenvwrapper commands to activa
 
 1. Make a Python virtual environment.
 
-    ```
+```
 mkvirtualenv -p /usr/bin/python3.4 smbackend
 ```
 
@@ -28,9 +28,14 @@ Local setup:
 
 ```
 sudo su postgres
+
 createuser -R -S -D -P smbackend
-createdb -O smbackend -T template0 -l fi_FI.UTF8 -E utf8 smbackend
+
+createdb -O smbackend -T template0 -l fi_FI.UTF-8 -E utf8 smbackend
+
 echo "CREATE EXTENSION postgis;" | psql smbackend
+
+echo "CREATE EXTENSION hstore;" | psql smbackend
 ```
 
 Docker setup (modify as needed, starts the database on local port 8765):
