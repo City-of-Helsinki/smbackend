@@ -4,6 +4,7 @@ import sys
 import re
 import os
 import json
+from collections import defaultdict
 import csv
 from datetime import datetime
 from optparse import make_option
@@ -586,12 +587,13 @@ class Command(BaseCommand):
             if self.verbosity:
                 self.logger.info("%s connection set changed (%s vs. %s)" % (obj, obj.connection_hash, conn_hash))
             obj.connections.all().delete()
-            for conn in info['connections']:
+            for i, conn in enumerate(info['connections']):
                 c = UnitConnection(unit=obj)
                 self._save_translated_field(c, 'name', conn, 'name', max_length=400)
                 self._save_translated_field(c, 'www_url', conn, 'www')
                 c.section = conn['section_type'].lower()
                 c.type = int(conn['connection_type'])
+                c.order = i
                 fields = ['contact_person', 'email', 'phone', 'phone_mobile']
                 for field in fields:
                     val = conn.get(field, None)
@@ -710,22 +712,18 @@ class Command(BaseCommand):
         if self.verbosity:
             self.logger.info("Fetching unit connections")
         connections = self.pk_get('connection')
-        conn_by_unit = {}
+        conn_by_unit = defaultdict(list)
         for conn in connections:
             unit_id = conn['unit_id']
-            if unit_id not in conn_by_unit:
-                conn_by_unit[unit_id] = []
             conn_by_unit[unit_id].append(conn)
 
         self.accessibility_variables = {x.id: x for x in AccessibilityVariable.objects.all()}
         if self.verbosity:
             self.logger.info("Fetching accessibility properties")
         acc_properties = self.pk_get('accessibility_property')
-        acc_by_unit = {}
+        acc_by_unit = defaultdict(list)
         for ap in acc_properties:
             unit_id = ap['unit_id']
-            if unit_id not in acc_by_unit:
-                acc_by_unit[unit_id] = []
             acc_by_unit[unit_id].append(ap)
 
         self.target_srid = PROJECTION_SRID

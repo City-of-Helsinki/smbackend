@@ -217,6 +217,11 @@ class UnitConnection(models.Model):
     email = models.EmailField(max_length=100, null=True)
     phone = models.CharField(max_length=50, null=True)
     phone_mobile = models.CharField(max_length=50, null=True)
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
 
 
 @python_2_unicode_compatible
