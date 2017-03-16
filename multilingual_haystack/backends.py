@@ -42,7 +42,7 @@ class MultilingualSearchEngine(BaseEngine):
         active_language = translation.get_language()
         if not active_language:
             raise ValueError('Please set an active language before doing searches '
-                             '(e.g. django.utils.translation.set_active("fi"))')
+                             '(e.g. django.utils.translation.activate("fi"))')
         language = active_language[:2]
         using = '%s-%s' % (self.using, language)
         return connections[using].get_query()
