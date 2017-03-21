@@ -1,5 +1,6 @@
 import json
 import re
+import logging
 
 from django.conf import settings
 from django.utils import translation
@@ -51,6 +52,8 @@ def register_view(klass, name, base_name=None):
 
 
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
+
+logger =  logging.getLogger(__name__)
 
 class MPTTModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
@@ -619,6 +622,7 @@ class SearchSerializer(serializers.Serializer):
 
 KML_REGEXP = re.compile(settings.KML_REGEXP)
 
+
 class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics.ListAPIView):
     serializer_class = SearchSerializer
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
@@ -641,7 +645,10 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 setattr(self, key, {})
                 fields = [x.strip().split('.') for x in specs[key].split(',') if x]
                 for f in fields:
-                    getattr(self, key).setdefault(f[0], []).append(f[1])
+                    try:
+                        getattr(self, key).setdefault(f[0], []).append(f[1])
+                    except IndexError:
+                        logger.warning("Field '%s' given in unsupported non-dot-format: '%s'" % (key, specs[key]))
             else:
                 setattr(self, key, None)
 
