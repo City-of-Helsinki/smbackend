@@ -33,11 +33,7 @@ class ObservableProperty(models.Model):
     def create_observation(self, **validated_data):
         return self.get_observation_model().objects.create(**validated_data)
     def get_internal_value(self, value):
-        if self.observation_type == 'observations.CategoricalObservation':
-            return self.allowed_values.get(identifier=value)
-        return value
-    def get_external_value(self, value):
-        return getattr(value, 'identifier')
+        return self.get_observation_model().get_internal_value(self, value)
 
 class AllowedValue(models.Model):
     # Currently only works for categorical observations
@@ -76,22 +72,26 @@ class Observation(PolymorphicModel):
         ObservableProperty,
         blank=False, null=False,
         help_text='The property observed')
-    @staticmethod
-    def get_internal_value(value):
-        if self.property.allowed_values.count() == 0:
-            return value
-        return self.property.allowed_values.get(identifier=value)
     class Meta:
         ordering = ['-time']
 
 class CategoricalObservation(Observation):
     value = models.ForeignKey(
-        AllowedValue, blank=False, null=False,
+        AllowedValue, blank=False, null=True,
         db_column='id',
         related_name='instances')
+
+    def get_external_value(self):
+        return self.value.identifier
+
     @staticmethod
     def get_type():
         return 'categorical'
+    @staticmethod
+    def get_internal_value(oproperty, value):
+        if value is None:
+            return None
+        return oproperty.allowed_values.get(identifier=value)
 
 class ContinuousObservation(Observation):
     value = models.FloatField()
@@ -106,6 +106,9 @@ class DescriptiveObservation(Observation):
     @staticmethod
     def get_type():
         return 'descriptive'
+    @staticmethod
+    def get_internal_value(oproperty, value):
+        return value
 
 class UnitLatestObservation(models.Model):
     unit = models.ForeignKey(

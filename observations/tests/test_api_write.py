@@ -30,11 +30,11 @@ def test__create_observation(api_client, observable_property, unit, user):
     for prop in observable_properties:
         otype = prop['id']
         allowed_values = [
-            v['identifier'] for v in prop['allowed_values']]
+            v['identifier'] for v in prop['allowed_values']] + [None]
         for raw_data in observation_raw_data(otype, unit, allowed_values=allowed_values):
             url = reverse('observation-list')
             current_time = timezone.now()
-            response = api_client.post(url, raw_data)
+            response = api_client.post(url, raw_data, format='json')
 
             assert response.status_code == 201
             count += 1
@@ -65,6 +65,9 @@ def test__create_descriptive_observation(api_client, descriptive_property, unit,
     for prop in observable_properties:
         url = reverse('observation-list')
         current_time = timezone.now()
+
+        # Test default language
+
         raw_data = dict(
             unit=unit.pk,
             value='test string',
@@ -83,6 +86,8 @@ def test__create_descriptive_observation(api_client, descriptive_property, unit,
         assert data['unit'] == raw_data['unit']
 
         current_time = timezone.now()
+
+        # Test all + 1 languages
         raw_data = dict(
             unit=unit.pk,
             value={
@@ -103,5 +108,7 @@ def test__create_descriptive_observation(api_client, descriptive_property, unit,
         assert data['value'] == raw_data['value']
         assert data['property'] == raw_data['property']
         assert data['unit'] == raw_data['unit']
+
+
     assert Observation.objects.count() == count
 

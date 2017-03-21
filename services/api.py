@@ -59,7 +59,7 @@ class MPTTModelSerializer(serializers.ModelSerializer):
             if field_name in self.fields:
                 del self.fields[field_name]
 
-class TranslatedModelSerializer(serializers.ModelSerializer):
+class TranslatedModelSerializer(object):
     def __init__(self, *args, **kwargs):
         super(TranslatedModelSerializer, self).__init__(*args, **kwargs)
         model = self.Meta.model
@@ -77,6 +77,25 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
                 if key in self.fields:
                     del self.fields[key]
 
+    def to_internal_value(self, data):
+        data = super(TranslatedModelSerializer, self).to_internal_value(data)
+        for field_name in self.translated_fields:
+            if not field_name in self.fields:
+                continue
+
+            value = data[field_name]
+            if value is None:
+                continue
+
+            del data[field_name]
+            for lang in LANGUAGES:
+                val = value.get(lang, None)
+                if val == None:
+                    continue
+                key = "%s_%s" % (field_name, lang)
+                data[key] = val
+        return data
+
     def to_representation(self, obj):
         ret = super(TranslatedModelSerializer, self).to_representation(obj)
         if obj is None:
@@ -85,6 +104,7 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
         for field_name in self.translated_fields:
             if not field_name in self.fields:
                 continue
+
             d = {}
             for lang in LANGUAGES:
                 key = "%s_%s" % (field_name, lang)  
@@ -100,11 +120,10 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
             else:
                 d = None
             ret[field_name] = d
-
         return ret
 
 
-class OrganizationSerializer(TranslatedModelSerializer):
+class OrganizationSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = Organization
 
@@ -115,7 +134,7 @@ class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
 register_view(OrganizationViewSet, 'organization')
 
 
-class DepartmentSerializer(TranslatedModelSerializer):
+class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = Department
 
@@ -218,7 +237,7 @@ class JSONAPIViewSetMixin:
 class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
     pass
 
-class UnitConnectionSerializer(TranslatedModelSerializer):
+class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = UnitConnection
 
