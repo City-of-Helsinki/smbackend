@@ -50,11 +50,11 @@ class DescriptiveObservationSerializer(BaseObservationSerializer):
     def to_internal_value(self, data):
         result = super(DescriptiveObservationSerializer, self).to_internal_value(data)
         val = result['value']
+        if val is None:
+            return result
         default_language = settings.LANGUAGES[0][0]
         if type(val) == str:
             val = {default_language: val}
-        if val is None:
-            val = {default_language: None}
         serializer = AllowedValueSerializer(
             data={'description': val, 'property_id': result['property_id']})
         serializer.is_valid(raise_exception=True)

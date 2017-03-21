@@ -119,9 +119,7 @@ class TranslatedModelSerializer(object):
             del data[field_name]  # delete original translated fields
 
         # handle other than translated fields
-        print(extra_fields, 'fi', data)
         data = super().to_internal_value(data)
-        print(data)
 
         # add translated fields to the final result
         data.update(extra_fields)
