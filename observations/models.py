@@ -101,8 +101,8 @@ class ContinuousObservation(Observation):
 
 class DescriptiveObservation(Observation):
     value = models.TextField()
-    def allowed_values(self):
-        return self.property.allowed_values.all()
+    def get_external_value(self):
+        return self.value
     @staticmethod
     def get_type():
         return 'descriptive'
