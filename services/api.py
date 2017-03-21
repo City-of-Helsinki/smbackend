@@ -12,6 +12,7 @@ from modeltranslation.translator import translator, NotRegistered
 from rest_framework import serializers, viewsets, generics
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
+from django.core.exceptions import ValidationError
 from rest_framework.views import APIView
 
 from haystack.query import SearchQuerySet, SQ
@@ -78,22 +79,53 @@ class TranslatedModelSerializer(object):
                     del self.fields[key]
 
     def to_internal_value(self, data):
-        data = super(TranslatedModelSerializer, self).to_internal_value(data)
+        """
+        Convert complex translated json objects to flat format.
+        E.g. json structure containing `name` key like this:
+        {
+            "name": {
+                "fi": "musiikkiklubit",
+                "sv": "musikklubbar",
+                "en": "music clubs"
+            },
+            ...
+        }
+        Transforms this:
+        {
+            "name": "musiikkiklubit",
+            "name_fi": "musiikkiklubit",
+            "name_sv": "musikklubbar",
+            "name_en": "music clubs"
+            ...
+        }
+        :param data:
+        :return:
+        """
+
+        extra_fields = {}  # will contain the transformation result
         for field_name in self.translated_fields:
-            if not field_name in self.fields:
+            obj = data.get(field_name, None)  # { "fi": "musiikkiklubit", "sv": ... }
+            if not obj:
                 continue
+            if not isinstance(obj, dict):
+                raise ValidationError({field_name: 'This field is a translated field. Instead of a string,'
+                                                   ' you must supply an object with strings corresponding'
+                                                   ' to desired language ids.'})
+            for language in (lang[0] for lang in settings.LANGUAGES if lang[0] in obj):
+                value = obj[language]  # "musiikkiklubit"
+                if language == settings.LANGUAGES[0][0]:  # default language
+                    extra_fields[field_name] = value  # { "name": "musiikkiklubit" }
+                extra_fields['{}_{}'.format(field_name, language)] = value  # { "name_fi": "musiikkiklubit" }
+            del data[field_name]  # delete original translated fields
 
-            value = data[field_name]
-            if value is None:
-                continue
+        # handle other than translated fields
+        print(extra_fields, 'fi', data)
+        data = super().to_internal_value(data)
+        print(data)
 
-            del data[field_name]
-            for lang in LANGUAGES:
-                val = value.get(lang, None)
-                if val == None:
-                    continue
-                key = "%s_%s" % (field_name, lang)
-                data[key] = val
+        # add translated fields to the final result
+        data.update(extra_fields)
+
         return data
 
     def to_representation(self, obj):

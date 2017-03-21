@@ -1,14 +1,20 @@
+from collections import OrderedDict
 from rest_framework import serializers
 from django.utils import timezone
 from django.db import transaction
+from django.conf import settings
+from rest_framework.exceptions import ValidationError
 
 from services.api import TranslatedModelSerializer
 from . import models
 
-class AllowedValueSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+class AllowedValueSerializer(TranslatedModelSerializer, serializers.Serializer):
+    identifier = serializers.CharField(required=False)
+    quality = serializers.CharField(required=False)
+    name = serializers.CharField(required=False)
+    description = serializers.CharField(required=False, allow_null=True)
     class Meta:
         model = models.AllowedValue
-        exclude = ('id', 'property')
 
 class ObservablePropertySerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     allowed_values = AllowedValueSerializer(many=True, read_only=True)
@@ -19,7 +25,8 @@ class ObservablePropertySerializer(TranslatedModelSerializer, serializers.ModelS
         data['observation_type'] = obj.get_observation_type()
         return data
 
-class BaseObservationSerializer(serializers.ModelSerializer):
+
+class BaseObservationSerializer(serializers.BaseSerializer):
     def to_representation(self, obj):
         return dict(
             unit=int(obj.unit_id),
@@ -37,9 +44,28 @@ class BaseObservationSerializer(serializers.ModelSerializer):
             add_maintenance_observation=data.get('serviced', False))
 
 
-class DescriptiveObservationSerializer(TranslatedModelSerializer, BaseObservationSerializer):
+class DescriptiveObservationSerializer(BaseObservationSerializer):
     def __init__(self, *args, **kwargs):
         super(DescriptiveObservationSerializer, self).__init__(*args, **kwargs)
+    def to_internal_value(self, data):
+        result = super(DescriptiveObservationSerializer, self).to_internal_value(data)
+        val = result['value']
+        default_language = settings.LANGUAGES[0][0]
+        if type(val) == str:
+            val = {default_language: val}
+        if val is None:
+            val = {default_language: None}
+        serializer = AllowedValueSerializer(
+            data={'description': val, 'property_id': result['property_id']})
+        serializer.is_valid(raise_exception=True)
+        result['value'] = serializer.validated_data
+        return result
+    def to_representation(self, obj):
+        result = super(DescriptiveObservationSerializer, self).to_representation(obj)
+        val = obj.get_external_value()
+        serialized_allowed_value = AllowedValueSerializer(val, read_only=True).data
+        result.update({'value': serialized_allowed_value['description']})
+        return result
     class Meta:
         model = models.DescriptiveObservation
 

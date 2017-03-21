@@ -11,33 +11,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='categoricalobservation',
-            name='value',
-        ),
-        migrations.RemoveField(
-            model_name='continuousobservation',
-            name='value',
-        ),
-        migrations.RemoveField(
-            model_name='descriptiveobservation',
-            name='value',
-        ),
-        migrations.RemoveField(
-            model_name='descriptiveobservation',
-            name='value_en',
-        ),
-        migrations.RemoveField(
-            model_name='descriptiveobservation',
-            name='value_fi',
-        ),
-        migrations.RemoveField(
-            model_name='descriptiveobservation',
-            name='value_sv',
-        ),
         migrations.AddField(
             model_name='observation',
-            name='value',
+            name='new_value',
             field=models.ForeignKey(related_name='instances', to='observations.AllowedValue', null=True),
         ),
         migrations.AlterField(
