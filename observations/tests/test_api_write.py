@@ -69,13 +69,36 @@ def test__create_descriptive_observation(api_client, descriptive_property, unit,
             unit=unit.pk,
             value='test string',
             property=prop['id'])
-        response = api_client.post(url, raw_data)
+        response = api_client.post(url, raw_data, format='json')
         assert response.status_code == 201
         count +=1
         data = response.data
         observation_time = datetime.strptime(
             data['time'],
             "%Y-%m-%dT%H:%M:%S.%f%z")
+
+        assert observation_time - current_time < timedelta(seconds=1)
+        assert data['value']['fi'] == raw_data['value']
+        assert data['property'] == raw_data['property']
+        assert data['unit'] == raw_data['unit']
+
+        current_time = timezone.now()
+        raw_data = dict(
+            unit=unit.pk,
+            value={
+                'fi': 'test string',
+                'en': 'test string 2',
+                'sv': 'test string 3'
+            },
+            property=prop['id'])
+        response = api_client.post(url, raw_data, format='json')
+        assert response.status_code == 201
+        count +=1
+        data = response.data
+        observation_time = datetime.strptime(
+            data['time'],
+            "%Y-%m-%dT%H:%M:%S.%f%z")
+
         assert observation_time - current_time < timedelta(seconds=1)
         assert data['value'] == raw_data['value']
         assert data['property'] == raw_data['property']
