@@ -38,12 +38,12 @@ class ObservableProperty(models.Model):
 class AllowedValue(models.Model):
     # Currently only works for categorical observations
     identifier = models.CharField(
-        max_length=50, null=False, blank=False, db_index=True)
+        max_length=50, null=True, blank=False, db_index=True)
     quality = models.CharField(
-        max_length=50, null=False, blank=False, db_index=True,
+        max_length=50, null=True, blank=False, db_index=True,
         default='unknown')
     name = models.CharField(
-        max_length=100, null=False,
+        max_length=100, null=True,
         blank=False, db_index=True)
     description = models.TextField(null=False, blank=False)
     property = models.ForeignKey(
@@ -58,6 +58,9 @@ class Observation(PolymorphicModel):
     """An observation is a measured/observed value of
     a property of a unit at a certain time.
     """
+    value = models.ForeignKey(
+        AllowedValue, blank=False, null=True,
+        related_name='instances')
     time = models.DateTimeField(
         db_index=True,
         help_text='Exact time the observation was made')
@@ -76,11 +79,6 @@ class Observation(PolymorphicModel):
         ordering = ['-time']
 
 class CategoricalObservation(Observation):
-    value = models.ForeignKey(
-        AllowedValue, blank=False, null=True,
-        db_column='id',
-        related_name='instances')
-
     def get_external_value(self):
         return self.value.identifier
 
@@ -94,13 +92,11 @@ class CategoricalObservation(Observation):
         return oproperty.allowed_values.get(identifier=value)
 
 class ContinuousObservation(Observation):
-    value = models.FloatField()
     @staticmethod
     def get_type():
         return 'continuous'
 
 class DescriptiveObservation(Observation):
-    value = models.TextField()
     def get_external_value(self):
         return self.value
     @staticmethod
@@ -108,7 +104,7 @@ class DescriptiveObservation(Observation):
         return 'descriptive'
     @staticmethod
     def get_internal_value(oproperty, value):
-        return value
+        return AllowedValue.objects.create(property=oproperty, **value)
 
 class UnitLatestObservation(models.Model):
     unit = models.ForeignKey(
