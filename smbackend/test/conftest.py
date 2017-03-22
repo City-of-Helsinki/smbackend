@@ -70,4 +70,6 @@ def db_content():
     u.services.add(s)
     uc = UnitConnection(unit=u, name='John Doe', phone='040 123 1234', type=999)
     uc.save()
+    call_command('update_index', interactive=False, verbosity=0)
     return {'service': s, 'unit': u}
+

@@ -10,8 +10,6 @@ from .conftest import TEST_INDEX
 
 @pytest.mark.django_db
 def test_search(haystack_test, db_content):
-    call_command('update_index', interactive=False, verbosity=0)
-
     django.utils.translation.activate('fi')
 
     # Check that we find all we need via search
@@ -25,7 +23,6 @@ def test_search(haystack_test, db_content):
 
 @pytest.mark.django_db
 def test_search_filters(haystack_test, db_content):
-    call_command('update_index', interactive=False, verbosity=0)
     c = Client()
     resp = c.get('/v1/search/', {'q': 'kirjasto'})
     assert resp.status_code == 200
