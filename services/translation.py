@@ -22,10 +22,10 @@ class UnitConnectionTranslationOptions(TranslationOptions):
 translator.register(UnitConnection, UnitConnectionTranslationOptions)
 
 
-class ServiceNodeTranslationOptions(TranslationOptions):
+class ServiceTreeNodeTranslationOptions(TranslationOptions):
     fields = ('name',)
-translator.register(ServiceNode, ServiceNodeTranslationOptions)
+translator.register(ServiceTreeNode, ServiceTreeNodeTranslationOptions)
 
-class ServiceLeafTranslationOptions(TranslationOptions):
+class ServiceTypeTranslationOptions(TranslationOptions):
     fields = ('name',)
-translator.register(ServiceLeaf, ServiceLeafTranslationOptions)
+translator.register(ServiceType, ServiceTypeTranslationOptions)

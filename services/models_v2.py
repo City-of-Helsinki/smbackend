@@ -25,9 +25,7 @@ import sys
 from .models import *
 
 
-# TODO: When we get rid of the old model, this can be renamed as Service.
-# This is named ServiceNode just so it won't conflict with Service.
-class ServiceNode(MPTTModel):
+class ServiceTreeNode(MPTTModel):
     id = models.IntegerField(primary_key=True) # id of ontologytree
     name = models.CharField(max_length=200, db_index=True)
     parent = TreeForeignKey('self', null=True, related_name='children')
@@ -36,15 +34,14 @@ class ServiceNode(MPTTModel):
 
     last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
-    leaves = models.ManyToManyField("ServiceLeaf")
-
     objects = ServiceManager()
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
 
-class ServiceLeaf(models.Model):
+# TODO: When we get rid of the old model, this can be renamed as Service.
+class ServiceType(models.Model):
     id = models.IntegerField(primary_key=True) # id of ontologyword
     name = models.CharField(max_length=200, db_index=True)
 

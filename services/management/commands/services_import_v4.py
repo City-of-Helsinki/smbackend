@@ -103,21 +103,56 @@ class Command(BaseCommand):
         setattr(obj, field_name, val)
         obj._changed = True
 
+    def _save_searchwords(self, obj, info, language):
+        field_name = 'extra_searchwords_%s' % language
+        if not field_name in info:
+            new_kw_set = set()
+        else:
+            kws = [x.strip() for x in info[field_name].split(',')]
+            kws = [x for x in kws if x]
+            new_kw_set = set()
+            for kw in kws:
+                if not kw in self.keywords[language]:
+                    kw_obj = Keyword(name=kw, language=language)
+                    kw_obj.save()
+                    self.keywords[language][kw] = kw_obj
+                    self.keywords_by_id[kw_obj.pk] = kw_obj
+                else:
+                    kw_obj = self.keywords[language][kw]
+                new_kw_set.add(kw_obj.pk)
+
+        obj.new_keywords |= new_kw_set
+
+    def _sync_searchwords(self, obj, info):
+        obj.new_keywords = set()
+        for lang in self.supported_languages:
+            self._save_searchwords(obj, info, lang)
+
+        old_kw_set = set(obj.keywords.all().values_list('pk', flat=True))
+        if old_kw_set == obj.new_keywords:
+            return
+
+        if self.verbosity:
+            old_kw_str = ', '.join([self.keywords_by_id[x].name for x in old_kw_set])
+            new_kw_str = ', '.join([self.keywords_by_id[x].name for x in obj.new_keywords])
+            print("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
+        obj.keywords = list(obj.new_keywords)
+        obj._changed = True
+
     @db.transaction.atomic
     def import_services(self):
         ontologytrees = self.pk_get('ontologytree')
         ontologywords = self.pk_get('ontologyword')
-        tree = self._build_servicetree(ontologytrees, ontologywords)
         #print('top lever ' + str(len(tree)))
         #print(str(tree[0]))
-        nodesyncher = ModelSyncher(ServiceNode.objects.all(), lambda obj: obj.id)
-        leafsyncher = ModelSyncher(ServiceLeaf.objects.all(), lambda obj: obj.id)
+        nodesyncher = ModelSyncher(ServiceTreeNode.objects.all(), lambda obj: obj.id)
+        servicesyncher = ModelSyncher(ServiceType.objects.all(), lambda obj: obj.id)
 
 
         def handle_servicenode(d):
             obj = nodesyncher.get(d['id'])
             if not obj:
-                obj = ServiceNode(id=d['id'])
+                obj = ServiceTreeNode(id=d['id'])
                 obj._changed = True
             self._save_translated_field(obj, 'name', d, 'name')
 
@@ -130,7 +165,7 @@ class Command(BaseCommand):
                 obj.parent = parent
                 obj._changed = True
 
-            #self._sync_searchwords(obj, d)
+            self._sync_searchwords(obj, d)
 
             if obj._changed:
                 #obj.unit_count = obj.get_unit_count()
@@ -142,23 +177,16 @@ class Command(BaseCommand):
             for child_node in d['children']:
                 handle_servicenode(child_node)
 
-            leaf_objs = []
-            for leaf_node in d.get('leaves', []):
-                leaf_obj = handle_serviceleaf(leaf_node)
-                leaf_objs.append(leaf_obj)
-            if set(obj.leaves.all().values_list('id', flat=True)) != set([l.id for l in leaf_objs]):
-                obj.leaves.clear()
-                for l in leaf_objs:
-                    obj.leaves.add(l)
 
-
-        def handle_serviceleaf(d):
-            obj = leafsyncher.get(d['id'])
+        def handle_servicetype(d):
+            obj = servicesyncher.get(d['id'])
             if not obj:
-                obj = ServiceLeaf(id=d['id'])
+                obj = ServiceType(id=d['id'])
                 obj._changed = True
 
             self._save_translated_field(obj, 'name', d, 'ontologyword')
+
+            self._sync_searchwords(obj, d)
 
             if obj._changed:
                 #obj.unit_count = obj.get_unit_count()
@@ -169,35 +197,30 @@ class Command(BaseCommand):
             return obj
 
 
+        tree = self._build_servicetree(ontologytrees)
         for d in tree:
             handle_servicenode(d)
 
         nodesyncher.finish()
 
-    def _build_servicetree(self, ontologytrees, ontologywords):
-        ontologywords_dict = {ow['id']: ow for ow in ontologywords}
+        for d in ontologywords:
+            handle_servicetype(d)
+
+        servicesyncher.finish()
+
+    def _build_servicetree(self, ontologytrees):
         tree = [ot for ot in ontologytrees if not ot.get('parent_id')]
         for parent_ot in tree:
-            self._add_ot_children(parent_ot, ontologytrees, ontologywords_dict)
-
-            if parent_ot.get('ontologyword_reference'):
-                parent_ot['leaves'] = []
-                for ow_id in parent_ot.get('ontologyword_reference').replace('*', '+').split('+'):
-                    parent_ot['leaves'].append(ontologywords_dict.get(int(ow_id)))
+            self._add_ot_children(parent_ot, ontologytrees)
 
         return tree
 
-    def _add_ot_children(self, parent_ot, ontologytrees, ontologywords_dict):
+    def _add_ot_children(self, parent_ot, ontologytrees):
         parent_ot['children'] = [ot for ot in ontologytrees if
                                  ot.get('parent_id') == parent_ot['id']]
 
         for child_ot in parent_ot['children']:
-            self._add_ot_children(child_ot, ontologytrees, ontologywords_dict)
-
-        if parent_ot.get('ontologyword_reference'):
-            parent_ot['leaves'] = []
-            for ow_id in parent_ot.get('ontologyword_reference').replace('*', '+').split('+'):
-                parent_ot['leaves'].append(ontologywords_dict.get(int(ow_id)))
+            self._add_ot_children(child_ot, ontologytrees)
 
 
     def handle(self, **options):
