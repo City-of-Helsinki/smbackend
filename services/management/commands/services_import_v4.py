@@ -541,8 +541,7 @@ class Command(BaseCommand):
     def import_services(self):
         ontologytrees = self.pk_get('ontologytree')
         ontologywords = self.pk_get('ontologyword')
-        #print('top lever ' + str(len(tree)))
-        #print(str(tree[0]))
+
         nodesyncher = ModelSyncher(ServiceTreeNode.objects.all(), lambda obj: obj.id)
         servicesyncher = ModelSyncher(ServiceType.objects.all(), lambda obj: obj.id)
 
@@ -561,6 +560,9 @@ class Command(BaseCommand):
                 parent = None
             if obj.parent != parent:
                 obj.parent = parent
+                obj._changed = True
+            if obj.ontologyword_reference != d.get('ontologyword_reference', None):
+                obj.ontologyword_reference = d.get('ontologyword_reference')
                 obj._changed = True
 
             self._sync_searchwords(obj, d)
@@ -591,6 +593,7 @@ class Command(BaseCommand):
                 obj.last_modified_time = datetime.now(UTC_TIMEZONE)
                 obj.save()
                 self.services_changed = True
+            servicesyncher.mark(obj)
 
             return obj
 

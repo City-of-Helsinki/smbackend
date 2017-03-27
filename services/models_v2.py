@@ -32,6 +32,8 @@ class ServiceTreeNode(MPTTModel):
     unit_count = models.PositiveIntegerField(null=True)
     keywords = models.ManyToManyField(Keyword)
 
+    ontologyword_reference = models.TextField(null=True)
+
     last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
     objects = ServiceManager()
