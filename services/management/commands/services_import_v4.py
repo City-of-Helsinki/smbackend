@@ -50,7 +50,8 @@ class Command(BaseCommand):
             opt = make_option('--%s' % imp, dest=imp, action='store_true', help='import %s' % imp)
             self.option_list.append(opt)
         self.services = {}
-        self.existing_service_ids = None
+        self.existing_servicetype_ids = None
+        self.existing_servicenode_ids = None
 
 
     def clean_text(self, text):
@@ -149,6 +150,8 @@ class Command(BaseCommand):
             obj._created = True
         else:
             obj._created = False
+
+        #print('handling unit {} ({})'.format(info['name_fi'], info['id']))
 
         self._save_translated_field(obj, 'name', info, 'name')
         self._save_translated_field(obj, 'description', info, 'desc')
@@ -275,8 +278,6 @@ class Command(BaseCommand):
             obj._changed = True
             obj.geometry = obj.location
 
-        service_set = set((s for s in info.get('service_ids', [])))
-
         if obj._changed:
             if obj._created:
                 verb = "created"
@@ -290,22 +291,39 @@ class Command(BaseCommand):
 
         update_fields = ['origin_last_modified_time']
 
-        service_ids = sorted([
-            sid for sid in info.get('service_ids', [])
-            if sid in self.existing_service_ids])
+        servicetype_ids = sorted([
+            sid for sid in info.get('ontologyword_ids', [])
+            if sid in self.existing_servicetype_ids])
 
-        obj_service_ids = sorted(obj.services.values_list('id', flat=True))
-        if obj_service_ids != service_ids:
+        obj_servicetype_ids = sorted(obj.service_types.values_list('id', flat=True))
+        if obj_servicetype_ids != servicetype_ids:
             if not obj._created and self.verbosity:
-                print("%s service set changed: %s -> %s" % (obj, obj_service_ids, service_ids))
-            obj.services = service_ids
+                print("%s service set changed: %s -> %s" % (obj, obj_servicetype_ids, servicetype_ids))
+            obj.service_types = servicetype_ids
 
-            for srv_id in service_ids:
+            for srv_id in servicetype_ids:
                 self.count_services.add(srv_id)
 
             # Update root service cache
-            obj.root_services = ','.join(str(x) for x in obj.get_root_services())
-            update_fields.append('root_services')
+            obj.root_servicenodes = ','.join(str(x) for x in obj.get_root_servicenodes())
+            obj._changed = True
+
+        servicenode_ids = sorted([
+            sid for sid in info.get('ontologytree_ids', [])
+            if sid in self.existing_servicenode_ids])
+
+        obj_servicenode_ids = sorted(obj.service_tree_nodes.values_list('id', flat=True))
+        if obj_servicenode_ids != servicenode_ids:
+            if not obj._created and self.verbosity:
+                print("%s service set changed: %s -> %s" % (obj, obj_servicenode_ids, servicenode_ids))
+            obj.service_tree_nodes = servicenode_ids
+
+            for srv_id in servicenode_ids:
+                self.count_services.add(srv_id)
+
+            # Update root service cache
+            obj.root_servicenodes = ','.join(str(x) for x in obj.get_root_servicenodes())
+            update_fields.append('root_servicenodes')
             obj._changed = True
 
         self._sync_searchwords(obj, info)
@@ -484,8 +502,10 @@ class Command(BaseCommand):
     def import_units(self):
         self._load_postcodes()
         self.muni_by_name = {muni.name_fi.lower(): muni for muni in Municipality.objects.all()}
-        if self.existing_service_ids == None or len(self.existing_service_ids) < 1:
-            self.existing_service_ids = set(Service.objects.values_list('id', flat=True))
+        if self.existing_servicenode_ids == None or len(self.existing_servicenode_ids) < 1:
+            self.existing_servicenode_ids = set(ServiceTreeNode.objects.values_list('id', flat=True))
+        if self.existing_servicetype_ids == None or len(self.existing_servicetype_ids) < 1:
+            self.existing_servicetype_ids = set(ServiceType.objects.values_list('id', flat=True))
 
         if not getattr(self, 'org_syncher', None):
             self.import_organizations(noop=True)
