@@ -120,7 +120,7 @@ class Command(BaseCommand):
         obj._changed = True
 
     @db.transaction.atomic
-    def import_organizations(self, noop=False):
+    def unizations(self, noop=False):
         obj_list = self.pk_get('organization')
         syncher = ModelSyncher(Organization.objects.all(), lambda obj: obj.id)
         self.org_syncher = syncher
