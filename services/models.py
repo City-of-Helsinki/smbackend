@@ -158,6 +158,9 @@ class Unit(models.Model):
     origin_last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
     services = models.ManyToManyField(Service, related_name='units')
+
+    service_tree_nodes = models.ManyToManyField("ServiceTreeNode", related_name='units')
+    service_types = models.ManyToManyField("ServiceType", related_name='units')
     divisions = models.ManyToManyField(AdministrativeDivision)
     keywords = models.ManyToManyField(Keyword)
 
@@ -170,6 +173,7 @@ class Unit(models.Model):
 
     # Cached fields for better performance
     root_services = models.CommaSeparatedIntegerField(max_length=50, null=True)
+    root_servicenodes = models.CommaSeparatedIntegerField(max_length=50, null=True)
 
     objects = models.GeoManager()
     search_objects = UnitSearchManager()
@@ -180,6 +184,12 @@ class Unit(models.Model):
     def get_root_services(self):
         tree_ids = self.services.all().values_list('tree_id', flat=True).distinct()
         qs = Service.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
+        srv_list = qs.values_list('id', flat=True).distinct()
+        return sorted(srv_list)
+
+    def get_root_servitreenodes(self):
+        tree_ids = self.service_tree_nodes.all().values_list('tree_id', flat=True).distinct()
+        qs = ServiceTreeNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         srv_list = qs.values_list('id', flat=True).distinct()
         return sorted(srv_list)
 
@@ -231,3 +241,5 @@ class UnitAlias(models.Model):
     # Not a foreign key, might need
     # to reference nonexistent models
     second = models.IntegerField(db_index=True, unique=True)
+
+from .models_v2 import *

@@ -20,3 +20,12 @@ translator.register(Unit, UnitTranslationOptions)
 class UnitConnectionTranslationOptions(TranslationOptions):
     fields = ('name', 'www_url')
 translator.register(UnitConnection, UnitConnectionTranslationOptions)
+
+
+class ServiceTreeNodeTranslationOptions(TranslationOptions):
+    fields = ('name',)
+translator.register(ServiceTreeNode, ServiceTreeNodeTranslationOptions)
+
+class ServiceTypeTranslationOptions(TranslationOptions):
+    fields = ('name',)
+translator.register(ServiceType, ServiceTypeTranslationOptions)
