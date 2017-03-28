@@ -43,7 +43,7 @@ TEST_INDEX = {
 }
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def haystack_test():
     """ Set up testing haystack. """
     settings.HAYSTACK_CONNECTIONS = TEST_INDEX
@@ -52,7 +52,7 @@ def haystack_test():
     call_command('clear_index', interactive=False, verbosity=0)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def db_content():
     """ Generate some content to test against """
     s = Service(id=1, name='Kirjasto', unit_count=0, last_modified_time=timezone.now())
