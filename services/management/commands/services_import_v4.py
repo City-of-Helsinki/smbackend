@@ -24,6 +24,8 @@ from django.utils.translation import activate, get_language
 
 from munigeo.models import Municipality
 from munigeo.importer.sync import ModelSyncher
+
+from services.management.commands.services_import.departments import import_departments
 from services.models import *
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
@@ -441,36 +443,7 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def import_departments(self, noop=False):
-        obj_list = self.pk_get('department')
-        syncher = ModelSyncher(Department.objects.all(), lambda obj: obj.id)
-        self.dept_syncher = syncher
-        if noop:
-            return
-
-        for d in obj_list:
-            obj = syncher.get(d['id'])
-            if not obj:
-                obj = Department(id=d['id'])
-                obj._changed = True
-            self._save_translated_field(obj, 'name', d, 'name')
-            if obj.abbr != d['abbr']:
-                obj._changed = True
-                obj.abbr = d['abbr']
-
-            if self.org_syncher:
-                org_obj = self.org_syncher.get(d['org_id'])
-            else:
-                org_obj = Organization.objects.get(id=d['org_id'])
-            assert org_obj
-            if obj.organization_id != d['org_id']:
-                obj._changed = True
-                obj.organization = org_obj
-
-            if obj._changed:
-                obj.save()
-            syncher.mark(obj)
-
-        syncher.finish()
+        import_departments(noop=noop, org_syncher=self.org_syncher)
 
     def _fetch_units(self):
         if hasattr(self, 'unit_list'):
