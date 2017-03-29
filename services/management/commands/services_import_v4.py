@@ -41,7 +41,7 @@ class Command(BaseCommand):
         make_option('--single', dest='single', action='store', metavar='ID', type='string', help='import only single entity'),
     ))
 
-    importer_types = ['services', 'units']
+    importer_types = ['services', 'units', 'departments']
     supported_languages = ['fi', 'sv', 'en']
 
     def __init__(self):
@@ -443,7 +443,7 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def import_departments(self, noop=False):
-        import_departments(noop=noop, org_syncher=self.org_syncher)
+        import_departments(logger=self.logger, noop=noop, org_syncher=self.org_syncher)
 
     def _fetch_units(self):
         if hasattr(self, 'unit_list'):
