@@ -3,9 +3,9 @@ from services.utils import get_translated
 
 
 class Department(models.Model):
-    id = models.UUIDField(primary_key=True)
+    uuid = models.UUIDField(db_index=True, editable=False)
     business_id = models.CharField(max_length=10)  # take into consideration intl. ids
-    hierarchy_level = models.SmallIntegerField()
+    hierarchy_level = models.SmallIntegerField(null=True)
     name = models.CharField(max_length=200, db_index=True)
     object_identifier = models.CharField(max_length=20)
 

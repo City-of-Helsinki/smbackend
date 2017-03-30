@@ -38,12 +38,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='unitlatestobservation',
             name='unit',
-            field=models.ForeignKey(to='services.Unit', related_name='latest_observations'),
+            field=models.ForeignKey(related_name='latest_observations', to='services.Unit'),
         ),
         migrations.AddField(
             model_name='pluralityauthtoken',
             name='user',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, related_name='auth_tokens'),
+            field=models.ForeignKey(related_name='auth_tokens', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
             model_name='observation',
@@ -53,17 +53,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='observation',
             name='polymorphic_ctype',
-            field=models.ForeignKey(null=True, to='contenttypes.ContentType', related_name='polymorphic_observations.observation_set+', editable=False),
+            field=models.ForeignKey(to='contenttypes.ContentType', related_name='polymorphic_observations.observation_set+', null=True, editable=False),
         ),
         migrations.AddField(
             model_name='observation',
             name='property',
-            field=models.ForeignKey(help_text='The property observed', to='observations.ObservableProperty'),
+            field=models.ForeignKey(to='observations.ObservableProperty', help_text='The property observed'),
         ),
         migrations.AddField(
             model_name='observation',
             name='unit',
-            field=models.ForeignKey(help_text='The unit the observation is about', to='services.Unit', related_name='observation_history'),
+            field=models.ForeignKey(to='services.Unit', help_text='The unit the observation is about', related_name='observation_history'),
         ),
         migrations.AddField(
             model_name='observation',
@@ -73,12 +73,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='observableproperty',
             name='services',
-            field=models.ManyToManyField(to='services.Service', related_name='observable_properties'),
+            field=models.ManyToManyField(related_name='observable_properties', to='services.Service'),
         ),
         migrations.AddField(
             model_name='allowedvalue',
             name='property',
-            field=models.ForeignKey(to='observations.ObservableProperty', related_name='allowed_values'),
+            field=models.ForeignKey(related_name='allowed_values', to='observations.ObservableProperty'),
         ),
         migrations.AlterUniqueTogether(
             name='unitlatestobservation',
