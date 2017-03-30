@@ -5,11 +5,9 @@ from observations.api import views as observations_views
 from rest_framework import routers
 from observations.views import obtain_auth_token
 from munigeo.api import all_views as munigeo_views
-from services.api_v2 import views as services_v2_views
 
 
 router = routers.DefaultRouter()
-router_v2 = routers.DefaultRouter()
 
 registered_api_views = set()
 
@@ -23,10 +21,6 @@ for view in services_views + munigeo_views + observations_views:
     if 'base_name' in view:
         kwargs['base_name'] = view['base_name']
     router.register(view['name'], view['class'], **kwargs)
-    router_v2.register(view['name'], view['class'], **kwargs)
-
-for view_name, view_class in services_v2_views:
-    router_v2.register(view_name, view_class)
 
 
 urlpatterns = patterns('',

@@ -43,17 +43,16 @@ def import_departments(org_syncher=None, noop=False, logger=None):
                 obj_has_changed = True
 
 
-        # TODO: Enable once we have orgs
-        # if org_syncher:
-        #     org_obj = org_syncher.get(d['org_id'])
-        # else:
-        #     org_obj = Organization.objects.get(id=d['org_id'])
-        #
-        # assert org_obj
-        #
-        # if obj.organization_id != d['org_id']:
-        #     obj_has_changed = True
-        #     obj.organization = org_obj
+        if org_syncher:
+            org_obj = org_syncher.get(d['org_id'])
+        else:
+            org_obj = Organization.objects.get(uuid=d['org_id'])
+
+        assert org_obj, "Organization '%s' for department '%s' does not exist - bailing out" % (d['org_id'], obj)
+
+        if obj.organization_id != d['org_id']:
+            obj_has_changed = True
+            obj.organization = org_obj
 
         if obj_has_changed:
             obj.save()

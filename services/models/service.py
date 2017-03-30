@@ -19,7 +19,6 @@ class Service(models.Model):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
 
-
 class ServiceManager(TreeManager):
     def get_queryset(self):
         return ServiceQuerySet(self.model, using=self._db)

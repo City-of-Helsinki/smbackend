@@ -28,32 +28,53 @@ class UnitSearchManager(models.GeoManager):
 
 class Unit(models.Model):
     id = models.IntegerField(primary_key=True)
+
     data_source_url = models.URLField(null=True)
-    name = models.CharField(max_length=200, db_index=True)
     description = models.TextField(null=True)
 
-    provider_type = models.IntegerField()
-
-    location = models.PointField(null=True, srid=PROJECTION_SRID)
+    location = models.PointField(null=True, srid=PROJECTION_SRID)  # lat, lng?
     geometry = models.GeometryField(srid=PROJECTION_SRID, null=True)
     department = models.ForeignKey(Department, null=True)
     organization = models.ForeignKey(Organization)
 
+    organizer_type = models.CharField(max_length=50, null=True)
+    organizer_name = models.CharField(max_length=100, null=True)
+    organizer_business_id = models.CharField(max_length=10, null=True)
+
+    provider_type = models.IntegerField()
+    picture_url = models.URLField(max_length=250, null=True)
+    picture_entrance_url = models.URLField(max_length=250, null=True)
+
+    desc = models.TextField(null=True)
+    short_desc = models.TextField(null=True)
+    name = models.CharField(max_length=200, db_index=True)
     street_address = models.CharField(max_length=100, null=True)
-    address_zip = models.CharField(max_length=10, null=True)
-    phone = models.CharField(max_length=50, null=True)
-    email = models.EmailField(max_length=100, null=True)
-    www_url = models.URLField(max_length=400, null=True)
+    address_city = models.CharField(max_length=100, null=True)
+    www = models.URLField(max_length=400, null=True)
     address_postal_full = models.CharField(max_length=100, null=True)
+    call_charge_info = models.CharField(max_length=100, null=True)
+    picture_caption = models.CharField(max_length=200, null=True)
+    extra_searchwords = models.CharField(max_length=200, null=True)
+
+    phone = models.CharField(max_length=50, null=True)
+    fax = models.CharField(max_length=50, null=True)
+    email = models.EmailField(max_length=100, null=True)
+    accessibility_phone = models.CharField(max_length=50, null=True)
+    accessibility_email = models.EmailField(max_length=100, null=True)
+    accessibility_www = models.URLField(max_length=400, null=True)
+
+    # accessibility_viewpoints = models.ManyToManyField(AccessibilityViewpoint)
+
+    created_time = models.DateTimeField()  # ASK API: are these UTC? no Z in output
+    modified_time = models.DateTimeField()  # ASK API: are these UTC? no Z in output
+
     municipality = models.ForeignKey(Municipality, null=True, db_index=True)
+    address_zip = models.CharField(max_length=10, null=True)
 
     data_source = models.CharField(max_length=20, null=True)
-    extensions = HStoreField(null=True)
+    # extensions = HStoreField(null=True)
 
-    picture_url = models.URLField(max_length=250, null=True)
-    picture_caption = models.CharField(max_length=200, null=True)
-
-    origin_last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
+    # origin_last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
     service_tree_nodes = models.ManyToManyField("ServiceTreeNode", related_name='units')
     services = models.ManyToManyField("Service", related_name='units')
