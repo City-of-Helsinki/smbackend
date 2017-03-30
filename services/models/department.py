@@ -5,7 +5,7 @@ from .organization import Organization
 
 
 class Department(models.Model):
-    uuid = models.UUIDField(db_index=True, editable=False)
+    uuid = models.UUIDField(db_index=True, editable=False, unique=True)
     business_id = models.CharField(max_length=10)  # take into consideration intl. ids
 
     # translateable group here
