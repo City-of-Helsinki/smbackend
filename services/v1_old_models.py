@@ -11,8 +11,8 @@ from django.contrib.postgres.fields import HStoreField
 from munigeo.models import AdministrativeDivision, Municipality
 from munigeo.utils import get_default_srid
 
-DEFAULT_LANG = settings.LANGUAGES[0][0]
-PROJECTION_SRID = get_default_srid()
+# DEFAULT_LANG = settings.LANGUAGES[0][0]
+# PROJECTION_SRID = get_default_srid()
 
 import django.db
 from django.db.models.signals import pre_migrate

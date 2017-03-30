@@ -17,6 +17,7 @@ def pk_get(resource_name, res_id=None, v3=False):
 
 def save_translated_field(obj, obj_field_name, info, info_field_name, max_length=None):
     args = {}
+    has_changed = False
     for lang in ('fi', 'sv', 'en'):
         key = '%s_%s' % (info_field_name, lang)
         if key in info:
@@ -35,7 +36,8 @@ def save_translated_field(obj, obj_field_name, info, info_field_name, max_length
         setattr(obj, obj_key, val)
         if lang == 'fi':
             setattr(obj, obj_field_name, val)
-        obj._changed = True
+        has_changed = True
+    return has_changed
 
 
 def clean_text(text):
