@@ -234,12 +234,11 @@ def get_translated(obj, attr):
 #
 
 
-@python_2_unicode_compatible
-class UnitAlias(models.Model):
-    first = models.ForeignKey(Unit, related_name='aliases')
-
-    # Not a foreign key, might need
-    # to reference nonexistent models
-    second = models.IntegerField(db_index=True, unique=True)
-
-from .models_v2 import *
+# @python_2_unicode_compatible
+# class UnitAlias(models.Model):
+#     first = models.ForeignKey(Unit, related_name='aliases')
+#
+#     # Not a foreign key, might need
+#     # to reference nonexistent models
+#     second = models.IntegerField(db_index=True, unique=True)
+#

@@ -8,3 +8,4 @@ from .unit_connection import UnitConnection
 from .unit_accessibility_property import UnitAccessibilityProperty
 from .accessibility_variable import AccessibilityVariable
 from .unit_identifier import UnitIdentifier
+from .unit_alias import UnitAlias

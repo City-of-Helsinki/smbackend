@@ -25,6 +25,7 @@ from django.utils.translation import activate, get_language
 from munigeo.models import Municipality
 from munigeo.importer.sync import ModelSyncher
 
+from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
 from services.models import *
 from services.models.unit import PROJECTION_SRID
@@ -42,7 +43,7 @@ class Command(BaseCommand):
         make_option('--single', dest='single', action='store', metavar='ID', type='string', help='import only single entity'),
     ))
 
-    importer_types = ['services', 'units', 'departments']
+    importer_types = ['services', 'units', 'departments', 'aliases']
     supported_languages = ['fi', 'sv', 'en']
 
     def __init__(self):
@@ -445,6 +446,10 @@ class Command(BaseCommand):
     @db.transaction.atomic
     def import_departments(self, noop=False):
         import_departments(logger=self.logger, noop=noop, org_syncher=self.org_syncher)
+
+    def import_aliases(self):
+        import_aliases()
+
 
     def _fetch_units(self):
         if hasattr(self, 'unit_list'):
