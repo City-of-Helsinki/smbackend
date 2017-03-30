@@ -27,6 +27,7 @@ from munigeo.importer.sync import ModelSyncher
 
 from services.management.commands.services_import.departments import import_departments
 from services.models import *
+from services.models.unit import PROJECTION_SRID
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
 GK25_SRID = 3879
@@ -478,7 +479,7 @@ class Command(BaseCommand):
         if self.existing_servicenode_ids == None or len(self.existing_servicenode_ids) < 1:
             self.existing_servicenode_ids = set(ServiceTreeNode.objects.values_list('id', flat=True))
         if self.existing_servicetype_ids == None or len(self.existing_servicetype_ids) < 1:
-            self.existing_servicetype_ids = set(ServiceType.objects.values_list('id', flat=True))
+            self.existing_servicetype_ids = set(Service.objects.values_list('id', flat=True))
 
         if not getattr(self, 'org_syncher', None):
             self.import_organizations(noop=True)
@@ -536,7 +537,7 @@ class Command(BaseCommand):
         ontologywords = self.pk_get('ontologyword')
 
         nodesyncher = ModelSyncher(ServiceTreeNode.objects.all(), lambda obj: obj.id)
-        servicesyncher = ModelSyncher(ServiceType.objects.all(), lambda obj: obj.id)
+        servicesyncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
 
 
         def handle_servicenode(d):
@@ -574,7 +575,7 @@ class Command(BaseCommand):
         def handle_servicetype(d):
             obj = servicesyncher.get(d['id'])
             if not obj:
-                obj = ServiceType(id=d['id'])
+                obj = Service(id=d['id'])
                 obj._changed = True
 
             self._save_translated_field(obj, 'name', d, 'ontologyword')

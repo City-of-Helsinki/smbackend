@@ -30,13 +30,3 @@ translator.register(UnitConnection, UnitConnectionTranslationOptions)
 class ServiceTreeNodeTranslationOptions(TranslationOptions):
     fields = ('name',)
 translator.register(ServiceTreeNode, ServiceTreeNodeTranslationOptions)
-
-
-class ServiceTypeTranslationOptions(TranslationOptions):
-    fields = ('name',)
-translator.register(ServiceType, ServiceTypeTranslationOptions)
-
-
-@register(DepartmentV2)
-class DepartmentV2TranslationOptions(TranslationOptions):
-    fields = ('name',)
