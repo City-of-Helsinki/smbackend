@@ -27,6 +27,7 @@ from munigeo.importer.sync import ModelSyncher
 
 from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
+from services.management.commands.services_import.organizations import import_organizations
 from services.models import *
 from services.models.unit import PROJECTION_SRID
 
@@ -43,7 +44,7 @@ class Command(BaseCommand):
         make_option('--single', dest='single', action='store', metavar='ID', type='string', help='import only single entity'),
     ))
 
-    importer_types = ['services', 'units', 'departments', 'aliases']
+    importer_types = ['organizations', 'services', 'units', 'departments', 'aliases']
     supported_languages = ['fi', 'sv', 'en']
 
     def __init__(self):
@@ -418,30 +419,8 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def import_organizations(self, noop=False):
-        obj_list = self.pk_get('organization')
-        syncher = ModelSyncher(Organization.objects.all(), lambda obj: obj.id)
-        self.org_syncher = syncher
-        if noop:
-            return
+        return import_organizations(logger=self.logger, noop=noop, org_syncher=self.org_syncher)
 
-        for d in obj_list:
-            obj = syncher.get(d['id'])
-            if not obj:
-                obj = Organization(id=d['id'])
-            self._save_translated_field(obj, 'name', d, 'name')
-
-            url = d['data_source_url']
-            if not url.startswith('http'):
-                url = 'http://%s' % url
-            if obj.data_source_url != url:
-                obj._changed = True
-                obj.data_source_url = url
-
-            if obj._changed:
-                obj.save()
-            syncher.mark(obj)
-
-        syncher.finish()
 
     @db.transaction.atomic
     def import_departments(self, noop=False):
