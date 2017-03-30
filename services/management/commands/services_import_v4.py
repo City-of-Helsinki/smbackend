@@ -27,6 +27,7 @@ from munigeo.importer.sync import ModelSyncher
 
 from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
+from services.management.commands.services_import.organizations import import_organizations
 from services.management.commands.services_import.units import import_units
 from services.models import *
 from services.models.unit import PROJECTION_SRID
