@@ -28,6 +28,7 @@ from munigeo.importer.sync import ModelSyncher
 from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.organizations import import_organizations
+from services.management.commands.services_import.services import import_services
 from services.models import *
 from services.models.unit import PROJECTION_SRID
 
@@ -517,6 +518,8 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def import_services(self):
+        return import_services(logger=self.logger, noop=False, importer=self)
+
         ontologytrees = self.pk_get('ontologytree')
         ontologywords = self.pk_get('ontologyword')
 
