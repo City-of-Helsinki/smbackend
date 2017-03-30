@@ -8,7 +8,7 @@ translator.register(Service, ServiceTranslationOptions)
 
 
 class OrganizationTranslationOptions(TranslationOptions):
-    fields = ('name',)
+    fields = ('name', 'abbr', 'street_address', 'address_city', 'address_postal_full', 'www')
 translator.register(Organization, OrganizationTranslationOptions)
 
 
