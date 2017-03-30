@@ -4,8 +4,9 @@ from services.utils import get_translated
 from .keyword import Keyword
 from .service import ServiceManager, ServiceQuerySet
 
+
 class ServiceTreeNode(MPTTModel):
-    id = models.IntegerField(primary_key=True) # id of ontologytree
+    id = models.IntegerField(primary_key=True)  # id of ontologytree
     name = models.CharField(max_length=200, db_index=True)
     parent = TreeForeignKey('self', null=True, related_name='children')
     unit_count = models.PositiveIntegerField(null=True)
