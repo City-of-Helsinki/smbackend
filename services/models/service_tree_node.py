@@ -1,7 +1,8 @@
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey, TreeManager
 from services.utils import get_translated
-
+from .keyword import Keyword
+from .service import ServiceManager, ServiceQuerySet
 
 class ServiceTreeNode(MPTTModel):
     id = models.IntegerField(primary_key=True) # id of ontologytree
