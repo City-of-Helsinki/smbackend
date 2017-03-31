@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.apps import apps
 from django.utils.translation import ugettext_lazy as _
 from services import models as services_models
 from polymorphic.models import PolymorphicModel
@@ -25,22 +26,24 @@ class ObservableProperty(models.Model):
     observation_type = models.CharField(max_length=80, null=False, blank=False)
     def __str__(self):
         return "%s (%s)" % (self.name, self.id)
+    def get_observation_model(self):
+        return apps.get_model(self.observation_type)
+    def get_observation_type(self):
+        return self.get_observation_model().get_type()
+    def create_observation(self, **validated_data):
+        return self.get_observation_model().objects.create(**validated_data)
     def get_internal_value(self, value):
-        if self.observation_type == 'observations.CategoricalObservation':
-            return self.allowed_values.get(identifier=value)
-        return value
-    def get_external_value(self, value):
-        return getattr(value, 'identifier')
+        return self.get_observation_model().get_internal_value(self, value)
 
 class AllowedValue(models.Model):
     # Currently only works for categorical observations
     identifier = models.CharField(
-        max_length=50, null=False, blank=False, db_index=True)
+        max_length=50, null=True, blank=False, db_index=True)
     quality = models.CharField(
-        max_length=50, null=False, blank=False, db_index=True,
+        max_length=50, null=True, blank=False, db_index=True,
         default='unknown')
     name = models.CharField(
-        max_length=100, null=False,
+        max_length=100, null=True,
         blank=False, db_index=True)
     description = models.TextField(null=False, blank=False)
     property = models.ForeignKey(
@@ -55,6 +58,9 @@ class Observation(PolymorphicModel):
     """An observation is a measured/observed value of
     a property of a unit at a certain time.
     """
+    value = models.ForeignKey(
+        AllowedValue, blank=False, null=True,
+        related_name='instances')
     time = models.DateTimeField(
         db_index=True,
         help_text='Exact time the observation was made')
@@ -69,36 +75,36 @@ class Observation(PolymorphicModel):
         ObservableProperty,
         blank=False, null=False,
         help_text='The property observed')
-    @staticmethod
-    def get_internal_value(value):
-        if self.property.allowed_values.count() == 0:
-            return value
-        return self.property.allowed_values.get(identifier=value)
     class Meta:
         ordering = ['-time']
 
 class CategoricalObservation(Observation):
-    value = models.ForeignKey(
-        AllowedValue, blank=False, null=False,
-        db_column='id',
-        related_name='instances')
+    def get_external_value(self):
+        return self.value.identifier
+
     @staticmethod
     def get_type():
         return 'categorical'
+    @staticmethod
+    def get_internal_value(oproperty, value):
+        if value is None:
+            return None
+        return oproperty.allowed_values.get(identifier=value)
 
 class ContinuousObservation(Observation):
-    value = models.FloatField()
     @staticmethod
     def get_type():
         return 'continuous'
 
 class DescriptiveObservation(Observation):
-    value = models.TextField()
-    def allowed_values(self):
-        return self.property.allowed_values.all()
+    def get_external_value(self):
+        return self.value
     @staticmethod
     def get_type():
         return 'descriptive'
+    @staticmethod
+    def get_internal_value(oproperty, value):
+        return AllowedValue.objects.create(property=oproperty, **value)
 
 class UnitLatestObservation(models.Model):
     unit = models.ForeignKey(

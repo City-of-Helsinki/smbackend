@@ -1,6 +1,8 @@
 from rest_framework import serializers, viewsets
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from django.utils.translation import ugettext_lazy as _
+
+from services.api import ServiceSerializer, UnitSerializer
 from . import models
 from .serializers import *
 

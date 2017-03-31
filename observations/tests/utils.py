@@ -12,10 +12,10 @@ OBSERVATION_CLASS_KEYS = {
     'observations.DescriptiveObservation': 'descriptive'
 }
 
-def match_observable_property_object_to_dict(obj, dict):
+def match_observable_property_object_to_dict(obj, data):
     for f in OBSERVABLE_PROPERTY_IDENTICAL_FIELDS:
         obj_value = getattr(obj, f)
-        assert dict[f] == obj_value
-    a = dict['observation_type']
+        assert data[f] == obj_value
+    a = data['observation_type']
     b = OBSERVATION_CLASS_KEYS[obj.observation_type]
     assert a == b, '%s does not equal %s' % (a,b)

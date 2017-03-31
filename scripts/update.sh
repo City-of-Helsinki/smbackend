@@ -35,4 +35,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-curl 'https://hchk.io/65a67553-66bf-4d95-915e-3b5e9241116f'
+curl 'https://hchk.io/1821d793-e197-4598-b969-8d062c7d50a1'

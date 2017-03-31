@@ -13,6 +13,7 @@ from modeltranslation.translator import translator, NotRegistered
 from rest_framework import serializers, viewsets, generics
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
+from django.core.exceptions import ValidationError
 from rest_framework.views import APIView
 
 from haystack.query import SearchQuerySet, SQ
@@ -62,7 +63,7 @@ class MPTTModelSerializer(serializers.ModelSerializer):
             if field_name in self.fields:
                 del self.fields[field_name]
 
-class TranslatedModelSerializer(serializers.ModelSerializer):
+class TranslatedModelSerializer(object):
     def __init__(self, *args, **kwargs):
         super(TranslatedModelSerializer, self).__init__(*args, **kwargs)
         model = self.Meta.model
@@ -80,6 +81,54 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
                 if key in self.fields:
                     del self.fields[key]
 
+    def to_internal_value(self, data):
+        """
+        Convert complex translated json objects to flat format.
+        E.g. json structure containing `name` key like this:
+        {
+            "name": {
+                "fi": "musiikkiklubit",
+                "sv": "musikklubbar",
+                "en": "music clubs"
+            },
+            ...
+        }
+        Transforms this:
+        {
+            "name": "musiikkiklubit",
+            "name_fi": "musiikkiklubit",
+            "name_sv": "musikklubbar",
+            "name_en": "music clubs"
+            ...
+        }
+        :param data:
+        :return:
+        """
+
+        extra_fields = {}  # will contain the transformation result
+        for field_name in self.translated_fields:
+            obj = data.get(field_name, None)  # { "fi": "musiikkiklubit", "sv": ... }
+            if not obj:
+                continue
+            if not isinstance(obj, dict):
+                raise ValidationError({field_name: 'This field is a translated field. Instead of a string,'
+                                                   ' you must supply an object with strings corresponding'
+                                                   ' to desired language ids.'})
+            for language in (lang[0] for lang in settings.LANGUAGES if lang[0] in obj):
+                value = obj[language]  # "musiikkiklubit"
+                if language == settings.LANGUAGES[0][0]:  # default language
+                    extra_fields[field_name] = value  # { "name": "musiikkiklubit" }
+                extra_fields['{}_{}'.format(field_name, language)] = value  # { "name_fi": "musiikkiklubit" }
+            del data[field_name]  # delete original translated fields
+
+        # handle other than translated fields
+        data = super().to_internal_value(data)
+
+        # add translated fields to the final result
+        data.update(extra_fields)
+
+        return data
+
     def to_representation(self, obj):
         ret = super(TranslatedModelSerializer, self).to_representation(obj)
         if obj is None:
@@ -88,6 +137,7 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
         for field_name in self.translated_fields:
             if not field_name in self.fields:
                 continue
+
             d = {}
             for lang in LANGUAGES:
                 key = "%s_%s" % (field_name, lang)  
@@ -103,11 +153,10 @@ class TranslatedModelSerializer(serializers.ModelSerializer):
             else:
                 d = None
             ret[field_name] = d
-
         return ret
 
 
-class OrganizationSerializer(TranslatedModelSerializer):
+class OrganizationSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = Organization
 
@@ -118,7 +167,7 @@ class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
 register_view(OrganizationViewSet, 'organization')
 
 
-class DepartmentSerializer(TranslatedModelSerializer):
+class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = Department
 
@@ -221,7 +270,7 @@ class JSONAPIViewSetMixin:
 class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
     pass
 
-class UnitConnectionSerializer(TranslatedModelSerializer):
+class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = UnitConnection
 
@@ -339,6 +388,8 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
                 data = {'id': s.id, 'name': name, 'root': s.get_root().id}
                 if s.identical_to:
                     data['identical_to'] = getattr(s.identical_to, 'id', None)
+                if s.level is not None:
+                    data['level'] = s.level
                 services_json.append(data)
             ret['services'] = services_json
         if 'accessibility_properties' in include_fields:
