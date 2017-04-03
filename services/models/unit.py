@@ -65,8 +65,8 @@ class Unit(models.Model):
 
     # accessibility_viewpoints = models.ManyToManyField(AccessibilityViewpoint)
 
-    created_time = models.DateTimeField()  # ASK API: are these UTC? no Z in output
-    modified_time = models.DateTimeField()  # ASK API: are these UTC? no Z in output
+    created_time = models.DateTimeField(null=True)  # ASK API: are these UTC? no Z in output
+    modified_time = models.DateTimeField(null=True)  # ASK API: are these UTC? no Z in output
 
     municipality = models.ForeignKey(Municipality, null=True, db_index=True)
     address_zip = models.CharField(max_length=10, null=True)

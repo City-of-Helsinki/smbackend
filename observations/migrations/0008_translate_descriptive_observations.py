@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('observations', '0007_data_migrate_skating_quality'),
+        ('observations', '0002_auto_20170330_1355'),
     ]
 
     operations = [
