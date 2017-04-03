@@ -3,6 +3,7 @@ import json
 import pprint
 import os
 import csv
+import logging
 
 import pytz
 from collections import defaultdict
@@ -13,17 +14,19 @@ from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.utils.datetime_safe import datetime
 from munigeo.importer.sync import ModelSyncher
+from munigeo.models import Municipality
 
 from services.management.commands.services_import.departments import import_departments
+from services.management.commands.services_import.organizations import import_organizations
 from services.models import UnitAlias, Unit, ServiceTreeNode, Service, AccessibilityVariable, Keyword, UnitConnection, \
     UnitAccessibilityProperty, UnitIdentifier
-from services.models.unit import PROJECTION_SRID
-from .utils import pk_get, save_translated_field
+from services.models.unit import PROJECTION_SRID, PROVIDER_TYPES
+from services.models.unit_connection import SECTION_TYPES
+from .utils import pk_get, save_translated_field, postcodes, keywords_by_id, keywords, SUPPORTED_LANGUAGES
 
 UTC_TIMEZONE = pytz.timezone('UTC')
-SUPPORTED_LANGUAGES = ['fi', 'sv', 'en']
-KEYWORDS = {}
-KEYWORDS_BY_ID = {kw.pk: kw for kw in Keyword.objects.all()}
+KEYWORDS = None
+KEYWORDS_BY_ID = None
 ACCESSIBILITY_VARIABLES = {x.id: x for x in AccessibilityVariable.objects.all()}
 EXISTING_SERVICE_IDS = set(Service.objects.values_list('id', flat=True))
 EXISTING_SERVICE_TREE_NODE_IDS = set(ServiceTreeNode.objects.values_list('id', flat=True))
@@ -31,10 +34,16 @@ LOGGER = None
 VERBOSITY = False
 
 
-def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbosity=False, logger=None):
-    global VERBOSITY, LOGGER
+def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbosity=True, logger=None):
+    global VERBOSITY, LOGGER, KEYWORDS_BY_ID, KEYWORDS
     VERBOSITY = verbosity
     LOGGER = logger
+
+    if VERBOSITY and not LOGGER:
+        LOGGER = logging.getLogger(__name__)
+
+    KEYWORDS = keywords()
+    KEYWORDS_BY_ID = keywords_by_id(KEYWORDS)
 
     _load_postcodes()
     muni_by_name = {muni.name_fi.lower(): muni for muni in Municipality.objects.all()}
@@ -45,8 +54,7 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
     if not dept_syncher:
         dept_syncher = import_departments(noop=True)
 
-    if VERBOSITY:
-        LOGGER.info("Fetching unit connections")
+    VERBOSITY and LOGGER.info("Fetching unit connections %s %s" % (org_syncher, dept_syncher))
 
     connections = pk_get('connection')
     conn_by_unit = defaultdict(list)
@@ -54,11 +62,10 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
         unit_id = conn['unit_id']
         conn_by_unit[unit_id].append(conn)
 
-    if VERBOSITY:
-        LOGGER.info("Fetching accessibility properties")
+    VERBOSITY and LOGGER.info("Fetching accessibility properties")
 
     # acc_properties = self.pk_get('accessibility_property', v3=True)
-    acc_properties = self.pk_get('accessibility_property')
+    acc_properties = pk_get('accessibility_property')
     acc_by_unit = defaultdict(list)
     for ap in acc_properties:
         unit_id = ap['unit_id']
@@ -75,7 +82,7 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
 
     if fetch_only_id:
         obj_id = fetch_only_id
-        obj_list = [pk_get('unit', obj_id)]
+        obj_list = [pk_get('unit', obj_id, params={'official': 'yes'})]
         queryset = Unit.objects.filter(id=obj_id)
     else:
         obj_list = _fetch_units()
@@ -89,11 +96,12 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
         info['connections'] = conn_list
         acp_list = acc_by_unit.get(info['id'], [])
         info['accessibility_properties'] = acp_list
-        _import_unit(syncher, info)
-        _import_unit_services(count_services)
+        obj = _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, bounding_box, gps_to_target_ct,
+                           target_srid)
+        _import_unit_services(obj, info, count_services)
     syncher.finish()
 
-    return org_syncer, dept_syncer, syncher
+    return org_syncher, dept_syncher, syncher
 
 
 def _load_postcodes():
@@ -112,11 +120,13 @@ def _load_postcodes():
 def _fetch_units():
     if VERBOSITY:
         LOGGER.info("Fetching units")
-    return pk_get('unit')
+    return pk_get('unit', params={'official': 'yes'})
 
 
 @db.transaction.atomic
 def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, bounding_box, gps_to_target_ct, target_srid):
+    VERBOSITY and LOGGER.info(pprint.pformat(info))
+
     obj = syncher.get(info['id'])
     obj_changed = False
     obj_created = False
@@ -125,7 +135,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         obj_changed = True
         obj_created = True
 
-    #print('handling unit {} ({})'.format(info['name_fi'], info['id']))
+    # print('handling unit {} ({})'.format(info['name_fi'], info['id']))
 
     save_translated_field(obj, 'name', info, 'name')
     save_translated_field(obj, 'description', info, 'desc')
@@ -145,7 +155,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
     org = org_syncher.get(info['org_id'])
     # else:
     #     org = Organization.objects.get(id=org_id)
-    #print('org id', org_id)
+    # print('org id', org_id)
 
     assert org is not None
 
@@ -171,10 +181,11 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
             muni_name = 'espoo'
         if muni_name not in muni_by_name:
             postcode = info.get('address_zip', None)
-            muni_name = self.postcodes.get(postcode, None)
+            muni_name = postcodes().get(postcode, None)
             if muni_name:
                 if VERBOSITY:
-                    LOGGER.warning('%s: municipality to %s based on post code %s (was %s)' % (obj, muni_name, postcode, info.get('address_city_fi')))
+                    LOGGER.warning('%s: municipality to %s based on post code %s (was %s)' %
+                                   (obj, muni_name, postcode, info.get('address_city_fi')))
                 muni_name = muni_name.lower()
         if muni_name:
             muni = muni_by_name.get(muni_name)
@@ -188,21 +199,22 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         # self._set_field(obj, 'municipality_id', municipality_id)
         obj.municipality_id = municipality_id
 
+    dept = None
+    dept_id = None
     if 'dept_id' in info:
         dept_id = info['dept_id']
         # if self.dept_syncher:
         dept = dept_syncher.get(dept_id)
+        org = None
+        if not dept:
+            org = org_syncher.get(dept_id)
         # else:
         #     try:
         #         dept = Department.objects.get(id=dept_id)
         #     except Department.DoesNotExist:
         #         print("Department %s does not exist" % dept_id)
         #         raise
-        assert dept is not None
-    else:
-        #print("%s does not have department id" % obj)
-        dept = None
-        dept_id = None
+        assert dept or org
 
     if obj.department_id != dept_id:
         obj.department = dept
@@ -210,13 +222,16 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
 
     fields = ['address_zip', 'phone', 'email', 'fax', 'provider_type', 'picture_url', 'picture_entrance_url',
               'accessibility_www', 'accessibility_phone', 'accessibility_email', 'created_time', 'modified_time',
+              'streetview_entrance_url'
               ]
+    if info.get('provider_type'):
+        info['provider_type'] = [val for val, str_val in PROVIDER_TYPES if str_val == info['provider_type']][0]
+
     for field in fields:
         if info.get(field):
             if info[field] != getattr(obj, field):
                 obj_changed = True
                 setattr(obj, field, info.get(field))
-
 
     # url = info.get('data_source_url', None)
     # if url:
@@ -276,10 +291,9 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
 
     update_fields = ['modified_time']
 
-    _import_unit_services(obj, info, [], obj_changed, obj_created)
+    _import_unit_services(obj, info, set())
     _sync_searchwords(obj, info)
 
-    # CONTINUE FROM HERE:: should start running the import soon and test if it actually works..
     obj_changed, update_fields = _import_unit_accessibility_variables(obj, info, obj_changed, update_fields)
     obj_changed, update_fields = _import_unit_connections(obj, info, obj_changed, update_fields)
     obj_changed, update_fields = _import_unit_sources(obj, info, obj_changed, update_fields)
@@ -289,28 +303,27 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         obj.save(update_fields=update_fields)
 
     syncher.mark(obj)
+    return obj
 
 
-def _import_unit_services(obj, info, count_services, obj_changed, obj_created):
-
+def _import_unit_services(obj, info, count_services):
     update_fields = ['modified_time']
 
-    servicetype_ids = sorted([
+    service_ids = sorted([
         sid for sid in info.get('ontologyword_ids', [])
         if sid in EXISTING_SERVICE_IDS])
 
-    obj_servicetype_ids = sorted(obj.service_types.values_list('id', flat=True))
-    if obj_servicetype_ids != servicetype_ids:
-        if not obj_created and VERBOSITY:
-            LOGGER.info("%s service set changed: %s -> %s" % (obj, obj_servicetype_ids, servicetype_ids))
-        obj.service_types = servicetype_ids
+    obj_service_ids = sorted(obj.services.values_list('id', flat=True))
+    if obj_service_ids != service_ids:
+        # if not obj_created and VERBOSITY:
+        #     LOGGER.info("%s service set changed: %s -> %s" % (obj, obj_service_ids, service_ids))
+        obj.service_types = service_ids
 
-        for srv_id in servicetype_ids:
+        for srv_id in service_ids:
             count_services.add(srv_id)
 
         # Update root service cache
         obj.root_servicenodes = ','.join(str(x) for x in obj.get_root_servicenodes())
-        obj_changed = True
 
     servicenode_ids = sorted([
         sid for sid in info.get('ontologytree_ids', [])
@@ -318,8 +331,8 @@ def _import_unit_services(obj, info, count_services, obj_changed, obj_created):
 
     obj_servicenode_ids = sorted(obj.service_tree_nodes.values_list('id', flat=True))
     if obj_servicenode_ids != servicenode_ids:
-        if not obj_created and VERBOSITY:
-            LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_servicenode_ids, servicenode_ids))
+        # if not obj_created and VERBOSITY:
+        #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_servicenode_ids, servicenode_ids))
         obj.service_tree_nodes = servicenode_ids
 
         for srv_id in servicenode_ids:
@@ -328,9 +341,8 @@ def _import_unit_services(obj, info, count_services, obj_changed, obj_created):
         # Update root service cache
         obj.root_servicenodes = ','.join(str(x) for x in obj.get_root_servicenodes())
         update_fields.append('root_servicenodes')
-        obj_changed = True
 
-    return obj_changed, update_fields
+    return update_fields
 
 
 def _sync_searchwords(obj, info):
@@ -359,7 +371,7 @@ def _save_searchwords(obj, info, language):
         kws = [x for x in kws if x]
         new_kw_set = set()
         for kw in kws:
-            if not kw in self.keywords[language]:
+            if not kw in KEYWORDS[language]:
                 kw_obj = Keyword(name=kw, language=language)
                 kw_obj.save()
                 KEYWORDS[language][kw] = kw_obj
@@ -412,14 +424,37 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
         obj.connections.all().delete()
 
         for i, conn in enumerate(info['connections']):
-            # TODO: update UnitConnection to new v4
             c = UnitConnection(unit=obj)
             save_translated_field(c, 'name', conn, 'name', max_length=400)
-            save_translated_field(c, 'www_url', conn, 'www')
-            c.section = conn['section_type'].lower()
-            c.type = int(conn['connection_type'])
+            save_translated_field(c, 'www', conn, 'www')
+            section_type = [val for val, str_val in SECTION_TYPES if str_val == conn['section_type']][0]
+            assert section_type
+            c.section_type = section_type
+
+            print("------------- connection ----------------")
+            pprint.pprint(conn)
+            print("^^^^^^^^^^^^^ connection ^^^^^^^^^^^^^^^^")
+            # c.section = conn['section_type'].lower()
+            # {'contact_person': 'Miia Kovalainen',
+            # 'email': 'miia.kovalainen@hel.fi',
+            # 'name_en': 'Head of day care centre',
+            # 'name_fi': 'Päiväkodinjohtaja',
+            # 'name_sv': 'Daghemsföreståndare',
+            # 'phone': '09 310 41571',
+            # 'section_type': 'PHONE_OR_EMAIL',
+            # 'unit_id': 1},
+
+            # {'name_en': 'Application for day care',
+            # 'name_fi': 'Täytä päivähoitohakemus',
+            # 'name_sv': 'Ansökan om barndagvård',
+            # 'section_type': 'LINK',
+            # 'unit_id': 1,
+            # 'www_en': 'http://www.hel.fi/www/helsinki/en/day-care-education/day-care/options/applying',
+            # 'www_fi': 'http://www.hel.fi/www/Helsinki/fi/paivahoito-ja-koulutus/paivahoito/paivakotihoito/hakeminen',
+            # 'www_sv': 'http://www.hel.fi/www/helsinki/sv/dagvard-och-utbildning/dagvord/ansokan/ansokan-dagvard'}
+
             c.order = i
-            fields = ['contact_person', 'email', 'phone', 'phone_mobile']
+            fields = ['email', 'phone', 'contact_person']
             for field in fields:
                 val = conn.get(field, None)
                 if val and len(val) > UnitConnection._meta.get_field(field).max_length:

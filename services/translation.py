@@ -23,7 +23,7 @@ translator.register(Unit, UnitTranslationOptions)
 
 
 class UnitConnectionTranslationOptions(TranslationOptions):
-    fields = ('name', 'www_url')
+    fields = ('name', 'www')
 translator.register(UnitConnection, UnitConnectionTranslationOptions)
 
 

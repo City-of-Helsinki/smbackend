@@ -9,7 +9,7 @@ def import_organizations(org_syncher=None, noop=False, logger=None):
     syncher = ModelSyncher(Organization.objects.all(), lambda obj: str(obj.uuid))
     # self.dept_syncher = syncher
     if noop:
-        return
+        return syncher
 
     for d in obj_list:
         # pprint.pprint(d)

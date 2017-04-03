@@ -1,15 +1,22 @@
 import re
-
+import os
 import requests
+from django.conf import settings
+from django.utils.http import urlencode
+
+from services.models import Keyword
+
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
+SUPPORTED_LANGUAGES = ['fi', 'sv', 'en']
 
 
-def pk_get(resource_name, res_id=None, v3=False):
+def pk_get(resource_name, res_id=None, params=None):
     url = "%s%s/" % (URL_BASE, resource_name)
     if res_id is not None:
         url = "%s%s/" % (url, res_id)
-    if v3:
-        url = url.replace('v4', 'v3')
+    if params:
+        url += '?' + urlencode(params)
+    print("CALLING URL >>> ", url)
     resp = requests.get(url)
     assert resp.status_code == 200, 'fuu status code {}'.format(resp.status_code)
     return resp.json()
@@ -47,3 +54,29 @@ def clean_text(text):
     text = text.replace('\u0000', ' ')
     text = text.strip()
     return text
+
+
+def postcodes():
+    path = os.path.join(settings.BASE_DIR, 'data', 'fi', 'postcodes.txt')
+    postcodes = {}
+    try:
+        f = open(path, 'r')
+    except FileNotFoundError:
+        return
+    for l in f.readlines():
+        code, muni = l.split(',')
+        postcodes[code] = muni.strip()
+    return postcodes
+
+
+def keywords():
+    keywords = {}
+    for lang in SUPPORTED_LANGUAGES:
+        kw_list = Keyword.objects.filter(language=lang)
+        kw_dict = {kw.name: kw for kw in kw_list}
+        keywords[lang] = kw_dict
+    return keywords
+
+
+def keywords_by_id(keywords):
+    return {kw.pk: kw for kw in Keyword.objects.all()}

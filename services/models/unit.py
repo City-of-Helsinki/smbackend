@@ -13,6 +13,18 @@ from .keyword import Keyword
 
 
 PROJECTION_SRID = get_default_srid()
+PROVIDER_TYPES = (
+    (1, 'SELF_PRODUCED'),
+    (2, 'MUNICIPALITY'),
+    (3, 'ASSOCIATION'),
+    (4, 'PRIVATE_COMPANY'),
+    (5, 'OTHER_PRODUCTION_METHOD'),
+    (6, 'PURCHASED_SERVICE'),
+    (7, 'UNKNOWN_PRODUCTION_METHOD'),
+    (8, 'CONTRACT_SCHOOL'),
+    (9, 'SUPPORTED_OPERATIONS'),
+    (10, 'PAYMENT_COMMITMENT'),
+)
 
 
 class UnitSearchManager(models.GeoManager):
@@ -41,9 +53,10 @@ class Unit(models.Model):
     organizer_name = models.CharField(max_length=100, null=True)
     organizer_business_id = models.CharField(max_length=10, null=True)
 
-    provider_type = models.IntegerField()
+    provider_type = models.PositiveSmallIntegerField(choices=PROVIDER_TYPES, null=True)
     picture_url = models.URLField(max_length=250, null=True)
-    picture_entrance_url = models.URLField(max_length=250, null=True)
+    picture_entrance_url = models.URLField(max_length=500, null=True)
+    streetview_entrance_url = models.URLField(max_length=500, null=True)
 
     desc = models.TextField(null=True)
     short_desc = models.TextField(null=True)
@@ -53,8 +66,9 @@ class Unit(models.Model):
     www = models.URLField(max_length=400, null=True)
     address_postal_full = models.CharField(max_length=100, null=True)
     call_charge_info = models.CharField(max_length=100, null=True)
-    picture_caption = models.CharField(max_length=200, null=True)
-    extra_searchwords = models.CharField(max_length=200, null=True)
+
+    picture_caption = models.TextField(null=True)
+    extra_searchwords = models.TextField(null=True)
 
     phone = models.CharField(max_length=50, null=True)
     fax = models.CharField(max_length=50, null=True)
