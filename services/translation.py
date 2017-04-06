@@ -30,3 +30,8 @@ translator.register(UnitConnection, UnitConnectionTranslationOptions)
 class ServiceTreeNodeTranslationOptions(TranslationOptions):
     fields = ('name',)
 translator.register(ServiceTreeNode, ServiceTreeNodeTranslationOptions)
+
+
+class AccessibilitySentenceTranslationOptions(TranslationOptions):
+    fields = ('group', 'sentence')
+translator.register(AccessibilitySentence, AccessibilitySentenceTranslationOptions)
