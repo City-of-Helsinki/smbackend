@@ -30,6 +30,7 @@ from services.management.commands.services_import.departments import import_depa
 from services.management.commands.services_import.organizations import import_organizations
 from services.management.commands.services_import.services import import_services
 from services.management.commands.services_import.units import import_units
+from services.management.commands.services_import.accessibility import import_accessibility
 from services.models import *
 from services.models.unit import PROJECTION_SRID
 
@@ -46,7 +47,7 @@ class Command(BaseCommand):
         make_option('--single', dest='single', action='store', metavar='ID', type='string', help='import only single entity'),
     ))
 
-    importer_types = ['organizations', 'services', 'units', 'departments', 'aliases']
+    importer_types = ['organizations', 'services', 'units', 'departments', 'aliases', 'accessibility']
     supported_languages = ['fi', 'sv', 'en']
 
     def __init__(self):
@@ -161,6 +162,9 @@ class Command(BaseCommand):
     def import_aliases(self):
         import_aliases()
 
+    @db.transaction.atomic
+    def import_accessibility(self, noop=False):
+        import_accessibility(logger=self.logger, noop=noop)
 
     # def _fetch_units(self):
     #     if hasattr(self, 'unit_list'):
