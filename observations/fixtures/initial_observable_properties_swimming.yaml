@@ -1,0 +1,102 @@
+- model: observations.ObservableProperty
+  pk: swimming_water_temperature
+  fields:
+    name: Swimming place water temperature
+    observation_type: observations.CategoricalObservation
+    services:
+      - 33467
+      - 33468
+- model: observations.AllowedValue
+  fields:
+    identifier: 0_15
+    name_fi: 0-15°C
+    name_sv: 0-15°C
+    name_en: 0-15°C
+    property_id: swimming_water_temperature
+- model: observations.AllowedValue
+  fields:
+    identifier: 15_17
+    name_fi: 15-17°C
+    name_sv: 15-17°C
+    name_en: 15-17°C
+    property_id: swimming_water_temperature
+- model: observations.AllowedValue
+  fields:
+    identifier: 17_19
+    name_fi: 17-19°C
+    name_sv: 17-19°C
+    name_en: 17-19°C
+    property_id: swimming_water_temperature
+- model: observations.AllowedValue
+  fields:
+    identifier: 17_19
+    name_fi: 17-19°C
+    name_sv: 17-19°C
+    name_en: 17-19°C
+    property_id: swimming_water_temperature
+- model: observations.AllowedValue
+  fields:
+    identifier: 19_21
+    name_fi: 19-21°C
+    name_sv: 19-21°C
+    name_en: 19-21°C
+    property_id: swimming_water_temperature
+- model: observations.AllowedValue
+  fields:
+    identifier: 21_23
+    name_fi: 21-23°C
+    name_sv: 21-23°C
+    name_en: 21-23°C
+    property_id: swimming_water_temperature
+- model: observations.ObservableProperty
+  pk: swimming_water_algae
+  fields:
+    name: Swimming place water temperature
+    observation_type: observations.CategoricalObservation
+    services:
+      - 33467
+      - 33468
+- model: observations.AllowedValue
+  fields:
+    property_id: swimming_water_algae
+    identifier: 0
+    name_fi: Ei sinilevää
+    name_sv: TODO
+    name_en: TODO
+    description_fi: Ei sinilevää, voi uida
+    description_en: TODO
+    description_sv: TODO
+    quality: good
+- model: observations.AllowedValue
+  fields:
+    property_id: swimming_water_algae
+    identifier: 1
+    name_fi: Vähän sinilevää
+    name_sv: TODO
+    name_en: TODO
+    description_fi: Vähän sinilevää. Uiminen oman harkinnan mukaan. Suihkussa käynti suositeltavaa uinnin jälkeen.
+    description_en: TODO
+    description_sv: TODO
+    quality: satisfactory
+- model: observations.AllowedValue
+  fields:
+    property_id: swimming_water_algae
+    identifier: 2
+    name_fi: Runsaasti sinilevää
+    name_sv: TODO
+    name_en: TODO
+    description_fi: Runsaasti sinilevää! Uiminen ei suositeltavaa! Älä päästä lapsia uimaan ja käy suihkussa uinnin jälkeen!
+    description_en: TODO
+    description_sv: TODO
+    quality: unusable
+- model: observations.AllowedValue
+  fields:
+    property_id: swimming_water_algae
+    identifier: 3
+    name_fi: Erittäin runsaasti sinilevää
+    name_sv: TODO
+    name_en: TODO
+    description_fi: Erittäin runsaasti sinilevää tai sinilevien massaesiintymä. Älä ui!
+    description_en: TODO
+    description_sv: TODO
+    quality: unusable
