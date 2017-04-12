@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import json
 import pprint
@@ -25,6 +26,7 @@ from services.models.unit_connection import SECTION_TYPES
 from .utils import pk_get, save_translated_field, postcodes, keywords_by_id, keywords, SUPPORTED_LANGUAGES
 
 UTC_TIMEZONE = pytz.timezone('UTC')
+ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
 KEYWORDS = None
 KEYWORDS_BY_ID = None
 ACCESSIBILITY_VARIABLES = {x.id: x for x in AccessibilityVariable.objects.all()}
@@ -96,8 +98,8 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
         info['connections'] = conn_list
         acp_list = acc_by_unit.get(info['id'], [])
         info['accessibility_properties'] = acp_list
-        obj = _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, bounding_box, gps_to_target_ct,
-                           target_srid)
+        obj = _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name,
+                           bounding_box, gps_to_target_ct, target_srid)
         _import_unit_services(obj, info, count_services)
     syncher.finish()
 
@@ -221,9 +223,9 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         obj_changed = True
 
     fields = ['address_zip', 'phone', 'email', 'fax', 'provider_type', 'picture_url', 'picture_entrance_url',
-              'accessibility_www', 'accessibility_phone', 'accessibility_email', 'created_time', 'modified_time',
-              'streetview_entrance_url'
+              'accessibility_www', 'accessibility_phone', 'accessibility_email', 'streetview_entrance_url'
               ]
+
     if info.get('provider_type'):
         info['provider_type'] = [val for val, str_val in PROVIDER_TYPES if str_val == info['provider_type']][0]
 
@@ -232,6 +234,13 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
             if info[field] != getattr(obj, field):
                 obj_changed = True
                 setattr(obj, field, info.get(field))
+
+    for field in ['created_time', 'modified_time']:
+        if info.get(field):
+            value = ACTIVE_TIMEZONE.localize(datetime.strptime(info.get(field), '%Y-%m-%dT%H:%M:%S'))
+            if getattr(obj, field) != value:
+                obj_changed = True
+                setattr(obj, field, value)
 
     # url = info.get('data_source_url', None)
     # if url:
