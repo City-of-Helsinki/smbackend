@@ -1,7 +1,9 @@
 - model: observations.ObservableProperty
   pk: notice
   fields:
-    name: Notice
+    name_fi: Ilmoitus
+    name_sv: Meddelande
+    name_en: Notice
     observation_type: observations.DescriptiveObservation
     services:
         - 33417

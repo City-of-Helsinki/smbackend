@@ -1,57 +1,61 @@
 - model: observations.ObservableProperty
   pk: swimming_water_temperature
   fields:
-    name: Swimming place water temperature
+    name_fi: Veden lämpötila
+    name_en: Water temperature
+    name_sv: TODO
     observation_type: observations.CategoricalObservation
     services:
       - 33467
       - 33468
 - model: observations.AllowedValue
   fields:
-    identifier: 0_15
-    name_fi: 0-15°C
-    name_sv: 0-15°C
-    name_en: 0-15°C
+    identifier: "0-15"
+    name_fi: alle 15°C
+    name_sv: under 15°C
+    name_en: below 15°C
     property_id: swimming_water_temperature
 - model: observations.AllowedValue
   fields:
-    identifier: 15_17
+    identifier: "15-17"
     name_fi: 15-17°C
     name_sv: 15-17°C
     name_en: 15-17°C
     property_id: swimming_water_temperature
 - model: observations.AllowedValue
   fields:
-    identifier: 17_19
+    identifier: "17-19"
     name_fi: 17-19°C
     name_sv: 17-19°C
     name_en: 17-19°C
     property_id: swimming_water_temperature
 - model: observations.AllowedValue
   fields:
-    identifier: 17_19
-    name_fi: 17-19°C
-    name_sv: 17-19°C
-    name_en: 17-19°C
-    property_id: swimming_water_temperature
-- model: observations.AllowedValue
-  fields:
-    identifier: 19_21
+    identifier: "19-21"
     name_fi: 19-21°C
     name_sv: 19-21°C
     name_en: 19-21°C
     property_id: swimming_water_temperature
 - model: observations.AllowedValue
   fields:
-    identifier: 21_23
+    identifier: "21-23"
     name_fi: 21-23°C
     name_sv: 21-23°C
     name_en: 21-23°C
     property_id: swimming_water_temperature
-- model: observations.ObservableProperty
-  pk: swimming_water_algae
+- model: observations.AllowedValue
   fields:
-    name: Swimming place water temperature
+    identifier: "23-100"
+    name_fi: yli 23°C
+    name_sv: över 23°C
+    name_en: above 23°C
+    property_id: swimming_water_temperature
+- model: observations.ObservableProperty
+  pk: swimming_water_cyanobacteria
+  fields:
+    name_fi: Sinilevätilanne
+    name_en: Amount of cyanobacteria
+    name_sv: TODO
     observation_type: observations.CategoricalObservation
     services:
       - 33467

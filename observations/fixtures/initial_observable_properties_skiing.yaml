@@ -1,7 +1,9 @@
 - model: observations.ObservableProperty
   pk: ski_trail_condition
   fields:
-    name: Ski trail condition
+    name_fi: Hiihtoladun kunto
+    name_en: Ski trail condition
+    name_sv: TODO
     observation_type: observations.CategoricalObservation
     services:
       - 33483
@@ -90,7 +92,9 @@
 - model: observations.ObservableProperty
   pk: ski_trail_maintenance
   fields:
-    name: Ski trail maintenance status
+    name_fi: Hiihtoladun ylläpitotilanne
+    name_en: Ski trail maintenance status
+    name_sv: TODO
     observation_type: observations.CategoricalObservation
     services:
       - 33483

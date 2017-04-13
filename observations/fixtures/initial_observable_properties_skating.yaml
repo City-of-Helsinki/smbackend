@@ -1,7 +1,9 @@
 - model: observations.ObservableProperty
   pk: ice_skating_field_condition
   fields:
-    name: Ice skating field condition
+    name_fi: Luistelukentän kunto
+    name_sv: TODO
+    name_en: Ice skating field condition
     observation_type: observations.CategoricalObservation
     services:
       - 33420
