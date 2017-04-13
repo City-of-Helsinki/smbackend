@@ -47,7 +47,7 @@ SERVICE_IDS_TO_SKIP = set([
     33486 # retkeilyreitti
 ])
 
-ICE_SKATING_SERVICES = [33420,33418,33419,33417,33421]
+SPORTS_MAINTENANCE_SERVICES = [33420,33418,33419,33417,33421,33467,33468]
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
@@ -526,7 +526,7 @@ class Command(BaseCommand):
             print('Skipping service id {} in unit {}.'.format(intersection, info['id']))
             return
 
-        intersection = set(ICE_SKATING_SERVICES).intersection(service_set)
+        intersection = set(SPORTS_MAINTENANCE_SERVICES).intersection(service_set)
         if len(intersection) > 0:
             maintenance_organization = str(obj.organization_id)
             if maintenance_organization != '1010':
