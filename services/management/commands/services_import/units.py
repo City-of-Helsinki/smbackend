@@ -8,6 +8,7 @@ import logging
 
 import pytz
 from collections import defaultdict
+from operator import itemgetter
 
 from django import db
 from django.conf import settings
@@ -393,7 +394,8 @@ def _save_searchwords(obj, info, language):
 
 def _import_unit_accessibility_variables(obj, info, obj_changed, update_fields):
     if info['accessibility_properties']:
-        acp_json = json.dumps(info['accessibility_properties'], ensure_ascii=False, sort_keys=True).encode('utf8')
+        acp = sorted(info['accessibility_properties'], key=itemgetter('variable_id'))
+        acp_json = json.dumps(acp, ensure_ascii=False, sort_keys=True).encode('utf8')
         acp_hash = hashlib.sha1(acp_json).hexdigest()
     else:
         acp_hash = None
