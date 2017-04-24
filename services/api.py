@@ -227,12 +227,12 @@ class JSONAPIViewSetMixin:
     def initial(self, request, *args, **kwargs):
         ret = super(JSONAPIViewSetMixin, self).initial(request, *args, **kwargs)
 
-        include = self.request.QUERY_PARAMS.get('include', '')
+        include = self.request.query_params.get('include', '')
         self.include_fields = [x.strip() for x in include.split(',') if x]
 
         self.only_fields = None
-        only = self.request.QUERY_PARAMS.get('only', '')
-        include_geometry = self.request.QUERY_PARAMS.get('geometry', '').lower() in ('true', '1')
+        only = self.request.query_params.get('only', '')
+        include_geometry = self.request.query_params.get('geometry', '').lower() in ('true', '1')
         if only:
             self.only_fields = [x.strip() for x in only.split(',') if x]
             if include_geometry:
@@ -299,11 +299,11 @@ class UnitIdentifierSerializer(serializers.ModelSerializer):
 class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
-    filter_fields = ['level', 'parent']
+    #filter_fields = ['level', 'parent']
 
     def get_queryset(self):
         queryset = super(ServiceViewSet, self).get_queryset()
-        args = self.request.QUERY_PARAMS
+        args = self.request.query_params
         if 'id' in args:
             id_list = args['id'].split(',')
             queryset = queryset.filter(id__in=id_list)
@@ -472,7 +472,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
     def get_queryset(self):
         queryset = super(UnitViewSet, self).get_queryset()
-        filters = self.request.QUERY_PARAMS
+        filters = self.request.query_params
         if 'id' in filters:
             id_list = filters['id'].split(',')
             queryset = queryset.filter(id__in=id_list)
@@ -586,7 +586,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             queryset = queryset.distance(point, field_name='geometry').order_by('distance')
 
         if 'bbox' in filters:
-            val = self.request.QUERY_PARAMS.get('bbox', None)
+            val = self.request.query_params.get('bbox', None)
             if 'bbox_srid' in filters:
                 ref = SpatialReference(filters.get('bbox_srid', None))
             else:
@@ -595,7 +595,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 bbox_filter = munigeo_api.build_bbox_filter(ref, val, 'location')
                 queryset = queryset.filter(**bbox_filter)
 
-        maintenance_organization = self.request.QUERY_PARAMS.get('maintenance_organization')
+        maintenance_organization = self.request.query_params.get('maintenance_organization')
         if maintenance_organization:
             queryset = queryset.filter(
                 Q(extensions__maintenance_organization=maintenance_organization) |
@@ -680,7 +680,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
     def list(self, request, *args, **kwargs):
         # If the incoming language is not specified, go with the default.
-        self.lang_code = request.QUERY_PARAMS.get('language', LANGUAGES[0])
+        self.lang_code = request.query_params.get('language', LANGUAGES[0])
         if self.lang_code not in LANGUAGES:
             raise ParseError("Invalid language supplied. Supported languages: %s" %
                              ','.join(LANGUAGES))
@@ -688,8 +688,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         context = {}
 
         specs = {
-            'only_fields': self.request.QUERY_PARAMS.get('only', None),
-            'include_fields': self.request.QUERY_PARAMS.get('include', None)
+            'only_fields': self.request.query_params.get('only', None),
+            'include_fields': self.request.query_params.get('include', None)
         }
         for key in specs.keys():
             if specs[key]:
@@ -703,8 +703,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             else:
                 setattr(self, key, None)
 
-        input_val = request.QUERY_PARAMS.get('input', '').strip()
-        q_val = request.QUERY_PARAMS.get('q', '').strip()
+        input_val = request.query_params.get('input', '').strip()
+        q_val = request.query_params.get('q', '').strip()
         if not input_val and not q_val:
             raise ParseError("Supply search terms with 'q=' or autocomplete entry with 'input='")
         if input_val and q_val:
@@ -733,8 +733,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 .filter_or(extra_searchwords=q_val)
                 .filter_or(address=q_val)
             )
-        if 'municipality' in request.QUERY_PARAMS:
-            val = request.QUERY_PARAMS['municipality'].lower().strip()
+        if 'municipality' in request.query_params:
+            val = request.query_params['municipality'].lower().strip()
             if len(val) > 0:
                 municipalities = val.split(',')
                 muni_q_objects = [SQ(municipality=m.strip()) for m in municipalities]
@@ -743,13 +743,13 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                     muni_q |= q
                 queryset = queryset.filter(SQ(muni_q | SQ(django_ct='services.service') | SQ(django_ct='munigeo.address')))
 
-        service = request.QUERY_PARAMS.get('service')
+        service = request.query_params.get('service')
         if service:
             services = service.split(',')
             queryset = queryset.filter(django_ct='services.unit').filter(services__in=services)
 
         models = set()
-        types = request.QUERY_PARAMS.get('type', '').split(',')
+        types = request.query_params.get('type', '').split(',')
         for t in types:
             if t == 'service':
                 models.add(Service)
@@ -803,7 +803,7 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
 
         req = self.context.get('request', None)
         if req:
-            unit_include = req.QUERY_PARAMS.get('unit_include', None)
+            unit_include = req.query_params.get('unit_include', None)
         else:
             unit_include = None
         service_point_id = ret['service_point_id']

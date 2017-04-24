@@ -42,11 +42,6 @@ UTC_TIMEZONE = pytz.timezone('UTC')
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
-    option_list = list(BaseCommand.option_list + (
-        make_option('--cached', dest='cached', action='store_true', help='cache HTTP requests'),
-        make_option('--single', dest='single', action='store', metavar='ID', type='string', help='import only single entity'),
-    ))
-
     importer_types = ['organizations', 'services', 'units', 'departments', 'aliases', 'accessibility']
     supported_languages = ['fi', 'sv', 'en']
 
@@ -55,11 +50,26 @@ class Command(BaseCommand):
         for imp in self.importer_types:
             method = "import_%s" % imp
             assert getattr(self, method, False), "No importer defined for %s" % method
-            opt = make_option('--%s' % imp, dest=imp, action='store_true', help='import %s' % imp)
-            self.option_list.append(opt)
+
         self.services = {}
         self.existing_servicetype_ids = None
         self.existing_servicenode_ids = None
+
+
+    def add_arguments(self, parser):
+        print("add_arg")
+        parser.add_argument('import_types', nargs=1, choices=self.importer_types)
+        parser.add_argument('--cached', action='store_true', dest='cached',
+                            default=False, help='cache HTTP requests')
+        parser.add_argument('--single', action='store', dest='id',
+                            default=False, help='import only single entity')
+
+
+
+    #option_list = list(BaseCommand.option_list + (
+    #    make_option('--cached', dest='cached', action='store_true', help='cache HTTP requests'),
+    #    make_option('--single', dest='single', action='store', metavar='ID', type='string', help='import only single entity'),
+    #))
 
 
     def clean_text(self, text):
@@ -214,7 +224,7 @@ class Command(BaseCommand):
 
         import_count = 0
         for imp in self.importer_types:
-            if not self.options[imp]:
+            if imp not in self.options["import_types"]:
                 continue
             method = getattr(self, "import_%s" % imp)
             if self.verbosity:

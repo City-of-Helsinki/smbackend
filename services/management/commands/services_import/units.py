@@ -5,6 +5,7 @@ import pprint
 import os
 import csv
 import logging
+import sys
 
 import pytz
 from collections import defaultdict
@@ -101,6 +102,8 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
         info['accessibility_properties'] = acp_list
         obj = _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name,
                            bounding_box, gps_to_target_ct, target_srid)
+        #print(info['accessibility_viewpoints'])
+        #print(_parse_accessibility_viewpoints(info['accessibility_viewpoints']))
         _import_unit_services(obj, info, count_services)
     syncher.finish()
 
@@ -250,6 +253,11 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
     # if obj.data_source_url != url:
     #     obj._changed = True
     #     obj.data_source_url = url
+
+    viewpoints = _parse_accessibility_viewpoints(info['accessibility_viewpoints'])
+    if obj.accessibility_viewpoints != viewpoints:
+        obj_changed = True
+        obj.accessibility_viewpoints = viewpoints
 
     data_source = 'tprek'
     if obj.data_source != data_source:
@@ -505,3 +513,25 @@ def _import_unit_sources(obj, info, obj_changed, update_fields):
         update_fields.append('identifier_hash')
 
     return obj_changed, update_fields
+
+
+def _parse_accessibility_viewpoints(acc_viewpoints_str, drop_unknowns=True):
+    viewpoints = {}
+    all_unknown = True
+
+    for viewpoint in acc_viewpoints_str.split(','):
+        viewpoint_id, viewpoint_value = viewpoint.split(':')
+        if viewpoint_value == "unknown":
+            if not drop_unknowns:
+                viewpoints[int(viewpoint_id)] = None
+        else:
+            viewpoints[int(viewpoint_id)] = viewpoint_value
+
+            if all_unknown:
+                all_unknown = False
+
+    if drop_unknowns and all_unknown:
+        return {}
+
+    return viewpoints
+
