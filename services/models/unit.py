@@ -1,5 +1,6 @@
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import HStoreField
+from django.contrib.postgres.fields import JSONField
 
 from munigeo.models import AdministrativeDivision, Municipality
 from munigeo.utils import get_default_srid
@@ -102,6 +103,8 @@ class Unit(models.Model):
     accessibility_sentence_hash = models.CharField(max_length=40, null=True)
     identifier_hash = models.CharField(max_length=40, null=True,
                                        help_text='Automatically generated hash of other identifiers')
+
+    accessibility_viewpoints = JSONField(default="{}")
 
     # Cached fields for better performance
     root_services = models.CommaSeparatedIntegerField(max_length=50, null=True)
