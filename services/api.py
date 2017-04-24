@@ -159,6 +159,8 @@ class TranslatedModelSerializer(object):
 class OrganizationSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = Organization
+        fields = '__all__'
+
 
 class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Organization.objects.all()
@@ -170,6 +172,8 @@ register_view(OrganizationViewSet, 'organization')
 class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = Department
+        fields = '__all__'
+
 
 class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Department.objects.all()
@@ -221,6 +225,7 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPIS
 
     class Meta:
         model = Service
+        fields = '__all__'
 
 
 class JSONAPIViewSetMixin:
@@ -273,6 +278,7 @@ class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
 class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = UnitConnection
+        fields = '__all__'
 
 class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = UnitConnection.objects.all()
@@ -284,6 +290,8 @@ register_view(UnitConnectionViewSet, 'unit_connection')
 class UnitAccessibilityPropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = UnitAccessibilityProperty
+        fields = '__all__'
+
 
 class UnitAccessibilityPropertyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = UnitAccessibilityProperty.objects.all()
