@@ -31,7 +31,8 @@ urlpatterns = [
 
     # url(r'^', include(v1_api.urls)),
     # url(r'^admin/', include(admin.site.urls)),
+
     url(r'^open311/', views.post_service_request, name='services'),
-    url(r'^v1/', include(router.urls)),
-    url(r'^v1/api-token-auth/', obtain_auth_token, name='api-auth-token')
+    url(r'^v2/', include(router.urls)),
+    url(r'^v2/api-token-auth/', obtain_auth_token, name='api-auth-token')
 ]

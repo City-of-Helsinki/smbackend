@@ -5,6 +5,7 @@ local_settings.py
 data/
 .idea
 venv_smbackend
+venv
 .env
 .DS_Store
 .cache

@@ -116,7 +116,9 @@ class Unit(models.Model):
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
-    def get_root_services(self):
+    def get_root_servicenodes(self):
+        # FIXME: fix once services are up and running..
+        return []
         tree_ids = self.services.all().values_list('tree_id', flat=True).distinct()
         qs = Service.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         srv_list = qs.values_list('id', flat=True).distinct()

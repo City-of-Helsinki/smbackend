@@ -58,7 +58,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         print("add_arg")
-        parser.add_argument('import_types', nargs=1, choices=self.importer_types)
+        parser.add_argument('import_types', nargs='*', choices=self.importer_types)
         parser.add_argument('--cached', action='store_true', dest='cached',
                             default=False, help='cache HTTP requests')
         parser.add_argument('--single', action='store', dest='id',
