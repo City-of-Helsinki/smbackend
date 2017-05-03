@@ -65,32 +65,32 @@
     property_id: swimming_water_cyanobacteria
     identifier: 0
     name_fi: Ei sinilevää
-    name_sv: TODO
+    name_sv: Inga blågröna alger
     name_en: TODO
     description_fi: Ei sinilevää, voi uida
     description_en: TODO
-    description_sv: TODO
+    description_sv: Inga blågröna alger, badande möjligt
     quality: good
 - model: observations.AllowedValue
   fields:
     property_id: swimming_water_cyanobacteria
     identifier: 1
     name_fi: Vähän sinilevää
-    name_sv: TODO
+    name_sv: Lite blågröna alger
     name_en: TODO
     description_fi: Vähän sinilevää. Uiminen oman harkinnan mukaan. Suihkussa käynti suositeltavaa uinnin jälkeen.
     description_en: TODO
-    description_sv: TODO
+    description_sv: Lite blågröna alger. Badande enligt eget omdöme. Duschning rekommenderas efter badandet.
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
     property_id: swimming_water_cyanobacteria
     identifier: 2
     name_fi: Runsaasti sinilevää
-    name_sv: TODO
+    name_sv: Rikligt med blågröna alger
     name_en: TODO
     description_fi: Runsaasti sinilevää! Uiminen ei suositeltavaa! Älä päästä lapsia uimaan ja käy suihkussa uinnin jälkeen!
-    description_en: TODO
+    description_en: Rikligt med blågröna alger! Badande rekommenderas inte! Låt inte barn bada och duscha efter badandet!
     description_sv: TODO
     quality: unusable
 - model: observations.AllowedValue
@@ -98,9 +98,9 @@
     property_id: swimming_water_cyanobacteria
     identifier: 3
     name_fi: Erittäin runsaasti sinilevää
-    name_sv: TODO
+    name_sv: Mycket rikligt med blågröna alger
     name_en: TODO
     description_fi: Erittäin runsaasti sinilevää tai sinilevien massaesiintymä. Älä ui!
     description_en: TODO
-    description_sv: TODO
+    description_sv: Mycket rikligt med blågröna alger eller massförekomst av blågröna alger. Bada inte!
     quality: unusable
