@@ -66,10 +66,10 @@
     identifier: 0
     name_fi: Ei sinilevää
     name_sv: Inga blågröna alger
-    name_en: TODO
+    name_en: No cyanobacteria
     description_fi: Ei sinilevää, voi uida
-    description_en: TODO
     description_sv: Inga blågröna alger, badande möjligt
+    description_en: No cyanobacteria, swimming possible
     quality: good
 - model: observations.AllowedValue
   fields:
@@ -77,10 +77,10 @@
     identifier: 1
     name_fi: Vähän sinilevää
     name_sv: Lite blågröna alger
-    name_en: TODO
+    name_en: Some cyanobacteria
     description_fi: Vähän sinilevää. Uiminen oman harkinnan mukaan. Suihkussa käynti suositeltavaa uinnin jälkeen.
-    description_en: TODO
     description_sv: Lite blågröna alger. Badande enligt eget omdöme. Duschning rekommenderas efter badandet.
+    description_en: Some cyanobacteria. Swim at your own discretion. Showering after swimming recommended.
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
@@ -88,10 +88,10 @@
     identifier: 2
     name_fi: Runsaasti sinilevää
     name_sv: Rikligt med blågröna alger
-    name_en: TODO
+    name_en: Plenty of cyanobacteria
     description_fi: Runsaasti sinilevää! Uiminen ei suositeltavaa! Älä päästä lapsia uimaan ja käy suihkussa uinnin jälkeen!
-    description_en: Rikligt med blågröna alger! Badande rekommenderas inte! Låt inte barn bada och duscha efter badandet!
-    description_sv: TODO
+    description_sv: Rikligt med blågröna alger! Badande rekommenderas inte! Låt inte barn bada och duscha efter badandet!
+    description_en: Plenty of cyanobacteria! Swimming not recommended! Do not let children swim and shower after swimming!
     quality: unusable
 - model: observations.AllowedValue
   fields:
@@ -99,8 +99,8 @@
     identifier: 3
     name_fi: Erittäin runsaasti sinilevää
     name_sv: Mycket rikligt med blågröna alger
-    name_en: TODO
+    name_en: Very high levels of cyanobacteria
     description_fi: Erittäin runsaasti sinilevää tai sinilevien massaesiintymä. Älä ui!
-    description_en: TODO
     description_sv: Mycket rikligt med blågröna alger eller massförekomst av blågröna alger. Bada inte!
+    description_en: Very high levels of cyanobacteria or mass occurrence of cyanobacteria. Do not swim!
     quality: unusable
