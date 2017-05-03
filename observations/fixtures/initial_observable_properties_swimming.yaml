@@ -62,7 +62,7 @@
       - 33468
 - model: observations.AllowedValue
   fields:
-    property_id: swimming_water_algae
+    property_id: swimming_water_cyanobacteria
     identifier: 0
     name_fi: Ei sinilevää
     name_sv: TODO
@@ -73,7 +73,7 @@
     quality: good
 - model: observations.AllowedValue
   fields:
-    property_id: swimming_water_algae
+    property_id: swimming_water_cyanobacteria
     identifier: 1
     name_fi: Vähän sinilevää
     name_sv: TODO
@@ -84,7 +84,7 @@
     quality: satisfactory
 - model: observations.AllowedValue
   fields:
-    property_id: swimming_water_algae
+    property_id: swimming_water_cyanobacteria
     identifier: 2
     name_fi: Runsaasti sinilevää
     name_sv: TODO
@@ -95,7 +95,7 @@
     quality: unusable
 - model: observations.AllowedValue
   fields:
-    property_id: swimming_water_algae
+    property_id: swimming_water_cyanobacteria
     identifier: 3
     name_fi: Erittäin runsaasti sinilevää
     name_sv: TODO
