@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 from mptt.models import MPTTModel, TreeForeignKey, TreeManager
 from services.utils import get_translated
 from .keyword import Keyword

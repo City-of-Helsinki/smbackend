@@ -9,7 +9,7 @@ from services.utils import get_translated
 from .department import Department
 from .organization import Organization
 from .service import Service
-from .service_tree_node import ServiceTreeNode
+#from .service_tree_node import ServiceTreeNode
 from .keyword import Keyword
 
 

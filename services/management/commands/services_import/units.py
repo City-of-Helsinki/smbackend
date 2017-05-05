@@ -346,6 +346,7 @@ def _import_unit_services(obj, info, count_services):
     servicenode_ids = sorted([
         sid for sid in info.get('ontologytree_ids', [])
         if sid in EXISTING_SERVICE_TREE_NODE_IDS])
+    # print("ontologytree_ids: %s -> %s" % (info.get('ontologytree_ids', []), servicenode_ids))
 
     obj_servicenode_ids = sorted(obj.service_tree_nodes.values_list('id', flat=True))
     if obj_servicenode_ids != servicenode_ids:

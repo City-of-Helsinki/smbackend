@@ -1,8 +1,9 @@
 from django.db import models
-from mptt.models import MPTTModel, TreeForeignKey, TreeManager
+from mptt.models import MPTTModel, TreeForeignKey
 from services.utils import get_translated
 from .keyword import Keyword
-from .service import ServiceManager, ServiceQuerySet
+from .service import ServiceManager
+from .unit import Unit
 
 
 class ServiceTreeNode(MPTTModel):
@@ -20,3 +21,9 @@ class ServiceTreeNode(MPTTModel):
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
+
+    def get_unit_count(self):
+        srv_list = set(ServiceTreeNode.objects.all().by_ancestor(self).values_list('id', flat=True))
+        srv_list.add(self.id)
+        count = Unit.objects.filter(service_tree_nodes__in=list(srv_list)).distinct().count()
+        return count

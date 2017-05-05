@@ -1,7 +1,9 @@
 import json
 import re
 import logging
+import uuid
 
+from django.http import Http404
 from django.conf import settings
 from django.utils import translation
 from django.db.models import Q
@@ -157,22 +159,50 @@ class TranslatedModelSerializer(object):
 
 
 class OrganizationSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+    id = serializers.SerializerMethodField('get_uuid')
+
     class Meta:
         model = Organization
-        fields = '__all__'
+        exclude = ['uuid',]
+
+    def get_uuid(self, obj):
+            return obj.uuid
 
 
 class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
 
+    def retrieve(self, request, pk=None):
+        try:
+            uuid.UUID(pk)
+        except ValueError:
+            raise Http404
+        org = get_object_or_404(Organization, uuid=pk)
+        serializer = self.serializer_class(org, context=self.get_serializer_context())
+        return Response(serializer.data)
+
 register_view(OrganizationViewSet, 'organization')
 
 
 class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+    id = serializers.SerializerMethodField('get_uuid')
+
     class Meta:
         model = Department
-        fields = '__all__'
+        exclude = ['uuid',]
+
+    def get_uuid(self, obj):
+            return obj.uuid
+
+    def retrieve(self, request, pk=None):
+        try:
+            uuid.UUID(pk)
+        except ValueError:
+            raise Http404
+        dept = get_object_or_404(Department, uuid=pk)
+        serializer = self.serializer_class(dept, context=self.get_serializer_context())
+        return Response(serializer.data)
 
 
 class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -188,6 +218,14 @@ def root_services(services):
                Service.objects.filter(level=0).filter(
                    tree_id__in=tree_ids))
 
+
+def root_servicenodes(services):
+    tree_ids = set(s.tree_id for s in services)
+    return map(lambda x: x.id,
+               Service.objects.filter(level=0).filter(
+                   tree_id__in=tree_ids))
+
+
 class JSONAPISerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super(JSONAPISerializer, self).__init__(*args, **kwargs)
@@ -199,14 +237,44 @@ class JSONAPISerializer(serializers.ModelSerializer):
                     continue
                 del self.fields[field_name]
 
-class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
+
+class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
     children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    def __init__(self, *args, **kwargs):
+        super(ServiceTreeSerializer, self).__init__(*args, **kwargs)
+        keep_fields = getattr(self, 'keep_fields', [])
+
+    def to_representation(self, obj):
+        ret = super(ServiceTreeSerializer, self).to_representation(obj)
+        include_fields = self.context.get('include', [])
+        if 'ancestors' in include_fields:
+            ancestors = obj.get_ancestors(ascending=True)
+            ser = ServiceTreeSerializer(ancestors, many=True, context={'only': ['name']})
+            ret['ancestors'] = ser.data
+        only_fields = self.context.get('only', [])
+        if 'parent' in only_fields:
+            ret['parent'] = obj.parent_id
+        return ret
+
+    def root_servicenodes(self, obj):
+        return next(root_servicenodes([obj]))
+
+    class Meta:
+        model = ServiceTreeNode
+        # fields = '__all__'
+        exclude = ['ontologyword_reference',]
+
+
+class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
+    # children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     def __init__(self, *args, **kwargs):
         super(ServiceSerializer, self).__init__(*args, **kwargs)
         keep_fields = getattr(self, 'keep_fields', [])
-        if not keep_fields or 'root' in keep_fields:
-            self.fields['root'] = serializers.SerializerMethodField('root_services')
+        # FIXME needs checking
+        #if not keep_fields or 'root' in keep_fields:
+        #    self.fields['root'] = serializers.SerializerMethodField('root_services')
 
     def to_representation(self, obj):
         ret = super(ServiceSerializer, self).to_representation(obj)
@@ -272,6 +340,7 @@ class JSONAPIViewSetMixin:
 
         return context
 
+
 class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
     pass
 
@@ -279,6 +348,7 @@ class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSeria
     class Meta:
         model = UnitConnection
         fields = '__all__'
+
 
 class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = UnitConnection.objects.all()
@@ -304,6 +374,25 @@ class UnitIdentifierSerializer(serializers.ModelSerializer):
         exclude = ['unit', 'id']
 
 
+class ServiceTreeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
+    queryset = ServiceTreeNode.objects.all()
+    serializer_class = ServiceTreeSerializer
+    filter_fields = ['level', 'parent']
+
+    def get_queryset(self):
+        queryset = super(ServiceTreeViewSet, self).get_queryset()
+        args = self.request.query_params
+        if 'id' in args:
+            id_list = args['id'].split(',')
+            queryset = queryset.filter(id__in=id_list)
+        if 'ancestor' in args:
+            val = args['ancestor']
+            queryset = queryset.by_ancestor(val)
+        return queryset
+
+register_view(ServiceTreeViewSet, 'service')
+
+
 class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
@@ -320,10 +409,11 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
             queryset = queryset.by_ancestor(val)
         return queryset
 
-register_view(ServiceViewSet, 'service')
+register_view(ServiceViewSet, 'serviceword')
 
-class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
-                     munigeo_api.GeoModelSerializer, JSONAPISerializer):
+
+class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
+                     JSONAPISerializer):
     connections = UnitConnectionSerializer(many=True)
     accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
     identifiers = UnitIdentifierSerializer(many=True)
@@ -374,10 +464,10 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
             ret['keywords'] = kw_dict
 
         if 'root_services' in ret:
-            if obj.root_services == None or obj.root_services == '':
+            if obj.root_servicenodes == None or obj.root_servicenodes == '':
                 ret['root_services'] = None
             else:
-                ret['root_services'] = [int(x) for x in obj.root_services.split(',')]
+                ret['root_services'] = [int(x) for x in obj.root_servicenodes.split(',')]
 
         include_fields = self.context.get('include', [])
         if 'department' in include_fields:
@@ -389,13 +479,13 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
         # Not using actual serializer instances below is a performance optimization.
         if 'services' in include_fields:
             services_json = []
-            for s in obj.services.all():
+            for s in obj.service_tree_nodes.all():
                 name = {}
                 for lang in LANGUAGES:
                     name[lang] = getattr(s, 'name_{0}'.format(lang))
                 data = {'id': s.id, 'name': name, 'root': s.get_root().id}
-                if s.identical_to:
-                    data['identical_to'] = getattr(s.identical_to, 'id', None)
+                #if s.identical_to:
+                #    data['identical_to'] = getattr(s.identical_to, 'id', None)
                 if s.level is not None:
                     data['level'] = s.level
                 services_json.append(data)
@@ -427,7 +517,9 @@ class UnitSerializer(TranslatedModelSerializer, MPTTModelSerializer,
     class Meta:
         model = Unit
         exclude = [
-            'connection_hash', 'accessibility_property_hash',
+            'connection_hash',
+            'accessibility_property_hash',
+            'accessibility_sentence_hash',
             'identifier_hash',
         ]
 
@@ -470,8 +562,8 @@ class KmlRenderer(renderers.BaseRenderer):
 class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
-
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
+    filter_fields = ['provider_type',]
 
     def get_serializer_context(self):
         ret = super(UnitViewSet, self).get_serializer_context()
@@ -518,11 +610,12 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         def services_by_ancestors(service_ids):
             srv_list = set()
             for srv_id in service_ids:
-                srv_list |= set(Service.objects.all().by_ancestor(srv_id).values_list('id', flat=True))
+                srv_list |= set(ServiceTreeNode.objects.all().by_ancestor(srv_id).values_list('id', flat=True))
                 srv_list.add(int(srv_id))
             return list(srv_list)
 
         services = filters.get('service', None)
+
         service_ids = None
         if services:
             services = services.lower()
@@ -531,7 +624,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             if level_specs['type'] == 'include':
                 service_ids = level_specs['services']
         if service_ids:
-            queryset = queryset.filter(services__in=services_by_ancestors(service_ids)).distinct()
+            queryset = queryset.filter(service_tree_nodes__in=services_by_ancestors(service_ids)).distinct()
 
         service_ids = None
         val = filters.get('exclude_services', None)
