@@ -417,6 +417,8 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
     connections = UnitConnectionSerializer(many=True)
     accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
     identifiers = UnitIdentifierSerializer(many=True)
+    organization = serializers.SerializerMethodField('organization_uuid')
+    department = serializers.SerializerMethodField('department_uuid')
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
@@ -449,6 +451,16 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
             else:
                 result[key] = value
         return result
+
+    def organization_uuid(self, obj):
+        if obj.organization is not None:
+            return obj.organization.uuid
+        return None
+
+    def department_uuid(self, obj):
+        if obj.department is not None:
+            return obj.department.uuid
+        return None
 
     def to_representation(self, obj):
         ret = super(UnitSerializer, self).to_representation(obj)
