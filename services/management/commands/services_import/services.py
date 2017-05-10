@@ -80,7 +80,7 @@ def import_services(syncher=None, noop=False, logger=None, importer=None):
         importer._sync_searchwords(obj, d)
 
         if obj._changed:
-            # obj.unit_count = obj.get_unit_count()
+            obj.unit_count = obj.get_unit_count()
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
             obj.save()
             importer.services_changed = True
