@@ -18,6 +18,12 @@ class Service(models.Model):
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
+    def get_unit_count(self):
+        from .unit import Unit
+        srv_list = set(Service.objects.all().by_ancestor(self).values_list('id', flat=True))
+        srv_list.add(self.id)
+        count = Unit.objects.filter(service__in=list(srv_list)).distinct().count()
+        return count
 
 
 class ServiceManager(TreeManager):
