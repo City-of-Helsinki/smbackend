@@ -2,9 +2,14 @@ from modeltranslation.translator import translator, register, TranslationOptions
 from services.models import *
 
 
-class ServiceTranslationOptions(TranslationOptions):
+class OntologyWordTranslationOptions(TranslationOptions):
     fields = ('name',)
-translator.register(Service, ServiceTranslationOptions)
+translator.register(OntologyWord, OntologyWordTranslationOptions)
+
+
+class OntologyTreeNodeTranslationOptions(TranslationOptions):
+    fields = ('name',)
+translator.register(OntologyTreeNode, OntologyTreeNodeTranslationOptions)
 
 
 class OrganizationTranslationOptions(TranslationOptions):
@@ -25,11 +30,6 @@ translator.register(Unit, UnitTranslationOptions)
 class UnitConnectionTranslationOptions(TranslationOptions):
     fields = ('name', 'www')
 translator.register(UnitConnection, UnitConnectionTranslationOptions)
-
-
-class ServiceTreeNodeTranslationOptions(TranslationOptions):
-    fields = ('name',)
-translator.register(ServiceTreeNode, ServiceTreeNodeTranslationOptions)
 
 
 class AccessibilitySentenceTranslationOptions(TranslationOptions):

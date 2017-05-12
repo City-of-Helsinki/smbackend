@@ -2,7 +2,7 @@ from rest_framework import serializers, viewsets
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from django.utils.translation import ugettext_lazy as _
 
-from services.api import ServiceSerializer, UnitSerializer
+from services.api import OntologyWordSerializer as ServiceSerializer, UnitSerializer
 from . import models
 from .serializers import *
 
@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 
 
 from services.api import (
-    JSONAPIViewSetMixin, ServiceViewSet, UnitViewSet)
+    JSONAPIViewSetMixin, OntologyWordViewSet as ServiceViewSet, UnitViewSet)
 
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Observation.objects.all()

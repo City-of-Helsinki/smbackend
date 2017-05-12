@@ -215,14 +215,15 @@ register_view(DepartmentViewSet, 'department')
 def root_services(services):
     tree_ids = set(s.tree_id for s in services)
     return map(lambda x: x.id,
-               Service.objects.filter(level=0).filter(
+               OntologyWord.objects.filter(level=0).filter(
                    tree_id__in=tree_ids))
 
 
 def root_servicenodes(services):
+    # check this
     tree_ids = set(s.tree_id for s in services)
     return map(lambda x: x.id,
-               Service.objects.filter(level=0).filter(
+               OntologyTree.objects.filter(level=0).filter(
                    tree_id__in=tree_ids))
 
 
@@ -261,27 +262,27 @@ class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
         return next(root_servicenodes([obj]))
 
     class Meta:
-        model = ServiceTreeNode
+        model = OntologyTreeNode
         # fields = '__all__'
         exclude = ['ontologyword_reference',]
 
 
-class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
+class OntologyWordSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
     # children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     def __init__(self, *args, **kwargs):
-        super(ServiceSerializer, self).__init__(*args, **kwargs)
+        super(OntologyWordSerializer, self).__init__(*args, **kwargs)
         keep_fields = getattr(self, 'keep_fields', [])
         # FIXME needs checking
         #if not keep_fields or 'root' in keep_fields:
         #    self.fields['root'] = serializers.SerializerMethodField('root_services')
 
     def to_representation(self, obj):
-        ret = super(ServiceSerializer, self).to_representation(obj)
+        ret = super(OntologyWordSerializer, self).to_representation(obj)
         include_fields = self.context.get('include', [])
         if 'ancestors' in include_fields:
             ancestors = obj.get_ancestors(ascending=True)
-            ser = ServiceSerializer(ancestors, many=True, context={'only': ['name']})
+            ser = OntologyWordSerializer(ancestors, many=True, context={'only': ['name']})
             ret['ancestors'] = ser.data
         only_fields = self.context.get('only', [])
         if 'parent' in only_fields:
@@ -292,7 +293,7 @@ class ServiceSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPIS
         return next(root_services([obj]))
 
     class Meta:
-        model = Service
+        model = OntologyWord
         fields = '__all__'
 
 
@@ -375,7 +376,7 @@ class UnitIdentifierSerializer(serializers.ModelSerializer):
 
 
 class ServiceTreeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
-    queryset = ServiceTreeNode.objects.all()
+    queryset = OntologyTreeNode.objects.all()
     serializer_class = ServiceTreeSerializer
     filter_fields = ['level', 'parent']
 
@@ -393,13 +394,13 @@ class ServiceTreeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 register_view(ServiceTreeViewSet, 'service')
 
 
-class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
-    queryset = Service.objects.all()
-    serializer_class = ServiceSerializer
+class OntologyWordViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
+    queryset = OntologyWord.objects.all()
+    serializer_class = OntologyWordSerializer
     #filter_fields = ['level', 'parent']
 
     def get_queryset(self):
-        queryset = super(ServiceViewSet, self).get_queryset()
+        queryset = super(OntologyWordViewSet, self).get_queryset()
         args = self.request.query_params
         if 'id' in args:
             id_list = args['id'].split(',')
@@ -409,7 +410,7 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
             queryset = queryset.by_ancestor(val)
         return queryset
 
-register_view(ServiceViewSet, 'serviceword')
+register_view(OntologyWordViewSet, 'ontologyword')
 
 
 class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
@@ -622,7 +623,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         def services_by_ancestors(service_ids):
             srv_list = set()
             for srv_id in service_ids:
-                srv_list |= set(ServiceTreeNode.objects.all().by_ancestor(srv_id).values_list('id', flat=True))
+                srv_list |= set(OntologyTreeNode.objects.all().by_ancestor(srv_id).values_list('id', flat=True))
                 srv_list.add(int(srv_id))
             return list(srv_list)
 

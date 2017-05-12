@@ -21,8 +21,8 @@ from munigeo.models import Municipality
 
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.organizations import import_organizations
-from services.models import UnitAlias, Unit, ServiceTreeNode, Service, AccessibilityVariable, Keyword, UnitConnection, \
-    UnitAccessibilityProperty, UnitIdentifier
+from services.models import Unit, OntologyTreeNode, OntologyWord, AccessibilityVariable, \
+    Keyword, UnitConnection, UnitAccessibilityProperty, UnitIdentifier
 from services.models.unit import PROJECTION_SRID, PROVIDER_TYPES
 from services.models.unit_connection import SECTION_TYPES
 from .utils import pk_get, save_translated_field, postcodes, keywords_by_id, keywords, SUPPORTED_LANGUAGES
@@ -32,8 +32,8 @@ ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
 KEYWORDS = None
 KEYWORDS_BY_ID = None
 ACCESSIBILITY_VARIABLES = {x.id: x for x in AccessibilityVariable.objects.all()}
-EXISTING_SERVICE_IDS = set(Service.objects.values_list('id', flat=True))
-EXISTING_SERVICE_TREE_NODE_IDS = set(ServiceTreeNode.objects.values_list('id', flat=True))
+EXISTING_SERVICE_IDS = set(OntologyWord.objects.values_list('id', flat=True))
+EXISTING_SERVICE_TREE_NODE_IDS = set(OntologyTreeNode.objects.values_list('id', flat=True))
 LOGGER = None
 VERBOSITY = False
 

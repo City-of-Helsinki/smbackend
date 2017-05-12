@@ -8,8 +8,7 @@ from munigeo.utils import get_default_srid
 from services.utils import get_translated
 from .department import Department
 from .organization import Organization
-from .service import Service
-#from .service_tree_node import ServiceTreeNode
+from .ontology_word import OntologyWord
 from .keyword import Keyword
 
 
@@ -91,8 +90,8 @@ class Unit(models.Model):
 
     # origin_last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
-    service_tree_nodes = models.ManyToManyField("ServiceTreeNode", related_name='units')
-    services = models.ManyToManyField("Service", related_name='units')
+    service_tree_nodes = models.ManyToManyField("OntologyTreeNode", related_name='units')
+    services = models.ManyToManyField("OntologyWord", related_name='units')
     divisions = models.ManyToManyField(AdministrativeDivision)
     keywords = models.ManyToManyField(Keyword)
 
@@ -120,12 +119,12 @@ class Unit(models.Model):
         # FIXME: fix once services are up and running..
         return []
         tree_ids = self.services.all().values_list('tree_id', flat=True).distinct()
-        qs = Service.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
+        qs = OntologyWord.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         srv_list = qs.values_list('id', flat=True).distinct()
         return sorted(srv_list)
 
     def get_root_servitreenodes(self):
         tree_ids = self.service_tree_nodes.all().values_list('tree_id', flat=True).distinct()
-        qs = ServiceTreeNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
+        qs = OntologyTreeNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         srv_list = qs.values_list('id', flat=True).distinct()
         return sorted(srv_list)

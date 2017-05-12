@@ -2,7 +2,7 @@ import pprint
 from datetime import datetime
 import pytz
 from munigeo.importer.sync import ModelSyncher
-from services.models import ServiceTreeNode, Service
+from services.models import OntologyTreeNode, OntologyWord
 from .utils import pk_get, save_translated_field
 
 UTC_TIMEZONE = pytz.timezone('UTC')
@@ -15,8 +15,8 @@ def import_services(syncher=None, noop=False, logger=None, importer=None):
     ontologytrees = pk_get('ontologytree')
     ontologywords = pk_get('ontologyword')
 
-    nodesyncher = ModelSyncher(ServiceTreeNode.objects.all(), lambda obj: obj.id)
-    servicesyncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
+    nodesyncher = ModelSyncher(OntologyTreeNode.objects.all(), lambda obj: obj.id)
+    servicesyncher = ModelSyncher(OntologyWord.objects.all(), lambda obj: obj.id)
 
     def _build_servicetree(ontologytrees):
         tree = [ot for ot in ontologytrees if not ot.get('parent_id')]
@@ -36,7 +36,7 @@ def import_services(syncher=None, noop=False, logger=None, importer=None):
     def handle_servicenode(d):
         obj = nodesyncher.get(d['id'])
         if not obj:
-            obj = ServiceTreeNode(id=d['id'])
+            obj = OntologyTreeNode(id=d['id'])
             obj._changed = True
         save_translated_field(obj, 'name', d, 'name')
 

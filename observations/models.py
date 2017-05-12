@@ -22,7 +22,7 @@ class ObservableProperty(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=100, null=False, blank=False, db_index=True)
     measurement_unit = models.CharField(max_length=20, null=True, blank=False)
-    services = models.ManyToManyField(services_models.Service, related_name='observable_properties')
+    services = models.ManyToManyField(services_models.OntologyWord, related_name='observable_properties')
     observation_type = models.CharField(max_length=80, null=False, blank=False)
     def __str__(self):
         return "%s (%s)" % (self.name, self.id)
