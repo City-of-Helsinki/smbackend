@@ -265,8 +265,7 @@ class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
 
     class Meta:
         model = OntologyTreeNode
-        # fields = '__all__'
-        exclude = ['ontologyword_reference',]
+        fields = '__all__'
 
 
 class OntologyWordSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
@@ -499,7 +498,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 name = {}
                 for lang in LANGUAGES:
                     name[lang] = getattr(s, 'name_{0}'.format(lang))
-                data = {'id': s.id, 'name': name, 'root': s.get_root().id}
+                data = {'id': s.id, 'name': name, 'root': s.get_root().id, 'ontologyword_reference': s.ontologyword_reference}
                 #if s.identical_to:
                 #    data['identical_to'] = getattr(s.identical_to, 'id', None)
                 if s.level is not None:
