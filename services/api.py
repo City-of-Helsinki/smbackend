@@ -31,6 +31,8 @@ from rest_framework_jsonp.renderers import JSONPRenderer
 from django.template.loader import render_to_string
 from django.utils.module_loading import import_string
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']:
     DEFAULT_RENDERERS = [import_string(renderer_module) for renderer_module in settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']]
 else:
@@ -378,6 +380,7 @@ class UnitIdentifierSerializer(serializers.ModelSerializer):
 class ServiceTreeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = OntologyTreeNode.objects.all()
     serializer_class = ServiceTreeSerializer
+    filter_backends = (DjangoFilterBackend,)
     filter_fields = ['level', 'parent']
 
     def get_queryset(self):
@@ -576,6 +579,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
+    filter_backends = (DjangoFilterBackend,)
     filter_fields = ['provider_type',]
 
     def get_serializer_context(self):
@@ -613,6 +617,11 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             val = filters.get('provider_type')
             pr_ids = val.split(',')
             queryset = queryset.filter(provider_type__in=pr_ids)
+
+        if 'provider_type__not' in filters:
+            val = filters.get('provider_type__not')
+            pr_ids = val.split('.')
+            queryset = queryset.exclude(provider_type__in=pr_ids)
 
         level = filters.get('level', None)
         level_specs = None
@@ -743,6 +752,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         return response
 
 register_view(UnitViewSet, 'unit')
+
 
 class SearchSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
