@@ -579,7 +579,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     serializer_class = UnitSerializer
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ['provider_type',]
 
     def get_serializer_context(self):
         ret = super(UnitViewSet, self).get_serializer_context()
