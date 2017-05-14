@@ -765,7 +765,7 @@ class SearchSerializer(serializers.Serializer):
         if model == Unit:
             key = 'unit'
         else:
-            key = 'service'
+            key = 'ontologyteenode'
         for spec in ['include', 'only']:
             if spec in context:
                 context[spec] = context[spec].get(key, [])
@@ -867,7 +867,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 muni_q = muni_q_objects.pop()
                 for q in muni_q_objects:
                     muni_q |= q
-                queryset = queryset.filter(SQ(muni_q | SQ(django_ct='services.service') | SQ(django_ct='munigeo.address')))
+                queryset = queryset.filter(SQ(muni_q | SQ(django_ct='services.ontologytreenode') | SQ(django_ct='munigeo.address')))
 
         service = request.query_params.get('service')
         if service:
@@ -877,7 +877,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         models = set()
         types = request.query_params.get('type', '').split(',')
         for t in types:
-            if t == 'service':
+            if t == 'ontologytreenode':
                 models.add(Service)
             elif t == 'unit':
                 models.add(Unit)
