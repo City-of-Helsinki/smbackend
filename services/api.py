@@ -478,11 +478,14 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 kw_dict[kw.language].append(kw.name)
             ret['keywords'] = kw_dict
 
-        if 'root_services' in ret:
-            if obj.root_servicenodes == None or obj.root_servicenodes == '':
-                ret['root_services'] = None
+        if 'root_ontologytreenodes' in ret:
+            if obj.root_ontologytreenodes == None or obj.root_ontologytreenodes == '':
+                ret['root_ontologytreenodes'] = None
             else:
-                ret['root_services'] = [int(x) for x in obj.root_servicenodes.split(',')]
+                ret['root_ontologytreenodes'] = [int(x) for x in obj.root_ontologytreenodes.split(',')]
+
+        if 'root_services' in ret:
+            ret['root_services'] = ret.get('root_ontologytreenodes')
 
         include_fields = self.context.get('include', [])
         if 'department' in include_fields:

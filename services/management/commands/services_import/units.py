@@ -104,7 +104,7 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
                            bounding_box, gps_to_target_ct, target_srid)
         #print(info['accessibility_viewpoints'])
         #print(_parse_accessibility_viewpoints(info['accessibility_viewpoints']))
-        _import_unit_services(obj, info, count_services)
+        # _import_unit_services(obj, info, count_services)
     syncher.finish()
 
     return org_syncher, dept_syncher, syncher
@@ -309,7 +309,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
 
     update_fields = ['modified_time']
 
-    _import_unit_services(obj, info, set())
+    obj_changed, update_fields = _import_unit_services(obj, info, set(), obj_changed, update_fields)
     _sync_searchwords(obj, info)
 
     obj_changed, update_fields = _import_unit_accessibility_variables(obj, info, obj_changed, update_fields)
@@ -324,8 +324,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
     return obj
 
 
-def _import_unit_services(obj, info, count_services):
-    update_fields = ['modified_time']
+def _import_unit_services(obj, info, count_services, obj_changed, update_fields):
 
     service_ids = sorted([
         sid for sid in info.get('ontologyword_ids', [])
@@ -343,25 +342,26 @@ def _import_unit_services(obj, info, count_services):
         # Update root service cache
         obj.root_servicenodes = ','.join(str(x) for x in obj.get_root_servicenodes())
 
-    servicenode_ids = sorted([
+    ontologytreenode_ids = sorted([
         sid for sid in info.get('ontologytree_ids', [])
         if sid in EXISTING_SERVICE_TREE_NODE_IDS])
     # print("ontologytree_ids: %s -> %s" % (info.get('ontologytree_ids', []), servicenode_ids))
 
-    obj_servicenode_ids = sorted(obj.service_tree_nodes.values_list('id', flat=True))
-    if obj_servicenode_ids != servicenode_ids:
+    obj_ontologytreenode_ids = sorted(obj.service_tree_nodes.values_list('id', flat=True))
+    if obj_ontologytreenode_ids != ontologytreenode_ids:
         # if not obj_created and VERBOSITY:
         #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_servicenode_ids, servicenode_ids))
-        obj.service_tree_nodes = servicenode_ids
+        obj.service_tree_nodes = ontologytreenode_ids
 
-        for srv_id in servicenode_ids:
-            count_services.add(srv_id)
+        for treenode_id in ontologytreenode_ids:
+            count_services.add(treenode_id)
 
         # Update root service cache
-        obj.root_servicenodes = ','.join(str(x) for x in obj.get_root_servicenodes())
-        update_fields.append('root_servicenodes')
+        obj.root_ontologytreenodes = ','.join(str(x) for x in obj.get_root_ontologytreenodes())
+        update_fields.append('root_ontologytreenodes')
+        obj_changed=True
 
-    return update_fields
+    return obj_changed, update_fields
 
 
 def _sync_searchwords(obj, info):
