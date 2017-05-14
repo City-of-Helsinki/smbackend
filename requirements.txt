@@ -18,7 +18,7 @@ django-polymorphic==1.0.2
 django==1.11.1
 djangorestframework-jsonp==1.0.0
 djangorestframework==3.6.2
-elasticsearch==1.6.0
+elasticsearch==1.9.0
 first==2.0.1              # via pip-tools
 lxml==3.4.4
 markdown==2.6.2
