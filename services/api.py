@@ -225,7 +225,7 @@ def root_servicenodes(services):
     # check this
     tree_ids = set(s.tree_id for s in services)
     return map(lambda x: x.id,
-               OntologyTree.objects.filter(level=0).filter(
+               OntologyTreeNode.objects.filter(level=0).filter(
                    tree_id__in=tree_ids))
 
 
@@ -258,6 +258,7 @@ class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
         only_fields = self.context.get('only', [])
         if 'parent' in only_fields:
             ret['parent'] = obj.parent_id
+        ret['root'] = self.root_servicenodes(obj)
         return ret
 
     def root_servicenodes(self, obj):
