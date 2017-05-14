@@ -1,3 +1,4 @@
+from django.core.validators import validate_comma_separated_integer_list
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import HStoreField
 from django.contrib.postgres.fields import JSONField
@@ -107,13 +108,23 @@ class Unit(models.Model):
 
     # Cached fields for better performance
     root_services = models.CommaSeparatedIntegerField(max_length=50, null=True)
-    root_servicenodes = models.CommaSeparatedIntegerField(max_length=50, null=True)
+    root_ontologytreenodes = models.CharField(max_length=50, null=True,
+                          validators=[validate_comma_separated_integer_list])
 
     objects = models.GeoManager()
     search_objects = UnitSearchManager()
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
+
+
+    def get_root_ontologytreenodes(self):
+        from .ontology_tree_node import OntologyTreeNode
+
+        tree_ids = self.service_tree_nodes.all().values_list('tree_id', flat=True).distinct()
+        qs = OntologyTreeNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
+        treenode_list = qs.values_list('id', flat=True).distinct()
+        return sorted(treenode_list)
 
     def get_root_servicenodes(self):
         # FIXME: fix once services are up and running..
