@@ -22,6 +22,7 @@ from haystack.query import SearchQuerySet, SQ
 from haystack.inputs import AutoQuery
 
 from services.models import *
+from services.models.unit_connection import SECTION_TYPES
 from services.accessibility import RULES as accessibility_rules
 from munigeo.models import *
 from munigeo import api as munigeo_api
@@ -348,9 +349,12 @@ class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
     pass
 
 class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+    section_type = serializers.SerializerMethodField()
     class Meta:
         model = UnitConnection
         fields = '__all__'
+    def get_section_type(self, obj):
+        return next(x[1].lower() for x in SECTION_TYPES if obj.section_type == x[0])
 
 
 class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):
