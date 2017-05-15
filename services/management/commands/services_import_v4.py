@@ -22,7 +22,7 @@ from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.utils.translation import activate, get_language
 
-from munigeo.models import Municipality
+from munigeo.models import Municipality, AdministrativeDivision
 from munigeo.importer.sync import ModelSyncher
 
 from services.management.commands.services_import.aliases import import_aliases
@@ -159,6 +159,24 @@ class Command(BaseCommand):
         obj.keywords = list(obj.new_keywords)
         obj._changed = True
 
+    @db.transaction.atomic
+    def update_division_units(self):
+        rescue_stations = Unit.objects.filter(service_tree_nodes__id=1072)
+        rescue_areas = AdministrativeDivision.objects.filter(type__type='rescue_area')
+        # TODO: request this data to be added to pel_suojelupiiri
+        mapping = {
+            1: 8953,
+            2: 8954,
+            3: 8952,
+            4: 8955,
+            5: 8956,
+            6: 8958,
+            7: 8957,
+            8: 8957
+        }
+        for area in rescue_areas:
+            area.service_point_id = mapping[int(area.origin_id)]
+            area.save()
 
     @db.transaction.atomic
     def import_organizations(self, noop=False):
@@ -236,7 +254,7 @@ class Command(BaseCommand):
         #    self.update_root_services()
         #if self.count_services:
         #    self.update_unit_counts()
-        #self.update_division_units()
+        self.update_division_units()
 
         if not import_count:
             sys.stderr.write("Nothing to import.\n")
