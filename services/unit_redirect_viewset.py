@@ -1,6 +1,5 @@
 from rest_framework import viewsets
 from rest_framework import status
-from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from urllib.parse import parse_qs
 from django.shortcuts import redirect
@@ -32,12 +31,11 @@ class UnitRedirectViewSet(viewsets.ViewSet):
         queryset = ServiceMapping.objects.filter(service_id__in=service_ids)
         if queryset.count() == 0:
             return Response({'message': 'service id not found'}, status=status.HTTP_404_NOT_FOUND)
-        url = self._generate_redirect_url(queryset, request, params)
-        return redirect(url, permanent=True)
+        return Response(self._generate_redirect_parameters(queryset, params))
 
-    def _generate_redirect_url(self, queryset, request, params):
+    def _generate_redirect_parameters(self, queryset, params):
         for mapping in queryset:
-            params.appendlist('service', str(mapping.node_id.id))
+            params.appendlist('treenode', str(mapping.node_id.id))
             additional_filter = parse_qs(mapping.filter)
             for k, val in additional_filter.items():
                 for x in val:
@@ -47,7 +45,4 @@ class UnitRedirectViewSet(viewsets.ViewSet):
         for key, val in params.lists():
             final_query[key] = ','.join(val)
 
-        url = (reverse('unit-list', request=request) +
-               '?' + final_query.urlencode(safe=','))
-
-        return url
+        return final_query
