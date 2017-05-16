@@ -121,20 +121,20 @@ LEVELS = {
         # The service ids below are either included or excluded according
         # to the type above.
         'services': [
-            25002, # health stations
-            26444, # basic education
-            26414, # pre school education
-            27722 # municipal day care
-            # 25344, # recycling
-            # 25480, # public libraries
-        ]
+            991,   # health stations
+            1097,  # basic education
+            2125,  # pre school education
+            869    # municipal day care
+            #  25344, # recycling
+            #  25480, # public libraries
+         ]
     },
     'customer_service': {
         'type': 'exclude',
         'services': [
-            25658, # statues & art
-            25538, # wlan hotspots
-            34796  # parking vending machines
+            2006,  # statues & art
+            332,   # wlan hotspots
+            530    # parking vending machines
         ]
     }
 }
