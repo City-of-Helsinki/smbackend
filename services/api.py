@@ -550,6 +550,12 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
             ret['extensions'] = self.handle_extension_translations(ret['extensions'])
         if 'data_source' in ret:
             del ret['data_source']
+        if 'desc' in ret:
+            ret['description'] = ret['desc']
+            del ret['desc']
+        if 'short_desc' in ret:
+            ret['short_description'] = ret['short_desc']
+            del ret['short_desc']
         return ret
 
     class Meta:
