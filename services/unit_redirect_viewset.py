@@ -2,9 +2,9 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
 from urllib.parse import parse_qs
-from django.shortcuts import redirect
 from services.models.service_mapping import ServiceMapping
 from django.http import QueryDict
+
 
 class UnitRedirectViewSet(viewsets.ViewSet):
     """
