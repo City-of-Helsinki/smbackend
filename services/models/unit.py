@@ -43,7 +43,7 @@ class Unit(models.Model):
     id = models.IntegerField(primary_key=True)
 
     data_source_url = models.URLField(null=True)
-    description = models.TextField(null=True)
+    # description = models.TextField(null=True)
 
     location = models.PointField(null=True, srid=PROJECTION_SRID)  # lat, lng?
     geometry = models.GeometryField(srid=PROJECTION_SRID, null=True)
@@ -126,7 +126,7 @@ class Unit(models.Model):
         treenode_list = qs.values_list('id', flat=True).distinct()
         return sorted(treenode_list)
 
-    def get_root_servicenodes(self):
+    def removed_get_root_servicenodes(self):
         # FIXME: fix once services are up and running..
         return []
         tree_ids = self.services.all().values_list('tree_id', flat=True).distinct()
@@ -134,7 +134,7 @@ class Unit(models.Model):
         srv_list = qs.values_list('id', flat=True).distinct()
         return sorted(srv_list)
 
-    def get_root_servitreenodes(self):
+    def removed_get_root_servitreenodes(self):
         tree_ids = self.service_tree_nodes.all().values_list('tree_id', flat=True).distinct()
         qs = OntologyTreeNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         srv_list = qs.values_list('id', flat=True).distinct()

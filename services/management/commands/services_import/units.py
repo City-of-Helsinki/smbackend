@@ -144,15 +144,15 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
     # print('handling unit {} ({})'.format(info['name_fi'], info['id']))
 
     save_translated_field(obj, 'name', info, 'name')
-    save_translated_field(obj, 'description', info, 'desc')
+    save_translated_field(obj, 'desc', info, 'desc')
+    save_translated_field(obj, 'short_desc', info, 'short_desc')
     save_translated_field(obj, 'street_address', info, 'street_address')
 
     save_translated_field(obj, 'www_url', info, 'www')
     save_translated_field(obj, 'picture_caption', info, 'picture_caption')
 
-    fields_that_need_translation = ('name', 'description', 'street_address', 'www', 'picture_caption', 'desc',
-                                    'address_city', 'address_postal_full', 'call_charge_info', 'extra_searchwords',
-                                    'short_desc')
+    fields_that_need_translation = ('name', 'street_address', 'www', 'picture_caption', 'desc', 'short_desc',
+                                    'address_city', 'address_postal_full', 'call_charge_info', 'extra_searchwords')
     for field in fields_that_need_translation:
         if save_translated_field(obj, field, info, field):
             obj_changed = True
@@ -325,23 +325,6 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
 
 
 def _import_unit_services(obj, info, count_services, obj_changed, update_fields):
-
-    service_ids = sorted([
-        sid for sid in info.get('ontologyword_ids', [])
-        if sid in EXISTING_SERVICE_IDS])
-
-    obj_service_ids = sorted(obj.services.values_list('id', flat=True))
-    if obj_service_ids != service_ids:
-        # if not obj_created and VERBOSITY:
-        #     LOGGER.info("%s service set changed: %s -> %s" % (obj, obj_service_ids, service_ids))
-        obj.service_types = service_ids
-
-        for srv_id in service_ids:
-            count_services.add(srv_id)
-
-        # Update root service cache
-        obj.root_servicenodes = ','.join(str(x) for x in obj.get_root_servicenodes())
-
     ontologytreenode_ids = sorted([
         sid for sid in info.get('ontologytree_ids', [])
         if sid in EXISTING_SERVICE_TREE_NODE_IDS])
