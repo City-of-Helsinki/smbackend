@@ -25,7 +25,7 @@ def import_departments(org_syncher=None, noop=False, logger=None):
             obj = Department(uuid=d['id'])
             obj_has_changed = True
 
-        fields = ('phone', 'address_zip', 'hierarchy_level', 'object_identifier', 'organization_type',
+        fields = ('phone', 'address_zip', 'hierarchy_level', 'oid', 'organization_type',
                   'business_id')
         fields_that_need_translation = ('name', 'abbr', 'street_address', 'address_city', 'address_postal_full',
                                         'www')
