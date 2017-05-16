@@ -52,6 +52,9 @@ def clean_text(text):
     text = re.sub(r'\s\s+', ' ', text, re.U)
     # remove nil bytes
     text = text.replace('\u0000', ' ')
+    text = text.replace("\r", "\n")
+    text = text.replace('\r', "\n")
+    text = text.replace('\\r', "\n")
     text = text.strip()
     return text
 
