@@ -812,7 +812,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
     serializer_class = SearchSerializer
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
 
-    queryset = SearchQuerySet()
+    queryset = Unit.objects.all()
 
     def list(self, request, *args, **kwargs):
         # If the incoming language is not specified, go with the default.
