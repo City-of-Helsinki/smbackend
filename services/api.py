@@ -1,4 +1,3 @@
-import json
 import re
 import logging
 import uuid
@@ -7,16 +6,14 @@ from django.http import Http404
 from django.conf import settings
 from django.utils import translation
 from django.db.models import Q
-from django.contrib.gis.geos import Polygon, MultiPolygon, GeometryCollection, Point
-from django.contrib.gis.db.models.fields import GeometryField
-from django.contrib.gis.gdal import CoordTransform, SpatialReference
+from django.contrib.gis.geos import Point
+from django.contrib.gis.gdal import SpatialReference
 from django.shortcuts import get_object_or_404
 from modeltranslation.translator import translator, NotRegistered
 from rest_framework import serializers, viewsets, generics
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 from django.core.exceptions import ValidationError
-from rest_framework.views import APIView
 
 from haystack.query import SearchQuerySet, SQ
 from haystack.inputs import AutoQuery
@@ -29,7 +26,6 @@ from munigeo.models import *
 from munigeo import api as munigeo_api
 
 from rest_framework import renderers
-from rest_framework_jsonp.renderers import JSONPRenderer
 from django.template.loader import render_to_string
 from django.utils.module_loading import import_string
 
