@@ -8,8 +8,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
-from django.utils.translation import ugettext_lazy as _
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -48,7 +46,7 @@ INSTALLED_APPS = (
     'haystack',
     'munigeo',
     'services',
-    #'observations'
+    # 'observations'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -56,7 +54,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    #'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'profiler.middleware.ProfilerMiddleware',
 )
@@ -82,7 +80,9 @@ CONN_MAX_AGE = 120
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
-gettext = lambda s: s
+
+def gettext(s):
+    return s
 LANGUAGES = (
     ('fi', gettext('Finnish')),
     ('sv', gettext('Swedish')),
@@ -117,7 +117,7 @@ DEFAULT_OCD_MUNICIPALITY = 'kunta'
 # Levels are groups or profiles of thematically related services
 LEVELS = {
     'common': {
-        'type': 'include', # one of: {'exclude', 'include'}
+        'type': 'include',  # one of: {'exclude', 'include'}
         # The service ids below are either included or excluded according
         # to the type above.
         'services': [

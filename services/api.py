@@ -32,7 +32,9 @@ from django.utils.module_loading import import_string
 from django_filters.rest_framework import DjangoFilterBackend
 
 if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']:
-    DEFAULT_RENDERERS = [import_string(renderer_module) for renderer_module in settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']]
+    DEFAULT_RENDERERS = [import_string(renderer_module)
+                         for renderer_module
+                         in settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']]
 else:
     DEFAULT_RENDERERS = ()
 
@@ -40,6 +42,8 @@ else:
 serializers_by_model = {}
 
 all_views = []
+
+
 def register_view(klass, name, base_name=None):
     entry = {'class': klass, 'name': name}
     if base_name is not None:
@@ -56,7 +60,8 @@ def register_view(klass, name, base_name=None):
 
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
 
-logger =  logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 
 class MPTTModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
@@ -64,6 +69,7 @@ class MPTTModelSerializer(serializers.ModelSerializer):
         for field_name in 'lft', 'rght', 'tree_id':
             if field_name in self.fields:
                 del self.fields[field_name]
+
 
 class TranslatedModelSerializer(object):
     def __init__(self, *args, **kwargs):
@@ -137,20 +143,20 @@ class TranslatedModelSerializer(object):
             return ret
 
         for field_name in self.translated_fields:
-            if not field_name in self.fields:
+            if field_name not in self.fields:
                 continue
 
             d = {}
             for lang in LANGUAGES:
-                key = "%s_%s" % (field_name, lang)  
+                key = "%s_%s" % (field_name, lang)
                 val = getattr(obj, key, None)
-                if val == None:
-                    continue 
+                if val is None:
+                    continue
                 d[lang] = val
 
             # If no text provided, leave the field as null
             for key, val in d.items():
-                if val != None:
+                if val is not None:
                     break
             else:
                 d = None
@@ -441,12 +447,12 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 del ser.child.fields['unit']
 
     def handle_extension_translations(self, extensions):
-        if extensions == None or len(extensions) == 0:
+        if extensions is None or len(extensions) == 0:
             return extensions
         result = {}
         for key, value in extensions.items():
             translations = {}
-            if value == None or value == 'None':
+            if value is None or value == 'None':
                 result[key] = None
                 continue
             for lang in LANGUAGES:
@@ -482,13 +488,13 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         if 'keywords' in ret:
             kw_dict = {}
             for kw in obj.keywords.all():
-                if not kw.language in kw_dict:
+                if kw.language not in kw_dict:
                     kw_dict[kw.language] = []
                 kw_dict[kw.language].append(kw.name)
             ret['keywords'] = kw_dict
 
         if 'root_ontologytreenodes' in ret:
-            if obj.root_ontologytreenodes == None or obj.root_ontologytreenodes == '':
+            if obj.root_ontologytreenodes is None or obj.root_ontologytreenodes == '':
                 ret['root_ontologytreenodes'] = None
             else:
                 ret['root_ontologytreenodes'] = [int(x) for x in obj.root_ontologytreenodes.split(',')]
@@ -510,8 +516,13 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 name = {}
                 for lang in LANGUAGES:
                     name[lang] = getattr(s, 'name_{0}'.format(lang))
-                data = {'id': s.id, 'name': name, 'root': s.get_root().id, 'ontologyword_reference': s.ontologyword_reference}
-                #if s.identical_to:
+                data = {
+                    'id': s.id,
+                    'name': name,
+                    'root': s.get_root().id,
+                    'ontologyword_reference': s.ontologyword_reference
+                }
+                # if s.identical_to:
                 #    data['identical_to'] = getattr(s.identical_to, 'id', None)
                 if s.level is not None:
                     data['level'] = s.level
@@ -525,11 +536,11 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         if 'connections' in include_fields:
             ret['connections'] = UnitConnectionSerializer(obj.connections, many=True).data
 
-        if not 'request' in self.context:
+        if 'request' not in self.context:
             return ret
         qparams = self.context['request'].query_params
         if qparams.get('geometry', '').lower() in ('true', '1'):
-            geom = obj.geometry # TODO: different geom types
+            geom = obj.geometry  # TODO: different geom types
             if geom and obj.geometry != obj.location:
                 ret['geometry'] = munigeo_api.geom_to_json(geom, self.srs)
         elif 'geometry' in ret:
