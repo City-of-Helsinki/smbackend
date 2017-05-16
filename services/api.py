@@ -23,6 +23,7 @@ from haystack.inputs import AutoQuery
 
 from services.models import *
 from services.models.unit_connection import SECTION_TYPES
+from services.models.unit import PROVIDER_TYPES
 from services.accessibility import RULES as accessibility_rules
 from munigeo.models import *
 from munigeo import api as munigeo_api
@@ -348,13 +349,16 @@ class JSONAPIViewSetMixin:
 class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
     pass
 
+def choicefield_string(choices, key, obj):
+    return next(x[1] for x in choices if getattr(obj, key) == x[0])
+
 class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     section_type = serializers.SerializerMethodField()
     class Meta:
         model = UnitConnection
         fields = '__all__'
     def get_section_type(self, obj):
-        return next(x[1].lower() for x in SECTION_TYPES if obj.section_type == x[0])
+        return choicefield_string(SECTION_TYPES, 'section_type', obj)
 
 
 class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -427,6 +431,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
     identifiers = UnitIdentifierSerializer(many=True)
     organization = serializers.SerializerMethodField('organization_uuid')
     department = serializers.SerializerMethodField('department_uuid')
+    provider_type = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
@@ -469,6 +474,9 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         if obj.department is not None:
             return obj.department.uuid
         return None
+
+    def get_provider_type(self, obj):
+        return choicefield_string(PROVIDER_TYPES, 'provider_type', obj)
 
     def to_representation(self, obj):
         ret = super(UnitSerializer, self).to_representation(obj)
