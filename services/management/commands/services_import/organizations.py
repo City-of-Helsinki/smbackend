@@ -5,7 +5,7 @@ from .utils import pk_get, save_translated_field
 
 
 def import_organizations(org_syncher=None, noop=False, logger=None):
-    obj_list = pk_get('department')
+    obj_list = pk_get('organization')
     syncher = ModelSyncher(Organization.objects.all(), lambda obj: str(obj.uuid))
     # self.dept_syncher = syncher
     if noop:
