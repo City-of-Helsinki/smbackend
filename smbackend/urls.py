@@ -1,6 +1,7 @@
 from django.conf.urls import include, url
 from services.api import all_views as services_views
 from services.api import AccessibilityRuleView
+from services.unit_redirect_viewset import UnitRedirectViewSet
 from observations.api import views as observations_views
 from rest_framework import routers
 from observations.views import obtain_auth_token
@@ -34,5 +35,6 @@ urlpatterns = [
 
     url(r'^open311/', views.post_service_request, name='services'),
     url(r'^v2/', include(router.urls)),
-    url(r'^v2/api-token-auth/', obtain_auth_token, name='api-auth-token')
+    url(r'^v2/api-token-auth/', obtain_auth_token, name='api-auth-token'),
+    url(r'^v2/redirect/unit/', UnitRedirectViewSet.as_view({'get': 'list'}))
 ]

@@ -72,7 +72,7 @@ def import_services(syncher=None, noop=False, logger=None, importer=None):
     def handle_servicetype(d):
         obj = servicesyncher.get(d['id'])
         if not obj:
-            obj = Service(id=d['id'])
+            obj = OntologyWord(id=d['id'])
             obj._changed = True
 
         importer._save_translated_field(obj, 'name', d, 'ontologyword')

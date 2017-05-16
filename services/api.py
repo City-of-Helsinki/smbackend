@@ -22,6 +22,7 @@ from haystack.query import SearchQuerySet, SQ
 from haystack.inputs import AutoQuery
 
 from services.models import *
+from services.models.unit_connection import SECTION_TYPES
 from services.accessibility import RULES as accessibility_rules
 from munigeo.models import *
 from munigeo import api as munigeo_api
@@ -225,7 +226,7 @@ def root_servicenodes(services):
     # check this
     tree_ids = set(s.tree_id for s in services)
     return map(lambda x: x.id,
-               OntologyTree.objects.filter(level=0).filter(
+               OntologyTreeNode.objects.filter(level=0).filter(
                    tree_id__in=tree_ids))
 
 
@@ -258,6 +259,7 @@ class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
         only_fields = self.context.get('only', [])
         if 'parent' in only_fields:
             ret['parent'] = obj.parent_id
+        ret['root'] = self.root_servicenodes(obj)
         return ret
 
     def root_servicenodes(self, obj):
@@ -265,8 +267,7 @@ class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
 
     class Meta:
         model = OntologyTreeNode
-        # fields = '__all__'
-        exclude = ['ontologyword_reference',]
+        fields = '__all__'
 
 
 class OntologyWordSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
@@ -348,9 +349,12 @@ class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
     pass
 
 class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+    section_type = serializers.SerializerMethodField()
     class Meta:
         model = UnitConnection
         fields = '__all__'
+    def get_section_type(self, obj):
+        return next(x[1].lower() for x in SECTION_TYPES if obj.section_type == x[0])
 
 
 class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -502,7 +506,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 name = {}
                 for lang in LANGUAGES:
                     name[lang] = getattr(s, 'name_{0}'.format(lang))
-                data = {'id': s.id, 'name': name, 'root': s.get_root().id}
+                data = {'id': s.id, 'name': name, 'root': s.get_root().id, 'ontologyword_reference': s.ontologyword_reference}
                 #if s.identical_to:
                 #    data['identical_to'] = getattr(s.identical_to, 'id', None)
                 if s.level is not None:
@@ -583,7 +587,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     serializer_class = UnitSerializer
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ['provider_type',]
 
     def get_serializer_context(self):
         ret = super(UnitViewSet, self).get_serializer_context()
@@ -766,7 +769,7 @@ class SearchSerializer(serializers.Serializer):
         if model == Unit:
             key = 'unit'
         else:
-            key = 'service'
+            key = 'ontologyteenode'
         for spec in ['include', 'only']:
             if spec in context:
                 context[spec] = context[spec].get(key, [])
@@ -868,7 +871,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 muni_q = muni_q_objects.pop()
                 for q in muni_q_objects:
                     muni_q |= q
-                queryset = queryset.filter(SQ(muni_q | SQ(django_ct='services.service') | SQ(django_ct='munigeo.address')))
+                queryset = queryset.filter(SQ(muni_q | SQ(django_ct='services.ontologytreenode') | SQ(django_ct='munigeo.address')))
 
         service = request.query_params.get('service')
         if service:
@@ -878,7 +881,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         models = set()
         types = request.query_params.get('type', '').split(',')
         for t in types:
-            if t == 'service':
+            if t == 'ontologytreenode':
                 models.add(Service)
             elif t == 'unit':
                 models.add(Unit)
