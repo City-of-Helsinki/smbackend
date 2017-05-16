@@ -20,8 +20,8 @@ def import_organizations(org_syncher=None, noop=False, logger=None):
             obj = Organization(uuid=d['id'])
             obj_has_changed = True
 
-        fields = ('phone', 'address_zip', 'data_source_url', 'object_identifier',
-                  'organization_type', 'business_id')
+        fields = ('phone', 'address_zip', 'data_source_url', 'municipality_code',
+                  'oid', 'organization_type', 'business_id')
         fields_that_need_translation = ('name', 'abbr', 'street_address', 'address_city',
                                         'address_postal_full', 'www')
 
