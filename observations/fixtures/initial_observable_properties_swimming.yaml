@@ -104,3 +104,14 @@
     description_sv: Mycket rikligt med blågröna alger eller massförekomst av blågröna alger. Bada inte!
     description_en: Very high levels of cyanobacteria or mass occurrence of cyanobacteria. Do not swim!
     quality: unusable
+- model: observations.AllowedValue
+  fields:
+    property_id: swimming_water_cyanobacteria
+    identifier: 4
+    name_fi: Suljettu muusta syystä
+    name_sv: Stängd av andra skäl
+    name_en: Closed for other reasons
+    description_fi: Suljettu muusta syystä kuin sinilevän vuoksi
+    description_sv: Stängd av andra skäl
+    description_en: Closed for other reasons than cyanobacteria
+    quality: unusable
