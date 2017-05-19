@@ -1,12 +1,16 @@
 from django.db import models
+from mptt.models import MPTTModel, TreeForeignKey
 
 from services.utils import get_translated
 from .organization import Organization
+from .hierarchy import CustomTreeManager
 
 
-class Department(models.Model):
+class Department(MPTTModel):
     uuid = models.UUIDField(db_index=True, editable=False, unique=True)
     business_id = models.CharField(max_length=10)  # take into consideration intl. ids
+
+    parent = TreeForeignKey('self', null=True, related_name='children')
 
     # translateable group here
     name = models.CharField(max_length=200, db_index=True)
@@ -23,6 +27,8 @@ class Department(models.Model):
 
     organization = models.ForeignKey(Organization, null=True)
     organization_type = models.CharField(max_length=50, null=True)
+
+    objects = CustomTreeManager()
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
