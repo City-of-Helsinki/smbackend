@@ -26,8 +26,5 @@ class Organization(models.Model):
 
     oid = models.CharField(max_length=20, null=True, blank=True)
 
-
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
-
-

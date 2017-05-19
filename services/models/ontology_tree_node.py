@@ -45,7 +45,6 @@ class OntologyTreeNode(MPTTModel):
         return count
 
 
-
 class OntologyTreeQuerySet(QuerySet):
     def by_ancestor(self, ancestor):
         manager = self.model.objects

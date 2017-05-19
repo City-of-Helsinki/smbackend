@@ -1,4 +1,3 @@
-import pprint
 from munigeo.importer.sync import ModelSyncher
 from services.models import Department, Organization
 from .utils import pk_get, save_translated_field
@@ -12,7 +11,6 @@ def import_departments(org_syncher=None, noop=False, logger=None):
         return syncher
 
     for d in obj_list:
-        # pprint.pprint(d)
         if int(d['hierarchy_level']) == 0:
             logger and logger.info(
                 "Department import: %s (%s) hierarchy_level is 0, thus is a Main Organization, skipping."
@@ -42,7 +40,6 @@ def import_departments(org_syncher=None, noop=False, logger=None):
             if save_translated_field(obj, field, d, field):
                 obj_has_changed = True
 
-
         if org_syncher:
             org_obj = org_syncher.get(d['org_id'])
         else:
@@ -60,4 +57,3 @@ def import_departments(org_syncher=None, noop=False, logger=None):
 
     syncher.finish()
     return syncher
-
