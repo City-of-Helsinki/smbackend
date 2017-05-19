@@ -35,7 +35,7 @@ class UnitSearchManager(models.GeoManager):
         if self.include_fields:
             for f in self.include_fields:
                 qs = qs.prefetch_related(f)
-        return qs
+        return qs.filter(public=True)
 
 
 class Unit(models.Model):
@@ -43,6 +43,7 @@ class Unit(models.Model):
 
     data_source_url = models.URLField(null=True)
     # description = models.TextField(null=True)
+    public = models.BooleanField(null=False, default=True)
 
     location = models.PointField(null=True, srid=PROJECTION_SRID)  # lat, lng?
     geometry = models.GeometryField(srid=PROJECTION_SRID, null=True)

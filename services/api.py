@@ -608,7 +608,7 @@ class KmlRenderer(renderers.BaseRenderer):
 
 
 class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
-    queryset = Unit.objects.all()
+    queryset = Unit.objects.filter(public=True)
     serializer_class = UnitSerializer
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
     filter_backends = (DjangoFilterBackend,)

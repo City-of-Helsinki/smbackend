@@ -296,6 +296,12 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         obj_changed = True
         obj.geometry = obj.location
 
+    is_public = info.get('is_public', True)
+    # assumption: is_public field is missing only when fetching only public units
+    if is_public != obj.public:
+        obj_changed = True
+        obj.public = is_public
+
     if obj_changed:
         if obj_created:
             verb = "created"
