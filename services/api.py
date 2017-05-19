@@ -768,9 +768,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         return response
 
     def retrieve(self, request, pk=None):
-        queryset = Unit.objects.all()
         try:
-            unit = Unit.objects.get(pk=pk)
+            unit = Unit.objects.get(pk=pk, public=True)
         except Unit.DoesNotExist:
             unit_alias = get_object_or_404(UnitAlias, second=pk)
             unit = unit_alias.first
