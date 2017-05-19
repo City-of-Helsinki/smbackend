@@ -1,6 +1,5 @@
 from django.core.validators import validate_comma_separated_integer_list
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import HStoreField
 from django.contrib.postgres.fields import JSONField
 
 from munigeo.models import AdministrativeDivision, Municipality
