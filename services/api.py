@@ -19,7 +19,7 @@ from haystack.query import SearchQuerySet, SQ
 from haystack.inputs import AutoQuery
 
 from services.models import Unit, Organization, Department, OntologyWord
-from services.models import OntologyTreeNode, UnitConnection, Service
+from services.models import OntologyTreeNode, UnitConnection
 from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
 from services.models.unit_connection import SECTION_TYPES
 from services.models.unit import PROVIDER_TYPES
@@ -907,7 +907,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         types = request.query_params.get('type', '').split(',')
         for t in types:
             if t == 'ontologytreenode':
-                models.add(Service)
+                models.add(OntologyTreeNode)
             elif t == 'unit':
                 models.add(Unit)
             elif t == 'address':
