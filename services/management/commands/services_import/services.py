@@ -55,8 +55,9 @@ def import_services(syncher=None, noop=False, logger=None, importer=None):
         importer._sync_searchwords(obj, d)
 
         # FIXME: this does double work
-        if obj.unit_count == 0:
-            obj.unit_count = obj.get_unit_count()
+        unit_count = obj.get_unit_count()
+        if obj.unit_count != unit_count:
+            obj.unit_count = unit_count
             obj._changed = True
 
         if obj._changed:
