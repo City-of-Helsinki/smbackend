@@ -25,5 +25,5 @@ class OntologyTreeNode(MPTTModel):
     def get_unit_count(self):
         srv_list = set(OntologyTreeNode.objects.all().by_ancestor(self).values_list('id', flat=True))
         srv_list.add(self.id)
-        count = Unit.objects.filter(service_tree_nodes__in=list(srv_list)).distinct().count()
+        count = Unit.objects.filter(public=True, service_tree_nodes__in=list(srv_list)).distinct().count()
         return count
