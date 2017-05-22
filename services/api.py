@@ -18,11 +18,13 @@ from django.core.exceptions import ValidationError
 from haystack.query import SearchQuerySet, SQ
 from haystack.inputs import AutoQuery
 
-from services.models import *
+from services.models import Unit, Organization, Department, OntologyWord
+from services.models import OntologyTreeNode, UnitConnection, Service
+from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
 from services.models.unit_connection import SECTION_TYPES
 from services.models.unit import PROVIDER_TYPES
 from services.accessibility import RULES as accessibility_rules
-from munigeo.models import *
+from munigeo.models import AdministrativeDivision, Municipality, Address
 from munigeo import api as munigeo_api
 
 from rest_framework import renderers
@@ -51,9 +53,8 @@ def register_view(klass, name, base_name=None):
     all_views.append(entry)
 
     if (klass.serializer_class and
-        hasattr(klass.serializer_class, 'Meta') and
-        hasattr(klass.serializer_class.Meta, 'model')
-    ):
+            hasattr(klass.serializer_class, 'Meta') and
+            hasattr(klass.serializer_class.Meta, 'model')):
         model = klass.serializer_class.Meta.model
         serializers_by_model[model] = klass.serializer_class
 
@@ -169,7 +170,7 @@ class OrganizationSerializer(TranslatedModelSerializer, serializers.ModelSeriali
 
     class Meta:
         model = Organization
-        exclude = ['uuid',]
+        exclude = ['uuid', ]
 
     def get_uuid(self, obj):
             return obj.uuid
@@ -196,7 +197,7 @@ class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerialize
 
     class Meta:
         model = Department
-        exclude = ['uuid',]
+        exclude = ['uuid', ]
 
     def get_uuid(self, obj):
             return obj.uuid
@@ -250,7 +251,6 @@ class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
 
     def __init__(self, *args, **kwargs):
         super(ServiceTreeSerializer, self).__init__(*args, **kwargs)
-        keep_fields = getattr(self, 'keep_fields', [])
 
     def to_representation(self, obj):
         ret = super(ServiceTreeSerializer, self).to_representation(obj)
@@ -278,10 +278,6 @@ class OntologyWordSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSO
 
     def __init__(self, *args, **kwargs):
         super(OntologyWordSerializer, self).__init__(*args, **kwargs)
-        keep_fields = getattr(self, 'keep_fields', [])
-        # FIXME needs checking
-        #if not keep_fields or 'root' in keep_fields:
-        #    self.fields['root'] = serializers.SerializerMethodField('root_services')
 
     def to_representation(self, obj):
         ret = super(OntologyWordSerializer, self).to_representation(obj)
@@ -324,7 +320,7 @@ class JSONAPIViewSetMixin:
         model = queryset.model
         if self.only_fields:
             model_fields = model._meta.get_fields()
-            #Verify all field names are valid
+            # Verify all field names are valid
             for field_name in self.only_fields:
                 for field in model_fields:
                     if field.name == field_name:
@@ -351,14 +347,18 @@ class JSONAPIViewSetMixin:
 class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
     pass
 
+
 def choicefield_string(choices, key, obj):
     return next(x[1] for x in choices if getattr(obj, key) == x[0])
 
+
 class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     section_type = serializers.SerializerMethodField()
+
     class Meta:
         model = UnitConnection
         fields = '__all__'
+
     def get_section_type(self, obj):
         return choicefield_string(SECTION_TYPES, 'section_type', obj)
 
@@ -410,7 +410,6 @@ register_view(ServiceTreeViewSet, 'service')
 class OntologyWordViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = OntologyWord.objects.all()
     serializer_class = OntologyWordSerializer
-    #filter_fields = ['level', 'parent']
 
     def get_queryset(self):
         queryset = super(OntologyWordViewSet, self).get_queryset()
@@ -579,8 +578,6 @@ def make_muni_ocd_id(name, rest=None):
     return s
 
 
-
-
 def get_fields(place, lang_code, fields):
     for field in fields:
         p = place[field]
@@ -713,7 +710,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                     raise ParseError("administrative division with OCD ID '%s' not found" % muni_ocd_id)
                 div_list.append(div)
 
-            div_geom = [div.geometry.boundary for div in div_list]
             if div_list:
                 mp = div_list.pop(0).geometry.boundary
                 for div in div_list:
@@ -756,7 +752,9 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 Q(extensions__additional_maintenance_organization=maintenance_organization))
 
         if 'observations' in self.include_fields:
-            queryset = queryset.prefetch_related('observation_set__property__allowed_values').prefetch_related('observation_set__value')
+            queryset = queryset.prefetch_related(
+                'observation_set__property__allowed_values').prefetch_related(
+                    'observation_set__value')
         if 'connections' in self.include_fields:
             queryset = queryset.prefetch_related('connections')
         return queryset
@@ -841,8 +839,6 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             raise ParseError("Invalid language supplied. Supported languages: %s" %
                              ','.join(LANGUAGES))
 
-        context = {}
-
         specs = {
             'only_fields': self.request.query_params.get('only', None),
             'include_fields': self.request.query_params.get('include', None)
@@ -897,7 +893,10 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 muni_q = muni_q_objects.pop()
                 for q in muni_q_objects:
                     muni_q |= q
-                queryset = queryset.filter(SQ(muni_q | SQ(django_ct='services.ontologytreenode') | SQ(django_ct='munigeo.address')))
+                queryset = queryset.filter(
+                    SQ(muni_q |
+                       SQ(django_ct='services.ontologytreenode') |
+                       SQ(django_ct='munigeo.address')))
 
         service = request.query_params.get('service')
         if service:
@@ -942,6 +941,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
 register_view(SearchViewSet, 'search', base_name='search')
 
+
 class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
     serializer_class = None
 
@@ -952,6 +952,7 @@ class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
             'messages': messages})
 
 register_view(AccessibilityRuleView, 'accessibility_rule', base_name='accessibility_rule')
+
 
 class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSerializer):
     def to_representation(self, obj):
@@ -964,7 +965,6 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
             unit_include = None
         service_point_id = ret['service_point_id']
         if service_point_id and unit_include:
-            params = self.context
             try:
                 unit = Unit.objects.get(id=service_point_id)
             except Unit.DoesNotExist:
@@ -979,10 +979,12 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
 
         return ret
 
+
 class AdministrativeDivisionViewSet(munigeo_api.AdministrativeDivisionViewSet):
     serializer_class = AdministrativeDivisionSerializer
 
 register_view(AdministrativeDivisionViewSet, 'administrative_division')
+
 
 class AddressViewSet(munigeo_api.AddressViewSet):
     serializer_class = munigeo_api.AddressSerializer
