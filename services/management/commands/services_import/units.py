@@ -114,7 +114,7 @@ def _load_postcodes():
     path = os.path.join(settings.BASE_DIR, 'data', 'fi', 'postcodes.txt')
     postcodes = {}
     try:
-        f = open(path, 'r')
+        f = open(path, 'r', encoding='utf-8')
     except FileNotFoundError:
         return
     for l in f.readlines():
@@ -440,9 +440,9 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
             assert section_type
             c.section_type = section_type
 
-            print("------------- connection ----------------")
-            pprint.pprint(conn)
-            print("^^^^^^^^^^^^^ connection ^^^^^^^^^^^^^^^^")
+            # print("------------- connection ----------------")
+            # pprint.pprint(conn)
+            # print("^^^^^^^^^^^^^ connection ^^^^^^^^^^^^^^^^")
             # c.section = conn['section_type'].lower()
             # {'contact_person': 'Miia Kovalainen',
             # 'email': 'miia.kovalainen@hel.fi',

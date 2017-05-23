@@ -63,7 +63,7 @@ def postcodes():
     path = os.path.join(settings.BASE_DIR, 'data', 'fi', 'postcodes.txt')
     postcodes = {}
     try:
-        f = open(path, 'r')
+        f = open(path, 'r', encoding='utf-8')
     except FileNotFoundError:
         return
     for l in f.readlines():
