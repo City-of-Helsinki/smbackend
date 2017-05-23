@@ -17,8 +17,7 @@ echo --------------------------------- >> $LOG_FILE
 
 cd $ROOT_PATH
 
-#nice python manage.py services_import --traceback --organizations --departments --services --units >> $LOG_FILE 2>&1
-nice python manage.py services_import_v4 --traceback organizations departments services units
+nice python manage.py services_import_v4 --traceback organizations departments services units >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     cat $LOG_FILE
     exit 1
@@ -36,4 +35,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-curl 'https://hchk.io/1821d793-e197-4598-b969-8d062c7d50a1'
+curl --retry 3 'https://hchk.io/6cd12f62-19cb-4ab7-8791-686b635dc6e3'
