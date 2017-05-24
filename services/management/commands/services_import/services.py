@@ -32,7 +32,6 @@ def import_services(syncher=None, noop=False, logger=None, importer=None):
         for child_ot in parent_ot['children']:
             _add_ot_children(child_ot, ontologytrees)
 
-
     def handle_servicenode(d):
         obj = nodesyncher.get(d['id'])
         if not obj:
