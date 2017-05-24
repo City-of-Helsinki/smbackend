@@ -38,7 +38,8 @@ def import_services(syncher=None, noop=False, logger=None, importer=None):
         if not obj:
             obj = OntologyTreeNode(id=d['id'])
             obj._changed = True
-        save_translated_field(obj, 'name', d, 'name')
+        if save_translated_field(obj, 'name', d, 'name'):
+            obj._changed = True
 
         if 'parent_id' in d:
             parent = nodesyncher.get(d['parent_id'])
