@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
--e git+https://github.com/City-of-Helsinki/munigeo@v0.2.0#egg=django_munigeo-master
+click==6.7                # via pip-tools
 django-cors-headers==1.1.0
 django-extensions==1.5.5
 django-filter==0.10.0
@@ -17,17 +17,19 @@ django==1.8.18
 djangorestframework-jsonp==1.0.0
 djangorestframework==3.1.3
 elasticsearch==1.6.0
+first==2.0.1              # via pip-tools
 lxml==3.4.4
 markdown==2.6.2
+pip-tools==1.9.0
 psycopg2==2.6.1
 py==1.4.31                # via pytest
 pytest-django==3.0.0
 pytest==3.0.3             # via pytest-django
-requests-cache==0.4.10
-pytz==2015.4
-pyyaml==3.11
-raven==5.4.4
-requests==2.7.0
 python-dateutil==2.5.3
-six==1.9.0                # via django-extensions
+pytz==2015.4
+pyyaml==3.11              # via django-munigeo
+raven==5.4.4
+requests-cache==0.4.10
+requests==2.7.0
+six==1.9.0                # via django-extensions, django-munigeo, pip-tools, python-dateutil
 urllib3==1.11             # via elasticsearch
