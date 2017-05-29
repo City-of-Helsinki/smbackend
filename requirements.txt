@@ -4,13 +4,14 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
--e git+https://github.com/City-of-Helsinki/munigeo@0.1.10#egg=django_munigeo-master
+-e git+https://github.com/City-of-Helsinki/munigeo@v0.2.0#egg=django_munigeo-master
 django-cors-headers==1.1.0
 django-extensions==1.5.5
 django-filter==0.10.0
 django-haystack==2.4.0
 django-modeltranslation==0.10
 django-mptt==0.7.4
+django-munigeo==0.2.0
 django-polymorphic==1.0.2
 django==1.8.17
 djangorestframework-jsonp==1.0.0
