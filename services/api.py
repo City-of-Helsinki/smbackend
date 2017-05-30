@@ -18,6 +18,8 @@ from django.core.exceptions import ValidationError
 from haystack.query import SearchQuerySet, SQ
 from haystack.inputs import AutoQuery
 
+from mptt.utils import drilldown_tree_for_node
+
 from services.models import Unit, Organization, Department, OntologyWord
 from services.models import OntologyTreeNode, UnitConnection
 from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
@@ -202,19 +204,30 @@ class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerialize
     def get_uuid(self, obj):
             return obj.uuid
 
+
+class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+
     def retrieve(self, request, pk=None):
         try:
             uuid.UUID(pk)
         except ValueError:
             raise Http404
+
         dept = get_object_or_404(Department, uuid=pk)
         serializer = self.serializer_class(dept, context=self.get_serializer_context())
-        return Response(serializer.data)
 
+        include_hierarchy = request.query_params.get('include_hierarchy')
+        data = serializer.data
+        if (include_hierarchy is not None and
+                include_hierarchy.lower() not in ['no', 'false', '0']):
+            hierarchy = drilldown_tree_for_node(dept)
+            data['hierarchy'] = self.serializer_class(
+                hierarchy, many=True, context=self.get_serializer_context()).data
 
-class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Department.objects.all()
-    serializer_class = DepartmentSerializer
+        return Response(data)
+
 
 register_view(DepartmentViewSet, 'department')
 
