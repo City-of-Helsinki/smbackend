@@ -505,6 +505,9 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         if 'department' in include_fields:
             dep_json = DepartmentSerializer(obj.department, context=self.context).data
             ret['department'] = dep_json
+        if 'organization' in include_fields:
+            org_json = OrganizationSerializer(obj.organization, context=self.context).data
+            ret['organization'] = org_json
         if 'municipality' in include_fields and obj.municipality:
             muni_json = munigeo_api.MunicipalitySerializer(obj.municipality, context=self.context).data
             ret['municipality'] = muni_json
