@@ -220,9 +220,10 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         #     except Department.DoesNotExist:
         #         print("Department %s does not exist" % dept_id)
         #         raise
-        assert dept or org
 
-    if obj.department_id != dept_id:
+    if not dept:
+        LOGGER.warning("Missing department {} for unit {}".format(dept_id, obj.id))
+    elif obj.department_id != dept_id:
         obj.department = dept
         obj_changed = True
 
