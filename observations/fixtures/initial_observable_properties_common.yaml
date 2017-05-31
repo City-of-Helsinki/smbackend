@@ -15,3 +15,35 @@
         - 33492
         - 33467
         - 33468
+        - 33466
+- model: observations.ObservableProperty
+  pk: season_status
+  fields:
+    name_fi: Kausi
+    name_sv: Säsong
+    name_en: Season
+    observation_type: observations.CategoricalObservation
+    services:
+        - 33466
+- model: observations.AllowedValue
+  fields:
+    property_id: season_status
+    identifier: started
+    name_fi: Kausi käynnissä
+    name_sv: Säsongen igång
+    name_en: Season underway
+    description_fi: Kausi on käynnissä
+    description_en: The season is underway
+    description_sv: Säsongen är igång
+    quality: good
+- model: observations.AllowedValue
+  fields:
+    property_id: season_status
+    identifier: finished
+    name_fi: Kausi päättynyt
+    name_sv: Säsongen är över
+    name_en: Season over
+    description_fi: Kausi on päättynyt
+    description_en: The season is over
+    description_sv: Säsongen är över
+    quality: unusable
