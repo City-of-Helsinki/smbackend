@@ -500,9 +500,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
             else:
                 ret['root_ontologytreenodes'] = [int(x) for x in obj.root_ontologytreenodes.split(',')]
 
-        if 'root_services' in ret:
-            ret['root_services'] = ret.get('root_ontologytreenodes')
-
         include_fields = self.context.get('include', [])
         if 'department' in include_fields:
             dep_json = DepartmentSerializer(obj.department, context=self.context).data
