@@ -132,7 +132,7 @@ TODO: ScreenOverlay does not work according to Google Maps, see about a fix
   {% for place in places %}
       <Placemark id="{{ place.id }}">
       <name>{{ place.name }}</name>
-      <description><![CDATA[{{ place.street_address|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }}<br>{{ place.phone|default_if_none:"" }}<br>{{ place.www_url|default_if_none:"" }}]]></description>
+      <description><![CDATA[{{ place.street_address|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }}<br>{{ place.phone|default_if_none:"" }}<br>{{ place.www|default_if_none:"" }}]]></description>
       <address>{{ place.street_address }}, {{ place.address_zip }} {{ place.municipality|capfirst }}</address>
       <phoneNumber>{{ place.phone }}</phoneNumber>
       <Snippet maxLine="1">{{ place.street_address|default_if_none:"" }}, {{ place.address_zip|default_if_none:"" }} {{ place.municipality|default_if_none:""|capfirst }} {% if place.phone %}/ {{ place.phone }}{% endif %}</Snippet>

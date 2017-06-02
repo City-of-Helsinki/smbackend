@@ -885,7 +885,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         if hasattr(request, 'accepted_media_type') and re.match(KML_REGEXP, request.accepted_media_type):
             queryset = queryset.models(Unit)
-            self.only_fields['unit'].extend(['street_address', 'www_url'])
+            self.only_fields['unit'].extend(['street_address', 'www'])
 
         if input_val:
             queryset = (
