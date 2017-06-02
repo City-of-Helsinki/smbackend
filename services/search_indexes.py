@@ -60,6 +60,7 @@ class UnitIndex(ServiceMapBaseIndex):
     def prepare_services(self, obj):
         return [service.id for service in obj.services.all()]
 
+
 class OntologyTreeNodeIndex(ServiceMapBaseIndex):
 
     def __init__(self, *args, **kwargs):
