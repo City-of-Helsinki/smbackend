@@ -309,7 +309,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
     update_fields = ['modified_time']
 
     obj_changed, update_fields = _import_unit_services(obj, info, set(), obj_changed, update_fields)
-    _sync_searchwords(obj, info)
+    obj_changed = _sync_searchwords(obj, info, obj_changed)
 
     obj_changed, update_fields = _import_unit_accessibility_variables(obj, info, obj_changed, update_fields)
     obj_changed, update_fields = _import_unit_connections(obj, info, obj_changed, update_fields)
@@ -346,22 +346,21 @@ def _import_unit_services(obj, info, count_services, obj_changed, update_fields)
     return obj_changed, update_fields
 
 
-def _sync_searchwords(obj, info):
+def _sync_searchwords(obj, info, obj_changed):
     obj.new_keywords = set()
     for lang in SUPPORTED_LANGUAGES:
         _save_searchwords(obj, info, lang)
 
     old_kw_set = set(obj.keywords.all().values_list('pk', flat=True))
     if old_kw_set == obj.new_keywords:
-        return
+        return obj_changed
 
     if VERBOSITY:
         old_kw_str = ', '.join([KEYWORDS_BY_ID[x].name for x in old_kw_set])
         new_kw_str = ', '.join([KEYWORDS_BY_ID[x].name for x in obj.new_keywords])
         LOGGER.info("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
     obj.keywords = list(obj.new_keywords)
-    obj_changed = True
-    return obj_changed
+    return True
 
 
 def _save_searchwords(obj, info, language):
