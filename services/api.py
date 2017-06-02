@@ -196,6 +196,8 @@ register_view(OrganizationViewSet, 'organization')
 
 class DepartmentSerializer(TranslatedModelSerializer, MPTTModelSerializer, serializers.ModelSerializer):
     id = serializers.SerializerMethodField('get_uuid')
+    parent = serializers.SerializerMethodField()
+    organization = serializers.SerializerMethodField()
 
     class Meta:
         model = Department
@@ -203,6 +205,12 @@ class DepartmentSerializer(TranslatedModelSerializer, MPTTModelSerializer, seria
 
     def get_uuid(self, obj):
             return obj.uuid
+
+    def get_parent(self, obj):
+        return obj.parent.uuid
+
+    def get_organization(self, obj):
+        return obj.organization.uuid
 
 
 class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
