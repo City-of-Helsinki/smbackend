@@ -143,14 +143,6 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
 
     # print('handling unit {} ({})'.format(info['name_fi'], info['id']))
 
-    save_translated_field(obj, 'name', info, 'name')
-    save_translated_field(obj, 'desc', info, 'desc')
-    save_translated_field(obj, 'short_desc', info, 'short_desc')
-    save_translated_field(obj, 'street_address', info, 'street_address')
-
-    save_translated_field(obj, 'www_url', info, 'www')
-    save_translated_field(obj, 'picture_caption', info, 'picture_caption')
-
     fields_that_need_translation = ('name', 'street_address', 'www', 'picture_caption', 'desc', 'short_desc',
                                     'address_city', 'address_postal_full', 'call_charge_info', 'extra_searchwords')
     for field in fields_that_need_translation:
