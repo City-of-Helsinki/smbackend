@@ -107,7 +107,6 @@ class Unit(models.Model):
     accessibility_viewpoints = JSONField(default="{}")
 
     # Cached fields for better performance
-    root_services = models.CommaSeparatedIntegerField(max_length=50, null=True)
     root_ontologytreenodes = models.CharField(max_length=50, null=True,
                           validators=[validate_comma_separated_integer_list])
 
