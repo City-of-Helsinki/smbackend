@@ -197,9 +197,6 @@ register_view(OrganizationViewSet, 'organization')
 class DepartmentSerializer(TranslatedModelSerializer, MPTTModelSerializer, serializers.ModelSerializer):
     id = serializers.SerializerMethodField('get_uuid')
 
-    def __init__(self, *args, **kwargs):
-        super(DepartmentSerializer, self).__init__(*args, **kwargs)
-
     class Meta:
         model = Department
         exclude = ['uuid', ]
@@ -291,25 +288,6 @@ class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
 
 class OntologyWordSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
     # children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-
-    def __init__(self, *args, **kwargs):
-        super(OntologyWordSerializer, self).__init__(*args, **kwargs)
-
-    def to_representation(self, obj):
-        ret = super(OntologyWordSerializer, self).to_representation(obj)
-        include_fields = self.context.get('include', [])
-        if 'ancestors' in include_fields:
-            ancestors = obj.get_ancestors(ascending=True)
-            ser = OntologyWordSerializer(ancestors, many=True, context={'only': ['name']})
-            ret['ancestors'] = ser.data
-        only_fields = self.context.get('only', [])
-        if 'parent' in only_fields:
-            ret['parent'] = obj.parent_id
-        return ret
-
-    def root_services(self, obj):
-        return next(root_services([obj]))
-
     class Meta:
         model = OntologyWord
         fields = '__all__'
