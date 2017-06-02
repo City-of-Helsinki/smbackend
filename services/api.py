@@ -194,8 +194,11 @@ class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
 register_view(OrganizationViewSet, 'organization')
 
 
-class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+class DepartmentSerializer(TranslatedModelSerializer, MPTTModelSerializer, serializers.ModelSerializer):
     id = serializers.SerializerMethodField('get_uuid')
+
+    def __init__(self, *args, **kwargs):
+        super(DepartmentSerializer, self).__init__(*args, **kwargs)
 
     class Meta:
         model = Department
