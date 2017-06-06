@@ -46,7 +46,6 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
     KEYWORDS = keywords()
     KEYWORDS_BY_ID = keywords_by_id(KEYWORDS)
 
-    _load_postcodes()
     muni_by_name = {muni.name_fi.lower(): muni for muni in Municipality.objects.all()}
 
     if not org_syncher:
