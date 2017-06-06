@@ -228,7 +228,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
 
     for field in ['created_time', 'modified_time']:
         if info.get(field):
-            value = ACTIVE_TIMEZONE.localize(datetime.strptime(info.get(field), '%Y-%m-%dT%H:%M:%S'))
+            value = ACTIVE_TIMEZONE.localize(datetime.datetime.strptime(info.get(field), '%Y-%m-%dT%H:%M:%S'))
             if getattr(obj, field) != value:
                 obj_changed = True
                 setattr(obj, field, value)
@@ -296,7 +296,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
             verb = "changed"
         if VERBOSITY:
             LOGGER.info("%s %s" % (obj, verb))
-        obj.origin_last_modified_time = datetime.now(UTC_TIMEZONE)
+        obj.origin_last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
         obj_changed = False
         obj.save()
 
@@ -310,7 +310,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
     obj_changed, update_fields = _import_unit_sources(obj, info, obj_changed, update_fields)
 
     if obj_changed:
-        obj.origin_last_modified_time = datetime.now(UTC_TIMEZONE)
+        obj.origin_last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
         obj.save(update_fields=update_fields)
 
     syncher.mark(obj)
