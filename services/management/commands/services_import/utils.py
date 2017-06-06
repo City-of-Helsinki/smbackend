@@ -60,12 +60,9 @@ def clean_text(text):
 
 
 def postcodes():
-    path = os.path.join(settings.BASE_DIR, 'data', 'fi', 'postcodes.txt')
+    path = os.path.join(settings.BASE_DIR, '..', 'data', 'fi', 'postcodes.txt')
     postcodes = {}
-    try:
-        f = open(path, 'r', encoding='utf-8')
-    except FileNotFoundError:
-        return
+    f = open(path, 'r', encoding='utf-8')
     for l in f.readlines():
         code, muni = l.split(',')
         postcodes[code] = muni.strip()
