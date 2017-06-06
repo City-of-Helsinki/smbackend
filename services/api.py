@@ -207,7 +207,10 @@ class DepartmentSerializer(TranslatedModelSerializer, MPTTModelSerializer, seria
             return obj.uuid
 
     def get_parent(self, obj):
-        return obj.parent.uuid
+        parent = getattr(obj, 'parent')
+        if parent is not None:
+            return parent.uuid
+        return None
 
     def get_organization(self, obj):
         return obj.organization.uuid
