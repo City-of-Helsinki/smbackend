@@ -646,6 +646,9 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
                 queryset = queryset.filter(muni_sq)
 
+        if 'organization' in filters:
+            queryset = queryset.filter(organization__uuid=filters.get('organization'))
+
         if 'provider_type' in filters:
             val = filters.get('provider_type')
             pr_ids = val.split(',')
