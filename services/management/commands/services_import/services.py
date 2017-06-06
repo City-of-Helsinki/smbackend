@@ -1,4 +1,3 @@
-import pprint
 from datetime import datetime
 import pytz
 from munigeo.importer.sync import ModelSyncher
