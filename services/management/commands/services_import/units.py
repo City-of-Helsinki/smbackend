@@ -97,10 +97,8 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
         info['connections'] = conn_list
         acp_list = acc_by_unit.get(info['id'], [])
         info['accessibility_properties'] = acp_list
-        obj = _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name,
-                           bounding_box, gps_to_target_ct, target_srid)
-        #print(info['accessibility_viewpoints'])
-        #print(_parse_accessibility_viewpoints(info['accessibility_viewpoints']))
+        _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name,
+                     bounding_box, gps_to_target_ct, target_srid)
         # _import_unit_services(obj, info, count_services)
     syncher.finish()
 
@@ -158,7 +156,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         obj.organization = org
         obj_changed = True
 
-    if not 'address_city_fi' in info and 'latitude' in info and 'longitude' in info:
+    if 'address_city_fi' not in info and 'latitude' in info and 'longitude' in info:
         if VERBOSITY:
             LOGGER.warning("%s: coordinates present but no city" % obj)
 
@@ -338,7 +336,7 @@ def _import_unit_services(obj, info, count_services, obj_changed, update_fields)
         # Update root service cache
         obj.root_ontologytreenodes = ','.join(str(x) for x in obj.get_root_ontologytreenodes())
         update_fields.append('root_ontologytreenodes')
-        obj_changed=True
+        obj_changed = True
 
     return obj_changed, update_fields
 
@@ -368,7 +366,7 @@ def _save_searchwords(obj, info, language):
         kws = [x for x in kws if x]
         new_kw_set = set()
         for kw in kws:
-            if not kw in KEYWORDS[language]:
+            if kw not in KEYWORDS[language]:
                 kw_obj = Keyword(name=kw, language=language)
                 kw_obj.save()
                 KEYWORDS[language][kw] = kw_obj
@@ -513,4 +511,3 @@ def _parse_accessibility_viewpoints(acc_viewpoints_str, drop_unknowns=True):
         return {}
 
     return viewpoints
-
