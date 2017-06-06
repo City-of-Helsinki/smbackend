@@ -341,19 +341,19 @@ def _import_unit_services(obj, info, count_services, obj_changed, update_fields)
 
 
 def _sync_searchwords(obj, info, obj_changed):
-    obj.new_keywords = set()
+    new_keywords = set()
     for lang in SUPPORTED_LANGUAGES:
-        _save_searchwords(obj, info, lang)
+        new_keywords |= _save_searchwords(obj, info, lang)
 
     old_kw_set = set(obj.keywords.all().values_list('pk', flat=True))
-    if old_kw_set == obj.new_keywords:
+    if old_kw_set == new_keywords:
         return obj_changed
 
     if VERBOSITY:
         old_kw_str = ', '.join([KEYWORDS_BY_ID[x].name for x in old_kw_set])
-        new_kw_str = ', '.join([KEYWORDS_BY_ID[x].name for x in obj.new_keywords])
+        new_kw_str = ', '.join([KEYWORDS_BY_ID[x].name for x in new_keywords])
         LOGGER.info("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
-    obj.keywords = list(obj.new_keywords)
+    obj.keywords = list(new_keywords)
     return True
 
 
