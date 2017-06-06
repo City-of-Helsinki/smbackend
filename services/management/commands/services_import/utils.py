@@ -60,7 +60,7 @@ def clean_text(text):
 
 
 def postcodes():
-    path = os.path.join(settings.BASE_DIR, '..', 'data', 'fi', 'postcodes.txt')
+    path = os.path.join(settings.BASE_DIR, 'data', 'fi', 'postcodes.txt')
     postcodes = {}
     f = open(path, 'r', encoding='utf-8')
     for l in f.readlines():
