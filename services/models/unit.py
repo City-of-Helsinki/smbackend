@@ -69,7 +69,6 @@ class Unit(models.Model):
     call_charge_info = models.CharField(max_length=100, null=True)
 
     picture_caption = models.TextField(null=True)
-    extra_searchwords = models.TextField(null=True)
 
     phone = models.CharField(max_length=50, null=True)
     fax = models.CharField(max_length=50, null=True)
