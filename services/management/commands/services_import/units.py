@@ -3,9 +3,7 @@ import hashlib
 import json
 import pprint
 import os
-import csv
 import logging
-import sys
 
 import pytz
 from collections import defaultdict
@@ -15,7 +13,6 @@ from django import db
 from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
-from django.utils.datetime_safe import datetime
 from munigeo.importer.sync import ModelSyncher
 from munigeo.models import Municipality
 
