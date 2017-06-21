@@ -3,8 +3,8 @@ from services.models import Department, Organization
 from .utils import pk_get, save_translated_field
 
 
-def import_departments(org_syncher=None, noop=False, logger=None):
-    obj_list = pk_get('department')
+def import_departments(org_syncher=None, noop=False, logger=None, fetch_resource=pk_get):
+    obj_list = fetch_resource('department')
     syncher = ModelSyncher(Department.objects.all(), lambda obj: str(obj.uuid))
     # self.dept_syncher = syncher
     if noop:

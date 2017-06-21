@@ -18,7 +18,7 @@ from munigeo.models import Municipality
 
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.organizations import import_organizations
-from services.models import Unit, OntologyTreeNode, OntologyWord, AccessibilityVariable, \
+from services.models import Unit, OntologyTreeNode, AccessibilityVariable, \
     Keyword, UnitConnection, UnitAccessibilityProperty, UnitIdentifier
 from services.models.unit import PROJECTION_SRID, PROVIDER_TYPES
 from services.models.unit_connection import SECTION_TYPES
@@ -28,14 +28,35 @@ UTC_TIMEZONE = pytz.timezone('UTC')
 ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
 KEYWORDS = None
 KEYWORDS_BY_ID = None
-ACCESSIBILITY_VARIABLES = {x.id: x for x in AccessibilityVariable.objects.all()}
-EXISTING_SERVICE_IDS = set(OntologyWord.objects.values_list('id', flat=True))
-EXISTING_SERVICE_TREE_NODE_IDS = set(OntologyTreeNode.objects.values_list('id', flat=True))
+ACCESSIBILITY_VARIABLES = None
+EXISTING_SERVICE_TREE_NODE_IDS = None
 LOGGER = None
 VERBOSITY = False
 
 
-def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbosity=True, logger=None):
+def get_accessibility_variables():
+    global ACCESSIBILITY_VARIABLES
+    if ACCESSIBILITY_VARIABLES is None:
+        ACCESSIBILITY_VARIABLES = {x.id: x for x in AccessibilityVariable.objects.all()}
+    return ACCESSIBILITY_VARIABLES
+
+
+def get_service_tree_node_ids():
+    global EXISTING_SERVICE_TREE_NODE_IDS
+    if EXISTING_SERVICE_TREE_NODE_IDS is None:
+        EXISTING_SERVICE_TREE_NODE_IDS = set(OntologyTreeNode.objects.values_list('id', flat=True))
+    return EXISTING_SERVICE_TREE_NODE_IDS
+
+
+def _fetch_units():
+    if VERBOSITY:
+        LOGGER.info("Fetching units")
+    return pk_get('unit', params={'official': 'yes'})
+
+
+def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
+                 verbosity=True, logger=None, fetch_units=_fetch_units,
+                 fetch_resource=pk_get):
     global VERBOSITY, LOGGER, KEYWORDS_BY_ID, KEYWORDS
     VERBOSITY = verbosity
     LOGGER = logger
@@ -56,7 +77,7 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
 
     VERBOSITY and LOGGER.info("Fetching unit connections %s %s" % (org_syncher, dept_syncher))
 
-    connections = pk_get('connection')
+    connections = fetch_resource('connection')
     conn_by_unit = defaultdict(list)
     for conn in connections:
         unit_id = conn['unit_id']
@@ -64,8 +85,8 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
 
     VERBOSITY and LOGGER.info("Fetching accessibility properties")
 
-    # acc_properties = self.pk_get('accessibility_property', v3=True)
-    acc_properties = pk_get('accessibility_property')
+    # acc_properties = self.fetch_resource('accessibility_property', v3=True)
+    acc_properties = fetch_resource('accessibility_property')
     acc_by_unit = defaultdict(list)
     for ap in acc_properties:
         unit_id = ap['unit_id']
@@ -82,10 +103,10 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
 
     if fetch_only_id:
         obj_id = fetch_only_id
-        obj_list = [pk_get('unit', obj_id, params={'official': 'yes'})]
+        obj_list = [fetch_resource('unit', obj_id, params={'official': 'yes'})]
         queryset = Unit.objects.filter(id=obj_id)
     else:
-        obj_list = _fetch_units()
+        obj_list = fetch_units()
         queryset = Unit.objects.filter(data_source='tprek').prefetch_related('services', 'keywords')
 
     count_services = set()
@@ -115,12 +136,6 @@ def _load_postcodes():
         code, muni = l.split(',')
         postcodes[code] = muni.strip()
     return postcodes
-
-
-def _fetch_units():
-    if VERBOSITY:
-        LOGGER.info("Fetching units")
-    return pk_get('unit', params={'official': 'yes'})
 
 
 @db.transaction.atomic
@@ -321,7 +336,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
 def _import_unit_services(obj, info, count_services, obj_changed, update_fields):
     ontologytreenode_ids = sorted([
         sid for sid in info.get('ontologytree_ids', [])
-        if sid in EXISTING_SERVICE_TREE_NODE_IDS])
+        if sid in get_service_tree_node_ids()])
     # print("ontologytree_ids: %s -> %s" % (info.get('ontologytree_ids', []), servicenode_ids))
 
     obj_ontologytreenode_ids = sorted(obj.service_tree_nodes.values_list('id', flat=True))
@@ -392,11 +407,11 @@ def _import_unit_accessibility_variables(obj, info, obj_changed, update_fields):
         for acp in info['accessibility_properties']:
             uap = UnitAccessibilityProperty(unit=obj)
             var_id = acp['variable_id']
-            if var_id not in ACCESSIBILITY_VARIABLES:
+            if var_id not in get_accessibility_variables():
                 var = AccessibilityVariable(id=var_id, name=acp['variable_name'])
                 var.save()
             else:
-                var = ACCESSIBILITY_VARIABLES[var_id]
+                var = get_accessibility_variables[var_id]
             uap.variable = var
             uap.value = acp['value']
             uap.save()

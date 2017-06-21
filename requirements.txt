@@ -10,9 +10,9 @@ django-cors-headers==1.1.0
 django-extensions==1.7.8
 django-filter==1.0.2
 django-haystack==2.6.0
-# django-modeltranslation==0.10
 django-modeltranslation==0.12.1
-# django-mptt==0.7.4
+django-modeltranslation==0.12.1
+django-mptt==0.8.7
 django-mptt==0.8.7
 django-polymorphic==1.0.2
 django==1.11.1
@@ -20,6 +20,7 @@ djangorestframework-jsonp==1.0.0
 djangorestframework==3.6.3
 elasticsearch==1.9.0
 first==2.0.1              # via pip-tools
+hypothesis==3.11.6
 lxml==3.4.4
 markdown==2.6.2
 pip-tools==1.8.0
