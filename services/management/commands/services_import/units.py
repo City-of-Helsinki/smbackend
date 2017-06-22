@@ -109,8 +109,6 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
         obj_list = fetch_units()
         queryset = Unit.objects.filter(data_source='tprek').prefetch_related('services', 'keywords')
 
-    count_services = set()
-
     syncher = ModelSyncher(queryset, lambda obj: obj.id)
     for idx, info in enumerate(obj_list):
         conn_list = conn_by_unit.get(info['id'], [])
