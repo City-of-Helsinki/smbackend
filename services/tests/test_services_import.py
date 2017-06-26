@@ -1,4 +1,5 @@
 from hypothesis import given
+from hypothesis.strategies import lists
 import pytest
 from rest_framework.test import APIClient
 from rest_framework.reverse import reverse
@@ -111,38 +112,39 @@ def assert_unit_correctly_imported(unit, source_unit):
 
 
 @pytest.mark.django_db
-@given(closed_object_set())
+@given(lists(closed_object_set()))
 def test_import_units(api_client, all_resources):
 
-    def fetch_resource(name):
-        return all_resources.get(name, set())
+    for resources in all_resources:
+        def fetch_resource(name):
+            return resources.get(name, set())
 
-    def fetch_units():
-        return fetch_resource('unit')
+        def fetch_units():
+            return fetch_resource('unit')
 
-    org_syncher = import_organizations(fetch_resource=fetch_resource)
-    dept_syncher = import_departments(fetch_resource=fetch_resource)
+        org_syncher = import_organizations(fetch_resource=fetch_resource)
+        dept_syncher = import_departments(fetch_resource=fetch_resource)
 
-    import_units(
-        fetch_units=fetch_units, fetch_resource=fetch_resource,
-        org_syncher=org_syncher, dept_syncher=dept_syncher)
+        import_units(
+            fetch_units=fetch_units, fetch_resource=fetch_resource,
+            org_syncher=org_syncher, dept_syncher=dept_syncher)
 
-    response = get(api_client, reverse('unit-list'))
+        response = get(api_client, reverse('unit-list'))
 
-    # The API-exposed unit count must exactly equal the original
-    # import source unit count.
-    assert response.data['count'] == len(all_resources['unit'])
+        # The API-exposed unit count must exactly equal the original
+        # import source unit count.
+        assert response.data['count'] == len(resources['unit'])
 
-    def id_set(units):
-        return set((u['id'] for u in units))
+        def id_set(units):
+            return set((u['id'] for u in units))
 
-    result_units = response.data['results']
+        result_units = response.data['results']
 
-    # The ids in source and result must exactly match
-    assert (id_set(result_units) ==
-            id_set(all_resources['unit']))
+        # The ids in source and result must exactly match
+        assert (id_set(result_units) ==
+                id_set(resources['unit']))
 
-    source_units_by_id = dict((u['id'], u) for u in all_resources['unit'])
+        source_units_by_id = dict((u['id'], u) for u in resources['unit'])
 
-    for unit in result_units:
-        assert_unit_correctly_imported(unit, source_units_by_id.get(unit['id']))
+        for unit in result_units:
+            assert_unit_correctly_imported(unit, source_units_by_id.get(unit['id']))
