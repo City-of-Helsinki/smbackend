@@ -27,8 +27,8 @@ LANGUAGES = ['fi', 'sv', 'en']
 def assert_field_match(name, src, dest):
     if src[name] == '':
         assert dest[name] is None
-        return
-    assert src[name] == dest[name]
+    else:
+        assert src[name] == dest[name]
 
 
 def assert_translated_field_match(name, src, dest):
