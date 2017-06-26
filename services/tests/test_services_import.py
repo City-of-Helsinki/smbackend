@@ -8,7 +8,7 @@ from services.management.commands.services_import.organizations import import_or
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.units import import_units
 
-from .services_import_hypothesis import closed_object_set
+from services_import_hypothesis import closed_object_set
 
 
 def get(api_client, url, data=None):
