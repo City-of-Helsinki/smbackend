@@ -1,6 +1,6 @@
 import datetime as dt
 from django.test import TestCase
-from services.models import Service, Unit
+from services.models import OntologyWord, Unit
 from observations.models import *
 import pytz
 
@@ -12,7 +12,7 @@ EXAMPLE_TIMESTAMPS = [
 class ContinuousObservationTestCase(TestCase):
 
     def setUp(self):
-        skiing_service = Service.objects.create(
+        skiing_service = OntologyWord.objects.create(
             id=1,
             name='Skiing track',
             unit_count=0,
