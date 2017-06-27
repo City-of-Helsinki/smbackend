@@ -5,7 +5,7 @@ import requests_mock
 from django.core.management import call_command
 from django.utils.six import StringIO
 
-from services.management.commands.services_import import URL_BASE as TPR_URL
+from services.management.commands.services_import_v4 import URL_BASE as TPR_URL
 from services.models import Unit
 
 TPR_MOCK_DIR = os.path.join(os.path.dirname(__file__), 'tpr_mock_data')
