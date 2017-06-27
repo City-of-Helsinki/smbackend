@@ -52,22 +52,22 @@ def haystack_test():
 
 
 @pytest.fixture
-def db_content():
+def db_content(db):
     """ Generate some content to test against """
     s = OntologyWord(id=1, name='Kirjasto', unit_count=0, last_modified_time=timezone.now())
     s.save()
-    o = Organization(id=1, name="Helsingin kaupunki")
+    o = Organization(id=1, uuid='063c6150-ccc7-4886-b44b-ecee7670d064', name="Helsingin kaupunki")
     o.save()
     u = Unit(id=27586,
              provider_type=1,
              organization=o,
-             origin_last_modified_time=timezone.now(),
+             modified_time=timezone.now(),
              name='Kallion kirjasto',
-             description='Kirjasto kallion keskustassa',
+             desc='Kirjasto kallion keskustassa',
              street_address='Arentikuja 3')
     u.save()
     u.services.add(s)
-    uc = UnitConnection(unit=u, name='John Doe', phone='040 123 1234', type=999)
+    uc = UnitConnection(unit=u, name='John Doe', phone='040 123 1234')
     uc.save()
     call_command('update_index', interactive=False, verbosity=0)
     return {'service': s, 'unit': u}
