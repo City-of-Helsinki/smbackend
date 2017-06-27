@@ -14,6 +14,9 @@ def authenticate_user(api_client, user):
     token = response.data['token']
     api_client.credentials(HTTP_AUTHORIZATION='Token ' + token)
 
+
+@pytest.mark.skip(reason="awaiting new API implementation")
+# Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__create_observation(api_client, observable_property, unit, user):
     url = reverse(
@@ -49,6 +52,9 @@ def test__create_observation(api_client, observable_property, unit, user):
     assert count > 0
     assert Observation.objects.count() == count
 
+
+@pytest.mark.skip(reason="awaiting new API implementation")
+# Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__create_descriptive_observation(api_client, descriptive_property, unit, user):
     url = reverse(
