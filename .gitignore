@@ -12,5 +12,5 @@ venv
 Procfile
 smbackend/test/fixtures/munigeo.json
 smbackend/test/tpr_mock_data/*.json
-services/tests/.hypothesis
+**/.hypothesis
 .python-version
