@@ -21,6 +21,15 @@ def user():
     user.save()
     return {'username': USERNAME, 'password': PASSWORD}
 
+
+@pytest.mark.django_db
+@pytest.fixture
+def organization():
+    return Organization.objects.create(
+        name='Fors',
+        uuid='063c6150-ccc7-4886-b44b-ecee7670d064')
+
+
 @pytest.mark.django_db
 @pytest.fixture
 def service():
@@ -30,23 +39,16 @@ def service():
         unit_count=1,
         last_modified_time=d.datetime.now())
 
-@pytest.mark.django_db
-@pytest.fixture
-def unit():
-    return Unit.objects.create(
-        id=1,
-        name='skiing place',
-        last_modified_time=d.datetime.now())
 
 @pytest.mark.django_db
 @pytest.fixture
-def unit(service):
+def unit(service, organization):
     unit = Unit.objects.create(
         id=1,
         name='skiing place',
-        origin_last_modified_time=d.datetime.now(),
+        modified_time=d.datetime.now(),
         provider_type=1,
-        organization_id=1)
+        organization=organization)
     unit.services.add(service)
     return unit
 
