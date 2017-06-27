@@ -27,8 +27,8 @@ def test_unit_updating():
         mock_tpr(mock)
         assert Unit.objects.count() == 0
         out = StringIO()
-        call_command('services_import', traceback=True, organizations=True, departments=True, services=True, units=True,
-                     stdout=out)
+        call_command('services_import', traceback=True, organizations=True,
+                     departments=True, services=True, units=True, stdout=out)
         assert Unit.objects.count() > 0
 
 
