@@ -22,7 +22,7 @@ from services.models import Unit, OntologyTreeNode, AccessibilityVariable, \
     Keyword, UnitConnection, UnitAccessibilityProperty, UnitIdentifier
 from services.models.unit import PROJECTION_SRID, PROVIDER_TYPES
 from services.models.unit_connection import SECTION_TYPES
-from .utils import pk_get, save_translated_field, postcodes, keywords_by_id, keywords, SUPPORTED_LANGUAGES
+from .utils import clean_text, pk_get, save_translated_field, postcodes, keywords_by_id, keywords, SUPPORTED_LANGUAGES
 
 UTC_TIMEZONE = pytz.timezone('UTC')
 ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
@@ -235,10 +235,13 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         info['provider_type'] = [val for val, str_val in PROVIDER_TYPES if str_val == info['provider_type']][0]
 
     for field in fields:
-        if info.get(field):
-            if info[field] != getattr(obj, field):
+        if field not in info or (type(info[field]) == str and clean_text(info[field]) == ''):
+            if getattr(obj, field) is not None:
+                setattr(obj, field, None)
                 obj_changed = True
-                setattr(obj, field, info.get(field))
+        elif info[field] != getattr(obj, field):
+            setattr(obj, field, info.get(field))
+            obj_changed = True
 
     for field in ['created_time']:
         if info.get(field):
