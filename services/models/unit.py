@@ -114,7 +114,6 @@ class Unit(models.Model):
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
-
     def get_root_ontologytreenodes(self):
         from .ontology_tree_node import OntologyTreeNode
 
