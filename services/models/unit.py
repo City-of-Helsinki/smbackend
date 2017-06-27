@@ -111,6 +111,9 @@ class Unit(models.Model):
     objects = models.GeoManager()
     search_objects = UnitSearchManager()
 
+    class Meta:
+        ordering = ['-pk']
+
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
