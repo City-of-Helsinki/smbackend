@@ -5,14 +5,13 @@ import haystack
 from django.utils import timezone
 from django.conf import settings
 from django.core.management import call_command
-from services.models import Unit, UnitConnection, Organization, Service
+from services.models import Unit, UnitConnection, Organization, OntologyWord
 
 
 def read_config(name):
     return json.load(open(
         os.path.join(
             settings.BASE_DIR,
-            'smbackend',
             'elasticsearch/{}.json'.format(name))))
 
 
@@ -55,7 +54,7 @@ def haystack_test():
 @pytest.fixture
 def db_content():
     """ Generate some content to test against """
-    s = Service(id=1, name='Kirjasto', unit_count=0, last_modified_time=timezone.now())
+    s = OntologyWord(id=1, name='Kirjasto', unit_count=0, last_modified_time=timezone.now())
     s.save()
     o = Organization(id=1, name="Helsingin kaupunki")
     o.save()
@@ -72,4 +71,3 @@ def db_content():
     uc.save()
     call_command('update_index', interactive=False, verbosity=0)
     return {'service': s, 'unit': u}
-
