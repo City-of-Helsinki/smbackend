@@ -26,10 +26,18 @@ LANGUAGES = ['fi', 'sv', 'en']
 
 
 def assert_field_match(name, src, dest):
-    if src[name] == '':
+    assert src[name] == dest[name]
+
+
+def assert_string_field_match(name, src, dest):
+    if src[name] is None:
+        assert dest[name] is None
+        return
+    val = src[name].replace('\u0000', ' ')
+    if len(val.split()) == 0:
         assert dest[name] is None
     else:
-        assert src[name] == dest[name]
+        assert val.split() == dest[name].split()
 
 
 def assert_translated_field_match(name, src, dest):
@@ -45,7 +53,7 @@ def assert_unit_correctly_imported(unit, source_unit):
     s = source_unit
 
     assert_field_match('id', s, d)
-    assert_field_match('accessibility_email', s, d)
+    assert_string_field_match('accessibility_email', s, d)
 
     assert_translated_field_match('name', s, d)
     # 'accessibility_email'
