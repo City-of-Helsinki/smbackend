@@ -57,6 +57,8 @@ def clean_text(text):
     text = text.replace('\r', "\n")
     text = text.replace('\\r', "\n")
     text = text.strip()
+    if len(text) == 0:
+        return None
     return text
 
 
