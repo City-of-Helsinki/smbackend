@@ -24,26 +24,47 @@ def api_client():
 
 LANGUAGES = ['fi', 'sv', 'en']
 
+FIELD_MAPPINGS = {
+    'desc': 'description',
+}
+
+
+def api_field_value(dest, name):
+    return dest[FIELD_MAPPINGS.get(name, name)]
+
+
+def assert_field_exists(name, src, dest):
+    if src.get(name) is None:
+        assert api_field_value(dest, name) is None
+    else:
+        assert name in dest
+
 
 def assert_field_match(name, src, dest):
-    assert src[name] == dest[name]
+    assert_field_exists(name, src, dest)
+    assert src[name] == api_field_value(dest, name)
 
 
 def assert_string_field_match(name, src, dest):
+    assert_field_exists(name, src, dest)
     if src[name] is None:
-        assert dest[name] is None
+        assert api_field_value(dest, name) is None
         return
     val = src[name].replace('\u0000', ' ')
     if len(val.split()) == 0:
-        assert dest[name] is None
+        assert api_field_value(dest, name) is None
     else:
-        assert val.split() == dest[name].split(), "'{}' does not match '{}'".format(src[name], dest[name])
+        assert val.split() == api_field_value(dest, name).split(), \
+            "{}: '{}' does not match '{}'".format(name, src[name], api_field_value(dest, name))
 
 
 def assert_translated_field_match(name, src, dest):
+    assert_field_exists(name, src, dest)
+    if src.get(name) is None:
+        return
     for lang in LANGUAGES:
         s = src['name_{}'.format(lang)].replace('\u0000', ' ')
-        d = dest[name][lang]
+        d = api_field_value(dest, name)[lang]
         # compare ignoring whitespace and empty bytes
         assert s.split() == d.split()
 
@@ -55,68 +76,62 @@ def assert_unit_correctly_imported(unit, source_unit):
     assert_field_match('id', s, d)
     assert_string_field_match('accessibility_email', s, d)
 
-    assert_translated_field_match('name', s, d)
+    for field_name in [
+            'address_city',
+            'address_postal_full',
+            'call_charge_info',
+            'desc',
+            'name',
+            'picture_caption',
+            'short_desc',
+            'street_address',
+            'www']:
+        assert_translated_field_match(field_name, s, d)
+
+    # TODO: look for extra_searchwords -> keywords
+
+    # string
+    # ======
     # 'accessibility_email'
     # 'accessibility_phone'
     # 'accessibility_viewpoints'
     # 'accessibility_www'
-    # 'address_city_en'
-    # 'address_city_fi'
-    # 'address_city_sv'
-    # 'address_postal_full_en'
-    # 'address_postal_full_fi'
-    # 'address_postal_full_sv'
     # 'address_zip'
-    # 'call_charge_info_en'
-    # 'call_charge_info_fi'
-    # 'call_charge_info_sv'
-    # 'created_time'
     # 'data_source_url'
     # 'dept_id'
-    # 'desc_en'
-    # 'desc_fi'
-    # 'desc_sv'
+    # 'email'
+    # 'fax'
+    # 'phone'
+    # 'organizer_business_id'
+
+    # ?
+    # 'id'
+
+    # 'modified_time'
+    # 'created_time'
+
     # 'easting_etrs_gk25'
     # 'easting_etrs_tm35fin'
-    # 'email'
-    # 'extra_searchwords_en'
-    # 'extra_searchwords_fi'
-    # 'extra_searchwords_sv'
-    # 'fax'
-    # 'id'
-    # 'latitude'
-    # 'longitude'
-    # 'manual_coordinates'
-    # 'modified_time'
-    # 'name_en'
-    # 'name_fi'
-    # 'name_sv'
     # 'northing_etrs_gk25'
     # 'northing_etrs_tm35fin'
+    # 'latitude'
+    # 'longitude'
+
+    # 'manual_coordinates'
+
     # 'ontologytree_ids'
     # 'ontologyword_ids'
-    # 'organizer_business_id'
+
     # 'organizer_type'
+
     # 'org_id'
-    # 'phone'
-    # 'picture_caption_en'
-    # 'picture_caption_fi'
-    # 'picture_caption_sv'
     # 'picture_entrance_url'
     # 'picture_url'
     # 'provider_type'
-    # 'short_desc_en'
-    # 'short_desc_fi'
-    # 'short_desc_sv'
     # 'source'
     # 'sources'
-    # 'street_address_en'
-    # 'street_address_fi'
-    # 'street_address_sv'
     # 'streetview_entrance_url'
-    # 'www_en'
-    # 'www_fi'
-    # 'www_sv'
+
 
 
 @pytest.mark.django_db
