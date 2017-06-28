@@ -37,7 +37,7 @@ def assert_string_field_match(name, src, dest):
     if len(val.split()) == 0:
         assert dest[name] is None
     else:
-        assert val.split() == dest[name].split()
+        assert val.split() == dest[name].split(), "'{}' does not match '{}'".format(src[name], dest[name])
 
 
 def assert_translated_field_match(name, src, dest):
