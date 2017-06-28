@@ -26,6 +26,7 @@ LANGUAGES = ['fi', 'sv', 'en']
 
 FIELD_MAPPINGS = {
     'desc': 'description',
+    'short_desc': 'short_description',
 }
 
 
@@ -59,12 +60,13 @@ def assert_string_field_match(name, src, dest):
 
 
 def assert_translated_field_match(name, src, dest):
-    assert_field_exists(name, src, dest)
-    if src.get(name) is None:
-        return
     for lang in LANGUAGES:
         s = src['name_{}'.format(lang)].replace('\u0000', ' ')
+        assert api_field_value(dest, name) is not None, '{} is none'.format(name)
         d = api_field_value(dest, name)[lang]
+        if s is None or len(s) == 0:
+            assert d is None
+            return
         # compare ignoring whitespace and empty bytes
         assert s.split() == d.split()
 
