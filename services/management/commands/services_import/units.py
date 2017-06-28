@@ -235,12 +235,12 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         info['provider_type'] = [val for val, str_val in PROVIDER_TYPES if str_val == info['provider_type']][0]
 
     for field in fields:
-        if field not in info or (type(info[field]) == str and clean_text(info[field]) == ''):
+        if field not in info or clean_text(info[field]) == '':
             if getattr(obj, field) is not None:
                 setattr(obj, field, None)
                 obj_changed = True
         elif info[field] != getattr(obj, field):
-            setattr(obj, field, info.get(field))
+            setattr(obj, field, clean_text(info.get(field)))
             obj_changed = True
 
     for field in ['created_time']:

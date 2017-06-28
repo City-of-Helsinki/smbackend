@@ -23,7 +23,6 @@ def pk_get(resource_name, res_id=None, params=None):
 
 
 def save_translated_field(obj, obj_field_name, info, info_field_name, max_length=None):
-    args = {}
     has_changed = False
     for lang in ('fi', 'sv', 'en'):
         key = '%s_%s' % (info_field_name, lang)
@@ -48,6 +47,8 @@ def save_translated_field(obj, obj_field_name, info, info_field_name, max_length
 
 
 def clean_text(text):
+    if not isinstance(text, str):
+        return text
     # remove consecutive whitespaces
     text = re.sub(r'\s\s+', ' ', text, re.U)
     # remove nil bytes
