@@ -105,7 +105,7 @@ class Command(BaseCommand):
 
         # Iterate through Lipas layers and features
         logger.info('Processing Lipas geodata...')
-        for _, layer in layers.items():
+        for layer in layers.values():
             for feature in layer:
                 logger.debug(feature.fid)
 
@@ -116,7 +116,7 @@ class Command(BaseCommand):
                     logging.debug('id not found: {}'.format(lipas_id))
                     continue
 
-                logger.debug('found id: '.format(lipas_id))
+                logger.debug('found id: {}'.format(lipas_id))
 
                 def clean_name(name):
                     import re
@@ -125,9 +125,8 @@ class Command(BaseCommand):
                     return name
 
                 if clean_name(feature['nimi_fi'].value) != clean_name(unit.name_fi):
-                    logger.warning('id {} has non-matching name fields.\n'
-                                   'Lipas: "{}"\n'
-                                   'db: "{}"'.format(lipas_id, feature['nimi_fi'].value, unit.name_fi))
+                    logger.warning('id {} has non-matching name fields (Lipas: {}, db: {}).'
+                                   .format(lipas_id, feature['nimi_fi'].value, unit.name_fi))
 
                 try:
                     # Initialize an empty GeometryCollection if we haven't encountered
