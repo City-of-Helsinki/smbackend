@@ -450,6 +450,8 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
             if 'unit' in ser.child.fields:
                 del ser.child.fields['unit']
 
+        self._root_node_cache = {}
+
     def handle_extension_translations(self, extensions):
         if extensions is None or len(extensions) == 0:
             return extensions
@@ -517,13 +519,22 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         if 'services' in include_fields:
             services_json = []
             for s in obj.service_tree_nodes.all():
+                # Optimization:
+                # Store root nodes by tree_id in a dict because otherwise
+                # this would generate multiple db queries for every single unit
+                tree_id = s._mpttfield('tree_id') # Forget your privacy!
+                root_node = self._root_node_cache.get(tree_id)
+                if root_node is None:
+                    root_node = s.get_root()
+                    self._root_node_cache[tree_id] = root_node
+
                 name = {}
                 for lang in LANGUAGES:
                     name[lang] = getattr(s, 'name_{0}'.format(lang))
                 data = {
                     'id': s.id,
                     'name': name,
-                    'root': s.get_root().id,
+                    'root': root_node.id,
                     'ontologyword_reference': s.ontologyword_reference
                 }
                 # if s.identical_to:
@@ -763,8 +774,13 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             queryset = queryset.prefetch_related(
                 'observation_set__property__allowed_values').prefetch_related(
                     'observation_set__value')
+
         if 'connections' in self.include_fields:
             queryset = queryset.prefetch_related('connections')
+
+        if 'services' in self.include_fields:
+            queryset = queryset.prefetch_related('service_tree_nodes')
+
         return queryset
 
     def _add_content_disposition_header(self, response):
