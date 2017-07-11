@@ -4,7 +4,7 @@ import logging
 from django.core.management.base import BaseCommand
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal.error import GDALException
-from django.contrib.gis.geos.collections import GeometryCollection
+from django.contrib.gis.geos import GeometryCollection, LineString, MultiLineString, Polygon, MultiPolygon
 
 from services.models.unit_identifier import UnitIdentifier
 
@@ -16,6 +16,24 @@ TYPES = {
 WFS_BASE = 'http://lipas.cc.jyu.fi/geoserver/lipas/ows'
 
 logger = logging.getLogger(__name__)
+
+
+def get_multi(obj):
+    """
+    Return the appropriate multi-container for the supplied geometry.
+
+    If the geometry is already a multi-container, return the object itself.
+    Currently supports MultiLine and MultiPolygon.
+    """
+
+    if isinstance(obj, LineString):
+        return MultiLineString(obj)
+    elif isinstance(obj, Polygon):
+        return MultiPolygon(obj)
+    elif isinstance(obj, (MultiLineString, MultiPolygon)):
+        return obj
+    else:
+        raise Exception("Unsupported geometry type: {}".format(obj.__class__.__name__))
 
 
 class MiniWFS:
@@ -97,9 +115,9 @@ class Command(BaseCommand):
 
         # The Lipas database stores paths and areas as different features
         # which have a common id. We want to store the paths as one
-        # GeometryCollection which includes all the small subpaths or areas.
+        # multi-collection which includes all the small subpaths or areas.
 
-        # This is a dict which will contain GeometryCollections hashed by
+        # This is the dict which will contain multi-collections hashed by
         # their Lipas id.
         geometries = {}
 
@@ -129,12 +147,23 @@ class Command(BaseCommand):
                                    .format(lipas_id, feature['nimi_fi'].value, unit.name_fi))
 
                 try:
-                    # Initialize an empty GeometryCollection if we haven't encountered
-                    # this id before. Elsewise just append to the collection.
+                    # Create a multi-container for the first encountered feature.
+                    # We try to add all other features to the multi-container but
+                    # fall back to a FeatureCollection if it's some other type.
                     if lipas_id in geometries:
-                        geometries[lipas_id].append(feature.geom.geos)
+                        try:
+                            geometries[lipas_id].append(feature.geom.geos)
+                        except TypeError:
+                            raise TypeError("The lipas database contains mixed geometries, this is unsupported!")
+                            # If mixed geometry types ever begin to appear in the lipas database,
+                            # uncommenting the following might make everything work straight
+                            # away. Please note that it's completely untested.
+
+                            # logger.warning("id {} has mixed geometries, "
+                            #                "creating a GeometryCollection as fallback".format(lipas_id))
+                            # geometries[lipas_id] = GeometryCollection(list(geometries[lipas_id]) + feature.geom.geos)
                     else:
-                        geometries[lipas_id] = GeometryCollection(feature.geom.geos)
+                        geometries[lipas_id] = get_multi(feature.geom.geos)
 
                 except GDALException as err:
                     # We might be dealing with something weird that the Python GDAL lib doesn't handle.
@@ -147,6 +176,12 @@ class Command(BaseCommand):
         logger.info('Updating geometries in the database...')
         for lipas_id, geometry in geometries.items():
             unit = units_by_lipas_id[lipas_id]
-            # Simplify our GeometryCollections as much as possible
-            unit.geometry = geometry.unary_union
+            # Try to simplify our geometries
+            if isinstance(geometry, MultiLineString):
+                unit.geometry = geometry.merged
+            elif isinstance(geometry, MultiPolygon):
+                unit.geometry = geometry.unary_union
+            else:
+                unit.geometry = geometry
+
             unit.save()
