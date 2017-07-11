@@ -137,3 +137,6 @@ class Unit(models.Model):
         qs = OntologyTreeNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         srv_list = qs.values_list('id', flat=True).distinct()
         return sorted(srv_list)
+
+    class Meta:
+        ordering = ['id']
