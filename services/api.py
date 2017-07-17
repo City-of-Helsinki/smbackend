@@ -762,7 +762,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 ref = self.srs
             if val:
                 bbox_filter = munigeo_api.build_bbox_filter(ref, val, 'location')
-                queryset = queryset.filter(**bbox_filter)
+                bbox_geometry_filter = munigeo_api.build_bbox_filter(ref, val, 'geometry')
+                queryset = queryset.filter(Q(**bbox_filter) | Q(**bbox_geometry_filter))
 
         maintenance_organization = self.request.query_params.get('maintenance_organization')
         if maintenance_organization:
