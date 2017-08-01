@@ -79,7 +79,6 @@ def assert_unit_correctly_imported(unit, source_unit):
     assert_string_field_match('accessibility_email', s, d)
 
     for field_name in [
-            'address_city',
             'address_postal_full',
             'call_charge_info',
             'desc',
@@ -89,6 +88,8 @@ def assert_unit_correctly_imported(unit, source_unit):
             'street_address',
             'www']:
         assert_translated_field_match(field_name, s, d)
+
+    assert d['municipality'] == s['address_city_fi'].lower()  # IMPROVE SPEC
 
     # TODO: look for extra_searchwords -> keywords
 
