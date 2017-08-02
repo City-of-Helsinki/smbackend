@@ -61,7 +61,7 @@ def assert_string_field_match(name, src, dest):
 
 def assert_translated_field_match(name, src, dest):
     for lang in LANGUAGES:
-        s = src['name_{}'.format(lang)].replace('\u0000', ' ')
+        s = src['{}_{}'.format(name, lang)].replace('\u0000', ' ')
         assert api_field_value(dest, name) is not None, '{} is none'.format(name)
         d = api_field_value(dest, name)[lang]
         if s is None or len(s) == 0:

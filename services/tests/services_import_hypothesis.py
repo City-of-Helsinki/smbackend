@@ -30,7 +30,7 @@ def translated_field(draw, name, allow_none=True, languages=['fi', 'sv', 'en']):
             val = draw(one_of(text(), none()))
         else:
             val = draw(text())
-        result['name_{}'.format(lang)] = val
+        result['{}_{}'.format(name, lang)] = val
     return result
 
 
