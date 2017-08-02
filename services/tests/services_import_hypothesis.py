@@ -78,6 +78,8 @@ def unit_maker(draw, resource_ids):
 
         result.update(translated_field(draw, 'call_charge_info', allow_none=True))
         result.update(translated_field(draw, 'desc', allow_none=True))
+        result.update(translated_field(draw, 'picture_caption', allow_none=True))
+        result.update(translated_field(draw, 'address_city', allow_none=True))
         return result
     return make_unit
 
