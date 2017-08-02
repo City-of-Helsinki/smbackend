@@ -75,16 +75,18 @@ def assert_translated_field_match(name, src, dest):
             return
 
         # Case 2: some or no translations missing from source
-        d = val[lang]
         s = None
         try:
             s = get_source_val(src, key)
         except KeyError:
-            assert d is None
+            assert val[lang] is None
+            return
+        if len(s) == 0:
+            assert lang not in val
             return
 
         # compare ignoring whitespace and empty bytes
-        assert s.split() == d.split()
+        assert s.split() == val[lang].split()
 
 
 def assert_unit_correctly_imported(unit, source_unit):
