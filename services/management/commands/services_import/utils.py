@@ -35,14 +35,15 @@ def save_translated_field(obj, obj_field_name, info, info_field_name, max_length
             #     self.logger.warning("%s: field '%s' too long" % (obj, obj_field_name))
             val = None
         obj_key = '%s_%s' % (obj_field_name, lang)
-        obj_val = getattr(obj, obj_key, None)
+        obj_val = getattr(obj, obj_key)
         if obj_val == val:
             continue
 
-        setattr(obj, obj_key, val)
+        if getattr(obj, obj_key) != val:
+            setattr(obj, obj_key, val)
+            has_changed = True
         if lang == 'fi':
             setattr(obj, obj_field_name, val)
-        has_changed = True
     return has_changed
 
 
