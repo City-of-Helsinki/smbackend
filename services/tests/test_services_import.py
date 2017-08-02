@@ -105,7 +105,10 @@ def assert_unit_correctly_imported(unit, source_unit):
             'www']:
         assert_translated_field_match(field_name, s, d)
 
-    assert d['municipality'] == s['address_city_fi'].lower()  # IMPROVE SPEC
+    if 'address_city_fi' in s and len(s['address_city_fi']) > 0:
+        assert d['municipality'] == s['address_city_fi'].lower()  # IMPROVE SPEC
+    else:
+        assert d['municipality'] is None
 
     # TODO: look for extra_searchwords -> keywords
 
