@@ -73,6 +73,7 @@ def unit_maker(draw, resource_ids):
             'accessibility_email': draw(one_of(text(), none()))  # TODO: map to another field
         }
         result.update(translated_field(draw, 'name', allow_none=False))
+        result.update(translated_field(draw, 'address_postal_full', allow_none=False))
         return result
     return make_unit
 
