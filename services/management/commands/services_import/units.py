@@ -152,7 +152,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
 
     fields_that_need_translation = (
         'name', 'street_address', 'www', 'picture_caption', 'desc',
-        'short_desc', 'address_city', 'address_postal_full', 'call_charge_info')
+        'short_desc', 'address_postal_full', 'call_charge_info')
     for field in fields_that_need_translation:
         if save_translated_field(obj, field, info, field):
             obj_changed = True

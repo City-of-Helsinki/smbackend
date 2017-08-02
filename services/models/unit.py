@@ -63,7 +63,7 @@ class Unit(models.Model):
     short_desc = models.TextField(null=True)
     name = models.CharField(max_length=200, db_index=True)
     street_address = models.CharField(max_length=100, null=True)
-    address_city = models.CharField(max_length=100, null=True)
+
     www = models.URLField(max_length=400, null=True)
     address_postal_full = models.CharField(max_length=100, null=True)
     call_charge_info = models.CharField(max_length=100, null=True)
