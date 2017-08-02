@@ -60,10 +60,16 @@ def assert_string_field_match(name, src, dest):
 
 
 def assert_translated_field_match(name, src, dest):
+    val = api_field_value(dest, name)
     for lang in LANGUAGES:
         s = src['{}_{}'.format(name, lang)].replace('\u0000', ' ')
-        assert api_field_value(dest, name) is not None, '{} is none'.format(name)
-        d = api_field_value(dest, name)[lang]
+        if val is None:
+            # Our API returns null as the value of a translated
+            # field which has a null for all languages.
+            assert s is None or len(s) == 0
+            return
+
+        d = val[lang]
         if s is None or len(s) == 0:
             assert d is None
             return
