@@ -62,17 +62,27 @@ def assert_string_field_match(name, src, dest):
 def assert_translated_field_match(name, src, dest):
     val = api_field_value(dest, name)
     for lang in LANGUAGES:
-        s = src['{}_{}'.format(name, lang)].replace('\u0000', ' ')
+        key = '{}_{}'.format(name, lang)
+
+        def get_source_val(src, key):
+            return src[key].replace('\u0000', ' ')
+
+        # Case 1: all translations missing from source
         if val is None:
             # Our API returns null as the value of a translated
-            # field which has a null for all languages.
-            assert s is None or len(s) == 0
+            # field which has all languages missing.
+            assert key not in src or len(get_source_val(src, key)) == 0
             return
 
+        # Case 2: some or no translations missing from source
         d = val[lang]
-        if s is None or len(s) == 0:
+        s = None
+        try:
+            s = get_source_val(src, key)
+        except KeyError:
             assert d is None
             return
+
         # compare ignoring whitespace and empty bytes
         assert s.split() == d.split()
 
