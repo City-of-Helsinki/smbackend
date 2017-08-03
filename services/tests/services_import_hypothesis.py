@@ -1,5 +1,5 @@
 # from hypothesis import composite
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis.strategies import (
     text, integers, lists, composite, uuids, sampled_from, none, one_of,
     permutations)
@@ -40,6 +40,29 @@ VIEWPOINTS = ['00', '11', '12', '13', '21', '22', '23', '31', '32', '33', '41',
 
 VIEWPOINT_STATES = ['green', 'red', 'unknown']
 
+MUNICIPALITIES = [  # TODO: read from independent source
+    {
+        'fi': 'Helsinki',
+        'sv': 'Helsingfors',
+        'en': 'Helsinki'
+    },
+    {
+        'fi': 'Espoo',
+        'sv': 'Esbo',
+        'en': 'Espoo'
+    },
+    {
+        'fi': 'Kauniainen',
+        'sv': 'Grankulla',
+        'en': 'Kauniainen'
+    },
+    {
+        'fi': 'Vantaa',
+        'sv': 'Vanda',
+        'en': 'Vantaa'
+    }
+]
+
 
 def accessibility_viewpoints(draw):
     return ','.join([
@@ -71,6 +94,7 @@ def unit_maker(draw, resource_ids):
             'accessibility_viewpoints': accessibility_viewpoints(draw),
             'sources': draw(lists(make_source(), min_size=0, max_size=2)),
             'provider_type': draw(sampled_from(PROVIDER_TYPES)),
+            'address_city': draw(sampled_from(MUNICIPALITIES)),
             'accessibility_email': draw(one_of(text(), none()))  # TODO: map to another field
         }
         result.update(translated_field(draw, 'name', allow_none=False))
@@ -79,7 +103,6 @@ def unit_maker(draw, resource_ids):
         result.update(translated_field(draw, 'call_charge_info', allow_none=True))
         result.update(translated_field(draw, 'desc', allow_none=True))
         result.update(translated_field(draw, 'picture_caption', allow_none=True))
-        result.update(translated_field(draw, 'address_city', allow_none=True))
         return result
     return make_unit
 
@@ -124,8 +147,3 @@ def closed_object_set(draw):
     for key, identifiers in ids.items():
         resources[key] = list(map(make_resource[key](draw, ids), ids[key]))
     return resources
-
-
-@given(closed_object_set())
-def test_something(cos):
-    assert True

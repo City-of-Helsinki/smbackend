@@ -1,4 +1,4 @@
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis.strategies import lists
 import pytest
 from rest_framework.test import APIClient
@@ -71,7 +71,7 @@ def assert_translated_field_match(name, src, dest):
         if val is None:
             # Our API returns null as the value of a translated
             # field which has all languages missing.
-            assert key not in src or len(get_source_val(src, key)) == 0
+            assert key not in src or len(get_source_val(src, key).split()) == 0
             return
 
         # Case 2: some or no translations missing from source
@@ -82,7 +82,7 @@ def assert_translated_field_match(name, src, dest):
             # Currently the API omits missing keys from the translated dict
             assert lang not in val
             return
-        if len(s) == 0:
+        if len(s.split()) == 0:
             assert lang not in val
             return
 
@@ -109,7 +109,8 @@ def assert_unit_correctly_imported(unit, source_unit):
         assert_translated_field_match(field_name, s, d)
 
     if 'address_city_fi' in s and len(s['address_city_fi']) > 0:
-        assert d['municipality'] == s['address_city_fi'].lower()  # IMPROVE SPEC
+        # TODO: improve API behavior
+        assert d['municipality'] == s['address_city_fi'].lower()
     else:
         assert d['municipality'] is None
 
@@ -158,9 +159,9 @@ def assert_unit_correctly_imported(unit, source_unit):
     # 'streetview_entrance_url'
 
 
-
 @pytest.mark.django_db
 @given(lists(closed_object_set()))
+@settings(max_examples=200, timeout=60)
 def test_import_units(api_client, all_resources):
 
     for resources in all_resources:
