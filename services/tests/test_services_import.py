@@ -34,23 +34,28 @@ def api_field_value(dest, name):
     return dest[FIELD_MAPPINGS.get(name, name)]
 
 
-def assert_field_exists(name, src, dest):
+def assert_dest_field_exists(name, src, dest):
     if src.get(name) is None:
         assert api_field_value(dest, name) is None
     else:
         assert name in dest
 
 
-def assert_field_match(name, src, dest):
-    assert_field_exists(name, src, dest)
+def assert_field_match(name, src, dest, required=False):
+    assert not required or name in src
+
+    assert_dest_field_exists(name, src, dest)
     assert src[name] == api_field_value(dest, name)
 
 
-def assert_string_field_match(name, src, dest):
-    assert_field_exists(name, src, dest)
-    if src[name] is None:
+def assert_string_field_match(name, src, dest, required=False):
+    assert not required or name in src
+
+    assert_dest_field_exists(name, src, dest)
+    if src.get(name) is None:
         assert api_field_value(dest, name) is None
         return
+
     val = src[name].replace('\u0000', ' ')
     if len(val.split()) == 0:
         assert api_field_value(dest, name) is None
@@ -94,8 +99,10 @@ def assert_unit_correctly_imported(unit, source_unit):
     d = unit
     s = source_unit
 
-    assert_field_match('id', s, d)
+    #  1. required fields
+    assert_field_match('id', s, d, required=True)
 
+    #  2. optional fields
     for field_name in [
             'accessibility_email',
             'accessibility_phone']:
@@ -105,7 +112,7 @@ def assert_unit_correctly_imported(unit, source_unit):
             'address_postal_full',
             'call_charge_info',
             'desc',
-            'name',
+            'name',  # R
             'picture_caption',
             'short_desc',
             'street_address',
@@ -120,7 +127,7 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     # string
     # ======
-    # 'accessibility_viewpoints'
+    # 'accessibility_viewpoints' R
     # 'accessibility_www'
     # 'address_zip'
     # 'data_source_url'
@@ -132,15 +139,17 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     # boolean
     # ===========
-    # 'manual_coordinates'
+    # 'manual_coordinates' R
+    # 'is_public" R
 
     # reference
     # ===========
-    # 'dept_id'
-    # 'org_id'
-    # 'ontologytree_ids'
-    # 'ontologyword_ids'
-    # 'sources'
+    # 'dept_id' R
+    # 'org_id' R
+    # 'ontologytree_ids' R
+    # 'ontologyword_ids' R
+    # 'sources' R
+
     # 'extra_searchwords' -> keywords
 
     # enum
