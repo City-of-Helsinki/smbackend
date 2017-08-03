@@ -1,5 +1,4 @@
 # from hypothesis import composite
-from hypothesis import given, settings
 from hypothesis.strategies import (
     text, integers, lists, composite, uuids, sampled_from, none, one_of,
     permutations)
