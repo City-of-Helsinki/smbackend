@@ -95,12 +95,22 @@ def assert_translated_field_match(name, src, dest):
         assert s.split() == val[lang].split()
 
 
+def assert_accessibility_viewpoints_match(src, dest):
+    regenerated = []
+    for key, val in dest.items():
+        regenerated.append('{}:{}'.format(key, val))
+    assert ','.join(sorted(regenerated)) == src
+
+
 def assert_unit_correctly_imported(unit, source_unit):
     d = unit
     s = source_unit
 
     #  1. required fields
     assert_field_match('id', s, d, required=True)
+
+    key = 'accessibility_viewpoints'
+    assert_accessibility_viewpoints_match(s[key], d[key])
 
     #  2. optional fields
     for field_name in [
