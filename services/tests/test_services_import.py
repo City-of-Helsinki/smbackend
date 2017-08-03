@@ -70,7 +70,7 @@ def assert_translated_field_match(name, src, dest):
         key = '{}_{}'.format(name, lang)
 
         def get_source_val(src, key):
-            return src[key].replace('\u0000', ' ')
+            return src[key].replace('\u0000', ' ').replace('\\r', '\n')
 
         # Case 1: all translations missing from source
         if val is None:
