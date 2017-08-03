@@ -29,7 +29,7 @@ def translated_field(draw, name, allow_missing=True, languages=['fi', 'sv', 'en'
         if allow_missing:
             val = draw(one_of(text(), none()))
         else:
-            val = draw(text())
+            val = draw(text(min_size=1))
         if val is not None:
             result['{}_{}'.format(name, lang)] = val
     return result
