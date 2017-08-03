@@ -95,7 +95,11 @@ def assert_unit_correctly_imported(unit, source_unit):
     s = source_unit
 
     assert_field_match('id', s, d)
-    assert_string_field_match('accessibility_email', s, d)
+
+    for field_name in [
+            'accessibility_email',
+            'accessibility_phone']:
+        assert_string_field_match(field_name, s, d)
 
     for field_name in [
             'address_postal_full',
