@@ -1,4 +1,5 @@
 # from hypothesis import composite
+from hypothesis import event
 from hypothesis.strategies import (
     text, integers, booleans, lists, composite, uuids, sampled_from, none, one_of,
     permutations)
@@ -100,24 +101,34 @@ def make_source(draw):
 
 def unit_maker(draw, resource_ids):
     def make_unit(uid):
+        def add_optional_field(result, name, strategy):
+            val = draw(one_of(none(), strategy))
+            if val is not None:
+                event('unit.{}: optional field given value'.format(name))
+                result[name] = val
+            else:
+                event('unit.{}: optional field missing'.format(name))
+
+        # Required fields
         result = {
             'id': uid,
-            'org_id': str(draw(sampled_from(resource_ids['organization']))),
+            'accessibility_viewpoints': accessibility_viewpoints(draw),
             'dept_id': str(draw(sampled_from(resource_ids['department']))),
+            'org_id': str(draw(sampled_from(resource_ids['organization']))),
             'ontologyword_ids': draw(permutations(resource_ids['ontologyword'])),
             'ontologytree_ids': draw(permutations(resource_ids['ontologytree'])),
-            'accessibility_viewpoints': accessibility_viewpoints(draw),
             'sources': draw(lists(make_source(), min_size=0, max_size=2)),
             'provider_type': draw(sampled_from(PROVIDER_TYPES)),
-            'address_city': draw(sampled_from(MUNICIPALITIES)),
             'manual_coordinates': draw(booleans()),
             # TODO: cannot test is_public=False until there is a mechanism
             # for getting non-public units from the API.
             'is_public': True,
             # TODO: map to another field
-            'accessibility_email': draw(one_of(text(), none()))
         }
         result.update(translated_field(draw, 'name', allow_missing=False))
+
+        add_optional_field(result, 'address_city', sampled_from(MUNICIPALITIES))
+        add_optional_field(result, 'accessibility_email', text())
 
         result.update(translated_field(draw, 'address_postal_full', allow_missing=True))
         result.update(translated_field(draw, 'call_charge_info', allow_missing=True))
