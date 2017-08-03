@@ -98,6 +98,8 @@ def assert_translated_field_match(name, src, dest):
 def assert_accessibility_viewpoints_match(src, dest):
     regenerated = []
     for key, val in dest.items():
+        if val is None:
+            val = 'unknown'
         regenerated.append('{}:{}'.format(key, val))
     assert ','.join(sorted(regenerated)) == src
 

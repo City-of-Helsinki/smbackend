@@ -508,7 +508,7 @@ def _import_unit_sources(obj, info, obj_changed, update_fields):
     return obj_changed, update_fields
 
 
-def _parse_accessibility_viewpoints(acc_viewpoints_str, drop_unknowns=True):
+def _parse_accessibility_viewpoints(acc_viewpoints_str, drop_unknowns=False):
     viewpoints = {}
     all_unknown = True
 
@@ -516,9 +516,9 @@ def _parse_accessibility_viewpoints(acc_viewpoints_str, drop_unknowns=True):
         viewpoint_id, viewpoint_value = viewpoint.split(':')
         if viewpoint_value == "unknown":
             if not drop_unknowns:
-                viewpoints[int(viewpoint_id)] = None
+                viewpoints[viewpoint_id] = None
         else:
-            viewpoints[int(viewpoint_id)] = viewpoint_value
+            viewpoints[viewpoint_id] = viewpoint_value
 
             if all_unknown:
                 all_unknown = False
