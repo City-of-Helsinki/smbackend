@@ -114,28 +114,43 @@ def assert_unit_correctly_imported(unit, source_unit):
     else:
         assert d['municipality'] is None
 
-    # TODO: look for extra_searchwords -> keywords
-
     # string
     # ======
-    # 'accessibility_email'
-    # 'accessibility_phone'
     # 'accessibility_viewpoints'
     # 'accessibility_www'
     # 'address_zip'
     # 'data_source_url'
-    # 'dept_id'
     # 'email'
     # 'fax'
     # 'phone'
     # 'organizer_business_id'
+    # 'source'
 
-    # ?
-    # 'id'
+    # boolean
+    # ===========
+    # 'manual_coordinates'
 
+    # reference
+    # ===========
+    # 'dept_id'
+    # 'org_id'
+    # 'ontologytree_ids'
+    # 'ontologyword_ids'
+    # 'sources'
+    # 'extra_searchwords' -> keywords
+
+    # enum
+    # ====
+    # 'provider_type'
+    # 'organizer_type'
+
+    # datetimes
+    # =========
     # 'modified_time'
     # 'created_time'
 
+    # coordinates
+    # ===========
     # 'easting_etrs_gk25'
     # 'easting_etrs_tm35fin'
     # 'northing_etrs_gk25'
@@ -143,19 +158,10 @@ def assert_unit_correctly_imported(unit, source_unit):
     # 'latitude'
     # 'longitude'
 
-    # 'manual_coordinates'
-
-    # 'ontologytree_ids'
-    # 'ontologyword_ids'
-
-    # 'organizer_type'
-
-    # 'org_id'
+    # url (maybe just string)
+    # ===
     # 'picture_entrance_url'
     # 'picture_url'
-    # 'provider_type'
-    # 'source'
-    # 'sources'
     # 'streetview_entrance_url'
 
 
