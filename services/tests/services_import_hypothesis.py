@@ -23,10 +23,10 @@ def uuid_keys(draw):
     return draw(lists(uuids(), min_size=2, max_size=3))
 
 
-def translated_field(draw, name, allow_none=True, languages=['fi', 'sv', 'en']):
+def translated_field(draw, name, allow_missing=True, languages=['fi', 'sv', 'en']):
     result = {}
     for lang in languages:
-        if allow_none:
+        if allow_missing:
             val = draw(one_of(text(), none()))
         else:
             val = draw(text())
@@ -113,12 +113,12 @@ def unit_maker(draw, resource_ids):
             'address_city': draw(sampled_from(MUNICIPALITIES)),
             'accessibility_email': draw(one_of(text(), none()))  # TODO: map to another field
         }
-        result.update(translated_field(draw, 'name', allow_none=False))
-        result.update(translated_field(draw, 'address_postal_full', allow_none=False))
+        result.update(translated_field(draw, 'name', allow_missing=False))
 
-        result.update(translated_field(draw, 'call_charge_info', allow_none=True))
-        result.update(translated_field(draw, 'desc', allow_none=True))
-        result.update(translated_field(draw, 'picture_caption', allow_none=True))
+        result.update(translated_field(draw, 'address_postal_full', allow_missing=True))
+        result.update(translated_field(draw, 'call_charge_info', allow_missing=True))
+        result.update(translated_field(draw, 'desc', allow_missing=True))
+        result.update(translated_field(draw, 'picture_caption', allow_missing=True))
         return result
     return make_unit
 
