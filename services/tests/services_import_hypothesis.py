@@ -1,6 +1,6 @@
 # from hypothesis import composite
 from hypothesis.strategies import (
-    text, integers, lists, composite, uuids, sampled_from, none, one_of,
+    text, integers, booleans, lists, composite, uuids, sampled_from, none, one_of,
     permutations)
 
 RESOURCES = [
@@ -110,7 +110,12 @@ def unit_maker(draw, resource_ids):
             'sources': draw(lists(make_source(), min_size=0, max_size=2)),
             'provider_type': draw(sampled_from(PROVIDER_TYPES)),
             'address_city': draw(sampled_from(MUNICIPALITIES)),
-            'accessibility_email': draw(one_of(text(), none()))  # TODO: map to another field
+            'manual_coordinates': draw(booleans()),
+            # TODO: cannot test is_public=False until there is a mechanism
+            # for getting non-public units from the API.
+            'is_public': True,
+            # TODO: map to another field
+            'accessibility_email': draw(one_of(text(), none()))
         }
         result.update(translated_field(draw, 'name', allow_missing=False))
 

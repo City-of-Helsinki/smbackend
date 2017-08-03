@@ -111,6 +111,10 @@ def assert_unit_correctly_imported(unit, source_unit):
     #  1. required fields
     assert_field_match('id', s, d, required=True)
 
+    # TODO: field is missing from importer and API
+    # assert d['manual_coordinates'] == s['manual_coordinates']
+    assert d['public'] == s['is_public']
+
     key = 'accessibility_viewpoints'
     assert_accessibility_viewpoints_match(s[key], d[key])
 
@@ -139,7 +143,7 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     # string
     # ======
-    # 'accessibility_viewpoints' R
+    # OK 'accessibility_viewpoints' R
     # 'accessibility_www'
     # 'address_zip'
     # 'data_source_url'
