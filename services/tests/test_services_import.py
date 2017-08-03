@@ -79,7 +79,8 @@ def assert_translated_field_match(name, src, dest):
         try:
             s = get_source_val(src, key)
         except KeyError:
-            assert val[lang] is None
+            # Currently the API omits missing keys from the translated dict
+            assert lang not in val
             return
         if len(s) == 0:
             assert lang not in val
