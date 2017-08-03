@@ -101,14 +101,6 @@ def make_source(draw):
 
 def unit_maker(draw, resource_ids):
     def make_unit(uid):
-        def add_optional_field(result, name, strategy):
-            val = draw(one_of(none(), strategy))
-            if val is not None:
-                event('unit.{}: optional field given value'.format(name))
-                result[name] = val
-            else:
-                event('unit.{}: optional field missing'.format(name))
-
         # Required fields
         result = {
             'id': uid,
@@ -127,8 +119,24 @@ def unit_maker(draw, resource_ids):
         }
         result.update(translated_field(draw, 'name', allow_missing=False))
 
-        add_optional_field(result, 'address_city', sampled_from(MUNICIPALITIES))
-        add_optional_field(result, 'accessibility_email', text())
+        def add_optional_field(name, strategy):
+            val = draw(one_of(none(), strategy))
+            if val is not None:
+                event('unit.{}: optional field given value'.format(name))
+                result[name] = val
+            else:
+                event('unit.{}: optional field missing'.format(name))
+
+        add_optional_field('address_city', sampled_from(MUNICIPALITIES))
+        add_optional_field('accessibility_email', text())
+        add_optional_field('accessibility_www', text())
+        add_optional_field('address_zip', text())
+        add_optional_field('data_source_url', text())
+        add_optional_field('email', text())
+        add_optional_field('fax', text())
+        add_optional_field('phone', text())
+        add_optional_field('organizer_business_id', text(max_size=11))
+        add_optional_field('source', text())
 
         result.update(translated_field(draw, 'address_postal_full', allow_missing=True))
         result.update(translated_field(draw, 'call_charge_info', allow_missing=True))
