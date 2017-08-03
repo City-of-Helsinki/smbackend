@@ -12,6 +12,7 @@ def read_config(name):
     return json.load(open(
         os.path.join(
             settings.BASE_DIR,
+            'smbackend',
             'elasticsearch/{}.json'.format(name))))
 
 
