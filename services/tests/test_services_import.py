@@ -141,22 +141,22 @@ def assert_unit_correctly_imported(unit, source_unit):
     else:
         assert d['municipality'] is None
 
-    # string
+    # OK string
     # ======
     # OK 'accessibility_viewpoints' R
-    # 'accessibility_www'
-    # 'address_zip'
-    # 'data_source_url'
-    # 'email'
-    # 'fax'
-    # 'phone'
-    # 'organizer_business_id'
-    # 'source'
+    # OK 'accessibility_www'
+    # OK 'address_zip'
+    # OK 'data_source_url'
+    # OK 'email'
+    # OK 'fax'
+    # OK 'phone'
+    # OK 'organizer_business_id'
+    # OK 'source'
 
     # boolean
     # ===========
-    # 'manual_coordinates' R
-    # 'is_public" R
+    # OK 'manual_coordinates' R
+    # OK 'is_public" R
 
     # reference
     # ===========
@@ -164,9 +164,11 @@ def assert_unit_correctly_imported(unit, source_unit):
     # 'org_id' R
     # 'ontologytree_ids' R
     # 'ontologyword_ids' R
-    # 'sources' R
-
     # 'extra_searchwords' -> keywords
+
+    # structured
+    # ==========
+    # 'sources' R
 
     # enum
     # ====
