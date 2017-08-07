@@ -111,6 +111,7 @@ def unit_maker(draw, resource_ids):
             'ontologytree_ids': draw(permutations(resource_ids['ontologytree'])),
             'sources': draw(lists(make_source(), min_size=0, max_size=2)),
             'provider_type': draw(sampled_from(PROVIDER_TYPES)),
+            'organizer_type': draw(sampled_from(ORGANIZER_TYPES)),
             'manual_coordinates': draw(booleans()),
             # TODO: cannot test is_public=False until there is a mechanism
             # for getting non-public units from the API.

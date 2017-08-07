@@ -26,6 +26,21 @@ PROVIDER_TYPES = (
     (10, 'PAYMENT_COMMITMENT'),
 )
 
+ORGANIZER_TYPES = (
+    (0, 'ASSOCIATION'),
+    (1, 'FOUNDATION'),
+    (2, 'GOVERNMENT'),
+    (3, 'GOVERNMENTAL_COMPANY'),
+    (4, 'JOINT_MUNICIPAL_AUTHORITY'),
+    (5, 'MUNICIPAL_ENTERPRISE_GROUP'),
+    (6, 'MUNICIPALITY'),
+    (7, 'MUNICIPALLY_OWNED_COMPANY'),
+    (8, 'ORGANIZATION'),
+    (9, 'OTHER_REGIONAL_COOPERATION_ORGANIZATION'),
+    (10, 'PRIVATE_ENTERPRISE'),
+    (11, 'UNKNOWN'),
+)
+
 
 class UnitSearchManager(models.GeoManager):
     def get_queryset(self):
@@ -50,7 +65,7 @@ class Unit(models.Model):
     department = models.ForeignKey(Department, null=True)
     organization = models.ForeignKey(Organization)
 
-    organizer_type = models.CharField(max_length=50, null=True)
+    organizer_type = models.PositiveSmallIntegerField(choices=ORGANIZER_TYPES, null=True)
     organizer_name = models.CharField(max_length=100, null=True)
     organizer_business_id = models.CharField(max_length=10, null=True)
 

@@ -120,6 +120,11 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     #  2. optional fields
     for field_name in [
+            'provider_type',
+            'organizer_type']:
+        assert d[field_name] == s[field_name]
+
+    for field_name in [
             'accessibility_email',
             'accessibility_phone']:
         assert_string_field_match(field_name, s, d)
@@ -172,8 +177,8 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     # enum
     # ====
-    # 'provider_type'
-    # 'organizer_type'
+    # OK 'provider_type'
+    # OK 'organizer_type'
 
     # datetimes
     # =========

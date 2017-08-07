@@ -20,7 +20,7 @@ from services.management.commands.services_import.departments import import_depa
 from services.management.commands.services_import.organizations import import_organizations
 from services.models import Unit, OntologyTreeNode, AccessibilityVariable, \
     Keyword, UnitConnection, UnitAccessibilityProperty, UnitIdentifier
-from services.models.unit import PROJECTION_SRID, PROVIDER_TYPES
+from services.models.unit import PROJECTION_SRID, PROVIDER_TYPES, ORGANIZER_TYPES
 from services.models.unit_connection import SECTION_TYPES
 from .utils import clean_text, pk_get, save_translated_field, postcodes, keywords_by_id, keywords, SUPPORTED_LANGUAGES
 
@@ -227,12 +227,16 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         obj.department = dept
         obj_changed = True
 
-    fields = ['address_zip', 'phone', 'email', 'fax', 'provider_type', 'picture_url', 'picture_entrance_url',
-              'accessibility_www', 'accessibility_phone', 'accessibility_email', 'streetview_entrance_url'
+    fields = ['address_zip', 'phone', 'email', 'fax', 'provider_type',
+              'organizer_type', 'picture_url', 'picture_entrance_url',
+              'accessibility_www', 'accessibility_phone', 'accessibility_email',
+              'streetview_entrance_url'
               ]
 
     if info.get('provider_type'):
         info['provider_type'] = [val for val, str_val in PROVIDER_TYPES if str_val == info['provider_type']][0]
+    if info.get('organizer_type'):
+        info['organizer_type'] = [val for val, str_val in ORGANIZER_TYPES if str_val == info['organizer_type']][0]
 
     for field in fields:
         if field not in info or clean_text(info[field]) == '':
