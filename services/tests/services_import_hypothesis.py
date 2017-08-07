@@ -130,7 +130,7 @@ def unit_maker(draw, resource_ids):
         add_optional_field('address_city', sampled_from(MUNICIPALITIES))
         add_optional_field('accessibility_email', text())
         add_optional_field('accessibility_www', text())
-        add_optional_field('address_zip', text())
+        add_optional_field('address_zip', text(max_size=10))
         add_optional_field('data_source_url', text())
         add_optional_field('email', text())
         add_optional_field('fax', text())
