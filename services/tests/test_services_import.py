@@ -118,6 +118,17 @@ def assert_unit_correctly_imported(unit, source_unit):
     key = 'accessibility_viewpoints'
     assert_accessibility_viewpoints_match(s[key], d[key])
 
+    # reference fields
+    for sfield, dfield in [
+            ('dept_id', 'department'),
+            ('org_id', 'organization')]:
+        assert str(d[dfield]) == s[sfield]
+
+    for sfield, dfield in [
+            ('ontologytree_ids', 'tree_nodes'),
+            ('ontologyword_ids', 'ontologyword_ids')]:
+        assert d[dfield] == s[sfield]
+
     #  2. optional fields
     for field_name in [
             'provider_type',
