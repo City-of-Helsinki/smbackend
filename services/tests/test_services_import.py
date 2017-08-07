@@ -122,11 +122,17 @@ def assert_unit_correctly_imported(unit, source_unit):
     for field_name in [
             'provider_type',
             'organizer_type']:
-        assert d[field_name] == s[field_name]
+        if field_name in s:
+            assert d[field_name] == s[field_name]
+        else:
+            assert d[field_name] is None
 
     for field_name in [
             'accessibility_email',
-            'accessibility_phone']:
+            'accessibility_phone',
+            'picture_entrance_url',
+            'picture_url',
+            'streetview_entrance_url']:
         assert_string_field_match(field_name, s, d)
 
     for field_name in [
@@ -196,9 +202,9 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     # url (maybe just string)
     # ===
-    # 'picture_entrance_url'
-    # 'picture_url'
-    # 'streetview_entrance_url'
+    # OK 'picture_entrance_url'
+    # OK 'picture_url'
+    # OK 'streetview_entrance_url'
 
 
 @pytest.mark.django_db

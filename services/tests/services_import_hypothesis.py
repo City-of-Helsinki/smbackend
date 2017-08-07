@@ -128,16 +128,25 @@ def unit_maker(draw, resource_ids):
             else:
                 event('unit.{}: optional field missing'.format(name))
 
+        def add_optional_text_field(name):
+            add_optional_field(name, text())
+
         add_optional_field('address_city', sampled_from(MUNICIPALITIES))
-        add_optional_field('accessibility_email', text())
-        add_optional_field('accessibility_www', text())
         add_optional_field('address_zip', text(max_size=10))
-        add_optional_field('data_source_url', text())
-        add_optional_field('email', text())
-        add_optional_field('fax', text())
-        add_optional_field('phone', text())
-        add_optional_field('organizer_business_id', text(max_size=11))
-        add_optional_field('source', text())
+        add_optional_field('organizer_business_id', text(max_size=10))
+
+        for field in [
+                'accessibility_email',
+                'accessibility_www',
+                'data_source_url',
+                'email',
+                'fax',
+                'phone',
+                'source',
+                'picture_entrance_url',
+                'picture_url',
+                'streetview_entrance_url']:
+            add_optional_text_field(field)
 
         result.update(translated_field(draw, 'address_postal_full', allow_missing=True))
         result.update(translated_field(draw, 'call_charge_info', allow_missing=True))
