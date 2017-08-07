@@ -115,7 +115,7 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
         info['connections'] = conn_list
         acp_list = acc_by_unit.get(info['id'], [])
         info['accessibility_properties'] = acp_list
-        _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name,
+        _import_unit(syncher, info.copy(), org_syncher, dept_syncher, muni_by_name,
                      bounding_box, gps_to_target_ct, target_srid)
         # _import_unit_services(obj, info, count_services)
     syncher.finish()
