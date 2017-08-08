@@ -17,6 +17,9 @@ from services.management.commands.services_import.services import import_service
 from services.management.commands.services_import.units import import_units
 from services.management.commands.services_import.accessibility import import_accessibility
 
+from services.models import Keyword
+from munigeo.models import AdministrativeDivision
+
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
 GK25_SRID = 3879
 
@@ -38,7 +41,6 @@ class Command(BaseCommand):
         self.existing_servicetype_ids = None
         self.existing_servicenode_ids = None
 
-
     def add_arguments(self, parser):
         parser.add_argument('import_types', nargs='*', choices=self.importer_types)
         parser.add_argument('--cached', action='store_true', dest='cached',
@@ -46,10 +48,9 @@ class Command(BaseCommand):
         parser.add_argument('--single', action='store', dest='id',
                             default=False, help='import only single entity')
 
-
     def clean_text(self, text):
-        #text = text.replace('\n', ' ')
-        #text = text.replace(u'\u00a0', ' ')
+        # text = text.replace('\n', ' ')
+        # text = text.replace(u'\u00a0', ' ')
         # remove consecutive whitespaces
         text = re.sub(r'\s\s+', ' ', text, re.U)
         # remove nil bytes
@@ -59,7 +60,7 @@ class Command(BaseCommand):
 
     def pk_get(self, resource_name, res_id=None, v3=False):
         url = "%s%s/" % (URL_BASE, resource_name)
-        if res_id != None:
+        if res_id is None:
             url = "%s%s/" % (url, res_id)
         if v3:
             url = url.replace('v4', 'v3')
@@ -68,7 +69,6 @@ class Command(BaseCommand):
         return resp.json()
 
     def _save_translated_field(self, obj, obj_field_name, info, info_field_name, max_length=None):
-        args = {}
         for lang in ('fi', 'sv', 'en'):
             key = '%s_%s' % (info_field_name, lang)
             if key in info:
@@ -100,14 +100,14 @@ class Command(BaseCommand):
 
     def _save_searchwords(self, obj, info, language):
         field_name = 'extra_searchwords_%s' % language
-        if not field_name in info:
+        if field_name not in info:
             new_kw_set = set()
         else:
             kws = [x.strip() for x in info[field_name].split(',')]
             kws = [x for x in kws if x]
             new_kw_set = set()
             for kw in kws:
-                if not kw in self.keywords[language]:
+                if kw not in self.keywords[language]:
                     kw_obj = Keyword(name=kw, language=language)
                     kw_obj.save()
                     self.keywords[language][kw] = kw_obj
@@ -136,7 +136,6 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def update_division_units(self):
-        rescue_stations = Unit.objects.filter(service_tree_nodes__id=1072)
         rescue_areas = AdministrativeDivision.objects.filter(type__type='rescue_area')
         # TODO: request this data to be added to pel_suojelupiiri
         mapping = {
@@ -157,7 +156,6 @@ class Command(BaseCommand):
     def import_organizations(self, noop=False):
         return import_organizations(logger=self.logger, noop=noop, org_syncher=self.org_syncher)
 
-
     @db.transaction.atomic
     def import_departments(self, noop=False):
         import_departments(logger=self.logger, noop=noop, org_syncher=self.org_syncher)
@@ -168,15 +166,6 @@ class Command(BaseCommand):
     @db.transaction.atomic
     def import_accessibility(self, noop=False):
         import_accessibility(logger=self.logger, noop=noop)
-
-    # def _fetch_units(self):
-    #     if hasattr(self, 'unit_list'):
-    #         return self.unit_list
-    #     if self.verbosity:
-    #         self.logger.info("Fetching units")
-    #     obj_list = self.pk_get('unit')
-    #     self.unit_list = obj_list
-    #     return obj_list
 
     def _fetch_unit_accessibility_properties(self, unit_pk):
         if self.verbosity:
@@ -207,8 +196,8 @@ class Command(BaseCommand):
             self.keywords[lang] = kw_dict
         self.keywords_by_id = {kw.pk: kw for kw in Keyword.objects.all()}
 
-        #if options['cached']:
-        #    requests_cache.install_cache('services_import')
+        # if options['cached']:
+        #     requests_cache.install_cache('services_import')
 
         # Activate the default language for the duration of the import
         # to make sure translated fields are populated correctly.
@@ -225,16 +214,12 @@ class Command(BaseCommand):
             method()
             import_count += 1
 
-        #if self.services_changed:
-        #    self.update_root_services()
-        #if self.count_services:
-        #    self.update_unit_counts()
+        # if self.services_changed:
+        #     self.update_root_services()
+        # if self.count_services:
+        #     self.update_unit_counts()
         self.update_division_units()
 
         if not import_count:
             sys.stderr.write("Nothing to import.\n")
         activate(old_lang)
-
-
-
-
