@@ -4,10 +4,7 @@ import requests
 from django.conf import settings
 from django.utils.http import urlencode
 
-from services.models import Keyword
-
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
-SUPPORTED_LANGUAGES = ['fi', 'sv', 'en']
 
 
 def pk_get(resource_name, res_id=None, params=None):
@@ -71,16 +68,3 @@ def postcodes():
         code, muni = l.split(',')
         postcodes[code] = muni.strip()
     return postcodes
-
-
-def keywords():
-    keywords = {}
-    for lang in SUPPORTED_LANGUAGES:
-        kw_list = Keyword.objects.filter(language=lang)
-        kw_dict = {kw.name: kw for kw in kw_list}
-        keywords[lang] = kw_dict
-    return keywords
-
-
-def keywords_by_id(keywords):
-    return {kw.pk: kw for kw in Keyword.objects.all()}

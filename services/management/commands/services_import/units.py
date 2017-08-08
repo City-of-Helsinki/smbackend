@@ -18,16 +18,15 @@ from munigeo.models import Municipality
 
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.organizations import import_organizations
+from services.management.commands.services_import.keyword import KeywordHandler
 from services.models import Unit, OntologyTreeNode, AccessibilityVariable, \
-    Keyword, UnitConnection, UnitAccessibilityProperty, UnitIdentifier
+    UnitConnection, UnitAccessibilityProperty, UnitIdentifier
 from services.models.unit import PROJECTION_SRID, PROVIDER_TYPES, ORGANIZER_TYPES
 from services.models.unit_connection import SECTION_TYPES
-from .utils import clean_text, pk_get, save_translated_field, postcodes, keywords_by_id, keywords, SUPPORTED_LANGUAGES
+from .utils import clean_text, pk_get, save_translated_field, postcodes
 
 UTC_TIMEZONE = pytz.timezone('UTC')
 ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
-KEYWORDS = None
-KEYWORDS_BY_ID = None
 ACCESSIBILITY_VARIABLES = None
 EXISTING_SERVICE_TREE_NODE_IDS = None
 LOGGER = None
@@ -57,15 +56,16 @@ def _fetch_units():
 def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
                  verbosity=True, logger=None, fetch_units=_fetch_units,
                  fetch_resource=pk_get):
-    global VERBOSITY, LOGGER, KEYWORDS_BY_ID, KEYWORDS
+    global VERBOSITY, LOGGER
+
     VERBOSITY = verbosity
     LOGGER = logger
 
+    keyword_handler = KeywordHandler(
+        verbosity=verbosity, logger=logger)
+
     if VERBOSITY and not LOGGER:
         LOGGER = logging.getLogger(__name__)
-
-    KEYWORDS = keywords()
-    KEYWORDS_BY_ID = keywords_by_id(KEYWORDS)
 
     muni_by_name = {muni.name_fi.lower(): muni for muni in Municipality.objects.all()}
 
@@ -115,7 +115,7 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
         info['connections'] = conn_list
         acp_list = acc_by_unit.get(info['id'], [])
         info['accessibility_properties'] = acp_list
-        _import_unit(syncher, info.copy(), org_syncher, dept_syncher, muni_by_name,
+        _import_unit(syncher, keyword_handler, info.copy(), org_syncher, dept_syncher, muni_by_name,
                      bounding_box, gps_to_target_ct, target_srid)
         # _import_unit_services(obj, info, count_services)
     syncher.finish()
@@ -137,7 +137,7 @@ def _load_postcodes():
 
 
 @db.transaction.atomic
-def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, bounding_box, gps_to_target_ct, target_srid):
+def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher, muni_by_name, bounding_box, gps_to_target_ct, target_srid):
     VERBOSITY and LOGGER.info(pprint.pformat(info))
 
     obj = syncher.get(info['id'])
@@ -324,7 +324,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
     update_fields = ['origin_last_modified_time']
 
     obj_changed, update_fields = _import_unit_services(obj, info, set(), obj_changed, update_fields)
-    obj_changed = _sync_searchwords(obj, info, obj_changed)
+    obj_changed = keyword_handler.sync_searchwords(obj, info, obj_changed)
 
     obj_changed, update_fields = _import_unit_accessibility_variables(obj, info, obj_changed, update_fields)
     obj_changed, update_fields = _import_unit_connections(obj, info, obj_changed, update_fields)
@@ -359,42 +359,6 @@ def _import_unit_services(obj, info, count_services, obj_changed, update_fields)
         obj_changed = True
 
     return obj_changed, update_fields
-
-
-def _sync_searchwords(obj, info, obj_changed):
-    new_keywords = set()
-    for lang in SUPPORTED_LANGUAGES:
-        new_keywords |= _save_searchwords(obj, info, lang)
-
-    old_kw_set = set(obj.keywords.all().values_list('pk', flat=True))
-    if old_kw_set == new_keywords:
-        return obj_changed
-
-    if VERBOSITY:
-        old_kw_str = ', '.join([KEYWORDS_BY_ID[x].name for x in old_kw_set])
-        new_kw_str = ', '.join([KEYWORDS_BY_ID[x].name for x in new_keywords])
-        LOGGER.info("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
-    obj.keywords = list(new_keywords)
-    return True
-
-
-def _save_searchwords(obj, info, language):
-    field_name = 'extra_searchwords_%s' % language
-    new_kw_set = set()
-    if field_name in info:
-        kws = [x.strip() for x in info[field_name].split(',')]
-        kws = [x for x in kws if x]
-        new_kw_set = set()
-        for kw in kws:
-            if kw not in KEYWORDS[language]:
-                kw_obj = Keyword(name=kw, language=language)
-                kw_obj.save()
-                KEYWORDS[language][kw] = kw_obj
-                KEYWORDS_BY_ID[kw_obj.pk] = kw_obj
-            else:
-                kw_obj = KEYWORDS[language][kw]
-            new_kw_set.add(kw_obj.pk)
-    return new_kw_set
 
 
 def _import_unit_accessibility_variables(obj, info, obj_changed, update_fields):

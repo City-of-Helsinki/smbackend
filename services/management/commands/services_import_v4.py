@@ -16,8 +16,8 @@ from services.management.commands.services_import.organizations import import_or
 from services.management.commands.services_import.services import import_services
 from services.management.commands.services_import.units import import_units
 from services.management.commands.services_import.accessibility import import_accessibility
+from services.management.commands.services_import.keyword import KeywordHandler
 
-from services.models import Keyword
 from munigeo.models import AdministrativeDivision
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
@@ -29,7 +29,7 @@ UTC_TIMEZONE = pytz.timezone('UTC')
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
     importer_types = ['organizations', 'departments', 'services', 'units', 'aliases', 'accessibility']
-    supported_languages = ['fi', 'sv', 'en']
+    supported_languages = [l[0] for l in settings.LANGUAGES]
 
     def __init__(self):
         super(Command, self).__init__()
@@ -98,42 +98,6 @@ class Command(BaseCommand):
         setattr(obj, field_name, val)
         obj._changed = True
 
-    def _save_searchwords(self, obj, info, language):
-        field_name = 'extra_searchwords_%s' % language
-        if field_name not in info:
-            new_kw_set = set()
-        else:
-            kws = [x.strip() for x in info[field_name].split(',')]
-            kws = [x for x in kws if x]
-            new_kw_set = set()
-            for kw in kws:
-                if kw not in self.keywords[language]:
-                    kw_obj = Keyword(name=kw, language=language)
-                    kw_obj.save()
-                    self.keywords[language][kw] = kw_obj
-                    self.keywords_by_id[kw_obj.pk] = kw_obj
-                else:
-                    kw_obj = self.keywords[language][kw]
-                new_kw_set.add(kw_obj.pk)
-
-        obj.new_keywords |= new_kw_set
-
-    def _sync_searchwords(self, obj, info):
-        obj.new_keywords = set()
-        for lang in self.supported_languages:
-            self._save_searchwords(obj, info, lang)
-
-        old_kw_set = set(obj.keywords.all().values_list('pk', flat=True))
-        if old_kw_set == obj.new_keywords:
-            return
-
-        if self.verbosity:
-            old_kw_str = ', '.join([self.keywords_by_id[x].name for x in old_kw_set])
-            new_kw_str = ', '.join([self.keywords_by_id[x].name for x in obj.new_keywords])
-            print("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
-        obj.keywords = list(obj.new_keywords)
-        obj._changed = True
-
     @db.transaction.atomic
     def update_division_units(self):
         rescue_areas = AdministrativeDivision.objects.filter(type__type='rescue_area')
@@ -189,12 +153,6 @@ class Command(BaseCommand):
         self.logger = logging.getLogger(__name__)
         self.services_changed = False
         self.count_services = set()
-        self.keywords = {}
-        for lang in self.supported_languages:
-            kw_list = Keyword.objects.filter(language=lang)
-            kw_dict = {kw.name: kw for kw in kw_list}
-            self.keywords[lang] = kw_dict
-        self.keywords_by_id = {kw.pk: kw for kw in Keyword.objects.all()}
 
         # if options['cached']:
         #     requests_cache.install_cache('services_import')
