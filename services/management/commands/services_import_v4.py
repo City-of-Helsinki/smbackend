@@ -1,29 +1,14 @@
 # -*- coding: utf-8 -*-
 import sys
 import re
-import os
-import json
-from collections import defaultdict
-import csv
-from datetime import datetime
-from optparse import make_option
 import logging
-import hashlib
-from pprint import pprint
 
 import requests
-import requests_cache
 import pytz
 from django.core.management.base import BaseCommand
 from django import db
 from django.conf import settings
-from django.db import transaction
-from django.contrib.gis.geos import Point, Polygon
-from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.utils.translation import activate, get_language
-
-from munigeo.models import Municipality, AdministrativeDivision
-from munigeo.importer.sync import ModelSyncher
 
 from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
@@ -31,8 +16,6 @@ from services.management.commands.services_import.organizations import import_or
 from services.management.commands.services_import.services import import_services
 from services.management.commands.services_import.units import import_units
 from services.management.commands.services_import.accessibility import import_accessibility
-from services.models import *
-from services.models.unit import PROJECTION_SRID
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
 GK25_SRID = 3879
