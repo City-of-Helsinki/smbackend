@@ -10,6 +10,7 @@ class KeywordHandler():
         self.keywords = self._keywords()
         self.keywords_by_id = self._keywords_by_id()
         self.verbosity = verbosity
+        self.logger = logger
 
     def _keywords(self):
         keywords = {}

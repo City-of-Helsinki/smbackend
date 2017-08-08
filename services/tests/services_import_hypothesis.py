@@ -2,7 +2,12 @@
 from hypothesis import event
 from hypothesis.strategies import (
     text, integers, booleans, lists, composite, uuids, sampled_from, none, one_of,
-    permutations)
+    permutations, sets)
+from string import digits, ascii_letters, punctuation
+
+from django.conf import settings
+
+LANGUAGES = [l[0] for l in settings.LANGUAGES]
 
 RESOURCES = [
     'unit',
@@ -23,7 +28,7 @@ def uuid_keys(draw):
     return draw(lists(uuids(), min_size=2, max_size=3))
 
 
-def translated_field(draw, name, allow_missing=True, languages=['fi', 'sv', 'en']):
+def translated_field(draw, name, allow_missing=True, languages=LANGUAGES):
     result = {}
     for lang in languages:
         if allow_missing:

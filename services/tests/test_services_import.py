@@ -1,6 +1,9 @@
 from hypothesis import given, settings
 from hypothesis.strategies import lists
 import pytest
+
+from django.conf import settings as django_settings
+
 from rest_framework.test import APIClient
 from rest_framework.reverse import reverse
 
@@ -23,7 +26,7 @@ def get(api_client, url, data=None):
 def api_client():
     return APIClient()
 
-LANGUAGES = ['fi', 'sv', 'en']
+LANGUAGES = [l[0] for l in django_settings.LANGUAGES]
 
 FIELD_MAPPINGS = {
     'desc': 'description',
@@ -164,6 +167,20 @@ def assert_unit_correctly_imported(unit, source_unit):
     else:
         assert d['municipality'] is None
 
+    for lang in LANGUAGES:
+        key = 'extra_searchwords_{}'.format(lang)
+        if key not in s:
+            assert lang not in d['keywords']
+            continue
+        exploded = [e for e in s[key].split(',') if len(e.strip()) > 0]
+        if len(exploded) == 0:
+            continue
+        result = d['keywords'][lang]
+        assert len(exploded) == len(result)
+        for kw in result:
+            # raises an exception if kw doesn't match any item
+            next(item for item in exploded if kw == item.strip())
+
     # OK string
     # ======
     # OK 'accessibility_viewpoints' R
@@ -183,11 +200,11 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     # reference
     # ===========
-    # 'dept_id' R
-    # 'org_id' R
-    # 'ontologytree_ids' R
-    # 'ontologyword_ids' R
-    # 'extra_searchwords' -> keywords
+    # OK 'dept_id' R
+    # OK 'org_id' R
+    # OK 'ontologytree_ids' R
+    # OK 'ontologyword_ids' R
+    # OK 'extra_searchwords' -> keywords
 
     # structured
     # ==========
@@ -236,7 +253,7 @@ def assert_resource_synced(response, resource_name, resources):
 
 @pytest.mark.django_db
 @given(lists(closed_object_set()))
-@settings(max_examples=200, timeout=60)
+@settings(max_examples=200, timeout=60, perform_health_check=False)
 def test_import_units(api_client, all_resources):
 
     for resources in all_resources:
