@@ -7,6 +7,7 @@ from rest_framework.reverse import reverse
 # from services.management.commands.services_import.services import import_services
 from services.management.commands.services_import.organizations import import_organizations
 from services.management.commands.services_import.departments import import_departments
+from services.management.commands.services_import.services import import_services
 from services.management.commands.services_import.units import import_units
 
 from services_import_hypothesis import closed_object_set
@@ -218,6 +219,21 @@ def assert_unit_correctly_imported(unit, source_unit):
     # OK 'streetview_entrance_url'
 
 
+def assert_resource_synced(response, resource_name, resources):
+    # The API-exposed resource count must exactly equal the original
+    # import source resource count.
+    assert response.data['count'] == len(resources[resource_name])
+
+    def id_set(resources):
+        return set((x['id'] for x in resources))
+
+    result_resources = response.data['results']
+
+    # The ids in source and result must exactly match
+    assert (id_set(result_resources) ==
+            id_set(resources[resource_name]))
+
+
 @pytest.mark.django_db
 @given(lists(closed_object_set()))
 @settings(max_examples=200, timeout=60)
@@ -232,27 +248,23 @@ def test_import_units(api_client, all_resources):
 
         org_syncher = import_organizations(fetch_resource=fetch_resource)
         dept_syncher = import_departments(fetch_resource=fetch_resource)
+        import_services(
+            ontologytrees=fetch_resource('ontologytree'),
+            ontologywords=fetch_resource('ontologyword'))
+
+        response = get(api_client, reverse('ontologytreenode-list'))
+        assert_resource_synced(response, 'ontologytree', resources)
+        response = get(api_client, reverse('ontologyword-list'))
+        assert_resource_synced(response, 'ontologyword', resources)
 
         import_units(
             fetch_units=fetch_units, fetch_resource=fetch_resource,
             org_syncher=org_syncher, dept_syncher=dept_syncher)
 
         response = get(api_client, reverse('unit-list'))
-
-        # The API-exposed unit count must exactly equal the original
-        # import source unit count.
-        assert response.data['count'] == len(resources['unit'])
-
-        def id_set(units):
-            return set((u['id'] for u in units))
-
-        result_units = response.data['results']
-
-        # The ids in source and result must exactly match
-        assert (id_set(result_units) ==
-                id_set(resources['unit']))
+        assert_resource_synced(response, 'unit', resources)
 
         source_units_by_id = dict((u['id'], u) for u in resources['unit'])
 
-        for unit in result_units:
+        for unit in response.data['results']:
             assert_unit_correctly_imported(unit, source_units_by_id.get(unit['id']))
