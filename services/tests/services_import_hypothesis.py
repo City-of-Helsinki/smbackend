@@ -135,23 +135,32 @@ def unit_maker(draw, resource_ids):
         add_optional_field('address_zip', text(max_size=10))
         add_optional_field('organizer_business_id', text(max_size=10))
 
-        for field in [
-                'accessibility_email',
-                'accessibility_www',
-                'data_source_url',
-                'email',
-                'fax',
-                'phone',
-                'source',
-                'picture_entrance_url',
-                'picture_url',
-                'streetview_entrance_url']:
+        for field in ['accessibility_email',
+                      'accessibility_www',
+                      'data_source_url',
+                      'email',
+                      'fax',
+                      'phone',
+                      'source',
+                      'picture_entrance_url',
+                      'picture_url',
+                      'streetview_entrance_url']:
             add_optional_text_field(field)
 
         result.update(translated_field(draw, 'address_postal_full', allow_missing=True))
         result.update(translated_field(draw, 'call_charge_info', allow_missing=True))
         result.update(translated_field(draw, 'desc', allow_missing=True))
         result.update(translated_field(draw, 'picture_caption', allow_missing=True))
+
+        for lang in LANGUAGES:
+            words = draw(sets(text(digits + ascii_letters + punctuation + 'åäöÅÄÖ ',
+                                   min_size=1, max_size=25)))
+            if len(words) == 0:
+                event('extra searchwords empty')
+                words = None
+            else:
+                words = ', '.join(words)
+                result['extra_searchwords_{}'.format(lang)] = words
         return result
     return make_unit
 
