@@ -7,12 +7,11 @@ from .utils import pk_get, save_translated_field
 UTC_TIMEZONE = pytz.timezone('UTC')
 
 
-def import_services(syncher=None, noop=False, logger=None, importer=None):
+def import_services(syncher=None, noop=False, logger=None, importer=None,
+                    ontologytrees=pk_get('ontologytree'),
+                    ontologywords=pk_get('ontologyword')):
     if not importer:
         return
-
-    ontologytrees = pk_get('ontologytree')
-    ontologywords = pk_get('ontologyword')
 
     nodesyncher = ModelSyncher(OntologyTreeNode.objects.all(), lambda obj: obj.id)
     servicesyncher = ModelSyncher(OntologyWord.objects.all(), lambda obj: obj.id)
