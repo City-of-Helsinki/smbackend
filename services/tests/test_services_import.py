@@ -127,8 +127,8 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     for sfield, dfield in [
             ('ontologytree_ids', 'tree_nodes'),
-            ('ontologyword_ids', 'ontologyword_ids')]:
-        assert d[dfield] == s[sfield]
+            ('ontologyword_ids', 'services')]:
+        assert d[dfield] == s[sfield], sfield
 
     #  2. optional fields
     for field_name in [
