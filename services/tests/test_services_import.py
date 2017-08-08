@@ -128,7 +128,7 @@ def assert_unit_correctly_imported(unit, source_unit):
     for sfield, dfield in [
             ('ontologytree_ids', 'tree_nodes'),
             ('ontologyword_ids', 'services')]:
-        assert d[dfield] == s[sfield], sfield
+        assert set(d[dfield]) == set(s[sfield]), sfield
 
     #  2. optional fields
     for field_name in [
@@ -248,12 +248,14 @@ def test_import_units(api_client, all_resources):
 
         org_syncher = import_organizations(fetch_resource=fetch_resource)
         dept_syncher = import_departments(fetch_resource=fetch_resource)
+
         import_services(
             ontologytrees=fetch_resource('ontologytree'),
             ontologywords=fetch_resource('ontologyword'))
 
         response = get(api_client, reverse('ontologytreenode-list'))
         assert_resource_synced(response, 'ontologytree', resources)
+
         response = get(api_client, reverse('ontologyword-list'))
         assert_resource_synced(response, 'ontologyword', resources)
 

@@ -19,7 +19,7 @@ from munigeo.models import Municipality
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.organizations import import_organizations
 from services.management.commands.services_import.keyword import KeywordHandler
-from services.models import Unit, OntologyTreeNode, AccessibilityVariable, \
+from services.models import Unit, OntologyTreeNode, OntologyWord, AccessibilityVariable, \
     UnitConnection, UnitAccessibilityProperty, UnitIdentifier
 from services.models.unit import PROJECTION_SRID, PROVIDER_TYPES, ORGANIZER_TYPES
 from services.models.unit_connection import SECTION_TYPES
@@ -28,7 +28,6 @@ from .utils import clean_text, pk_get, save_translated_field, postcodes
 UTC_TIMEZONE = pytz.timezone('UTC')
 ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
 ACCESSIBILITY_VARIABLES = None
-EXISTING_SERVICE_TREE_NODE_IDS = None
 LOGGER = None
 VERBOSITY = False
 
@@ -47,6 +46,13 @@ def get_service_tree_node_ids():
     return EXISTING_SERVICE_TREE_NODE_IDS
 
 
+def get_ontologyword_ids():
+    global EXISTING_ONTOLOGYWORD_IDS
+    if EXISTING_ONTOLOGYWORD_IDS is None:
+        EXISTING_ONTOLOGYWORD_IDS = set(OntologyWord.objects.values_list('id', flat=True))
+    return EXISTING_ONTOLOGYWORD_IDS
+
+
 def _fetch_units():
     if VERBOSITY:
         LOGGER.info("Fetching units")
@@ -56,7 +62,10 @@ def _fetch_units():
 def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
                  verbosity=True, logger=None, fetch_units=_fetch_units,
                  fetch_resource=pk_get):
-    global VERBOSITY, LOGGER
+    global VERBOSITY, LOGGER, EXISTING_SERVICE_TREE_NODE_IDS, EXISTING_ONTOLOGYWORD_IDS
+
+    EXISTING_SERVICE_TREE_NODE_IDS = None
+    EXISTING_ONTOLOGYWORD_IDS = None
 
     VERBOSITY = verbosity
     LOGGER = logger
@@ -137,7 +146,8 @@ def _load_postcodes():
 
 
 @db.transaction.atomic
-def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher, muni_by_name, bounding_box, gps_to_target_ct, target_srid):
+def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher,
+                 muni_by_name, bounding_box, gps_to_target_ct, target_srid):
     VERBOSITY and LOGGER.info(pprint.pformat(info))
 
     obj = syncher.get(info['id'])
@@ -323,7 +333,8 @@ def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher, muni
 
     update_fields = ['origin_last_modified_time']
 
-    obj_changed, update_fields = _import_unit_services(obj, info, set(), obj_changed, update_fields)
+    obj_changed, update_fields = _import_unit_ontologytreenodes(obj, info, set(), obj_changed, update_fields)
+    obj_changed, update_fields = _import_unit_ontologywords(obj, info, set(), obj_changed, update_fields)
     obj_changed = keyword_handler.sync_searchwords(obj, info, obj_changed)
 
     obj_changed, update_fields = _import_unit_accessibility_variables(obj, info, obj_changed, update_fields)
@@ -338,13 +349,14 @@ def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher, muni
     return obj
 
 
-def _import_unit_services(obj, info, count_services, obj_changed, update_fields):
+def _import_unit_ontologytreenodes(obj, info, count_services, obj_changed, update_fields):
     ontologytreenode_ids = sorted([
         sid for sid in info.get('ontologytree_ids', [])
         if sid in get_service_tree_node_ids()])
     # print("ontologytree_ids: %s -> %s" % (info.get('ontologytree_ids', []), servicenode_ids))
 
     obj_ontologytreenode_ids = sorted(obj.service_tree_nodes.values_list('id', flat=True))
+
     if obj_ontologytreenode_ids != ontologytreenode_ids:
         # if not obj_created and VERBOSITY:
         #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_servicenode_ids, servicenode_ids))
@@ -356,6 +368,25 @@ def _import_unit_services(obj, info, count_services, obj_changed, update_fields)
         # Update root service cache
         obj.root_ontologytreenodes = ','.join(str(x) for x in obj.get_root_ontologytreenodes())
         update_fields.append('root_ontologytreenodes')
+        obj_changed = True
+
+    return obj_changed, update_fields
+
+
+def _import_unit_ontologywords(obj, info, count_services, obj_changed, update_fields):
+    ontologyword_ids = sorted([
+        sid for sid in info.get('ontologyword_ids', [])
+        if sid in get_ontologyword_ids()])
+
+    obj_ontologyword_ids = sorted(obj.services.values_list('id', flat=True))
+    if obj_ontologyword_ids != ontologyword_ids:
+        # if not obj_created and VERBOSITY:
+        #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_servicenode_ids, servicenode_ids))
+        obj.services = ontologyword_ids
+
+        for ontologyword_id in ontologyword_ids:
+            count_services.add(ontologyword_id)
+
         obj_changed = True
 
     return obj_changed, update_fields
