@@ -227,7 +227,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
                 obj_changed = True
                 setattr(obj, field, info.get(field))
 
-    for field in ['created_time', 'modified_time']:
+    for field in ['created_time']:
         if info.get(field):
             value = ACTIVE_TIMEZONE.localize(datetime.datetime.strptime(info.get(field), '%Y-%m-%dT%H:%M:%S'))
             if getattr(obj, field) != value:
