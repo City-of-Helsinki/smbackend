@@ -301,7 +301,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         obj_changed = False
         obj.save()
 
-    update_fields = ['modified_time']
+    update_fields = ['origin_last_modified_time']
 
     obj_changed, update_fields = _import_unit_services(obj, info, set(), obj_changed, update_fields)
     obj_changed = _sync_searchwords(obj, info, obj_changed)
