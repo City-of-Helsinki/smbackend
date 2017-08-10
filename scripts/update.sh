@@ -23,6 +23,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+nice python manage.py lipas_import --muni-id=92 --muni-id=91 --muni-id=49 --muni-id=235 >> $LOG_FILE 2>&1
+if [ $? -ne 0 ]; then
+    cat $LOG_FILE
+    exit 1
+fi
+
 nice python manage.py update_index -a 2 >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     cat $LOG_FILE
