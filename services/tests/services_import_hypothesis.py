@@ -101,7 +101,7 @@ ORGANIZER_TYPES = [
 
 @composite
 def make_source(draw):
-    return {'id': draw(text()), 'source': draw(text())}
+    return {'id': draw(text(min_size=1)), 'source': draw(text(min_size=1))}
 
 
 def unit_maker(draw, resource_ids):
@@ -114,7 +114,6 @@ def unit_maker(draw, resource_ids):
             'org_id': str(draw(sampled_from(resource_ids['organization']))),
             'ontologyword_ids': draw(permutations(resource_ids['ontologyword'])),
             'ontologytree_ids': draw(permutations(resource_ids['ontologytree'])),
-            'sources': draw(lists(make_source(), min_size=0, max_size=2)),
             'provider_type': draw(sampled_from(PROVIDER_TYPES)),
             'organizer_type': draw(sampled_from(ORGANIZER_TYPES)),
             'manual_coordinates': draw(booleans()),
@@ -146,7 +145,6 @@ def unit_maker(draw, resource_ids):
                       'email',
                       'fax',
                       'phone',
-                      'source',
                       'picture_entrance_url',
                       'picture_url',
                       'streetview_entrance_url']:
@@ -157,6 +155,8 @@ def unit_maker(draw, resource_ids):
         result.update(translated_field(draw, 'desc', allow_missing=True))
         result.update(translated_field(draw, 'picture_caption', allow_missing=True))
 
+        # Extra searchwords
+
         for lang in LANGUAGES:
             words = draw(sets(text(digits + ascii_letters + punctuation + 'åäöÅÄÖ ',
                                    min_size=1, max_size=25)))
@@ -166,7 +166,12 @@ def unit_maker(draw, resource_ids):
             else:
                 words = ', '.join(words)
                 result['extra_searchwords_{}'.format(lang)] = words
+
+        add_optional_field('sources', lists(make_source(),
+                                            min_size=1, max_size=2))
+
         return result
+
     return make_unit
 
 

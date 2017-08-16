@@ -181,6 +181,16 @@ def assert_unit_correctly_imported(unit, source_unit):
             # raises an exception if kw doesn't match any item
             next(item for item in exploded if kw == item.strip())
 
+    def map_source(source):
+        return {'namespace': source['source'], 'value': source['id']}
+
+    def source_found_in(id_list, source):
+        return map_source(source) in id_list
+
+    if 'sources' in s:
+        for source in s['sources']:
+            assert source_found_in(d['identifiers'], source)
+
     # OK string
     # ======
     # OK 'accessibility_viewpoints' R

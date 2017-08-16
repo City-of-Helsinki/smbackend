@@ -484,7 +484,7 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
 
 
 def _import_unit_sources(obj, info, obj_changed, update_fields):
-    if info['sources']:
+    if 'sources' in info:
         id_json = json.dumps(info['sources'], ensure_ascii=False, sort_keys=True).encode('utf8')
         id_hash = hashlib.sha1(id_json).hexdigest()
     else:
@@ -494,11 +494,12 @@ def _import_unit_sources(obj, info, obj_changed, update_fields):
             LOGGER.info("%s identifier set changed (%s vs. %s)" %
                         (obj, obj.identifier_hash, id_hash))
         obj.identifiers.all().delete()
-        for uid in info['sources']:
-            ui = UnitIdentifier(unit=obj)
-            ui.namespace = uid.get('source')
-            ui.value = uid.get('id')
-            ui.save()
+        if id_hash is not None:
+            for uid in info['sources']:
+                ui = UnitIdentifier(unit=obj)
+                ui.namespace = uid.get('source')
+                ui.value = uid.get('id')
+                ui.save()
 
         obj.identifier_hash = id_hash
         obj_changed = True
