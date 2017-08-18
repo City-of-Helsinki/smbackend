@@ -8,7 +8,6 @@ from munigeo.utils import get_default_srid
 from services.utils import get_translated
 from .department import Department
 from .organization import Organization
-from .ontology_word import OntologyWord
 from .keyword import Keyword
 
 
@@ -121,7 +120,7 @@ class Unit(models.Model):
 
     # Cached fields for better performance
     root_ontologytreenodes = models.CharField(max_length=50, null=True,
-                          validators=[validate_comma_separated_integer_list])
+                                              validators=[validate_comma_separated_integer_list])
 
     objects = models.GeoManager()
     search_objects = UnitSearchManager()
@@ -139,17 +138,3 @@ class Unit(models.Model):
         qs = OntologyTreeNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         treenode_list = qs.values_list('id', flat=True).distinct()
         return sorted(treenode_list)
-
-    def removed_get_root_servicenodes(self):
-        # FIXME: fix once services are up and running..
-        return []
-        tree_ids = self.services.all().values_list('tree_id', flat=True).distinct()
-        qs = OntologyWord.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
-        srv_list = qs.values_list('id', flat=True).distinct()
-        return sorted(srv_list)
-
-    def removed_get_root_servitreenodes(self):
-        tree_ids = self.service_tree_nodes.all().values_list('tree_id', flat=True).distinct()
-        qs = OntologyTreeNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
-        srv_list = qs.values_list('id', flat=True).distinct()
-        return sorted(srv_list)

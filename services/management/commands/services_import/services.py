@@ -50,15 +50,9 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
             obj._changed = True
 
         obj._changed = keyword_handler.sync_searchwords(obj, d, obj._changed)
-
-        # FIXME: this does double work
-        unit_count = obj.get_unit_count()
-        if obj.unit_count != unit_count:
-            obj.unit_count = unit_count
-            obj._changed = True
+        obj._changed |= update_object_unit_count(obj)
 
         if obj._changed:
-            obj.unit_count = obj.get_unit_count()
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
             obj.save()
             if importer:
@@ -68,19 +62,26 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
         for child_node in d['children']:
             handle_servicenode(child_node)
 
+    def update_object_unit_count(obj):
+        unit_count = obj.get_unit_count()
+        if obj.unit_count != unit_count:
+            obj.unit_count = unit_count
+            return True
+        return False
+
     def handle_servicetype(d, keyword_handler):
         obj = servicesyncher.get(d['id'])
         if not obj:
             obj = OntologyWord(id=d['id'])
             obj._changed = True
 
-        if save_translated_field(obj, 'name', d, 'ontologyword'):
-            obj._changed = True
+        obj._changed |= save_translated_field(obj, 'name', d, 'ontologyword')
 
         obj._changed = keyword_handler.sync_searchwords(obj, d, obj._changed)
 
+        obj._changed |= update_object_unit_count(obj)
+
         if obj._changed:
-            obj.unit_count = obj.get_unit_count()
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
             obj.save()
             if importer:

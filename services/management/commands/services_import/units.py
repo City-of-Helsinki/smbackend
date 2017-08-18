@@ -59,6 +59,34 @@ def _fetch_units():
     return pk_get('unit', params={'official': 'yes'})
 
 
+@db.transaction.atomic
+def update_unit_counts(updated_resources, verbosity=False):
+    # Ontologytreenodes
+    srv_set = updated_resources['ontologytreenode']
+    current_set = srv_set
+    for i in range(0, 20):  # Make sure we don't loop endlessly (shouldn't have 20 deep tree anyway)
+        parent_ids = OntologyTreeNode.objects.filter(id__in=current_set).values_list('parent', flat=True)
+        if not parent_ids:
+            break
+        srv_set |= set(parent_ids)
+        current_set = parent_ids
+    if verbosity:
+        print("Updating unit counts for %d treenodes..." % len(srv_set))
+    srv_list = OntologyTreeNode.objects.filter(id__in=srv_set)
+    for srv in srv_list:
+        srv.unit_count = srv.get_unit_count()
+        srv.save(update_fields=['unit_count'])
+
+    # Ontologywords
+    current_set = updated_resources['ontologyword']
+    if verbosity:
+        print("Updating unit counts for %d ontologywords..." % len(current_set))
+    srv_list = OntologyWord.objects.filter(id__in=current_set)
+    for srv in srv_list:
+        srv.unit_count = srv.get_unit_count()
+        srv.save(update_fields=['unit_count'])
+
+
 def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
                  verbosity=True, logger=None, fetch_units=_fetch_units,
                  fetch_resource=pk_get):
@@ -119,16 +147,17 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
         queryset = Unit.objects.filter(data_source='tprek').prefetch_related('services', 'keywords')
 
     syncher = ModelSyncher(queryset, lambda obj: obj.id)
+    updated_related_objects = {'ontologytreenode': set(), 'ontologyword': set()}
     for idx, info in enumerate(obj_list):
         conn_list = conn_by_unit.get(info['id'], [])
         info['connections'] = conn_list
         acp_list = acc_by_unit.get(info['id'], [])
         info['accessibility_properties'] = acp_list
         _import_unit(syncher, keyword_handler, info.copy(), org_syncher, dept_syncher, muni_by_name,
-                     bounding_box, gps_to_target_ct, target_srid)
+                     bounding_box, gps_to_target_ct, target_srid, updated_related_objects)
         # _import_unit_services(obj, info, count_services)
     syncher.finish()
-
+    update_unit_counts(updated_related_objects, verbosity=verbosity)
     return org_syncher, dept_syncher, syncher
 
 
@@ -147,8 +176,7 @@ def _load_postcodes():
 
 @db.transaction.atomic
 def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher,
-                 muni_by_name, bounding_box, gps_to_target_ct, target_srid):
-    VERBOSITY and LOGGER.info(pprint.pformat(info))
+                 muni_by_name, bounding_box, gps_to_target_ct, target_srid, updated_related_objects):
 
     obj = syncher.get(info['id'])
     obj_changed = False
@@ -333,8 +361,11 @@ def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher,
 
     update_fields = ['origin_last_modified_time']
 
-    obj_changed, update_fields = _import_unit_ontologytreenodes(obj, info, set(), obj_changed, update_fields)
-    obj_changed, update_fields = _import_unit_ontologywords(obj, info, set(), obj_changed, update_fields)
+    obj_changed, update_fields = _import_unit_ontologytreenodes(obj, info,
+                                                                updated_related_objects['ontologytreenode'],
+                                                                obj_changed, update_fields)
+    obj_changed, update_fields = _import_unit_ontologywords(obj, info, updated_related_objects['ontologyword'],
+                                                            obj_changed, update_fields)
     obj_changed = keyword_handler.sync_searchwords(obj, info, obj_changed)
 
     obj_changed, update_fields = _import_unit_accessibility_variables(obj, info, obj_changed, update_fields)
@@ -346,7 +377,7 @@ def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher,
         obj.save(update_fields=update_fields)
 
     syncher.mark(obj)
-    return obj
+    return updated_related_objects
 
 
 def _import_unit_ontologytreenodes(obj, info, count_services, obj_changed, update_fields):
@@ -362,7 +393,7 @@ def _import_unit_ontologytreenodes(obj, info, count_services, obj_changed, updat
         #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_servicenode_ids, servicenode_ids))
         obj.service_tree_nodes = ontologytreenode_ids
 
-        for treenode_id in ontologytreenode_ids:
+        for treenode_id in set(ontologytreenode_ids) | set(obj_ontologytreenode_ids):
             count_services.add(treenode_id)
 
         # Update root service cache
@@ -384,7 +415,7 @@ def _import_unit_ontologywords(obj, info, count_services, obj_changed, update_fi
         #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_servicenode_ids, servicenode_ids))
         obj.services = ontologyword_ids
 
-        for ontologyword_id in ontologyword_ids:
+        for ontologyword_id in set(ontologyword_ids) | set(obj_ontologyword_ids):
             count_services.add(ontologyword_id)
 
         obj_changed = True

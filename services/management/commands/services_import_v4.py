@@ -19,6 +19,7 @@ from services.management.commands.services_import.accessibility import import_ac
 from services.management.commands.services_import.keyword import KeywordHandler
 
 from munigeo.models import AdministrativeDivision
+from services.models import OntologyTreeNode
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
 GK25_SRID = 3879
@@ -152,7 +153,6 @@ class Command(BaseCommand):
         self.dept_syncher = None
         self.logger = logging.getLogger(__name__)
         self.services_changed = False
-        self.count_services = set()
 
         # if options['cached']:
         #     requests_cache.install_cache('services_import')
@@ -174,8 +174,6 @@ class Command(BaseCommand):
 
         # if self.services_changed:
         #     self.update_root_services()
-        # if self.count_services:
-        #     self.update_unit_counts()
         self.update_division_units()
 
         if not import_count:
