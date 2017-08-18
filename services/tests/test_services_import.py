@@ -1,6 +1,8 @@
 from hypothesis import given, settings
 from hypothesis.strategies import lists
+
 import pytest
+import math
 
 from django.conf import settings as django_settings
 
@@ -167,6 +169,12 @@ def assert_unit_correctly_imported(unit, source_unit):
     else:
         assert d['municipality'] is None
 
+    if 'latitude' in s:
+        assert 'longitude' in s
+        c = d['location']['coordinates']
+        assert math.isclose(c[0], s['longitude'], rel_tol=1e-6)
+        assert math.isclose(c[1], s['latitude'], rel_tol=1e-6)
+
     for lang in LANGUAGES:
         key = 'extra_searchwords_{}'.format(lang)
         if key not in s:
@@ -230,23 +238,23 @@ def assert_unit_correctly_imported(unit, source_unit):
     # TODO 'modified_time'
     # TODO 'created_time'
 
+    # TODO accessibility-variables !!! what else?
+    # TODO unit counts in services !!!
+
     # coordinates
     # ===========
     # IGNORE 'easting_etrs_gk25'
     # IGNORE 'easting_etrs_tm35fin'
     # IGNORE 'northing_etrs_gk25'
     # IGNORE 'northing_etrs_tm35fin'
-    # TODO 'latitude'
-    # TODO 'longitude'
+    # OK 'latitude'
+    # OK 'longitude'
 
     # url (maybe just string)
     # ===
     # OK 'picture_entrance_url'
     # OK 'picture_url'
     # OK 'streetview_entrance_url'
-
-    # TODO accessibility-variables !!! what else?
-    # TODO unit counts in services !!!
 
 
 def assert_resource_synced(response, resource_name, resources):

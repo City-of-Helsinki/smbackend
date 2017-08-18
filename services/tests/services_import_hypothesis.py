@@ -2,7 +2,7 @@
 from hypothesis import event
 from hypothesis.strategies import (
     text, integers, booleans, lists, composite, uuids, sampled_from, none, one_of,
-    permutations, sets)
+    floats, permutations, sets)
 from string import digits, ascii_letters, punctuation
 
 from django.conf import settings
@@ -169,8 +169,13 @@ def unit_maker(draw, resource_ids):
                 words = ', '.join((word.strip() for word in words))
                 result['extra_searchwords_{}'.format(lang)] = words
 
-        add_optional_field('sources', lists(make_source(),
-                                            min_size=1, max_size=2))
+        add_optional_field('sources',
+                           lists(make_source(), min_size=1, max_size=2))
+
+        has_coordinates = draw(booleans())
+        if has_coordinates:
+            result['longitude'] = draw(floats(min_value=24, max_value=26))
+            result['latitude'] = draw(floats(min_value=58, max_value=62))
 
         return result
 
