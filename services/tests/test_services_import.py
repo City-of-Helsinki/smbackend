@@ -218,7 +218,7 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     # structured
     # ==========
-    # 'sources' R
+    # OK 'sources' R
 
     # enum
     # ====
@@ -227,23 +227,26 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     # datetimes
     # =========
-    # 'modified_time'
-    # 'created_time'
+    # TODO 'modified_time'
+    # TODO 'created_time'
 
     # coordinates
     # ===========
-    # 'easting_etrs_gk25'
-    # 'easting_etrs_tm35fin'
-    # 'northing_etrs_gk25'
-    # 'northing_etrs_tm35fin'
-    # 'latitude'
-    # 'longitude'
+    # IGNORE 'easting_etrs_gk25'
+    # IGNORE 'easting_etrs_tm35fin'
+    # IGNORE 'northing_etrs_gk25'
+    # IGNORE 'northing_etrs_tm35fin'
+    # TODO 'latitude'
+    # TODO 'longitude'
 
     # url (maybe just string)
     # ===
     # OK 'picture_entrance_url'
     # OK 'picture_url'
     # OK 'streetview_entrance_url'
+
+    # TODO accessibility-variables !!! what else?
+    # TODO unit counts in services !!!
 
 
 def assert_resource_synced(response, resource_name, resources):
