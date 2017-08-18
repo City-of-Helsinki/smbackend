@@ -172,7 +172,7 @@ def assert_unit_correctly_imported(unit, source_unit):
         if key not in s:
             assert lang not in d['keywords']
             continue
-        exploded = [e for e in s[key].split(',') if len(e.strip()) > 0]
+        exploded = set((e.strip() for e in s[key].split(',') if len(e.strip()) > 0))
         if len(exploded) == 0:
             continue
         result = d['keywords'][lang]

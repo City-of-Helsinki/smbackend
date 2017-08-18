@@ -166,7 +166,7 @@ def unit_maker(draw, resource_ids):
                 event('extra searchwords empty')
                 words = None
             else:
-                words = ', '.join(words)
+                words = ', '.join((word.strip() for word in words))
                 result['extra_searchwords_{}'.format(lang)] = words
 
         add_optional_field('sources', lists(make_source(),
