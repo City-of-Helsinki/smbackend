@@ -238,8 +238,8 @@ def assert_unit_correctly_imported(unit, source_unit):
     # TODO 'modified_time'
     # TODO 'created_time'
 
-    # TODO accessibility-variables !!! what else?
-    # TODO unit counts in services !!!
+    # TODO accessibility-variables !!! other many-to-many fields
+    # OK unit counts in services !!!
 
     # coordinates
     # ===========
