@@ -411,7 +411,7 @@ def _import_unit_accessibility_variables(obj, info, obj_changed, update_fields):
                 var = AccessibilityVariable(id=var_id, name=acp['variable_name'])
                 var.save()
             else:
-                var = get_accessibility_variables[var_id]
+                var = get_accessibility_variables()[var_id]
             uap.variable = var
             uap.value = acp['value']
             uap.save()
