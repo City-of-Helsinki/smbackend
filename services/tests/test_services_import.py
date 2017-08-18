@@ -306,5 +306,24 @@ def test_import_units(api_client, all_resources):
 
         source_units_by_id = dict((u['id'], u) for u in resources['unit'])
 
+        treenode_counts = {}
+        ontologyword_counts = {}
+
         for unit in response.data['results']:
             assert_unit_correctly_imported(unit, source_units_by_id.get(unit['id']))
+            for treenode_id in unit['tree_nodes']:
+                treenode_counts[treenode_id] = treenode_counts.get(treenode_id, 0) + 1
+            for ontologyword_id in unit['services']:
+                ontologyword_counts[ontologyword_id] = ontologyword_counts.get(ontologyword_id, 0) + 1
+
+        # Check unit counts in related objects
+
+        response = get(api_client, reverse('ontologytreenode-list'))
+        treenodes = response.data['results']
+        for treenode in treenodes:
+            assert treenode_counts.get(treenode['id'], 0) == treenode['unit_count']
+
+        response = get(api_client, reverse('ontologyword-list'))
+        ontologywords = response.data['results']
+        for ontologyword in ontologywords:
+            assert ontologyword_counts.get(ontologyword['id'], 0) == ontologyword['unit_count']
