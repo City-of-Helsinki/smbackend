@@ -7,6 +7,8 @@ from string import digits, ascii_letters, punctuation
 
 from django.conf import settings
 
+SAFE_LETTERS = digits + ascii_letters + punctuation
+
 LANGUAGES = [l[0] for l in settings.LANGUAGES]
 
 RESOURCES = [
@@ -101,7 +103,7 @@ ORGANIZER_TYPES = [
 
 @composite
 def make_source(draw):
-    return {'id': draw(text(min_size=1)), 'source': draw(text(min_size=1))}
+    return {'id': draw(text(SAFE_LETTERS, min_size=1)), 'source': draw(text(SAFE_LETTERS, min_size=1))}
 
 
 def unit_maker(draw, resource_ids):
@@ -158,7 +160,7 @@ def unit_maker(draw, resource_ids):
         # Extra searchwords
 
         for lang in LANGUAGES:
-            words = draw(sets(text(digits + ascii_letters + punctuation + 'åäöÅÄÖ ',
+            words = draw(sets(text(SAFE_LETTERS + 'åäöÅÄÖ ',
                                    min_size=1, max_size=25)))
             if len(words) == 0:
                 event('extra searchwords empty')
