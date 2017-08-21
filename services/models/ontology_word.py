@@ -18,3 +18,6 @@ class OntologyWord(models.Model):
 
     def get_unit_count(self):
         return Unit.objects.filter(services=self.id).distinct().count()
+
+    class Meta:
+        ordering = ['-pk']

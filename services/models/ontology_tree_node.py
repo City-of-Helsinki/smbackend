@@ -27,3 +27,6 @@ class OntologyTreeNode(MPTTModel):
         srv_list.add(self.id)
         count = Unit.objects.filter(public=True, service_tree_nodes__in=list(srv_list)).distinct().count()
         return count
+
+    class Meta:
+        ordering = ['-pk']
