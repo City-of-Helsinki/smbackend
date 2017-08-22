@@ -62,7 +62,7 @@ def db_content(db):
     u = Unit(id=27586,
              provider_type=1,
              organization=o,
-             modified_time=timezone.now(),
+             origin_last_modified_time=timezone.now(),
              name='Kallion kirjasto',
              desc='Kirjasto kallion keskustassa',
              street_address='Arentikuja 3')
