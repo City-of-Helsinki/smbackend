@@ -156,6 +156,11 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
         _import_unit(syncher, keyword_handler, info.copy(), org_syncher, dept_syncher, muni_by_name,
                      bounding_box, gps_to_target_ct, target_srid, updated_related_objects)
         # _import_unit_services(obj, info, count_services)
+
+    for obj in syncher.get_deleted_objects():
+        updated_related_objects['ontologytreenode'].update(obj.service_tree_nodes.values_list('id', flat=True))
+        updated_related_objects['ontologyword'].update(obj.services.values_list('id', flat=True))
+
     syncher.finish()
     update_unit_counts(updated_related_objects, verbosity=verbosity)
     return org_syncher, dept_syncher, syncher
