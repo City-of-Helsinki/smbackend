@@ -4,8 +4,8 @@ from services.models import Organization
 from .utils import pk_get, save_translated_field
 
 
-def import_organizations(org_syncher=None, noop=False, logger=None):
-    obj_list = pk_get('organization')
+def import_organizations(org_syncher=None, noop=False, logger=None, fetch_resource=pk_get):
+    obj_list = fetch_resource('organization')
     syncher = ModelSyncher(Organization.objects.all(), lambda obj: str(obj.uuid))
     # self.dept_syncher = syncher
     if noop:

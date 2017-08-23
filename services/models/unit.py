@@ -8,7 +8,6 @@ from munigeo.utils import get_default_srid
 from services.utils import get_translated
 from .department import Department
 from .organization import Organization
-from .ontology_word import OntologyWord
 from .keyword import Keyword
 
 
@@ -24,6 +23,21 @@ PROVIDER_TYPES = (
     (8, 'CONTRACT_SCHOOL'),
     (9, 'SUPPORTED_OPERATIONS'),
     (10, 'PAYMENT_COMMITMENT'),
+)
+
+ORGANIZER_TYPES = (
+    (0, 'ASSOCIATION'),
+    (1, 'FOUNDATION'),
+    (2, 'GOVERNMENT'),
+    (3, 'GOVERNMENTAL_COMPANY'),
+    (4, 'JOINT_MUNICIPAL_AUTHORITY'),
+    (5, 'MUNICIPAL_ENTERPRISE_GROUP'),
+    (6, 'MUNICIPALITY'),
+    (7, 'MUNICIPALLY_OWNED_COMPANY'),
+    (8, 'ORGANIZATION'),
+    (9, 'OTHER_REGIONAL_COOPERATION_ORGANIZATION'),
+    (10, 'PRIVATE_ENTERPRISE'),
+    (11, 'UNKNOWN'),
 )
 
 
@@ -50,7 +64,7 @@ class Unit(models.Model):
     department = models.ForeignKey(Department, null=True)
     organization = models.ForeignKey(Organization)
 
-    organizer_type = models.CharField(max_length=50, null=True)
+    organizer_type = models.PositiveSmallIntegerField(choices=ORGANIZER_TYPES, null=True)
     organizer_name = models.CharField(max_length=100, null=True)
     organizer_business_id = models.CharField(max_length=10, null=True)
 
@@ -63,7 +77,7 @@ class Unit(models.Model):
     short_desc = models.TextField(null=True)
     name = models.CharField(max_length=200, db_index=True)
     street_address = models.CharField(max_length=100, null=True)
-    address_city = models.CharField(max_length=100, null=True)
+
     www = models.URLField(max_length=400, null=True)
     address_postal_full = models.CharField(max_length=100, null=True)
     call_charge_info = models.CharField(max_length=100, null=True)
@@ -106,14 +120,16 @@ class Unit(models.Model):
 
     # Cached fields for better performance
     root_ontologytreenodes = models.CharField(max_length=50, null=True,
-                          validators=[validate_comma_separated_integer_list])
+                                              validators=[validate_comma_separated_integer_list])
 
     objects = models.GeoManager()
     search_objects = UnitSearchManager()
 
+    class Meta:
+        ordering = ['-pk']
+
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
-
 
     def get_root_ontologytreenodes(self):
         from .ontology_tree_node import OntologyTreeNode
@@ -122,20 +138,3 @@ class Unit(models.Model):
         qs = OntologyTreeNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         treenode_list = qs.values_list('id', flat=True).distinct()
         return sorted(treenode_list)
-
-    def removed_get_root_servicenodes(self):
-        # FIXME: fix once services are up and running..
-        return []
-        tree_ids = self.services.all().values_list('tree_id', flat=True).distinct()
-        qs = OntologyWord.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
-        srv_list = qs.values_list('id', flat=True).distinct()
-        return sorted(srv_list)
-
-    def removed_get_root_servitreenodes(self):
-        tree_ids = self.service_tree_nodes.all().values_list('tree_id', flat=True).distinct()
-        qs = OntologyTreeNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
-        srv_list = qs.values_list('id', flat=True).distinct()
-        return sorted(srv_list)
-
-    class Meta:
-        ordering = ['id']

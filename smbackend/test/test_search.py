@@ -4,10 +4,22 @@ from django.core.management import call_command
 from django.test import Client
 from django.test import override_settings
 from haystack.query import SearchQuerySet
+import haystack
+import elasticsearch
 
 from .conftest import TEST_INDEX
 
 
+connection_available = None
+backend = haystack.connections['default'].get_backend()
+try:
+    backend.update('servicemap-fi', [])
+    connection_available = True
+except elasticsearch.exceptions.ConnectionError as e:
+    connection_available = False
+
+
+@pytest.mark.skipif(not connection_available, reason='Search backend unavailable')
 @pytest.mark.django_db
 def test_search(haystack_test, db_content):
     django.utils.translation.activate('fi')
@@ -21,6 +33,7 @@ def test_search(haystack_test, db_content):
     assert len(SearchQuerySet().filter(text='sairaala')) == 0
 
 
+@pytest.mark.skipif(connection_available is False, reason='Search backend unavailable')
 @pytest.mark.django_db
 def test_search_filters(haystack_test, db_content):
     c = Client()

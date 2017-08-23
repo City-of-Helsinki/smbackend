@@ -1,6 +1,7 @@
 from django.db import models
 from services.utils import get_translated
 from .keyword import Keyword
+from .unit import Unit
 
 
 class OntologyWord(models.Model):
@@ -16,11 +17,7 @@ class OntologyWord(models.Model):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
     def get_unit_count(self):
-        return 0
-        from .unit import Unit
-        srv_list = set(OntologyWord.objects.all().by_ancestor(self).values_list('id', flat=True))
-        srv_list.add(self.id)
-        count = Unit.objects.filter(service__in=list(srv_list)).distinct().count()
-        return count
+        return Unit.objects.filter(services=self.id).distinct().count()
 
-
+    class Meta:
+        ordering = ['-pk']

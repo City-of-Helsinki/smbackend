@@ -3,6 +3,9 @@ from rest_framework.reverse import reverse
 from fixtures import *
 from utils import match_observable_property_object_to_dict
 
+
+@pytest.mark.skip(reason="awaiting new API implementation")
+# Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__get_observable_properties_for_unit(api_client, observable_property):
     services = observable_property.services.all()
@@ -32,6 +35,9 @@ def test__get_observable_properties_for_unit(api_client, observable_property):
                 assert 'name' in v
                 assert 'description' in v
 
+
+@pytest.mark.skip(reason="awaiting new API implementation")
+# Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__get_observable_properties_for_service(api_client, observable_property):
     services = observable_property.services.all()

@@ -49,6 +49,13 @@ def division_units(administrativedivision_types):
                     'type': adm_type})
     return results
 
+
+data_integrity = pytest.mark.skipif(
+    not pytest.config.getoption("--data-integrity"),
+    reason="need --data-integrity option to run")
+
+
+@data_integrity
 @pytest.mark.django_db
 def test__verify_school_units_found(division_units):
     missing = {}
@@ -64,6 +71,8 @@ def test__verify_school_units_found(division_units):
         error_report.append(pprint.pformat(val, indent=4))
     assert success, "\n\n".join(error_report)
 
+
+@data_integrity
 @pytest.mark.django_db
 def test__verify_school_units_enclosed(division_units):
     success = True

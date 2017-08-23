@@ -1,0 +1,32 @@
+sudo: false
+language: python
+
+cache: pip
+
+python:
+  - "3.6"
+  - "nightly"
+
+services:
+  - postgresql
+
+addons:
+  postgresql: "9.5"
+  apt:
+    packages:
+      - postgresql-9.5-postgis-2.3
+      - binutils
+      - libproj-dev
+      - gdal-bin
+
+before_script:
+  - psql -U postgres -c "create extension postgis"
+  - psql template1 -c 'create extension hstore;'
+
+install:
+  - pip install pytest-cov -r requirements.txt
+
+script:
+  - pytest --cov=. --hypothesis-profile=ci
+
+after_success: codecov

@@ -91,10 +91,6 @@ class CategoricalObservation(Observation):
             return None
         return oproperty.allowed_values.get(identifier=value)
 
-class ContinuousObservation(Observation):
-    @staticmethod
-    def get_type():
-        return 'continuous'
 
 class DescriptiveObservation(Observation):
     def get_external_value(self):

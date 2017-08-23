@@ -46,7 +46,7 @@ INSTALLED_APPS = (
     'haystack',
     'munigeo',
     'services',
-    # 'observations'
+    'observations'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -69,8 +69,9 @@ WSGI_APPLICATION = 'smbackend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'servicemap-api',
+        'ATOMIC_REQUESTS': True,
     }
 }
 
@@ -150,9 +151,9 @@ REST_FRAMEWORK = {
     'URL_FIELD_NAME': 'resource_uri',
     'UNAUTHENTICATED_USER': None,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'observations.models.PluralityTokenAuthentication',
-    # ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'observations.models.PluralityTokenAuthentication',
+    ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',

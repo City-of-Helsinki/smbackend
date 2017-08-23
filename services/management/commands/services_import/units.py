@@ -18,33 +18,91 @@ from munigeo.models import Municipality
 
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.organizations import import_organizations
+from services.management.commands.services_import.keyword import KeywordHandler
 from services.models import Unit, OntologyTreeNode, OntologyWord, AccessibilityVariable, \
-    Keyword, UnitConnection, UnitAccessibilityProperty, UnitIdentifier
-from services.models.unit import PROJECTION_SRID, PROVIDER_TYPES
+    UnitConnection, UnitAccessibilityProperty, UnitIdentifier
+from services.models.unit import PROJECTION_SRID, PROVIDER_TYPES, ORGANIZER_TYPES
 from services.models.unit_connection import SECTION_TYPES
-from .utils import pk_get, save_translated_field, postcodes, keywords_by_id, keywords, SUPPORTED_LANGUAGES
+from .utils import clean_text, pk_get, save_translated_field, postcodes
 
 UTC_TIMEZONE = pytz.timezone('UTC')
 ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
-KEYWORDS = None
-KEYWORDS_BY_ID = None
-ACCESSIBILITY_VARIABLES = {x.id: x for x in AccessibilityVariable.objects.all()}
-EXISTING_SERVICE_IDS = set(OntologyWord.objects.values_list('id', flat=True))
-EXISTING_SERVICE_TREE_NODE_IDS = set(OntologyTreeNode.objects.values_list('id', flat=True))
+ACCESSIBILITY_VARIABLES = None
 LOGGER = None
 VERBOSITY = False
 
 
-def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbosity=True, logger=None):
-    global VERBOSITY, LOGGER, KEYWORDS_BY_ID, KEYWORDS
+def get_accessibility_variables():
+    global ACCESSIBILITY_VARIABLES
+    if ACCESSIBILITY_VARIABLES is None:
+        ACCESSIBILITY_VARIABLES = {x.id: x for x in AccessibilityVariable.objects.all()}
+    return ACCESSIBILITY_VARIABLES
+
+
+def get_service_tree_node_ids():
+    global EXISTING_SERVICE_TREE_NODE_IDS
+    if EXISTING_SERVICE_TREE_NODE_IDS is None:
+        EXISTING_SERVICE_TREE_NODE_IDS = set(OntologyTreeNode.objects.values_list('id', flat=True))
+    return EXISTING_SERVICE_TREE_NODE_IDS
+
+
+def get_ontologyword_ids():
+    global EXISTING_ONTOLOGYWORD_IDS
+    if EXISTING_ONTOLOGYWORD_IDS is None:
+        EXISTING_ONTOLOGYWORD_IDS = set(OntologyWord.objects.values_list('id', flat=True))
+    return EXISTING_ONTOLOGYWORD_IDS
+
+
+def _fetch_units():
+    if VERBOSITY:
+        LOGGER.info("Fetching units")
+    return pk_get('unit', params={'official': 'yes'})
+
+
+@db.transaction.atomic
+def update_unit_counts(updated_resources, verbosity=False):
+    # Ontologytreenodes
+    srv_set = updated_resources['ontologytreenode']
+    current_set = srv_set
+    for i in range(0, 20):  # Make sure we don't loop endlessly (shouldn't have 20 deep tree anyway)
+        parent_ids = OntologyTreeNode.objects.filter(id__in=current_set).values_list('parent', flat=True)
+        if not parent_ids:
+            break
+        srv_set |= set(parent_ids)
+        current_set = parent_ids
+    if verbosity:
+        print("Updating unit counts for %d treenodes..." % len(srv_set))
+    srv_list = OntologyTreeNode.objects.filter(id__in=srv_set)
+    for srv in srv_list:
+        srv.unit_count = srv.get_unit_count()
+        srv.save(update_fields=['unit_count'])
+
+    # Ontologywords
+    current_set = updated_resources['ontologyword']
+    if verbosity:
+        print("Updating unit counts for %d ontologywords..." % len(current_set))
+    srv_list = OntologyWord.objects.filter(id__in=current_set)
+    for srv in srv_list:
+        srv.unit_count = srv.get_unit_count()
+        srv.save(update_fields=['unit_count'])
+
+
+def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
+                 verbosity=True, logger=None, fetch_units=_fetch_units,
+                 fetch_resource=pk_get):
+    global VERBOSITY, LOGGER, EXISTING_SERVICE_TREE_NODE_IDS, EXISTING_ONTOLOGYWORD_IDS
+
+    EXISTING_SERVICE_TREE_NODE_IDS = None
+    EXISTING_ONTOLOGYWORD_IDS = None
+
     VERBOSITY = verbosity
     LOGGER = logger
 
+    keyword_handler = KeywordHandler(
+        verbosity=verbosity, logger=logger)
+
     if VERBOSITY and not LOGGER:
         LOGGER = logging.getLogger(__name__)
-
-    KEYWORDS = keywords()
-    KEYWORDS_BY_ID = keywords_by_id(KEYWORDS)
 
     muni_by_name = {muni.name_fi.lower(): muni for muni in Municipality.objects.all()}
 
@@ -56,7 +114,7 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
 
     VERBOSITY and LOGGER.info("Fetching unit connections %s %s" % (org_syncher, dept_syncher))
 
-    connections = pk_get('connection')
+    connections = fetch_resource('connection')
     conn_by_unit = defaultdict(list)
     for conn in connections:
         unit_id = conn['unit_id']
@@ -64,8 +122,8 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
 
     VERBOSITY and LOGGER.info("Fetching accessibility properties")
 
-    # acc_properties = self.pk_get('accessibility_property', v3=True)
-    acc_properties = pk_get('accessibility_property')
+    # acc_properties = self.fetch_resource('accessibility_property', v3=True)
+    acc_properties = fetch_resource('accessibility_property')
     acc_by_unit = defaultdict(list)
     for ap in acc_properties:
         unit_id = ap['unit_id']
@@ -82,25 +140,29 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None, verbos
 
     if fetch_only_id:
         obj_id = fetch_only_id
-        obj_list = [pk_get('unit', obj_id, params={'official': 'yes'})]
+        obj_list = [fetch_resource('unit', obj_id, params={'official': 'yes'})]
         queryset = Unit.objects.filter(id=obj_id)
     else:
-        obj_list = _fetch_units()
+        obj_list = fetch_units()
         queryset = Unit.objects.filter(data_source='tprek').prefetch_related('services', 'keywords')
 
-    count_services = set()
-
     syncher = ModelSyncher(queryset, lambda obj: obj.id)
+    updated_related_objects = {'ontologytreenode': set(), 'ontologyword': set()}
     for idx, info in enumerate(obj_list):
         conn_list = conn_by_unit.get(info['id'], [])
         info['connections'] = conn_list
         acp_list = acc_by_unit.get(info['id'], [])
         info['accessibility_properties'] = acp_list
-        _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name,
-                     bounding_box, gps_to_target_ct, target_srid)
+        _import_unit(syncher, keyword_handler, info.copy(), org_syncher, dept_syncher, muni_by_name,
+                     bounding_box, gps_to_target_ct, target_srid, updated_related_objects)
         # _import_unit_services(obj, info, count_services)
-    syncher.finish()
 
+    for obj in syncher.get_deleted_objects():
+        updated_related_objects['ontologytreenode'].update(obj.service_tree_nodes.values_list('id', flat=True))
+        updated_related_objects['ontologyword'].update(obj.services.values_list('id', flat=True))
+
+    syncher.finish()
+    update_unit_counts(updated_related_objects, verbosity=verbosity)
     return org_syncher, dept_syncher, syncher
 
 
@@ -117,15 +179,9 @@ def _load_postcodes():
     return postcodes
 
 
-def _fetch_units():
-    if VERBOSITY:
-        LOGGER.info("Fetching units")
-    return pk_get('unit', params={'official': 'yes'})
-
-
 @db.transaction.atomic
-def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, bounding_box, gps_to_target_ct, target_srid):
-    VERBOSITY and LOGGER.info(pprint.pformat(info))
+def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher,
+                 muni_by_name, bounding_box, gps_to_target_ct, target_srid, updated_related_objects):
 
     obj = syncher.get(info['id'])
     obj_changed = False
@@ -139,7 +195,7 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
 
     fields_that_need_translation = (
         'name', 'street_address', 'www', 'picture_caption', 'desc',
-        'short_desc', 'address_city', 'address_postal_full', 'call_charge_info')
+        'short_desc', 'address_postal_full', 'call_charge_info')
     for field in fields_that_need_translation:
         if save_translated_field(obj, field, info, field):
             obj_changed = True
@@ -214,18 +270,25 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         obj.department = dept
         obj_changed = True
 
-    fields = ['address_zip', 'phone', 'email', 'fax', 'provider_type', 'picture_url', 'picture_entrance_url',
-              'accessibility_www', 'accessibility_phone', 'accessibility_email', 'streetview_entrance_url'
+    fields = ['address_zip', 'phone', 'email', 'fax', 'provider_type',
+              'organizer_type', 'picture_url', 'picture_entrance_url',
+              'accessibility_www', 'accessibility_phone', 'accessibility_email',
+              'streetview_entrance_url'
               ]
 
     if info.get('provider_type'):
         info['provider_type'] = [val for val, str_val in PROVIDER_TYPES if str_val == info['provider_type']][0]
+    if info.get('organizer_type'):
+        info['organizer_type'] = [val for val, str_val in ORGANIZER_TYPES if str_val == info['organizer_type']][0]
 
     for field in fields:
-        if info.get(field):
-            if info[field] != getattr(obj, field):
+        if field not in info or clean_text(info[field]) == '':
+            if getattr(obj, field) is not None:
+                setattr(obj, field, None)
                 obj_changed = True
-                setattr(obj, field, info.get(field))
+        elif info[field] != getattr(obj, field):
+            setattr(obj, field, clean_text(info.get(field)))
+            obj_changed = True
 
     for field in ['created_time']:
         if info.get(field):
@@ -303,8 +366,12 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
 
     update_fields = ['origin_last_modified_time']
 
-    obj_changed, update_fields = _import_unit_services(obj, info, set(), obj_changed, update_fields)
-    obj_changed = _sync_searchwords(obj, info, obj_changed)
+    obj_changed, update_fields = _import_unit_ontologytreenodes(obj, info,
+                                                                updated_related_objects['ontologytreenode'],
+                                                                obj_changed, update_fields)
+    obj_changed, update_fields = _import_unit_ontologywords(obj, info, updated_related_objects['ontologyword'],
+                                                            obj_changed, update_fields)
+    obj_changed = keyword_handler.sync_searchwords(obj, info, obj_changed)
 
     obj_changed, update_fields = _import_unit_accessibility_variables(obj, info, obj_changed, update_fields)
     obj_changed, update_fields = _import_unit_connections(obj, info, obj_changed, update_fields)
@@ -315,22 +382,23 @@ def _import_unit(syncher, info, org_syncher, dept_syncher, muni_by_name, boundin
         obj.save(update_fields=update_fields)
 
     syncher.mark(obj)
-    return obj
+    return updated_related_objects
 
 
-def _import_unit_services(obj, info, count_services, obj_changed, update_fields):
+def _import_unit_ontologytreenodes(obj, info, count_services, obj_changed, update_fields):
     ontologytreenode_ids = sorted([
         sid for sid in info.get('ontologytree_ids', [])
-        if sid in EXISTING_SERVICE_TREE_NODE_IDS])
+        if sid in get_service_tree_node_ids()])
     # print("ontologytree_ids: %s -> %s" % (info.get('ontologytree_ids', []), servicenode_ids))
 
     obj_ontologytreenode_ids = sorted(obj.service_tree_nodes.values_list('id', flat=True))
+
     if obj_ontologytreenode_ids != ontologytreenode_ids:
         # if not obj_created and VERBOSITY:
         #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_servicenode_ids, servicenode_ids))
         obj.service_tree_nodes = ontologytreenode_ids
 
-        for treenode_id in ontologytreenode_ids:
+        for treenode_id in set(ontologytreenode_ids) | set(obj_ontologytreenode_ids):
             count_services.add(treenode_id)
 
         # Update root service cache
@@ -341,40 +409,23 @@ def _import_unit_services(obj, info, count_services, obj_changed, update_fields)
     return obj_changed, update_fields
 
 
-def _sync_searchwords(obj, info, obj_changed):
-    new_keywords = set()
-    for lang in SUPPORTED_LANGUAGES:
-        new_keywords |= _save_searchwords(obj, info, lang)
+def _import_unit_ontologywords(obj, info, count_services, obj_changed, update_fields):
+    ontologyword_ids = sorted([
+        sid for sid in info.get('ontologyword_ids', [])
+        if sid in get_ontologyword_ids()])
 
-    old_kw_set = set(obj.keywords.all().values_list('pk', flat=True))
-    if old_kw_set == new_keywords:
-        return obj_changed
+    obj_ontologyword_ids = sorted(obj.services.values_list('id', flat=True))
+    if obj_ontologyword_ids != ontologyword_ids:
+        # if not obj_created and VERBOSITY:
+        #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_servicenode_ids, servicenode_ids))
+        obj.services = ontologyword_ids
 
-    if VERBOSITY:
-        old_kw_str = ', '.join([KEYWORDS_BY_ID[x].name for x in old_kw_set])
-        new_kw_str = ', '.join([KEYWORDS_BY_ID[x].name for x in new_keywords])
-        LOGGER.info("%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str))
-    obj.keywords = list(new_keywords)
-    return True
+        for ontologyword_id in set(ontologyword_ids) | set(obj_ontologyword_ids):
+            count_services.add(ontologyword_id)
 
+        obj_changed = True
 
-def _save_searchwords(obj, info, language):
-    field_name = 'extra_searchwords_%s' % language
-    new_kw_set = set()
-    if field_name in info:
-        kws = [x.strip() for x in info[field_name].split(',')]
-        kws = [x for x in kws if x]
-        new_kw_set = set()
-        for kw in kws:
-            if kw not in KEYWORDS[language]:
-                kw_obj = Keyword(name=kw, language=language)
-                kw_obj.save()
-                KEYWORDS[language][kw] = kw_obj
-                KEYWORDS_BY_ID[kw_obj.pk] = kw_obj
-            else:
-                kw_obj = KEYWORDS[language][kw]
-            new_kw_set.add(kw_obj.pk)
-    return new_kw_set
+    return obj_changed, update_fields
 
 
 def _import_unit_accessibility_variables(obj, info, obj_changed, update_fields):
@@ -392,11 +443,11 @@ def _import_unit_accessibility_variables(obj, info, obj_changed, update_fields):
         for acp in info['accessibility_properties']:
             uap = UnitAccessibilityProperty(unit=obj)
             var_id = acp['variable_id']
-            if var_id not in ACCESSIBILITY_VARIABLES:
+            if var_id not in get_accessibility_variables():
                 var = AccessibilityVariable(id=var_id, name=acp['variable_name'])
                 var.save()
             else:
-                var = ACCESSIBILITY_VARIABLES[var_id]
+                var = get_accessibility_variables()[var_id]
             uap.variable = var
             uap.value = acp['value']
             uap.save()
@@ -469,7 +520,7 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
 
 
 def _import_unit_sources(obj, info, obj_changed, update_fields):
-    if info['sources']:
+    if 'sources' in info:
         id_json = json.dumps(info['sources'], ensure_ascii=False, sort_keys=True).encode('utf8')
         id_hash = hashlib.sha1(id_json).hexdigest()
     else:
@@ -479,11 +530,12 @@ def _import_unit_sources(obj, info, obj_changed, update_fields):
             LOGGER.info("%s identifier set changed (%s vs. %s)" %
                         (obj, obj.identifier_hash, id_hash))
         obj.identifiers.all().delete()
-        for uid in info['sources']:
-            ui = UnitIdentifier(unit=obj)
-            ui.namespace = uid.get('source')
-            ui.value = uid.get('id')
-            ui.save()
+        if id_hash is not None:
+            for uid in info['sources']:
+                ui = UnitIdentifier(unit=obj)
+                ui.namespace = uid.get('source')
+                ui.value = uid.get('id')
+                ui.save()
 
         obj.identifier_hash = id_hash
         obj_changed = True
@@ -492,7 +544,7 @@ def _import_unit_sources(obj, info, obj_changed, update_fields):
     return obj_changed, update_fields
 
 
-def _parse_accessibility_viewpoints(acc_viewpoints_str, drop_unknowns=True):
+def _parse_accessibility_viewpoints(acc_viewpoints_str, drop_unknowns=False):
     viewpoints = {}
     all_unknown = True
 
@@ -500,9 +552,9 @@ def _parse_accessibility_viewpoints(acc_viewpoints_str, drop_unknowns=True):
         viewpoint_id, viewpoint_value = viewpoint.split(':')
         if viewpoint_value == "unknown":
             if not drop_unknowns:
-                viewpoints[int(viewpoint_id)] = None
+                viewpoints[viewpoint_id] = None
         else:
-            viewpoints[int(viewpoint_id)] = viewpoint_value
+            viewpoints[viewpoint_id] = viewpoint_value
 
             if all_unknown:
                 all_unknown = False
