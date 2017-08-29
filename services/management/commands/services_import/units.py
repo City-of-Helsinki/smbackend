@@ -21,7 +21,8 @@ from services.management.commands.services_import.organizations import import_or
 from services.management.commands.services_import.keyword import KeywordHandler
 from services.models import Unit, OntologyTreeNode, OntologyWord, AccessibilityVariable, \
     UnitConnection, UnitAccessibilityProperty, UnitIdentifier
-from services.models.unit import PROJECTION_SRID, PROVIDER_TYPES, ORGANIZER_TYPES
+from services.models.unit import (PROJECTION_SRID, PROVIDER_TYPES, ORGANIZER_TYPES,
+                                  CONTRACT_TYPES)
 from services.models.unit_connection import SECTION_TYPES
 from .utils import clean_text, pk_get, save_translated_field, postcodes
 
@@ -57,6 +58,38 @@ def _fetch_units():
     if VERBOSITY:
         LOGGER.info("Fetching units")
     return pk_get('unit', params={'official': 'yes'})
+
+CONTRACT_TYPE_MAPPINGS = [
+    ('MUNICIPALITY', 'SELF_PRODUCED', None, 'municipal_service'),
+    ('MUNICIPALITY', 'PURCHASED_SERVICE', None, 'purchased_service'),
+    ('MUNICIPALITY', 'VOUCHER_SERVICE', None, 'voucher_service'),
+    ('MUNICIPALITY', 'PAYMENT_COMMITMENT', None, 'private_service'),
+    ('MUNICIPALITY', 'SUPPORTED_OPERATIONS', None, 'supported_operations'),
+    ('MUNICIPALITY', 'CONTRACT_SCHOOL', None, 'contract_school'),
+    ('MUNICIPALLY_OWNED_COMPANY', 'SELF_PRODUCED', None, 'service_by_municipally_owned_company'),
+    ('MUNICIPAL_ENTERPRISE_GROUP', 'SELF_PRODUCED', None, 'service_by_municipal_group_entity'),
+    ('JOINT_MUNICIPAL_AUTHORITY', 'SELF_PRODUCED', None, 'service_by_joint_municipal_authority'),
+    ('OTHER_REGIONAL_COOPERATION_ORGANIZATION', 'SELF_PRODUCED', None,
+     'service_by_regional_cooperation_organization'),
+    ('GOVERNMENT', 'SELF_PRODUCED', None, 'state_service'),
+    ('GOVERNMENTAL_COMPANY', 'SELF_PRODUCED', None, 'state_service'),
+    ('ORGANIZATION', 'SELF_PRODUCED', None, 'private_service'),
+    ('FOUNDATION', 'SELF_PRODUCED', None, 'private_service'),
+    ('ASSOCIATION', 'SELF_PRODUCED', None, 'private_service'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'MUNICIPALITY', 'service_by_other_municipality'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'MUNICIPALLY_OWNED_COMPANY', 'service_by_other_municipality'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'MUNICIPAL_ENTERPRISE_GROUP', 'service_by_other_municipality'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'JOINT_MUNICIPAL_AUTHORITY',
+     'service_by_joint_municipal_authority'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'OTHER_REGIONAL_COOPERATION_ORGANIZATION',
+     'service_by_regional_cooperation_organization'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'GOVERNMENT', 'state_service'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'GOVERNMENTAL_COMPANY', 'state_service'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'ORGANIZATION', 'private_service'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'FOUNDATION', 'private_service'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'ASSOCIATION', 'private_service'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'PRIVATE_ENTERPRISE', 'private_service'),
+    ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'UNKNOWN', 'private_service')]
 
 
 @db.transaction.atomic
@@ -275,6 +308,26 @@ def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher,
               'accessibility_www', 'accessibility_phone', 'accessibility_email',
               'streetview_entrance_url'
               ]
+
+    contract_type = None
+    if dept:
+        organization_type = dept.organization_type
+        if organization_type == 'PRIVATE_ENTERPRISE':
+            contract_type = 'private_service'
+        else:
+            for mapping in CONTRACT_TYPE_MAPPINGS:
+                if mapping[0] != organization_type:
+                    continue
+                if mapping[1] != info.get('provider_type'):
+                    continue
+                if mapping[2] in [None, info.get('organizer_type')]:
+                    contract_type = mapping[3]
+                    break
+    if contract_type:
+        ctype = next((val for val, str_val in CONTRACT_TYPES if str_val == contract_type))
+        if obj.contract_type != ctype:
+            obj.contract_type = ctype
+            obj_changed = True
 
     if info.get('provider_type'):
         info['provider_type'] = [val for val, str_val in PROVIDER_TYPES if str_val == info['provider_type']][0]
