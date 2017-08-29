@@ -1,6 +1,7 @@
 from django.core.validators import validate_comma_separated_integer_list
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
+from django.utils.translation import ugettext_noop as _
 
 from munigeo.models import AdministrativeDivision, Municipality
 from munigeo.utils import get_default_srid
@@ -40,6 +41,21 @@ ORGANIZER_TYPES = (
     (11, 'UNKNOWN'),
 )
 
+CONTRACT_TYPES = (
+    (0, _('contract_school')),
+    (1, _('municipal_service')),
+    (2, _('private_service')),
+    (3, _('purchased_service')),
+    (4, _('service_by_joint_municipal_authority')),
+    (5, _('service_by_municipal_group_entity')),
+    (6, _('service_by_municipally_owned_company')),
+    (7, _('service_by_other_municipality')),
+    (8, _('service_by_regional_cooperation_organization')),
+    (9, _('state_service')),
+    (10, _('supported_operations')),
+    (11, _('voucher_service'))
+)
+
 
 class UnitSearchManager(models.GeoManager):
     def get_queryset(self):
@@ -69,6 +85,8 @@ class Unit(models.Model):
     organizer_business_id = models.CharField(max_length=10, null=True)
 
     provider_type = models.PositiveSmallIntegerField(choices=PROVIDER_TYPES, null=True)
+    contract_type = models.PositiveSmallIntegerField(choices=CONTRACT_TYPES, null=True)
+
     picture_url = models.URLField(max_length=250, null=True)
     picture_entrance_url = models.URLField(max_length=500, null=True)
     streetview_entrance_url = models.URLField(max_length=500, null=True)
