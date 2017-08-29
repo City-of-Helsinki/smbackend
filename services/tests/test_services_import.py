@@ -198,56 +198,10 @@ def assert_unit_correctly_imported(unit, source_unit):
         for source in s['sources']:
             assert source_found_in(d['identifiers'], source)
 
-    # OK string
-    # ======
-    # OK 'accessibility_viewpoints' R
-    # OK 'accessibility_www'
-    # OK 'address_zip'
-    # OK 'data_source_url'
-    # OK 'email'
-    # OK 'fax'
-    # OK 'phone'
-    # OK 'organizer_business_id'
-    # OK 'source'
-
-    # boolean
-    # ===========
-    # OK 'manual_coordinates' R
-    # OK 'is_public" R
-
-    # reference
-    # ===========
-    # OK 'dept_id' R
-    # OK 'org_id' R
-    # OK 'ontologytree_ids' R
-    # OK 'ontologyword_ids' R
-    # OK 'extra_searchwords' -> keywords
-
-    # structured
-    # ==========
-    # OK 'sources' R
-
-    # enum
-    # ====
-    # OK 'provider_type'
-    # OK 'organizer_type'
-
-    # datetimes
-    # =========
-    # TODO 'modified_time'
-    # TODO 'created_time'
 
     # TODO accessibility-variables !!! other many-to-many fields
     # OK unit counts in services !!!
 
-    # coordinates
-    # ===========
-    # IGNORE 'easting_etrs_gk25'
-    # IGNORE 'easting_etrs_tm35fin'
-    # IGNORE 'northing_etrs_gk25'
-    # IGNORE 'northing_etrs_tm35fin'
-    # OK 'latitude'
-    # OK 'longitude'
 
     # url (maybe just string)
     # ===
