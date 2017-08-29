@@ -16,6 +16,10 @@ from services.management.commands.services_import.units import import_units
 
 from services_import_hypothesis import closed_object_set
 
+from services.models.unit import CONTRACT_TYPES as UNIT_CONTRACT_TYPES
+
+CONTRACT_TYPES = [c[1] for c in UNIT_CONTRACT_TYPES]
+
 
 def get(api_client, url, data=None):
     response = api_client.get(url, data=data, format='json')
@@ -109,6 +113,22 @@ def assert_accessibility_viewpoints_match(src, dest):
     assert ','.join(sorted(regenerated)) == src
 
 
+def is_missing_contract_type_allowed(s, d):
+    if s['dept_id'] is None:
+        return True
+    if d['department']['organization_type'] == 'PRIVATE_ENTERPRISE':
+        return False
+    if d['department']['organization_type'] == 'UNKNOWN':
+        return True
+    if (d['department']['organization_type'] == 'MUNICIPALITY'):
+        if (s['organizer_type'] is None or
+                s['provider_type'] == 'UNKNOWN_PRODUCTION_METHOD'):
+            return True
+    if s['provider_type'] != 'SELF_PRODUCED':
+        return True
+    return False
+
+
 def assert_unit_correctly_imported(unit, source_unit):
     d = unit
     s = source_unit
@@ -125,9 +145,10 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     # reference fields
     for sfield, dfield in [
-            ('dept_id', 'department'),
             ('org_id', 'organization')]:
         assert str(d[dfield]) == s[sfield]
+
+    assert str(d['department']['id']) == s['dept_id']
 
     for sfield, dfield in [
             ('ontologytree_ids', 'tree_nodes'),
@@ -198,16 +219,17 @@ def assert_unit_correctly_imported(unit, source_unit):
         for source in s['sources']:
             assert source_found_in(d['identifiers'], source)
 
+    assert 'contract_type' in d
+    if d['contract_type'] is None:
+        assert is_missing_contract_type_allowed(s, d)
+    else:
+        assert d['contract_type']['id'] in CONTRACT_TYPES
+        for l in LANGUAGES:
+            assert len(d['contract_type']['description'][l]) > 0
 
+    # TODO 'modified_time'
+    # TODO 'created_time'
     # TODO accessibility-variables !!! other many-to-many fields
-    # OK unit counts in services !!!
-
-
-    # url (maybe just string)
-    # ===
-    # OK 'picture_entrance_url'
-    # OK 'picture_url'
-    # OK 'streetview_entrance_url'
 
 
 def assert_resource_synced(response, resource_name, resources):
@@ -252,7 +274,7 @@ def test_import_units(api_client, resources):
         fetch_units=fetch_units, fetch_resource=fetch_resource,
         org_syncher=org_syncher, dept_syncher=dept_syncher)
 
-    response = get(api_client, reverse('unit-list'))
+    response = get(api_client, '{}?include=department'.format(reverse('unit-list')))
     assert_resource_synced(response, 'unit', resources)
 
     source_units_by_id = dict((u['id'], u) for u in resources['unit'])
