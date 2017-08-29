@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-05 11:44+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2017-08-29 18:11+0300\n"
+"PO-Revision-Date: 2017-08-29 18:24+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -18,66 +18,102 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: observations/api.py:18
+#: observations/api.py:20
 msgid "Authentication required."
 msgstr ""
 
-#: observations/models.py:153
+#: observations/models.py:155
 msgid "Token inactive or deleted."
 msgstr ""
 
-#: services/management/commands/mski_skitracks_import.py:87
+#: services/management/commands/mski_skitracks_import.py:107
 msgid "_illuminated"
 msgstr "valaistu"
 
-#: services/management/commands/mski_skitracks_import.py:88
+#: services/management/commands/mski_skitracks_import.py:108
 msgid "_not_illuminated"
 msgstr "ei valaistu"
 
-#: services/management/commands/mski_skitracks_import.py:89
+#: services/management/commands/mski_skitracks_import.py:109
 msgid "_partly_illuminated"
 msgstr "osittain valaistu"
 
-#: services/management/commands/mski_skitracks_import.py:90
+#: services/management/commands/mski_skitracks_import.py:110
 msgid "_unknown"
 msgstr "ei tiedossa"
 
-#: services/management/commands/mski_skitracks_import.py:91
+#: services/management/commands/mski_skitracks_import.py:111
 msgid "_classic/free"
 msgstr "perinteinen/vapaa"
 
-#: services/management/commands/mski_skitracks_import.py:92
+#: services/management/commands/mski_skitracks_import.py:112
 msgid "_classic"
 msgstr "perinteinen"
 
-#: services/management/commands/mski_skitracks_import.py:93
+#: services/management/commands/mski_skitracks_import.py:113
 msgid "_free"
 msgstr "vapaa"
 
-#: services/management/commands/mski_skitracks_import.py:94
+#: services/management/commands/mski_skitracks_import.py:114
 msgid "_skating_in_parts"
 msgstr "osittain luistelu"
 
-#: smbackend/settings.py:86
+#: services/models/unit.py:45
+msgid "contract_school"
+msgstr "sopimuskoulu"
+
+#: services/models/unit.py:46
+msgid "municipal_service"
+msgstr "kunnallinen palvelu"
+
+#: services/models/unit.py:47
+msgid "private_service"
+msgstr "yksityinen palvelu"
+
+#: services/models/unit.py:48
+msgid "purchased_service"
+msgstr "ostopalvelu"
+
+#: services/models/unit.py:49
+msgid "service_by_joint_municipal_authority"
+msgstr "kuntayhtymän palvelu"
+
+#: services/models/unit.py:50
+msgid "service_by_municipal_group_entity"
+msgstr "kuntayhtymän palvelu"
+
+#: services/models/unit.py:51
+msgid "service_by_municipally_owned_company"
+msgstr "kunnan liikelaitoksen palvelu"
+
+#: services/models/unit.py:52
+msgid "service_by_other_municipality"
+msgstr "toisen kunnan palvelu"
+
+#: services/models/unit.py:53
+msgid "service_by_regional_cooperation_organization"
+msgstr "alueellisen yhteistoimintaorganisaation palvelu"
+
+#: services/models/unit.py:54
+msgid "state_service"
+msgstr "valtion palvelu"
+
+#: services/models/unit.py:55
+msgid "supported_operations"
+msgstr "avustettava toiminta"
+
+#: services/models/unit.py:56
+msgid "voucher_service"
+msgstr "palvelusetelipalvelu"
+
+#: smbackend/settings.py:88
 msgid "Finnish"
 msgstr ""
 
-#: smbackend/settings.py:87
+#: smbackend/settings.py:89
 msgid "Swedish"
 msgstr ""
 
-#: smbackend/settings.py:88
+#: smbackend/settings.py:90
 msgid "English"
-msgstr ""
-
-#: src/django-munigeo-master/munigeo/models.py:19
-msgid "Type name of the division (e.g. muni, school_district)"
-msgstr ""
-
-#: src/django-munigeo-master/munigeo/models.py:21
-msgid "Human-readable name for the division"
-msgstr ""
-
-#: src/django-munigeo-master/munigeo/models.py:71
-msgid "Open Civic Data identifier"
 msgstr ""
