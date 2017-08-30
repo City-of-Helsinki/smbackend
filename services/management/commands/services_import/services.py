@@ -60,7 +60,7 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
         nodesyncher.mark(obj)
 
         for child_node in d['children']:
-            handle_servicenode(child_node)
+            handle_servicenode(child_node, keyword_handler)
 
     def update_object_unit_count(obj):
         unit_count = obj.get_unit_count()
