@@ -24,6 +24,8 @@ mkvirtualenv -p /usr/bin/python3.4 smbackend
  
 3. Setup the PostGIS database.
 
+Please note we require PostgreSQL version 9.4 or higher
+
 Local setup:
 
 ```
