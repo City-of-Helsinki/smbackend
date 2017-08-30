@@ -14,3 +14,4 @@ smbackend/test/fixtures/munigeo.json
 smbackend/test/tpr_mock_data/*.json
 **/.hypothesis
 .python-version
+*.mo

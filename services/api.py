@@ -24,7 +24,7 @@ from services.models import Unit, Organization, Department, OntologyWord
 from services.models import OntologyTreeNode, UnitConnection
 from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
 from services.models.unit_connection import SECTION_TYPES
-from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES
+from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES, CONTRACT_TYPES
 from services.accessibility import RULES as accessibility_rules
 from munigeo.models import AdministrativeDivision, Municipality, Address
 from munigeo import api as munigeo_api
@@ -442,6 +442,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
     department = serializers.SerializerMethodField('department_uuid')
     provider_type = serializers.SerializerMethodField()
     organizer_type = serializers.SerializerMethodField()
+    contract_type = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
@@ -492,6 +493,19 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
 
     def get_organizer_type(self, obj):
         return choicefield_string(ORGANIZER_TYPES, 'organizer_type', obj)
+
+    def get_contract_type(self, obj):
+        key = choicefield_string(CONTRACT_TYPES, 'contract_type', obj)
+        if not key:
+            return None
+        translations = {}
+        for lang in LANGUAGES:
+            with translation.override(lang):
+                translations[lang] = translation.ugettext(key)
+        return {
+            'id': key,
+            'description': translations
+        }
 
     def to_representation(self, obj):
         ret = super(UnitSerializer, self).to_representation(obj)

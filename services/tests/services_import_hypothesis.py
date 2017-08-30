@@ -100,10 +100,28 @@ ORGANIZER_TYPES = [
     "UNKNOWN"
 ]
 
+ORGANIZATION_TYPES = [
+    "MUNICIPALITY",
+    "MUNICIPALLY_OWNED_COMPANY",
+    "MUNICIPAL_ENTERPRISE_GROUP",
+    "JOINT_MUNICIPAL_AUTHORITY",
+    "OTHER_REGIONAL_COOPERATION_ORGANIZATION",
+    "GOVERNMENT",
+    "GOVERNMENTAL_COMPANY",
+    "ORGANIZATION",
+    "FOUNDATION",
+    "ASSOCIATION",
+    "PRIVATE_ENTERPRISE",
+    "UNKNOWN"
+]
+
 
 @composite
 def make_source(draw):
     return {'id': draw(text(SAFE_LETTERS, min_size=1)), 'source': draw(text(SAFE_LETTERS, min_size=1))}
+
+
+# TODO: add department organization type, then add tests for correct mapping
 
 
 def unit_maker(draw, resource_ids):
@@ -191,6 +209,7 @@ def department_maker(draw, resource_ids):
         return {
             'id': str(did),
             'hierarchy_level': 0,
+            'organization_type': draw(sampled_from(ORGANIZATION_TYPES)),
             'org_id': str(draw(sampled_from(resource_ids['organization'])))
         }
     return make_department
