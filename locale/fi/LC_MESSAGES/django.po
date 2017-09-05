@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-08-29 18:11+0300\n"
-"PO-Revision-Date: 2017-08-29 18:24+0300\n"
+"PO-Revision-Date: 2017-09-05 17:29+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -80,7 +80,7 @@ msgstr "kuntayhtymän palvelu"
 
 #: services/models/unit.py:50
 msgid "service_by_municipal_group_entity"
-msgstr "kuntayhtymän palvelu"
+msgstr "kunnan konserniyhteisön palvelu"
 
 #: services/models/unit.py:51
 msgid "service_by_municipally_owned_company"
