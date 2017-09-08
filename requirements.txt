@@ -32,4 +32,4 @@ raven==5.4.4
 requests-cache==0.4.10
 requests==2.7.0
 six==1.9.0                # via django-extensions, django-munigeo, pip-tools, python-dateutil
-urllib3==1.11             # via elasticsearch
+urllib3==1.22             # via elasticsearch
