@@ -1,0 +1,5 @@
+version: v1.5.0
+ignore:
+    'SNYK-PYTHON-REQUESTS-40470':
+        - '* > requests':
+                reason: 'Does not apply to Django, and requests only used in importers'
