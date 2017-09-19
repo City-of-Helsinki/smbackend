@@ -118,7 +118,8 @@ ORGANIZATION_TYPES = [
 
 @composite
 def make_source(draw):
-    return {'id': draw(text(SAFE_LETTERS, min_size=1)), 'source': draw(text(SAFE_LETTERS, min_size=1))}
+    return {'id': draw(text(SAFE_LETTERS, min_size=1, max_size=100)),
+            'source': draw(text(SAFE_LETTERS, min_size=1, max_size=50))}
 
 
 # TODO: add department organization type, then add tests for correct mapping
