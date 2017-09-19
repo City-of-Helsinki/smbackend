@@ -2,6 +2,7 @@ from haystack import indexes, signals
 from django.utils.translation import get_language
 from django.db import models
 from django.apps import apps
+from django.db.models import Q
 
 
 class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
@@ -72,15 +73,28 @@ class OntologyTreeNodeIndex(ServiceMapBaseIndex):
 
     def index_queryset(self, using=None):
         manager = self.get_model().objects
-        # Decision: exclude top level tree nodes (where the
-        # ontologyword reference is null); they are too broad and are
-        # not good results for full text queries which are usually
-        # trying to be somewhat specific.
-        ids = set(
+        # Decision: exclude top level tree nodes (where the level is 0);
+        # they are too broad and are not good results for full
+        # text queries which are usually trying to be somewhat
+        # specific.
+        unique_ids = (
+            # The query below ensures that duplicate treenodes
+            # are only indexed once. They are treenodes which
+            # have the exact same ontologyword reference.
+            #
+            # Note the empty order_by clause which prevents
+            # default ordering from interfering with the grouping.
             manager.exclude(ontologyword_reference__isnull=True)
-            .values('ontologyword_reference').annotate(id=models.Min('id'))
-            .values_list('id', flat=True))
-        return manager.filter(id__in=ids)
+            .values('ontologyword_reference')
+            .annotate(id=models.Min('id'))
+            .values_list('id', flat=True)
+            .order_by())
+
+        return manager.filter(
+            Q(id__in=unique_ids) | Q(
+                # We have to separately add all nodes with null references
+                # and level > 0.
+                Q(level__gt=0) & Q(ontologyword_reference__isnull=True)))
 
     # def prepare(self, obj):
     #     obj.lang_keywords = obj.keywords.filter(language=get_language())

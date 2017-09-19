@@ -34,9 +34,9 @@ def translated_field(draw, name, allow_missing=True, languages=LANGUAGES):
     result = {}
     for lang in languages:
         if allow_missing:
-            val = draw(one_of(text(), none()))
+            val = draw(one_of(text(max_size=50), none()))
         else:
-            val = draw(text(min_size=1))
+            val = draw(text(min_size=1, max_size=50))
         if val is not None:
             result['{}_{}'.format(name, lang)] = val
     return result
@@ -118,7 +118,8 @@ ORGANIZATION_TYPES = [
 
 @composite
 def make_source(draw):
-    return {'id': draw(text(SAFE_LETTERS, min_size=1)), 'source': draw(text(SAFE_LETTERS, min_size=1))}
+    return {'id': draw(text(SAFE_LETTERS, min_size=1, max_size=100)),
+            'source': draw(text(SAFE_LETTERS, min_size=1, max_size=50))}
 
 
 # TODO: add department organization type, then add tests for correct mapping
@@ -153,7 +154,7 @@ def unit_maker(draw, resource_ids):
                 event('unit.{}: optional field missing'.format(name))
 
         def add_optional_text_field(name):
-            add_optional_field(name, text())
+            add_optional_field(name, text(max_size=50))
 
         add_optional_field('address_city', sampled_from(MUNICIPALITIES))
         add_optional_field('address_zip', text(max_size=10))

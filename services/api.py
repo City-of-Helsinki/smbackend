@@ -837,7 +837,7 @@ class SearchSerializer(serializers.Serializer):
         if model == Unit:
             key = 'unit'
         else:
-            key = 'ontologyteenode'
+            key = 'ontologytreenode'
         for spec in ['include', 'only']:
             if spec in context:
                 context[spec] = context[spec].get(key, [])
