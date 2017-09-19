@@ -154,7 +154,7 @@ def unit_maker(draw, resource_ids):
                 event('unit.{}: optional field missing'.format(name))
 
         def add_optional_text_field(name):
-            add_optional_field(name, text())
+            add_optional_field(name, text(max_size=50))
 
         add_optional_field('address_city', sampled_from(MUNICIPALITIES))
         add_optional_field('address_zip', text(max_size=10))
