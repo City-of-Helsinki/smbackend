@@ -93,7 +93,7 @@ class Unit(models.Model):
 
     desc = models.TextField(null=True)
     short_desc = models.TextField(null=True)
-    name = models.CharField(max_length=220, db_index=True)
+    name = models.CharField(max_length=200, db_index=True)
     street_address = models.CharField(max_length=100, null=True)
 
     www = models.URLField(max_length=400, null=True)
