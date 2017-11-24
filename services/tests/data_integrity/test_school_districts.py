@@ -45,6 +45,7 @@ def division_units(administrativedivision_types):
                 results.append({
                     'unit': unit,
                     'division': division,
+                    'origin_service_point_id': service_point_id,
                     'time': (division.start, division.end),
                     'type': adm_type})
     return results
