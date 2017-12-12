@@ -9,6 +9,7 @@ SECTION_TYPES = (
     (5, 'OPENING_HOURS'),
     (6, 'SOCIAL_MEDIA_LINK'),
     (7, 'OTHER_ADDRESS'),
+    (8, 'HIGHLIGHT'),
 )
 
 
