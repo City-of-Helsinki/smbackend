@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.utils import timezone
 from django.db import transaction
 from django.conf import settings
+from django.apps import apps
 from rest_framework.exceptions import ValidationError
 
 from services.api import TranslatedModelSerializer
