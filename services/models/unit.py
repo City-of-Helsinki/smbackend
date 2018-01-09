@@ -123,7 +123,7 @@ class Unit(models.Model):
     origin_last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
     service_tree_nodes = models.ManyToManyField("OntologyTreeNode", related_name='units')
-    services = models.ManyToManyField("OntologyWord", related_name='units')
+    ontologywords = models.ManyToManyField("OntologyWord", related_name='units', through='UnitOntologyWordDetails')
     divisions = models.ManyToManyField(AdministrativeDivision)
     keywords = models.ManyToManyField(Keyword)
 

@@ -21,3 +21,14 @@ class OntologyWord(models.Model):
 
     class Meta:
         ordering = ['-pk']
+
+
+class UnitOntologyWordDetails(models.Model):
+    unit = models.ForeignKey('Unit', db_index=True, related_name='ontologyword_details')
+    ontologyword = models.ForeignKey('OntologyWord', db_index=True, related_name='unit_details')
+    period_begin_year = models.PositiveSmallIntegerField(null=True)
+    period_end_year = models.PositiveSmallIntegerField(null=True)
+    clarification = models.CharField(max_length=200, blank=True)
+
+    class Meta:
+        unique_together = ('period_begin_year', 'unit', 'ontologyword')
