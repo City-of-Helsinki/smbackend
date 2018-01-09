@@ -28,6 +28,8 @@ from .utils import clean_text, pk_get, save_translated_field, postcodes
 UTC_TIMEZONE = pytz.timezone('UTC')
 ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
 ACCESSIBILITY_VARIABLES = None
+EXISTING_SERVICE_TREE_NODE_IDS = None
+EXISTING_ONTOLOGYWORD_IDS = None
 LOGGER = None
 VERBOSITY = False
 
