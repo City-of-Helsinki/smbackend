@@ -17,7 +17,7 @@ class OntologyWord(models.Model):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
     def get_unit_count(self):
-        return Unit.objects.filter(services=self.id).distinct().count()
+        return Unit.objects.filter(ontologywords=self.id).distinct().count()
 
     class Meta:
         ordering = ['-pk']

@@ -6,7 +6,7 @@ import logging
 
 import pytz
 from collections import defaultdict
-from operator import itemgetter
+from operator import itemgetter, attrgetter
 
 from django import db
 from django.conf import settings
@@ -19,7 +19,7 @@ from services.management.commands.services_import.departments import import_depa
 from services.management.commands.services_import.organizations import import_organizations
 from services.management.commands.services_import.keyword import KeywordHandler
 from services.models import Unit, OntologyTreeNode, OntologyWord, AccessibilityVariable, \
-    UnitConnection, UnitAccessibilityProperty, UnitIdentifier
+    UnitConnection, UnitAccessibilityProperty, UnitIdentifier, UnitOntologyWordDetails
 from services.models.unit import (PROJECTION_SRID, PROVIDER_TYPES, ORGANIZER_TYPES,
                                   CONTRACT_TYPES)
 from services.models.unit_connection import SECTION_TYPES
@@ -161,6 +161,14 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
         unit_id = ap['unit_id']
         acc_by_unit[unit_id].append(ap)
 
+    VERBOSITY and LOGGER.info("Fetching ontologyword details")
+
+    details = fetch_resource('ontologyword_details')
+    ontologyword_details_by_unit = defaultdict(list)
+    for detail in details:
+        unit_id = detail['unit_id']
+    ontologyword_details_by_unit[unit_id].append(detail)
+
     target_srid = PROJECTION_SRID
     bounding_box = Polygon.from_bbox(settings.BOUNDING_BOX)
     bounding_box.set_srid(4326)
@@ -176,22 +184,22 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
         queryset = Unit.objects.filter(id=obj_id)
     else:
         obj_list = fetch_units()
-        queryset = Unit.objects.filter(data_source='tprek').prefetch_related('services', 'keywords')
+        queryset = Unit.objects.filter(data_source='tprek').prefetch_related(
+            'ontologywords', 'keywords', 'ontologyword_details')
 
     syncher = ModelSyncher(queryset, lambda obj: obj.id)
     updated_related_objects = {'ontologytreenode': set(), 'ontologyword': set()}
     for idx, info in enumerate(obj_list):
-        conn_list = conn_by_unit.get(info['id'], [])
-        info['connections'] = conn_list
-        acp_list = acc_by_unit.get(info['id'], [])
-        info['accessibility_properties'] = acp_list
+        uid = info['id']
+        info['connections'] = conn_by_unit.get(uid, [])
+        info['accessibility_properties'] = acc_by_unit.get(uid, [])
+        info['ontologyword_details'] = ontologyword_details_by_unit.get(uid, [])
         _import_unit(syncher, keyword_handler, info.copy(), org_syncher, dept_syncher, muni_by_name,
                      bounding_box, gps_to_target_ct, target_srid, updated_related_objects)
-        # _import_unit_services(obj, info, count_services)
 
     for obj in syncher.get_deleted_objects():
         updated_related_objects['ontologytreenode'].update(obj.service_tree_nodes.values_list('id', flat=True))
-        updated_related_objects['ontologyword'].update(obj.services.values_list('id', flat=True))
+        updated_related_objects['ontologyword'].update(obj.ontologywords.values_list('id', flat=True))
 
     syncher.finish()
     update_unit_counts(updated_related_objects, verbosity=verbosity)
@@ -465,21 +473,58 @@ def _import_unit_ontologytreenodes(obj, info, count_services, obj_changed, updat
     return obj_changed, update_fields
 
 
+def _clean_ontologyword_details(info_dict):
+    schoolyear = info_dict['schoolyear']
+    start = None
+    end = None
+    if schoolyear is not None and len(schoolyear) > 0:
+        start, end = schoolyear.split('-')
+    info_dict['period_begin_year'] = start
+    info_dict['period_end_year'] = end
+    return info_dict
+
+
+ONTOLOGYWORD_DETAILS_SORT_KEYS = [
+    "unit_id",
+    "ontologyword_id",
+    "schoolyear",
+    "clarification_en",
+    "clarification_fi",
+    "clarification_sv"
+]
+
+
 def _import_unit_ontologywords(obj, info, count_services, obj_changed, update_fields):
-    ontologyword_ids = sorted([
-        sid for sid in info.get('ontologyword_ids', [])
-        if sid in get_ontologyword_ids()])
+    if info['ontologyword_details']:
+        owd = sorted(info['ontologyword_details'], key=itemgetter(*ONTOLOGYWORD_DETAILS_SORT_KEYS))
+        owd_json = json.dumps(owd, ensure_ascii=False, sort_keys=True).encode('utf8')
+        owd_hash = hashlib.sha1(owd_json).hexdigest()
+    else:
+        owd_hash = None
 
-    obj_ontologyword_ids = sorted(obj.services.values_list('id', flat=True))
-    if obj_ontologyword_ids != ontologyword_ids:
-        # if not obj_created and VERBOSITY:
-        #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_servicenode_ids, servicenode_ids))
-        obj.services = ontologyword_ids
+    if obj.ontologyword_details_hash != owd_hash:
+        old_ontologyword_ids = map(attrgetter('ontologyword_id'), obj.ontologyword_details.all())
+        new_ontologyword_ids = map(itemgetter('ontologyword_id'), info['ontologyword_details'])
+        if VERBOSITY:
+            LOGGER.info("%s ontologyword details set changed (%s vs. %s)" %
+                        (obj, obj.ontologyword_details_hash, owd_hash))
+        obj.ontologyword_details.all().delete()
+        for owd in info['ontologyword_details']:
+            d = _clean_ontologyword_details(owd)
+            unit_owd = UnitOntologyWordDetails(
+                unit=obj, ontologyword_id=d['ontologyword_id'],
+                period_begin_year=d['period_begin_year'],
+                period_end_year=d['period_end_year']
+            )
+            save_translated_field(unit_owd, 'clarification', d, 'clarification', max_length=200)
+            unit_owd.save()
 
-        for ontologyword_id in set(ontologyword_ids) | set(obj_ontologyword_ids):
-            count_services.add(ontologyword_id)
-
+        obj.ontologyword_details_hash = owd_hash
         obj_changed = True
+        update_fields.append('ontologyword_details_hash')
+
+        for ontologyword_id in set(new_ontologyword_ids) | set(old_ontologyword_ids):
+            count_services.add(ontologyword_id)
 
     return obj_changed, update_fields
 

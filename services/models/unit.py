@@ -134,6 +134,7 @@ class Unit(models.Model):
     accessibility_sentence_hash = models.CharField(max_length=40, null=True)
     identifier_hash = models.CharField(max_length=40, null=True,
                                        help_text='Automatically generated hash of other identifiers')
+    ontologyword_details_hash = models.CharField(max_length=40, null=True)
 
     accessibility_viewpoints = JSONField(default="{}")
 
