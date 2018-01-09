@@ -169,7 +169,7 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
     ontologyword_details_by_unit = defaultdict(list)
     for detail in details:
         unit_id = detail['unit_id']
-    ontologyword_details_by_unit[unit_id].append(detail)
+        ontologyword_details_by_unit[unit_id].append(detail)
 
     target_srid = PROJECTION_SRID
     bounding_box = Polygon.from_bbox(settings.BOUNDING_BOX)
