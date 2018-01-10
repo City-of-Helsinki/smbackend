@@ -1,5 +1,6 @@
-from modeltranslation.translator import translator, register, TranslationOptions
-from services.models import *
+from modeltranslation.translator import translator, TranslationOptions
+from services.models import OntologyWord, UnitOntologyWordDetails, OntologyTreeNode, Organization, \
+    Department, Unit, UnitConnection, AccessibilitySentence
 
 
 class OntologyWordTranslationOptions(TranslationOptions):
