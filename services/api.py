@@ -543,7 +543,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 # Optimization:
                 # Store root nodes by tree_id in a dict because otherwise
                 # this would generate multiple db queries for every single unit
-                tree_id = s._mpttfield('tree_id') # Forget your privacy!
+                tree_id = s._mpttfield('tree_id')  # Forget your privacy!
                 root_node = self._root_node_cache.get(tree_id)
                 if root_node is None:
                     root_node = s.get_root()
