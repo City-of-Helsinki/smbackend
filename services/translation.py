@@ -8,6 +8,11 @@ class OntologyWordTranslationOptions(TranslationOptions):
 translator.register(OntologyWord, OntologyWordTranslationOptions)
 
 
+class UnitOntologyWordDetailsTranslationOptions(TranslationOptions):
+    fields = ('clarification',)
+translator.register(UnitOntologyWordDetails, UnitOntologyWordDetailsTranslationOptions)
+
+
 class OntologyTreeNodeTranslationOptions(TranslationOptions):
     fields = ('name',)
 translator.register(OntologyTreeNode, OntologyTreeNodeTranslationOptions)
