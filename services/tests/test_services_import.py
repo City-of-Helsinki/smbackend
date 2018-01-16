@@ -129,7 +129,7 @@ def is_missing_contract_type_allowed(s, d):
     return False
 
 
-def assert_unit_correctly_imported(unit, source_unit):
+def assert_unit_correctly_imported(unit, source_unit, source_ontologywords):
     d = unit
     s = source_unit
 
@@ -150,10 +150,9 @@ def assert_unit_correctly_imported(unit, source_unit):
 
     assert str(d['department']['id']) == s['dept_id']
 
-    for sfield, dfield in [
-            ('ontologytree_ids', 'tree_nodes'),
-            ('ontologyword_ids', 'services')]:
-        assert set(d[dfield]) == set(s[sfield]), sfield
+    assert set(d['tree_nodes']) == set(s['ontologytree_ids']), 'ontologytree_ids'
+
+    assert set(d['services']) == source_ontologywords
 
     #  2. optional fields
     for field_name in [
@@ -279,12 +278,17 @@ def test_import_units(api_client, resources):
     assert_resource_synced(response, 'unit', resources)
 
     source_units_by_id = dict((u['id'], u) for u in resources['unit'])
+    ontologyword_ids_by_unit_id = dict()
+    for owd in resources['ontologyword_details']:
+        s = ontologyword_ids_by_unit_id.setdefault(owd['unit_id'], set())
+        s.add(owd['ontologyword_id'])
 
     treenode_counts = {}
     ontologyword_counts = {}
 
     for unit in response.data['results']:
-        assert_unit_correctly_imported(unit, source_units_by_id.get(unit['id']))
+        assert_unit_correctly_imported(unit, source_units_by_id.get(unit['id']),
+                                       ontologyword_ids_by_unit_id[unit['id']])
         for treenode_id in unit['tree_nodes']:
             treenode_counts[treenode_id] = treenode_counts.get(treenode_id, 0) + 1
         for ontologyword_id in unit['services']:
