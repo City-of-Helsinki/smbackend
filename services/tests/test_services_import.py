@@ -246,8 +246,26 @@ def assert_resource_synced(response, resource_name, resources):
             id_set(resources[resource_name]))
 
 
+def ontologyword_details_match(src, dest):
+    return (
+        src['shoolyear'] == dest['schoolyear'] and
+        src['ontologyword_id'] == dest['ontologyword'])
+
+
+def assert_ontologyword_details_correctly_imported(source, imported):
+    for sdetails in source:
+        unit_details = imported[sdetails['unit_id']]
+        match = next((d for d in unit_details if ontologyword_details_match(sdetails, d)), None)
+        assert match is not None
+        index = unit_details.index(match)
+        del unit_details[index]
+        if len(unit_details) == 0:
+            del imported[sdetails['unit_id']]
+    assert len(imported) == 0
+
+
 @pytest.mark.django_db
-@settings(suppress_health_check=[HealthCheck.too_slow])
+@settings(suppress_health_check=[HealthCheck.too_slow], timeout=60, max_examples=200)
 @given(closed_object_set())
 def test_import_units(api_client, resources):
 
@@ -286,13 +304,18 @@ def test_import_units(api_client, resources):
     treenode_counts = {}
     ontologyword_counts = {}
 
+    imported_ontologyword_details = {}
+
     for unit in response.data['results']:
         assert_unit_correctly_imported(unit, source_units_by_id.get(unit['id']),
                                        ontologyword_ids_by_unit_id[unit['id']])
+        imported_ontologyword_details[unit['id']] = unit['ontologyword_details']
         for treenode_id in unit['tree_nodes']:
             treenode_counts[treenode_id] = treenode_counts.get(treenode_id, 0) + 1
         for ontologyword_id in unit['services']:
             ontologyword_counts[ontologyword_id] = ontologyword_counts.get(ontologyword_id, 0) + 1
+
+    assert_ontologyword_details_correctly_imported(resources['ontologyword_details'], imported_ontologyword_details)
 
     # Check unit counts in related objects
 
