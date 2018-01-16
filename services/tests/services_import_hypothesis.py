@@ -135,7 +135,6 @@ def unit_maker(draw, resource_ids):
             'accessibility_viewpoints': accessibility_viewpoints(draw),
             'dept_id': str(draw(sampled_from(resource_ids['department']))),
             'org_id': str(draw(sampled_from(resource_ids['organization']))),
-            'ontologyword_ids': draw(permutations(resource_ids['ontologyword'])),
             'ontologytree_ids': draw(permutations(resource_ids['ontologytree'])),
             'provider_type': draw(sampled_from(PROVIDER_TYPES)),
             'organizer_type': draw(sampled_from(ORGANIZER_TYPES)),
@@ -231,6 +230,16 @@ for r in RESOURCES:
     make_resource[r] = locals()['{}_maker'.format(r)]
 
 
+def make_ontologyword_details(draw, unit_id, ontologyword_id):
+    result = {
+        'unit_id': unit_id,
+        'ontologyword_id': ontologyword_id,
+        'schoolyear': '2017-2018'  # TODO
+    }
+    result.update(translated_field(draw, 'clarification', allow_missing=False))
+    return result
+
+
 @composite
 def closed_object_set(draw):
     ids = {
@@ -243,4 +252,9 @@ def closed_object_set(draw):
     resources = {}
     for key, identifiers in ids.items():
         resources[key] = list(map(make_resource[key](draw, ids), ids[key]))
+
+    resources['ontologyword_details'] = []
+    for unit in resources['unit']:
+        for oid in draw(permutations(ids['ontologyword'])):
+            resources['ontologyword_details'].append(make_ontologyword_details(draw, unit['id'], oid))
     return resources
