@@ -1,4 +1,4 @@
-from hypothesis import given
+from hypothesis import given, settings, HealthCheck
 
 import pytest
 import math
@@ -248,6 +248,7 @@ def assert_resource_synced(response, resource_name, resources):
 
 
 @pytest.mark.django_db
+@settings(suppress_health_check=[HealthCheck.too_slow])
 @given(closed_object_set())
 def test_import_units(api_client, resources):
 
