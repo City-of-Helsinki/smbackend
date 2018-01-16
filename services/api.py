@@ -443,6 +443,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
     provider_type = serializers.SerializerMethodField()
     organizer_type = serializers.SerializerMethodField()
     contract_type = serializers.SerializerMethodField()
+    services = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
@@ -493,6 +494,9 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
 
     def get_organizer_type(self, obj):
         return choicefield_string(ORGANIZER_TYPES, 'organizer_type', obj)
+
+    def get_services(self, obj):
+        return list(map(lambda x: x.ontologyword_id, obj.ontologyword_details.all()))
 
     def get_contract_type(self, obj):
         key = choicefield_string(CONTRACT_TYPES, 'contract_type', obj)
@@ -653,7 +657,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         return ret
 
     def get_queryset(self):
-        queryset = super(UnitViewSet, self).get_queryset()
+        queryset = super(UnitViewSet, self).get_queryset().prefetch_related('ontologyword_details')
         filters = self.request.query_params
         if 'id' in filters:
             id_list = filters['id'].split(',')
