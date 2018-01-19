@@ -21,7 +21,7 @@ from haystack.inputs import AutoQuery
 from mptt.utils import drilldown_tree_for_node
 
 from services.models import Unit, Organization, Department, OntologyWord
-from services.models import OntologyTreeNode, UnitConnection
+from services.models import OntologyTreeNode, UnitConnection, UnitOntologyWordDetails
 from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
 from services.models.unit_connection import SECTION_TYPES
 from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES, CONTRACT_TYPES
@@ -304,6 +304,12 @@ class OntologyWordSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSO
         fields = '__all__'
 
 
+class OntologyWordDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer):
+    class Meta:
+        model = UnitOntologyWordDetails
+        fields = '__all__'
+
+
 class JSONAPIViewSetMixin:
     def initial(self, request, *args, **kwargs):
         ret = super(JSONAPIViewSetMixin, self).initial(request, *args, **kwargs)
@@ -438,6 +444,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
     connections = UnitConnectionSerializer(many=True)
     accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
     identifiers = UnitIdentifierSerializer(many=True)
+    ontologyword_details = OntologyWordDetailsSerializer(many=True)
     organization = serializers.SerializerMethodField('organization_uuid')
     department = serializers.SerializerMethodField('department_uuid')
     provider_type = serializers.SerializerMethodField()
