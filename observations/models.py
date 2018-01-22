@@ -75,6 +75,7 @@ class Observation(PolymorphicModel):
         ObservableProperty,
         blank=False, null=False,
         help_text='The property observed')
+    _base_manager = models.Manager()
     class Meta:
         ordering = ['-time']
 
