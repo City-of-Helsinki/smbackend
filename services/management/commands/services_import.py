@@ -455,7 +455,6 @@ class Command(BaseCommand):
                 except Department.DoesNotExist:
                     print("Department %s does not exist" % dept_id)
                     raise
-            assert dept != None
         else:
             #print("%s does not have department id" % obj)
             dept = None

@@ -131,7 +131,7 @@ class UnitSearchManager(models.GeoManager):
 class Unit(models.Model):
     id = models.IntegerField(primary_key=True)
     data_source_url = models.URLField(null=True)
-    name = models.CharField(max_length=200, db_index=True)
+    name = models.CharField(max_length=210, db_index=True)
     description = models.TextField(null=True)
 
     provider_type = models.IntegerField()
@@ -153,7 +153,7 @@ class Unit(models.Model):
     extensions = HStoreField(null=True)
 
     picture_url = models.URLField(max_length=250, null=True)
-    picture_caption = models.CharField(max_length=200, null=True)
+    picture_caption = models.CharField(max_length=250, null=True)
 
     origin_last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
