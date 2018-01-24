@@ -246,10 +246,18 @@ def assert_resource_synced(response, resource_name, resources):
             id_set(resources[resource_name]))
 
 
+def ontologyword_clarification_matches(src, dest):
+    for lang in LANGUAGES:
+        if src['clarification_{}'.format(lang)] != dest['clarification'][lang]:
+            return False
+    return True
+
+
 def ontologyword_details_match(src, dest):
     return (
         src['schoolyear'] == '{}-{}'.format(dest['period_begin_year'], dest['period_end_year']) and
-        src['ontologyword_id'] == dest['ontologyword'])
+        src['ontologyword_id'] == dest['ontologyword'] and
+        ontologyword_clarification_matches(src, dest))
 
 
 def assert_ontologyword_details_correctly_imported(source, imported):
