@@ -73,7 +73,7 @@ def assert_string_field_match(name, src, dest, required=False):
             "{}: '{}' does not match '{}'".format(name, src[name], api_field_value(dest, name))
 
 
-def assert_translated_field_match(name, src, dest):
+def translated_field_match(name, src, dest):
     val = api_field_value(dest, name)
     for lang in LANGUAGES:
         key = '{}_{}'.format(name, lang)
@@ -85,8 +85,7 @@ def assert_translated_field_match(name, src, dest):
         if val is None:
             # Our API returns null as the value of a translated
             # field which has all languages missing.
-            assert key not in src or len(get_source_val(src, key).split()) == 0
-            return
+            return key not in src or len(get_source_val(src, key).split()) == 0
 
         # Case 2: some or no translations missing from source
         s = None
@@ -94,14 +93,16 @@ def assert_translated_field_match(name, src, dest):
             s = get_source_val(src, key)
         except KeyError:
             # Currently the API omits missing keys from the translated dict
-            assert lang not in val
-            return
+            return lang not in val
         if len(s.split()) == 0:
-            assert lang not in val
-            return
+            return lang not in val
 
         # compare ignoring whitespace and empty bytes
-        assert s.split() == val[lang].split()
+        return s.split() == val[lang].split()
+
+
+def assert_translated_field_match(name, src, dest):
+    assert translated_field_match(name, src, dest)
 
 
 def assert_accessibility_viewpoints_match(src, dest):
@@ -246,18 +247,11 @@ def assert_resource_synced(response, resource_name, resources):
             id_set(resources[resource_name]))
 
 
-def ontologyword_clarification_matches(src, dest):
-    for lang in LANGUAGES:
-        if src['clarification_{}'.format(lang)] != dest['clarification'][lang]:
-            return False
-    return True
-
-
 def ontologyword_details_match(src, dest):
     return (
         src['schoolyear'] == '{}-{}'.format(dest['period_begin_year'], dest['period_end_year']) and
         src['ontologyword_id'] == dest['ontologyword'] and
-        ontologyword_clarification_matches(src, dest))
+        translated_field_match('clarification', src, dest))
 
 
 def assert_ontologyword_details_correctly_imported(source, imported):
@@ -323,7 +317,8 @@ def test_import_units(api_client, resources):
         for ontologyword_id in unit['services']:
             ontologyword_counts[ontologyword_id] = ontologyword_counts.get(ontologyword_id, 0) + 1
 
-    assert_ontologyword_details_correctly_imported(resources['ontologyword_details'], imported_ontologyword_details)
+    assert_ontologyword_details_correctly_imported(
+        resources['ontologyword_details'], imported_ontologyword_details)
 
     # Check unit counts in related objects
 
