@@ -476,29 +476,26 @@ def _import_unit_ontologytreenodes(obj, info, count_services, obj_changed, updat
 
 
 def _clean_ontologyword_details(info_dict):
-    schoolyear = info_dict['schoolyear']
-    start = None
-    end = None
+    schoolyear = info_dict.get('schoolyear')
     if schoolyear is not None and len(schoolyear) > 0:
+        start = None
+        end = None
         start, end = schoolyear.split('-')
-    info_dict['period_begin_year'] = start
-    info_dict['period_end_year'] = end
+        info_dict['period_begin_year'] = start
+        info_dict['period_end_year'] = end
     return info_dict
 
 
-ONTOLOGYWORD_DETAILS_SORT_KEYS = [
-    "unit_id",
-    "ontologyword_id",
-    "schoolyear",
-    "clarification_en",
-    "clarification_fi",
-    "clarification_sv"
-]
+def _ontologyword_key(info):
+    keys = ("unit_id", "ontologyword_id")
+    if "schoolyear" in info:
+        keys += ("schoolyear",)
+    return itemgetter(*keys)(info)
 
 
 def _import_unit_ontologywords(obj, info, count_services, obj_changed, update_fields):
     if info['ontologyword_details']:
-        owd = sorted(info['ontologyword_details'], key=itemgetter(*ONTOLOGYWORD_DETAILS_SORT_KEYS))
+        owd = sorted(info['ontologyword_details'], key=_ontologyword_key)
         owd_json = json.dumps(owd, ensure_ascii=False, sort_keys=True).encode('utf8')
         owd_hash = hashlib.sha1(owd_json).hexdigest()
     else:
@@ -514,10 +511,11 @@ def _import_unit_ontologywords(obj, info, count_services, obj_changed, update_fi
         for owd in info['ontologyword_details']:
             d = _clean_ontologyword_details(owd)
             unit_owd = UnitOntologyWordDetails(
-                unit=obj, ontologyword_id=d['ontologyword_id'],
-                period_begin_year=d['period_begin_year'],
-                period_end_year=d['period_end_year']
-            )
+                unit=obj, ontologyword_id=d['ontologyword_id'])
+            if 'period_begin_year' in d:
+                unit_owd.period_begin_year = d['period_begin_year']
+                unit_owd.period_end_year = d['period_end_year']
+
             save_translated_field(unit_owd, 'clarification', d, 'clarification', max_length=200)
             unit_owd.save()
 

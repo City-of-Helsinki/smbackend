@@ -248,8 +248,11 @@ def assert_resource_synced(response, resource_name, resources):
 
 
 def ontologyword_details_match(src, dest):
+    src_schoolyear = src.get('schoolyear', None)
+    if src_schoolyear is not None:
+        if src_schoolyear != '{}-{}'.format(dest['period_begin_year'], dest['period_end_year']):
+            return False
     return (
-        src['schoolyear'] == '{}-{}'.format(dest['period_begin_year'], dest['period_end_year']) and
         src['ontologyword_id'] == dest['ontologyword'] and
         translated_field_match('clarification', src, dest))
 
