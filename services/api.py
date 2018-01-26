@@ -503,7 +503,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         return choicefield_string(ORGANIZER_TYPES, 'organizer_type', obj)
 
     def get_services(self, obj):
-        return list(map(lambda x: x.ontologyword_id, obj.ontologyword_details.all()))
+        return set(map(lambda x: x.ontologyword_id, obj.ontologyword_details.all()))
 
     def get_contract_type(self, obj):
         key = choicefield_string(CONTRACT_TYPES, 'contract_type', obj)
@@ -613,9 +613,11 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         model = Unit
         exclude = [
             'connection_hash',
+            'ontologyword_details_hash',
             'accessibility_property_hash',
             'accessibility_sentence_hash',
             'identifier_hash',
+            'ontologywords'
         ]
 
 
