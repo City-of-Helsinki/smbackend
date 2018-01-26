@@ -248,6 +248,7 @@ def assert_resource_synced(response, resource_name, resources):
 
 
 def ontologyword_details_match(src, dest):
+    assert 'id' not in dest and 'unit' not in dest
     src_schoolyear = src.get('schoolyear', None)
     if src_schoolyear is not None:
         if src_schoolyear != '{}-{}'.format(dest['period_begin_year'], dest['period_end_year']):

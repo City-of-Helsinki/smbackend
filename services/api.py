@@ -307,7 +307,7 @@ class OntologyWordSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSO
 class OntologyWordDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = UnitOntologyWordDetails
-        fields = '__all__'
+        fields = ['ontologyword', 'clarification', 'period_begin_year', 'period_end_year']
 
 
 class JSONAPIViewSetMixin:

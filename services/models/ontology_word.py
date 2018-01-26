@@ -31,4 +31,4 @@ class UnitOntologyWordDetails(models.Model):
     clarification = models.CharField(max_length=200, blank=True)
 
     class Meta:
-        unique_together = ('period_begin_year', 'unit', 'ontologyword')
+        unique_together = ('period_begin_year', 'unit', 'ontologyword', 'clarification_fi')

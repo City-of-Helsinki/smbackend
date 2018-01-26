@@ -490,6 +490,8 @@ def _ontologyword_key(info):
     keys = ("unit_id", "ontologyword_id")
     if "schoolyear" in info:
         keys += ("schoolyear",)
+    if "clarification_fi" in info:
+        keys += ("clarification_fi",)
     return itemgetter(*keys)(info)
 
 
