@@ -59,7 +59,7 @@ class UnitIndex(ServiceMapBaseIndex):
         return 'origin_last_modified_time'
 
     def prepare_services(self, obj):
-        return [service.id for service in obj.services.all()]
+        return [ow.id for ow in obj.ontologywords.all()]
 
 
 class OntologyTreeNodeIndex(ServiceMapBaseIndex):
