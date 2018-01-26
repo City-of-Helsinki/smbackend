@@ -233,10 +233,12 @@ for r in RESOURCES:
 def make_ontologyword_details(draw, unit_id, ontologyword_id):
     result = {
         'unit_id': unit_id,
-        'ontologyword_id': ontologyword_id,
-        'schoolyear': '2017-2018'  # TODO
+        'ontologyword_id': ontologyword_id
     }
-    result.update(translated_field(draw, 'clarification', allow_missing=False))
+    if draw(booleans()):
+        result['schoolyear'] = '2017-2018'  # TODO
+    if draw(booleans()):
+        result.update(translated_field(draw, 'clarification', allow_missing=False))
     return result
 
 
