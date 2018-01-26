@@ -305,6 +305,11 @@ class OntologyWordSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSO
 
 
 class OntologyWordDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer):
+    def to_representation(self, obj):
+        ret = super(OntologyWordDetailsSerializer, self).to_representation(obj)
+        ret['name'] = OntologyWordSerializer(obj.ontologyword).data['name']
+        return ret
+
     class Meta:
         model = UnitOntologyWordDetails
         fields = ['ontologyword', 'clarification', 'period_begin_year', 'period_end_year']
@@ -444,7 +449,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
     connections = UnitConnectionSerializer(many=True)
     accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
     identifiers = UnitIdentifierSerializer(many=True)
-    ontologyword_details = OntologyWordDetailsSerializer(many=True)
+    #ontologyword_details = OntologyWordDetailsSerializer(many=True)
     organization = serializers.SerializerMethodField('organization_uuid')
     department = serializers.SerializerMethodField('department_uuid')
     provider_type = serializers.SerializerMethodField()
@@ -592,6 +597,9 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 ret['geometry'] = munigeo_api.geom_to_json(geom, self.srs)
         elif 'geometry' in ret:
             del ret['geometry']
+
+        if qparams.get('service_details', '').lower() in ('true', '1'):
+            ret['service_details'] = OntologyWordDetailsSerializer(obj.ontologyword_details, context=self.context, many=True).data
 
         if 'extensions' in ret:
             ret['extensions'] = self.handle_extension_translations(ret['extensions'])
