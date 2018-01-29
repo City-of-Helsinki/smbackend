@@ -301,7 +301,7 @@ class OntologyWordSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSO
     # children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     class Meta:
         model = OntologyWord
-        fields = '__all__'
+        fields = ['name', 'id', 'unit_count', 'period_enabled', 'clarification_enabled']
 
 
 class OntologyWordDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer):
@@ -449,7 +449,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
     connections = UnitConnectionSerializer(many=True)
     accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
     identifiers = UnitIdentifierSerializer(many=True)
-    #ontologyword_details = OntologyWordDetailsSerializer(many=True)
     organization = serializers.SerializerMethodField('organization_uuid')
     department = serializers.SerializerMethodField('department_uuid')
     provider_type = serializers.SerializerMethodField()
@@ -598,8 +597,9 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         elif 'geometry' in ret:
             del ret['geometry']
 
-        if qparams.get('service_details', '').lower() in ('true', '1'):
-            ret['service_details'] = OntologyWordDetailsSerializer(obj.ontologyword_details, context=self.context, many=True).data
+        if self.context.get('service_details'):
+            ret['service_details'] = (
+                OntologyWordDetailsSerializer(obj.ontologyword_details, many=True).data)
 
         if 'extensions' in ret:
             ret['extensions'] = self.handle_extension_translations(ret['extensions'])
@@ -668,13 +668,23 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
     filter_backends = (DjangoFilterBackend,)
 
+    def __init__(self, *args, **kwargs):
+        super(UnitViewSet, self).__init__(*args, **kwargs)
+        self.service_details = False
+
     def get_serializer_context(self):
         ret = super(UnitViewSet, self).get_serializer_context()
         ret['srs'] = self.srs
+        ret['service_details'] = self.service_details
         return ret
 
     def get_queryset(self):
-        queryset = super(UnitViewSet, self).get_queryset().prefetch_related('ontologyword_details')
+        queryset = super(UnitViewSet, self).get_queryset()
+        if self.request.query_params.get('service_details', '').lower() in ('true', '1'):
+            self.service_details = True
+            queryset = queryset.prefetch_related('ontologyword_details')
+            queryset = queryset.prefetch_related('ontologyword_details__ontologyword')
+
         filters = self.request.query_params
         if 'id' in filters:
             id_list = filters['id'].split(',')
@@ -823,6 +833,9 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         if 'services' in self.include_fields:
             queryset = queryset.prefetch_related('service_tree_nodes')
+
+        if 'accessibility_properties' in self.include_fields:
+            queryset = queryset.prefetch_related('accessibility_properties')
 
         return queryset
 
