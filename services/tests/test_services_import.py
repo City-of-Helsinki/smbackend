@@ -298,14 +298,19 @@ def test_import_units(api_client, resources):
         fetch_units=fetch_units, fetch_resource=fetch_resource,
         org_syncher=org_syncher, dept_syncher=dept_syncher)
 
-    response = get(api_client, '{}?include=department'.format(reverse('unit-list')))
+    response = get(api_client, '{}?include=department&service_details=true'.format(reverse('unit-list')))
     assert_resource_synced(response, 'unit', resources)
 
     source_units_by_id = dict((u['id'], u) for u in resources['unit'])
     ontologyword_ids_by_unit_id = dict()
+    ontologyword_by_id = {}
+
     for owd in resources['ontologyword_details']:
         s = ontologyword_ids_by_unit_id.setdefault(owd['unit_id'], set())
         s.add(owd['ontologyword_id'])
+
+    for ow in resources['ontologyword']:
+        ontologyword_by_id[ow['id']] = ow
 
     treenode_counts = {}
     ontologyword_counts = {}
@@ -315,7 +320,7 @@ def test_import_units(api_client, resources):
     for unit in response.data['results']:
         assert_unit_correctly_imported(unit, source_units_by_id.get(unit['id']),
                                        ontologyword_ids_by_unit_id[unit['id']])
-        imported_ontologyword_details[unit['id']] = unit['ontologyword_details']
+        imported_ontologyword_details[unit['id']] = unit['service_details']
         for treenode_id in unit['tree_nodes']:
             treenode_counts[treenode_id] = treenode_counts.get(treenode_id, 0) + 1
         for ontologyword_id in unit['services']:
@@ -335,3 +340,8 @@ def test_import_units(api_client, resources):
     ontologywords = response.data['results']
     for ontologyword in ontologywords:
         assert ontologyword_counts.get(ontologyword['id'], 0) == ontologyword['unit_count']
+        to = ontologyword
+        frm = ontologyword_by_id[ontologyword['id']]
+        assert to['period_enabled'] == frm['can_add_schoolyear']
+        assert to['clarification_enabled'] == frm['can_add_clarification']
+ 

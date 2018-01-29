@@ -217,8 +217,10 @@ def department_maker(draw, resource_ids):
     return make_department
 
 
-def ontologyword_maker(*args):
-    return lambda x: {'id': x}
+def ontologyword_maker(draw, *args):
+    return lambda x: {'id': x,
+                      'can_add_schoolyear': draw(booleans()),
+                      'can_add_clarification': draw(booleans())}
 
 
 def ontologytree_maker(*args):
