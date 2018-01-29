@@ -77,6 +77,13 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
 
         obj._changed |= save_translated_field(obj, 'name', d, 'ontologyword')
 
+        period_enabled = d['can_add_schoolyear']
+        clarification_enabled = d['can_add_clarification']
+        obj._changed |= period_enabled != obj.period_enabled
+        obj._changed |= clarification_enabled != obj.clarification_enabled
+        obj.period_enabled = period_enabled
+        obj.clarification_enabled = clarification_enabled
+
         obj._changed = keyword_handler.sync_searchwords(obj, d, obj._changed)
 
         obj._changed |= update_object_unit_count(obj)

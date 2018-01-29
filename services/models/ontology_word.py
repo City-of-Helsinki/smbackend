@@ -11,6 +11,9 @@ class OntologyWord(models.Model):
     unit_count = models.PositiveIntegerField(null=True)
     keywords = models.ManyToManyField(Keyword)
 
+    period_enabled = models.BooleanField(default=True)
+    clarification_enabled = models.BooleanField(default=True)
+
     last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
     def __str__(self):
