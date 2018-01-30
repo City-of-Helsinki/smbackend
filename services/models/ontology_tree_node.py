@@ -4,6 +4,7 @@ from services.utils import get_translated
 from .keyword import Keyword
 from .unit import Unit
 from .hierarchy import CustomTreeManager
+from .ontology_word import OntologyWord
 
 
 class OntologyTreeNode(MPTTModel):
@@ -14,6 +15,7 @@ class OntologyTreeNode(MPTTModel):
     keywords = models.ManyToManyField(Keyword)
 
     ontologyword_reference = models.TextField(null=True)
+    related_ontologywords = models.ManyToManyField(OntologyWord)
 
     last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
@@ -27,6 +29,14 @@ class OntologyTreeNode(MPTTModel):
         srv_list.add(self.id)
         count = Unit.objects.filter(public=True, service_tree_nodes__in=list(srv_list)).distinct().count()
         return count
+
+    def period_enabled(self):
+        """Iterates through related ontologywords to find out
+        if the tree node has periods enabled via ontologywords"""
+        return next((
+            o.period_enabled
+            for o in self.related_ontologywords.all()
+            if o.period_enabled), False)
 
     class Meta:
         ordering = ['-pk']

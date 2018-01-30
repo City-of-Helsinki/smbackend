@@ -286,6 +286,7 @@ class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
         only_fields = self.context.get('only', [])
         if 'parent' in only_fields:
             ret['parent'] = obj.parent_id
+        ret['period_enabled'] = obj.period_enabled()
         ret['root'] = self.root_servicenodes(obj)
         return ret
 
@@ -413,7 +414,7 @@ class ServiceTreeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     filter_fields = ['level', 'parent']
 
     def get_queryset(self):
-        queryset = super(ServiceTreeViewSet, self).get_queryset()
+        queryset = super(ServiceTreeViewSet, self).get_queryset().prefetch_related('related_ontologywords')
         args = self.request.query_params
         if 'id' in args:
             id_list = args['id'].split(',')

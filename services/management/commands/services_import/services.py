@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 import pytz
 from munigeo.importer.sync import ModelSyncher
 from services.models import OntologyTreeNode, OntologyWord
@@ -6,6 +7,7 @@ from services.management.commands.services_import.keyword import KeywordHandler
 from .utils import pk_get, save_translated_field
 
 UTC_TIMEZONE = pytz.timezone('UTC')
+ONTOLOGYWORD_REFERENCE_SEPARATOR = re.compile('[^0-9]+')
 
 
 def import_services(syncher=None, noop=False, logger=None, importer=None,
@@ -45,8 +47,10 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
         if obj.parent != parent:
             obj.parent = parent
             obj._changed = True
+        related_ontologywords_changed = False
         if obj.ontologyword_reference != d.get('ontologyword_reference', None):
             obj.ontologyword_reference = d.get('ontologyword_reference')
+            related_ontologywords_changed = True
             obj._changed = True
 
         obj._changed = keyword_handler.sync_searchwords(obj, d, obj._changed)
@@ -58,6 +62,11 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
             if importer:
                 importer.services_changed = True
         nodesyncher.mark(obj)
+
+        if related_ontologywords_changed:
+            related_ontologyword_ids = set(
+                (id for id in ONTOLOGYWORD_REFERENCE_SEPARATOR.split(obj.ontologyword_reference)))
+            obj.related_ontologywords.set(related_ontologyword_ids)
 
         for child_node in d['children']:
             handle_servicenode(child_node, keyword_handler)
