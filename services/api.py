@@ -309,6 +309,12 @@ class OntologyWordDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer
     def to_representation(self, obj):
         ret = super(OntologyWordDetailsSerializer, self).to_representation(obj)
         ret['name'] = OntologyWordSerializer(obj.ontologyword).data['name']
+        if ret['period_begin_year'] is not None:
+            ret['period'] = [ret['period_begin_year'], ret.get('period_end_year')]
+        else:
+            ret['period'] = None
+        del ret['period_begin_year']
+        del ret['period_end_year']
         return ret
 
     class Meta:
