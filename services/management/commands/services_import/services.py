@@ -63,7 +63,7 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
                 importer.services_changed = True
         nodesyncher.mark(obj)
 
-        if related_ontologywords_changed:
+        if related_ontologywords_changed and obj.ontologyword_reference is not None:
             related_ontologyword_ids = set(
                 (id for id in ONTOLOGYWORD_REFERENCE_SEPARATOR.split(obj.ontologyword_reference)))
             obj.related_ontologywords.set(related_ontologyword_ids)
