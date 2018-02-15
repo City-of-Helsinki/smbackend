@@ -676,13 +676,15 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     def get_serializer_context(self):
         ret = super(UnitViewSet, self).get_serializer_context()
         ret['srs'] = self.srs
-        ret['service_details'] = self.service_details
+        ret['service_details'] = self._service_details_requested()
         return ret
+
+    def _service_details_requested(self):
+        return self.request.query_params.get('service_details', '').lower() in ('true', '1')
 
     def get_queryset(self):
         queryset = super(UnitViewSet, self).get_queryset()
-        if self.request.query_params.get('service_details', '').lower() in ('true', '1'):
-            self.service_details = True
+        if self._service_details_requested():
             queryset = queryset.prefetch_related('ontologyword_details')
             queryset = queryset.prefetch_related('ontologyword_details__ontologyword')
 
