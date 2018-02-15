@@ -298,7 +298,7 @@ class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
         fields = '__all__'
 
 
-class OntologyWordSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
+class OntologyWordSerializer(TranslatedModelSerializer, JSONAPISerializer):
     # children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     class Meta:
         model = OntologyWord
