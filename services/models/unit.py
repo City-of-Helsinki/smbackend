@@ -103,7 +103,7 @@ class Unit(models.Model):
 
     picture_caption = models.TextField(null=True)
 
-    phone = models.CharField(max_length=50, null=True)
+    phone = models.CharField(max_length=70, null=True)
     fax = models.CharField(max_length=50, null=True)
     email = models.EmailField(max_length=100, null=True)
     accessibility_phone = models.CharField(max_length=50, null=True)
