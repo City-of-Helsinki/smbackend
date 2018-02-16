@@ -415,7 +415,11 @@ def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher,
             LOGGER.info("%s %s" % (obj, verb))
         obj.origin_last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
         obj_changed = False
-        obj.save()
+        try:
+            obj.save()
+        except db.utils.DataError as e:
+            LOGGER.error('Importing failed for unit {}'.format(str(obj)))
+            raise e
 
     update_fields = ['origin_last_modified_time']
 
