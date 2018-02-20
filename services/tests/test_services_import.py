@@ -344,4 +344,3 @@ def test_import_units(api_client, resources):
         frm = ontologyword_by_id[ontologyword['id']]
         assert to['period_enabled'] == frm['can_add_schoolyear']
         assert to['clarification_enabled'] == frm['can_add_clarification']
- 
