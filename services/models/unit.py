@@ -65,7 +65,8 @@ class UnitSearchManager(models.GeoManager):
             qs = qs.only(*self.only_fields)
         if self.include_fields:
             for f in self.include_fields:
-                qs = qs.prefetch_related(f)
+                if f != 'services':
+                    qs = qs.prefetch_related(f)
         return qs.filter(public=True)
 
 
