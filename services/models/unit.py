@@ -129,8 +129,8 @@ class Unit(models.Model):
 
     connection_hash = models.CharField(max_length=40, null=True,
                                        help_text='Automatically generated hash of connection info')
-    accessibility_property_hash = models.CharField(max_length=40, null=True,
-                                                   help_text='Automatically generated hash of accessibility property info')
+    accessibility_property_hash = models.CharField(
+        max_length=40, null=True, help_text='Automatically generated hash of accessibility property info')
     accessibility_sentence_hash = models.CharField(max_length=40, null=True)
     identifier_hash = models.CharField(max_length=40, null=True,
                                        help_text='Automatically generated hash of other identifiers')
