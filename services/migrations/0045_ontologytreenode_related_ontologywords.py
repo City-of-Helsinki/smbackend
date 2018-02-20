@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0042_add_ontologyword_fields'),
+        ('services', '0044_add_ontologyword_fields'),
     ]
 
     operations = [
