@@ -11,21 +11,23 @@ from django.utils import timezone
 from django.utils.translation import ugettext_noop as _
 
 import re
+import os
 
 from django.core.management.base import BaseCommand
 from django import db
 from django.conf import settings
 from django.db import transaction
 from django.contrib.gis.geos import MultiLineString, LineString, Point, GEOSGeometry
+from django.contrib.gis.geos import fromfile
 
 import django.contrib.gis
-from django.contrib.gis.gdal import DataSource
+from django.contrib.gis.gdal import DataSource, GDALException
 from django.contrib.gis.utils import LayerMapping
 
 from services.models import *
 from munigeo.models import Address
 
-ADDRESS_RE = re.compile('([^0-9]+) ([0-9]+)([^0-9]*)')
+ADDRESS_RE = re.compile('([^0-9]+) ?([0-9]+)?([^0-9]*)?')
 
 def gk25_converter(a=0, b=0, c=1, d=0, e=0, f=1):
     def converter(x, y):
@@ -101,7 +103,8 @@ HELSINKI_GROUPS = {
     'Luukki Golf': 'luukki',
     'Pirttimäki 3 km': 'pirttimäki',
     'Pirttimäki 6.4 km': 'pirttimäki',
-    'Pirttimäki 8.3 km': 'pirttimäki'
+    'Pirttimäki 8.3 km': 'pirttimäki',
+    'Hakuninmaan rullasuksirata': 'länsi'
 }
 
 ILLUMINATED = _('_illuminated')
@@ -128,6 +131,7 @@ ESPOO_LIGHTING = {
     'Valaisematon latu': NOT_ILLUMINATED,
     'Valaisematon latu,ei poh': NOT_ILLUMINATED,
     'Osittain valaistu latu': PARTLY_ILLUMINATED,
+    'Osittain valaistu': PARTLY_ILLUMINATED,
     '':  UNKNOWN,
     None: UNKNOWN
 }
@@ -147,6 +151,15 @@ VANTAA_MAINTENANCE_GROUPS = {
     'l�nsi': 'länsi',
     'it�': 'itä'
 }
+
+
+ESPOO_WKT = {
+    'Espoonlahden urheilupuiston latu': 'espoo1.wkt',
+    'Turunväylä-Säteri latu': 'espoo2.wkt',
+    'Puolarmaari-Latokaski latu': 'espoo3.wkt',
+    'Latokaski-Saunalahti latu': 'espoo4.wkt'
+}
+
 
 def _report_counts(municipality, created, updated):
     print("Imported skiing tracks for {}:\n{} created / {} updated".format(
@@ -241,17 +254,25 @@ class Command(BaseCommand):
                 'maintenance_group': maintenance_group,
                 'maintenance_organization': maintenance_organization
             }
-            if type(feat.geom) == django.contrib.gis.gdal.geometries.MultiLineString:
-                multilinestring = GEOSGeometry(feat.geom.wkt)
+            if properties.get('NIMI') == 'Hakuninmaan rullasuksirata':
+                path = os.path.join(settings.BASE_DIR, '..', 'data', 'hakuninmaa.wkt')
+                # TODO: this will be gotten rid of once moved to new API version
+                converted_multilinestring = MultiLineString(fromfile(path), srid=3067)
             else:
-                multilinestring = MultiLineString(GEOSGeometry(feat.geom.wkt))
-            converted_multilinestring_coords = []
-            for line in multilinestring:
-                converted_multilinestring_coords.append(
-                    LineString(tuple((helsinki_coordinates_to_gk25(point[0], point[1]) for point in line))))
+                try:
+                    if type(feat.geom) == django.contrib.gis.gdal.geometries.MultiLineString:
+                        multilinestring = GEOSGeometry(feat.geom.wkt)
+                    else:
+                        multilinestring = MultiLineString(GEOSGeometry(feat.geom.wkt))
+                except GDALException:
+                    print('No valid geometry for ' + properties.get('NIMI'))
+                converted_multilinestring_coords = []
+                for line in multilinestring:
+                    converted_multilinestring_coords.append(
+                        LineString(tuple((helsinki_coordinates_to_gk25(point[0], point[1]) for point in line))))
 
-            converted_multilinestring = (
-                MultiLineString((converted_multilinestring_coords), srid=3879))
+                converted_multilinestring = (
+                    MultiLineString((converted_multilinestring_coords), srid=3879))
 
             street_address = properties.get('address')
             www_url = properties.get('www_url')
@@ -270,7 +291,10 @@ class Command(BaseCommand):
             if street_address:
                 point = self.geocode_street_address(street_address, municipality)
             if point is None:
-                point = Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3879)
+                if properties.get('NIMI') == 'Hakuninmaan rullasuksirata':
+                    point = Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3067)
+                else:
+                    point = Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3879)
 
             defaults = self.unit_defaults(
                 converted_multilinestring,
@@ -372,7 +396,6 @@ class Command(BaseCommand):
             unit=unit,
             defaults=defaults)
 
-
     @db.transaction.atomic
     def import_espoo_units(self, filename):
         ds = DataSource(filename)
@@ -394,10 +417,20 @@ class Command(BaseCommand):
             if name.find('Aurattu ulkoilureitti') == 0:
                 # Do not import these
                 continue
-            if type(feat.geom) == django.contrib.gis.gdal.geometries.MultiLineString:
-                multilinestring = GEOSGeometry(feat.geom.wkt)
+            geometry = None
+            if name in ESPOO_WKT:
+                filename = ESPOO_WKT.get(name)
+                path = os.path.join(settings.BASE_DIR, '..', 'data', filename)
+                geometry = GEOSGeometry(fromfile(path), srid=3067)
             else:
-                multilinestring = MultiLineString(GEOSGeometry(feat.geom.wkt))
+                geometry = feat.geom
+            print(type(geometry), geometry)
+            if type(geometry) in [
+                    django.contrib.gis.gdal.geometries.MultiLineString,
+                    django.contrib.gis.geos.collections.MultiLineString]:
+                multilinestring = GEOSGeometry(geometry.wkt)
+            else:
+                multilinestring = MultiLineString(GEOSGeometry(geometry.wkt))
             if lyr.srs is not None and lyr.srs['PROJCS'] == 'ETRS89_TM35FIN_E_N':
                 # support layers with the correct srs
                 converted_multilinestring = multilinestring
@@ -429,7 +462,7 @@ class Command(BaseCommand):
             if street_address:
                 point = self.geocode_street_address(street_address, 'espoo')
             if point is None:
-                point = Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3879)
+                point = Point(converted_multilinestring[0][0], converted_multilinestring[0][1], srid=3067)
 
             defaults = self.unit_defaults(
                 converted_multilinestring,
