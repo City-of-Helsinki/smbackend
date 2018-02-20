@@ -765,7 +765,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             if level_specs['type'] == 'exclude':
                 service_ids = level_specs['services']
         if service_ids:
-            queryset = queryset.exclude(services__in=services_by_ancestors(service_ids)).distinct()
+            queryset = queryset.exclude(service_tree_nodes__in=services_by_ancestors(service_ids)).distinct()
 
         if 'division' in filters:
             # Divisions can be specified with form:
