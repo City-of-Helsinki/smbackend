@@ -251,7 +251,9 @@ def ontologyword_details_match(src, dest):
     assert 'id' not in dest and 'unit' not in dest
     src_schoolyear = src.get('schoolyear', None)
     if src_schoolyear is not None:
-        if src_schoolyear != '{}-{}'.format(dest['period_begin_year'], dest['period_end_year']):
+        if dest['period'] is None:
+            return False
+        if src_schoolyear != '{}-{}'.format(*dest['period']):
             return False
     return (
         src['ontologyword_id'] == dest['ontologyword'] and
