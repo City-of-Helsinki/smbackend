@@ -178,22 +178,6 @@ class OrganizationSerializer(TranslatedModelSerializer, serializers.ModelSeriali
             return obj.uuid
 
 
-class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Organization.objects.all()
-    serializer_class = OrganizationSerializer
-
-    def retrieve(self, request, pk=None):
-        try:
-            uuid.UUID(pk)
-        except ValueError:
-            raise Http404
-        org = get_object_or_404(Organization, uuid=pk)
-        serializer = self.serializer_class(org, context=self.get_serializer_context())
-        return Response(serializer.data)
-
-register_view(OrganizationViewSet, 'organization')
-
-
 class DepartmentSerializer(TranslatedModelSerializer, MPTTModelSerializer, serializers.ModelSerializer):
     id = serializers.SerializerMethodField('get_uuid')
     parent = serializers.SerializerMethodField()
