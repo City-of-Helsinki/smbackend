@@ -41,4 +41,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-curl --retry 3 'https://hchk.io/6cd12f62-19cb-4ab7-8791-686b635dc6e3'
+curl --retry 3 'https://hchk.io/6c320360-7e66-4ae2-975a-1ecd4e9fd92e'
