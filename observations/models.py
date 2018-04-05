@@ -156,5 +156,5 @@ class PluralityTokenAuthentication(rest_framework.authentication.TokenAuthentica
         return (token.user, token)
 
 class UserOrganization(models.Model):
-    organization = models.ForeignKey(services_models.Organization)
+    organization = models.ForeignKey(services_models.Department)
     user = models.OneToOneField(AUTH_USER_MODEL, related_name='organization', null=False)

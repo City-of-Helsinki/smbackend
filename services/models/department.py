@@ -2,7 +2,6 @@ from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
 from services.utils import get_translated
-from .organization import Organization
 from .hierarchy import CustomTreeManager
 
 
@@ -25,7 +24,6 @@ class Department(MPTTModel):
     hierarchy_level = models.SmallIntegerField(null=True)
     oid = models.CharField(max_length=20, null=True)
 
-    organization = models.ForeignKey(Organization, null=True)
     organization_type = models.CharField(max_length=50, null=True)
 
     objects = CustomTreeManager()

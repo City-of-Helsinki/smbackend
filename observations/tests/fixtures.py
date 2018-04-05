@@ -1,6 +1,6 @@
 import pytest
 from rest_framework.test import APIClient
-from services.models import OntologyWord, Unit, Organization
+from services.models import OntologyWord, Unit, Department
 from observations.models import ObservableProperty, CategoricalObservation, AllowedValue, UserOrganization
 import datetime as d
 from django.contrib.auth.models import User
@@ -15,7 +15,7 @@ def user():
     USERNAME='test_user'
     PASSWORD='test_password'
     user = User.objects.create(username=USERNAME)
-    organization = Organization.objects.create(name_fi='test_org', id=1)
+    organization = Department.objects.create(name_fi='test_org', id=1)
     UserOrganization.objects.create(user=user, organization=organization)
     user.set_password(PASSWORD)
     user.save()
@@ -25,7 +25,7 @@ def user():
 @pytest.mark.django_db
 @pytest.fixture
 def organization():
-    return Organization.objects.create(
+    return Department.objects.create(
         name='Fors',
         uuid='063c6150-ccc7-4886-b44b-ecee7670d064')
 
@@ -48,7 +48,7 @@ def unit(service, organization):
         name='skiing place',
         modified_time=d.datetime.now(),
         provider_type=1,
-        organization=organization)
+        department=organization)
     unit.services.add(service)
     return unit
 

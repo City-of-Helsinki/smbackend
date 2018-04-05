@@ -12,7 +12,6 @@ from django.utils.translation import activate, get_language
 
 from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
-from services.management.commands.services_import.organizations import import_organizations
 from services.management.commands.services_import.services import import_services
 from services.management.commands.services_import.units import import_units
 from services.management.commands.services_import.accessibility import import_accessibility
@@ -29,7 +28,7 @@ UTC_TIMEZONE = pytz.timezone('UTC')
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
-    importer_types = ['organizations', 'departments', 'services', 'units', 'aliases', 'accessibility']
+    importer_types = ['departments', 'services', 'units', 'aliases', 'accessibility']
     supported_languages = [l[0] for l in settings.LANGUAGES]
 
     def __init__(self):
@@ -118,12 +117,8 @@ class Command(BaseCommand):
             area.save()
 
     @db.transaction.atomic
-    def import_organizations(self, noop=False):
-        return import_organizations(logger=self.logger, noop=noop, org_syncher=self.org_syncher)
-
-    @db.transaction.atomic
     def import_departments(self, noop=False):
-        import_departments(logger=self.logger, noop=noop, org_syncher=self.org_syncher)
+        import_departments(logger=self.logger, noop=noop)
 
     def import_aliases(self):
         import_aliases()
@@ -149,7 +144,6 @@ class Command(BaseCommand):
     def handle(self, **options):
         self.options = options
         self.verbosity = int(options.get('verbosity', 1))
-        self.org_syncher = None
         self.dept_syncher = None
         self.logger = logging.getLogger(__name__)
         self.services_changed = False

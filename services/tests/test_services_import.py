@@ -9,7 +9,6 @@ from rest_framework.test import APIClient
 from rest_framework.reverse import reverse
 
 # from services.management.commands.services_import.services import import_services
-from services.management.commands.services_import.organizations import import_organizations
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.services import import_services
 from services.management.commands.services_import.units import import_units
@@ -143,11 +142,6 @@ def assert_unit_correctly_imported(unit, source_unit, source_ontologywords):
 
     key = 'accessibility_viewpoints'
     assert_accessibility_viewpoints_match(s[key], d[key])
-
-    # reference fields
-    for sfield, dfield in [
-            ('org_id', 'organization')]:
-        assert str(d[dfield]) == s[sfield]
 
     assert str(d['department']['id']) == s['dept_id']
 
@@ -283,7 +277,6 @@ def test_import_units(api_client, resources):
     def fetch_units():
         return fetch_resource('unit')
 
-    org_syncher = import_organizations(fetch_resource=fetch_resource)
     dept_syncher = import_departments(fetch_resource=fetch_resource)
 
     import_services(
@@ -298,7 +291,7 @@ def test_import_units(api_client, resources):
 
     import_units(
         fetch_units=fetch_units, fetch_resource=fetch_resource,
-        org_syncher=org_syncher, dept_syncher=dept_syncher)
+        dept_syncher=dept_syncher)
 
     response = get(api_client, '{}?include=department&service_details=true'.format(reverse('unit-list')))
     assert_resource_synced(response, 'unit', resources)

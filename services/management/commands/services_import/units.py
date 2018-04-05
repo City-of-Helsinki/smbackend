@@ -16,7 +16,6 @@ from munigeo.importer.sync import ModelSyncher
 from munigeo.models import Municipality
 
 from services.management.commands.services_import.departments import import_departments
-from services.management.commands.services_import.organizations import import_organizations
 from services.management.commands.services_import.keyword import KeywordHandler
 from services.models import Unit, OntologyTreeNode, OntologyWord, AccessibilityVariable, \
     UnitConnection, UnitAccessibilityProperty, UnitIdentifier, UnitOntologyWordDetails
@@ -121,7 +120,7 @@ def update_unit_counts(updated_resources, verbosity=False):
         srv.save(update_fields=['unit_count'])
 
 
-def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
+def import_units(dept_syncher=None, fetch_only_id=None,
                  verbosity=True, logger=None, fetch_units=_fetch_units,
                  fetch_resource=pk_get):
     global VERBOSITY, LOGGER, EXISTING_SERVICE_TREE_NODE_IDS, EXISTING_ONTOLOGYWORD_IDS
@@ -140,13 +139,10 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
 
     muni_by_name = {muni.name_fi.lower(): muni for muni in Municipality.objects.all()}
 
-    if not org_syncher:
-        org_syncher = import_organizations(noop=True)
-
     if not dept_syncher:
         dept_syncher = import_departments(noop=True)
 
-    VERBOSITY and LOGGER.info("Fetching unit connections %s %s" % (org_syncher, dept_syncher))
+    VERBOSITY and LOGGER.info("Fetching unit connections %s" % dept_syncher)
 
     connections = fetch_resource('connection')
     conn_by_unit = defaultdict(list)
@@ -196,7 +192,7 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
         info['connections'] = conn_by_unit.get(uid, [])
         info['accessibility_properties'] = acc_by_unit.get(uid, [])
         info['ontologyword_details'] = ontologyword_details_by_unit.get(uid, [])
-        _import_unit(syncher, keyword_handler, info.copy(), org_syncher, dept_syncher, muni_by_name,
+        _import_unit(syncher, keyword_handler, info.copy(), dept_syncher, muni_by_name,
                      bounding_box, gps_to_target_ct, target_srid, updated_related_objects)
 
     for obj in syncher.get_deleted_objects():
@@ -205,7 +201,7 @@ def import_units(org_syncher=None, dept_syncher=None, fetch_only_id=None,
 
     syncher.finish()
     update_unit_counts(updated_related_objects, verbosity=verbosity)
-    return org_syncher, dept_syncher, syncher
+    return dept_syncher, syncher
 
 
 def _load_postcodes():
@@ -222,7 +218,7 @@ def _load_postcodes():
 
 
 @db.transaction.atomic
-def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher,
+def _import_unit(syncher, keyword_handler, info, dept_syncher,
                  muni_by_name, bounding_box, gps_to_target_ct, target_srid, updated_related_objects):
 
     obj = syncher.get(info['id'])
@@ -241,18 +237,6 @@ def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher,
     for field in fields_that_need_translation:
         if save_translated_field(obj, field, info, field):
             obj_changed = True
-
-    org_id = info['org_id']
-    org = org_syncher.get(info['org_id'])
-    # else:
-    #     org = Organization.objects.get(id=org_id)
-    # print('org id', org_id)
-
-    assert org is not None
-
-    if obj.organization_id != org_id:
-        obj.organization = org
-        obj_changed = True
 
     if 'address_city_fi' not in info and 'latitude' in info and 'longitude' in info:
         if VERBOSITY:
@@ -294,17 +278,7 @@ def _import_unit(syncher, keyword_handler, info, org_syncher, dept_syncher,
     dept_id = None
     if 'dept_id' in info:
         dept_id = info['dept_id']
-        # if self.dept_syncher:
         dept = dept_syncher.get(dept_id)
-        org = None
-        if not dept:
-            org = org_syncher.get(dept_id)
-        # else:
-        #     try:
-        #         dept = Department.objects.get(id=dept_id)
-        #     except Department.DoesNotExist:
-        #         print("Department %s does not exist" % dept_id)
-        #         raise
 
     if not dept:
         LOGGER.warning("Missing department {} for unit {}".format(dept_id, obj.id))

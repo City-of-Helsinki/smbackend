@@ -20,7 +20,7 @@ from haystack.inputs import AutoQuery
 
 from mptt.utils import drilldown_tree_for_node
 
-from services.models import Unit, Organization, Department, OntologyWord
+from services.models import Unit, Department, OntologyWord
 from services.models import OntologyTreeNode, UnitConnection, UnitOntologyWordDetails
 from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
 from services.models.unit_connection import SECTION_TYPES
@@ -167,21 +167,9 @@ class TranslatedModelSerializer(object):
         return ret
 
 
-class OrganizationSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
-    id = serializers.SerializerMethodField('get_uuid')
-
-    class Meta:
-        model = Organization
-        exclude = ['uuid', ]
-
-    def get_uuid(self, obj):
-            return obj.uuid
-
-
 class DepartmentSerializer(TranslatedModelSerializer, MPTTModelSerializer, serializers.ModelSerializer):
     id = serializers.SerializerMethodField('get_uuid')
     parent = serializers.SerializerMethodField()
-    organization = serializers.SerializerMethodField()
 
     class Meta:
         model = Department
@@ -195,9 +183,6 @@ class DepartmentSerializer(TranslatedModelSerializer, MPTTModelSerializer, seria
         if parent is not None:
             return parent.uuid
         return None
-
-    def get_organization(self, obj):
-        return obj.organization.uuid
 
 
 class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -440,7 +425,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
     connections = UnitConnectionSerializer(many=True)
     accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
     identifiers = UnitIdentifierSerializer(many=True)
-    organization = serializers.SerializerMethodField('organization_uuid')
     department = serializers.SerializerMethodField('department_uuid')
     provider_type = serializers.SerializerMethodField()
     organizer_type = serializers.SerializerMethodField()
@@ -480,11 +464,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
             else:
                 result[key] = value
         return result
-
-    def organization_uuid(self, obj):
-        if obj.organization is not None:
-            return obj.organization.uuid
-        return None
 
     def department_uuid(self, obj):
         if obj.department is not None:
@@ -536,9 +515,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         if 'department' in include_fields:
             dep_json = DepartmentSerializer(obj.department, context=self.context).data
             ret['department'] = dep_json
-        if 'organization' in include_fields:
-            org_json = OrganizationSerializer(obj.organization, context=self.context).data
-            ret['organization'] = org_json
         if 'municipality' in include_fields and obj.municipality:
             muni_json = munigeo_api.MunicipalitySerializer(obj.municipality, context=self.context).data
             ret['municipality'] = muni_json
@@ -701,9 +677,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                         raise ParseError("municipality with ID '%s' not found" % ocd_id)
 
                 queryset = queryset.filter(muni_sq)
-
-        if 'organization' in filters:
-            queryset = queryset.filter(organization__uuid=filters.get('organization'))
 
         if 'provider_type' in filters:
             val = filters.get('provider_type')

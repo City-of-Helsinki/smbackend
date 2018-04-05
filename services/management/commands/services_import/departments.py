@@ -1,9 +1,9 @@
 from munigeo.importer.sync import ModelSyncher
-from services.models import Department, Organization
+from services.models import Department
 from .utils import pk_get, save_translated_field
 
 
-def import_departments(org_syncher=None, noop=False, logger=None, fetch_resource=pk_get):
+def import_departments(noop=False, logger=None, fetch_resource=pk_get):
     obj_list = fetch_resource('department')
     syncher = ModelSyncher(Department.objects.all(), lambda obj: str(obj.uuid))
     # self.dept_syncher = syncher
@@ -52,17 +52,6 @@ def import_departments(org_syncher=None, noop=False, logger=None, fetch_resource
         for field in fields_that_need_translation:
             if save_translated_field(obj, field, d, field):
                 obj_has_changed = True
-
-        if org_syncher:
-            org_obj = org_syncher.get(d['org_id'])
-        else:
-            org_obj = Organization.objects.get(uuid=d['org_id'])
-
-        assert org_obj, "Organization '%s' for department '%s' does not exist - bailing out" % (d['org_id'], obj)
-
-        if obj.organization_id != d['org_id']:
-            obj_has_changed = True
-            obj.organization = org_obj
 
         if obj_has_changed:
             obj.save()

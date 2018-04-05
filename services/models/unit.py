@@ -8,7 +8,6 @@ from munigeo.utils import get_default_srid
 
 from services.utils import get_translated
 from .department import Department
-from .organization import Organization
 from .keyword import Keyword
 
 
@@ -80,7 +79,6 @@ class Unit(models.Model):
     location = models.PointField(null=True, srid=PROJECTION_SRID)  # lat, lng?
     geometry = models.GeometryField(srid=PROJECTION_SRID, null=True)
     department = models.ForeignKey(Department, null=True)
-    organization = models.ForeignKey(Organization)
 
     organizer_type = models.PositiveSmallIntegerField(choices=ORGANIZER_TYPES, null=True)
     organizer_name = models.CharField(max_length=100, null=True)
