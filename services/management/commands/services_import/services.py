@@ -2,7 +2,7 @@ from datetime import datetime
 import re
 import pytz
 from munigeo.importer.sync import ModelSyncher
-from services.models import OntologyTreeNode, OntologyWord
+from services.models import ServiceNode, OntologyWord
 from services.management.commands.services_import.keyword import KeywordHandler
 from .utils import pk_get, save_translated_field
 
@@ -14,7 +14,7 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
                     ontologytrees=pk_get('ontologytree'),
                     ontologywords=pk_get('ontologyword')):
 
-    nodesyncher = ModelSyncher(OntologyTreeNode.objects.all(), lambda obj: obj.id)
+    nodesyncher = ModelSyncher(ServiceNode.objects.all(), lambda obj: obj.id)
     servicesyncher = ModelSyncher(OntologyWord.objects.all(), lambda obj: obj.id)
 
     def _build_servicetree(ontologytrees):
@@ -34,7 +34,7 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
     def handle_servicenode(d, keyword_handler):
         obj = nodesyncher.get(d['id'])
         if not obj:
-            obj = OntologyTreeNode(id=d['id'])
+            obj = ServiceNode(id=d['id'])
             obj._changed = True
         if save_translated_field(obj, 'name', d, 'name'):
             obj._changed = True

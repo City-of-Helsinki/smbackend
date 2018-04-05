@@ -1,10 +1,11 @@
 from django.db import models
 
-from .ontology_tree_node import OntologyTreeNode
+from .service_node import ServiceNode
+
 
 class ServiceMapping(models.Model):
     service_id = models.IntegerField(unique=True)
-    node_id = models.ForeignKey(OntologyTreeNode)
+    node_id = models.ForeignKey(ServiceNode)
     filter = models.TextField(blank=True, null=True, default="")
 
     def __str__(self):

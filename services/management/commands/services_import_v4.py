@@ -18,7 +18,7 @@ from services.management.commands.services_import.accessibility import import_ac
 from services.management.commands.services_import.keyword import KeywordHandler
 
 from munigeo.models import AdministrativeDivision
-from services.models import OntologyTreeNode
+from services.models import ServiceNode
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
 GK25_SRID = 3879

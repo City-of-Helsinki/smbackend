@@ -145,7 +145,7 @@ def assert_unit_correctly_imported(unit, source_unit, source_ontologywords):
 
     assert str(d['department']['id']) == s['dept_id']
 
-    assert set(d['tree_nodes']) == set(s['ontologytree_ids']), 'ontologytree_ids'
+    assert set(d['service_nodes']) == set(s['ontologytree_ids']), 'ontologytree_ids'
 
     assert set(d['services']) == source_ontologywords
 
@@ -283,7 +283,7 @@ def test_import_units(api_client, resources):
         ontologytrees=fetch_resource('ontologytree'),
         ontologywords=fetch_resource('ontologyword'))
 
-    response = get(api_client, reverse('ontologytreenode-list'))
+    response = get(api_client, reverse('servicenode-list'))
     assert_resource_synced(response, 'ontologytree', resources)
 
     response = get(api_client, reverse('ontologyword-list'))
@@ -307,7 +307,7 @@ def test_import_units(api_client, resources):
     for ow in resources['ontologyword']:
         ontologyword_by_id[ow['id']] = ow
 
-    treenode_counts = {}
+    servicenode_counts = {}
     ontologyword_counts = {}
 
     imported_ontologyword_details = {}
@@ -316,8 +316,8 @@ def test_import_units(api_client, resources):
         assert_unit_correctly_imported(unit, source_units_by_id.get(unit['id']),
                                        ontologyword_ids_by_unit_id[unit['id']])
         imported_ontologyword_details[unit['id']] = unit['service_details']
-        for treenode_id in unit['tree_nodes']:
-            treenode_counts[treenode_id] = treenode_counts.get(treenode_id, 0) + 1
+        for servicenode_id in unit['service_nodes']:
+            servicenode_counts[servicenode_id] = servicenode_counts.get(servicenode_id, 0) + 1
         for ontologyword_id in unit['services']:
             ontologyword_counts[ontologyword_id] = ontologyword_counts.get(ontologyword_id, 0) + 1
 
@@ -326,10 +326,10 @@ def test_import_units(api_client, resources):
 
     # Check unit counts in related objects
 
-    response = get(api_client, reverse('ontologytreenode-list'))
-    treenodes = response.data['results']
-    for treenode in treenodes:
-        assert treenode_counts.get(treenode['id'], 0) == treenode['unit_count']
+    response = get(api_client, reverse('servicenode-list'))
+    servicenodes = response.data['results']
+    for servicenode in servicenodes:
+        assert servicenode_counts.get(servicenode['id'], 0) == servicenode['unit_count']
 
     response = get(api_client, reverse('ontologyword-list'))
     ontologywords = response.data['results']

@@ -62,11 +62,11 @@ class UnitIndex(ServiceMapBaseIndex):
         return [ow.id for ow in obj.ontologywords.all()]
 
 
-class OntologyTreeNodeIndex(ServiceMapBaseIndex):
+class ServiceNodeIndex(ServiceMapBaseIndex):
 
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
-        self.model = apps.get_model(app_label='services', model_name='OntologyTreeNode')
+        self.model = apps.get_model(app_label='services', model_name='ServiceNode')
 
     def get_updated_field(self):
         return 'last_modified_time'
@@ -78,8 +78,8 @@ class OntologyTreeNodeIndex(ServiceMapBaseIndex):
         # text queries which are usually trying to be somewhat
         # specific.
         unique_ids = (
-            # The query below ensures that duplicate treenodes
-            # are only indexed once. They are treenodes which
+            # The query below ensures that duplicate servicenodes
+            # are only indexed once. They are servicenodes which
             # have the exact same ontologyword reference.
             #
             # Note the empty order_by clause which prevents

@@ -1,5 +1,5 @@
 from modeltranslation.translator import translator, TranslationOptions
-from services.models import OntologyWord, UnitOntologyWordDetails, OntologyTreeNode,\
+from services.models import OntologyWord, UnitOntologyWordDetails, ServiceNode,\
     Department, Unit, UnitConnection, AccessibilitySentence
 
 
@@ -13,9 +13,9 @@ class UnitOntologyWordDetailsTranslationOptions(TranslationOptions):
 translator.register(UnitOntologyWordDetails, UnitOntologyWordDetailsTranslationOptions)
 
 
-class OntologyTreeNodeTranslationOptions(TranslationOptions):
+class ServiceNodeTranslationOptions(TranslationOptions):
     fields = ('name',)
-translator.register(OntologyTreeNode, OntologyTreeNodeTranslationOptions)
+translator.register(ServiceNode, ServiceNodeTranslationOptions)
 
 
 class DepartmentTranslationOptions(TranslationOptions):

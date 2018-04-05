@@ -35,7 +35,7 @@ class UnitRedirectViewSet(viewsets.ViewSet):
 
     def _generate_redirect_parameters(self, queryset, params):
         for mapping in queryset:
-            params.appendlist('treenode', str(mapping.node_id.id))
+            params.appendlist('servicenode', str(mapping.node_id.id))
             additional_filter = parse_qs(mapping.filter)
             for k, val in additional_filter.items():
                 for x in val:

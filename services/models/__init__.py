@@ -1,6 +1,6 @@
 from .department import Department
 from .ontology_word import OntologyWord, UnitOntologyWordDetails
-from .ontology_tree_node import OntologyTreeNode
+from .service_node import ServiceNode
 from .unit import Unit
 from .keyword import Keyword
 from .unit_connection import UnitConnection

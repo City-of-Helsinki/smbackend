@@ -21,7 +21,7 @@ from haystack.inputs import AutoQuery
 from mptt.utils import drilldown_tree_for_node
 
 from services.models import Unit, Department, OntologyWord
-from services.models import OntologyTreeNode, UnitConnection, UnitOntologyWordDetails
+from services.models import ServiceNode, UnitConnection, UnitOntologyWordDetails
 from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
 from services.models.unit_connection import SECTION_TYPES
 from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES, CONTRACT_TYPES
@@ -223,7 +223,7 @@ def root_servicenodes(services):
     # check this
     tree_ids = set(s.tree_id for s in services)
     return map(lambda x: x.id,
-               OntologyTreeNode.objects.filter(level=0).filter(
+               ServiceNode.objects.filter(level=0).filter(
                    tree_id__in=tree_ids))
 
 
@@ -239,18 +239,18 @@ class JSONAPISerializer(serializers.ModelSerializer):
                 del self.fields[field_name]
 
 
-class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
+class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
     children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     def __init__(self, *args, **kwargs):
-        super(ServiceTreeSerializer, self).__init__(*args, **kwargs)
+        super(ServiceNodeSerializer, self).__init__(*args, **kwargs)
 
     def to_representation(self, obj):
-        ret = super(ServiceTreeSerializer, self).to_representation(obj)
+        ret = super(ServiceNodeSerializer, self).to_representation(obj)
         include_fields = self.context.get('include', [])
         if 'ancestors' in include_fields:
             ancestors = obj.get_ancestors(ascending=True)
-            ser = ServiceTreeSerializer(ancestors, many=True, context={'only': ['name']})
+            ser = ServiceNodeSerializer(ancestors, many=True, context={'only': ['name']})
             ret['ancestors'] = ser.data
         only_fields = self.context.get('only', [])
         if 'parent' in only_fields:
@@ -263,7 +263,7 @@ class ServiceTreeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
         return next(root_servicenodes([obj]))
 
     class Meta:
-        model = OntologyTreeNode
+        model = ServiceNode
         fields = '__all__'
 
 
@@ -382,14 +382,14 @@ class UnitIdentifierSerializer(serializers.ModelSerializer):
         exclude = ['unit', 'id']
 
 
-class ServiceTreeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
-    queryset = OntologyTreeNode.objects.all()
-    serializer_class = ServiceTreeSerializer
+class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
+    queryset = ServiceNode.objects.all()
+    serializer_class = ServiceNodeSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ['level', 'parent']
 
     def get_queryset(self):
-        queryset = super(ServiceTreeViewSet, self).get_queryset().prefetch_related('related_ontologywords')
+        queryset = super(ServiceNodeViewSet, self).get_queryset().prefetch_related('related_ontologywords')
         args = self.request.query_params
         if 'id' in args:
             id_list = args['id'].split(',')
@@ -399,7 +399,7 @@ class ServiceTreeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
             queryset = queryset.by_ancestor(val)
         return queryset
 
-register_view(ServiceTreeViewSet, 'service')
+register_view(ServiceNodeViewSet, 'service_node')
 
 
 class OntologyWordViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
@@ -505,11 +505,11 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 kw_dict[kw.language].append(kw.name)
             ret['keywords'] = kw_dict
 
-        if 'root_ontologytreenodes' in ret:
-            if obj.root_ontologytreenodes is None or obj.root_ontologytreenodes == '':
-                ret['root_ontologytreenodes'] = None
+        if 'root_servicenodes' in ret:
+            if obj.root_servicenodes is None or obj.root_servicenodes == '':
+                ret['root_servicenodes'] = None
             else:
-                ret['root_ontologytreenodes'] = [int(x) for x in obj.root_ontologytreenodes.split(',')]
+                ret['root_servicenodes'] = [int(x) for x in obj.root_servicenodes.split(',')]
 
         include_fields = self.context.get('include', [])
         if 'department' in include_fields:
@@ -521,7 +521,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         # Not using actual serializer instances below is a performance optimization.
         if 'services' in include_fields:
             services_json = []
-            for s in obj.service_tree_nodes.all():
+            for s in obj.service_nodes.all():
                 # Optimization:
                 # Store root nodes by tree_id in a dict because otherwise
                 # this would generate multiple db queries for every single unit
@@ -581,7 +581,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
 
         rename_field('desc', 'description')
         rename_field('short_desc', 'short_description')
-        rename_field('service_tree_nodes', 'tree_nodes')
         return ret
 
     class Meta:
@@ -697,7 +696,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         def services_by_ancestors(service_ids):
             srv_list = set()
             for srv_id in service_ids:
-                srv_list |= set(OntologyTreeNode.objects.all().by_ancestor(srv_id).values_list('id', flat=True))
+                srv_list |= set(ServiceNode.objects.all().by_ancestor(srv_id).values_list('id', flat=True))
                 srv_list.add(int(srv_id))
             return list(srv_list)
 
@@ -711,7 +710,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             if level_specs['type'] == 'include':
                 service_ids = level_specs['services']
         if service_ids:
-            queryset = queryset.filter(service_tree_nodes__in=services_by_ancestors(service_ids)).distinct()
+            queryset = queryset.filter(service_nodes__in=services_by_ancestors(service_ids)).distinct()
 
         service_ids = None
         val = filters.get('exclude_services', None)
@@ -722,7 +721,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             if level_specs['type'] == 'exclude':
                 service_ids = level_specs['services']
         if service_ids:
-            queryset = queryset.exclude(service_tree_nodes__in=services_by_ancestors(service_ids)).distinct()
+            queryset = queryset.exclude(service_nodes__in=services_by_ancestors(service_ids)).distinct()
 
         if 'division' in filters:
             # Divisions can be specified with form:
@@ -798,7 +797,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             queryset = queryset.prefetch_related('connections')
 
         if 'services' in self.include_fields:
-            queryset = queryset.prefetch_related('service_tree_nodes')
+            queryset = queryset.prefetch_related('service_nodes')
 
         if 'accessibility_properties' in self.include_fields:
             queryset = queryset.prefetch_related('accessibility_properties')
@@ -837,7 +836,7 @@ class SearchSerializer(serializers.Serializer):
         if model == Unit:
             key = 'unit'
         else:
-            key = 'ontologytreenode'
+            key = 'servicenode'
         for spec in ['include', 'only']:
             if spec in context:
                 context[spec] = context[spec].get(key, [])
@@ -941,7 +940,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                     muni_q |= q
                 queryset = queryset.filter(
                     SQ(muni_q |
-                       SQ(django_ct='services.ontologytreenode') |
+                       SQ(django_ct='services.servicenode') |
                        SQ(django_ct='munigeo.address')))
 
         service = request.query_params.get('service')
@@ -952,8 +951,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         models = set()
         types = request.query_params.get('type', '').split(',')
         for t in types:
-            if t == 'ontologytreenode':
-                models.add(OntologyTreeNode)
+            if t == 'servicenode':
+                models.add(ServiceNode)
             elif t == 'unit':
                 models.add(Unit)
             elif t == 'address':

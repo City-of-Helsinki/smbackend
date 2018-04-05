@@ -7,7 +7,7 @@ from .hierarchy import CustomTreeManager
 from .ontology_word import OntologyWord
 
 
-class OntologyTreeNode(MPTTModel):
+class ServiceNode(MPTTModel):
     id = models.IntegerField(primary_key=True)  # id of ontologytree
     name = models.CharField(max_length=200, db_index=True)
     parent = TreeForeignKey('self', null=True, related_name='children')
@@ -25,9 +25,9 @@ class OntologyTreeNode(MPTTModel):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
     def get_unit_count(self):
-        srv_list = set(OntologyTreeNode.objects.all().by_ancestor(self).values_list('id', flat=True))
+        srv_list = set(ServiceNode.objects.all().by_ancestor(self).values_list('id', flat=True))
         srv_list.add(self.id)
-        count = Unit.objects.filter(public=True, service_tree_nodes__in=list(srv_list)).distinct().count()
+        count = Unit.objects.filter(public=True, service_nodes__in=list(srv_list)).distinct().count()
         return count
 
     def period_enabled(self):
