@@ -219,7 +219,7 @@ def root_services(services):
                    tree_id__in=tree_ids))
 
 
-def root_servicenodes(services):
+def root_service_nodes(services):
     # check this
     tree_ids = set(s.tree_id for s in services)
     return map(lambda x: x.id,
@@ -256,11 +256,11 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
         if 'parent' in only_fields:
             ret['parent'] = obj.parent_id
         ret['period_enabled'] = obj.period_enabled()
-        ret['root'] = self.root_servicenodes(obj)
+        ret['root'] = self.root_service_nodes(obj)
         return ret
 
-    def root_servicenodes(self, obj):
-        return next(root_servicenodes([obj]))
+    def root_service_nodes(self, obj):
+        return next(root_service_nodes([obj]))
 
     class Meta:
         model = ServiceNode
@@ -505,11 +505,11 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 kw_dict[kw.language].append(kw.name)
             ret['keywords'] = kw_dict
 
-        if 'root_servicenodes' in ret:
-            if obj.root_servicenodes is None or obj.root_servicenodes == '':
-                ret['root_servicenodes'] = None
+        if 'root_service_nodes' in ret:
+            if obj.root_service_nodes is None or obj.root_service_nodes == '':
+                ret['root_service_nodes'] = None
             else:
-                ret['root_servicenodes'] = [int(x) for x in obj.root_servicenodes.split(',')]
+                ret['root_service_nodes'] = [int(x) for x in obj.root_service_nodes.split(',')]
 
         include_fields = self.context.get('include', [])
         if 'department' in include_fields:
@@ -693,35 +693,35 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             if level != 'all':
                 level_specs = settings.LEVELS.get(level)
 
-        def services_by_ancestors(service_ids):
+        def service_nodes_by_ancestors(service_node_ids):
             srv_list = set()
-            for srv_id in service_ids:
+            for srv_id in service_node_ids:
                 srv_list |= set(ServiceNode.objects.all().by_ancestor(srv_id).values_list('id', flat=True))
                 srv_list.add(int(srv_id))
             return list(srv_list)
 
-        services = filters.get('service', None)
+        service_nodes = filters.get('service_node', None)
 
-        service_ids = None
-        if services:
-            services = services.lower()
-            service_ids = services.split(',')
+        service_node_ids = None
+        if service_nodes:
+            service_nodes = service_nodes.lower()
+            service_node_ids = service_nodes.split(',')
         elif level_specs:
             if level_specs['type'] == 'include':
-                service_ids = level_specs['services']
-        if service_ids:
-            queryset = queryset.filter(service_nodes__in=services_by_ancestors(service_ids)).distinct()
+                service_node_ids = level_specs['service_nodes']
+        if service_node_ids:
+            queryset = queryset.filter(service_nodes__in=service_nodes_by_ancestors(service_node_ids)).distinct()
 
-        service_ids = None
-        val = filters.get('exclude_services', None)
+        service_node_ids = None
+        val = filters.get('exclude_service_nodes', None)
         if val:
             val = val.lower()
-            service_ids = val.split(',')
+            service_node_ids = val.split(',')
         elif level_specs:
             if level_specs['type'] == 'exclude':
-                service_ids = level_specs['services']
-        if service_ids:
-            queryset = queryset.exclude(service_nodes__in=services_by_ancestors(service_ids)).distinct()
+                service_node_ids = level_specs['service_nodes']
+        if service_node_ids:
+            queryset = queryset.exclude(service_nodes__in=service_nodes_by_ancestors(service_node_ids)).distinct()
 
         if 'division' in filters:
             # Divisions can be specified with form:
@@ -796,7 +796,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         if 'connections' in self.include_fields:
             queryset = queryset.prefetch_related('connections')
 
-        if 'services' in self.include_fields:
+        if 'service_nodes' in self.include_fields:
             queryset = queryset.prefetch_related('service_nodes')
 
         if 'accessibility_properties' in self.include_fields:
@@ -836,7 +836,7 @@ class SearchSerializer(serializers.Serializer):
         if model == Unit:
             key = 'unit'
         else:
-            key = 'servicenode'
+            key = 'service_node'
         for spec in ['include', 'only']:
             if spec in context:
                 context[spec] = context[spec].get(key, [])
@@ -940,7 +940,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                     muni_q |= q
                 queryset = queryset.filter(
                     SQ(muni_q |
-                       SQ(django_ct='services.servicenode') |
+                       SQ(django_ct='services.service_node') |
                        SQ(django_ct='munigeo.address')))
 
         service = request.query_params.get('service')
@@ -951,7 +951,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         models = set()
         types = request.query_params.get('type', '').split(',')
         for t in types:
-            if t == 'servicenode':
+            if t == 'service_node':
                 models.add(ServiceNode)
             elif t == 'unit':
                 models.add(Unit)
