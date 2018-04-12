@@ -57,7 +57,7 @@
                 "generate_word_parts": true,
                 "generate_number_parts": false,
                 "catenate_words": false,
-                "catenate_numbers": true,
+                "catenate_numbers": false,
                 "preserve_original": true,
                 "split_on_numerics": false,
                 "stem_english_possessive": false
