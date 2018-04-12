@@ -5,6 +5,7 @@
                 "tokenizer": "finnish",
                 "filter": [
                     "lowercase",
+                    "finnish_word_delimiter_filter",
                     "voikko_filter"
                 ]
             },
@@ -51,6 +52,16 @@
             }
         },
         "filter": {
+            "finnish_word_delimiter_filter": {
+                "type": "word_delimiter",
+                "generate_word_parts": true,
+                "generate_number_parts": false,
+                "catenate_words": false,
+                "catenate_numbers": true,
+                "preserve_original": true,
+                "split_on_numerics": false,
+                "stem_english_possessive": false
+            },
             "voikko_filter": {
                 "type": "voikko",
                 "expandCompounds": true
