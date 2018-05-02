@@ -14,11 +14,8 @@ from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.services import import_services
 from services.management.commands.services_import.units import import_units
-from services.management.commands.services_import.accessibility import import_accessibility
-from services.management.commands.services_import.keyword import KeywordHandler
 
 from munigeo.models import AdministrativeDivision
-from services.models import ServiceNode
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
 GK25_SRID = 3879
