@@ -59,7 +59,7 @@ class UnitIndex(ServiceMapBaseIndex):
         return 'origin_last_modified_time'
 
     def prepare_services(self, obj):
-        return [ow.id for ow in obj.ontologywords.all()]
+        return [ow.id for ow in obj.services.all()]
 
 
 class ServiceNodeIndex(ServiceMapBaseIndex):
@@ -80,12 +80,12 @@ class ServiceNodeIndex(ServiceMapBaseIndex):
         unique_ids = (
             # The query below ensures that duplicate servicenodes
             # are only indexed once. They are servicenodes which
-            # have the exact same ontologyword reference.
+            # have the exact same service reference.
             #
             # Note the empty order_by clause which prevents
             # default ordering from interfering with the grouping.
-            manager.exclude(ontologyword_reference__isnull=True)
-            .values('ontologyword_reference')
+            manager.exclude(service_reference__isnull=True)
+            .values('service_reference')
             .annotate(id=models.Min('id'))
             .values_list('id', flat=True)
             .order_by())
@@ -94,7 +94,7 @@ class ServiceNodeIndex(ServiceMapBaseIndex):
             Q(id__in=unique_ids) | Q(
                 # We have to separately add all nodes with null references
                 # and level > 0.
-                Q(level__gt=0) & Q(ontologyword_reference__isnull=True)))
+                Q(level__gt=0) & Q(service_reference__isnull=True)))
 
     # def prepare(self, obj):
     #     obj.lang_keywords = obj.keywords.filter(language=get_language())

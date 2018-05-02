@@ -147,7 +147,7 @@ def assert_unit_correctly_imported(unit, source_unit, source_ontologywords):
 
     assert set(d['service_nodes']) == set(s['ontologytree_ids']), 'ontologytree_ids'
 
-    assert set(d['services']) == source_ontologywords
+    assert set(d['services']) == source_services
 
     #  2. optional fields
     for field_name in [
@@ -241,7 +241,7 @@ def assert_resource_synced(response, resource_name, resources):
             id_set(resources[resource_name]))
 
 
-def ontologyword_details_match(src, dest):
+def service_details_match(src, dest):
     assert 'id' not in dest and 'unit' not in dest
     src_schoolyear = src.get('schoolyear', None)
     if src_schoolyear is not None:
@@ -250,14 +250,14 @@ def ontologyword_details_match(src, dest):
         if src_schoolyear != '{}-{}'.format(*dest['period']):
             return False
     return (
-        src['ontologyword_id'] == dest['ontologyword'] and
+        src['ontologyword_id'] == dest['service'] and
         translated_field_match('clarification', src, dest))
 
 
-def assert_ontologyword_details_correctly_imported(source, imported):
+def assert_service_details_correctly_imported(source, imported):
     for sdetails in source:
         unit_details = imported[sdetails['unit_id']]
-        match = next((d for d in unit_details if ontologyword_details_match(sdetails, d)), None)
+        match = next((d for d in unit_details if service_details_match(sdetails, d)), None)
         assert match is not None
         index = unit_details.index(match)
         del unit_details[index]
@@ -286,7 +286,7 @@ def test_import_units(api_client, resources):
     response = get(api_client, reverse('servicenode-list'))
     assert_resource_synced(response, 'ontologytree', resources)
 
-    response = get(api_client, reverse('ontologyword-list'))
+    response = get(api_client, reverse('service-list'))
     assert_resource_synced(response, 'ontologyword', resources)
 
     import_units(
@@ -299,43 +299,49 @@ def test_import_units(api_client, resources):
     source_units_by_id = dict((u['id'], u) for u in resources['unit'])
     ontologyword_ids_by_unit_id = dict()
     ontologyword_by_id = {}
+    ontologytree_by_id = {}
 
     for owd in resources['ontologyword_details']:
         s = ontologyword_ids_by_unit_id.setdefault(owd['unit_id'], set())
         s.add(owd['ontologyword_id'])
 
+    for ot in resources['ontologytree']:
+        ontologytree_by_id[ot['id']] = ot
+
     for ow in resources['ontologyword']:
         ontologyword_by_id[ow['id']] = ow
 
-    servicenode_counts = {}
-    ontologyword_counts = {}
+    service_node_counts = {}
+    service_counts = {}
 
-    imported_ontologyword_details = {}
+    imported_service_details = {}
 
     for unit in response.data['results']:
         assert_unit_correctly_imported(unit, source_units_by_id.get(unit['id']),
                                        ontologyword_ids_by_unit_id[unit['id']])
-        imported_ontologyword_details[unit['id']] = unit['service_details']
-        for servicenode_id in unit['service_nodes']:
-            servicenode_counts[servicenode_id] = servicenode_counts.get(servicenode_id, 0) + 1
-        for ontologyword_id in unit['services']:
-            ontologyword_counts[ontologyword_id] = ontologyword_counts.get(ontologyword_id, 0) + 1
+        imported_service_details[unit['id']] = unit['service_details']
+        for service_node_id in unit['service_nodes']:
+            service_node_counts[service_node_id] = service_node_counts.get(service_node_id, 0) + 1
+        for service_id in unit['services']:
+            service_counts[service_id] = service_counts.get(service_id, 0) + 1
 
-    assert_ontologyword_details_correctly_imported(
-        resources['ontologyword_details'], imported_ontologyword_details)
+    assert_service_details_correctly_imported(
+        resources['ontologyword_details'], imported_service_details)
 
     # Check unit counts in related objects
 
     response = get(api_client, reverse('servicenode-list'))
-    servicenodes = response.data['results']
-    for servicenode in servicenodes:
-        assert servicenode_counts.get(servicenode['id'], 0) == servicenode['unit_count']
+    service_nodes = response.data['results']
+    for service_node in service_nodes:
+        assert service_node_counts.get(service_node['id'], 0) == service_node['unit_count']
+        assert_keywords_correct(ontologytree_by_id.get(service_node['id']), service_node)
 
-    response = get(api_client, reverse('ontologyword-list'))
-    ontologywords = response.data['results']
-    for ontologyword in ontologywords:
-        assert ontologyword_counts.get(ontologyword['id'], 0) == ontologyword['unit_count']
-        to = ontologyword
-        frm = ontologyword_by_id[ontologyword['id']]
+    response = get(api_client, reverse('service-list'))
+    services = response.data['results']
+    for service in services:
+        assert service_counts.get(service['id'], 0) == service['unit_count']
+        to = service
+        frm = ontologyword_by_id[service['id']]
         assert to['period_enabled'] == frm['can_add_schoolyear']
         assert to['clarification_enabled'] == frm['can_add_clarification']
+        assert_keywords_correct(ontologyword_by_id.get(service['id']), service)

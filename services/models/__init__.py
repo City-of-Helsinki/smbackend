@@ -1,5 +1,5 @@
 from .department import Department
-from .ontology_word import OntologyWord, UnitOntologyWordDetails
+from .service import Service, UnitServiceDetails
 from .service_node import ServiceNode
 from .unit import Unit
 from .keyword import Keyword

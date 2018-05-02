@@ -1,16 +1,16 @@
 from modeltranslation.translator import translator, TranslationOptions
-from services.models import OntologyWord, UnitOntologyWordDetails, ServiceNode,\
-    Department, Unit, UnitConnection, AccessibilitySentence
+from services.models import Service, UnitServiceDetails, ServiceNode,\
+    Department, Unit, UnitConnection
 
 
-class OntologyWordTranslationOptions(TranslationOptions):
+class ServiceTranslationOptions(TranslationOptions):
     fields = ('name',)
-translator.register(OntologyWord, OntologyWordTranslationOptions)
+translator.register(Service, ServiceTranslationOptions)
 
 
-class UnitOntologyWordDetailsTranslationOptions(TranslationOptions):
+class UnitServiceDetailsTranslationOptions(TranslationOptions):
     fields = ('clarification',)
-translator.register(UnitOntologyWordDetails, UnitOntologyWordDetailsTranslationOptions)
+translator.register(UnitServiceDetails, UnitServiceDetailsTranslationOptions)
 
 
 class ServiceNodeTranslationOptions(TranslationOptions):
@@ -32,8 +32,3 @@ translator.register(Unit, UnitTranslationOptions)
 class UnitConnectionTranslationOptions(TranslationOptions):
     fields = ('name', 'www')
 translator.register(UnitConnection, UnitConnectionTranslationOptions)
-
-
-class AccessibilitySentenceTranslationOptions(TranslationOptions):
-    fields = ('group', 'sentence')
-translator.register(AccessibilitySentence, AccessibilitySentenceTranslationOptions)

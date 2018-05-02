@@ -20,8 +20,8 @@ from haystack.inputs import AutoQuery
 
 from mptt.utils import drilldown_tree_for_node
 
-from services.models import Unit, Department, OntologyWord
-from services.models import ServiceNode, UnitConnection, UnitOntologyWordDetails
+from services.models import Unit, Department, Service
+from services.models import ServiceNode, UnitConnection, UnitServiceDetails
 from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
 from services.models.unit_connection import SECTION_TYPES
 from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES, CONTRACT_TYPES
@@ -226,7 +226,7 @@ register_view(DepartmentViewSet, 'department')
 def root_services(services):
     tree_ids = set(s.tree_id for s in services)
     return map(lambda x: x.id,
-               OntologyWord.objects.filter(level=0).filter(
+               Service.objects.filter(level=0).filter(
                    tree_id__in=tree_ids))
 
 
@@ -278,17 +278,17 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
         fields = '__all__'
 
 
-class OntologyWordSerializer(TranslatedModelSerializer, JSONAPISerializer):
+class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
     # children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     class Meta:
-        model = OntologyWord
-        fields = ['name', 'id', 'unit_count', 'period_enabled', 'clarification_enabled']
+        model = Service
+        fields = ['name', 'id', 'unit_count', 'period_enabled', 'clarification_enabled', 'keywords']
 
 
-class OntologyWordDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer):
+class ServiceDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
-        ret = super(OntologyWordDetailsSerializer, self).to_representation(obj)
-        ret['name'] = OntologyWordSerializer(obj.ontologyword).data['name']
+        ret = super(ServiceDetailsSerializer, self).to_representation(obj)
+        ret['name'] = ServiceSerializer(obj.service).data['name']
         if ret['period_begin_year'] is not None:
             ret['period'] = [ret['period_begin_year'], ret.get('period_end_year')]
         else:
@@ -298,8 +298,8 @@ class OntologyWordDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer
         return ret
 
     class Meta:
-        model = UnitOntologyWordDetails
-        fields = ['ontologyword', 'clarification', 'period_begin_year', 'period_end_year']
+        model = UnitServiceDetails
+        fields = ['service', 'clarification', 'period_begin_year', 'period_end_year']
 
 
 class JSONAPIViewSetMixin:
@@ -400,7 +400,7 @@ class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     filter_fields = ['level', 'parent']
 
     def get_queryset(self):
-        queryset = super(ServiceNodeViewSet, self).get_queryset().prefetch_related('related_ontologywords')
+        queryset = super(ServiceNodeViewSet, self).get_queryset().prefetch_related('related_services')
         args = self.request.query_params
         if 'id' in args:
             id_list = args['id'].split(',')
@@ -413,12 +413,12 @@ class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 register_view(ServiceNodeViewSet, 'service_node')
 
 
-class OntologyWordViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
-    queryset = OntologyWord.objects.all()
-    serializer_class = OntologyWordSerializer
+class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
 
     def get_queryset(self):
-        queryset = super(OntologyWordViewSet, self).get_queryset()
+        queryset = super(ServiceViewSet, self).get_queryset()
         args = self.request.query_params
         if 'id' in args:
             id_list = args['id'].split(',')
@@ -428,7 +428,7 @@ class OntologyWordViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
             queryset = queryset.by_ancestor(val)
         return queryset
 
-register_view(OntologyWordViewSet, 'ontologyword')
+register_view(ServiceViewSet, 'service')
 
 
 class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
@@ -440,7 +440,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
     provider_type = serializers.SerializerMethodField()
     organizer_type = serializers.SerializerMethodField()
     contract_type = serializers.SerializerMethodField()
-    services = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
@@ -486,9 +485,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
 
     def get_organizer_type(self, obj):
         return choicefield_string(ORGANIZER_TYPES, 'organizer_type', obj)
-
-    def get_services(self, obj):
-        return set(map(lambda x: x.ontologyword_id, obj.ontologyword_details.all()))
 
     def get_contract_type(self, obj):
         key = choicefield_string(CONTRACT_TYPES, 'contract_type', obj)
@@ -541,7 +537,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                     'id': s.id,
                     'name': name,
                     'root': root_node.id,
-                    'ontologyword_reference': s.ontologyword_reference
+                    'service_reference': s.service_reference
                 }
                 # if s.identical_to:
                 #    data['identical_to'] = getattr(s.identical_to, 'id', None)
@@ -569,7 +565,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
 
         if self.context.get('service_details'):
             ret['service_details'] = (
-                OntologyWordDetailsSerializer(obj.ontologyword_details, many=True).data)
+                ServiceDetailsSerializer(obj.service_details, many=True).data)
 
         if 'extensions' in ret:
             ret['extensions'] = self.handle_extension_translations(ret['extensions'])
@@ -590,11 +586,9 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         model = Unit
         exclude = [
             'connection_hash',
-            'ontologyword_details_hash',
+            'service_details_hash',
             'accessibility_property_hash',
-            'accessibility_sentence_hash',
-            'identifier_hash',
-            'ontologywords'
+            'identifier_hash'
         ]
 
 
@@ -653,8 +647,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     def get_queryset(self):
         queryset = super(UnitViewSet, self).get_queryset()
         if self._service_details_requested():
-            queryset = queryset.prefetch_related('ontologyword_details')
-            queryset = queryset.prefetch_related('ontologyword_details__ontologyword')
+            queryset = queryset.prefetch_related('service_details')
+            queryset = queryset.prefetch_related('service_details__service')
 
         filters = self.request.query_params
         if 'id' in filters:

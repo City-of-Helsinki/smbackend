@@ -1,6 +1,6 @@
 import pytest
 from rest_framework.test import APIClient
-from services.models import OntologyWord, Unit, Department
+from services.models import Service, Unit, Department
 from observations.models import ObservableProperty, CategoricalObservation, AllowedValue, UserOrganization
 import datetime as d
 from django.contrib.auth.models import User
@@ -33,7 +33,7 @@ def organization():
 @pytest.mark.django_db
 @pytest.fixture
 def service():
-    return OntologyWord.objects.create(
+    return Service.objects.create(
         id=1,
         name='skiing',
         unit_count=1,

@@ -5,7 +5,7 @@ import haystack
 from django.utils import timezone
 from django.conf import settings
 from django.core.management import call_command
-from services.models import Unit, UnitConnection, OntologyWord
+from services.models import Unit, UnitConnection, Service
 
 
 def read_config(name):
@@ -55,7 +55,7 @@ def haystack_test():
 @pytest.fixture
 def db_content(db):
     """ Generate some content to test against """
-    s = OntologyWord(id=1, name='Kirjasto', unit_count=0, last_modified_time=timezone.now())
+    s = Service(id=1, name='Kirjasto', unit_count=0, last_modified_time=timezone.now())
     s.save()
     u = Unit(id=27586,
              provider_type=1,

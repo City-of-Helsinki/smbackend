@@ -38,8 +38,8 @@ class Command(BaseCommand):
             assert getattr(self, method, False), "No importer defined for %s" % method
 
         self.services = {}
-        self.existing_servicetype_ids = None
-        self.existing_servicenode_ids = None
+        self.existing_service_ids = None
+        self.existing_service_node_ids = None
 
     def add_arguments(self, parser):
         parser.add_argument('import_types', nargs='*', choices=self.importer_types)

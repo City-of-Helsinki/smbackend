@@ -122,7 +122,7 @@ class Unit(models.Model):
     origin_last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
     service_nodes = models.ManyToManyField("ServiceNode", related_name='units')
-    ontologywords = models.ManyToManyField("OntologyWord", related_name='units', through='UnitOntologyWordDetails')
+    services = models.ManyToManyField("Service", related_name='units', through='UnitServiceDetails')
     divisions = models.ManyToManyField(AdministrativeDivision)
     keywords = models.ManyToManyField(Keyword)
 
@@ -133,13 +133,13 @@ class Unit(models.Model):
     accessibility_sentence_hash = models.CharField(max_length=40, null=True)
     identifier_hash = models.CharField(max_length=40, null=True,
                                        help_text='Automatically generated hash of other identifiers')
-    ontologyword_details_hash = models.CharField(max_length=40, null=True)
+    service_details_hash = models.CharField(max_length=40, null=True)
 
     accessibility_viewpoints = JSONField(default="{}")
 
     # Cached fields for better performance
-    root_servicenodes = models.CharField(max_length=50, null=True,
-                                              validators=[validate_comma_separated_integer_list])
+    root_service_nodes = models.CharField(max_length=50, null=True,
+                                          validators=[validate_comma_separated_integer_list])
 
     objects = models.GeoManager()
     search_objects = UnitSearchManager()
@@ -150,10 +150,10 @@ class Unit(models.Model):
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
 
-    def get_root_servicenodes(self):
+    def get_root_service_nodes(self):
         from .service_node import ServiceNode
 
         tree_ids = self.service_nodes.all().values_list('tree_id', flat=True).distinct()
         qs = ServiceNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
-        servicenode_list = qs.values_list('id', flat=True).distinct()
-        return sorted(servicenode_list)
+        service_node_list = qs.values_list('id', flat=True).distinct()
+        return sorted(service_node_list)
