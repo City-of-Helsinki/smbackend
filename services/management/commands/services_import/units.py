@@ -549,28 +549,6 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
             assert section_type
             c.section_type = section_type
 
-            # print("------------- connection ----------------")
-            # pprint.pprint(conn)
-            # print("^^^^^^^^^^^^^ connection ^^^^^^^^^^^^^^^^")
-            # c.section = conn['section_type'].lower()
-            # {'contact_person': 'Miia Kovalainen',
-            # 'email': 'miia.kovalainen@hel.fi',
-            # 'name_en': 'Head of day care centre',
-            # 'name_fi': 'Päiväkodinjohtaja',
-            # 'name_sv': 'Daghemsföreståndare',
-            # 'phone': '09 310 41571',
-            # 'section_type': 'PHONE_OR_EMAIL',
-            # 'unit_id': 1},
-
-            # {'name_en': 'Application for day care',
-            # 'name_fi': 'Täytä päivähoitohakemus',
-            # 'name_sv': 'Ansökan om barndagvård',
-            # 'section_type': 'LINK',
-            # 'unit_id': 1,
-            # 'www_en': 'http://www.hel.fi/www/helsinki/en/day-care-education/day-care/options/applying',
-            # 'www_fi': 'http://www.hel.fi/www/Helsinki/fi/paivahoito-ja-koulutus/paivahoito/paivakotihoito/hakeminen',
-            # 'www_sv': 'http://www.hel.fi/www/helsinki/sv/dagvard-och-utbildning/dagvord/ansokan/ansokan-dagvard'}
-
             c.order = i
             fields = ['email', 'phone', 'contact_person']
             for field in fields:
