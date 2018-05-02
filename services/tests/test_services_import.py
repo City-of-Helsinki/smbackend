@@ -35,6 +35,7 @@ LANGUAGES = [l[0] for l in django_settings.LANGUAGES]
 FIELD_MAPPINGS = {
     'desc': 'description',
     'short_desc': 'short_description',
+    'data_source_url': 'data_source'
 }
 
 
@@ -46,7 +47,7 @@ def assert_dest_field_exists(name, src, dest):
     if src.get(name) is None:
         assert api_field_value(dest, name) is None
     else:
-        assert name in dest
+        assert FIELD_MAPPINGS.get(name, name) in dest
 
 
 def assert_field_match(name, src, dest, required=False):
