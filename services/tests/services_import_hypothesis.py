@@ -126,6 +126,18 @@ def make_source(draw):
 
 # TODO: add department organization type, then add tests for correct mapping
 
+def add_extra_searchwords(draw, result):
+    for lang in LANGUAGES:
+        words = draw(sets(text(SAFE_LETTERS + 'åäöÅÄÖ ',
+                               min_size=1, max_size=25)))
+        if len(words) == 0:
+            event('extra searchwords length {}'.format(len(words)))
+            words = None
+        else:
+            event('extra searchwords length >0')
+            words = ', '.join((word.strip() for word in words))
+            result['extra_searchwords_{}'.format(lang)] = words
+
 
 def unit_maker(draw, resource_ids):
     def make_unit(uid):
@@ -179,16 +191,7 @@ def unit_maker(draw, resource_ids):
 
         # Extra searchwords
 
-        for lang in LANGUAGES:
-            words = draw(sets(text(SAFE_LETTERS + 'åäöÅÄÖ ',
-                                   min_size=1, max_size=25)))
-            if len(words) == 0:
-        add_optional_field('data_source_url', text(max_size=30))
-                event('extra searchwords empty')
-                words = None
-            else:
-                words = ', '.join((word.strip() for word in words))
-                result['extra_searchwords_{}'.format(lang)] = words
+        add_extra_searchwords(draw, result)
 
         add_optional_field('sources',
                            lists(make_source(), min_size=1, max_size=2))
@@ -219,13 +222,21 @@ def department_maker(draw, resource_ids):
 
 
 def ontologyword_maker(draw, *args):
-    return lambda x: {'id': x,
-                      'can_add_schoolyear': draw(booleans()),
-                      'can_add_clarification': draw(booleans())}
+    def make_ontologyword(x):
+        result = {'id': x,
+                  'can_add_schoolyear': draw(booleans()),
+                  'can_add_clarification': draw(booleans())}
+        add_extra_searchwords(draw, result)
+        return result
+    return make_ontologyword
 
 
-def ontologytree_maker(*args):
-    return lambda x: {'id': x}
+def ontologytree_maker(draw, *args):
+    def make_ontologytree(x):
+        result = {'id': x}
+        add_extra_searchwords(draw, result)
+        return result
+    return make_ontologytree
 
 
 make_resource = {}

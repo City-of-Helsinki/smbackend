@@ -129,7 +129,23 @@ def is_missing_contract_type_allowed(s, d):
     return False
 
 
-def assert_unit_correctly_imported(unit, source_unit, source_ontologywords):
+def assert_keywords_correct(s, d):
+    for lang in LANGUAGES:
+        key = 'extra_searchwords_{}'.format(lang)
+        if key not in s:
+            assert lang not in d['keywords']
+            continue
+        exploded = set((e.strip() for e in s[key].split(',') if len(e.strip()) > 0))
+        if len(exploded) == 0:
+            continue
+        result = d['keywords'][lang]
+        assert len(exploded) == len(result)
+        for kw in result:
+            # raises an exception if kw doesn't match any item
+            next(item for item in exploded if kw == item.strip())
+
+
+def assert_unit_correctly_imported(unit, source_unit, source_services):
     d = unit
     s = source_unit
 
@@ -194,24 +210,7 @@ def assert_unit_correctly_imported(unit, source_unit, source_ontologywords):
         assert math.isclose(c[0], s['longitude'], rel_tol=1e-6)
         assert math.isclose(c[1], s['latitude'], rel_tol=1e-6)
 
-    for lang in LANGUAGES:
-        key = 'extra_searchwords_{}'.format(lang)
-        if key not in s:
-            assert lang not in d['keywords']
-            continue
-        exploded = set((e.strip() for e in s[key].split(',') if len(e.strip()) > 0))
-        if len(exploded) == 0:
-            continue
-        result = d['keywords'][lang]
-        assert len(exploded) == len(result)
-    if 'data_source_url' in s:
-        assert_string_field_match('data_source_url', s, d)
-    else:
-        assert d['data_source'] is None
-
-        for kw in result:
-            # raises an exception if kw doesn't match any item
-            next(item for item in exploded if kw == item.strip())
+    assert_keywords_correct(s, d)
 
     def map_source(source):
         return {'namespace': source['source'], 'value': source['id']}
