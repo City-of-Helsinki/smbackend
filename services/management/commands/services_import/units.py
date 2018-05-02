@@ -333,20 +333,14 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
                 obj_changed = True
                 setattr(obj, field, value)
 
-    # url = info.get('data_source_url', None)
-    # if url:
-    #     if not url.startswith('http'):
-    #         url = 'http://%s' % url
-    # if obj.data_source_url != url:
-    #     obj._changed = True
-    #     obj.data_source_url = url
-
     viewpoints = _parse_accessibility_viewpoints(info['accessibility_viewpoints'])
     if obj.accessibility_viewpoints != viewpoints:
         obj_changed = True
         obj.accessibility_viewpoints = viewpoints
 
-    data_source = 'tprek'
+    data_source = clean_text(info.get('data_source_url', None))
+    if data_source == '':
+        data_source = None
     if obj.data_source != data_source:
         obj_changed = True
         obj.data_source = data_source

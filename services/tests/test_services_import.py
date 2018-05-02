@@ -183,6 +183,11 @@ def assert_unit_correctly_imported(unit, source_unit, source_ontologywords):
     else:
         assert d['municipality'] is None
 
+    if 'data_source_url' in s:
+        assert_string_field_match('data_source_url', s, d)
+    else:
+        assert d['data_source'] is None
+
     if 'latitude' in s:
         assert 'longitude' in s
         c = d['location']['coordinates']
@@ -199,6 +204,11 @@ def assert_unit_correctly_imported(unit, source_unit, source_ontologywords):
             continue
         result = d['keywords'][lang]
         assert len(exploded) == len(result)
+    if 'data_source_url' in s:
+        assert_string_field_match('data_source_url', s, d)
+    else:
+        assert d['data_source'] is None
+
         for kw in result:
             # raises an exception if kw doesn't match any item
             next(item for item in exploded if kw == item.strip())

@@ -72,8 +72,6 @@ class UnitSearchManager(models.GeoManager):
 class Unit(models.Model):
     id = models.IntegerField(primary_key=True)
 
-    data_source_url = models.URLField(null=True)
-    # description = models.TextField(null=True)
     public = models.BooleanField(null=False, default=True)
 
     location = models.PointField(null=True, srid=PROJECTION_SRID)  # lat, lng?
@@ -116,7 +114,7 @@ class Unit(models.Model):
     municipality = models.ForeignKey(Municipality, null=True, db_index=True)
     address_zip = models.CharField(max_length=10, null=True)
 
-    data_source = models.CharField(max_length=20, null=True)
+    data_source = models.CharField(max_length=30, null=True)
     # extensions = HStoreField(null=True)
 
     origin_last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')

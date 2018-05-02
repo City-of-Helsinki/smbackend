@@ -163,7 +163,6 @@ def unit_maker(draw, resource_ids):
 
         for field in ['accessibility_email',
                       'accessibility_www',
-                      'data_source_url',
                       'email',
                       'fax',
                       'phone',
@@ -171,6 +170,7 @@ def unit_maker(draw, resource_ids):
                       'picture_url',
                       'streetview_entrance_url']:
             add_optional_text_field(field)
+        add_optional_field('data_source_url', text(max_size=30))
 
         result.update(translated_field(draw, 'address_postal_full', allow_missing=True))
         result.update(translated_field(draw, 'call_charge_info', allow_missing=True))
@@ -183,6 +183,7 @@ def unit_maker(draw, resource_ids):
             words = draw(sets(text(SAFE_LETTERS + 'åäöÅÄÖ ',
                                    min_size=1, max_size=25)))
             if len(words) == 0:
+        add_optional_field('data_source_url', text(max_size=30))
                 event('extra searchwords empty')
                 words = None
             else:
