@@ -140,10 +140,21 @@ class TranslatedModelSerializer(object):
 
         return data
 
+    def add_keywords(self, obj, ret):
+        kw_dict = {}
+        for kw in obj.keywords.all():
+            if kw.language not in kw_dict:
+                kw_dict[kw.language] = []
+            kw_dict[kw.language].append(kw.name)
+        ret['keywords'] = kw_dict
+
     def to_representation(self, obj):
         ret = super(TranslatedModelSerializer, self).to_representation(obj)
         if obj is None:
             return ret
+
+        if 'keywords' in ret:
+            self.add_keywords(obj, ret)
 
         for field_name in self.translated_fields:
             if field_name not in self.fields:
@@ -496,14 +507,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         ret = super(UnitSerializer, self).to_representation(obj)
         if hasattr(obj, 'distance') and obj.distance:
             ret['distance'] = obj.distance.m
-
-        if 'keywords' in ret:
-            kw_dict = {}
-            for kw in obj.keywords.all():
-                if kw.language not in kw_dict:
-                    kw_dict[kw.language] = []
-                kw_dict[kw.language].append(kw.name)
-            ret['keywords'] = kw_dict
 
         if 'root_service_nodes' in ret:
             if obj.root_service_nodes is None or obj.root_service_nodes == '':
