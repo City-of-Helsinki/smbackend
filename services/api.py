@@ -373,7 +373,7 @@ class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSeria
 
     class Meta:
         model = UnitConnection
-        fields = '__all__'
+        exclude = ['order']
 
     def get_section_type(self, obj):
         return choicefield_string(SECTION_TYPES, 'section_type', obj)
