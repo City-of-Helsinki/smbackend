@@ -131,7 +131,10 @@ class Command(BaseCommand):
         obj_list = self.pk_get('unit/{}/accessibility'.format(unit_pk))
         return obj_list
 
-    def import_units(self):
+    def import_units(self, pk):
+        if pk is not None:
+            import_units(fetch_only_id=pk)
+            return
         import_units()
 
     @db.transaction.atomic
@@ -160,7 +163,10 @@ class Command(BaseCommand):
             method = getattr(self, "import_%s" % imp)
             if self.verbosity:
                 print("Importing %s..." % imp)
-            method()
+            if 'id' in options:
+                method(options['id'])
+            else:
+                method()
             import_count += 1
 
         # if self.services_changed:
