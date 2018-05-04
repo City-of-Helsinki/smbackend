@@ -24,7 +24,7 @@ translator.register(Department, DepartmentTranslationOptions)
 
 
 class UnitTranslationOptions(TranslationOptions):
-    fields = ('name', 'www', 'street_address', 'desc', 'short_desc',
+    fields = ('name', 'www', 'street_address', 'description', 'short_description',
               'picture_caption', 'address_postal_full', 'call_charge_info')
 translator.register(Unit, UnitTranslationOptions)
 

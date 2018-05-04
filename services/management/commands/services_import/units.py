@@ -232,10 +232,15 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
     # print('handling unit {} ({})'.format(info['name_fi'], info['id']))
 
     fields_that_need_translation = (
-        'name', 'street_address', 'www', 'picture_caption', 'desc',
-        'short_desc', 'address_postal_full', 'call_charge_info')
+        'name', 'street_address', 'www', 'picture_caption',
+        'address_postal_full', 'call_charge_info')
     for field in fields_that_need_translation:
         if save_translated_field(obj, field, info, field):
+            obj_changed = True
+    fields_that_need_translation_and_renaming = (
+        ('desc', 'description'), ('short_desc', 'short_description'))
+    for s_field, d_field in fields_that_need_translation_and_renaming:
+        if save_translated_field(obj, d_field, info, s_field):
             obj_changed = True
 
     if 'address_city_fi' not in info and 'latitude' in info and 'longitude' in info:

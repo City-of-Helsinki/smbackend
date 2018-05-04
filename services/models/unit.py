@@ -89,8 +89,8 @@ class Unit(models.Model):
     picture_entrance_url = models.URLField(max_length=500, null=True)
     streetview_entrance_url = models.URLField(max_length=500, null=True)
 
-    desc = models.TextField(null=True)
-    short_desc = models.TextField(null=True)
+    description = models.TextField(null=True)
+    short_description = models.TextField(null=True)
     name = models.CharField(max_length=200, db_index=True)
     street_address = models.CharField(max_length=100, null=True)
 

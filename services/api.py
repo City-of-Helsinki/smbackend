@@ -577,13 +577,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         if 'extensions' in ret:
             ret['extensions'] = self.handle_extension_translations(ret['extensions'])
 
-        def rename_field(src, dest):
-            if src in ret:
-                ret[dest] = ret[src]
-                del ret[src]
-
-        rename_field('desc', 'description')
-        rename_field('short_desc', 'short_description')
         return ret
 
     class Meta:
