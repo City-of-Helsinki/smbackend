@@ -89,7 +89,7 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
             obj = Service(id=d['id'])
             obj._changed = True
 
-        obj._changed |= save_translated_field(obj, 'name', d, 'service')
+        obj._changed |= save_translated_field(obj, 'name', d, 'ontologyword')
 
         period_enabled = d['can_add_schoolyear']
         clarification_enabled = d['can_add_clarification']
