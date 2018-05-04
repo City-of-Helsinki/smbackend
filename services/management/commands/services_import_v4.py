@@ -25,7 +25,7 @@ UTC_TIMEZONE = pytz.timezone('UTC')
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
-    importer_types = ['departments', 'services', 'units', 'aliases', 'accessibility']
+    importer_types = ['departments', 'services', 'units', 'aliases']
     supported_languages = [l[0] for l in settings.LANGUAGES]
 
     def __init__(self):
@@ -119,10 +119,6 @@ class Command(BaseCommand):
 
     def import_aliases(self):
         import_aliases()
-
-    @db.transaction.atomic
-    def import_accessibility(self, noop=False):
-        import_accessibility(logger=self.logger, noop=noop)
 
     def _fetch_unit_accessibility_properties(self, unit_pk):
         if self.verbosity:
