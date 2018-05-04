@@ -1,5 +1,6 @@
 from munigeo.importer.sync import ModelSyncher
 from services.models import Department
+from munigeo.models import Municipality
 from .utils import pk_get, save_translated_field
 
 
@@ -52,6 +53,20 @@ def import_departments(noop=False, logger=None, fetch_resource=pk_get):
         for field in fields_that_need_translation:
             if save_translated_field(obj, field, d, field):
                 obj_has_changed = True
+
+        muni_code = d.get('municipality_code')
+        if muni_code is None:
+            municipality = None
+        if muni_code is not None:
+            try:
+                municipality = Municipality.objects.get(division__origin_id=str(muni_code))
+            except Municipality.DoesNotExist:
+                logger and logger.error(
+                    "No municipality with code {} for department {}".format(
+                        muni_code, d['id']))
+        if obj.municipality != municipality:
+            obj.municipality = municipality
+            obj_has_changed = True
 
         if obj_has_changed:
             obj.save()

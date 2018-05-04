@@ -178,49 +178,6 @@ class TranslatedModelSerializer(object):
         return ret
 
 
-class DepartmentSerializer(TranslatedModelSerializer, MPTTModelSerializer, serializers.ModelSerializer):
-    id = serializers.SerializerMethodField('get_uuid')
-    parent = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Department
-        exclude = ['uuid', ]
-
-    def get_uuid(self, obj):
-            return obj.uuid
-
-    def get_parent(self, obj):
-        parent = getattr(obj, 'parent')
-        if parent is not None:
-            return parent.uuid
-        return None
-
-
-class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Department.objects.all()
-    serializer_class = DepartmentSerializer
-
-    def retrieve(self, request, pk=None):
-        try:
-            uuid.UUID(pk)
-        except ValueError:
-            raise Http404
-
-        dept = get_object_or_404(Department, uuid=pk)
-        serializer = self.serializer_class(dept, context=self.get_serializer_context())
-
-        include_hierarchy = request.query_params.get('include_hierarchy')
-        data = serializer.data
-        if (include_hierarchy is not None and
-                include_hierarchy.lower() not in ['no', 'false', '0']):
-            hierarchy = drilldown_tree_for_node(dept)
-            data['hierarchy'] = self.serializer_class(
-                hierarchy, many=True, context=self.get_serializer_context()).data
-
-        return Response(data)
-
-
-register_view(DepartmentViewSet, 'department')
 
 
 def root_services(services):
@@ -248,6 +205,32 @@ class JSONAPISerializer(serializers.ModelSerializer):
                 if field_name in self.keep_fields:
                     continue
                 del self.fields[field_name]
+
+    def to_representation(self, obj):
+        ret = super(JSONAPISerializer, self).to_representation(obj)
+        include_fields = self.context.get('include', [])
+        if 'municipality' in include_fields and obj.municipality:
+            muni_json = munigeo_api.MunicipalitySerializer(obj.municipality, context=self.context).data
+            ret['municipality'] = muni_json
+        return ret
+
+
+class DepartmentSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
+    id = serializers.SerializerMethodField('get_uuid')
+    parent = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Department
+        exclude = ['uuid', ]
+
+    def get_uuid(self, obj):
+            return obj.uuid
+
+    def get_parent(self, obj):
+        parent = getattr(obj, 'parent')
+        if parent is not None:
+            return parent.uuid
+        return None
 
 
 class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer):
@@ -349,6 +332,33 @@ class JSONAPIViewSetMixin:
 
 class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
     pass
+
+
+class DepartmentViewSet(JSONAPIViewSet):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+
+    def retrieve(self, request, pk=None):
+        try:
+            uuid.UUID(pk)
+        except ValueError:
+            raise Http404
+
+        dept = get_object_or_404(Department, uuid=pk)
+        serializer = self.serializer_class(dept, context=self.get_serializer_context())
+
+        include_hierarchy = request.query_params.get('include_hierarchy')
+        data = serializer.data
+        if (include_hierarchy is not None and
+                include_hierarchy.lower() not in ['no', 'false', '0']):
+            hierarchy = drilldown_tree_for_node(dept)
+            data['hierarchy'] = self.serializer_class(
+                hierarchy, many=True, context=self.get_serializer_context()).data
+
+        return Response(data)
+
+
+register_view(DepartmentViewSet, 'department')
 
 
 def choicefield_string(choices, key, obj):
@@ -514,9 +524,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         if 'department' in include_fields:
             dep_json = DepartmentSerializer(obj.department, context=self.context).data
             ret['department'] = dep_json
-        if 'municipality' in include_fields and obj.municipality:
-            muni_json = munigeo_api.MunicipalitySerializer(obj.municipality, context=self.context).data
-            ret['municipality'] = muni_json
         # Not using actual serializer instances below is a performance optimization.
         if 'services' in include_fields:
             services_json = []

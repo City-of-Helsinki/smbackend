@@ -1,5 +1,6 @@
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
+from munigeo.models import Municipality
 
 from services.utils import get_translated
 from .hierarchy import CustomTreeManager
@@ -25,6 +26,8 @@ class Department(MPTTModel):
     oid = models.CharField(max_length=20, null=True)
 
     organization_type = models.CharField(max_length=50, null=True)
+
+    municipality = models.ForeignKey(Municipality, null=True, db_index=True)
 
     objects = CustomTreeManager()
 
