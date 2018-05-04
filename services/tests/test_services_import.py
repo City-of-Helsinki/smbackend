@@ -155,7 +155,6 @@ def assert_unit_correctly_imported(unit, source_unit, source_services):
 
     # TODO: field is missing from importer and API
     # assert d['manual_coordinates'] == s['manual_coordinates']
-    assert d['public'] == s['is_public']
 
     key = 'accessibility_viewpoints'
     assert_accessibility_viewpoints_match(s[key], d[key])

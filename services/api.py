@@ -592,7 +592,8 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
             'connection_hash',
             'service_details_hash',
             'accessibility_property_hash',
-            'identifier_hash'
+            'identifier_hash',
+            'public'
         ]
 
 
