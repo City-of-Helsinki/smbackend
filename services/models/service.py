@@ -1,14 +1,12 @@
 from django.db import models
 from services.utils import get_translated
 from .keyword import Keyword
-from .unit import Unit
 
 
 class Service(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=200, db_index=True)
 
-    unit_count = models.PositiveIntegerField(null=True)
     keywords = models.ManyToManyField(Keyword)
 
     period_enabled = models.BooleanField(default=True)
@@ -18,9 +16,6 @@ class Service(models.Model):
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
-
-    def get_unit_count(self):
-        return Unit.objects.filter(services=self.id).distinct().count()
 
     class Meta:
         ordering = ['-pk']

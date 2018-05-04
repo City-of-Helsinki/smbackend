@@ -5,7 +5,7 @@ import uuid
 from django.http import Http404
 from django.conf import settings
 from django.utils import translation
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.contrib.gis.geos import Point
 from django.contrib.gis.gdal import SpatialReference
 from django.shortcuts import get_object_or_404
@@ -178,8 +178,6 @@ class TranslatedModelSerializer(object):
         return ret
 
 
-
-
 def root_services(services):
     tree_ids = set(s.tree_id for s in services)
     return map(lambda x: x.id,
@@ -262,7 +260,8 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
 
 
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
-    # children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    unit_count = serializers.IntegerField()
+
     class Meta:
         model = Service
         fields = ['name', 'id', 'unit_count', 'period_enabled', 'clarification_enabled', 'keywords']
@@ -428,7 +427,7 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     serializer_class = ServiceSerializer
 
     def get_queryset(self):
-        queryset = super(ServiceViewSet, self).get_queryset()
+        queryset = super(ServiceViewSet, self).get_queryset().prefetch_related('keywords')
         args = self.request.query_params
         if 'id' in args:
             id_list = args['id'].split(',')
@@ -436,7 +435,7 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
         if 'ancestor' in args:
             val = args['ancestor']
             queryset = queryset.by_ancestor(val)
-        return queryset
+        return queryset.annotate(unit_count=Count('units', distinct=True))
 
 register_view(ServiceViewSet, 'service')
 

@@ -110,15 +110,6 @@ def update_unit_counts(updated_resources, verbosity=False):
         srv.unit_count = srv.get_unit_count()
         srv.save(update_fields=['unit_count'])
 
-    # Services
-    current_set = updated_resources['service']
-    if verbosity:
-        print("Updating unit counts for %d services..." % len(current_set))
-    srv_list = Service.objects.filter(id__in=current_set)
-    for srv in srv_list:
-        srv.unit_count = srv.get_unit_count()
-        srv.save(update_fields=['unit_count'])
-
 
 def import_units(dept_syncher=None, fetch_only_id=None,
                  verbosity=True, logger=None, fetch_units=_fetch_units,
