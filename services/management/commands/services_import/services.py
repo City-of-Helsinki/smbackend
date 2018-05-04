@@ -55,8 +55,8 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
             obj.parent = parent
             obj._changed = True
         related_services_changed = False
-        if obj.service_reference != d.get('service_reference', None):
-            obj.service_reference = d.get('service_reference')
+        if obj.service_reference != d.get('ontologyword_reference', None):
+            obj.service_reference = d.get('ontologyword_reference')
             related_services_changed = True
             obj._changed = True
 
