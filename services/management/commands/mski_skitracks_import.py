@@ -173,7 +173,7 @@ class Command(BaseCommand):
     def unit_defaults(self, geometry, point, extra_fields, street_address, address_zip, www_url):
         return {
             'provider_type': 101,
-            'origin_last_modified_time': timezone.now(),
+            'last_modified_time': timezone.now(),
             'geometry': geometry,
             'location': point,
             'data_source': 'manual_import',

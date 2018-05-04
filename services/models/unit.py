@@ -117,7 +117,7 @@ class Unit(models.Model):
     data_source = models.CharField(max_length=30, null=True)
     # extensions = HStoreField(null=True)
 
-    origin_last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
+    last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
     service_nodes = models.ManyToManyField("ServiceNode", related_name='units')
     services = models.ManyToManyField("Service", related_name='units', through='UnitServiceDetails')

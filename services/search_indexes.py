@@ -56,7 +56,7 @@ class UnitIndex(ServiceMapBaseIndex):
         self.model = apps.get_model(app_label='services', model_name='Unit')
 
     def get_updated_field(self):
-        return 'origin_last_modified_time'
+        return 'last_modified_time'
 
     def prepare_services(self, obj):
         return [ow.id for ow in obj.services.all()]

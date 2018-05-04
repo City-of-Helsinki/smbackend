@@ -390,7 +390,7 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
             verb = "changed"
         if VERBOSITY:
             LOGGER.info("%s %s" % (obj, verb))
-        obj.origin_last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
+        obj.last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
         obj_changed = False
         try:
             obj.save()
@@ -398,7 +398,7 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
             LOGGER.error('Importing failed for unit {}'.format(str(obj)))
             raise e
 
-    update_fields = ['origin_last_modified_time']
+    update_fields = ['last_modified_time']
 
     obj_changed, update_fields = _import_unit_service_nodes(obj, info,
                                                             updated_related_objects['service_node'],
@@ -412,7 +412,7 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
     obj_changed, update_fields = _import_unit_sources(obj, info, obj_changed, update_fields)
 
     if obj_changed:
-        obj.origin_last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
+        obj.last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
         obj.save(update_fields=update_fields)
 
     syncher.mark(obj)
