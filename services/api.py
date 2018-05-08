@@ -530,8 +530,8 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
             dep_json = DepartmentSerializer(obj.department, context=self.context).data
             ret['department'] = dep_json
         # Not using actual serializer instances below is a performance optimization.
-        if 'services' in include_fields:
-            services_json = []
+        if 'service_nodes' in include_fields:
+            service_nodes_json = []
             for s in obj.service_nodes.all():
                 # Optimization:
                 # Store root nodes by tree_id in a dict because otherwise
@@ -555,8 +555,8 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 #    data['identical_to'] = getattr(s.identical_to, 'id', None)
                 if s.level is not None:
                     data['level'] = s.level
-                services_json.append(data)
-            ret['services'] = services_json
+                service_nodes_json.append(data)
+            ret['service_nodes'] = service_nodes_json
         if 'accessibility_properties' in include_fields:
             acc_props = [{'variable': s.variable_id, 'value': s.value}
                          for s in obj.accessibility_properties.all()]
