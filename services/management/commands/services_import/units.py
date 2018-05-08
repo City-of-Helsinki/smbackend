@@ -613,7 +613,6 @@ def _parse_accessibility_viewpoints(acc_viewpoints_str, drop_unknowns=False):
             if all_unknown:
                 all_unknown = False
 
-    if drop_unknowns and all_unknown:
-        return {}
-
+    if all_unknown:
+        return None
     return viewpoints

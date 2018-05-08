@@ -107,8 +107,6 @@ class Unit(models.Model):
     accessibility_email = models.EmailField(max_length=100, null=True)
     accessibility_www = models.URLField(max_length=400, null=True)
 
-    # accessibility_viewpoints = models.ManyToManyField(AccessibilityViewpoint)
-
     created_time = models.DateTimeField(null=True)  # ASK API: are these UTC? no Z in output
 
     municipality = models.ForeignKey(Municipality, null=True, db_index=True)
@@ -132,7 +130,7 @@ class Unit(models.Model):
                                        help_text='Automatically generated hash of other identifiers')
     service_details_hash = models.CharField(max_length=40, null=True)
 
-    accessibility_viewpoints = JSONField(default="{}")
+    accessibility_viewpoints = JSONField(default="{}", null=True)
 
     # Cached fields for better performance
     root_service_nodes = models.CharField(max_length=50, null=True,
