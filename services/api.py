@@ -267,10 +267,16 @@ class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
         fields = ['name', 'id', 'unit_count', 'period_enabled', 'clarification_enabled', 'keywords']
 
 
+class RelatedServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
+    class Meta:
+        model = Service
+        fields = ['name']
+
+
 class ServiceDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
         ret = super(ServiceDetailsSerializer, self).to_representation(obj)
-        ret['name'] = ServiceSerializer(obj.service).data['name']
+        ret['name'] = RelatedServiceSerializer(obj.service).data['name']
         if ret['period_begin_year'] is not None:
             ret['period'] = [ret['period_begin_year'], ret.get('period_end_year')]
         else:
