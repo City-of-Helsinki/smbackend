@@ -9,7 +9,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('munigeo', '0005_auto_20180109_1052'),
         ('services', '0052_remove_unit_accessibility_sentence_hash'),
     ]
 
