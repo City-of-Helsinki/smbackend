@@ -24,7 +24,7 @@ hypothesis==3.19.3
 lxml==3.4.4
 markdown==2.6.2
 pip-tools==1.8.0
-psycopg2==2.6.1
+psycopg2==2.7.4
 py==1.4.31                # via pytest
 pytest-django==3.1.2
 pytest==3.0.3             # via pytest-django
