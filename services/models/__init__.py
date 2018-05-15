@@ -1,6 +1,6 @@
 from .department import Department
 from .service import Service, UnitServiceDetails
-from .service_node import ServiceNode
+from .service_node import ServiceNode, ServiceNodeUnitCount
 from .unit import Unit
 from .keyword import Keyword
 from .unit_connection import UnitConnection
