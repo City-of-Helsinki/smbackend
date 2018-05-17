@@ -171,7 +171,7 @@ def assert_unit_correctly_imported(unit, source_unit, source_services):
 
     assert set(d['service_nodes']) == set(s['ontologytree_ids']), 'ontologytree_ids'
 
-    assert set(d['services']) == source_services
+    assert set((s['id'] for s in d['services'])) == source_services
 
     #  2. optional fields
     for field_name in [
@@ -259,7 +259,7 @@ def assert_resource_synced(response, resource_name, resources):
 
 
 def service_details_match(src, dest):
-    assert 'id' not in dest and 'unit' not in dest
+    assert 'unit' not in dest
     src_schoolyear = src.get('schoolyear', None)
     if src_schoolyear is not None:
         if dest['period'] is None:
@@ -267,7 +267,7 @@ def service_details_match(src, dest):
         if src_schoolyear != '{}-{}'.format(*dest['period']):
             return False
     return (
-        src['ontologyword_id'] == dest['service'] and
+        src['ontologyword_id'] == dest['id'] and
         translated_field_match('clarification', src, dest))
 
 
@@ -312,7 +312,7 @@ def test_import_units(api_client, muni_admin_div_type, resources):
 
     update_service_node_counts()
 
-    response = get(api_client, '{}?include=department&service_details=true'.format(reverse('unit-list')))
+    response = get(api_client, '{}?include=department,services'.format(reverse('unit-list')))
     assert_resource_synced(response, 'unit', resources)
 
     source_units_by_id = dict((u['id'], u) for u in resources['unit'])
@@ -338,12 +338,12 @@ def test_import_units(api_client, muni_admin_div_type, resources):
     for unit in response.data['results']:
         assert_unit_correctly_imported(unit, source_units_by_id.get(unit['id']),
                                        ontologyword_ids_by_unit_id[unit['id']])
-        imported_service_details[unit['id']] = unit['service_details']
+        imported_service_details[unit['id']] = unit['services']
         for service_node_id in unit['service_nodes']:
             service_node_counts.setdefault(service_node_id, 0)
             service_node_counts[service_node_id] += 1
-        for service_id in unit['services']:
-            service_counts[service_id] = service_counts.get(service_id, 0) + 1
+        for service in unit['services']:
+            service_counts[service['id']] = service_counts.get(service['id'], 0) + 1
 
     assert_service_details_correctly_imported(
         resources['ontologyword_details'], imported_service_details)
