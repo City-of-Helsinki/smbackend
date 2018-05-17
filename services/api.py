@@ -249,6 +249,13 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
             ret['parent'] = obj.parent_id
         ret['period_enabled'] = obj.period_enabled()
         ret['root'] = self.root_service_nodes(obj)
+        ret['unit_count'] = dict(municipality=dict((
+            (x.division.name_fi.lower() if x.division else '_unknown', x.count)
+            for x in obj.unit_counts.all())))
+        total = 0
+        for _, part in ret['unit_count']['municipality'].items():
+            total += part
+        ret['unit_count']['total'] = total
         return ret
 
     def root_service_nodes(self, obj):
@@ -415,7 +422,7 @@ class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     filter_fields = ['level', 'parent']
 
     def get_queryset(self):
-        queryset = super(ServiceNodeViewSet, self).get_queryset().prefetch_related('related_services')
+        queryset = super(ServiceNodeViewSet, self).get_queryset().prefetch_related('keywords', 'related_services', 'unit_counts', 'unit_counts__division')
         args = self.request.query_params
         if 'id' in args:
             id_list = args['id'].split(',')

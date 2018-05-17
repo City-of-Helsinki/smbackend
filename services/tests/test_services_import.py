@@ -10,12 +10,13 @@ from rest_framework.reverse import reverse
 
 # from services.management.commands.services_import.services import import_services
 from services.management.commands.services_import.departments import import_departments
-from services.management.commands.services_import.services import import_services
+from services.management.commands.services_import.services import import_services, update_service_node_counts
 from services.management.commands.services_import.units import import_units
 
 from services_import_hypothesis import closed_object_set
 
 from services.models.unit import CONTRACT_TYPES as UNIT_CONTRACT_TYPES
+from munigeo.models import AdministrativeDivisionType
 
 CONTRACT_TYPES = [c[1] for c in UNIT_CONTRACT_TYPES]
 
@@ -29,6 +30,13 @@ def get(api_client, url, data=None):
 @pytest.fixture
 def api_client():
     return APIClient()
+
+
+@pytest.fixture
+def muni_admin_div_type():
+    defaults = {'name': 'Municipality'}
+    return AdministrativeDivisionType.objects.get_or_create(type='muni', defaults=defaults)
+
 
 LANGUAGES = [l[0] for l in django_settings.LANGUAGES]
 
@@ -278,7 +286,7 @@ def assert_service_details_correctly_imported(source, imported):
 @pytest.mark.django_db
 @settings(suppress_health_check=[HealthCheck.too_slow], timeout=60, max_examples=200)
 @given(closed_object_set())
-def test_import_units(api_client, resources):
+def test_import_units(api_client, muni_admin_div_type, resources):
 
     def fetch_resource(name):
         return resources.get(name, set())
@@ -301,6 +309,8 @@ def test_import_units(api_client, resources):
     import_units(
         fetch_units=fetch_units, fetch_resource=fetch_resource,
         dept_syncher=dept_syncher)
+
+    update_service_node_counts()
 
     response = get(api_client, '{}?include=department&service_details=true'.format(reverse('unit-list')))
     assert_resource_synced(response, 'unit', resources)
@@ -330,7 +340,8 @@ def test_import_units(api_client, resources):
                                        ontologyword_ids_by_unit_id[unit['id']])
         imported_service_details[unit['id']] = unit['service_details']
         for service_node_id in unit['service_nodes']:
-            service_node_counts[service_node_id] = service_node_counts.get(service_node_id, 0) + 1
+            service_node_counts.setdefault(service_node_id, 0)
+            service_node_counts[service_node_id] += 1
         for service_id in unit['services']:
             service_counts[service_id] = service_counts.get(service_id, 0) + 1
 
@@ -342,7 +353,9 @@ def test_import_units(api_client, resources):
     response = get(api_client, reverse('servicenode-list'))
     service_nodes = response.data['results']
     for service_node in service_nodes:
-        assert service_node_counts.get(service_node['id'], 0) == service_node['unit_count']
+        # Note: only the totals are currently tested
+        # TODO: hierarchy + municipality specific tests
+        assert service_node_counts.get(service_node['id'], 0) == service_node['unit_count']['total']
         assert_keywords_correct(ontologytree_by_id.get(service_node['id']), service_node)
 
     response = get(api_client, reverse('service-list'))
