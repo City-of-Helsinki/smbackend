@@ -1,8 +1,10 @@
 from datetime import datetime
 import re
 import pytz
+from django import db
+from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
 from munigeo.importer.sync import ModelSyncher
-from services.models import ServiceNode, Service
+from services.models import ServiceNode, Service, Unit, ServiceNodeUnitCount
 from services.management.commands.services_import.keyword import KeywordHandler
 from .utils import pk_get, save_translated_field
 
@@ -60,7 +62,6 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
             related_services_changed = True
             obj._changed = True
 
-        obj._changed |= update_object_unit_count(obj)
         save_object(obj)
         obj._changed = keyword_handler.sync_searchwords(obj, d, obj._changed)
         save_object(obj)
@@ -75,13 +76,6 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
 
         for child_node in d['children']:
             handle_service_node(child_node, keyword_handler)
-
-    def update_object_unit_count(obj):
-        unit_count = obj.get_unit_count()
-        if obj.unit_count != unit_count:
-            obj.unit_count = unit_count
-            return True
-        return False
 
     def handle_service(d, keyword_handler):
         obj = servicesyncher.get(d['id'])
@@ -120,3 +114,95 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
         handle_service(d, keyword_handler)
 
     servicesyncher.finish()
+
+
+def update_service_node(node, units_by_service):
+    units = units_by_service.get(node.id, {})
+    for child in node.get_children():
+        child_units = update_service_node(child, units_by_service)
+        for k, v in child_units.items():
+            s = units.get(k, set())
+            s.update(v)
+            units[k] = s
+    node._unit_count = {}
+    for k, v in units.items():
+        node._unit_count[k] = len(units[k])
+    return units
+
+
+MUNI_DIVISION_TYPE = None
+DIVISIONS_BY_MUNI = None
+
+
+def get_municipality_division_type():
+    global MUNI_DIVISION_TYPE
+    if MUNI_DIVISION_TYPE is None:
+        try:
+            MUNI_DIVISION_TYPE = AdministrativeDivisionType.objects.get(type='muni')
+        except AdministrativeDivisionType.DoesNotExist:
+            MUNI_DIVISION_TYPE = None
+    return MUNI_DIVISION_TYPE
+
+
+def get_divisions_by_muni():
+    global DIVISIONS_BY_MUNI
+    TYPE = get_municipality_division_type()
+    if TYPE is None:
+        return {}
+    if DIVISIONS_BY_MUNI is None:
+        DIVISIONS_BY_MUNI = dict((
+            (x.name_fi.lower(), x) for x in
+            AdministrativeDivision.objects.filter(type=TYPE)))
+    return DIVISIONS_BY_MUNI
+
+
+def update_count_objects(service_node_unit_count_objects, node):
+    """
+    This is a generator which yields all the objects that need to be saved.
+    (Objects that didn't exist or whose count field was updated.)
+    """
+    for muni, count in node._unit_count.items():
+        obj = service_node_unit_count_objects.get((node.id, muni))
+        if obj is None:
+            obj = ServiceNodeUnitCount(
+                service_node=node,
+                division_type=get_municipality_division_type(),
+                division=get_divisions_by_muni().get(muni),
+                count=count)
+            yield obj
+        elif obj.count != count:
+            obj.count = count
+            yield obj
+    for node in node.get_children():
+        yield from update_count_objects(service_node_unit_count_objects, node)
+
+
+@db.transaction.atomic
+def save_objects(objects):
+    for o in objects:
+        o.save()
+
+
+def update_service_node_counts():
+    units_by_service = {}
+    municipalities = Unit.service_nodes.through.objects.filter(
+        unit__public=True).values_list('servicenode_id', 'unit__municipality', 'unit_id').distinct()
+    for service_node_id, municipality, unit_id in municipalities:
+        unit_set = units_by_service.setdefault(service_node_id, {}).setdefault(municipality, set())
+        unit_set.add(unit_id)
+        units_by_service[service_node_id][municipality] = unit_set
+    tree = ServiceNode.tree_objects.all().get_cached_trees()
+    for node in tree:
+        update_service_node(node, units_by_service)
+
+    def count_object_pair(x):
+        div = x.division.name_fi.lower() if x.division is not None else None
+        return ((x.service_node_id, div), x)
+
+    service_node_unit_count_objects = dict((
+        count_object_pair(x) for x in ServiceNodeUnitCount.objects.select_related('division').all()))
+    objects_to_save = []
+    for node in tree:
+        objects_to_save.extend(update_count_objects(service_node_unit_count_objects, node))
+    save_objects(objects_to_save)
+    return tree

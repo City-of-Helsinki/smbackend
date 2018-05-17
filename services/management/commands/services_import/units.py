@@ -6,7 +6,7 @@ import logging
 
 import pytz
 from collections import defaultdict
-from operator import itemgetter, attrgetter
+from operator import itemgetter
 
 from django import db
 from django.conf import settings
@@ -92,25 +92,6 @@ CONTRACT_TYPE_MAPPINGS = [
     ('MUNICIPALITY', 'OTHER_PRODUCTION_METHOD', 'UNKNOWN', 'private_service')]
 
 
-@db.transaction.atomic
-def update_unit_counts(updated_resources, verbosity=False):
-    # Servicenodes
-    srv_set = updated_resources['service_node']
-    current_set = srv_set
-    for i in range(0, 20):  # Make sure we don't loop endlessly (shouldn't have 20 deep tree anyway)
-        parent_ids = ServiceNode.objects.filter(id__in=current_set).values_list('parent', flat=True)
-        if not parent_ids:
-            break
-        srv_set |= set(parent_ids)
-        current_set = parent_ids
-    if verbosity:
-        print("Updating unit counts for %d service_nodes..." % len(srv_set))
-    srv_list = ServiceNode.objects.filter(id__in=srv_set)
-    for srv in srv_list:
-        srv.unit_count = srv.get_unit_count()
-        srv.save(update_fields=['unit_count'])
-
-
 def import_units(dept_syncher=None, fetch_only_id=None,
                  verbosity=True, logger=None, fetch_units=_fetch_units,
                  fetch_resource=pk_get):
@@ -177,21 +158,15 @@ def import_units(dept_syncher=None, fetch_only_id=None,
             'services', 'keywords', 'service_details')
 
     syncher = ModelSyncher(queryset, lambda obj: obj.id)
-    updated_related_objects = {'service_node': set(), 'service': set()}
     for idx, info in enumerate(obj_list):
         uid = info['id']
         info['connections'] = conn_by_unit.get(uid, [])
         info['accessibility_properties'] = acc_by_unit.get(uid, [])
         info['service_details'] = ontologyword_details_by_unit.get(uid, [])
         _import_unit(syncher, keyword_handler, info.copy(), dept_syncher, muni_by_name,
-                     bounding_box, gps_to_target_ct, target_srid, updated_related_objects)
-
-    for obj in syncher.get_deleted_objects():
-        updated_related_objects['service_node'].update(obj.service_nodes.values_list('id', flat=True))
-        updated_related_objects['service'].update(obj.services.values_list('id', flat=True))
+                     bounding_box, gps_to_target_ct, target_srid)
 
     syncher.finish()
-    update_unit_counts(updated_related_objects, verbosity=verbosity)
     return dept_syncher, syncher
 
 
@@ -210,7 +185,7 @@ def _load_postcodes():
 
 @db.transaction.atomic
 def _import_unit(syncher, keyword_handler, info, dept_syncher,
-                 muni_by_name, bounding_box, gps_to_target_ct, target_srid, updated_related_objects):
+                 muni_by_name, bounding_box, gps_to_target_ct, target_srid):
 
     obj = syncher.get(info['id'])
     obj_changed = False
@@ -396,11 +371,8 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
 
     update_fields = ['last_modified_time']
 
-    obj_changed, update_fields = _import_unit_service_nodes(obj, info,
-                                                            updated_related_objects['service_node'],
-                                                            obj_changed, update_fields)
-    obj_changed, update_fields = _import_unit_services(obj, info, updated_related_objects['service'],
-                                                       obj_changed, update_fields)
+    obj_changed, update_fields = _import_unit_service_nodes(obj, info, obj_changed, update_fields)
+    obj_changed, update_fields = _import_unit_services(obj, info, obj_changed, update_fields)
     obj_changed = keyword_handler.sync_searchwords(obj, info, obj_changed)
 
     obj_changed, update_fields = _import_unit_accessibility_variables(obj, info, obj_changed, update_fields)
@@ -412,10 +384,9 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
         obj.save(update_fields=update_fields)
 
     syncher.mark(obj)
-    return updated_related_objects
 
 
-def _import_unit_service_nodes(obj, info, count_services, obj_changed, update_fields):
+def _import_unit_service_nodes(obj, info, obj_changed, update_fields):
     service_node_ids = sorted([
         sid for sid in info.get('ontologytree_ids', [])
         if sid in get_service_node_ids()])
@@ -427,9 +398,6 @@ def _import_unit_service_nodes(obj, info, count_services, obj_changed, update_fi
         # if not obj_created and VERBOSITY:
         #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_service_node_ids, service_node_ids))
         obj.service_nodes = service_node_ids
-
-        for service_node_id in set(service_node_ids) | set(obj_service_node_ids):
-            count_services.add(service_node_id)
 
         # Update root service cache
         obj.root_service_nodes = ','.join(str(x) for x in obj.get_root_service_nodes())
@@ -459,7 +427,7 @@ def _service_key(info):
     return itemgetter(*keys)(info)
 
 
-def _import_unit_services(obj, info, count_services, obj_changed, update_fields):
+def _import_unit_services(obj, info, obj_changed, update_fields):
     if info['service_details']:
         owd = sorted(info['service_details'], key=_service_key)
         owd_json = json.dumps(owd, ensure_ascii=False, sort_keys=True).encode('utf8')
@@ -468,8 +436,6 @@ def _import_unit_services(obj, info, count_services, obj_changed, update_fields)
         owd_hash = None
 
     if obj.service_details_hash != owd_hash:
-        old_service_ids = map(attrgetter('service_id'), obj.service_details.all())
-        new_service_ids = map(itemgetter('ontologyword_id'), info['service_details'])
         if VERBOSITY:
             LOGGER.info("%s service details set changed (%s vs. %s)" %
                         (obj, obj.service_details_hash, owd_hash))
@@ -488,9 +454,6 @@ def _import_unit_services(obj, info, count_services, obj_changed, update_fields)
         obj.service_details_hash = owd_hash
         obj_changed = True
         update_fields.append('service_details_hash')
-
-        for service_id in set(new_service_ids) | set(old_service_ids):
-            count_services.add(service_id)
 
     return obj_changed, update_fields
 

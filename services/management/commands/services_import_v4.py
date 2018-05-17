@@ -12,7 +12,7 @@ from django.utils.translation import activate, get_language
 
 from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
-from services.management.commands.services_import.services import import_services
+from services.management.commands.services_import.services import import_services, update_service_node_counts
 from services.management.commands.services_import.units import import_units
 
 from munigeo.models import AdministrativeDivision
@@ -43,7 +43,7 @@ class Command(BaseCommand):
         parser.add_argument('--cached', action='store_true', dest='cached',
                             default=False, help='cache HTTP requests')
         parser.add_argument('--single', action='store', dest='id',
-                            default=False, help='import only single entity')
+                            default=None, help='import only single entity')
 
     def clean_text(self, text):
         # text = text.replace('\n', ' ')
@@ -127,11 +127,15 @@ class Command(BaseCommand):
         obj_list = self.pk_get('unit/{}/accessibility'.format(unit_pk))
         return obj_list
 
-    def import_units(self, pk):
+    def update_service_node_unit_counts(self):
+        update_service_node_counts()
+
+    def import_units(self, pk=None):
         if pk is not None:
             import_units(fetch_only_id=pk)
             return
         import_units()
+        self.update_service_node_unit_counts()
 
     @db.transaction.atomic
     def import_services(self):
@@ -159,8 +163,8 @@ class Command(BaseCommand):
             method = getattr(self, "import_%s" % imp)
             if self.verbosity:
                 print("Importing %s..." % imp)
-            if 'id' in options:
-                method(options['id'])
+            if 'id' in options and options.get('id'):
+                method(pk=options['id'])
             else:
                 method()
             import_count += 1
