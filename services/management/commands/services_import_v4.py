@@ -43,7 +43,7 @@ class Command(BaseCommand):
         parser.add_argument('--cached', action='store_true', dest='cached',
                             default=False, help='cache HTTP requests')
         parser.add_argument('--single', action='store', dest='id',
-                            default=False, help='import only single entity')
+                            default=None, help='import only single entity')
 
     def clean_text(self, text):
         # text = text.replace('\n', ' ')
@@ -130,7 +130,7 @@ class Command(BaseCommand):
     def update_service_node_unit_counts(self):
         update_service_node_counts()
 
-    def import_units(self, pk):
+    def import_units(self, pk=None):
         if pk is not None:
             import_units(fetch_only_id=pk)
             return
@@ -163,8 +163,8 @@ class Command(BaseCommand):
             method = getattr(self, "import_%s" % imp)
             if self.verbosity:
                 print("Importing %s..." % imp)
-            if 'id' in options:
-                method(options['id'])
+            if 'id' in options and options.get('id'):
+                method(pk=options['id'])
             else:
                 method()
             import_count += 1
