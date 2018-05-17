@@ -293,11 +293,12 @@ class ServiceDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer):
             ret['period'] = None
         del ret['period_begin_year']
         del ret['period_end_year']
+        ret['id'] = obj.service.id
         return ret
 
     class Meta:
         model = UnitServiceDetails
-        fields = ['service', 'clarification', 'period_begin_year', 'period_end_year']
+        fields = ['clarification', 'period_begin_year', 'period_end_year']
 
 
 class JSONAPIViewSetMixin:
@@ -567,6 +568,9 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                     data['level'] = s.level
                 service_nodes_json.append(data)
             ret['service_nodes'] = service_nodes_json
+        if 'services' in include_fields:
+            ret['services'] = (
+                ServiceDetailsSerializer(obj.service_details, many=True).data)
         if 'accessibility_properties' in include_fields:
             acc_props = [{'variable': s.variable_id, 'value': s.value}
                          for s in obj.accessibility_properties.all()]
@@ -584,10 +588,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 ret['geometry'] = munigeo_api.geom_to_json(geom, self.srs)
         elif 'geometry' in ret:
             del ret['geometry']
-
-        if self.context.get('service_details'):
-            ret['service_details'] = (
-                ServiceDetailsSerializer(obj.service_details, many=True).data)
 
         if 'extensions' in ret:
             ret['extensions'] = self.handle_extension_translations(ret['extensions'])
