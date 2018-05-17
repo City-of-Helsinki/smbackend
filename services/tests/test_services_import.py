@@ -361,7 +361,7 @@ def test_import_units(api_client, muni_admin_div_type, resources):
     response = get(api_client, reverse('service-list'))
     services = response.data['results']
     for service in services:
-        assert service_counts.get(service['id'], 0) == service['unit_count']
+        assert service_counts.get(service['id'], 0) == service['unit_count']['total']
         to = service
         frm = ontologyword_by_id[service['id']]
         assert to['period_enabled'] == frm['can_add_schoolyear']

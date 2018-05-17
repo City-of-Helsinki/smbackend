@@ -267,11 +267,14 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
 
 
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
-    unit_count = serializers.IntegerField()
+    def to_representation(self, obj):
+        ret = super(ServiceSerializer, self).to_representation(obj)
+        ret.setdefault('unit_count', {})['total'] = obj.unit_count
+        return ret
 
     class Meta:
         model = Service
-        fields = ['name', 'id', 'unit_count', 'period_enabled', 'clarification_enabled', 'keywords']
+        fields = ['name', 'id', 'period_enabled', 'clarification_enabled', 'keywords']
 
 
 class RelatedServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
