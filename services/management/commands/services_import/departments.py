@@ -12,20 +12,13 @@ def import_departments(noop=False, logger=None, fetch_resource=pk_get):
         return syncher
 
     for d in sorted(obj_list, key=lambda x: x['hierarchy_level']):
-        # if int(d['hierarchy_level']) == 0:
-        #     logger and logger.info(
-        #         "Department import: %s (%s) hierarchy_level is 0, thus is a Main Organization, skipping."
-        #         % (d['name_fi'], d['id']))
-        #     # TODO why this?
-        #     continue
-
         obj = syncher.get(d['id'])
         obj_has_changed = False
         if not obj:
             obj = Department(uuid=d['id'])
             obj_has_changed = True
 
-        fields = ('phone', 'address_zip', 'hierarchy_level', 'oid', 'organization_type',
+        fields = ('phone', 'address_zip', 'oid', 'organization_type',
                   'business_id')
         fields_that_need_translation = ('name', 'abbr', 'street_address', 'address_city', 'address_postal_full',
                                         'www')
