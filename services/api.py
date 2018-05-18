@@ -655,7 +655,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         return ret
 
     def _service_details_requested(self):
-        return self.request.query_params.get('service_details', '').lower() in ('true', '1')
+        return 'services' in self.include_fields
 
     def get_queryset(self):
         queryset = super(UnitViewSet, self).get_queryset()
@@ -807,16 +807,20 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 'observation_set__property__allowed_values').prefetch_related(
                     'observation_set__value')
 
-        if 'connections' in self.include_fields:
-            queryset = queryset.prefetch_related('connections')
-
         if 'service_nodes' in self.include_fields:
             queryset = queryset.prefetch_related('service_nodes')
 
-        if 'accessibility_properties' in self.include_fields:
-            queryset = queryset.prefetch_related('accessibility_properties')
+        for field in ['connections', 'accessibility_properties']:
+            if self._should_prefetch_field(field):
+                queryset = queryset.prefetch_related(field)
 
         return queryset
+
+    def _should_prefetch_field(self, field_name):
+        return (
+            self.only_fields is None or len(self.only_fields) == 0 or
+            field_name in self.only_fields or
+            field_name in self.include_fields)
 
     def _add_content_disposition_header(self, response):
         if isinstance(response.accepted_renderer, KmlRenderer):
