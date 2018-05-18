@@ -119,7 +119,6 @@ class Unit(models.Model):
 
     service_nodes = models.ManyToManyField("ServiceNode", related_name='units')
     services = models.ManyToManyField("Service", related_name='units', through='UnitServiceDetails')
-    divisions = models.ManyToManyField(AdministrativeDivision)
     keywords = models.ManyToManyField(Keyword)
 
     connection_hash = models.CharField(max_length=40, null=True,
