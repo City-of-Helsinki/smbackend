@@ -810,13 +810,15 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         if 'service_nodes' in self.include_fields:
             queryset = queryset.prefetch_related('service_nodes')
 
-        for field in ['connections', 'accessibility_properties']:
+        for field in ['connections', 'accessibility_properties', 'keywords']:
             if self._should_prefetch_field(field):
                 queryset = queryset.prefetch_related(field)
 
         return queryset
 
     def _should_prefetch_field(self, field_name):
+        # These fields are included by default,
+        # and only omitted if not part of an 'only' query param
         return (
             self.only_fields is None or len(self.only_fields) == 0 or
             field_name in self.only_fields or
