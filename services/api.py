@@ -269,7 +269,8 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
         ret = super(ServiceSerializer, self).to_representation(obj)
-        ret.setdefault('unit_count', {})['total'] = obj.unit_count
+        if hasattr(obj, 'unit_count'):
+            ret.setdefault('unit_count', {})['total'] = obj.unit_count
         return ret
 
     class Meta:
@@ -973,12 +974,17 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         for t in types:
             if t == 'service_node':
                 models.add(ServiceNode)
+            elif t == 'service':
+                models.add(Service)
             elif t == 'unit':
                 models.add(Unit)
             elif t == 'address':
                 models.add(Address)
         if len(models) > 0:
             queryset = queryset.models(*list(models))
+        else:
+            # Hide the to-be-dpereacated servicenode from default types
+            queryset = queryset.models(Service, Unit, Address)
 
         only = getattr(self, 'only_fields') or {}
         include = getattr(self, 'include_fields') or {}

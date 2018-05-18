@@ -34,6 +34,9 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     def get_model(self):
         return self.model
 
+    def get_updated_field(self):
+        return 'last_modified_time'
+
     def _prepare_extra_searchwords(self, obj):
         return ' '.join([category.name for category in obj.keywords.filter(language=get_language())])
 
@@ -55,11 +58,14 @@ class UnitIndex(ServiceMapBaseIndex):
         super(*args, **kwargs)
         self.model = apps.get_model(app_label='services', model_name='Unit')
 
-    def get_updated_field(self):
-        return 'last_modified_time'
-
     def prepare_services(self, obj):
         return [ow.id for ow in obj.services.all()]
+
+
+class ServiceIndex(ServiceMapBaseIndex):
+    def __init__(self, *args, **kwargs):
+        super(*args, **kwargs)
+        self.model = apps.get_model(app_label='services', model_name='Service')
 
 
 class ServiceNodeIndex(ServiceMapBaseIndex):
@@ -67,9 +73,6 @@ class ServiceNodeIndex(ServiceMapBaseIndex):
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
         self.model = apps.get_model(app_label='services', model_name='ServiceNode')
-
-    def get_updated_field(self):
-        return 'last_modified_time'
 
     def index_queryset(self, using=None):
         manager = self.get_model().objects
@@ -95,13 +98,6 @@ class ServiceNodeIndex(ServiceMapBaseIndex):
                 # We have to separately add all nodes with null references
                 # and level > 0.
                 Q(level__gt=0) & Q(service_reference__isnull=True)))
-
-    # def prepare(self, obj):
-    #     obj.lang_keywords = obj.keywords.filter(language=get_language())
-    #     data = super(ServiceIndex, self).prepare(obj)
-    #     # if obj.name == 'NAME_TO_BOOST':
-    #     #     data['boost'] = 1.1
-    #     return data
 
 
 class AddressIndex(indexes.SearchIndex, indexes.Indexable):
