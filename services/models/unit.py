@@ -3,7 +3,7 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_noop as _
 
-from munigeo.models import AdministrativeDivision, Municipality
+from munigeo.models import Municipality
 from munigeo.utils import get_default_srid
 
 from services.utils import get_translated
