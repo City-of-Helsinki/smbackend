@@ -991,7 +991,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         if len(models) > 0:
             queryset = queryset.models(*list(models))
         else:
-            # Hide the to-be-dpereacated servicenode from default types
+            # Hide the to-be-deprecated servicenode from default types
             queryset = queryset.models(Service, Unit, Address)
 
         only = getattr(self, 'only_fields') or {}
