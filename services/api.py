@@ -969,7 +969,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                     muni_q |= q
                 queryset = queryset.filter(
                     SQ(muni_q |
-                       SQ(django_ct='services.service_node') |
+                       SQ(django_ct='services.servicenode') |
                        SQ(django_ct='munigeo.address')))
 
         service = request.query_params.get('service')
