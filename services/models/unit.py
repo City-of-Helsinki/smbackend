@@ -77,6 +77,7 @@ class Unit(models.Model):
     location = models.PointField(null=True, srid=PROJECTION_SRID)  # lat, lng?
     geometry = models.GeometryField(srid=PROJECTION_SRID, null=True)
     department = models.ForeignKey(Department, null=True)
+    root_department = models.ForeignKey(Department, null=True, related_name='descendant_units')
 
     organizer_type = models.PositiveSmallIntegerField(choices=ORGANIZER_TYPES, null=True)
     organizer_name = models.CharField(max_length=100, null=True)

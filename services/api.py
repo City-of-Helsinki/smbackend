@@ -464,6 +464,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
     accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
     identifiers = UnitIdentifierSerializer(many=True)
     department = serializers.SerializerMethodField('department_uuid')
+    root_department = serializers.SerializerMethodField('root_department_uuid')
     provider_type = serializers.SerializerMethodField()
     organizer_type = serializers.SerializerMethodField()
     contract_type = serializers.SerializerMethodField()
@@ -502,10 +503,16 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 result[key] = value
         return result
 
-    def department_uuid(self, obj):
+    def _department_uuid(self, obj, field):
         if obj.department is not None:
-            return obj.department.uuid
+            return getattr(obj, field).uuid
         return None
+
+    def department_uuid(self, obj):
+        return self._department_uuid(obj, 'department')
+
+    def root_department_uuid(self, obj):
+        return self._department_uuid(obj, 'root_department')
 
     def get_provider_type(self, obj):
         return choicefield_string(PROVIDER_TYPES, 'provider_type', obj)
@@ -538,9 +545,10 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
                 ret['root_service_nodes'] = [int(x) for x in obj.root_service_nodes.split(',')]
 
         include_fields = self.context.get('include', [])
-        if 'department' in include_fields:
-            dep_json = DepartmentSerializer(obj.department, context=self.context).data
-            ret['department'] = dep_json
+        for field in ['department', 'root_department']:
+            if field in include_fields:
+                dep_json = DepartmentSerializer(getattr(obj, field), context=self.context).data
+                ret[field] = dep_json
         # Not using actual serializer instances below is a performance optimization.
         if 'service_nodes' in include_fields:
             service_nodes_json = []

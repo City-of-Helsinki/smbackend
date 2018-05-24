@@ -18,7 +18,7 @@ from munigeo.models import Municipality
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.keyword import KeywordHandler
 from services.models import Unit, ServiceNode, Service, AccessibilityVariable, \
-    UnitConnection, UnitAccessibilityProperty, UnitIdentifier, UnitServiceDetails
+    UnitConnection, UnitAccessibilityProperty, UnitIdentifier, UnitServiceDetails, Department
 from services.models.unit import (PROJECTION_SRID, PROVIDER_TYPES, ORGANIZER_TYPES,
                                   CONTRACT_TYPES)
 from services.models.unit_connection import SECTION_TYPES
@@ -113,6 +113,7 @@ def import_units(dept_syncher=None, fetch_only_id=None,
 
     if not dept_syncher:
         dept_syncher = import_departments(noop=True)
+    department_id_to_uuid = dict(((k, str(v)) for k, v in Department.objects.all().values_list('id', 'uuid')))
 
     VERBOSITY and LOGGER.info("Fetching unit connections %s" % dept_syncher)
 
@@ -164,7 +165,7 @@ def import_units(dept_syncher=None, fetch_only_id=None,
         info['accessibility_properties'] = acc_by_unit.get(uid, [])
         info['service_details'] = ontologyword_details_by_unit.get(uid, [])
         _import_unit(syncher, keyword_handler, info.copy(), dept_syncher, muni_by_name,
-                     bounding_box, gps_to_target_ct, target_srid)
+                     bounding_box, gps_to_target_ct, target_srid, department_id_to_uuid)
 
     syncher.finish()
     return dept_syncher, syncher
@@ -183,9 +184,17 @@ def _load_postcodes():
     return postcodes
 
 
+def _get_department_root_from_syncher(syncher, department, department_id_to_uuid):
+    if department.level == 0:
+        return department
+    parent = syncher.get(department_id_to_uuid.get(department.parent_id))
+    return _get_department_root_from_syncher(syncher, parent, department_id_to_uuid)
+
+
 @db.transaction.atomic
 def _import_unit(syncher, keyword_handler, info, dept_syncher,
-                 muni_by_name, bounding_box, gps_to_target_ct, target_srid):
+                 muni_by_name, bounding_box, gps_to_target_ct, target_srid,
+                 department_id_to_uuid):
 
     obj = syncher.get(info['id'])
     obj_changed = False
@@ -194,8 +203,6 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
         obj = Unit(id=info['id'])
         obj_changed = True
         obj_created = True
-
-    # print('handling unit {} ({})'.format(info['name_fi'], info['id']))
 
     fields_that_need_translation = (
         'name', 'street_address', 'www', 'picture_caption',
@@ -255,6 +262,7 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
         LOGGER.warning("Missing department {} for unit {}".format(dept_id, obj.id))
     elif obj.department_id != dept_id:
         obj.department = dept
+        obj.root_department = _get_department_root_from_syncher(dept_syncher, obj.department, department_id_to_uuid)
         obj_changed = True
 
     fields = ['address_zip', 'phone', 'email', 'fax', 'provider_type',
@@ -390,7 +398,6 @@ def _import_unit_service_nodes(obj, info, obj_changed, update_fields):
     service_node_ids = sorted([
         sid for sid in info.get('ontologytree_ids', [])
         if sid in get_service_node_ids()])
-    # print("ontologytree_ids: %s -> %s" % (info.get('ontologytree_ids', []), service_node_ids))
 
     obj_service_node_ids = sorted(obj.service_nodes.values_list('id', flat=True))
 
