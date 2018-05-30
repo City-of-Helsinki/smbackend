@@ -185,6 +185,8 @@ def _load_postcodes():
 
 
 def _get_department_root_from_syncher(syncher, department, department_id_to_uuid):
+    if department is None:
+        return None
     if department.level == 0:
         return department
     parent = syncher.get(department_id_to_uuid.get(department.parent_id))
@@ -260,9 +262,15 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
 
     if not dept:
         LOGGER.warning("Missing department {} for unit {}".format(dept_id, obj.id))
-    elif obj.department_id != dept_id:
+
+    if obj.department_id != dept_id:
         obj.department = dept
-        obj.root_department = _get_department_root_from_syncher(dept_syncher, obj.department, department_id_to_uuid)
+        obj_changed = True
+
+    root_department = _get_department_root_from_syncher(dept_syncher, obj.department, department_id_to_uuid)
+    if ((root_department is None and obj.root_deparment_id is not None) or
+            (root_department is not None and root_department.id != obj.root_department_id)):
+        obj.root_department = root_department
         obj_changed = True
 
     fields = ['address_zip', 'phone', 'email', 'fax', 'provider_type',
