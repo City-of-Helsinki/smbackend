@@ -10,6 +10,7 @@ SECTION_TYPES = (
     (6, 'SOCIAL_MEDIA_LINK'),
     (7, 'OTHER_ADDRESS'),
     (8, 'HIGHLIGHT'),
+    (9, 'ESERVICE_LINK'),
 )
 
 
