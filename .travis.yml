@@ -16,9 +16,10 @@ matrix:
 
 addons:
   postgresql: "10"
-#  apt:
-#    packages:
-#      - postgresql-10-posgis-2.4
+  apt:
+    packages:
+      - postgresql-10
+      - postgresql-10-postgis-2.4
 #      - binutils
 #      - libproj-dev
 #      - gdal-bin
