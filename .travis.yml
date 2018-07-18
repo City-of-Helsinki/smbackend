@@ -19,7 +19,7 @@ addons:
   apt:
     packages:
       - postgresql-10
-      - postgresql-client-10
+#      - postgresql-client-10
 #      - postgresql-10-postgis-2.4
 #      - binutils
 #      - libproj-dev
@@ -30,7 +30,7 @@ env:
   - PGPORT=5433
 
 before_script:
-  - psql -U postgres -c "create extension postgis"
+  - sudo -u postgres psql -U postgres -c "create extension postgis"
   - psql template1 -c 'create extension hstore;'
 
 install:
