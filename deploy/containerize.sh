@@ -12,10 +12,10 @@ function _log () {
     echo "$(date "$TIMESTAMP_FORMAT"): $@"
 }
 
-_log_header "Starting Docker image build for servicemap"
+_log_header "Starting Docker image build for smbackend"
 
-if [ "$TRAVIS_NODE_VERSION" != "lts/*" ]; then
-    _log "Aborting: will only build on lts version of node"
+if [ "$TRAVIS_PYTHON_VERSION" != "3.6" ]; then
+    _log "Aborting: will only build on Python v3.6
     exit 0
 fi
 
@@ -28,14 +28,14 @@ else
 	DOCKERFILE="Dockerfile-development"
 fi
 
-# implicitly tags the image as "servicemap:latest"
+# implicitly tags the image as "smbackend:latest"
 # we still need to specifically upload it as such
 # if we want to publish it
-docker build -f deploy/$DOCKERFILE -t servicemap .
+docker build -f deploy/$DOCKERFILE -t smbackend .
 
 _log_header "Docker image build finished"
 
-REPO="helsinki/servicemap"
+REPO="helsinki/smbackend"
 
 # First 7 chars of commit hash
 COMMIT=${TRAVIS_COMMIT::7}
@@ -48,7 +48,7 @@ BRANCH=${TRAVIS_BRANCH//\//_}
 if [ -n "$TRAVIS_PULL_REQUEST" -a "$TRAVIS_PULL_REQUEST" != "false" ]; then
     BASE="$REPO:pr-$TRAVIS_PULL_REQUEST"
     _log_header "Uploading PR image tagged as $BASE"
-    docker tag servicemap "$BASE"
+    docker tag smbackend "$BASE"
     docker tag "$BASE" "$REPO-$TRAVIS_BUILD_NUMBER"
     docker push "$BASE"
     docker push "$REPO:travis-$TRAVIS_BUILD_NUMBER"
@@ -60,7 +60,7 @@ fi
 # tag is specified (or pushed for that matter)
 if [ -n "$COMMIT" -a "$TRAVIS_BRANCH" == "master" ] ; then
     _log_header "Uploading master branch image tagged as latest"
-    docker tag servicemap "$REPO:$COMMIT"
+    docker tag smbackend "$REPO:$COMMIT"
     docker tag "$REPO:$COMMIT" "$REPO:travis-$TRAVIS_BUILD_NUMBER"
     docker push "$REPO:$COMMIT"
     docker push "$REPO:latest"
@@ -70,7 +70,7 @@ fi
 
 if [ -n "$COMMIT" -a "$TRAVIS_BRANCH" ] ; then
     _log_header "Uploading $TRAVIS_BRANCH tagged as such"
-    docker tag servicemap "$REPO:$COMMIT"
+    docker tag smbackend "$REPO:$COMMIT"
     docker tag "$REPO:$COMMIT" "$REPO:$BRANCH"
     docker tag "$REPO:$COMMIT" "$REPO:travis-$TRAVIS_BUILD_NUMBER"
     docker push "$REPO:$COMMIT"
