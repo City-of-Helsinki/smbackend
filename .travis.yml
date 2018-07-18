@@ -19,7 +19,8 @@ addons:
   apt:
     packages:
       - postgresql-10
-      - postgresql-10-postgis-2.4
+      - postgresql-client-10
+#      - postgresql-10-postgis-2.4
 #      - binutils
 #      - libproj-dev
 #      - gdal-bin
