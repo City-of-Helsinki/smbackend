@@ -54,10 +54,30 @@ DATABASES = {
 
 6. Import geo data.
 
+These require following source data:
+
+
+
     ```
 ./manage.py geo_import finland --municipalities
 ./manage.py geo_import helsinki --divisions
 ```
+
+7. Import organization & service data.
+
+These require following sources data:
+* Access to REST API for Helsinki TPR-family of registries. Smbackend uses
+in-development version of the API at: http://www.hel.fi/palvelukarttaws/rest/v3
+* For aliases, school name aliases in file data/school_ids.csv
+
+Note: later commands depend on previous ones
+
+   ```
+./manage.py services_import --organizations
+./manage.py services_import --departments
+./manage.py services_import --services
+./manage.py services_import --units
+./manage.py services_import --aliases
 
 Search
 ------
