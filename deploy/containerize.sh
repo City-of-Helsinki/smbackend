@@ -15,7 +15,7 @@ function _log () {
 _log_header "Starting Docker image build for smbackend"
 
 if [ "$TRAVIS_PYTHON_VERSION" != "3.6" ]; then
-    _log "Aborting: will only build on Python v3.6
+    _log "Aborting: will only build on Python v3.6"
     exit 0
 fi
 
