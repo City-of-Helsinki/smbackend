@@ -1,22 +1,64 @@
 import environ
 
-env = environ.Env()
+# This is expected to be in project root
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+root = environ.Path(BASE_DIR)
 
-INSTANCE_NAME = env.str('INSTANCE_NAME', default="smbackend")
-URL_PREFIX = '/' + env.str('URL_PREFIX', default="")
+env = environ.Env(
+    DEBUG=(bool, False),
+    SECRET_KEY=(str, ''),
+    ALLOWED_HOSTS=(list, []),
+    ADMINS=(list, []),
+    DATABASE_URL=(str, 'postgis:///smbackend'),
+    JWT_SECRET_KEY=(str, ''),
+    JWT_AUDIENCE=(str, ''),
+    MEDIA_ROOT=(environ.Path(), root('media')),
+    STATIC_ROOT=(environ.Path(), root('static')),
+    MEDIA_URL=(str, '/media/'),
+    STATIC_URL=(str, '/static/'),
+    LOGIN_REDIRECT_URL=(str, '/admin'),
+    SENTRY_DSN=(str, ''),
+    SENTRY_ENVIRONMENT=(str,''),
+    COOKIE_PREFIX=(str, 'smbackend'),
+    TRUST_X_FORWARDED_HOST=(bool, False),
+)
 
-LOGIN_REDIRECT_URL = 'https://api.hel.fi{}/admin/'.format(URL_PREFIX)
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-USE_X_FORWARDED_HOST = True
+DEBUG = env('DEBUG')
+SECRET_KEY = env('SECRET_KEY')
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+ADMINS = env('ADMINS')
 
-CSRF_COOKIE_NAME = '{}-csrftoken'.format(INSTANCE_NAME)
-CSRF_COOKIE_PATH = '{}'.format(URL_PREFIX)
-SESSION_COOKIE_NAME = '{}-sessionid'.format(INSTANCE_NAME)
+DATABASES = {
+    'default': env.db('DATABASE_URL')
+}
+
+MEDIA_ROOT = env('MEDIA_ROOT')
+MEDIA_URL = env('MEDIA_URL')
+
+STATIC_ROOT = env('STATIC_ROOT')
+STATIC_URL = env('STATIC_URL')
+
+LOGIN_REDIRECT_URL = env('LOGIN_REDIRECT_URL')
+
+SENTRY_DSN = env('SENTRY_DSN')
+
+RAVEN_CONFIG = {
+    'dsn': env('SENTRY_DSN'),
+    'environment': env('SENTRY_ENVIRONMENT'),
+    'release': raven.fetch_git_sha(BASE_DIR),
+}
+
+CSRF_COOKIE_NAME = '{}-csrftoken'.format(env('COOKIE_PREFIX'))
+CSRF_COOKIE_PATH = '/{}'.format(env('COOKIE_PREFIX'))
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_NAME = '{}-sessionid'.format(env('COOKIE_PREFIX'))
+SESSION_COOKIE_PATH = '/{}'.format(env('COOKIE_PREFIX'))
 SESSION_COOKIE_SECURE = True
-SESSION_COOKIE_PATH = '{}'.format(URL_PREFIX)
 
-SITE_TYPE = env.str('SITE_STATE', default="dev")
+USE_X_FORWARDED_HOST = env('TRUST_X_FORWARDED_HOST')
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 
 # Django default logging without debug does not output anything
 # to std*, let use log errors and worse. They should end up
@@ -36,8 +78,3 @@ LOGGING = {
         },
     },
 }
-
-STATIC_ROOT = '/opt/smbackend/static'
-MEDIA_ROOT = '/opt/smbackend/media'
-STATIC_URL = '{}/static/'.format(URL_PREFIX)
-MEDIA_URL = '{}/media/'.format(URL_PREFIX)
