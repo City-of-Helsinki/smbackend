@@ -1,18 +1,16 @@
-FROM node:8
+FROM python:3.6
 
-WORKDIR /opt/servicemap
+WORKDIR /opt/smbackend
 
-COPY . /opt/servicemap
+COPY . /opt/smbackend
 
-EXPOSE 9001
+EXPOSE 8000
 
-# We upgrade npm on the assumption that it is always
-# a very good idea
-# unsafe-perm should be ok within docker, the user being root
-# does not extend outside the container
-RUN npm i -g npm && \
-    npm install --unsafe-perm
+RUN apt-get update && apt-get install -y libgdal20 && cp deploy/django_local_settings_docker.py local_settings.py
 
-# this runs a development server with hot reloading
-# (unless user sets NODE_ENV to production)
-CMD ["npm", "start"]
+COPY . .
+
+RUN pip install --no-cache-dir -r deploy/requirements.txt
+
+CMD deploy/server.sh
+
