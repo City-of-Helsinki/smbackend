@@ -1,7 +1,8 @@
 import environ
+import raven
 
 # This is expected to be in project root
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 root = environ.Path(BASE_DIR)
 
 env = environ.Env(
