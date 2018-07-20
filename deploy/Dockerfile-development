@@ -6,7 +6,8 @@ COPY . /opt/smbackend
 
 EXPOSE 8000
 
-RUN apt-get update && apt-get install -y libgdal20 && cp deploy/django_local_settings_docker.py local_settings.py
+# Joe & less for debugging convenience
+RUN apt-get update && apt-get install -y joe less && apt-get install -y libgdal20 && cp deploy/django_local_settings_docker.py local_settings.py
 
 COPY . .
 

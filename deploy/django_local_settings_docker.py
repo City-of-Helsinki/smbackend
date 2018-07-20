@@ -1,5 +1,12 @@
 import environ
 import raven
+import subprocess
+
+def get_git_revision_short_hash():
+    try:
+        return subprocess.check_call(['gift', 'rev-parse', '--short', 'HEAD'], stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError as e:
+        return "unknown-git-failed"
 
 # This is expected to be in project root
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -46,7 +53,7 @@ SENTRY_DSN = env('SENTRY_DSN')
 RAVEN_CONFIG = {
     'dsn': env('SENTRY_DSN'),
     'environment': env('SENTRY_ENVIRONMENT'),
-    'release': raven.fetch_git_sha(BASE_DIR),
+    'release': get_git_revision_short_hash(),
 }
 
 CSRF_COOKIE_NAME = '{}-csrftoken'.format(env('COOKIE_PREFIX'))
