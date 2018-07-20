@@ -8,6 +8,16 @@ def get_git_revision_short_hash():
     except subprocess.CalledProcessError as e:
         return "unknown-git-failed"
 
+MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES)
+
+# Get whitenoise for serving static files
+try:
+    place = MIDDLEWARE_CLASSES.index('django.middleware.security.SecurityMiddleware')
+except ValueError:
+    place = 0
+
+MIDDLEWARE_CLASSES.insert(place, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
 # This is expected to be in project root
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 root = environ.Path(BASE_DIR)
