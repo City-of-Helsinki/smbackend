@@ -4,7 +4,7 @@ import subprocess
 
 def get_git_revision_short_hash():
     try:
-        return subprocess.check_call(['gift', 'rev-parse', '--short', 'HEAD'], stderr=subprocess.DEVNULL)
+        return subprocess.check_call(['git', 'rev-parse', '--short', 'HEAD'], stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:
         return "unknown-git-failed"
 
