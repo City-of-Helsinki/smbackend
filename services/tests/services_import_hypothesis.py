@@ -172,6 +172,7 @@ def unit_maker(draw, resource_ids):
         add_optional_field('address_city', sampled_from(MUNICIPALITIES))
         add_optional_field('address_zip', text(max_size=10))
         add_optional_field('organizer_business_id', text(max_size=10))
+        add_optional_field('organizer_name', text(max_size=10))
 
         for field in ['accessibility_email',
                       'accessibility_www',

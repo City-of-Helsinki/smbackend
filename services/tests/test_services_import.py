@@ -187,6 +187,8 @@ def assert_unit_correctly_imported(unit, source_unit, source_services):
             'accessibility_phone',
             'picture_entrance_url',
             'picture_url',
+            'organizer_business_id',
+            'organizer_name',
             'streetview_entrance_url']:
         assert_string_field_match(field_name, s, d)
 

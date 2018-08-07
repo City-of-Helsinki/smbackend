@@ -276,7 +276,7 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
     fields = ['address_zip', 'phone', 'email', 'fax', 'provider_type',
               'organizer_type', 'picture_url', 'picture_entrance_url',
               'accessibility_www', 'accessibility_phone', 'accessibility_email',
-              'streetview_entrance_url'
+              'streetview_entrance_url', 'organizer_name', 'organizer_business_id'
               ]
 
     contract_type = None
