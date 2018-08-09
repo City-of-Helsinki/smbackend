@@ -262,8 +262,7 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
 
     if not dept:
         LOGGER.warning("Missing department {} for unit {}".format(dept_id, obj.id))
-
-    if obj.department_id != dept_id:
+    elif obj.department_id != dept.id:
         obj.department = dept
         obj_changed = True
 
