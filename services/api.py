@@ -244,6 +244,11 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
             ancestors = obj.get_ancestors(ascending=True)
             ser = ServiceNodeSerializer(ancestors, many=True, context={'only': ['name']})
             ret['ancestors'] = ser.data
+        if 'related_services' in include_fields:
+            services = obj.related_services
+            ser = ServiceSerializer(services, many=True, context={})
+            ret['related_services'] = ser.data
+
         only_fields = self.context.get('only', [])
         if 'parent' in only_fields:
             ret['parent'] = obj.parent_id
