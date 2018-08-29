@@ -516,7 +516,7 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
 
         for i, conn in enumerate(info['connections']):
             c = UnitConnection(unit=obj)
-            save_translated_field(c, 'name', conn, 'name', max_length=400)
+            save_translated_field(c, 'name', conn, 'name', max_length=600)
             save_translated_field(c, 'www', conn, 'www')
             section_type = [val for val, str_val in SECTION_TYPES if str_val == conn['section_type']][0]
             assert section_type
