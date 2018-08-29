@@ -16,7 +16,7 @@ SECTION_TYPES = (
 
 class UnitConnection(models.Model):
     unit = models.ForeignKey(Unit, db_index=True, related_name='connections')
-    name = models.CharField(max_length=400)
+    name = models.CharField(max_length=600)
     www = models.URLField(null=True, max_length=400)
     section_type = models.PositiveSmallIntegerField(choices=SECTION_TYPES, null=True)
     email = models.EmailField(max_length=100, null=True)
