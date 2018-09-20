@@ -80,7 +80,7 @@ class Unit(models.Model):
     root_department = models.ForeignKey(Department, null=True, related_name='descendant_units')
 
     organizer_type = models.PositiveSmallIntegerField(choices=ORGANIZER_TYPES, null=True)
-    organizer_name = models.CharField(max_length=100, null=True)
+    organizer_name = models.CharField(max_length=150, null=True)
     organizer_business_id = models.CharField(max_length=10, null=True)
 
     provider_type = models.PositiveSmallIntegerField(choices=PROVIDER_TYPES, null=True)
