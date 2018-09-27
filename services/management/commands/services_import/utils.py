@@ -47,8 +47,9 @@ def save_translated_field(obj, obj_field_name, info, info_field_name, max_length
 def clean_text(text):
     if not isinstance(text, str):
         return text
+    text = text.replace('\r\n', "\n")
     # remove consecutive whitespaces
-    text = re.sub(r'\s\s+', ' ', text, re.U)
+    text = re.sub(r'[ \t][ \t]+', ' ', text, re.U)
     # remove nil bytes
     text = text.replace('\u0000', ' ')
     text = text.replace("\r", "\n")
