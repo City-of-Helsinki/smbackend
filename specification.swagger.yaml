@@ -980,6 +980,14 @@ paths:
       operationId: Retrieve a list of addresses
       summary: Retrieve a list of addresses
       parameters:
+        - name: lat
+          in: query
+          type: string
+          description: The latitude coordinate to be used in reverse geocoding
+        - name: lon
+          in: query
+          type: string
+          description: The longitude coordinate to be used in reverse geocoding
         - name: language
           in: query
           type: string
