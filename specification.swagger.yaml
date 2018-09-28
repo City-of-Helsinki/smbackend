@@ -653,7 +653,7 @@ paths:
         - name: service_nodes
           in: query
           type: string
-          description: A comma-separated list of service node ids to be used as a filter. Prefer the *services* parameter unless service nodes specifically needed
+          description: A comma-separated list of service node ids to be used as a filter. Prefer the *services* parameter unless service nodes are specifically needed.
         - name: exclude_service_nodes # FIXME inconsistent
           in: query
           type: string
