@@ -64,12 +64,6 @@ parameters:
     items:
       type: string
     description: Embed the complete content of given reference-type fields directly into the response, otherwise they are returned as identifiers. Separate field names by commas.
-  unit_q_param:
-    name: text
-    in: query
-    description: Search (case insensitive) through all relevant text fields of unit (name, description, municipality name, street address, organizational departent) of an event (default language or language explicitly specified by language query parameter).
-    required: false
-    type: string
   unit_bbox_param:
     name: bbox
     in: query
@@ -129,7 +123,7 @@ definitions:
             description: The first part of the street address, containing the street name and building number. This address should be used for locating the unit geographically, not for sending mail.
             type: string
           address_zip:
-            description: The zip code for the street address
+            description: The postal code for the street address
             type: string
           municipality:
             type: integer
@@ -402,7 +396,7 @@ definitions:
         description: The city where the street address is situated
       address_zip:
         type: string
-        description: The zip code of the street address
+        description: The postal code of the street address
       address_postal_full:
         type: string
         description: The address used for sending mail to the department
@@ -539,7 +533,7 @@ definitions:
       rules:
         type: object
         description: |
-          An object consisting of boolean expressions that are used to calculate whether a given unit satisfies the accessibility requirements of a given user.
+          An object consisting of boolean expressions that are used to calculate whether a given unit satisfies the accessibility requirements of a given user. The same set of rules are used for any unit: a unit\'s accessibility properties are used as values when evaluating the rules for the given unit.
 
           The **top level keys** of the object encode users\' accessibility profiles, which consist of a number and a letter. The numbers represent
 
@@ -671,7 +665,7 @@ paths:
         - name: geometry
           in: query
           type: string
-          description: If parameter value is either true or 1, return the complex geometry of the unit. Most units only have point type geometries, which are returned in the location field by default. Some however have polygon type geometries, eg. skiing tracks or outdoor areas. These complex geometries must be explicitly requested with this parameter.
+          description: If parameter value is either true or 1, return the complex geometry of the unit in the field "geometry". Most units only have point type geometries, which are returned in the location field. Some however have polygon type geometries, eg. skiing tracks or outdoor areas. These complex geometries must be explicitly requested with this parameter.
         # - name: maintenance_organization FIXME: no in use yet -- awaiting observations
         #   in: query
         #   type: string
@@ -868,7 +862,7 @@ paths:
         - name: language
           in: query
           type: string
-          description: The two-character ISO 639-1 language code to be used in the search. If missing, the search will use the default language.
+          description: The two-character ISO 639-1 language code to be used in the search. If missing, the search will use the default language Finnish.
         - name: q
           in: query
           type: string
@@ -880,7 +874,7 @@ paths:
         - name: municipality
           in: query
           type: string
-          description: A comma-separated list of municipalities to be used to filter units. Uses the simple format of lowercase municipality name.
+          description: A comma-separated list of municipalities to be used to filter units. Uses the simple format of lowercase municipality name in Finnish instead of an OCD id.
         - name: service
           in: query
           type: string
@@ -890,7 +884,7 @@ paths:
           type: array
           items:
             type: string
-          description: Embed the complete content of given reference-type fields directly into the response, otherwise they are returned as identifiers. Separate field names by commas. In the search endpoint, you must qualify the field names with the resource names because many kinds of resources are searched through. For example, instead of **include=department** you must specify **include=unit.department**
+          description: Embed the complete content of given reference-type fields directly into the response, otherwise they are returned as identifiers. Separate field names by commas. In the search endpoint, you must qualify the field names with the resource names because many kinds of resources are searched through. For example, instead of **include=department** you must specify **include=unit.department**. The set of valid prefixes is the same as the set of valid values in the type field of the search endpoint.
         - name: only
           in: query
           type: array
@@ -916,7 +910,7 @@ paths:
   /accessibility_rule/:
     get:
       operationId: Retrieve accessibility rule list
-      summary: Retrieve all the accessibility shortcoming evaluating rules and UI messages
+      summary: Retrieve the rule database for calculating the accessibility shortcomings of any unit
       tags:
         - accessibility
       responses:
@@ -936,7 +930,7 @@ paths:
         - name: language
           in: query
           type: string
-          description: The two-character ISO 639-1 language code to be used in the street names. If missing, the street name parameter will use the default language.
+          description: The two-character ISO 639-1 language code to be used in the street names. If missing, the street name parameter will use the default language Finnish.
         - name: municipality
           in: query
           type: string
@@ -991,7 +985,7 @@ paths:
         - name: language
           in: query
           type: string
-          description: The two-character ISO 639-1 language code to be used in the street names of the addresses. If missing, the street name parameter will use the default language.
+          description: The two-character ISO 639-1 language code to be used in the street names of the addresses. If missing, the street name parameter will use the default language Finnish.
         - name: municipality
           in: query
           type: string
@@ -999,7 +993,7 @@ paths:
         - name: municipality_name
           in: query
           type: string
-          description: A municipality name to be used as a filter.
+          description: A municipality name to be used as a filter, in the language specified by the language parameter.
         - name: street
           in: query
           type: string
