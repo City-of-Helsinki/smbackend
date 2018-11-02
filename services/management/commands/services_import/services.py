@@ -206,3 +206,17 @@ def update_service_node_counts():
         objects_to_save.extend(update_count_objects(service_node_unit_count_objects, node))
     save_objects(objects_to_save)
     return tree
+
+@db.transaction.atomic
+def update_service_root_service_nodes():
+    tree_roots = dict(ServiceNode.objects.filter(level=0).values_list('tree_id', 'id'))
+    service_nodes = ServiceNode.objects.all().prefetch_related('related_services')
+    services = set()
+    service_roots = dict()
+    for node in service_nodes: # TODO: ordering
+        for service in node.related_services.all():
+            service_roots[service.id] = tree_roots[node.tree_id]
+            services.add(service)
+    for service in services:
+        service.root_service_node_id = service_roots[service.id]
+        service.save(update_fields=['root_service_node'])

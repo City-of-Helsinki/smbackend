@@ -280,7 +280,7 @@ class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
 
     class Meta:
         model = Service
-        fields = ['name', 'id', 'period_enabled', 'clarification_enabled', 'keywords']
+        fields = ['name', 'id', 'period_enabled', 'clarification_enabled', 'keywords', 'root_service_node']
 
 
 class RelatedServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
