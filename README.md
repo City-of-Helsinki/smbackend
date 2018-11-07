@@ -8,46 +8,28 @@ Installation
 
 First, install the necessary Debian packages.
 
-    libpython3.4-dev virtualenvwrapper libyaml-dev libxml2-dev libxslt1-dev
+```python3-dev libyaml-dev libxml2-dev libxslt1-dev libpq-dev python-psycopg2 postgresql postgis postgresql-10-postgis-2.4``` 
 
 You might need to start a new shell for the virtualenvwrapper commands to activate.
 
 1. Make a Python virtual environment.
 
-```
-mkvirtualenv -p /usr/bin/python3.4 smbackend
-```
+```virtualenv --python=python3 ven``` (mkvirtualenv -p /usr/bin/python3.4 smbackend)
 
 2. Install pip requirements.
 
-    ```pip install -r requirements.txt```
+```pip install -r requirements.txt```
  
 3. Setup the PostGIS database.
 
-Please note we require PostgreSQL version 9.4 or higher
-
-Local setup:
-
 ```
 sudo su postgres
-
 createuser -R -S -D -P smbackend
-
-createdb -O smbackend -T template0 -l fi_FI.UTF-8 -E utf8 smbackend
-
+createdb -O smbackend -T template0 -l fi_FI.UTF8 -E utf8 smbackend
 echo "CREATE EXTENSION postgis;" | psql smbackend
-
-echo "CREATE EXTENSION hstore;" | psql smbackend
 ```
 
-Docker setup (modify as needed, starts the database on local port 8765):
-```
-docker run --name smbackend-psql -e POSTGRES_USER=smbackend -e POSTGRES_PASSWORD=smbackend -p 8765:5432 -d mdillon/postgis
-# you'll need the hstore extension enabled:
-echo "CREATE EXTENSION hstore;" | docker exec -i smbackend-psql psql -U smbackend
-```
-
-4. Modify `local_settings.py` to contain the local database info.
+4. Create `local_settings.py` to contain the local database info.
 
 ```
 DATABASES = {
@@ -63,16 +45,7 @@ DATABASES = {
 
 5. Create database tables.
 
-```
-./manage.py syncdb
-./manage.py migrate
-```
-
-If these commands fail with: `django.core.exceptions.ImproperlyConfigured: GEOS is required and has not been detected.`,
-then install the GEOS library. On a Mac this can be achieved with HomeBrew:
-```
-brew install geos
-```
+```./manage.py migrate```
 
 6. Import geo data.
 
@@ -80,6 +53,11 @@ brew install geos
 ./manage.py geo_import finland --municipalities
 ./manage.py geo_import helsinki --divisions
 ```
+If problems with certificate, export certificate from complaining link and use this link as instruction https://superuser.com/questions/437330/how-do-you-add-a-certificate-authority-ca-to-ubuntu
+
+Update map with
+
+```scripts/update.sh```
 
 Search
 ------
@@ -121,19 +99,4 @@ HAYSTACK_CONNECTIONS = {
         'INDEX_NAME': 'servicemap-en',
     },
 }
-```
-
-
-Troubleshooting
----------------
-
-The error:
-```
-OSError: dlopen(/usr/local/lib/libgdal.dylib, 6): Symbol not found: _GEOSArea
-```
-Can be fixed by adding this to local_settings.py:
-```python
-GDAL_LIBRARY_PATH = "/usr/local/lib/libgdal.dylib"
-import ctypes
-ctypes.CDLL(GDAL_LIBRARY_PATH)
 ```
