@@ -8,13 +8,18 @@ Installation
 
 First, install the necessary Debian packages.
 
-```python3-dev libyaml-dev libxml2-dev libxslt1-dev libpq-dev python-psycopg2 postgresql postgis postgresql-10-postgis-2.4``` 
+```
+python3-dev libyaml-dev libxml2-dev libxslt1-dev libpq-dev python-psycopg2 postgresql postgis postgresql-10-postgis-2.4
+``` 
 
 You might need to start a new shell for the virtualenvwrapper commands to activate.
 
 1. Make a Python virtual environment.
 
-```virtualenv --python=python3 ven``` (mkvirtualenv -p /usr/bin/python3.4 smbackend)
+```
+virtualenv --python=python3 venv
+source venv/bin/activate
+```
 
 2. Install pip requirements.
 
@@ -27,7 +32,17 @@ sudo su postgres
 createuser -R -S -D -P smbackend
 createdb -O smbackend -T template0 -l fi_FI.UTF8 -E utf8 smbackend
 echo "CREATE EXTENSION postgis;" | psql smbackend
+echo "CREATE EXTENSION hstore;" | psql smbackend
 ```
+
+
+Docker setup (modify as needed, starts the database on local port 8765):
+```
+docker run --name smbackend-psql -e POSTGRES_USER=smbackend -e POSTGRES_PASSWORD=smbackend -p 8765:5432 -d mdillon/postgis
+# you'll need the hstore extension enabled:
+echo "CREATE EXTENSION hstore;" | docker exec -i smbackend-psql psql -U smbackend
+```
+
 
 4. Create `local_settings.py` to contain the local database info.
 
@@ -53,7 +68,7 @@ DATABASES = {
 ./manage.py geo_import finland --municipalities
 ./manage.py geo_import helsinki --divisions
 ```
-If problems with certificate, export certificate from complaining link and use this link as instruction https://superuser.com/questions/437330/how-do-you-add-a-certificate-authority-ca-to-ubuntu
+If problems with certificate occurs, export certificate from erroring link and use this instructions: https://superuser.com/questions/437330/how-do-you-add-a-certificate-authority-ca-to-ubuntu
 
 Update map with
 
@@ -99,4 +114,18 @@ HAYSTACK_CONNECTIONS = {
         'INDEX_NAME': 'servicemap-en',
     },
 }
+```
+
+Troubleshooting
+---------------
+
+The error:
+```
+OSError: dlopen(/usr/local/lib/libgdal.dylib, 6): Symbol not found: _GEOSArea
+```
+Can be fixed by adding this to local_settings.py:
+```python
+GDAL_LIBRARY_PATH = "/usr/local/lib/libgdal.dylib"
+import ctypes
+ctypes.CDLL(GDAL_LIBRARY_PATH)
 ```
