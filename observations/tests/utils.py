@@ -1,5 +1,3 @@
-
-
 OBSERVABLE_PROPERTY_IDENTICAL_FIELDS = [
     # These fields should be identical in
     # the original object and its JSON (dict) representation.

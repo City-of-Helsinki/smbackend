@@ -1,4 +1,5 @@
 import pytest
+from fixtures import *
 from rest_framework.reverse import reverse
 from utils import match_observable_property_object_to_dict
 

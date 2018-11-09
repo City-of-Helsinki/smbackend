@@ -1,4 +1,5 @@
 import pytest
+from fixtures import *
 from observations.models import Observation
 from data import observation_raw_data
 from rest_framework.reverse import reverse
