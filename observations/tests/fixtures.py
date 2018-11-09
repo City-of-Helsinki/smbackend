@@ -1,19 +1,22 @@
 import pytest
 from rest_framework.test import APIClient
 from services.models import Service, Unit, Department
-from observations.models import ObservableProperty, CategoricalObservation, AllowedValue, UserOrganization
+from observations.models import (ObservableProperty, CategoricalObservation,
+                                 AllowedValue, UserOrganization)
 import datetime as d
 from django.contrib.auth.models import User
+
 
 @pytest.fixture
 def api_client():
     return APIClient()
 
+
 @pytest.mark.django_db
 @pytest.fixture
 def user():
-    USERNAME='test_user'
-    PASSWORD='test_password'
+    USERNAME = 'test_user'
+    PASSWORD = 'test_password'
     user = User.objects.create(username=USERNAME)
     organization = Department.objects.create(name_fi='test_org', id=1)
     UserOrganization.objects.create(user=user, organization=organization)
@@ -52,6 +55,7 @@ def unit(service, organization):
     unit.services.add(service)
     return unit
 
+
 @pytest.mark.django_db
 @pytest.fixture
 def categorical_observations(unit, observable_property):
@@ -71,6 +75,7 @@ def categorical_observations(unit, observable_property):
             unit=unit,
             property=observable_property,
             value='closed')]
+
 
 @pytest.mark.django_db
 @pytest.fixture
@@ -100,6 +105,7 @@ def observable_property(service, unit):
         property=p
     )
     return p
+
 
 @pytest.mark.django_db
 @pytest.fixture
