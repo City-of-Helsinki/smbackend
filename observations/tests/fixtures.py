@@ -1,6 +1,6 @@
 import pytest
 from rest_framework.test import APIClient
-from services.models import Service, Unit, Department
+from services.models import Service, Unit, Department, UnitServiceDetails
 from observations.models import ObservableProperty, CategoricalObservation, AllowedValue, UserOrganization
 import datetime as d
 from django.contrib.auth.models import User
@@ -36,7 +36,7 @@ def service():
     return Service.objects.create(
         id=1,
         name='skiing',
-        unit_count=1,
+        #unit_count=1,
         last_modified_time=d.datetime.now())
 
 
@@ -46,10 +46,12 @@ def unit(service, organization):
     unit = Unit.objects.create(
         id=1,
         name='skiing place',
-        modified_time=d.datetime.now(),
+        last_modified_time=d.datetime.now(),
         provider_type=1,
         department=organization)
-    unit.services.add(service)
+    # intermediate model
+    UnitServiceDetails(unit=unit, service=service).save()
+    #unit.services.add(service)
     return unit
 
 @pytest.mark.django_db
