@@ -1,5 +1,4 @@
 import pytest
-from fixtures import *
 from observations.models import Observation
 from data import observation_raw_data
 from rest_framework.reverse import reverse
@@ -34,7 +33,8 @@ def test__create_observation(api_client, observable_property, unit, user):
         otype = prop['id']
         allowed_values = [
             v['identifier'] for v in prop['allowed_values']] + [None]
-        for raw_data in observation_raw_data(otype, unit, allowed_values=allowed_values):
+        for raw_data in observation_raw_data(otype, unit,
+                                             allowed_values=allowed_values):
             url = reverse('observation-list')
             current_time = timezone.now()
             response = api_client.post(url, raw_data, format='json')
@@ -56,7 +56,8 @@ def test__create_observation(api_client, observable_property, unit, user):
 @pytest.mark.skip(reason="awaiting new API implementation")
 # Skipping test until observations migrated to v2
 @pytest.mark.django_db
-def test__create_descriptive_observation(api_client, descriptive_property, unit, user):
+def test__create_descriptive_observation(api_client, descriptive_property,
+                                         unit, user):
     url = reverse(
         'unit-detail',
         kwargs={'pk': unit.pk}) + '?include=observable_properties'
@@ -80,7 +81,7 @@ def test__create_descriptive_observation(api_client, descriptive_property, unit,
             property=prop['id'])
         response = api_client.post(url, raw_data, format='json')
         assert response.status_code == 201
-        count +=1
+        count += 1
         data = response.data
         observation_time = datetime.strptime(
             data['time'],
@@ -104,7 +105,7 @@ def test__create_descriptive_observation(api_client, descriptive_property, unit,
             property=prop['id'])
         response = api_client.post(url, raw_data, format='json')
         assert response.status_code == 201
-        count +=1
+        count += 1
         data = response.data
         observation_time = datetime.strptime(
             data['time'],
@@ -115,6 +116,4 @@ def test__create_descriptive_observation(api_client, descriptive_property, unit,
         assert data['property'] == raw_data['property']
         assert data['unit'] == raw_data['unit']
 
-
     assert Observation.objects.count() == count
-
