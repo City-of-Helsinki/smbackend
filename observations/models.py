@@ -8,7 +8,6 @@ import binascii
 import os
 from rest_framework import exceptions
 import rest_framework.authtoken.models
-import rest_framework.authentication
 
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
