@@ -231,3 +231,4 @@ if 'SECRET_KEY' not in locals():
             secret.close()
         except IOError:
             Exception('Please create a %s file with random characters to generate your secret key!' % secret_file)
+
