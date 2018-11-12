@@ -16,6 +16,7 @@ def test__get_observable_properties_for_unit(api_client, observable_property):
         url = reverse(
             'unit-detail',
             kwargs={'pk': unit.pk}) + '?include=observable_properties'
+        print('printtaa ' + url)
         response = api_client.get(url)
         assert 'observable_properties' in response.data
         observable_properties = response.data['observable_properties']

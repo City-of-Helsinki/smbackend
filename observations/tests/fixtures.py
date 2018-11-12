@@ -15,7 +15,7 @@ def user():
     USERNAME='test_user'
     PASSWORD='test_password'
     user = User.objects.create(username=USERNAME)
-    organization = Department.objects.create(name_fi='test_org', id=1)
+    organization = Department.objects.create(name_fi='test_org')
     UserOrganization.objects.create(user=user, organization=organization)
     user.set_password(PASSWORD)
     user.save()
