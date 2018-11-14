@@ -515,7 +515,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         return result
 
     def _department_uuid(self, obj, field):
-        if obj.department is not None:
+        if getattr(obj, field) is not None:
             return getattr(obj, field).uuid
         return None
 
