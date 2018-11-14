@@ -1,4 +1,4 @@
-import pytest
+import pytest, json
 from rest_framework.reverse import reverse
 from fixtures import *
 from utils import match_observable_property_object_to_dict
@@ -18,6 +18,7 @@ def test__get_observable_properties_for_unit(api_client, observable_property):
             kwargs={'pk': unit.pk}) + '?include=observable_properties'
         print('printtaa ' + url)
         response = api_client.get(url)
+        print('obs_resp '+ str(response.data))
         assert 'observable_properties' in response.data
         observable_properties = response.data['observable_properties']
         matching_properties = [p for p in observable_properties
@@ -48,11 +49,13 @@ def test__get_observable_properties_for_service(api_client, observable_property)
         response = api_client.get(
             reverse('service-detail',
                     kwargs={'pk': service.pk}) + '?include=observable_properties')
+        print('obs2_resp ' + str(response.data))
         assert 'observable_properties' in response.data
 
         observable_properties = response.data['observable_properties']
 
-        assert isinstance(observable_properties, list)
+        #assert isinstance(observable_properties, list)
+        print(str(observable_properties))
         matching_properties = [p for p in observable_properties
                                if p['id'] == observable_property.id]
 

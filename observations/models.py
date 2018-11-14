@@ -8,6 +8,10 @@ import binascii
 import os
 from rest_framework import exceptions
 
+import rest_framework.authtoken.models
+import rest_framework.authentication
+
+
 class ObservableProperty(models.Model):
     """Specifies the detailed interpretation of observations.
     Includes the unit of measurement.
@@ -25,16 +29,22 @@ class ObservableProperty(models.Model):
     # todo: change to services
     services = models.ManyToManyField(services_models.Service, related_name='observable_properties')
     observation_type = models.CharField(max_length=80, null=False, blank=False)
+
     def __str__(self):
         return "%s (%s)" % (self.name, self.id)
+
     def get_observation_model(self):
         return apps.get_model(self.observation_type)
+
     def get_observation_type(self):
         return self.get_observation_model().get_type()
+
     def create_observation(self, **validated_data):
         return self.get_observation_model().objects.create(**validated_data)
+
     def get_internal_value(self, value):
         return self.get_observation_model().get_internal_value(self, value)
+
 
 class AllowedValue(models.Model):
     # Currently only works for categorical observations
@@ -54,6 +64,7 @@ class AllowedValue(models.Model):
     class Meta:
         unique_together = (
             ('identifier', 'property'),)
+
 
 class Observation(PolymorphicModel):
     """An observation is a measured/observed value of
@@ -79,6 +90,7 @@ class Observation(PolymorphicModel):
     class Meta:
         ordering = ['-time']
 
+
 class CategoricalObservation(Observation):
     def get_external_value(self):
         return self.value.identifier
@@ -103,6 +115,7 @@ class DescriptiveObservation(Observation):
     def get_internal_value(oproperty, value):
         return AllowedValue.objects.create(property=oproperty, **value)
 
+
 class UnitLatestObservation(models.Model):
     unit = models.ForeignKey(
         services_models.Unit,
@@ -116,8 +129,6 @@ class UnitLatestObservation(models.Model):
         unique_together = (
             ('unit', 'property'),)
 
-import rest_framework.authtoken.models
-import rest_framework.authentication
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 class PluralityAuthToken(models.Model):
@@ -148,13 +159,16 @@ class PluralityAuthToken(models.Model):
     def __str__(self):
         return self.key
 
+
 class PluralityTokenAuthentication(rest_framework.authentication.TokenAuthentication):
     model = PluralityAuthToken
+
     def authenticate_credentials(self, key):
         user, token = super(PluralityTokenAuthentication, self).authenticate_credentials(key)
         if not token.active:
             raise exceptions.AuthenticationFailed(_('Token inactive or deleted.'))
         return (token.user, token)
+
 
 class UserOrganization(models.Model):
     organization = models.ForeignKey(services_models.Department)

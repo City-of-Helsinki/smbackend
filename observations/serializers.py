@@ -1,12 +1,15 @@
 from collections import OrderedDict
+
+#from django import apps
 from rest_framework import serializers
 from django.utils import timezone
 from django.db import transaction
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
 
-from services.api import TranslatedModelSerializer
+from services.api import TranslatedModelSerializer, JSONAPISerializer
 from . import models
+
 
 class AllowedValueSerializer(TranslatedModelSerializer, serializers.Serializer):
     identifier = serializers.CharField(required=False)
@@ -16,13 +19,18 @@ class AllowedValueSerializer(TranslatedModelSerializer, serializers.Serializer):
     class Meta:
         model = models.AllowedValue
 
+
 class ObservablePropertySerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     allowed_values = AllowedValueSerializer(many=True, read_only=True)
+
     class Meta:
         model = models.ObservableProperty
+        fields = ('id', 'name', 'measurement_unit', 'allowed_values', 'observation_type')
+
     def to_representation(self, obj):
         data = super(ObservablePropertySerializer, self).to_representation(obj)
         data['observation_type'] = obj.get_observation_type()
+        data['id'] = obj.get_id()
         return data
 
 

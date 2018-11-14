@@ -28,6 +28,7 @@ from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES, CONTRACT_TYPES
 from services.accessibility import RULES as accessibility_rules
 from munigeo.models import AdministrativeDivision, Municipality, Address
 from munigeo import api as munigeo_api
+from observations.models import ObservableProperty
 
 from rest_framework import renderers
 from django.template.loader import render_to_string
@@ -272,15 +273,21 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
 
 
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
+
     def to_representation(self, obj):
+        from observations.serializers import ObservablePropertySerializer
+
         ret = super(ServiceSerializer, self).to_representation(obj)
+        observable_properties = ObservablePropertySerializer().data
+        ret['observable_properties'] = observable_properties
+        ret['unit_count'] = {}
         if hasattr(obj, 'unit_count'):
             ret.setdefault('unit_count', {})['total'] = obj.unit_count
         return ret
 
     class Meta:
         model = Service
-        fields = ['name', 'id', 'period_enabled', 'clarification_enabled', 'keywords', 'root_service_node']
+        fields = ['name', 'id', 'period_enabled', 'clarification_enabled', 'keywords', 'root_service_node', 'observable_properties']
 
 
 class RelatedServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
@@ -292,7 +299,7 @@ class RelatedServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
 class ServiceDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
         ret = super(ServiceDetailsSerializer, self).to_representation(obj)
-        service_data =  RelatedServiceSerializer(obj.service).data
+        service_data = RelatedServiceSerializer(obj.service).data
         ret['name'] = service_data.get('name')
         ret['root_service_node'] = service_data.get('root_service_node')
         if ret['period_begin_year'] is not None:
@@ -852,7 +859,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         serializer = self.serializer_class(unit, context=self.get_serializer_context())
         return Response(serializer.data)
 
-    def list(self, request):
+    def list(self, request, **kwargs):
         response = super(UnitViewSet, self).list(request)
         response.add_post_render_callback(self._add_content_disposition_header)
         return response
