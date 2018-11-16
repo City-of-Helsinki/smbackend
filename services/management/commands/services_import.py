@@ -41,14 +41,14 @@ SERVICE_IDS_TO_SKIP = set([
     33377, # retkeilyalue
     33378, # monikäyttöalue
     33482, # kuntorata
-    33483, # latu
-    33492, # koirahiihtolatu
+    191, # latu
+    318, # koirahiihtolatu
     33484, # kävelyreitti
     33485, # luontopolku
     33486 # retkeilyreitti
 ])
 
-ICE_SKATING_SERVICES = [33420,33418,33419,33417,33421]
+ICE_SKATING_SERVICES = [514,406,235,695,407]
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
