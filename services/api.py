@@ -752,7 +752,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         services = filters.get('service')
         if services is not None:
             print('nakyyko services')
-            queryset = queryset.filter(services=services)
+            queryset = queryset.filter(services__in=services.split(',')).distinct()
 
         if 'division' in filters:
             # Divisions can be specified with form:
