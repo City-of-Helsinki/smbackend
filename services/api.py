@@ -28,7 +28,6 @@ from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES, CONTRACT_TYPES
 from services.accessibility import RULES as accessibility_rules
 from munigeo.models import AdministrativeDivision, Municipality, Address
 from munigeo import api as munigeo_api
-from observations.models import ObservableProperty
 
 from rest_framework import renderers
 from django.template.loader import render_to_string
@@ -273,13 +272,8 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
 
 
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
-
     def to_representation(self, obj):
-        from observations.serializers import ObservablePropertySerializer
-
         ret = super(ServiceSerializer, self).to_representation(obj)
-        observable_properties = ObservablePropertySerializer().data
-        ret['observable_properties'] = observable_properties
         ret['unit_count'] = {}
         if hasattr(obj, 'unit_count'):
             ret.setdefault('unit_count', {})['total'] = obj.unit_count
@@ -459,6 +453,7 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     serializer_class = ServiceSerializer
 
     def get_queryset(self):
+        print('service view query', self.serializer_class)
         queryset = super(ServiceViewSet, self).get_queryset().prefetch_related('keywords')
         args = self.request.query_params
         if 'id' in args:
@@ -659,6 +654,7 @@ class KmlRenderer(renderers.BaseRenderer):
 
 
 class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
+    print('printa ees jotain!')
     queryset = Unit.objects.filter(public=True)
     serializer_class = UnitSerializer
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
@@ -755,6 +751,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         services = filters.get('service')
         if services is not None:
+            print('nakyyko services')
             queryset = queryset.filter(services=services)
 
         if 'division' in filters:
@@ -823,6 +820,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 Q(extensions__additional_maintenance_organization=maintenance_organization))
 
         if 'observations' in self.include_fields:
+            print('ovatko havainnot tässä')
             queryset = queryset.prefetch_related(
                 'observation_set__property__allowed_values').prefetch_related(
                     'observation_set__value')

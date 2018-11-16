@@ -4,7 +4,7 @@ from fixtures import *
 from utils import match_observable_property_object_to_dict
 
 
-# @pytest.mark.skip(reason="awaiting new API implementation")
+#@pytest.mark.skip(reason="awaiting new API implementation")
 # Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__get_observable_properties_for_unit(api_client, observable_property):
@@ -46,16 +46,14 @@ def test__get_observable_properties_for_service(api_client, observable_property)
     assert len(services) > 0
 
     for service in services:
-        response = api_client.get(
-            reverse('service-detail',
-                    kwargs={'pk': service.pk}) + '?include=observable_properties')
-        print('obs2_resp ' + str(response.data))
+        url = reverse('service-detail',
+                    kwargs={'pk': service.pk}) + '?include=observable_properties'
+        response = api_client.get(url)
         assert 'observable_properties' in response.data
 
         observable_properties = response.data['observable_properties']
 
-        #assert isinstance(observable_properties, list)
-        print(str(observable_properties))
+        assert isinstance(observable_properties, list)
         matching_properties = [p for p in observable_properties
                                if p['id'] == observable_property.id]
 

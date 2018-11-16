@@ -2,7 +2,7 @@ from rest_framework import serializers, viewsets
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from django.utils.translation import ugettext_lazy as _
 
-from services.api import OntologyWordSerializer as ServiceSerializer, UnitSerializer
+from services.api import ServiceSerializer, UnitSerializer
 from . import models
 from .serializers import *
 
@@ -10,7 +10,8 @@ from django.contrib.contenttypes.models import ContentType
 
 
 from services.api import (
-    JSONAPIViewSetMixin, OntologyWordViewSet as ServiceViewSet, UnitViewSet)
+    JSONAPIViewSetMixin, ServiceViewSet, UnitViewSet)
+
 
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Observation.objects.all()
@@ -26,6 +27,7 @@ class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
 
 
 class ObservableSerializerMixin:
+    print('ObservableSerializerMixin')
     def to_representation(self, obj):
         data = super(ObservableSerializerMixin, self).to_representation(obj)
         if 'observable_properties' in self.context.get('include', []):
@@ -39,6 +41,7 @@ class ObservableSerializerMixin:
 
 
 class ObservableServiceSerializer(ObservableSerializerMixin, ServiceSerializer):
+    print('ObservableServiceSerializer')
     def get_observable_properties(self, service):
         return service.observable_properties.all()
 
@@ -47,6 +50,7 @@ class ObservableServiceSerializer(ObservableSerializerMixin, ServiceSerializer):
 
 
 class ObservableUnitSerializer(ObservableSerializerMixin, UnitSerializer):
+    print('ObservableUnitSerializer')
     def get_observable_properties(self, unit):
         return models.ObservableProperty.objects.filter(services__in=unit.services.all())
 

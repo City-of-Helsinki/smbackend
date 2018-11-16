@@ -46,7 +46,8 @@ INSTALLED_APPS = (
     'haystack',
     'munigeo',
     'services',
-    'observations'
+    'observations',
+    'rest_framework_swagger',
 )
 
 MIDDLEWARE_CLASSES = (

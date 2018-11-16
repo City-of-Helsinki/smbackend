@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.db import transaction
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
-
+import pprint
 from services.api import TranslatedModelSerializer, JSONAPISerializer
 from . import models
 
@@ -21,16 +21,18 @@ class AllowedValueSerializer(TranslatedModelSerializer, serializers.Serializer):
 
 
 class ObservablePropertySerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+
     allowed_values = AllowedValueSerializer(many=True, read_only=True)
 
     class Meta:
+        print('obs pros ser')
         model = models.ObservableProperty
         fields = ('id', 'name', 'measurement_unit', 'allowed_values', 'observation_type')
 
     def to_representation(self, obj):
+        print('obs pros repr')
         data = super(ObservablePropertySerializer, self).to_representation(obj)
         data['observation_type'] = obj.get_observation_type()
-        data['id'] = obj.get_id()
         return data
 
 
