@@ -4,8 +4,8 @@
     name: Ski trail condition
     observation_type: observations.CategoricalObservation
     services:
-      - 33483
-      - 33492
+      - 191
+      - 318
 - model: observations.AllowedValue
   fields:
     identifier: closed
@@ -93,8 +93,8 @@
     name: Ski trail maintenance status
     observation_type: observations.CategoricalObservation
     services:
-      - 33483
-      #- 33492
+      - 191
+      #- 318
 - model: observations.AllowedValue
   fields:
     identifier: maintenance_finished

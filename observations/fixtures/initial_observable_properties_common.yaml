@@ -4,10 +4,10 @@
     name: Notice
     observation_type: observations.DescriptiveObservation
     services:
-        - 33417
-        - 33418
-        - 33419
-        - 33420
-        - 33421
-        - 33483
-        - 33492
+        - 695
+        - 406
+        - 235
+        - 512
+        - 407
+        - 191
+        - 318
