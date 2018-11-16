@@ -1,13 +1,11 @@
 from collections import OrderedDict
 
-#from django import apps
 from rest_framework import serializers
 from django.utils import timezone
 from django.db import transaction
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
-import pprint
-from services.api import TranslatedModelSerializer, JSONAPISerializer
+from services.api import TranslatedModelSerializer
 from . import models
 
 
@@ -25,12 +23,10 @@ class ObservablePropertySerializer(TranslatedModelSerializer, serializers.ModelS
     allowed_values = AllowedValueSerializer(many=True, read_only=True)
 
     class Meta:
-        print('obs pros ser')
         model = models.ObservableProperty
         fields = ('id', 'name', 'measurement_unit', 'allowed_values', 'observation_type')
 
     def to_representation(self, obj):
-        print('obs pros repr')
         data = super(ObservablePropertySerializer, self).to_representation(obj)
         data['observation_type'] = obj.get_observation_type()
         return data

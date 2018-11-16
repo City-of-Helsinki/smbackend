@@ -7,12 +7,9 @@ from rest_framework import routers
 from observations.views import obtain_auth_token
 from munigeo.api import all_views as munigeo_views
 from shortcutter import urls as shortcutter_urls
-from rest_framework_swagger.views import get_swagger_view
 
 from services import views
 
-
-schema_view = get_swagger_view(title='SMBE API')
 
 router = routers.DefaultRouter()
 
@@ -40,8 +37,7 @@ urlpatterns = [
 
     url(r'^open311/', views.post_service_request, name='services'),
     url(r'^v2/', include(router.urls)),
-    #url(r'^v2/api-token-auth/', obtain_auth_token, name='api-auth-token'),
+    url(r'^v2/api-token-auth/', obtain_auth_token, name='api-auth-token'),
     url(r'^v2/redirect/unit/', UnitRedirectViewSet.as_view({'get': 'list'})),
     url(r'', include(shortcutter_urls)),
-    url(r'swagger-docs/', schema_view)
 ]

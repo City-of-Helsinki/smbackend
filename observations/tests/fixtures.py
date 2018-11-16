@@ -49,9 +49,7 @@ def unit(service, organization):
         last_modified_time=d.datetime.now(),
         provider_type=1,
         department=organization)
-    # intermediate model
     UnitServiceDetails(unit=unit, service=service).save()
-    #unit.services.add(service)
     return unit
 
 @pytest.mark.django_db
