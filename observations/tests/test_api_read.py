@@ -1,6 +1,5 @@
-import pytest, json
+import pytest
 from rest_framework.reverse import reverse
-from fixtures import *
 from utils import match_observable_property_object_to_dict
 
 
@@ -39,7 +38,8 @@ def test__get_observable_properties_for_unit(api_client, observable_property):
 # @pytest.mark.skip(reason="awaiting new API implementation")
 # Skipping test until observations migrated to v2
 @pytest.mark.django_db
-def test__get_observable_properties_for_service(api_client, observable_property):
+def test__get_observable_properties_for_service(
+        api_client, observable_property):
     services = observable_property.services.all()
     assert len(services) > 0
 
@@ -47,6 +47,7 @@ def test__get_observable_properties_for_service(api_client, observable_property)
         url = reverse('service-detail',
                     kwargs={'pk': service.pk}) + '?include=observable_properties'
         response = api_client.get(url)
+
         assert 'observable_properties' in response.data
 
         observable_properties = response.data['observable_properties']
@@ -56,14 +57,17 @@ def test__get_observable_properties_for_service(api_client, observable_property)
                                if p['id'] == observable_property.id]
 
         assert len(matching_properties) == 1
+
         returned_property = matching_properties[0]
+
         assert 'name' in returned_property
         assert 'measurement_unit' in returned_property
         assert 'observation_type' in returned_property
-        match_observable_property_object_to_dict(
-            observable_property, returned_property)
+
+        match_observable_property_object_to_dict(observable_property, returned_property)
 
 # @pytest.mark.django_db
-# def test__get_units_with_observations_sorted_by_latest_first(api_client, categorical_observations):
+# def test__get_units_with_observations_sorted_by_latest_first(
+#    api_client, categorical_observations):
 #     response = api_client.get(
 #         reverse('unit-list') + '?include=observations&observation_count=5')

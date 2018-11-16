@@ -1,15 +1,11 @@
-from rest_framework import serializers, viewsets
-from rest_framework.exceptions import ValidationError, AuthenticationFailed
+from rest_framework import viewsets
+from rest_framework.exceptions import AuthenticationFailed
 from django.utils.translation import ugettext_lazy as _
 
 from services.api import ServiceSerializer, UnitSerializer
-from .serializers import *
-
-from django.contrib.contenttypes.models import ContentType
-
-
-from services.api import (
-    JSONAPIViewSetMixin, ServiceViewSet, UnitViewSet)
+from . import models
+from .serializers import ObservationSerializer, ObservablePropertySerializer
+from services.api import JSONAPIViewSetMixin, ServiceViewSet, UnitViewSet
 
 
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
@@ -17,8 +13,9 @@ class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     serializer_class = ObservationSerializer
 
     def create(self, request, *args, **kwargs):
-        if (request.auth == None):
+        if request.auth is None:
             raise AuthenticationFailed(_('Authentication required.'))
+
         return super(ObservationViewSet, self).create(request, *args, **kwargs)
 
     def get_serializer_context(self):
@@ -34,7 +31,9 @@ class ObservableSerializerMixin:
         if 'observations' in self.context.get('include', []):
             observations = self.get_observations(obj)
             if observations:
-                data['observations'] = ObservationSerializer(observations, many=True).data
+                data['observations'] = ObservationSerializer(
+                    observations, many=True).data
+
         return data
 
 
@@ -55,8 +54,10 @@ class ObservableUnitSerializer(ObservableSerializerMixin, UnitSerializer):
 
 
 UnitViewSet.serializer_class = ObservableUnitSerializer
+
+
 ServiceViewSet.serializer_class = ObservableServiceSerializer
 
 views = [
-    {'class': ObservationViewSet, 'name': 'observation' }
+    {'class': ObservationViewSet, 'name': 'observation'}
 ]
