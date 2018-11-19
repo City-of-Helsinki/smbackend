@@ -1,7 +1,7 @@
 import json
 import os
 
-from .settings import *
+from .settings import BASE_DIR, HAYSTACK_SIGNAL_PROCESSOR
 
 
 del HAYSTACK_SIGNAL_PROCESSOR
@@ -13,6 +13,7 @@ def read_config(name):
             BASE_DIR,
             'smbackend',
             'elasticsearch/{}.json'.format(name))))
+
 
 HAYSTACK_CONNECTIONS = {
     'default': {

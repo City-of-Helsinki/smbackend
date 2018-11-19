@@ -1,13 +1,9 @@
 import pytest
 import django.utils.translation
-from django.core.management import call_command
 from django.test import Client
-from django.test import override_settings
 from haystack.query import SearchQuerySet
 import haystack
 import elasticsearch
-
-from .conftest import TEST_INDEX
 
 
 connection_available = None
