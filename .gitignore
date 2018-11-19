@@ -15,3 +15,4 @@ smbackend/test/tpr_mock_data/*.json
 **/.hypothesis
 .python-version
 *.mo
+nohup.out
