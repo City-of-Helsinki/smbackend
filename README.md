@@ -70,6 +70,7 @@ If this command fail with: `django.core.exceptions.ImproperlyConfigured: GEOS is
 then install the GEOS library. On a Mac this can be achieved with HomeBrew:
 ```
 brew install geos
+```
 
 6. Import geo data.
 
