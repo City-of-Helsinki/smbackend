@@ -5,15 +5,17 @@ from observations.models import ObservableProperty, CategoricalObservation, Allo
 import datetime as d
 from django.contrib.auth.models import User
 
+
 @pytest.fixture
 def api_client():
     return APIClient()
 
+
 @pytest.mark.django_db
 @pytest.fixture
 def user():
-    USERNAME='test_user'
-    PASSWORD='test_password'
+    USERNAME = 'test_user'
+    PASSWORD = 'test_password'
     user = User.objects.create(username=USERNAME)
     organization = Department.objects.create(name_fi='test_org', uuid='063c6150-ccc7-4886-b44b-ecee7670d065')
     UserOrganization.objects.create(user=user, organization=organization)
@@ -36,7 +38,7 @@ def service():
     return Service.objects.create(
         id=1,
         name='skiing',
-        #unit_count=1,
+        # unit_count=1,
         last_modified_time=d.datetime.now())
 
 
@@ -51,6 +53,7 @@ def unit(service, organization):
         department=organization)
     UnitServiceDetails(unit=unit, service=service).save()
     return unit
+
 
 @pytest.mark.django_db
 @pytest.fixture
@@ -71,6 +74,7 @@ def categorical_observations(unit, observable_property):
             unit=unit,
             property=observable_property,
             value='closed')]
+
 
 @pytest.mark.django_db
 @pytest.fixture
@@ -100,6 +104,7 @@ def observable_property(service, unit):
         property=p
     )
     return p
+
 
 @pytest.mark.django_db
 @pytest.fixture
