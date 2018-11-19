@@ -1,11 +1,10 @@
 # based on http://anthony-tresontani.github.io/Django/2012/09/20/multilingual-search/
-import re
 from django.conf import settings
 from django.utils import translation
 from haystack import connections
 from haystack.backends import BaseEngine, BaseSearchBackend, BaseSearchQuery
-from haystack.constants import DEFAULT_ALIAS
 from haystack.utils.loading import load_backend
+
 
 class MultilingualSearchBackend(BaseSearchBackend):
     def _operate(self, method_name, *args, **kwargs):
@@ -31,12 +30,13 @@ class MultilingualSearchBackend(BaseSearchBackend):
     def clear(self, **kwargs):
         return
 
-#class MultilingualSearchQuery(BaseSearchQuery):
+# class MultilingualSearchQuery(BaseSearchQuery):
 #    def __init__(self, using=DEFAULT_ALIAS):
+
 
 class MultilingualSearchEngine(BaseEngine):
     backend = MultilingualSearchBackend
-    #query = MultilingualSearchQuery
+    # query = MultilingualSearchQuery
 
     def get_query(self):
         active_language = translation.get_language()
@@ -47,13 +47,16 @@ class MultilingualSearchEngine(BaseEngine):
         using = '%s-%s' % (self.using, language)
         return connections[using].get_query()
 
+
 class LanguageSearchBackend(BaseSearchBackend):
     def update(self, *args, **kwargs):
         # Handle all updates through the main Multilingual object.
         return
 
+
 class LanguageSearchQuery(BaseSearchQuery):
     pass
+
 
 class LanguageSearchEngine(BaseEngine):
     def __init__(self, **kwargs):

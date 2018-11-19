@@ -1,4 +1,6 @@
 [flake8]
 ignore =
-exclude = .git, migrations
+exclude = .git,
+          migrations,
+          venv
 max-line-length = 119
