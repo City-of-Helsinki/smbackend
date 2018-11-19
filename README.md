@@ -33,8 +33,8 @@ createuser -R -S -D -P smbackend
 createdb -O smbackend -T template0 -l fi_FI.UTF8 -E utf8 smbackend
 echo "CREATE EXTENSION postgis;" | psql smbackend
 echo "CREATE EXTENSION hstore;" | psql smbackend
-ALTER USER smbackend with createdb;
-ALTER ROLE smbackend SUPERUSER;
+psql -d smbackend -c 'ALTER USER smbackend with createdb;'
+psql -d smbackend -c 'ALTER ROLE smbackend SUPERUSER;'
 psql -d template1 -c 'create extension hstore;'
 
 ```
