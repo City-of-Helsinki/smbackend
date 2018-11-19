@@ -66,6 +66,11 @@ DATABASES = {
 
 ```./manage.py migrate```
 
+If these commands fail with: `django.core.exceptions.ImproperlyConfigured: GEOS is required and has not been detected.`,
+then install the GEOS library. On a Mac this can be achieved with HomeBrew:
+```
+brew install geos
+
 6. Import geo data.
 
 ```
