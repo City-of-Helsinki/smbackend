@@ -63,6 +63,8 @@ CONTRACT_TYPES = (
 
 
 _unit_related_fields = set()
+
+
 def get_unit_related_fields():
     global _unit_related_fields
     if len(_unit_related_fields) > 0:
@@ -173,9 +175,7 @@ class Unit(models.Model):
 
 
 class Migration(migrations.Migration):
-    ...
 
     operations = [
         HStoreExtension(),
-        ...
     ]

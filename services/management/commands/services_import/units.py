@@ -59,6 +59,7 @@ def _fetch_units():
         LOGGER.info("Fetching units")
     return pk_get('unit', params={'official': 'yes'})
 
+
 CONTRACT_TYPE_MAPPINGS = [
     ('MUNICIPALITY', 'SELF_PRODUCED', None, 'municipal_service'),
     ('MUNICIPALITY', 'PURCHASED_SERVICE', None, 'purchased_service'),
@@ -267,8 +268,8 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
         obj_changed = True
 
     root_department = _get_department_root_from_syncher(dept_syncher, obj.department, department_id_to_uuid)
-    if ((root_department is None and obj.root_deparment_id is not None) or
-            (root_department is not None and root_department.id != obj.root_department_id)):
+    if ((root_department is None and obj.root_deparment_id is not None)
+            or (root_department is not None and root_department.id != obj.root_department_id)):
         obj.root_department = root_department
         obj_changed = True
 

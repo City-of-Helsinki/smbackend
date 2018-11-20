@@ -36,7 +36,6 @@ def get_translated(obj, attr):
         val = getattr(obj, attr)
     return val
 
-
 # @python_2_unicode_compatible
 # class Keyword(models.Model):
 #     language = models.CharField(max_length=10, choices=settings.LANGUAGES, db_index=True)

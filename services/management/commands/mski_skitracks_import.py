@@ -6,26 +6,24 @@
 
 from optparse import make_option
 import logging
-import json
 from django.utils import timezone
 from django.utils.translation import ugettext_noop as _
 
 import re
 
 from django.core.management.base import BaseCommand
+from django.core.exceptions import DoesNotExist
 from django import db
-from django.conf import settings
-from django.db import transaction
 from django.contrib.gis.geos import MultiLineString, LineString, Point, GEOSGeometry
 
 import django.contrib.gis
 from django.contrib.gis.gdal import DataSource
-from django.contrib.gis.utils import LayerMapping
 
-from services.models import *
+from services.models import Unit, UnitConnection, Service
 from munigeo.models import Address
 
 ADDRESS_RE = re.compile('([^0-9]+) ([0-9]+)([^0-9]*)')
+
 
 def gk25_converter(a=0, b=0, c=1, d=0, e=0, f=1):
     def converter(x, y):
@@ -33,6 +31,7 @@ def gk25_converter(a=0, b=0, c=1, d=0, e=0, f=1):
             (b + (e * y) + (f * x)),
             (a + (c * y) + (d * x)))
     return converter
+
 
 espoo_coordinates_to_gk25 = gk25_converter(
     a=6600290.731951121200000,
@@ -128,7 +127,7 @@ ESPOO_LIGHTING = {
     'Valaisematon latu': NOT_ILLUMINATED,
     'Valaisematon latu,ei poh': NOT_ILLUMINATED,
     'Osittain valaistu latu': PARTLY_ILLUMINATED,
-    '':  UNKNOWN,
+    '': UNKNOWN,
     None: UNKNOWN
 }
 
@@ -148,9 +147,11 @@ VANTAA_MAINTENANCE_GROUPS = {
     'it�': 'itä'
 }
 
+
 def _report_counts(municipality, created, updated):
     print("Imported skiing tracks for {}:\n{} created / {} updated".format(
         municipality, created, updated))
+
 
 class Command(BaseCommand):
     help = "Import ski track units from GeoJSON derived from mSki"
@@ -161,8 +162,8 @@ class Command(BaseCommand):
     ))
 
     def clean_text(self, text):
-        #text = text.replace('\n', ' ')
-        #text = text.replace(u'\u00a0', ' ')
+        # text = text.replace('\n', ' ')
+        # text = text.replace(u'\u00a0', ' ')
         # remove consecutive whitespaces
         text = re.sub(r'\s\s+', ' ', text, re.U)
         # remove nil bytes
@@ -206,15 +207,19 @@ class Command(BaseCommand):
         ds = DataSource(filename)
         assert len(ds) == 1
         uid = self.get_lowest_high_unit_id()
+
         def get_lighting(p):
             return HELSINKI_LIGHTING[p.get('VALAISTUS')]
+
         def get_technique(p):
             return HELSINKI_TECHNIQUES[p.get('TYYLI')]
+
         def get_length(p):
-            l = p.get('PITUUS')
-            if len(l) == 0:
-                l = None
-            return l
+            len = p.get('PITUUS')
+            if len(len) == 0:
+                len = None
+            return len
+
         def get_maintenance_group(p):
             n = p.get('NIMI')
             return HELSINKI_GROUPS[n]
@@ -292,7 +297,7 @@ class Command(BaseCommand):
 
     def get_lowest_high_unit_id(self):
         MAX_PK = 2147483647
-        result = Unit.objects.filter(pk__gt=MAX_PK-100000).order_by('pk')
+        result = Unit.objects.filter(pk__gt=MAX_PK - 100000).order_by('pk')
         if len(result) == 0:
             return MAX_PK
         return result.first().pk - 1
@@ -302,7 +307,6 @@ class Command(BaseCommand):
         ds = DataSource(filename)
         assert(len(ds) == 1)
         lyr = ds[0]
-        srs = lyr.srs
         uid = self.get_lowest_high_unit_id()
 
         created = 0
@@ -347,7 +351,7 @@ class Command(BaseCommand):
                 street__name_fi=street,
                 number=number)
             return a.location
-        except:
+        except DoesNotExist:
             print('address not found', street_address_match.group(1), '--', street_address_match.group(2))
             return None
 
@@ -371,7 +375,6 @@ class Command(BaseCommand):
             section='traffic',
             unit=unit,
             defaults=defaults)
-
 
     @db.transaction.atomic
     def import_espoo_units(self, filename):
