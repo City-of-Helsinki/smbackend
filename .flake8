@@ -1,0 +1,4 @@
+[flake8]
+ignore =
+exclude = .git, migrations
+max-line-length = 119

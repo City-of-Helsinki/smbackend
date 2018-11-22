@@ -453,7 +453,6 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     serializer_class = ServiceSerializer
 
     def get_queryset(self):
-        print('service view query', self.serializer_class)
         queryset = super(ServiceViewSet, self).get_queryset().prefetch_related('keywords')
         args = self.request.query_params
         if 'id' in args:
@@ -654,7 +653,6 @@ class KmlRenderer(renderers.BaseRenderer):
 
 
 class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
-    print('printa ees jotain!')
     queryset = Unit.objects.filter(public=True)
     serializer_class = UnitSerializer
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
@@ -751,7 +749,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         services = filters.get('service')
         if services is not None:
-            print('nakyyko services')
             queryset = queryset.filter(services__in=services.split(',')).distinct()
 
         if 'division' in filters:
@@ -820,7 +817,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 Q(extensions__additional_maintenance_organization=maintenance_organization))
 
         if 'observations' in self.include_fields:
-            print('ovatko havainnot tässä')
             queryset = queryset.prefetch_related(
                 'observation_set__property__allowed_values').prefetch_related(
                     'observation_set__value')

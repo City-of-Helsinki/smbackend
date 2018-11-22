@@ -1,10 +1,10 @@
-import pytest, json
+import pytest
 from rest_framework.reverse import reverse
 from fixtures import *
 from utils import match_observable_property_object_to_dict
 
 
-#@pytest.mark.skip(reason="awaiting new API implementation")
+# @pytest.mark.skip(reason="awaiting new API implementation")
 # Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__get_observable_properties_for_unit(api_client, observable_property):
@@ -16,9 +16,7 @@ def test__get_observable_properties_for_unit(api_client, observable_property):
         url = reverse(
             'unit-detail',
             kwargs={'pk': unit.pk}) + '?include=observable_properties'
-        print('printtaa ' + url)
         response = api_client.get(url)
-        print('obs_resp '+ str(response.data))
         assert 'observable_properties' in response.data
         observable_properties = response.data['observable_properties']
         matching_properties = [p for p in observable_properties
@@ -41,13 +39,14 @@ def test__get_observable_properties_for_unit(api_client, observable_property):
 # @pytest.mark.skip(reason="awaiting new API implementation")
 # Skipping test until observations migrated to v2
 @pytest.mark.django_db
-def test__get_observable_properties_for_service(api_client, observable_property):
+def test__get_observable_properties_for_service(
+        api_client, observable_property):
     services = observable_property.services.all()
     assert len(services) > 0
 
     for service in services:
         url = reverse('service-detail',
-                    kwargs={'pk': service.pk}) + '?include=observable_properties'
+                      kwargs={'pk': service.pk}) + '?include=observable_properties'
         response = api_client.get(url)
         assert 'observable_properties' in response.data
 
@@ -66,6 +65,7 @@ def test__get_observable_properties_for_service(api_client, observable_property)
             observable_property, returned_property)
 
 # @pytest.mark.django_db
-# def test__get_units_with_observations_sorted_by_latest_first(api_client, categorical_observations):
+# def test__get_units_with_observations_sorted_by_latest_first(
+#    api_client, categorical_observations):
 #     response = api_client.get(
 #         reverse('unit-list') + '?include=observations&observation_count=5')

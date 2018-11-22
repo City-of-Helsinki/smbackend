@@ -47,7 +47,6 @@ INSTALLED_APPS = (
     'munigeo',
     'services',
     'observations',
-    'rest_framework_swagger',
 )
 
 MIDDLEWARE_CLASSES = (
