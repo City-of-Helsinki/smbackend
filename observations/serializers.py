@@ -156,8 +156,7 @@ class ObservationSerializer(serializers.BaseSerializer):
         property = validated_data['property_id']
         observable_property = models.ObservableProperty.objects.get(
             id=property)
-        has_value = ('value' in validated_data
-                     and validated_data['value'] is not None)
+        has_value = ('value' in validated_data and validated_data['value'] is not None)
         if has_value:
             validated_data['value'] = observable_property.get_internal_value(
                 validated_data['value'])

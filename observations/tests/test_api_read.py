@@ -3,7 +3,7 @@ from rest_framework.reverse import reverse
 from utils import match_observable_property_object_to_dict
 
 
-#@pytest.mark.skip(reason="awaiting new API implementation")
+# @pytest.mark.skip(reason="awaiting new API implementation")
 # Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__get_observable_properties_for_unit(api_client, observable_property):
@@ -45,7 +45,7 @@ def test__get_observable_properties_for_service(
 
     for service in services:
         url = reverse('service-detail',
-                    kwargs={'pk': service.pk}) + '?include=observable_properties'
+                      kwargs={'pk': service.pk}) + '?include=observable_properties'
         response = api_client.get(url)
 
         assert 'observable_properties' in response.data
@@ -63,8 +63,8 @@ def test__get_observable_properties_for_service(
         assert 'name' in returned_property
         assert 'measurement_unit' in returned_property
         assert 'observation_type' in returned_property
-
-        match_observable_property_object_to_dict(observable_property, returned_property)
+        match_observable_property_object_to_dict(
+            observable_property, returned_property)
 
 # @pytest.mark.django_db
 # def test__get_units_with_observations_sorted_by_latest_first(

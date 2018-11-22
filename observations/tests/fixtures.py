@@ -38,7 +38,7 @@ def service():
     return Service.objects.create(
         id=1,
         name='skiing',
-        #unit_count=1,
+        # unit_count=1,
         last_modified_time=d.datetime.now())
 
 

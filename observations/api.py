@@ -3,9 +3,11 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.utils.translation import ugettext_lazy as _
 
 from services.api import ServiceSerializer, UnitSerializer
-from . import models
 from .serializers import ObservationSerializer, ObservablePropertySerializer
-from services.api import JSONAPIViewSetMixin, ServiceViewSet, UnitViewSet
+from . import models
+
+from services.api import (
+    JSONAPIViewSetMixin, ServiceViewSet, UnitViewSet)
 
 
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
