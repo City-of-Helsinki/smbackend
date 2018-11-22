@@ -14,7 +14,7 @@ class ObtainPluralityAuthToken(rest_framework.authtoken.views.ObtainAuthToken):
         token = PluralityAuthToken.objects.create(user=user)
         return Response({
             'token': token.key,
-            'maintenance_organization': str(user.organization.organization.pk),
+            'maintenance_organization': str(user.organization.organization.municipality.id),
             'login_identifier': token.id
         })
 
