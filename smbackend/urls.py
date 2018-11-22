@@ -40,7 +40,7 @@ urlpatterns = [
 
     url(r'^open311/', views.post_service_request, name='services'),
     url(r'^v2/', include(router.urls)),
-    #url(r'^v2/api-token-auth/', obtain_auth_token, name='api-auth-token'),
+    url(r'^v2/api-token-auth/', obtain_auth_token, name='api-auth-token'),
     url(r'^v2/redirect/unit/', UnitRedirectViewSet.as_view({'get': 'list'})),
     url(r'', include(shortcutter_urls)),
     url(r'swagger-docs/', schema_view)
