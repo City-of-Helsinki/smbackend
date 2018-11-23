@@ -11,7 +11,7 @@ backend = haystack.connections['default'].get_backend()
 try:
     backend.update('servicemap-fi', [])
     connection_available = True
-except elasticsearch.exceptions.ConnectionError as e:
+except elasticsearch.exceptions.ConnectionError:
     connection_available = False
 
 
