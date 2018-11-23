@@ -1,7 +1,7 @@
 import json
 import os
 
-from .settings import BASE_DIR, HAYSTACK_SIGNAL_PROCESSOR, SECRET_KEY
+from .settings import *
 
 
 del HAYSTACK_SIGNAL_PROCESSOR
