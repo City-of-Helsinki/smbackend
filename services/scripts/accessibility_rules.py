@@ -159,10 +159,6 @@ class Comparison(Expression):
         self.mode = mode
 
     def val(self):
-        if self.next_sibling:
-            nexts = self.next_sibling.eid
-        else:
-            nexts = '<none>'
         ret = {
             'operator': self.operator,
             'operands': [self.variable, self.value],

@@ -827,7 +827,6 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def update_division_units(self):
-        rescue_stations = Unit.objects.filter(services__id=26194)
         rescue_areas = AdministrativeDivision.objects.filter(type__type='rescue_area')
         # TODO: request this data to be added to pel_suojelupiiri
         mapping = {
