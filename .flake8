@@ -2,5 +2,8 @@
 ignore = W503  # line break before binary operator
 exclude = .git,
           *migrations*,
-          venv
+          venv,
+          services/models/__init__.py
+builtins = FileNotFoundError,
+
 max-line-length = 119

@@ -287,7 +287,7 @@ def update_flags(row, expression):
 def build_comparison(iterator, row, depth=0, requirement_id=None):
     try:
         variable, operator, value = int(row[VARIABLE]), row[OPERATOR], row[VALUE]
-    except ValueError as e:
+    except ValueError:
         exit_on_error("Value error %s." % row)
     if operator == 'I':
         operator = 'NEQ'

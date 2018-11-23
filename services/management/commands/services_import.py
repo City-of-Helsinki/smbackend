@@ -23,7 +23,9 @@ from django.utils.translation import activate, get_language
 
 from munigeo.models import Municipality
 from munigeo.importer.sync import ModelSyncher
-from services.models import Organization, Department, Service, Unit, Keyword
+from services.models import (Organization, Department, Service, Unit, Keyword,
+                             PROJECTION_SRID, UnitConnection, UnitIdentifier, UnitAlias,
+                             AccessibilityVariable, AdministrativeDivision, UnitAccessibilityProperty)
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v3/'
 GK25_SRID = 3879
