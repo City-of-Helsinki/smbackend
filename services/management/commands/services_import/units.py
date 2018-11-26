@@ -375,6 +375,9 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
     if (obj.extensions.get('maintenance_organization') != maintenance_organization):
         obj_changed = True
         obj.extensions['maintenance_organization'] = maintenance_organization
+    if (obj.extensions.get('maintenance_group') == None):
+        obj_changed = True
+        obj.extensions['maintenance_group'] = 'kaikki'
 
     if obj_changed:
         if obj_created:
