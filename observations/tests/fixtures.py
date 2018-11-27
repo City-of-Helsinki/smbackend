@@ -4,6 +4,7 @@ from services.models import Service, Unit, Department, UnitServiceDetails
 from observations.models import ObservableProperty, CategoricalObservation, AllowedValue, UserOrganization
 import datetime as d
 from django.contrib.auth.models import User
+from munigeo.models import Municipality
 
 
 @pytest.fixture
@@ -16,8 +17,11 @@ def api_client():
 def user():
     USERNAME = 'test_user'
     PASSWORD = 'test_password'
+    MUNICIPALITY = 'helsinki'
     user = User.objects.create(username=USERNAME)
-    organization = Department.objects.create(name_fi='test_org', uuid='063c6150-ccc7-4886-b44b-ecee7670d065')
+    municipality = Municipality.objects.create(id=MUNICIPALITY, name=MUNICIPALITY)
+    organization = Department.objects.create(name_fi='test_org', municipality=municipality,
+                                             uuid='063c6150-ccc7-4886-b44b-ecee7670d065')
     UserOrganization.objects.create(user=user, organization=organization)
     user.set_password(PASSWORD)
     user.save()
