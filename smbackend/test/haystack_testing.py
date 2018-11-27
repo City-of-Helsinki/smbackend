@@ -1,9 +1,13 @@
 import json
+import os
+
+
 def read_config(name):
     return json.load(open(
         os.path.join(
             'smbackend',
             'elasticsearch/{}.json'.format(name))))
+
 
 TEST_INDEX = {
     'default': {

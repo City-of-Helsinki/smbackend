@@ -1,6 +1,5 @@
 from django.conf.urls import include, url
 from services.api import all_views as services_views
-from services.api import AccessibilityRuleView
 from services.unit_redirect_viewset import UnitRedirectViewSet
 from observations.api import views as observations_views
 from rest_framework import routers

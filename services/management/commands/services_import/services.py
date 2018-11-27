@@ -68,8 +68,7 @@ def import_services(syncher=None, noop=False, logger=None, importer=None,
 
         nodesyncher.mark(obj)
 
-        if ((related_services_changed or obj.related_services.count() == 0) and
-                obj.service_reference is not None):
+        if ((related_services_changed or obj.related_services.count() == 0) and obj.service_reference is not None):
             related_service_ids = set(
                 (id for id in SERVICE_REFERENCE_SEPARATOR.split(obj.service_reference)))
             obj.related_services.set(related_service_ids)
@@ -207,13 +206,14 @@ def update_service_node_counts():
     save_objects(objects_to_save)
     return tree
 
+
 @db.transaction.atomic
 def update_service_root_service_nodes():
     tree_roots = dict(ServiceNode.objects.filter(level=0).values_list('tree_id', 'id'))
     service_nodes = ServiceNode.objects.all().prefetch_related('related_services')
     services = set()
     service_roots = dict()
-    for node in service_nodes: # TODO: ordering
+    for node in service_nodes:  # TODO: ordering
         for service in node.related_services.all():
             service_roots[service.id] = tree_roots[node.tree_id]
             services.add(service)

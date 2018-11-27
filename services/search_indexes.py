@@ -69,7 +69,6 @@ class ServiceIndex(ServiceMapBaseIndex):
 
 
 class ServiceNodeIndex(ServiceMapBaseIndex):
-
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
         self.model = apps.get_model(app_label='services', model_name='ServiceNode')
@@ -124,5 +123,6 @@ class AddressIndex(indexes.SearchIndex, indexes.Indexable):
             letter=letter,
             municipality=obj.street.municipality
         )
+
     def get_updated_field(self):
         return 'modified_at'

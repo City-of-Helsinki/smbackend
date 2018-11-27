@@ -10,7 +10,6 @@ from datetime import datetime
 from optparse import make_option
 import logging
 import hashlib
-from pprint import pprint
 
 import requests
 import requests_cache
@@ -18,14 +17,15 @@ import pytz
 from django.core.management.base import BaseCommand
 from django import db
 from django.conf import settings
-from django.db import transaction
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.utils.translation import activate, get_language
 
 from munigeo.models import Municipality
 from munigeo.importer.sync import ModelSyncher
-from services.models import *
+from services.models import (Organization, Department, Service, Unit, Keyword,
+                             PROJECTION_SRID, UnitConnection, UnitIdentifier, UnitAlias,
+                             AccessibilityVariable, AdministrativeDivision, UnitAccessibilityProperty)
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v3/'
 GK25_SRID = 3879
@@ -37,24 +37,27 @@ SERVICE_IDS_TO_SKIP = set([
     # These services have routes as geometries,
     # should be skipped until we have the
     # route geometries imported from LIPAS.
-    33376, # ulkoilualue
-    33377, # retkeilyalue
-    33378, # monikäyttöalue
-    33482, # kuntorata
-    191, # latu
-    318, # koirahiihtolatu
-    33484, # kävelyreitti
-    33485, # luontopolku
-    33486 # retkeilyreitti
+    33376,  # ulkoilualue
+    33377,  # retkeilyalue
+    33378,  # monikäyttöalue
+    33482,  # kuntorata
+    191,  # latu
+    318,  # koirahiihtolatu
+    33484,  # kävelyreitti
+    33485,  # luontopolku
+    33486  # retkeilyreitti
 ])
 
-ICE_SKATING_SERVICES = [514,406,235,695,407]
+
+ICE_SKATING_SERVICES = [514, 406, 235, 695, 407]
+
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
     option_list = list(BaseCommand.option_list + (
         make_option('--cached', dest='cached', action='store_true', help='cache HTTP requests'),
-        make_option('--single', dest='single', action='store', metavar='ID', type='string', help='import only single entity'),
+        make_option('--single', dest='single', action='store', metavar='ID',
+                    type='string', help='import only single entity'),
     ))
 
     importer_types = ['organizations', 'departments', 'services', 'units', 'aliases']
@@ -71,8 +74,8 @@ class Command(BaseCommand):
         self.existing_service_ids = None
 
     def clean_text(self, text):
-        #text = text.replace('\n', ' ')
-        #text = text.replace(u'\u00a0', ' ')
+        # text = text.replace('\n', ' ')
+        # text = text.replace(u'\u00a0', ' ')
         # remove consecutive whitespaces
         text = re.sub(r'\s\s+', ' ', text, re.U)
         # remove nil bytes
@@ -82,14 +85,13 @@ class Command(BaseCommand):
 
     def pk_get(self, resource_name, res_id=None):
         url = "%s%s/" % (URL_BASE, resource_name)
-        if res_id != None:
+        if res_id is not None:
             url = "%s%s/" % (url, res_id)
         resp = requests.get(url)
         assert resp.status_code == 200
         return resp.json()
 
     def _save_translated_field(self, obj, obj_field_name, info, info_field_name, max_length=None):
-        args = {}
         for lang in ('fi', 'sv', 'en'):
             key = '%s_%s' % (info_field_name, lang)
             if key in info:
@@ -181,7 +183,7 @@ class Command(BaseCommand):
 
     def mark_service_depths(self, service_dict, srv, level):
         srv['level'] = level
-        if not 'child_ids' in srv:
+        if 'child_ids' not in srv:
             return
         remove_ids = []
         for child_id in srv['child_ids']:
@@ -199,7 +201,7 @@ class Command(BaseCommand):
         # Mark the tree depth for each service for later sorting starting
         # from root nodes.
         for srv in service_list:
-            if not 'parent_id' in srv:
+            if 'parent_id' not in srv:
                 self.mark_service_depths(service_dict, srv, 0)
             srv['units'] = []
             srv['child_ids_dupes'] = srv['child_ids']
@@ -254,7 +256,8 @@ class Command(BaseCommand):
                 if 'parent_id' in srv2:
                     # Replace the ID of the child with the ID of the duplicate
                     parent = service_dict[srv2['parent_id']]
-                    parent['child_ids_dupes'] = [srv['id'] if x == srv2['id'] else x for x in parent['child_ids_dupes']]
+                    parent['child_ids_dupes'] = [srv['id']
+                                                 if x == srv2['id'] else x for x in parent['child_ids_dupes']]
                 count += 1
 
         if self.verbosity:
@@ -357,14 +360,14 @@ class Command(BaseCommand):
 
     def _save_searchwords(self, obj, info, language):
         field_name = 'extra_searchwords_%s' % language
-        if not field_name in info:
+        if field_name not in info:
             new_kw_set = set()
         else:
             kws = [x.strip() for x in info[field_name].split(',')]
             kws = [x for x in kws if x]
             new_kw_set = set()
             for kw in kws:
-                if not kw in self.keywords[language]:
+                if kw not in self.keywords[language]:
                     kw_obj = Keyword(name=kw, language=language)
                     kw_obj.save()
                     self.keywords[language][kw] = kw_obj
@@ -413,12 +416,12 @@ class Command(BaseCommand):
             org = self.org_syncher.get(info['org_id'])
         else:
             org = Organization.objects.get(id=info['org_id'])
-        assert org != None
+        assert org is not None
         if obj.organization_id != org_id:
             obj.organization = org
             obj._changed = True
 
-        if not 'address_city_fi' in info and 'latitude' in info and 'longitude' in info:
+        if 'address_city_fi' not in info and 'latitude' in info and 'longitude' in info:
             if self.verbosity:
                 self.logger.warning("%s: coordinates present but no city" % obj)
         municipality_id = None
@@ -438,7 +441,9 @@ class Command(BaseCommand):
                 muni_name = self.postcodes.get(postcode, None)
                 if muni_name:
                     if self.verbosity:
-                        self.logger.warning('%s: municipality to %s based on post code %s (was %s)' % (obj, muni_name, postcode, info.get('address_city_fi')))
+                        self.logger.warning(
+                            '%s: municipality to %s based on post code %s (was %s)'
+                            % (obj, muni_name, postcode, info.get('address_city_fi')))
                     muni_name = muni_name.lower()
             if muni_name:
                 muni = self.muni_by_name.get(muni_name)
@@ -446,7 +451,8 @@ class Command(BaseCommand):
                     municipality_id = muni.id
                 else:
                     if self.verbosity:
-                        self.logger.warning('%s: municipality %s not found from current Municipalities' % (obj, muni_name))
+                        self.logger.warning(
+                            '%s: municipality %s not found from current Municipalities' % (obj, muni_name))
 
         if municipality_id:
             self._set_field(obj, 'municipality_id', municipality_id)
@@ -461,9 +467,9 @@ class Command(BaseCommand):
                 except Department.DoesNotExist:
                     print("Department %s does not exist" % dept_id)
                     raise
-            assert dept != None
+            assert dept is not None
         else:
-            #print("%s does not have department id" % obj)
+            # print("%s does not have department id" % obj)
             dept = None
             dept_id = None
         if obj.department_id != dept_id:
@@ -498,7 +504,7 @@ class Command(BaseCommand):
         e = info.get('longitude', 0)
         location = None
         if n and e:
-            p = Point(e, n, srid=4326) # GPS coordinate system
+            p = Point(e, n, srid=4326)  # GPS coordinate system
             if p.within(self.bounding_box):
                 if self.target_srid != 4326:
                     p.transform(self.gps_to_target_ct)
@@ -521,7 +527,7 @@ class Command(BaseCommand):
             # are imported after the unit and point has been
             # imported.
             obj.geometry = location
-        if obj.geometry == None and obj.location != None:
+        if obj.geometry is not None and obj.location is not None:
             obj._changed = True
             obj.geometry = obj.location
 
@@ -537,10 +543,10 @@ class Command(BaseCommand):
             maintenance_organization = str(obj.organization_id)
             if maintenance_organization != '1010':
                 maintenance_group = 'kaikki'
-                if obj.extensions == None:
+                if obj.extensions is not None:
                     obj.extensions = {}
-                if (obj.extensions.get('maintenance_organization') != maintenance_organization or
-                    obj.extensions.get('maintenance_group') != maintenance_group):
+                if (obj.extensions.get('maintenance_organization') != maintenance_organization
+                        or obj.extensions.get('maintenance_group') != maintenance_group):
                     obj._changed = True
                 obj.extensions['maintenance_organization'] = maintenance_organization
                 obj.extensions['maintenance_group'] = maintenance_group
@@ -656,7 +662,6 @@ class Command(BaseCommand):
             obj._changed = True
             update_fields.append('identifier_hash')
 
-
         """
         conn_by_type = {}
         for conn in info['connections']:
@@ -701,7 +706,7 @@ class Command(BaseCommand):
     def import_units(self):
         self._load_postcodes()
         self.muni_by_name = {muni.name_fi.lower(): muni for muni in Municipality.objects.all()}
-        if self.existing_service_ids == None or len(self.existing_service_ids) < 1:
+        if self.existing_service_ids is not None or len(self.existing_service_ids) < 1:
             self.existing_service_ids = set(Service.objects.values_list('id', flat=True))
 
         if not getattr(self, 'org_syncher', None):
@@ -759,7 +764,7 @@ class Command(BaseCommand):
         except FileNotFoundError:
             print("Aliases file {} not found".format(path))
             return
-        RELEVANT_COLS = [3, 5] # IMPORTANT: verify the ids are in these columns
+        RELEVANT_COLS = [3, 5]  # IMPORTANT: verify the ids are in these columns
         value_sets = {}
         reader = csv.reader(f, delimiter=',')
         next(reader)
@@ -807,7 +812,7 @@ class Command(BaseCommand):
     def update_unit_counts(self):
         srv_set = self.count_services
         current_set = srv_set
-        for i in range(0, 20): # Make sure we don't loop endlessly (shouldn't have 20 deep tree anyway)
+        for i in range(0, 20):  # Make sure we don't loop endlessly (shouldn't have 20 deep tree anyway)
             parent_ids = Service.objects.filter(id__in=current_set).values_list('parent', flat=True)
             if not parent_ids:
                 break
@@ -822,7 +827,6 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def update_division_units(self):
-        rescue_stations = Unit.objects.filter(services__id=26194)
         rescue_areas = AdministrativeDivision.objects.filter(type__type='rescue_area')
         # TODO: request this data to be added to pel_suojelupiiri
         mapping = {

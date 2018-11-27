@@ -4,15 +4,18 @@ import pytest
 import pprint
 import datetime
 
+
 @pytest.fixture(scope='session')
 def django_db_setup():
     """Avoid creating/setting up the test database"""
     pass
 
+
 @pytest.fixture
 def db_access_without_rollback_and_truncate(request, django_db_setup, django_db_blocker):
     django_db_blocker.unblock()
     request.addfinalizer(django_db_blocker.restore)
+
 
 TYPES = [
     'lower_comprehensive_school_district_fi',
@@ -21,10 +24,12 @@ TYPES = [
     'upper_comprehensive_school_district_sv',
 ]
 
+
 @pytest.mark.django_db
 @pytest.fixture
 def administrativedivision_types():
     return [AdministrativeDivisionType.objects.get(type=t) for t in TYPES]
+
 
 @pytest.mark.django_db
 @pytest.fixture
@@ -86,6 +91,10 @@ def test__verify_school_units_enclosed(division_units):
         full_count += 1
         if unit and not division.geometry.boundary.contains(unit.location):
             error_count += 1
-            error_report.append({'error': 'Geometry not contained within area', 'division': division, 'start': division.start, 'unit': unit, 'geom': unit.location.wkt, 'unit.srid': unit.location.srid, 'div.srid': division.geometry.boundary.srid})
+            error_report.append(
+                {'error': 'Geometry not contained within area', 'division': division,
+                    'start': division.start, 'unit': unit, 'geom': unit.location.wkt,
+                    'unit.srid': unit.location.srid, 'div.srid': division.geometry.boundary.srid})
             success = False
-    assert success, ("{} errors \n".format(error_count) + "\n\n".join([pprint.pformat(error, indent=4) for error in error_report]))
+    assert success, (
+        "{} errors \n".format(error_count) + "\n\n".join([pprint.pformat(error, indent=4) for error in error_report]))

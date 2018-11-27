@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import requests
 import sys
-import json
 import random
 import os
 
@@ -20,28 +19,30 @@ values = {
             'ski_trail_maintenance':
             ['maintenance_finished']}}
 
+
 def main(base_url):
     for service, vals in values.items():
-       response = requests.get(
-           base_url + '/unit/?service={}&only=id&page_size=1000'.format(service))
-       assert response.status_code == 200
-       fields = response.json()
-       unit_ids = [u['id'] for u in fields['results']]
-       for prop, v in vals.items():
-           for uid in unit_ids:
-               response = requests.post(
-                   base_url + '/observation/',
-                   data=dict(
-                       value=random.choice(v),
-                       property=prop,
-                       unit=uid
-                   ),
-                   headers={'Authorization': 'Token ' + os.environ['API_TOKEN']}
-               )
-               if response.status_code != 201:
-                   print('error')
-                   sys.stderr.write(response.text)
-                   exit(1)
+        response = requests.get(
+            base_url + '/unit/?service={}&only=id&page_size=1000'.format(service))
+        assert response.status_code == 200
+        fields = response.json()
+        unit_ids = [u['id'] for u in fields['results']]
+        for prop, v in vals.items():
+            for uid in unit_ids:
+                response = requests.post(
+                    base_url + '/observation/',
+                    data=dict(
+                        value=random.choice(v),
+                        property=prop,
+                        unit=uid
+                    ),
+                    headers={'Authorization': 'Token ' + os.environ['API_TOKEN']}
+                )
+                if response.status_code != 201:
+                    print('error')
+                    sys.stderr.write(response.text)
+                    exit(1)
+
 
 if __name__ == '__main__':
     base_url = sys.argv[1]
