@@ -4,10 +4,6 @@ exclude = .git,
           *migrations*,
           venv,
           services/models/__init__.py,
-          # fixtures import with *
-          observations/tests/test_api_read.py,
-          # fixtures import with *
-          observations/tests/test_api_write.py,
           # personal file
           local_settings.py,
           smbackend/settings_test.py

@@ -1,6 +1,6 @@
 import pytest
 from rest_framework.reverse import reverse
-from fixtures import *
+from fixtures import *  # noqa: F401,F403
 from utils import match_observable_property_object_to_dict
 
 

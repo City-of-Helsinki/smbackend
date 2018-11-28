@@ -1,5 +1,5 @@
 import pytest
-from fixtures import *
+from fixtures import *  # noqa: F401,F403
 from observations.models import Observation
 from data import observation_raw_data
 from rest_framework.reverse import reverse
