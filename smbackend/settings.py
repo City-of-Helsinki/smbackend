@@ -199,7 +199,7 @@ HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
 HAYSTACK_SIGNAL_PROCESSOR = 'services.search_indexes.DeleteOnlySignalProcessor'
 
 KML_TRANSLATABLE_FIELDS = ['name', 'street_address', 'www']
-KML_REGEXP = 'application/vnd.google-earth\.kml'
+KML_REGEXP = r'application/vnd.google-earth\.kml'
 
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),

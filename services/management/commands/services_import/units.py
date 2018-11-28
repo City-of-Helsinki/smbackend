@@ -371,12 +371,12 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
         obj.public = is_public
 
     maintenance_organization = muni_name
-    if obj.extensions == None:
+    if obj.extensions is None:
         obj.extensions = {}
     if (obj.extensions.get('maintenance_organization') != maintenance_organization):
         obj_changed = True
         obj.extensions['maintenance_organization'] = maintenance_organization
-    if (obj.extensions.get('maintenance_group') == None):
+    if (obj.extensions.get('maintenance_group') is None):
         obj_changed = True
         obj.extensions['maintenance_group'] = 'kaikki'
 

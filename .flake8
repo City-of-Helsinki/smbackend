@@ -4,9 +4,12 @@ exclude = .git,
           *migrations*,
           venv,
           services/models/__init__.py,
-          observations/tests/test_api_read.py,    # fixtures import with *
-          observations/tests/test_api_write.py,   # fixtures import with *
-          local_settings.py,                      # personal file
+          # fixtures import with *
+          observations/tests/test_api_read.py,
+          # fixtures import with *
+          observations/tests/test_api_write.py,
+          # personal file
+          local_settings.py,
           smbackend/settings_test.py
           # Django settings configuration is built in a way that importing
           # with * is the best option in settings_test.py as it needs contents
