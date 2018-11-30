@@ -4,6 +4,8 @@ import psycopg2
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from observations.models import PluralityAuthToken
+from django.core.management import call_command
+from . import user_import
 
 
 class Command(BaseCommand):
@@ -11,8 +13,11 @@ class Command(BaseCommand):
     cur = conn.cursor()
 
     def handle(self, **options):
+
+        User.objects.all().delete()
         self.users()
 
+        PluralityAuthToken.objects.all().delete()
         self.cur.execute('SELECT * FROM observations_pluralityauthtoken_v1;')
         tokens = self.cur.fetchall()
 
@@ -44,9 +49,10 @@ class Command(BaseCommand):
     def users(self):
         # populate auth_user taulu
 
+
         self.cur.execute('SELECT * FROM auth_user;')
         users = self.cur.fetchall()
-
+        print(users)
         self.cur.execute('select * from auth_user limit 0;')
         colnames = [desc[0] for desc in self.cur.description]
         print(colnames)
@@ -57,21 +63,32 @@ class Command(BaseCommand):
             user_entry = self.cur.fetchone()
 
             # populate string with field values for inserting into allowed_value
-            create_str = ''
+            #create_str = ''
             username = ''
+            password = ''
+            city = ''
             for i in range(len(colnames)):
-                if colnames[i] != 'id':
+                #if colnames[i] != 'id':
                     # v2 model required not null for 'last_login'
-                    if colnames[i] == 'last_login':
-                        create_str = create_str + colnames[i] + "='2018-01-01 00:00',"
-                        continue
-                    if colnames[i] == 'username':
-                        username = user_entry[i]
-                    create_str = create_str + colnames[i] + "='" + str(user_entry[i]) + "',"
+                    # if colnames[i] == 'last_login':
+                    #     create_str = create_str + colnames[i] + "='2018-01-01 00:00',"
+                    #     continue
+                if colnames[i] == 'username':
+                    username = user_entry[i]
+                    print(username)
+                    city = user_entry[i].split('liiku')[0]
+                    print(city)
+                if colnames[i] == 'password':
+                    password = user_entry[i]
+                    print(password)
+                    #create_str = create_str + colnames[i] + "='" + str(user_entry[i]) + "',"
             try:
-                eval('User.objects.create(' + create_str[:-1] + ')')
-            except:
+                call_command('user_import', username, password, city)
+
+                #eval('User.objects.create(' + create_str[:-1] + ')')
+            except Exception as e:
+                print('wat?', e)
                 continue
-            # get new auth_user id from v2
-            user = User.objects.get(username=username)
-            print(user)
+                # get new auth_user id from v2
+                user = User.objects.get(username=username)
+                print('new user', user)

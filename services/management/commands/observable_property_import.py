@@ -43,8 +43,11 @@ class Command(BaseCommand):
     def add_service(self):
         for obs_prop in ObservableProperty.objects.all():
             self.cur.execute(
-                'select id from observations_observableproperty_services_v1 where observableproperty_id=%s;',
+                'select service_id from observations_observableproperty_services_v1 where observableproperty_id=%s;',
                 (getattr(obs_prop, 'id'),))
             services = self.cur.fetchall()
+            codes = {33417: 695, 33418: 406, 33419: 235, 33420: 514, 33421: 407, 33483: 191, 33492: 318, 33467: 731,
+                     33468: 730, 33466: 426}
             for service in services:
-                serv = obs_prop.services.add(service[0])
+                serv = obs_prop.services.add(codes[service[0]])
+

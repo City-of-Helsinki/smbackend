@@ -33,12 +33,14 @@ class Command(BaseCommand):
         errors = dict.fromkeys(['unit','allowed_value','observable_property','auth_id'])
 
         # unit #
-        self.cur.execute('select id from services_unit where id=%s', (unit_id,))
-        unit_id = self.cur.fetchone()[0]
+        self.cur.execute('select id,name from services_unit where id=%s', (unit_id,))
+        unit_id = self.cur.fetchone()
         print(unit_id)
 
         try:
-            unit_obj = Unit.objects.get(id=unit_id)
+            unit_obj = Unit.objects.get(id=unit_id[0])
+            if unit_obj is None:
+                unit_obj = Unit.objects.get(name=unit_id[1])
         except Exception as e:
             print('unit id not found. ', e)
             errors['unit'] = unit_id
