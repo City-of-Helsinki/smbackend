@@ -120,7 +120,6 @@ def get_serializer_by_object(obj):
 
 class ObservationSerializer(serializers.BaseSerializer):
     def to_representation(self, obj):
-        print('ObservationSerializer', type(obj))
         serializer = get_serializer_by_object(obj)
         return serializer(obj, context=self.context).to_representation(obj)
 

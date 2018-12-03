@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+
 import psycopg2
 
 from django.core.management.base import BaseCommand
@@ -35,17 +37,18 @@ class Command(BaseCommand):
         # unit #
         self.cur.execute('select id,name from services_unit where id=%s', (unit_id,))
         unit_id = self.cur.fetchone()
-        print(unit_id)
+        #print(unit_id)
 
         try:
             unit_obj = Unit.objects.get(id=unit_id[0])
             if unit_obj is None:
                 unit_obj = Unit.objects.get(name=unit_id[1])
+                print('name match', unit_obj)
         except Exception as e:
             print('unit id not found. ', e)
             errors['unit'] = unit_id
             return False
-        print(unit_obj)
+        #print(unit_obj)
 
         # observable property #
         try:
@@ -60,7 +63,6 @@ class Command(BaseCommand):
         # get name of allowed value from v1 by id
         self.cur.execute('select name from observations_allowedvalue_v1 where id=%s', (allowed_value,))
         allowed_name = self.cur.fetchone()
-        print(allowed_name)
 
         if allowed_name == (None,) or allowed_name is None:
             return False
@@ -84,7 +86,6 @@ class Command(BaseCommand):
             create_str = ''
             for i in range(len(colnames)):
                 create_str = create_str + colnames[i] + "='" + str(allowed_field[i]) + "',"
-            print(create_str[:-1])
             eval('AllowedValue.objects.create(' + create_str[:-1] + ')')
 
             # get new allowed_value id from v2
@@ -108,4 +109,6 @@ class Command(BaseCommand):
             except Exception as e:
                 print('could not create observation', e)
                 return False
-            print(obs)
+
+        with open('errors.log', 'w') as f:
+            f.write(json.dumps(errors))

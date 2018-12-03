@@ -45,10 +45,7 @@ class Command(BaseCommand):
                 user.is_staff = True
                 user.save()
 
-                userorganization = UserOrganization()
-                userorganization.user = user
-                userorganization.organization = department
-                userorganization.save()
+                UserOrganization.objects.create(user=user, organization=department)
                 self.stdout.write('User {} created'.format(username))
             else:
                 self.stdout.write('User {} already exists'.format(username))

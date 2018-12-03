@@ -14,7 +14,7 @@ django-modeltranslation==0.12.1
 django-modeltranslation==0.12.1
 django-mptt==0.8.7
 django-mptt==0.8.7
-django-polymorphic==1.0.2
+django-polymorphic==2.0.3
 django==1.11.15
 djangorestframework-jsonp==1.0.2
 djangorestframework==3.6.3

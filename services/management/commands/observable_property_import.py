@@ -31,11 +31,9 @@ class Command(BaseCommand):
         try:
             property_v2 = ObservableProperty.objects.filter(id=property_id).values('id')
             if len(property_v2) == 0:
-                obs_prop = ObservableProperty.objects.create(id=property_id, name=name,
+                ObservableProperty.objects.create(id=property_id, name=name,
                                                                 measurement_unit=measurement_unit,
                                                                 observation_type=observation_type)
-                print(obs_prop)
-
         except Exception as e:
             print('could not create ObservableProperty, ', e)
             errors['property_id'] = property_id
@@ -49,5 +47,4 @@ class Command(BaseCommand):
             codes = {33417: 695, 33418: 406, 33419: 235, 33420: 514, 33421: 407, 33483: 191, 33492: 318, 33467: 731,
                      33468: 730, 33466: 426}
             for service in services:
-                serv = obs_prop.services.add(codes[service[0]])
-
+                obs_prop.services.add(codes[service[0]])
