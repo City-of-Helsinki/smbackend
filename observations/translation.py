@@ -8,6 +8,9 @@ class AllowedValueTranslationOptions(TranslationOptions):
 
 translator.register(AllowedValue, AllowedValueTranslationOptions)
 
+
 class ObservablePropertyTranslationOptions(TranslationOptions):
     fields = ('name',)
+
+
 translator.register(ObservableProperty, ObservablePropertyTranslationOptions)
