@@ -1,0 +1,117 @@
+- model: observations.ObservableProperty
+  pk: swimming_water_temperature
+  fields:
+    name_fi: Veden lämpötila
+    name_en: Water temperature
+    name_sv: TODO
+    observation_type: observations.CategoricalObservation
+    services:
+      - 731
+      - 730
+- model: observations.AllowedValue
+  fields:
+    identifier: "0-15"
+    name_fi: alle 15°C
+    name_sv: under 15°C
+    name_en: below 15°C
+    property_id: swimming_water_temperature
+- model: observations.AllowedValue
+  fields:
+    identifier: "15-17"
+    name_fi: 15-17°C
+    name_sv: 15-17°C
+    name_en: 15-17°C
+    property_id: swimming_water_temperature
+- model: observations.AllowedValue
+  fields:
+    identifier: "17-19"
+    name_fi: 17-19°C
+    name_sv: 17-19°C
+    name_en: 17-19°C
+    property_id: swimming_water_temperature
+- model: observations.AllowedValue
+  fields:
+    identifier: "19-21"
+    name_fi: 19-21°C
+    name_sv: 19-21°C
+    name_en: 19-21°C
+    property_id: swimming_water_temperature
+- model: observations.AllowedValue
+  fields:
+    identifier: "21-23"
+    name_fi: 21-23°C
+    name_sv: 21-23°C
+    name_en: 21-23°C
+    property_id: swimming_water_temperature
+- model: observations.AllowedValue
+  fields:
+    identifier: "23-100"
+    name_fi: yli 23°C
+    name_sv: över 23°C
+    name_en: above 23°C
+    property_id: swimming_water_temperature
+- model: observations.ObservableProperty
+  pk: swimming_water_cyanobacteria
+  fields:
+    name_fi: Sinilevätilanne
+    name_en: Amount of cyanobacteria
+    name_sv: TODO
+    observation_type: observations.CategoricalObservation
+    services:
+      - 731
+      - 730
+- model: observations.AllowedValue
+  fields:
+    property_id: swimming_water_cyanobacteria
+    identifier: 0
+    name_fi: Ei sinilevää
+    name_sv: Inga blågröna alger
+    name_en: No cyanobacteria
+    description_fi: Ei sinilevää, voi uida
+    description_sv: Inga blågröna alger, badande möjligt
+    description_en: No cyanobacteria, swimming possible
+    quality: good
+- model: observations.AllowedValue
+  fields:
+    property_id: swimming_water_cyanobacteria
+    identifier: 1
+    name_fi: Vähän sinilevää
+    name_sv: Lite blågröna alger
+    name_en: Some cyanobacteria
+    description_fi: Vähän sinilevää. Uiminen oman harkinnan mukaan. Suihkussa käynti suositeltavaa uinnin jälkeen.
+    description_sv: Lite blågröna alger. Badande enligt eget omdöme. Duschning rekommenderas efter badandet.
+    description_en: Some cyanobacteria. Swim at your own discretion. Showering after swimming recommended.
+    quality: satisfactory
+- model: observations.AllowedValue
+  fields:
+    property_id: swimming_water_cyanobacteria
+    identifier: 2
+    name_fi: Runsaasti sinilevää
+    name_sv: Rikligt med blågröna alger
+    name_en: Plenty of cyanobacteria
+    description_fi: Runsaasti sinilevää! Uiminen ei suositeltavaa! Älä päästä lapsia uimaan ja käy suihkussa uinnin jälkeen!
+    description_sv: Rikligt med blågröna alger! Badande rekommenderas inte! Låt inte barn bada och duscha efter badandet!
+    description_en: Plenty of cyanobacteria! Swimming not recommended! Do not let children swim and shower after swimming!
+    quality: unusable
+- model: observations.AllowedValue
+  fields:
+    property_id: swimming_water_cyanobacteria
+    identifier: 3
+    name_fi: Erittäin runsaasti sinilevää
+    name_sv: Mycket rikligt med blågröna alger
+    name_en: Very high levels of cyanobacteria
+    description_fi: Erittäin runsaasti sinilevää tai sinilevien massaesiintymä. Älä ui!
+    description_sv: Mycket rikligt med blågröna alger eller massförekomst av blågröna alger. Bada inte!
+    description_en: Very high levels of cyanobacteria or mass occurrence of cyanobacteria. Do not swim!
+    quality: unusable
+- model: observations.AllowedValue
+  fields:
+    property_id: swimming_water_cyanobacteria
+    identifier: 4
+    name_fi: Suljettu muusta syystä
+    name_sv: Stängd av andra skäl
+    name_en: Closed for other reasons
+    description_fi: Suljettu muusta syystä kuin sinilevän vuoksi
+    description_sv: Stängd av andra skäl
+    description_en: Closed for other reasons than cyanobacteria
+    quality: unusable

@@ -1,5 +1,5 @@
 from modeltranslation.translator import translator, TranslationOptions
-from observations.models import AllowedValue
+from observations.models import AllowedValue, ObservableProperty
 
 
 class AllowedValueTranslationOptions(TranslationOptions):
@@ -7,3 +7,7 @@ class AllowedValueTranslationOptions(TranslationOptions):
 
 
 translator.register(AllowedValue, AllowedValueTranslationOptions)
+
+class ObservablePropertyTranslationOptions(TranslationOptions):
+    fields = ('name',)
+translator.register(ObservableProperty, ObservablePropertyTranslationOptions)

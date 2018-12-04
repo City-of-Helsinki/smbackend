@@ -98,7 +98,8 @@ class CategoricalObservationSerializer(BaseObservationSerializer):
         result.update({
             'name': serialized_allowed_value['name'],
             'quality': allowed_value.quality,
-            'value': obj.get_external_value()
+            'value': obj.get_external_value(),
+            'primary': allowed_value.quality is not None and allowed_value.quality != 'unknown'
         })
         return result
 
