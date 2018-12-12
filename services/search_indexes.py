@@ -1,4 +1,5 @@
 from haystack import indexes, signals
+from django.conf import settings
 from django.utils.translation import get_language
 from django.db import models
 from django.apps import apps
@@ -8,7 +9,15 @@ from django.db.models import Q
 class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
     """
     Delete models from index automatically.
+
+    Use the settings key DISABLE_HAYSTACK_SIGNAL_PROCESSOR to
+    disable.
     """
+    settings_key = 'DISABLE_HAYSTACK_SIGNAL_PROCESSOR'
+    def handle_delete(self, sender, instance, **kwargs):
+        if not getattr(settings, self.settings_key, False):
+            super().handle_delete(sender, instance, **kwargs)
+
     def setup(self):
         models.signals.post_delete.connect(self.handle_delete)
         # TODO: ?
