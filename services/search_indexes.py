@@ -112,12 +112,18 @@ class ServiceNodeIndex(ServiceMapBaseIndex):
 class AddressIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(use_template=False, document=True)
     address = indexes.CharField(use_template=False)
+    number = indexes.CharField(use_template=False)
+    autosuggest = indexes.EdgeNgramField(use_template=False)
+    autosuggest_exact = indexes.CharField(use_template=False)
 
     def get_model(self):
         return apps.get_model('munigeo', 'Address')
 
     def prepare_text(self, obj):
         return ''
+
+    def prepare_number(self, obj):
+        return obj.number
 
     def prepare_address(self, obj):
         number_end = ""
@@ -133,5 +139,12 @@ class AddressIndex(indexes.SearchIndex, indexes.Indexable):
             letter=letter,
             municipality=obj.street.municipality
         )
+
+    def prepare_autosuggest(self, obj):
+        return self.prepare_address(obj)
+
+    def prepare_autosuggest_exact(self, obj):
+        return None
+
     def get_updated_field(self):
         return 'modified_at'

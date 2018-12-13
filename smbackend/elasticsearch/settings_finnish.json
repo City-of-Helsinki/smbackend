@@ -21,23 +21,28 @@
             "autosuggest_query": {
                 "tokenizer": "finnish",
                 "filter": [
-                    "lowercase",
                     "keyword_repeat",
                     "voikko_filter_noncompounds",
                     "autosuggest_truncate",
+                    "lowercase",
                     "unique"
                 ],
                 "type": "custom"
             },
+            "number": {
+                "tokenizer": "standard",
+                "filter": ["extract_numbers"],
+                "type": "custom"
+            },
             "edgengram_analyzer": {
+                "tokenizer": "finnish",
                 "filter": [
-                    "lowercase",
                     "keyword_repeat",
                     "voikko_filter",
                     "haystack_edgengram",
+                    "lowercase",
                     "unique"
                 ],
-                "tokenizer": "finnish",
                 "type": "custom"
             },
             "autosuggest_exact": {
@@ -79,6 +84,10 @@
                 "min_gram": "1",
                 "side": "front",
                 "type": "edgeNGram"
+            },
+            "extract_numbers" : {
+                "type" : "keep_types",
+                "types" : [ "<NUM>" ]
             }
         }
     }

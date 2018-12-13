@@ -20,6 +20,12 @@
                 "search_analyzer": "fulltext_query",
                 "analyzer": null
             },
+            "number": {
+                "type": "string",
+                "index_analyzer": "number",
+                "search_analyzer": "number",
+                "analyzer": null
+            },
             "autosuggest_extra_searchwords": {
                 "type": "string",
                 "search_analyzer": "autosuggest_query",

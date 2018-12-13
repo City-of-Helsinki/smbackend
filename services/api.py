@@ -950,11 +950,11 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             self.only_fields['unit'].extend(['street_address', 'www'])
 
         if input_val:
-            queryset = (
-                queryset
-                .filter(autosuggest=input_val)
-                .filter_or(autosuggest_extra_searchwords=input_val)
-                .filter_or(autosuggest_exact__exact=input_val)
+            queryset = queryset.filter(
+                SQ(autosuggest=input_val) |
+                SQ(autosuggest_extra_searchwords=input_val) |
+                SQ(autosuggest_exact__exact=input_val) |
+                SQ(SQ(number=input_val) & SQ(autosuggest=input_val))
             )
         else:
             queryset = (
