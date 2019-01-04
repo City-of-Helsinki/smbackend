@@ -184,4 +184,6 @@ class Command(BaseCommand):
             else:
                 unit.geometry = geometry
 
+            unit.geometry = get_multi(geometry)
+
             unit.save()
