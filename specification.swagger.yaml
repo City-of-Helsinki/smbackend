@@ -600,7 +600,7 @@ paths:
         - $ref: "#/parameters/page_param"
         - $ref: "#/parameters/pagesize_param"
         - $ref: "#/parameters/include_param"
-        - name: services
+        - name: service
           in: query
           type: string
           description: A comma-separated list of service ids to be used as a filter
@@ -644,7 +644,7 @@ paths:
           type: string
           description: A string value from a predefined list, which acts as a shorthand filter that aggregates several thematic services together, for example \"most common public services\" # FIXME: list values
           required: false
-        - name: service_nodes
+        - name: service_node
           in: query
           type: string
           description: A comma-separated list of service node ids to be used as a filter. Prefer the *services* parameter unless service nodes are specifically needed.
