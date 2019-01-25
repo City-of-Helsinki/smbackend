@@ -868,11 +868,15 @@ class SearchSerializer(serializers.Serializer):
     def _strip_context(self, context, model):
         if model == Unit:
             key = 'unit'
+        elif model == Service:
+            key = 'service'
         else:
             key = 'service_node'
         for spec in ['include', 'only']:
             if spec in context:
                 context[spec] = context[spec].get(key, [])
+        if 'only' in context and context['only'] == []:
+            context.pop('only')
         return context
 
     def get_result_serializer(self, model, instance):
