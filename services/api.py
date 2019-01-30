@@ -809,6 +809,20 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 bbox_geometry_filter = munigeo_api.build_bbox_filter(ref, val, 'geometry')
                 queryset = queryset.filter(Q(**bbox_filter) | Q(**bbox_geometry_filter))
 
+        if 'category' in filters:
+            services_and_service_nodes = filters.get('category', None).split(',')
+            service_ids = []
+            servicenode_ids = []
+            for ser_or_ser_node in services_and_service_nodes:
+                key = ser_or_ser_node.split(':')[0]
+                value = ser_or_ser_node.split(':')[1]
+                if key == 'service':
+                    service_ids.append(value)
+                elif key == 'service_node':
+                    servicenode_ids.append(value)
+            queryset = queryset.filter(Q(services__in=service_ids) | 
+                Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))).distinct()
+
         maintenance_organization = self.request.query_params.get('maintenance_organization')
         if maintenance_organization:
             queryset = queryset.filter(
