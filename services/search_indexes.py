@@ -14,6 +14,7 @@ class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
     disable.
     """
     settings_key = 'DISABLE_HAYSTACK_SIGNAL_PROCESSOR'
+
     def handle_delete(self, sender, instance, **kwargs):
         if not getattr(settings, self.settings_key, False):
             super().handle_delete(sender, instance, **kwargs)

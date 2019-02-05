@@ -222,7 +222,7 @@ class DepartmentSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSONA
         exclude = ['uuid', ]
 
     def get_uuid(self, obj):
-            return obj.uuid
+        return obj.uuid
 
     def get_parent(self, obj):
         parent = getattr(obj, 'parent')
@@ -827,8 +827,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                     service_ids.append(value)
                 elif key == 'service_node':
                     servicenode_ids.append(value)
-            queryset = queryset.filter(Q(services__in=service_ids) | 
-                Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))).distinct()
+            queryset = queryset.filter(Q(services__in=service_ids)
+                                       | Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))).distinct()
 
         maintenance_organization = self.request.query_params.get('maintenance_organization')
         if maintenance_organization:
@@ -978,10 +978,10 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         if input_val:
             queryset = queryset.filter(
-                SQ(autosuggest=input_val) |
-                SQ(autosuggest_extra_searchwords=input_val) |
-                SQ(autosuggest_exact__exact=input_val) |
-                SQ(SQ(number=input_val) & SQ(autosuggest=input_val))
+                SQ(autosuggest=input_val)
+                | SQ(autosuggest_extra_searchwords=input_val)
+                | SQ(autosuggest_exact__exact=input_val)
+                | SQ(SQ(number=input_val) & SQ(autosuggest=input_val))
             )
         else:
             queryset = (

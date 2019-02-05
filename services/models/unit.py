@@ -11,7 +11,6 @@ from services.utils import get_translated
 from .department import Department
 from .keyword import Keyword
 
-from django.contrib.postgres.operations import HStoreExtension
 from django.contrib.postgres.fields import HStoreField
 
 
