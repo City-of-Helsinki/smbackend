@@ -29,18 +29,24 @@ class ObservableProperty(models.Model):
         max_length=100, null=False, blank=False, db_index=True)
     measurement_unit = models.CharField(max_length=20, null=True, blank=False)
     # todo: change to services
-    # services = models.ManyToManyField(services_models.Service, related_name='observable_properties')
+    services = models.ManyToManyField(services_models.Service, related_name='observable_properties')
     observation_type = models.CharField(max_length=80, null=False, blank=False)
+
     def __str__(self):
         return "%s (%s)" % (self.name, self.id)
+
     def get_observation_model(self):
         return apps.get_model(self.observation_type)
+
     def get_observation_type(self):
         return self.get_observation_model().get_type()
+
     def create_observation(self, **validated_data):
         return self.get_observation_model().objects.create(**validated_data)
+
     def get_internal_value(self, value):
         return self.get_observation_model().get_internal_value(self, value)
+
 
 class AllowedValue(models.Model):
     # Currently only works for categorical observations

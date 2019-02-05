@@ -274,13 +274,16 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
         ret = super(ServiceSerializer, self).to_representation(obj)
+        ret['unit_count'] = {}
         if hasattr(obj, 'unit_count'):
             ret.setdefault('unit_count', {})['total'] = obj.unit_count
         return ret
 
     class Meta:
         model = Service
-        fields = ['name', 'id', 'period_enabled', 'clarification_enabled', 'keywords', 'root_service_node']
+        fields = [
+            'name', 'id', 'period_enabled', 'clarification_enabled', 'keywords',
+            'root_service_node', 'observable_properties']
 
 
 class RelatedServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
@@ -512,7 +515,7 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         return result
 
     def _department_uuid(self, obj, field):
-        if obj.department is not None:
+        if getattr(obj, field) is not None:
             return getattr(obj, field).uuid
         return None
 
@@ -752,7 +755,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         services = filters.get('service')
         if services is not None:
-            queryset = queryset.filter(services=services)
+            queryset = queryset.filter(services__in=services.split(',')).distinct()
 
         if 'division' in filters:
             # Divisions can be specified with form:

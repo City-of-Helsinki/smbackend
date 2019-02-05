@@ -11,6 +11,9 @@ from services.utils import get_translated
 from .department import Department
 from .keyword import Keyword
 
+from django.contrib.postgres.operations import HStoreExtension
+from django.contrib.postgres.fields import HStoreField
+
 
 PROJECTION_SRID = get_default_srid()
 PROVIDER_TYPES = (
@@ -130,7 +133,7 @@ class Unit(models.Model):
     address_zip = models.CharField(max_length=10, null=True)
 
     data_source = models.CharField(max_length=30, null=True)
-    # extensions = HStoreField(null=True)
+    extensions = HStoreField(null=True)
 
     last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 
@@ -168,4 +171,3 @@ class Unit(models.Model):
         qs = ServiceNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         service_node_list = qs.values_list('id', flat=True).distinct()
         return sorted(service_node_list)
-
