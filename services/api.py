@@ -283,7 +283,7 @@ class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
         model = Service
         fields = [
             'name', 'id', 'period_enabled', 'clarification_enabled', 'keywords',
-            'root_service_node', 'observable_properties']
+            'root_service_node']
 
 
 class RelatedServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
