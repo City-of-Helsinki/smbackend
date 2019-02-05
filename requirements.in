@@ -4,9 +4,10 @@ elasticsearch>=1.0.0,<2.0.0
 Markdown
 django-filter
 django-modeltranslation
+flake8
 requests
 requests_cache
--e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.10#egg=django-munigeo
+-e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.15#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions

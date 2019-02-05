@@ -21,16 +21,21 @@ django==1.11.15
 djangorestframework-jsonp==1.0.2
 djangorestframework==3.6.3
 elasticsearch==1.9.0
+entrypoints==0.3          # via flake8
 first==2.0.1              # via pip-tools
+flake8==3.7.5
 hypothesis==3.19.3
 idna==2.6                 # via requests
 lxml==3.4.4
 markdown==2.6.2
+mccabe==0.6.1             # via flake8
 more-itertools==5.0.0     # via pytest
 pip-tools==1.8.0
 pluggy==0.8.1             # via pytest
 psycopg2==2.7.4
 py==1.7.0                 # via pytest
+pycodestyle==2.5.0        # via flake8
+pyflakes==2.1.0           # via flake8
 pytest-django==3.4.5
 pytest==4.1.1             # via pytest-django
 python-dateutil==2.5.3
