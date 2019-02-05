@@ -1,7 +1,14 @@
 {
     "analysis": {
+        "char_filter": {
+            "accented_letter_replacement": {
+                "type": "mapping",
+                "mappings": ["é=>e", "É=>e"]
+            }
+        },
         "analyzer": {
             "fulltext_index": {
+                "char_filter": ["accented_letter_replacement"],
                 "tokenizer": "finnish",
                 "filter": [
                     "lowercase",
@@ -10,6 +17,7 @@
                 ]
             },
             "fulltext_query": {
+                "char_filter": ["accented_letter_replacement"],
                 "tokenizer": "finnish",
                 "filter": [
                     "lowercase",
@@ -54,6 +62,10 @@
                 "tokenizer": "keyword",
                 "filter": ["lowercase", "autosuggest_truncate"],
                 "type": "custom"
+            },
+            "address_analyzer": {
+                "type": "snowball",
+                "tokenizer": "standard"
             }
         },
         "filter": {
