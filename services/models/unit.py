@@ -59,6 +59,8 @@ CONTRACT_TYPES = (
 
 
 _unit_related_fields = set()
+
+
 def get_unit_related_fields():
     global _unit_related_fields
     if len(_unit_related_fields) > 0:

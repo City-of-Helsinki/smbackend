@@ -130,8 +130,7 @@ def is_missing_contract_type_allowed(s, d):
     if d['department']['organization_type'] == 'UNKNOWN':
         return True
     if (d['department']['organization_type'] == 'MUNICIPALITY'):
-        if (s['organizer_type'] is None or
-                s['provider_type'] == 'UNKNOWN_PRODUCTION_METHOD'):
+        if (s['organizer_type'] is None or s['provider_type'] == 'UNKNOWN_PRODUCTION_METHOD'):
             return True
     if s['provider_type'] != 'SELF_PRODUCED':
         return True
@@ -256,8 +255,7 @@ def assert_resource_synced(response, resource_name, resources):
     result_resources = response.data['results']
 
     # The ids in source and result must exactly match
-    assert (id_set(result_resources) ==
-            id_set(resources[resource_name]))
+    assert (id_set(result_resources) == id_set(resources[resource_name]))
 
 
 def service_details_match(src, dest):
@@ -269,8 +267,7 @@ def service_details_match(src, dest):
         if src_schoolyear != '{}-{}'.format(*dest['period']):
             return False
     return (
-        src['ontologyword_id'] == dest['id'] and
-        translated_field_match('clarification', src, dest))
+        src['ontologyword_id'] == dest['id'] and translated_field_match('clarification', src, dest))
 
 
 def assert_service_details_correctly_imported(source, imported):

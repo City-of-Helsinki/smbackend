@@ -4,6 +4,7 @@ import re
 
 KML_REGEXP = re.compile(settings.KML_REGEXP)
 
+
 class Pagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 1000

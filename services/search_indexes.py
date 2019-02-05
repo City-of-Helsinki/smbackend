@@ -78,7 +78,6 @@ class ServiceIndex(ServiceMapBaseIndex):
 
 
 class ServiceNodeIndex(ServiceMapBaseIndex):
-
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
         self.model = apps.get_model(app_label='services', model_name='ServiceNode')

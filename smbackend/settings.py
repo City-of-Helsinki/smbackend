@@ -46,7 +46,7 @@ INSTALLED_APPS = (
     'haystack',
     'munigeo',
     'services',
-    'observations'
+    'observations',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -84,6 +84,8 @@ CONN_MAX_AGE = 120
 
 def gettext(s):
     return s
+
+
 LANGUAGES = (
     ('fi', gettext('Finnish')),
     ('sv', gettext('Swedish')),
@@ -128,7 +130,7 @@ LEVELS = {
             869    # municipal day care
             #  25344, # recycling
             #  25480, # public libraries
-         ]
+        ]
     },
     'customer_service': {
         'type': 'exclude',
@@ -198,7 +200,7 @@ HAYSTACK_SIGNAL_PROCESSOR = 'services.search_indexes.DeleteOnlySignalProcessor'
 DISABLE_HAYSTACK_SIGNAL_PROCESSOR = False
 
 KML_TRANSLATABLE_FIELDS = ['name', 'street_address', 'www']
-KML_REGEXP = 'application/vnd.google-earth\.kml'
+KML_REGEXP = r'application/vnd.google-earth\.kml'
 
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
@@ -224,7 +226,8 @@ if 'SECRET_KEY' not in locals():
         import random
         system_random = random.SystemRandom()
         try:
-            SECRET_KEY = ''.join([system_random.choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(64)])
+            SECRET_KEY = ''.join([system_random.choice(
+                'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(64)])
             secret = open(secret_file, 'w')
             import os
             os.chmod(secret_file, 0o0600)

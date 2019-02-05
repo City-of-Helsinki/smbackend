@@ -4,7 +4,7 @@ import logging
 from django.core.management.base import BaseCommand
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal.error import GDALException
-from django.contrib.gis.geos import GeometryCollection, LineString, MultiLineString, Polygon, MultiPolygon
+from django.contrib.gis.geos import LineString, MultiLineString, Polygon, MultiPolygon
 
 from services.models.unit_identifier import UnitIdentifier
 

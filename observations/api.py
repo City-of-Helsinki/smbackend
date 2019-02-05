@@ -15,12 +15,16 @@ from services.api import (
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Observation.objects.all()
     serializer_class = ObservationSerializer
+
     def create(self, request, *args, **kwargs):
-        if (request.auth == None):
+        if (request.auth is None):
             raise AuthenticationFailed(_('Authentication required.'))
+
         return super(ObservationViewSet, self).create(request, *args, **kwargs)
+
     def get_serializer_context(self):
         return {'user': self.request.user, 'auth': self.request.auth}
+
 
 class ObservableSerializerMixin:
     def to_representation(self, obj):
@@ -31,24 +35,33 @@ class ObservableSerializerMixin:
         if 'observations' in self.context.get('include', []):
             observations = self.get_observations(obj)
             if observations:
-                data['observations'] = ObservationSerializer(observations, many=True).data
+                data['observations'] = ObservationSerializer(
+                    observations, many=True).data
+
         return data
+
 
 class ObservableServiceSerializer(ObservableSerializerMixin, ServiceSerializer):
     def get_observable_properties(self, service):
         return service.observable_properties.all()
+
     def get_observations(self, service):
         return None
+
 
 class ObservableUnitSerializer(ObservableSerializerMixin, UnitSerializer):
     def get_observable_properties(self, unit):
         return models.ObservableProperty.objects.filter(services__in=unit.services.all())
+
     def get_observations(self, unit):
         return unit.observation_set
 
+
 UnitViewSet.serializer_class = ObservableUnitSerializer
+
+
 ServiceViewSet.serializer_class = ObservableServiceSerializer
 
 views = [
-    {'class': ObservationViewSet, 'name': 'observation' }
+    {'class': ObservationViewSet, 'name': 'observation'}
 ]

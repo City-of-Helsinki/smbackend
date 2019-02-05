@@ -1,12 +1,9 @@
 import sys
 from sys import argv
 from collections import OrderedDict as odict
-import codecs
 import csv
 import re
 import pprint
-import itertools
-import traceback
 
 """
 A module for parsing accessibility rules and sentences from
@@ -41,11 +38,14 @@ FINAL_KEYS = [
     ['shortcoming_fi', 'shortcoming_sv', 'shorcoming_en']]
 FINAL_KEYS.append('shortcoming')
 
+
 class ParseError(Exception):
     pass
 
+
 class Expression(object):
     eid = 0
+
     def __init__(self, depth):
         Expression.eid += 1
         self.messages = {}
@@ -57,25 +57,32 @@ class Expression(object):
         self.flags = None
         self.mode = 0
         self.message_id = None
+
     def id(self):
         return str(self.eid)
+
     def indent(self):
         return ''.ljust(self.depth * 2)
+
     def include(self):
         return self._included_in_mode(self.mode)
+
     def _included_in_mode(self, mode):
         if self.flags is None:
             return True
         return 'include' in self.flags[mode]
 
+
 class Compound(Expression):
     id_suffix = 'ABC'
+
     def __init__(self, depth):
         super(Compound, self).__init__(depth)
         self.operator = None
         self.operands = []
+
     def id(self):
-        if self.parent == None:
+        if self.parent is None:
             return str(self.eid) + Compound.id_suffix[self.mode]
         else:
             return str(self.eid)
@@ -95,10 +102,12 @@ Error, trying to change operator of a compound expression at {}.
 Probable cause: missing closing parenthesis right before said line.
                 """.format(row[-1])
                 print(msg)
+
     def set_mode(self, mode):
         self.mode = mode
         for o in self.operands:
             o.set_mode(mode)
+
     def include(self):
         if not self._included_in_mode(self.mode):
             return False
@@ -124,6 +133,7 @@ Probable cause: missing closing parenthesis right before said line.
             return ret
         else:
             return None
+
     def __str__(self):
         just = "\n" + self.indent()
         ret = "{just}({idstring}{subexpressions}{just}{idstring})".format(
@@ -136,6 +146,7 @@ Probable cause: missing closing parenthesis right before said line.
                               for i, v in self.messages.items()])
         return ret + "\n"
 
+
 class Comparison(Expression):
     def __init__(self, depth, variable, operator, value):
         super(Comparison, self).__init__(depth)
@@ -143,13 +154,11 @@ class Comparison(Expression):
         self.operator = operator
         self.value = value
         self.variable_path = None
+
     def set_mode(self, mode):
         self.mode = mode
+
     def val(self):
-        if self.next_sibling:
-            nexts = self.next_sibling.eid
-        else:
-            nexts = '<none>'
         ret = {
             'operator': self.operator,
             'operands': [self.variable, self.value],
@@ -161,20 +170,25 @@ class Comparison(Expression):
         if self.requirement_id:
             ret['requirement_id'] = self.requirement_id
         return ret
+
     def __str__(self):
-        just = ''.ljust(self.depth*2)
+        just = ''.ljust(self.depth * 2)
         ret = "\n" + just
-        ret += " ".join([("#%s [%s] " % (self.id(), str(self.variable)) + self.variable_path), self.operator, self.value])
+        ret += " ".join(
+            [("#%s [%s] " % (self.id(), str(self.variable)) + self.variable_path), self.operator, self.value])
         if len(self.messages):
             ret += "\n" + just
-            ret += ("\n" + just).join(["%s: %s" % (i,v) for i,v in self.messages.items()])
+            ret += ("\n" + just).join(["%s: %s" % (i, v) for i, v in self.messages.items()])
             ret += "\n"
         return ret
+
 
 def next_line(reader):
     line = next(reader)
     next_line.lineno += 1
     return next_line.lineno, line
+
+
 next_line.lineno = 0
 
 
@@ -187,11 +201,13 @@ def exit_on_error(message, expression=None, lineno=None):
         print("  beginning at line %s" % lineno)
     sys.exit(2)
 
+
 OPENING_PARENTHESIS = re.compile(r'([ ]*)\(')
 CLOSING_PARENTHESIS = re.compile(r'([ ]*)\)')
 OPERATOR_PATTERN = re.compile(r"([ ]*)(AND|OR)")
 NUMERIC_ID = re.compile(r"[0-9]+")
 VARIABLE_NAME = re.compile(r"[ ]*\[[0-9]+\][ ]?([^ ]+) .*")
+
 
 def parenthesis(string, pattern):
     match = pattern.match(string.rstrip())
@@ -203,24 +219,26 @@ def parenthesis(string, pattern):
             return 0
     return None
 
+
 def operator(string):
     match = OPERATOR_PATTERN.match(string)
     if match:
-        g1, g2 = match.group(1), match.group(2)
         return (len(match.group(1)), match.group(2))
     else:
         return (None, None)
+
 
 def parse_language_versions(string):
     return [{'fi': fi, 'sv': sv, 'en': en}
             for (fi, sv, en) in
             [case.split(';') for case in string.split(':')]]
 
+
 def update_messages(row, expression):
     for i, key in KEYS.items():
         current = row[i]
         if current is not None and current.strip() != '':
-            if key in ['case_names', 'shortcoming_title'] :
+            if key in ['case_names', 'shortcoming_title']:
                 current = parse_language_versions(current)
             expression.messages[key] = current
     shortcoming = {}
@@ -233,6 +251,7 @@ def update_messages(row, expression):
         shortcoming[lang] = msg
     if len(shortcoming):
         expression.messages['shortcoming'] = shortcoming
+
 
 def update_flags(row, expression):
     raw_string = row[QRS_KEY]
@@ -260,10 +279,11 @@ def update_flags(row, expression):
     if not completely_empty:
         expression.flags = bits
 
+
 def build_comparison(iterator, row, depth=0, requirement_id=None):
     try:
         variable, operator, value = int(row[VARIABLE]), row[OPERATOR], row[VALUE]
-    except ValueError as e:
+    except ValueError:
         exit_on_error("Value error %s." % row)
     if operator == 'I':
         operator = 'NEQ'
@@ -284,6 +304,7 @@ def build_comparison(iterator, row, depth=0, requirement_id=None):
     update_flags(row, expression)
     return expression
 
+
 def build_compound(iterator, depth=0, requirement_id=None):
     row = next(iterator)
     compound = Compound(depth)
@@ -292,7 +313,7 @@ def build_compound(iterator, depth=0, requirement_id=None):
         if op_depth is not None:
             compound.set_operator(op, row)
         else:
-            child = build_expression(iterator, row, depth=depth+1, requirement_id=requirement_id)
+            child = build_expression(iterator, row, depth=depth + 1, requirement_id=requirement_id)
             child.parent = compound
             compound.add_operand(child)
         try:
@@ -313,8 +334,8 @@ def build_compound(iterator, depth=0, requirement_id=None):
         return compound.operands[0]
     return compound
 
+
 def build_expression(iterator, row, depth=0, requirement_id=None):
-    result = None
     parenthesis_depth = parenthesis(row[EXPRESSION], OPENING_PARENTHESIS)
     next_expression_id = Expression.eid + 1
     if depth == 1:
@@ -332,11 +353,12 @@ def build_expression(iterator, row, depth=0, requirement_id=None):
     expression.requirement_id = requirement_id
     return expression
 
+
 def rescope(expression, rescope_key):
     if type(expression) is Compound:
         for subexpression in expression.operands:
             rescope(subexpression, rescope_key)
-    if expression == None:
+    if expression is None:
         return
     next_sibling = expression.next_sibling
     if next_sibling is None:
@@ -366,10 +388,13 @@ def rescope(expression, rescope_key):
                 setattr(expression.parent, rescope_key, current)
                 setattr(expression, rescope_key, None)
 
+
 messages = []
 message_ids = {}
 message_id_incr = 0
 PRIMARY_KEY = 'fi'
+
+
 def save_message(multilingual_message):
     global messages, message_ids, message_id_incr
     if multilingual_message is None:
@@ -405,8 +430,9 @@ def save_message(multilingual_message):
         #             current_message[PRIMARY_KEY]))
     return msg_id
 
+
 def gather_messages(expression):
-    if expression == None or not isinstance(expression, Expression):
+    if expression is None or not isinstance(expression, Expression):
         return {}
     if len(expression.messages):
         if 'shortcoming' in expression.messages:
@@ -415,6 +441,7 @@ def gather_messages(expression):
     if isinstance(expression, Compound):
         for e in expression.operands:
             gather_messages(e)
+
 
 def build_tree(reader):
     global messages
@@ -445,11 +472,13 @@ def build_tree(reader):
         gather_messages(expression)
     return tree, messages
 
+
 def parse_accessibility_rules(filename):
     with open(filename, 'r', encoding='utf8') as f:
         reader = csv.reader(f, delimiter=';', quotechar='"')
         tree = build_tree(reader)
         return tree
+
 
 WIDTH = 140
 if __name__ == '__main__':

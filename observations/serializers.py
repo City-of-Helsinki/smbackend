@@ -32,8 +32,10 @@ class BaseObservationSerializer(serializers.BaseSerializer):
             unit=int(obj.unit_id),
             id=obj.id,
             property=obj.property_id,
-            time=timezone.localtime(obj.time).strftime('%Y-%m-%dT%H:%M:%S.%f%z'),
+            time=timezone.localtime(obj.time).strftime(
+                '%Y-%m-%dT%H:%M:%S.%f%z'),
         )
+
     def to_internal_value(self, data):
         return dict(
             auth=self.context['auth'],
@@ -47,8 +49,10 @@ class BaseObservationSerializer(serializers.BaseSerializer):
 class DescriptiveObservationSerializer(BaseObservationSerializer):
     def __init__(self, *args, **kwargs):
         super(DescriptiveObservationSerializer, self).__init__(*args, **kwargs)
+
     def to_internal_value(self, data):
-        result = super(DescriptiveObservationSerializer, self).to_internal_value(data)
+        result = super(
+            DescriptiveObservationSerializer, self).to_internal_value(data)
         val = result['value']
         if val is None:
             return result
@@ -60,18 +64,24 @@ class DescriptiveObservationSerializer(BaseObservationSerializer):
         serializer.is_valid(raise_exception=True)
         result['value'] = serializer.validated_data
         return result
+
     def to_representation(self, obj):
-        result = super(DescriptiveObservationSerializer, self).to_representation(obj)
+        result = super(
+            DescriptiveObservationSerializer, self).to_representation(obj)
         val = obj.get_external_value()
-        serialized_allowed_value = AllowedValueSerializer(val, read_only=True).data
+        serialized_allowed_value = AllowedValueSerializer(
+            val, read_only=True).data
         result.update({'value': serialized_allowed_value['description']})
         return result
+
     class Meta:
         model = models.DescriptiveObservation
 
+
 class CategoricalObservationSerializer(BaseObservationSerializer):
     def to_representation(self, obj):
-        result = super(CategoricalObservationSerializer, self).to_representation(obj)
+        result = super(
+            CategoricalObservationSerializer, self).to_representation(obj)
         allowed_value = obj.value
         if allowed_value is None:
             result.update({'value': None})

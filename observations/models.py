@@ -7,6 +7,11 @@ from polymorphic.models import PolymorphicModel
 import binascii
 import os
 from rest_framework import exceptions
+import rest_framework.authtoken.models
+import rest_framework.authentication
+
+AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
 
 class ObservableProperty(models.Model):
     """Specifies the detailed interpretation of observations.
@@ -20,7 +25,8 @@ class ObservableProperty(models.Model):
     """
     # TODO move back to sequential id field
     id = models.CharField(max_length=50, primary_key=True)
-    name = models.CharField(max_length=100, null=False, blank=False, db_index=True)
+    name = models.CharField(
+        max_length=100, null=False, blank=False, db_index=True)
     measurement_unit = models.CharField(max_length=20, null=True, blank=False)
     # todo: change to services
     # services = models.ManyToManyField(services_models.Service, related_name='observable_properties')
@@ -51,9 +57,11 @@ class AllowedValue(models.Model):
         ObservableProperty,
         blank=False, null=False,
         related_name='allowed_values')
+
     class Meta:
         unique_together = (
             ('identifier', 'property'),)
+
 
 class Observation(PolymorphicModel):
     """An observation is a measured/observed value of
@@ -69,15 +77,18 @@ class Observation(PolymorphicModel):
         services_models.Unit, blank=False, null=False,
         help_text='The unit the observation is about',
         related_name='observation_history')
-    units = models.ManyToManyField(services_models.Unit, through='UnitLatestObservation')
+    units = models.ManyToManyField(
+        services_models.Unit, through='UnitLatestObservation')
     auth = models.ForeignKey(
         'PluralityAuthToken', null=True)
     property = models.ForeignKey(
         ObservableProperty,
         blank=False, null=False,
         help_text='The property observed')
+
     class Meta:
         ordering = ['-time']
+
 
 class CategoricalObservation(Observation):
     def get_external_value(self):
@@ -86,6 +97,7 @@ class CategoricalObservation(Observation):
     @staticmethod
     def get_type():
         return 'categorical'
+
     @staticmethod
     def get_internal_value(oproperty, value):
         if value is None:
@@ -96,12 +108,15 @@ class CategoricalObservation(Observation):
 class DescriptiveObservation(Observation):
     def get_external_value(self):
         return self.value
+
     @staticmethod
     def get_type():
         return 'descriptive'
+
     @staticmethod
     def get_internal_value(oproperty, value):
         return AllowedValue.objects.create(property=oproperty, **value)
+
 
 class UnitLatestObservation(models.Model):
     unit = models.ForeignKey(
@@ -112,20 +127,19 @@ class UnitLatestObservation(models.Model):
         ObservableProperty, null=False, blank=False)
     observation = models.ForeignKey(
         Observation, null=False, blank=False)
+
     class Meta:
         unique_together = (
             ('unit', 'property'),)
 
-import rest_framework.authtoken.models
-import rest_framework.authentication
 
-AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 class PluralityAuthToken(models.Model):
     """
     A token class which can have multiple active tokens per user.
     """
     key = models.CharField(max_length=40, primary_key=False, db_index=True)
-    user = models.ForeignKey(AUTH_USER_MODEL, related_name='auth_tokens', null=False)
+    user = models.ForeignKey(
+        AUTH_USER_MODEL, related_name='auth_tokens', null=False)
     created = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
 
@@ -148,14 +162,20 @@ class PluralityAuthToken(models.Model):
     def __str__(self):
         return self.key
 
+
 class PluralityTokenAuthentication(rest_framework.authentication.TokenAuthentication):
     model = PluralityAuthToken
+
     def authenticate_credentials(self, key):
-        user, token = super(PluralityTokenAuthentication, self).authenticate_credentials(key)
+        user, token = super(
+            PluralityTokenAuthentication, self).authenticate_credentials(key)
         if not token.active:
-            raise exceptions.AuthenticationFailed(_('Token inactive or deleted.'))
+            raise exceptions.AuthenticationFailed(
+                _('Token inactive or deleted.'))
         return (token.user, token)
+
 
 class UserOrganization(models.Model):
     organization = models.ForeignKey(services_models.Department)
-    user = models.OneToOneField(AUTH_USER_MODEL, related_name='organization', null=False)
+    user = models.OneToOneField(
+        AUTH_USER_MODEL, related_name='organization', null=False)

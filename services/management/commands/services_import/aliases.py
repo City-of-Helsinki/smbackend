@@ -1,4 +1,3 @@
-import pprint
 import os
 import csv
 
@@ -53,4 +52,3 @@ def import_aliases():
         print("{} units not found.".format(counts['notfound']))
     if counts['duplicate']:
         print("Skipped {} aliases already in database.".format(counts['duplicate']))
-
