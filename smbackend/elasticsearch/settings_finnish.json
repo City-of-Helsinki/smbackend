@@ -3,7 +3,7 @@
         "char_filter": {
             "accented_letter_replacement": {
                 "type": "mapping",
-                "mappings": ["é=>e", "É=>e"]
+                "mappings": ["á=>a", "Á=>a", "é=>e", "É=>e", "í=>i", "Í=>i", "ó=>o", "Ó=>o", "ú=>u", "Ú=>u"] 
             }
         },
         "analyzer": {
