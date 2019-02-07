@@ -38,7 +38,9 @@
             },
             "address": {
                 "type": "string",
-                "analyzer": "address_analyzer"
+                "search_analyzer": "address",
+                "index_analyzer": "address",
+                "analyzer": null
             }
         }
     }

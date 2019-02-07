@@ -63,9 +63,11 @@
                 "filter": ["lowercase", "autosuggest_truncate"],
                 "type": "custom"
             },
-            "address_analyzer": {
-                "type": "snowball",
-                "tokenizer": "standard"
+            "address": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "standard",
+                "filter": ["lowercase"],
+                "type": "custom"
             }
         },
         "filter": {
