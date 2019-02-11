@@ -1,6 +1,7 @@
 import re
 import logging
 import uuid
+from builtins import print
 
 from django.http import Http404
 from django.conf import settings
@@ -677,8 +678,31 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     def _service_details_requested(self):
         return 'services' in self.include_fields
 
+    def municipality_filter(self, val, queryset):
+
+        if len(val) > 0:
+            municipalities = val.split(',')
+            muni_sq = Q()
+
+            for municipality_raw in municipalities:
+                municipality = municipality_raw.strip()
+
+                if municipality.startswith('ocd-division'):
+                    ocd_id = municipality
+                else:
+                    ocd_id = make_muni_ocd_id(municipality)
+                try:
+                    muni = Municipality.objects.get(division__ocd_id=ocd_id)
+                    muni_sq |= Q(municipality=muni)
+                except Municipality.DoesNotExist:
+                    raise ParseError("municipality with ID '%s' not found" % ocd_id)
+
+            queryset = queryset.filter(muni_sq)
+            return queryset
+
     def get_queryset(self):
         queryset = super(UnitViewSet, self).get_queryset()
+
         if self._service_details_requested():
             queryset = queryset.prefetch_related('service_details')
             queryset = queryset.prefetch_related('service_details__service')
@@ -690,22 +714,32 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         if 'municipality' in filters:
             val = filters['municipality'].lower().strip()
-            if len(val) > 0:
-                municipalities = val.split(',')
-                muni_sq = Q()
-                for municipality_raw in municipalities:
-                    municipality = municipality_raw.strip()
-                    if municipality.startswith('ocd-division'):
-                        ocd_id = municipality
-                    else:
-                        ocd_id = make_muni_ocd_id(municipality)
-                    try:
-                        muni = Municipality.objects.get(division__ocd_id=ocd_id)
-                        muni_sq |= Q(municipality=muni)
-                    except Municipality.DoesNotExist:
-                        raise ParseError("municipality with ID '%s' not found" % ocd_id)
+            queryset = self.municipality_filter(val, queryset)
 
-                queryset = queryset.filter(muni_sq)
+        if 'department_or_municipality' in filters:
+            val = filters['department_or_municipality'].lower().strip()
+
+            if len(val) > 0:
+                departments = val.split(',')
+                cities = Department.objects.filter(uuid__in=departments).select_related('municipality')\
+                    .values_list('municipality__name')
+
+                cities_l = [m for m in cities]
+
+                queryset_m = self.municipality_filter(','.join(city[0].lower().strip() for city in cities_l), queryset)
+
+                dep_sq = Q()
+                for department in departments:
+                    try:
+                        dep_sq |= Q(root_department__uuid=department)
+                        print(dep_sq)
+                    except Department.DoesNotExist:
+                        raise ParseError("department with ID '%s' not found" % department)
+
+                queryset_d = queryset.filter(dep_sq)
+                print('queryset_d', queryset_d)
+
+            queryset = queryset_d | queryset_m
 
         if 'provider_type' in filters:
             val = filters.get('provider_type')
@@ -731,7 +765,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             return list(srv_list)
 
         service_nodes = filters.get('service_node', None)
-
+        print('service_nodes', service_nodes)
         service_node_ids = None
         if service_nodes:
             service_nodes = service_nodes.lower()
@@ -839,7 +873,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         if 'observations' in self.include_fields:
             queryset = queryset.prefetch_related(
                 'observation_set__property__allowed_values').prefetch_related(
-                    'observation_set__value')
+                'observation_set__value')
 
         if 'service_nodes' in self.include_fields:
             queryset = queryset.prefetch_related('service_nodes')
@@ -847,7 +881,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         for field in ['connections', 'accessibility_properties', 'keywords']:
             if self._should_prefetch_field(field):
                 queryset = queryset.prefetch_related(field)
-
+        print('final_queryset',queryset)
         return queryset
 
     def _should_prefetch_field(self, field_name):
@@ -961,7 +995,11 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 setattr(self, key, None)
 
         input_val = request.query_params.get('input', '').strip()
+        print('input_val', input_val)
+
         q_val = request.query_params.get('q', '').strip()
+        print('q_val', q_val)
+
         if not input_val and not q_val:
             raise ParseError("Supply search terms with 'q=' or autocomplete entry with 'input='")
         if input_val and q_val:
@@ -986,10 +1024,11 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         else:
             queryset = (
                 queryset
-                .filter(text=AutoQuery(q_val))
-                .filter_or(extra_searchwords=q_val)
-                .filter_or(address=q_val)
+                    .filter(text=AutoQuery(q_val))
+                    .filter_or(extra_searchwords=q_val)
+                    .filter_or(address=q_val)
             )
+
         if 'municipality' in request.query_params:
             val = request.query_params['municipality'].lower().strip()
             if len(val) > 0:
@@ -1061,6 +1100,7 @@ class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
         rules, messages = accessibility_rules.get_data()
         return Response({
             'rules': rules, 'messages': messages})
+
 
 
 register_view(AccessibilityRuleView, 'accessibility_rule', base_name='accessibility_rule')
