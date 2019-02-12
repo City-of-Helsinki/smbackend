@@ -35,6 +35,12 @@
             "extra_searchwords": {
                 "type": "string",
                 "analyzer": null
+            },
+            "address": {
+                "type": "string",
+                "search_analyzer": "address",
+                "index_analyzer": "address",
+                "analyzer": null
             }
         }
     }
