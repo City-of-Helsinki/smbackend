@@ -1024,20 +1024,28 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         if 'department_or_municipality' in request.query_params:
             val = request.query_params['department_or_municipality'].lower().strip()
 
-            print('department', val)
-
             if len(val) > 0:
-                departments = val.split(',')
+                deps_uuid = val.split(',')
 
-                dep_q_objects = [SQ(department=d.strip()) for d in departments]
+                # forming root_deparment search query
+                dep_q_objects = [SQ(root_department=d.strip()) for d in deps_uuid]
                 print(dep_q_objects)
                 dep_q = dep_q_objects.pop()
                 for q in dep_q_objects:
                     dep_q |= q
-                print(dep_q)
-                queryset = queryset.filter(dep_q | SQ(django_ct='services.unit'))
-                print('queryset', queryset)
-                #queryset = SQ(queryset_d | queryset_m)
+
+                # forming municipality search query
+                deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
+                munis = [d.municipality.name for d in deps]
+
+                muni_q_objects = [SQ(municipality=m.strip()) for m in munis]
+                muni_q = muni_q_objects.pop()
+                for q in muni_q_objects:
+                    muni_q |= q
+
+                # updating queryset
+                queryset = queryset.filter(
+                    SQ(muni_q & SQ(django_ct='services.unit') | SQ(dep_q & SQ(django_ct='services.unit'))))
 
         service = request.query_params.get('service')
         if service:
