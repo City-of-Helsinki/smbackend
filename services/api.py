@@ -1,7 +1,6 @@
 import re
 import logging
 import uuid
-from builtins import print
 
 from django.http import Http404
 from django.conf import settings
@@ -678,28 +677,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     def _service_details_requested(self):
         return 'services' in self.include_fields
 
-    def municipality_filter(self, val, queryset):
-
-        if len(val) > 0:
-            municipalities = val.split(',')
-            muni_sq = Q()
-
-            for municipality_raw in municipalities:
-                municipality = municipality_raw.strip()
-
-                if municipality.startswith('ocd-division'):
-                    ocd_id = municipality
-                else:
-                    ocd_id = make_muni_ocd_id(municipality)
-                try:
-                    muni = Municipality.objects.get(division__ocd_id=ocd_id)
-                    muni_sq |= Q(municipality=muni)
-                except Municipality.DoesNotExist:
-                    raise ParseError("municipality with ID '%s' not found" % ocd_id)
-
-            queryset = queryset.filter(muni_sq)
-            return queryset
-
     def get_queryset(self):
         queryset = super(UnitViewSet, self).get_queryset()
 
@@ -714,32 +691,37 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         if 'municipality' in filters:
             val = filters['municipality'].lower().strip()
-            queryset = self.municipality_filter(val, queryset)
+            if len(val) > 0:
+                municipalities = val.split(',')
+                muni_sq = Q()
 
+                for municipality_raw in municipalities:
+                    municipality = municipality_raw.strip()
+
+                    if municipality.startswith('ocd-division'):
+                        ocd_id = municipality
+                    else:
+                        ocd_id = make_muni_ocd_id(municipality)
+                    try:
+                        muni = Municipality.objects.get(division__ocd_id=ocd_id)
+                        muni_sq |= Q(municipality=muni)
+                    except Municipality.DoesNotExist:
+                        raise ParseError("municipality with ID '%s' not found" % ocd_id)
+
+                queryset = queryset.filter(muni_sq)
+
+        # TODO: validoi
         if 'department_or_municipality' in filters:
             val = filters['department_or_municipality'].lower().strip()
 
             if len(val) > 0:
-                departments = val.split(',')
-                cities = Department.objects.filter(uuid__in=departments).select_related('municipality')\
-                    .values_list('municipality__name')
+                deps_uuid = val.split(',')
 
-                cities_l = [m for m in cities]
+                deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
 
-                queryset_m = self.municipality_filter(','.join(city[0].lower().strip() for city in cities_l), queryset)
+                munis = [d.municipality for d in deps]
 
-                dep_sq = Q()
-                for department in departments:
-                    try:
-                        dep_sq |= Q(root_department__uuid=department)
-                        print(dep_sq)
-                    except Department.DoesNotExist:
-                        raise ParseError("department with ID '%s' not found" % department)
-
-                queryset_d = queryset.filter(dep_sq)
-                print('queryset_d', queryset_d)
-
-            queryset = queryset_d | queryset_m
+                queryset = queryset.filter(root_department__in=deps) | queryset.filter(municipality__in=munis)
 
         if 'provider_type' in filters:
             val = filters.get('provider_type')
@@ -995,10 +977,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 setattr(self, key, None)
 
         input_val = request.query_params.get('input', '').strip()
-        print('input_val', input_val)
-
         q_val = request.query_params.get('q', '').strip()
-        print('q_val', q_val)
 
         if not input_val and not q_val:
             raise ParseError("Supply search terms with 'q=' or autocomplete entry with 'input='")
@@ -1038,10 +1017,27 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 for q in muni_q_objects:
                     muni_q |= q
                 queryset = queryset.filter(
-                    SQ(muni_q
-                        | SQ(django_ct='services.service')
-                        | SQ(django_ct='services.servicenode')
-                        | SQ(django_ct='munigeo.address')))
+                    SQ(muni_q & SQ(django_ct='services.unit')))
+
+        # root_department=83e74666-0836-4c1d-948a-4b34a8b90301
+
+        if 'department_or_municipality' in request.query_params:
+            val = request.query_params['department_or_municipality'].lower().strip()
+
+            print('department', val)
+
+            if len(val) > 0:
+                departments = val.split(',')
+
+                dep_q_objects = [SQ(department=d.strip()) for d in departments]
+                print(dep_q_objects)
+                dep_q = dep_q_objects.pop()
+                for q in dep_q_objects:
+                    dep_q |= q
+                print(dep_q)
+                queryset = queryset.filter(dep_q | SQ(django_ct='services.unit'))
+                print('queryset', queryset)
+                #queryset = SQ(queryset_d | queryset_m)
 
         service = request.query_params.get('service')
         if service:

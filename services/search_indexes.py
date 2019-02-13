@@ -60,6 +60,7 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
 class UnitIndex(ServiceMapBaseIndex):
     municipality = indexes.CharField(model_attr='municipality_id', null=True)
     services = indexes.MultiValueField()
+    root_department = indexes.CharField(null=True)
 
     def read_queryset(self, using=None):
         return self.get_model().search_objects
@@ -70,6 +71,10 @@ class UnitIndex(ServiceMapBaseIndex):
 
     def prepare_services(self, obj):
         return [ow.id for ow in obj.services.all()]
+
+    def prepare_root_department(self, obj):
+        if obj.root_department is not None:
+            return str(obj.root_department.uuid)
 
 
 class ServiceIndex(ServiceMapBaseIndex):
@@ -97,10 +102,10 @@ class ServiceNodeIndex(ServiceMapBaseIndex):
             # Note the empty order_by clause which prevents
             # default ordering from interfering with the grouping.
             manager.exclude(service_reference__isnull=True)
-            .values('service_reference')
-            .annotate(id=models.Min('id'))
-            .values_list('id', flat=True)
-            .order_by())
+                .values('service_reference')
+                .annotate(id=models.Min('id'))
+                .values_list('id', flat=True)
+                .order_by())
 
         return manager.filter(
             Q(id__in=unique_ids) | Q(
