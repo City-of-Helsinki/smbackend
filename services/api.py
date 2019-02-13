@@ -747,7 +747,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             return list(srv_list)
 
         service_nodes = filters.get('service_node', None)
-        print('service_nodes', service_nodes)
+
         service_node_ids = None
         if service_nodes:
             service_nodes = service_nodes.lower()
@@ -863,7 +863,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         for field in ['connections', 'accessibility_properties', 'keywords']:
             if self._should_prefetch_field(field):
                 queryset = queryset.prefetch_related(field)
-        print('final_queryset',queryset)
+
         return queryset
 
     def _should_prefetch_field(self, field_name):
@@ -1019,8 +1019,6 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 queryset = queryset.filter(
                     SQ(muni_q & SQ(django_ct='services.unit')))
 
-        # root_department=83e74666-0836-4c1d-948a-4b34a8b90301
-
         if 'department_or_municipality' in request.query_params:
             val = request.query_params['department_or_municipality'].lower().strip()
 
@@ -1104,7 +1102,6 @@ class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
         rules, messages = accessibility_rules.get_data()
         return Response({
             'rules': rules, 'messages': messages})
-
 
 
 register_view(AccessibilityRuleView, 'accessibility_rule', base_name='accessibility_rule')
