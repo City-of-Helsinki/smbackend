@@ -1003,9 +1003,9 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         else:
             queryset = (
                 queryset
-                    .filter(text=AutoQuery(q_val))
-                    .filter_or(extra_searchwords=q_val)
-                    .filter_or(address=q_val)
+                .filter(text=AutoQuery(q_val))
+                .filter_or(extra_searchwords=q_val)
+                .filter_or(address=q_val)
             )
 
         if 'municipality' in request.query_params:

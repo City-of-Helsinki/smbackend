@@ -102,10 +102,10 @@ class ServiceNodeIndex(ServiceMapBaseIndex):
             # Note the empty order_by clause which prevents
             # default ordering from interfering with the grouping.
             manager.exclude(service_reference__isnull=True)
-                .values('service_reference')
-                .annotate(id=models.Min('id'))
-                .values_list('id', flat=True)
-                .order_by())
+            .values('service_reference')
+            .annotate(id=models.Min('id'))
+            .values_list('id', flat=True)
+            .order_by())
 
         return manager.filter(
             Q(id__in=unique_ids) | Q(
