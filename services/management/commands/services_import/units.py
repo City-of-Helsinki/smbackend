@@ -13,7 +13,7 @@ from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from munigeo.importer.sync import ModelSyncher
-from munigeo.models import Municipality
+from munigeo.models import Municipality, AdministrativeDivision
 
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.keyword import KeywordHandler
@@ -363,6 +363,21 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
     if obj.geometry is None and obj.location is not None:
         obj_changed = True
         obj.geometry = obj.location
+
+    if obj.municipality_id is None and obj.location is not None:
+        municipalities = ['helsinki', 'espoo', 'vantaa', 'kauniainen']
+        municipality_id = None
+        for mun in municipalities:
+            ocd_id = 'ocd-division/country:fi/kunta:' + mun
+            muniarea = AdministrativeDivision.objects.select_related('geometry').get(ocd_id=ocd_id)
+            if obj.location.within(muniarea.geometry.boundary):
+                muni = muni_by_name.get(mun)
+                municipality_id = muni.id
+                break
+        if municipality_id is not None:
+            obj_changed = True
+            obj.municipality_id = municipality_id
+            LOGGER.info("Municipality_id added according to unit's location.")
 
     is_public = info.get('is_public', True)
     # assumption: is_public field is missing only when fetching only public units
