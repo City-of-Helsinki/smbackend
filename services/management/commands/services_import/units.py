@@ -366,16 +366,18 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
 
     if obj.municipality_id is None and obj.location is not None:
         municipalities = ['helsinki', 'espoo', 'vantaa', 'kauniainen']
-        municipality_id = None
         for mun in municipalities:
             ocd_id = 'ocd-division/country:fi/kunta:' + mun
-            muniarea = AdministrativeDivision.objects.select_related('geometry').get(ocd_id=ocd_id)
-            if obj.location.within(muniarea.geometry.boundary):
-                muni = muni_by_name.get(mun)
-                municipality_id = muni.id
-                break
+            try:
+                muniarea = AdministrativeDivision.objects.select_related('geometry').get(ocd_id=ocd_id)
+                if obj.location.within(muniarea.geometry.boundary):
+                    muni = muni_by_name.get(mun)
+                    municipality_id = muni.id
+                    muni_name = mun
+                    break
+            except:
+                pass
         if municipality_id is not None:
-            obj_changed = True
             obj.municipality_id = municipality_id
             LOGGER.info("Municipality_id added according to unit's location.")
 
