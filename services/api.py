@@ -716,11 +716,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
             if len(val) > 0:
                 deps_uuid = val.split(',')
-
                 deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
-
                 munis = [d.municipality for d in deps]
-
                 queryset = queryset.filter(root_department__in=deps) | queryset.filter(municipality__in=munis)
 
         if 'provider_type' in filters:
