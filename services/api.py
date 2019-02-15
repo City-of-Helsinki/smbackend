@@ -2,7 +2,7 @@ import re
 import logging
 import uuid
 
-from django.http import Http404, HttpResponseBadRequest
+from django.http import Http404
 from django.conf import settings
 from django.utils import translation
 from django.db.models import Q, Count
@@ -13,8 +13,7 @@ from modeltranslation.translator import translator, NotRegistered
 from rest_framework import serializers, viewsets, generics
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
-from rest_framework.exceptions import ValidationError as DRFValidationError
-from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.exceptions import ValidationError
 
 from haystack.query import SearchQuerySet, SQ
 from haystack.inputs import AutoQuery
