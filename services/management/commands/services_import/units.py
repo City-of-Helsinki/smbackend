@@ -375,8 +375,8 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
                     municipality_id = muni.id
                     muni_name = mun
                     break
-            except:
-                pass
+            except Exception as e:
+                LOGGER.warning(str(e))
         if municipality_id is not None:
             obj.municipality_id = municipality_id
             LOGGER.info("Municipality_id added according to unit's location.")
