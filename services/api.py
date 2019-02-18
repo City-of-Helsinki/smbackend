@@ -1005,10 +1005,6 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 .filter_or(address=q_val)
             )
 
-        def or_lambda(x, q):
-            q |= x
-            return q
-
         if 'municipality' in request.query_params:
             val = request.query_params['municipality'].lower().strip()
             if len(val) > 0:
