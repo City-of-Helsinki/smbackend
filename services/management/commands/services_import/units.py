@@ -13,7 +13,7 @@ from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from munigeo.importer.sync import ModelSyncher
-from munigeo.models import Municipality, AdministrativeDivision
+from munigeo.models import Municipality, AdministrativeDivisionGeometry
 
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.keyword import KeywordHandler
@@ -365,18 +365,15 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
         obj.geometry = obj.location
 
     if obj.municipality_id is None and obj.location is not None:
-        municipalities = ['helsinki', 'espoo', 'vantaa', 'kauniainen']
-        for mun in municipalities:
-            ocd_id = 'ocd-division/country:fi/kunta:' + mun
-            try:
-                muniarea = AdministrativeDivision.objects.select_related('geometry').get(ocd_id=ocd_id)
-                if obj.location.within(muniarea.geometry.boundary):
-                    muni = muni_by_name.get(mun)
-                    municipality_id = muni.id
-                    muni_name = mun
-                    break
-            except Exception as e:
-                LOGGER.warning(str(e))
+        try:
+            div = AdministrativeDivisionGeometry.objects.select_related('division')\
+                .filter(boundary__contains=obj.location, division__type_id=1)
+            if div:
+                muni_name = div[0].division.name_fi.lower()
+                muni = muni_by_name.get(muni_name)
+                municipality_id = muni.id
+        except Exception as e:
+            LOGGER.warning(str(e))
         if municipality_id is not None:
             obj.municipality_id = municipality_id
             LOGGER.info("Municipality_id added according to unit's location.")
