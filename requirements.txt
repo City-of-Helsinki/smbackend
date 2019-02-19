@@ -10,6 +10,7 @@ attrs==18.2.0             # via pytest
 certifi==2018.10.15       # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via pip-tools
+dataclasses==0.6
 django-cors-headers==1.1.0
 django-extensions==1.7.8
 django-filter==1.0.2
@@ -34,6 +35,7 @@ pluggy==0.8.1             # via pytest
 psycopg2==2.7.4
 py==1.7.0                 # via pytest
 pycodestyle==2.5.0        # via flake8
+pydantic==0.20
 pyflakes==2.1.0           # via flake8
 pytest-django==3.4.5
 pytest==4.1.1             # via pytest-django

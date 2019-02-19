@@ -2,24 +2,25 @@ import re
 import logging
 import uuid
 
-from django.http import Http404
 from django.conf import settings
 from django.utils import translation
 from django.db.models import Q, Count
 from django.contrib.gis.geos import Point
 from django.contrib.gis.gdal import SpatialReference
-from django.shortcuts import get_object_or_404
 from modeltranslation.translator import translator, NotRegistered
 from rest_framework import serializers, viewsets, generics
 from rest_framework.response import Response
+from django.http import Http404
 from rest_framework.exceptions import ParseError
-from django.core.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
 
 from haystack.query import SearchQuerySet, SQ
 from haystack.inputs import AutoQuery
 
 from mptt.utils import drilldown_tree_for_node
 
+from services.api_validator import RequestFilters, SearchRequestFilters, UnitRequestFilters
 from services.models import Unit, Department, Service
 from services.models import ServiceNode, UnitConnection, UnitServiceDetails
 from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
@@ -32,7 +33,7 @@ from munigeo import api as munigeo_api
 from rest_framework import renderers
 from django.template.loader import render_to_string
 from django.utils.module_loading import import_string
-
+import pydantic
 from django_filters.rest_framework import DjangoFilterBackend
 
 if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']:
@@ -62,6 +63,7 @@ def register_view(klass, name, base_name=None):
 
 
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
+MULTI_VALUED_PARAMS = [k for k, v in RequestFilters.schema()['properties'].items() if v['type'] == 'array']
 
 logger = logging.getLogger(__name__)
 
@@ -650,8 +652,7 @@ class KmlRenderer(renderers.BaseRenderer):
         resp = {}
         lang_code = renderer_context['view'].request.query_params.get('language', LANGUAGES[0])
         if lang_code not in LANGUAGES:
-            raise ParseError("Invalid language supplied. Supported languages: %s" %
-                             ','.join(LANGUAGES))
+            raise ValidationError("Invalid language supplied. Supported languages: %s" % ','.join(LANGUAGES))
         resp['lang_code'] = lang_code
         places = data.get('results', [data])
         resp['places'] = [get_fields(place, lang_code, settings.KML_TRANSLATABLE_FIELDS) for place in places]
@@ -684,50 +685,57 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             queryset = queryset.prefetch_related('service_details')
             queryset = queryset.prefetch_related('service_details__service')
 
-        filters = self.request.query_params
+        multivalued = MULTI_VALUED_PARAMS + \
+            [k for k, v in UnitRequestFilters.schema()['properties'].items() if v['type'] == 'array']
+
+        filters = {k: ([i.lower().strip() for i in v.split(',')]
+                       if k in multivalued else v)
+                   for k, v in self.request.query_params.items()}
+
+        # filters['bbox'] = self.request.query_params.get('bbox')
+
+        # print(filters)
+
+        try:
+            RequestFilters(**filters)
+            UnitRequestFilters(**filters)
+        except pydantic.ValidationError as e:
+            raise ValidationError(e.errors())
+
         if 'id' in filters:
-            id_list = filters['id'].split(',')
+            id_list = filters['id']
             queryset = queryset.filter(id__in=id_list)
 
         if 'municipality' in filters:
-            val = filters['municipality'].lower().strip()
-            if len(val) > 0:
-                municipalities = val.split(',')
-                muni_sq = Q()
+            muni_sq = Q()
 
-                for municipality_raw in municipalities:
-                    municipality = municipality_raw.strip()
-                    if municipality.startswith('ocd-division'):
-                        ocd_id = municipality
-                    else:
-                        ocd_id = make_muni_ocd_id(municipality)
-                    try:
-                        muni = Municipality.objects.get(division__ocd_id=ocd_id)
-                        muni_sq |= Q(municipality=muni)
-                    except Municipality.DoesNotExist:
-                        raise ParseError("municipality with ID '%s' not found" % ocd_id)
+            for municipality in filters['municipality']:
+                if municipality.startswith('ocd-division'):
+                    ocd_id = municipality
+                else:
+                    ocd_id = make_muni_ocd_id(municipality)
+                try:
+                    muni = Municipality.objects.get(division__ocd_id=ocd_id)
+                    muni_sq |= Q(municipality=muni)
+                except Municipality.DoesNotExist:
+                    raise ParseError("municipality with ID '%s' not found" % ocd_id)
 
-                queryset = queryset.filter(muni_sq)
+            queryset = queryset.filter(muni_sq)
 
         if 'city_as_department' in filters:
-            val = filters['city_as_department'].lower().strip()
+            deps_uuid = filters['city_as_department']
 
-            if len(val) > 0:
-                deps_uuid = val.split(',')
+            deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
+            munis = [d.municipality for d in deps]
 
-                deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
-                munis = [d.municipality for d in deps]
-
-                queryset = queryset.filter(root_department__in=deps) | queryset.filter(municipality__in=munis)
+            queryset = queryset.filter(root_department__in=deps) | queryset.filter(municipality__in=munis)
 
         if 'provider_type' in filters:
-            val = filters.get('provider_type')
-            pr_ids = val.split(',')
+            pr_ids = filters.get('provider_type')
             queryset = queryset.filter(provider_type__in=pr_ids)
 
         if 'provider_type__not' in filters:
-            val = filters.get('provider_type__not')
-            pr_ids = val.split('.')
+            pr_ids = filters.get('provider_type__not')
             queryset = queryset.exclude(provider_type__in=pr_ids)
 
         level = filters.get('level', None)
@@ -747,19 +755,18 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         service_node_ids = None
         if service_nodes:
-            service_nodes = service_nodes.lower()
-            service_node_ids = service_nodes.split(',')
+            service_node_ids = service_nodes
         elif level_specs:
             if level_specs['type'] == 'include':
                 service_node_ids = level_specs['service_nodes']
         if service_node_ids:
             queryset = queryset.filter(service_nodes__in=service_nodes_by_ancestors(service_node_ids)).distinct()
 
+        service_nodes_excl = filters.get('exclude_service_nodes', None)
+
         service_node_ids = None
-        val = filters.get('exclude_service_nodes', None)
-        if val:
-            val = val.lower()
-            service_node_ids = val.split(',')
+        if service_nodes_excl:
+            service_node_ids = service_nodes_excl
         elif level_specs:
             if level_specs['type'] == 'exclude':
                 service_node_ids = level_specs['service_nodes']
@@ -768,12 +775,12 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         services = filters.get('service')
         if services is not None:
-            queryset = queryset.filter(services__in=services.split(',')).distinct()
+            queryset = queryset.filter(services__in=services).distinct()
 
         if 'division' in filters:
             # Divisions can be specified with form:
             # division=helsinki/kaupunginosa:kallio,vantaa/äänestysalue:5
-            d_list = filters['division'].lower().split(',')
+            d_list = filters['division']
             div_list = []
             for division_path in d_list:
                 if division_path.startswith('ocd-division'):
@@ -798,28 +805,21 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 for div in div_list:
                     mp += div.geometry.boundary
 
-            queryset = queryset.filter(location__within=mp)
+                queryset = queryset.filter(location__within=mp)
 
         if 'lat' in filters and 'lon' in filters:
-            try:
-                lat = float(filters['lat'])
-                lon = float(filters['lon'])
-            except ValueError:
-                raise ParseError("'lat' and 'lon' need to be floating point numbers")
+            lat = float(filters['lat'])
+            lon = float(filters['lon'])
             point = Point(lon, lat, srid=4326)
 
             if 'distance' in filters:
-                try:
-                    distance = float(filters['distance'])
-                    if not distance > 0:
-                        raise ValueError()
-                except ValueError:
-                    raise ParseError("'distance' needs to be a floating point number")
+                distance = float(filters['distance'])
                 queryset = queryset.filter(location__distance_lte=(point, distance))
+
             queryset = queryset.distance(point, field_name='geometry').order_by('distance')
 
         if 'bbox' in filters:
-            val = self.request.query_params.get('bbox', None)
+            val = filters.get('bbox', None)
             if 'bbox_srid' in filters:
                 ref = SpatialReference(filters.get('bbox_srid', None))
             else:
@@ -827,23 +827,52 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             if val:
                 bbox_filter = munigeo_api.build_bbox_filter(ref, val, 'location')
                 bbox_geometry_filter = munigeo_api.build_bbox_filter(ref, val, 'geometry')
+
                 queryset = queryset.filter(Q(**bbox_filter) | Q(**bbox_geometry_filter))
 
-        if 'category' in filters:
-            services_and_service_nodes = filters.get('category', None).split(',')
-            service_ids = []
-            servicenode_ids = []
-            for category in services_and_service_nodes:
-                key = category.split(':')[0]
-                value = category.split(':')[1]
-                if key == 'service':
-                    service_ids.append(value)
-                elif key == 'service_node':
-                    servicenode_ids.append(value)
+        def get_category_ids(categories, category):
+            ids = []
+            for mapping in categories:
+                if mapping.split(':')[0] == category:
+                    ids.append(mapping.split(':')[1])
+            return ids
+
+        categories = filters.get('category', None)
+        if categories is not None:
+            service_ids = get_category_ids(categories.split(','), 'service')
+            servicenode_ids = get_category_ids(categories.split(','), 'service_node')
             queryset = queryset.filter(Q(services__in=service_ids)
                                        | Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))).distinct()
 
-        maintenance_organization = self.request.query_params.get('maintenance_organization')
+        def get_services_by_servicenodes(servicenode_ids):
+            return Service.objects.filter(servicenode__in=service_nodes_by_ancestors(servicenode_ids))\
+                .values_list('id', flat=True)
+
+        if 'period' in filters:
+            period = filters.get('period', None)
+            service_ids = None
+            if 'service' in filters:
+                service_ids = services
+            if 'service_node' in filters:
+                service_ids = get_services_by_servicenodes(service_nodes)
+            if 'category' in filters:
+                # Assumption: if a ServiceNode has periods enabled, all the subexpressions in its service_reference
+                # expression also have periods enabled.
+                service_ids = get_category_ids(categories, 'service')
+                service_ids.extend(get_services_by_servicenodes(
+                    get_category_ids(categories, 'service_node')))
+
+            if service_ids is not None:
+                unit_service_details = UnitServiceDetails.objects.filter(service__in=service_ids).distinct()\
+                    .filter(Q(period_begin_year=period) | Q(period_begin_year=None))
+                units = [x.unit.id for x in unit_service_details]
+                queryset = queryset.filter(id__in=units)
+            else:
+                queryset = queryset.filter(Q(service_details__period_begin_year=period)
+                                           | Q(service_details__period_begin_year=None)).distinct()
+
+        maintenance_organization = filters.get('maintenance_organization')
+
         if maintenance_organization:
             queryset = queryset.filter(
                 Q(extensions__maintenance_organization=maintenance_organization)
@@ -866,10 +895,9 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     def _should_prefetch_field(self, field_name):
         # These fields are included by default,
         # and only omitted if not part of an 'only' query param
-        return (
-            self.only_fields is None or len(self.only_fields) == 0
-            or field_name in self.only_fields
-            or field_name in self.include_fields)
+        return (self.only_fields is None or len(self.only_fields) == 0
+                or field_name in self.only_fields
+                or field_name in self.include_fields)
 
     def _add_content_disposition_header(self, response):
         if isinstance(response.accepted_renderer, KmlRenderer):
@@ -878,6 +906,10 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         return response
 
     def retrieve(self, request, pk=None):
+        try:
+            RequestFilters(**{'id': [pk]})
+        except pydantic.ValidationError as e:
+            raise ValidationError(e.errors())
         try:
             unit = Unit.objects.get(pk=pk, public=True)
         except Unit.DoesNotExist:
@@ -951,15 +983,14 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
     queryset = Unit.objects.all()
 
     def list(self, request, *args, **kwargs):
+        filters = self.request.query_params
+
         # If the incoming language is not specified, go with the default.
-        self.lang_code = request.query_params.get('language', LANGUAGES[0])
-        if self.lang_code not in LANGUAGES:
-            raise ParseError("Invalid language supplied. Supported languages: %s" %
-                             ','.join(LANGUAGES))
+        self.lang_code = filters.get('language', LANGUAGES[0])
 
         specs = {
-            'only_fields': self.request.query_params.get('only', None),
-            'include_fields': self.request.query_params.get('include', None)
+            'only_fields': filters.get('only', None),
+            'include_fields': filters.get('include', None)
         }
         for key in specs.keys():
             if specs[key]:
@@ -973,8 +1004,21 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             else:
                 setattr(self, key, None)
 
-        input_val = request.query_params.get('input', '').strip()
-        q_val = request.query_params.get('q', '').strip()
+        multivalued = MULTI_VALUED_PARAMS + \
+            [k for k, v in SearchRequestFilters.schema()['properties'].items() if v['type'] == 'array']
+
+        filters = {k: ([i.lower().strip() for i in v.split(',')]
+                       if k in multivalued else v)
+                   for k, v in self.request.query_params.items()}
+
+        try:
+            RequestFilters(**filters)
+            SearchRequestFilters(**filters)
+        except pydantic.ValidationError as e:
+            raise ValidationError(e.errors())
+
+        input_val = filters.get('input', '')
+        q_val = filters.get('q', '')
 
         if not input_val and not q_val:
             raise ParseError("Supply search terms with 'q=' or autocomplete entry with 'input='")
@@ -988,7 +1032,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         if hasattr(request, 'accepted_media_type') and re.match(KML_REGEXP, request.accepted_media_type):
             queryset = queryset.models(Unit)
-            self.only_fields['unit'].extend(['street_address', 'www'])
+            if self.only_fields:
+                self.only_fields['unit'].extend(['street_address', 'www'])
 
         if input_val:
             queryset = queryset.filter(
@@ -1009,48 +1054,42 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                           | SQ(django_ct='services.servicenode')
                           | SQ(django_ct='munigeo.address'))
 
-        if 'municipality' in request.query_params:
-            val = request.query_params['municipality'].lower().strip()
-            if len(val) > 0:
-                municipalities = val.split(',')
+        if 'municipality' in filters:
+            municipalities = filters['municipality']
 
-                muni_sq = SQ(municipality=municipalities.pop().strip())
-                for m in municipalities:
-                    muni_sq |= SQ(municipality=m)
+            muni_sq = SQ(municipality=municipalities.pop())
+            for m in municipalities:
+                muni_sq |= SQ(municipality=m)
 
-                queryset = queryset.filter(
-                    SQ(muni_sq | IS_NOT_UNIT_SQ))
+            queryset = queryset.filter(
+                SQ(muni_sq | IS_NOT_UNIT_SQ))
 
-        if 'city_as_department' in request.query_params:
-            val = request.query_params['city_as_department'].lower().strip()
+        if 'city_as_department' in filters:
+            deps_uuid = filters['city_as_department']
 
-            if len(val) > 0:
-                deps_uuid = val.split(',')
+            # forming municipality search query
+            deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
+            munis = [d.municipality.name for d in deps]
 
-                # forming municipality search query
-                deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
-                munis = [d.municipality.name for d in deps]
+            muni_sq = SQ(municipality=munis.pop())
+            for m in munis:
+                muni_sq |= SQ(municipality=m)
 
-                muni_sq = SQ(municipality=munis.pop())
-                for m in munis:
-                    muni_sq |= SQ(municipality=m)
+            # forming root_department search query
+            dep_sq = SQ(root_department=deps_uuid.pop())
+            for d in deps_uuid:
+                dep_sq |= SQ(root_department=d)
 
-                # forming root_deparment search query
-                dep_sq = SQ(root_department=deps_uuid.pop().strip())
-                for d in deps_uuid:
-                    dep_sq |= SQ(root_department=d)
+            # updating queryset
+            queryset = queryset.filter(
+                SQ(muni_sq | dep_sq | IS_NOT_UNIT_SQ))
 
-                # updating queryset
-                queryset = queryset.filter(
-                    SQ(muni_sq | dep_sq | IS_NOT_UNIT_SQ))
-
-        service = request.query_params.get('service')
-        if service:
-            services = service.split(',')
+        services = filters.get('service')
+        if services:
             queryset = queryset.filter(django_ct='services.unit').filter(services__in=services)
 
         models = set()
-        types = request.query_params.get('type', '').split(',')
+        types = filters.get('type', '')
         for t in types:
             if t == 'service_node':
                 models.add(ServiceNode)

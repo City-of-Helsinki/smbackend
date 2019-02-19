@@ -107,9 +107,13 @@ CORS_ORIGIN_ALLOW_ALL = True
 TASTYPIE_DEFAULT_FORMATS = ['json']
 
 DEFAULT_SRID = 3067  # ETRS TM35-FIN
+# Extracted from SpatialReference attr_value('PROJCS') or attr_value('GEOGCS'),
+# used in api_validator
+ACCEPTED_SRID = ['ETRS89 / TM35FIN(N,E)', 'ETRS89 / TM35FIN(E,N)', 'WGS 84']
 # The Finnish national grid coordinates in TM35-FIN according to JHS-180
 # specification. We use it as a bounding box.
 BOUNDING_BOX = [-548576, 6291456, 1548576, 8388608]
+WGS84_BBOX = [-180, -90, 180, 90]
 
 # If no country specified (for example through a REST API call), use this
 # as default.
@@ -161,6 +165,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework_jsonp.renderers.JSONPRenderer'
     ),
+    'EXCEPTION_HANDLER': 'smbackend.exception_handler.custom_exception_handler',
 }
 
 TEMPLATES = [

@@ -631,7 +631,7 @@ paths:
           required: false
         - name: city_as_department
           in: query
-          description: Retrieve units which are _either_ owned/provided by the desired cities _or_ contained within the city's geographical boundaries. The parameter value must be an UUID identifying a top-level department which is a city.
+          description: Retrieve units which are _either_ owned/provided by the desired cities _or_ contained within the city's geographical boundaries. The parameter value must be a comma-separated list of UUIDs identifying top-level departments which are cities.
           required: false
         - name: provider_type
           in: query
