@@ -161,6 +161,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework_jsonp.renderers.JSONPRenderer'
     ),
+    'EXCEPTION_HANDLER': 'smbackend.utils.custom_exception_handler',
 }
 
 TEMPLATES = [

@@ -2,18 +2,18 @@ import re
 import logging
 import uuid
 
-from django.http import Http404
 from django.conf import settings
 from django.utils import translation
 from django.db.models import Q, Count
 from django.contrib.gis.geos import Point
 from django.contrib.gis.gdal import SpatialReference
-from django.shortcuts import get_object_or_404
 from modeltranslation.translator import translator, NotRegistered
-from rest_framework import serializers, viewsets, generics
+from rest_framework import serializers, viewsets, generics, status
 from rest_framework.response import Response
+from django.http import Http404
 from rest_framework.exceptions import ParseError
-from django.core.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
 
 from haystack.query import SearchQuerySet, SQ
 from haystack.inputs import AutoQuery
@@ -658,6 +658,27 @@ class KmlRenderer(renderers.BaseRenderer):
         return render_to_string('kml.xml', resp)
 
 
+#################################################
+from pydantic import BaseModel, ValidationError as pydantic_ValidationError
+from uuid import UUID
+from typing import List, Tuple
+
+
+class RequestScheme(BaseModel):
+    uuids: List[UUID] = []
+    munis: List[str] = []
+    provider_type: List[int] = []
+    provider_type__not: List[int] = []
+    service_nodes: List[int] = []
+    bbox_srid: str = None
+    bbox: Tuple[str, int] = ()
+    category: str = None
+    maintenance_organization: List[int] = []
+    observations: List[int] = []
+
+#################################################
+
+
 class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Unit.objects.filter(public=True)
     serializer_class = UnitSerializer
@@ -714,6 +735,10 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
             if len(val) > 0:
                 deps_uuid = val.split(',')
+                try:
+                    RequestScheme(uuids=deps_uuid)
+                except pydantic_ValidationError as e:
+                    raise ValidationError(e.errors())
 
                 deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
                 munis = [d.municipality for d in deps]
@@ -798,7 +823,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 for div in div_list:
                     mp += div.geometry.boundary
 
-            queryset = queryset.filter(location__within=mp)
+                queryset = queryset.filter(location__within=mp)
 
         if 'lat' in filters and 'lon' in filters:
             try:
@@ -816,6 +841,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 except ValueError:
                     raise ParseError("'distance' needs to be a floating point number")
                 queryset = queryset.filter(location__distance_lte=(point, distance))
+
             queryset = queryset.distance(point, field_name='geometry').order_by('distance')
 
         if 'bbox' in filters:
@@ -849,6 +875,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 Q(extensions__maintenance_organization=maintenance_organization)
                 | Q(extensions__additional_maintenance_organization=maintenance_organization))
 
+        # onko valmis
         if 'observations' in self.include_fields:
             queryset = queryset.prefetch_related(
                 'observation_set__property__allowed_values').prefetch_related(
@@ -1005,10 +1032,6 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 .filter_or(address=q_val)
             )
 
-        def or_lambda(x, q):
-            q |= x
-            return q
-
         if 'municipality' in request.query_params:
             val = request.query_params['municipality'].lower().strip()
             if len(val) > 0:
@@ -1075,12 +1098,17 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         # Switch between paginated or standard style responses
         page = self.paginate_queryset(self.object_list)
-        serializer = self.get_serializer(page, many=True)
-        resp = self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(page, many=True, data=request.data)
+        print(serializer)
 
-        translation.activate(old_language)
+        if serializer.is_valid(raise_exception=True):
+            resp = self.get_paginated_response(serializer.data)
+            print(resp)
+            translation.activate(old_language)
+            return resp
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return resp
 
     def get_serializer_context(self):
         context = super(SearchViewSet, self).get_serializer_context()
