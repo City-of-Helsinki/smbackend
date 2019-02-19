@@ -820,9 +820,9 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             services_and_service_nodes = filters.get('category', None).split(',')
             service_ids = []
             servicenode_ids = []
-            for ser_or_ser_node in services_and_service_nodes:
-                key = ser_or_ser_node.split(':')[0]
-                value = ser_or_ser_node.split(':')[1]
+            for category in services_and_service_nodes:
+                key = category.split(':')[0]
+                value = category.split(':')[1]
                 if key == 'service':
                     service_ids.append(value)
                 elif key == 'service_node':
