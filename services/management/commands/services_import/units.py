@@ -365,15 +365,12 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
         obj.geometry = obj.location
 
     if obj.municipality_id is None and obj.location is not None:
-        try:
-            div = AdministrativeDivisionGeometry.objects.select_related('division')\
-                .filter(boundary__contains=obj.location, division__type_id=1)
-            if div:
-                muni_name = div[0].division.name_fi.lower()
-                muni = muni_by_name.get(muni_name)
-                municipality_id = muni.id
-        except Exception as e:
-            LOGGER.warning(str(e))
+        div = AdministrativeDivisionGeometry.objects.select_related('division', 'division__type')\
+            .filter(boundary__contains=obj.location, division__type__type='muni')
+        if div:
+            muni_name = div[0].division.name_fi.lower()
+            muni = muni_by_name.get(muni_name)
+            municipality_id = muni.id
         if municipality_id is not None:
             obj.municipality_id = municipality_id
             LOGGER.info("Municipality_id added according to unit's location.")
