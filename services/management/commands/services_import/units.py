@@ -13,7 +13,7 @@ from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from munigeo.importer.sync import ModelSyncher
-from munigeo.models import Municipality
+from munigeo.models import Municipality, AdministrativeDivisionGeometry
 
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.keyword import KeywordHandler
@@ -363,6 +363,18 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
     if obj.geometry is None and obj.location is not None:
         obj_changed = True
         obj.geometry = obj.location
+
+    if obj.municipality_id is None and obj.location is not None:
+        div = AdministrativeDivisionGeometry.objects.select_related('division', 'division__type')\
+            .filter(boundary__contains=obj.location, division__type__type='muni')
+        if div:
+            if len(div) > 1:
+                LOGGER.warning("Multiple municipalities found for unit {}!".format(obj.id))
+            muni_name = div[0].division.name_fi.lower()
+            muni = muni_by_name.get(muni_name)
+            obj.municipality = muni
+            if muni is not None:
+                LOGGER.info("Municipality_id added according to unit {}'s location.".format(obj.id))
 
     is_public = info.get('is_public', True)
     # assumption: is_public field is missing only when fetching only public units
