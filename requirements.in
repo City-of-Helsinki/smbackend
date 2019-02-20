@@ -1,4 +1,4 @@
-Django
+Django<2.0
 djangorestframework
 elasticsearch>=1.0.0,<2.0.0
 Markdown
