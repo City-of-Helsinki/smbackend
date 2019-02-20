@@ -374,7 +374,7 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
             muni = muni_by_name.get(muni_name)
             obj.municipality = muni
             if muni is not None:
-                LOGGER.info("Municipality_id added according to unit's location.")
+                LOGGER.info("Municipality_id added according to unit {}'s location.".format(obj.id))
 
     is_public = info.get('is_public', True)
     # assumption: is_public field is missing only when fetching only public units
