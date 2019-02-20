@@ -371,8 +371,10 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
             if len(div) > 1:
                 LOGGER.warning("Multiple municipalities found for unit {}!".format(obj.id))
             muni_name = div[0].division.name_fi.lower()
-            obj.municipality = muni_by_name.get(muni_name)
-            LOGGER.info("Municipality_id added according to unit's location.")
+            muni = muni_by_name.get(muni_name)
+            obj.municipality = muni
+            if muni is not None:
+                LOGGER.info("Municipality_id added according to unit's location.")
 
     is_public = info.get('is_public', True)
     # assumption: is_public field is missing only when fetching only public units
