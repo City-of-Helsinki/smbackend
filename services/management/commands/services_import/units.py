@@ -368,11 +368,10 @@ def _import_unit(syncher, keyword_handler, info, dept_syncher,
         div = AdministrativeDivisionGeometry.objects.select_related('division', 'division__type')\
             .filter(boundary__contains=obj.location, division__type__type='muni')
         if div:
+            if len(div) > 1:
+                LOGGER.warning("Multiple municipalities found for unit {}!".format(obj.id))
             muni_name = div[0].division.name_fi.lower()
-            muni = muni_by_name.get(muni_name)
-            municipality_id = muni.id
-        if municipality_id is not None:
-            obj.municipality_id = municipality_id
+            obj.municipality = muni_by_name.get(muni_name)
             LOGGER.info("Municipality_id added according to unit's location.")
 
     is_public = info.get('is_public', True)
