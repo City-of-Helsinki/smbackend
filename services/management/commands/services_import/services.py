@@ -184,12 +184,21 @@ def save_objects(objects):
 
 def update_service_node_counts():
     units_by_service = {}
-    municipalities = Unit.service_nodes.through.objects.filter(
+    through_values = Unit.service_nodes.through.objects.filter(
         unit__public=True).values_list('servicenode_id', 'unit__municipality', 'unit_id').distinct()
-    for service_node_id, municipality, unit_id in municipalities:
+    for service_node_id, municipality, unit_id in through_values:
         unit_set = units_by_service.setdefault(service_node_id, {}).setdefault(municipality, set())
         unit_set.add(unit_id)
         units_by_service[service_node_id][municipality] = unit_set
+
+    unit_counts_to_be_updated = set(
+        ((service_node_id, municipality) for service_node_id, municipality, _ in through_values))
+
+    for c in ServiceNodeUnitCount.objects.select_related('division').all():
+        div_name = c.division and c.division.name_fi.lower()
+        if (c.service_node_id, div_name) not in unit_counts_to_be_updated:
+            c.delete()
+
     tree = ServiceNode.tree_objects.all().get_cached_trees()
     for node in tree:
         update_service_node(node, units_by_service)

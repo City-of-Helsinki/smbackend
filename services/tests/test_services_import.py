@@ -13,18 +13,14 @@ from services.management.commands.services_import.departments import import_depa
 from services.management.commands.services_import.services import import_services, update_service_node_counts
 from services.management.commands.services_import.units import import_units
 
-from services_import_hypothesis import closed_object_set
 
 from services.models.unit import CONTRACT_TYPES as UNIT_CONTRACT_TYPES
 from munigeo.models import AdministrativeDivisionType
 
+from .services_import_hypothesis import closed_object_set
+from .utils import get
+
 CONTRACT_TYPES = [c[1] for c in UNIT_CONTRACT_TYPES]
-
-
-def get(api_client, url, data=None):
-    response = api_client.get(url, data=data, format='json')
-    assert response.status_code == 200, str(response.content)
-    return response
 
 
 @pytest.fixture
