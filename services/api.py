@@ -20,6 +20,7 @@ from haystack.inputs import AutoQuery
 
 from mptt.utils import drilldown_tree_for_node
 
+from services.api_validator import RequestFilters
 from services.models import Unit, Department, Service
 from services.models import ServiceNode, UnitConnection, UnitServiceDetails
 from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
@@ -32,6 +33,9 @@ from munigeo import api as munigeo_api
 from rest_framework import renderers
 from django.template.loader import render_to_string
 from django.utils.module_loading import import_string
+from pydantic import BaseModel, validator, ValidationError as pydantic_ValidationError
+# from uuid import UUID
+# from typing import List, Tuple
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -657,26 +661,50 @@ class KmlRenderer(renderers.BaseRenderer):
         resp['places'] = [get_fields(place, lang_code, settings.KML_TRANSLATABLE_FIELDS) for place in places]
         return render_to_string('kml.xml', resp)
 
-
-#################################################
-from pydantic import BaseModel, ValidationError as pydantic_ValidationError
-from uuid import UUID
-from typing import List, Tuple
-
-
-class RequestScheme(BaseModel):
-    uuids: List[UUID] = []
-    munis: List[str] = []
-    provider_type: List[int] = []
-    provider_type__not: List[int] = []
-    service_nodes: List[int] = []
-    bbox_srid: str = None
-    bbox: Tuple[str, int] = ()
-    category: str = None
-    maintenance_organization: List[int] = []
-    observations: List[int] = []
-
-#################################################
+#
+# class RequestFilters(BaseModel):
+#     id: List[int] = []
+#     municipality: List[str] = []
+#     department_or_municipality: List[UUID] = None
+#     provider_type: List[int] = None
+#     provider_type__not: List[int] = None
+#     level: List[str] = []
+#     service_node: List[int] = None
+#     exclude_service_nodes: List[int] = None
+#     service: List[int] = None
+#     division: List[str] = []
+#     lat: List[float] = None
+#     lon: List[float] = None
+#     distance: List[float] = None
+#     bbox_srid: str = None
+#     #bbox: Tuple[str, int] = None
+#     category: List[str] = None
+#     maintenance_organization: List[int] = None
+#     type: List[str] = None
+#
+#     @validator('municipality')
+#     def check_municipality(cls, v):
+#         if str.isdigit()
+#
+#     @validator('distance')
+#     def check_positive(cls, v):
+#         if not v > 0:
+#             raise ValueError('must be positive float number')
+#
+#     @validator('type')
+#     def check_type(cls, v):
+#         types = ['service_node', 'service', 'unit', 'address']
+#         if not any(t in types for t in v):
+#             raise ValueError('type must be one of: service_node, service, unit, address')
+#
+#     @validator('level', whole=True)
+#     def check_level(cls, v):
+#         levels = list(settings.LEVELS.keys())
+#         levels.append('all')
+#         if len(v) > 1:
+#             raise ValueError('single value expected')
+#         if v[0] not in levels:
+#             raise ValueError('level must be one of: %s' % ', '.join(l for l in levels))
 
 
 class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
@@ -706,6 +734,14 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             queryset = queryset.prefetch_related('service_details__service')
 
         filters = self.request.query_params
+
+        # query parameter validation
+        f = {k: v[0].split(',') for k, v in filters.lists()}
+        try:
+            RequestFilters(**f)
+        except pydantic_ValidationError as e:
+            raise ValidationError(e.errors())
+
         if 'id' in filters:
             id_list = filters['id'].split(',')
             queryset = queryset.filter(id__in=id_list)
@@ -735,10 +771,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
             if len(val) > 0:
                 deps_uuid = val.split(',')
-                try:
-                    RequestScheme(uuids=deps_uuid)
-                except pydantic_ValidationError as e:
-                    raise ValidationError(e.errors())
 
                 deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
                 munis = [d.municipality for d in deps]
@@ -826,20 +858,12 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 queryset = queryset.filter(location__within=mp)
 
         if 'lat' in filters and 'lon' in filters:
-            try:
-                lat = float(filters['lat'])
-                lon = float(filters['lon'])
-            except ValueError:
-                raise ParseError("'lat' and 'lon' need to be floating point numbers")
+            lat = float(filters['lat'])
+            lon = float(filters['lon'])
             point = Point(lon, lat, srid=4326)
 
             if 'distance' in filters:
-                try:
-                    distance = float(filters['distance'])
-                    if not distance > 0:
-                        raise ValueError()
-                except ValueError:
-                    raise ParseError("'distance' needs to be a floating point number")
+                distance = float(filters['distance'])
                 queryset = queryset.filter(location__distance_lte=(point, distance))
 
             queryset = queryset.distance(point, field_name='geometry').order_by('distance')
@@ -875,7 +899,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 Q(extensions__maintenance_organization=maintenance_organization)
                 | Q(extensions__additional_maintenance_organization=maintenance_organization))
 
-        # onko valmis
         if 'observations' in self.include_fields:
             queryset = queryset.prefetch_related(
                 'observation_set__property__allowed_values').prefetch_related(
@@ -999,6 +1022,13 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                         logger.warning("Field '%s' given in unsupported non-dot-format: '%s'" % (key, specs[key]))
             else:
                 setattr(self, key, None)
+
+        # query parameter validation
+        f = {k: v[0].split(',') for k, v in self.request.query_params.lists()}
+        try:
+            RequestFilters(**f)
+        except pydantic_ValidationError as e:
+            raise ValidationError(e.errors())
 
         input_val = request.query_params.get('input', '').strip()
         q_val = request.query_params.get('q', '').strip()
