@@ -858,7 +858,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 units = list(map(lambda x: x.unit.id, unit_service_details))
                 queryset = queryset.filter(id__in=units)
             else:
-                queryset = queryset.filter(Q(service_details__period_begin_year__in=[period, None]))
+                queryset = queryset.filter(Q(service_details__period_begin_year=period)
+                                           | Q(service_details__period_begin_year=None)).distinct()
 
         maintenance_organization = self.request.query_params.get('maintenance_organization')
         if maintenance_organization:
