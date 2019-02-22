@@ -829,19 +829,36 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 bbox_geometry_filter = munigeo_api.build_bbox_filter(ref, val, 'geometry')
                 queryset = queryset.filter(Q(**bbox_filter) | Q(**bbox_geometry_filter))
 
+        def get_category_ids(categories, category):
+            ids = []
+            for mapping in categories:
+                if mapping.split(':')[0] == category:
+                    ids.append(mapping.split(':')[1])
+            return ids
+
         if 'category' in filters:
             services_and_service_nodes = filters.get('category', None).split(',')
-            service_ids = []
-            servicenode_ids = []
-            for category in services_and_service_nodes:
-                key = category.split(':')[0]
-                value = category.split(':')[1]
-                if key == 'service':
-                    service_ids.append(value)
-                elif key == 'service_node':
-                    servicenode_ids.append(value)
+            service_ids = get_category_ids(services_and_service_nodes, 'service')
+            servicenode_ids = get_category_ids(services_and_service_nodes, 'service_node')
             queryset = queryset.filter(Q(services__in=service_ids)
                                        | Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))).distinct()
+
+        if 'period' in filters:
+            period = filters.get('period', None)
+            services = None
+            if 'service' in filters:
+                services = filters.get('service').split(',')
+            if 'category' in filters:
+                categories = filters.get('category', None).split(',')
+                services = get_category_ids(categories, 'service')
+
+            if services is not None:
+                unit_service_details = UnitServiceDetails.objects.filter(service__in=services).distinct()\
+                    .filter(Q(period_begin_year=period) | Q(period_begin_year=None))
+                units = list(map(lambda x: x.unit.id, unit_service_details))
+                queryset = queryset.filter(id__in=units)
+            else:
+                queryset = queryset.filter(Q(service_details__period_begin_year__in=[period, None]))
 
         maintenance_organization = self.request.query_params.get('maintenance_organization')
         if maintenance_organization:
