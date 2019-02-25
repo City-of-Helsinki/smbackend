@@ -679,6 +679,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
     def get_queryset(self):
         queryset = super(UnitViewSet, self).get_queryset()
+
         if self._service_details_requested():
             queryset = queryset.prefetch_related('service_details')
             queryset = queryset.prefetch_related('service_details__service')
@@ -693,6 +694,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             if len(val) > 0:
                 municipalities = val.split(',')
                 muni_sq = Q()
+
                 for municipality_raw in municipalities:
                     municipality = municipality_raw.strip()
                     if municipality.startswith('ocd-division'):
@@ -706,6 +708,17 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                         raise ParseError("municipality with ID '%s' not found" % ocd_id)
 
                 queryset = queryset.filter(muni_sq)
+
+        if 'city_as_department' in filters:
+            val = filters['city_as_department'].lower().strip()
+
+            if len(val) > 0:
+                deps_uuid = val.split(',')
+
+                deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
+                munis = [d.municipality for d in deps]
+
+                queryset = queryset.filter(root_department__in=deps) | queryset.filter(municipality__in=munis)
 
         if 'provider_type' in filters:
             val = filters.get('provider_type')
@@ -839,7 +852,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         if 'observations' in self.include_fields:
             queryset = queryset.prefetch_related(
                 'observation_set__property__allowed_values').prefetch_related(
-                    'observation_set__value')
+                'observation_set__value')
 
         if 'service_nodes' in self.include_fields:
             queryset = queryset.prefetch_related('service_nodes')
@@ -962,6 +975,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         input_val = request.query_params.get('input', '').strip()
         q_val = request.query_params.get('q', '').strip()
+
         if not input_val and not q_val:
             raise ParseError("Supply search terms with 'q=' or autocomplete entry with 'input='")
         if input_val and q_val:
@@ -990,19 +1004,41 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 .filter_or(extra_searchwords=q_val)
                 .filter_or(address=q_val)
             )
+
         if 'municipality' in request.query_params:
             val = request.query_params['municipality'].lower().strip()
             if len(val) > 0:
                 municipalities = val.split(',')
-                muni_q_objects = [SQ(municipality=m.strip()) for m in municipalities]
-                muni_q = muni_q_objects.pop()
-                for q in muni_q_objects:
-                    muni_q |= q
+
+                muni_sq = SQ(municipality=municipalities.pop().strip())
+                for m in municipalities:
+                    muni_sq |= SQ(municipality=m)
+
                 queryset = queryset.filter(
-                    SQ(muni_q
-                        | SQ(django_ct='services.service')
-                        | SQ(django_ct='services.servicenode')
-                        | SQ(django_ct='munigeo.address')))
+                    SQ(muni_sq & SQ(django_ct='services.unit')))
+
+        if 'city_as_department' in request.query_params:
+            val = request.query_params['city_as_department'].lower().strip()
+
+            if len(val) > 0:
+                deps_uuid = val.split(',')
+
+                # forming municipality search query
+                deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
+                munis = [d.municipality.name for d in deps]
+
+                muni_sq = SQ(municipality=munis.pop())
+                for m in munis:
+                    muni_sq |= SQ(municipality=m)
+
+                # forming root_deparment search query
+                dep_sq = SQ(root_department=deps_uuid.pop().strip())
+                for d in deps_uuid:
+                    dep_sq |= SQ(root_department=d)
+
+                # updating queryset
+                queryset = queryset.filter(
+                    SQ(muni_sq & SQ(django_ct='services.unit') | SQ(dep_sq & SQ(django_ct='services.unit'))))
 
         service = request.query_params.get('service')
         if service:
