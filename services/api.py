@@ -709,8 +709,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
                 queryset = queryset.filter(muni_sq)
 
-        if 'department_or_municipality' in filters:
-            val = filters['department_or_municipality'].lower().strip()
+        if 'city_as_department' in filters:
+            val = filters['city_as_department'].lower().strip()
 
             if len(val) > 0:
                 deps_uuid = val.split(',')
@@ -1021,8 +1021,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 queryset = queryset.filter(
                     SQ(muni_sq & SQ(django_ct='services.unit')))
 
-        if 'department_or_municipality' in request.query_params:
-            val = request.query_params['department_or_municipality'].lower().strip()
+        if 'city_as_department' in request.query_params:
+            val = request.query_params['city_as_department'].lower().strip()
 
             if len(val) > 0:
                 deps_uuid = val.split(',')
