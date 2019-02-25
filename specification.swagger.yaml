@@ -317,7 +317,7 @@ definitions:
             type: integer
             description: Primary identifier
 
-          parent: 
+          parent:
             type: integer
             description: The service node\'s immediate ancestor in the browsable hierarchy
           children:
@@ -362,18 +362,18 @@ definitions:
               total:
                 type: integer
                 description: How many units there are with this service node in total
-            
+
 
           period_enabled:
             type: boolean
-            description: true if period_enabled is true for any of the related_services 
+            description: true if period_enabled is true for any of the related_services
 
           keywords:
             type: array
             description: An array of multilingual additional keywords for matching common search terms
             items:
               type: object
-          
+
   department:
     title: Department
     type: object
@@ -439,7 +439,7 @@ definitions:
         description: The id of the division in the master database it was imported from
       ocd_id:
         type: string
-        description: A full OCD ID of the form ocd-division/country\:fi/kunta\:helsinki (URL encoded) See the [OpenCivicData Site](http://opencivicdata.readthedocs.io/en/latest/ocdids.html) for more information 
+        description: A full OCD ID of the form ocd-division/country\:fi/kunta\:helsinki (URL encoded) See the [OpenCivicData Site](http://opencivicdata.readthedocs.io/en/latest/ocdids.html) for more information
       service_point_id:
         type: string
         description: An id of a service point which provides services for or is otherwise connected to this division
@@ -551,7 +551,7 @@ definitions:
           C. With a car and a separate driver
 
           The values of the object form a boolean expression tree, which is evaluated using the accessibility properties data of a unit. Whenever a primitive boolean expression or a compound one with a non-null **msg** field is evaluated as **true**, we have found a shortcoming or problem for this user when accessing this unit. The corresponding message from the **messages** array (see below) must be displayed to the user. A primitive exporession is evaluated by comparing the relevant accessibility property value using the operator to the value given in the expression. Usually this is an equality comparison between the first operand (a unit accessibility property identifier, and a second one (a possible value for the property)).
-          
+
       messages:
         type: array
         description: An array of UI message strings (multilingual) referred to in the rules section above (messages are referred to using array indices).
@@ -583,7 +583,7 @@ definitions:
         description: The date and time when the resource data was last modified in the API, in ISO 8601.
 
 
-      
+
 
 paths:
   /unit/:
@@ -629,6 +629,10 @@ paths:
           type: string
           description: A comma-separated list of one or more municipality ids. The returned units will be located within the municipalities\' boundaries. The municipality ids are either municipality names in Finnish, or full OCD IDs of the form ocd-division/country\:fi/kunta\:helsinki (URL encoded) See the [OpenCivicData Site](http://opencivicdata.readthedocs.io/en/latest/ocdids.html) for more information
           required: false
+        - name: city_as_department
+          in: query
+          description: Retrieve units which are _either_ owned/provided by the desired cities _or_ contained within the city's geographical boundaries. The parameter value must be an UUID identifying a top-level department which is a city.
+          required: false
         - name: provider_type
           in: query
           type: string
@@ -669,7 +673,7 @@ paths:
         # - name: maintenance_organization FIXME: no in use yet -- awaiting observations
         #   in: query
         #   type: string
-        #   description: A highly specialized query parameter used for filtering based on the 
+        #   description: A highly specialized query parameter used for filtering based on the
 
       responses:
         200:
@@ -846,7 +850,7 @@ paths:
           description: The requested department
           schema:
             $ref: '#/definitions/department'
-          
+
   /search/:
     get:
       operationId: Full text search
