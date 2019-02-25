@@ -2,7 +2,7 @@ import re
 from typing import List, Tuple
 from uuid import UUID
 
-from pydantic import BaseModel, validator, ValidationError
+from pydantic import BaseModel, validator
 
 from smbackend import settings
 
@@ -59,7 +59,7 @@ class RequestFilters(BaseModel):
                     int(v)
                 except ValueError as e:
                     raise ValueError('%s:%s, %s' % (k, v, str(e)))
-                if len(re.findall("\d", k)) > 0:
+                if len(re.findall(r"\d", k)) > 0:
                     raise ValueError("value '%s' is not suitable for category" % k)
 
     @validator('type')
