@@ -843,19 +843,31 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             queryset = queryset.filter(Q(services__in=service_ids)
                                        | Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))).distinct()
 
+        def get_services_by_servicenodes(servicenode_ids):
+            ids = []
+            servicenodes = ServiceNode.objects.filter(id__in=service_nodes_by_ancestors(servicenode_ids))
+            for node in servicenodes:
+                servicelist = node.related_services.all()
+                ids.extend([service.id for service in servicelist])
+            return ids
+
+        # TODO: add validation
         if 'period' in filters:
             period = filters.get('period', None)
             services = None
             if 'service' in filters:
                 services = filters.get('service').split(',')
+            if 'service_node' in filters:
+                services = get_services_by_servicenodes(filters.get('service_node').split(','))
             if 'category' in filters:
                 categories = filters.get('category', None).split(',')
                 services = get_category_ids(categories, 'service')
+                services.extend(get_services_by_servicenodes(get_category_ids(categories, 'service_node')))
 
             if services is not None:
                 unit_service_details = UnitServiceDetails.objects.filter(service__in=services).distinct()\
                     .filter(Q(period_begin_year=period) | Q(period_begin_year=None))
-                units = list(map(lambda x: x.unit.id, unit_service_details))
+                units = [x.unit.id for x in unit_service_details]
                 queryset = queryset.filter(id__in=units)
             else:
                 queryset = queryset.filter(Q(service_details__period_begin_year=period)
