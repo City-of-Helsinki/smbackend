@@ -47,6 +47,7 @@ class RequestFilters(BaseModel):
     maintenance_organization: List[int] = None
     type: List[str] = None
     page: List[int] =None
+    geometry: List[bool] = None
 
     @validator('municipality', whole=True)
     def check_municipality(cls, v):
