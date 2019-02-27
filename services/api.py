@@ -20,7 +20,7 @@ from haystack.inputs import AutoQuery
 
 from mptt.utils import drilldown_tree_for_node
 
-from services.api_validator import RequestFilters
+from services.api_validator import RequestFilters, SearchRequestFilters, UnitRequestFilters
 from services.models import Unit, Department, Service
 from services.models import ServiceNode, UnitConnection, UnitServiceDetails
 from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
@@ -690,8 +690,10 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         # query parameter validation
         f = {k: v[0].split(',') for k, v in filters.lists()}
+        print(f)
         try:
             RequestFilters(**f)
+            UnitRequestFilters(**f)
         except pydantic_ValidationError as e:
             raise ValidationError(e.errors())
 
@@ -822,7 +824,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             queryset = queryset.distance(point, field_name='geometry').order_by('distance')
 
         if 'bbox' in filters:
-            val = self.request.query_params.get('bbox', None)
+            val = filters.get('bbox', None)
             if 'bbox_srid' in filters:
                 ref = SpatialReference(filters.get('bbox_srid', None))
             else:
@@ -846,7 +848,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
             queryset = queryset.filter(Q(services__in=service_ids)
                                        | Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))).distinct()
 
-        maintenance_organization = self.request.query_params.get('maintenance_organization')
+        maintenance_organization = filters.get('maintenance_organization')
         if maintenance_organization:
             queryset = queryset.filter(
                 Q(extensions__maintenance_organization=maintenance_organization)
@@ -954,15 +956,17 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
     queryset = Unit.objects.all()
 
     def list(self, request, *args, **kwargs):
+        filters = self.request.query_params
+
         # If the incoming language is not specified, go with the default.
-        self.lang_code = request.query_params.get('language', LANGUAGES[0])
+        self.lang_code = filters.get('language', LANGUAGES[0])
         if self.lang_code not in LANGUAGES:
             raise ParseError("Invalid language supplied. Supported languages: %s" %
                              ','.join(LANGUAGES))
 
         specs = {
-            'only_fields': self.request.query_params.get('only', None),
-            'include_fields': self.request.query_params.get('include', None)
+            'only_fields': filters.get('only', None),
+            'include_fields': filters.get('include', None)
         }
         for key in specs.keys():
             if specs[key]:
@@ -977,14 +981,15 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 setattr(self, key, None)
 
         # query parameter validation
-        f = {k: v[0].split(',') for k, v in self.request.query_params.lists()}
+        f = {k: v[0].split(',') for k, v in filters.lists()}
         try:
             RequestFilters(**f)
+            SearchRequestFilters(**f)
         except pydantic_ValidationError as e:
             raise ValidationError(e.errors())
 
-        input_val = request.query_params.get('input', '').strip()
-        q_val = request.query_params.get('q', '').strip()
+        input_val = filters.get('input', '').strip()
+        q_val = filters.get('q', '').strip()
 
         if not input_val and not q_val:
             raise ParseError("Supply search terms with 'q=' or autocomplete entry with 'input='")
@@ -1015,8 +1020,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 .filter_or(address=q_val)
             )
 
-        if 'municipality' in request.query_params:
-            val = request.query_params['municipality'].lower().strip()
+        if 'municipality' in filters:
+            val = filters['municipality'].lower().strip()
             if len(val) > 0:
                 municipalities = val.split(',')
 
@@ -1027,8 +1032,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 queryset = queryset.filter(
                     SQ(muni_sq & SQ(django_ct='services.unit')))
 
-        if 'department_or_municipality' in request.query_params:
-            val = request.query_params['department_or_municipality'].lower().strip()
+        if 'department_or_municipality' in filters:
+            val = filters['department_or_municipality'].lower().strip()
 
             if len(val) > 0:
                 deps_uuid = val.split(',')
@@ -1050,13 +1055,13 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 queryset = queryset.filter(
                     SQ(muni_sq & SQ(django_ct='services.unit') | SQ(dep_sq & SQ(django_ct='services.unit'))))
 
-        service = request.query_params.get('service')
+        service = filters.get('service')
         if service:
             services = service.split(',')
             queryset = queryset.filter(django_ct='services.unit').filter(services__in=services)
 
         models = set()
-        types = request.query_params.get('type', '').split(',')
+        types = filters.get('type', '').split(',')
         for t in types:
             if t == 'service_node':
                 models.add(ServiceNode)
