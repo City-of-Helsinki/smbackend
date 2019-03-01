@@ -860,7 +860,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 # Assumption: if a ServiceNode has periods enabled, all the subexpressions in its service_reference
                 # expression also have periods enabled.
                 service_ids = get_category_ids(categories.split(','), 'service')
-                service_ids.extend(get_services_by_servicenodes(get_category_ids(categories.split(','), 'service_node')))
+                service_ids.extend(get_services_by_servicenodes(
+                    get_category_ids(categories.split(','), 'service_node')))
 
             if service_ids is not None:
                 unit_service_details = UnitServiceDetails.objects.filter(service__in=service_ids).distinct()\
