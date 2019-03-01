@@ -836,36 +836,34 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                     ids.append(mapping.split(':')[1])
             return ids
 
-        if 'category' in filters:
-            services_and_service_nodes = filters.get('category', None).split(',')
-            service_ids = get_category_ids(services_and_service_nodes, 'service')
-            servicenode_ids = get_category_ids(services_and_service_nodes, 'service_node')
+        categories = filters.get('category', None)
+        if categories is not None:
+            service_ids = get_category_ids(categories.split(','), 'service')
+            servicenode_ids = get_category_ids(categories.split(','), 'service_node')
             queryset = queryset.filter(Q(services__in=service_ids)
                                        | Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))).distinct()
 
         def get_services_by_servicenodes(servicenode_ids):
-            ids = []
-            servicenodes = ServiceNode.objects.filter(id__in=service_nodes_by_ancestors(servicenode_ids))
-            for node in servicenodes:
-                servicelist = node.related_services.all()
-                ids.extend([service.id for service in servicelist])
+            ids = [service.id for service in
+                   Service.objects.filter(servicenode__in=service_nodes_by_ancestors(servicenode_ids))]
             return ids
 
         # TODO: add validation
         if 'period' in filters:
             period = filters.get('period', None)
-            services = None
+            service_ids = None
             if 'service' in filters:
-                services = filters.get('service').split(',')
+                service_ids = services.split(',')
             if 'service_node' in filters:
-                services = get_services_by_servicenodes(filters.get('service_node').split(','))
+                service_ids = get_services_by_servicenodes(service_nodes.split(','))
             if 'category' in filters:
-                categories = filters.get('category', None).split(',')
-                services = get_category_ids(categories, 'service')
-                services.extend(get_services_by_servicenodes(get_category_ids(categories, 'service_node')))
+                # Assumption: if a ServiceNode has periods enabled, all the subexpressions in its service_reference
+                # expression also have periods enabled.
+                service_ids = get_category_ids(categories.split(','), 'service')
+                service_ids.extend(get_services_by_servicenodes(get_category_ids(categories.split(','), 'service_node')))
 
-            if services is not None:
-                unit_service_details = UnitServiceDetails.objects.filter(service__in=services).distinct()\
+            if service_ids is not None:
+                unit_service_details = UnitServiceDetails.objects.filter(service__in=service_ids).distinct()\
                     .filter(Q(period_begin_year=period) | Q(period_begin_year=None))
                 units = [x.unit.id for x in unit_service_details]
                 queryset = queryset.filter(id__in=units)
