@@ -18,12 +18,12 @@ servicenode_fields = [u.name for u in ServiceNode._meta.get_fields()]
 servicenode_foreign_fields = [u.name for u in ServiceNode._meta.get_fields() if u.many_to_many or u.one_to_many
                               or u.many_to_one or u.one_to_one]
 
-include_list = ['service_node.'+i for i in servicenode_foreign_fields] +\
-               ['service.'+i for i in service_foreign_fields] +\
-               ['unit.'+i for i in unit_foreign_fields]
-only_list = ['service_node.'+i for i in servicenode_fields] +\
-            ['service.'+i for i in service_fields] +\
-            ['unit.'+i for i in unit_fields]
+include_list = ['service_node.' + i for i in servicenode_foreign_fields] +\
+               ['service.' + i for i in service_foreign_fields] +\
+               ['unit.' + i for i in unit_foreign_fields]
+only_list = ['service_node.' + i for i in servicenode_fields] +\
+            ['service.' + i for i in service_fields] +\
+            ['unit.' + i for i in unit_fields]
 
 
 class RequestFilters(BaseModel):
@@ -46,7 +46,7 @@ class RequestFilters(BaseModel):
     category: List[str] = None
     maintenance_organization: List[int] = None
     type: List[str] = None
-    page: List[int] =None
+    page: List[int] = None
     geometry: List[bool] = None
 
     @validator('municipality', whole=True)

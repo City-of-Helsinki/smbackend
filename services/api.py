@@ -896,7 +896,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
     def list(self, request, **kwargs):
         # tämä handlattiin koska v2/unit/?bbox=382000,6673000,383000,6674000&bbox_srid=3879 palauttaa
-        # InternalError: transform: couldn't project point (382000 6.673e+06 0): latitude or longitude exceeded limits (-14)
+        # InternalError: transform: couldn't project point (382000 6.673e+06 0):
+        #                                                                   latitude or longitude exceeded limits (-14)
         # Vai kuuluko validaattorin laskea ovatko bboxin/bbox_sridin arvot oikeat?
         try:
             response = super(UnitViewSet, self).list(request)
