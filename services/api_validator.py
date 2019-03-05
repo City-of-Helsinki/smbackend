@@ -41,8 +41,8 @@ class RequestFilters(BaseModel):
     lat: List[float] = None
     lon: List[float] = None
     distance: List[float] = None
-    bbox_srid: str = None
-    bbox: Tuple[str, int] = None
+    bbox_srid: List[str] = None
+    bbox: Tuple[int, int, int, int] = None
     category: List[str] = None
     maintenance_organization: List[int] = None
     type: List[str] = None

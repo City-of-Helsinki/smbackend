@@ -165,7 +165,7 @@ class ObservationSerializer(serializers.BaseSerializer):
                 validated_data['value'])
         with transaction.atomic():
             if has_value:
-                if (validated_data['add_maintenance_observation']):
+                if validated_data['add_maintenance_observation']:
                     # TODO: refactor below
                     if validated_data['property_id'] == 'ski_trail_condition':
                         self.process_ski_trail(validated_data)

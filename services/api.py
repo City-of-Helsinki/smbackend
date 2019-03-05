@@ -690,7 +690,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         # query parameter validation
         f = {k: v[0].split(',') for k, v in filters.lists()}
-        print(f)
         try:
             RequestFilters(**f)
             UnitRequestFilters(**f)
@@ -884,6 +883,10 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
     def retrieve(self, request, pk=None):
         try:
+            RequestFilters(**{'id': [pk]})
+        except pydantic_ValidationError as e:
+            raise ValidationError(e.errors())
+        try:
             unit = Unit.objects.get(pk=pk, public=True)
         except Unit.DoesNotExist:
             unit_alias = get_object_or_404(UnitAlias, second=pk)
@@ -892,7 +895,13 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
         return Response(serializer.data)
 
     def list(self, request, **kwargs):
-        response = super(UnitViewSet, self).list(request)
+        # tämä handlattiin koska v2/unit/?bbox=382000,6673000,383000,6674000&bbox_srid=3879 palauttaa
+        # InternalError: transform: couldn't project point (382000 6.673e+06 0): latitude or longitude exceeded limits (-14)
+        # Vai kuuluko validaattorin laskea ovatko bboxin/bbox_sridin arvot oikeat?
+        try:
+            response = super(UnitViewSet, self).list(request)
+        except Exception as e:
+            raise ValidationError(str(e))
         response.add_post_render_callback(self._add_content_disposition_header)
         return response
 
@@ -1001,7 +1010,11 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         queryset = SearchQuerySet()
 
-        if hasattr(request, 'accepted_media_type') and re.match(KML_REGEXP, request.accepted_media_type):
+        # ehdon tarkistukseen lisättiin self.only_fields, koska v2/search/?format=kml&q=päiväkodit palauttaa
+        # TypeError: 'NoneType' object is not subscriptable
+        # ?! Mitä pitäisi tapahtua 'kml' parametrin kanssa ja vaatiiko se only_fieldsin -> rivi 1019
+        if hasattr(request, 'accepted_media_type') and re.match(KML_REGEXP, request.accepted_media_type) \
+                and self.only_fields:
             queryset = queryset.models(Unit)
             self.only_fields['unit'].extend(['street_address', 'www'])
 
