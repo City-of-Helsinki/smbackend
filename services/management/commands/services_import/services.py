@@ -185,11 +185,15 @@ def save_objects(objects):
 def update_service_node_counts():
     units_by_service = {}
     through_values = Unit.service_nodes.through.objects.filter(
-        unit__public=True).values_list('servicenode_id', 'unit__municipality', 'unit_id').distinct()
-    for service_node_id, municipality, unit_id in through_values:
+        unit__public=True).values_list('servicenode_id', 'unit__municipality', 'unit__root_department', 'unit_id')\
+        .distinct()
+    for service_node_id, municipality, root_department, unit_id in through_values:
         unit_set = units_by_service.setdefault(service_node_id, {}).setdefault(municipality, set())
         unit_set.add(unit_id)
+        # redundant line?
         units_by_service[service_node_id][municipality] = unit_set
+        unit_dep_set = units_by_service.setdefault(service_node_id, {}).setdefault(root_department, set())
+        unit_dep_set.add(unit_id)
 
     unit_counts_to_be_updated = set(
         ((service_node_id, municipality) for service_node_id, municipality, _ in through_values))
@@ -205,7 +209,7 @@ def update_service_node_counts():
 
     def count_object_pair(x):
         div = x.division.name_fi.lower() if x.division is not None else None
-        return ((x.service_node_id, div), x)
+        return (x.service_node_id, div), x
 
     service_node_unit_count_objects = dict((
         count_object_pair(x) for x in ServiceNodeUnitCount.objects.select_related('division').all()))
