@@ -219,6 +219,13 @@ def update_service_node_counts():
         unit_set = units_by_service.setdefault(service_node_id, {}).setdefault(municipality, set())
         unit_set.add(unit_id)
         units_by_service[service_node_id][municipality] = unit_set
+        if municipality_id is not None:
+            if city_as_department.get(service_node_id, {}).get(municipality_id, 0) == 0:
+                service_node_dict = city_as_department.get(service_node_id, {})
+                service_node_dict[municipality_id] = 1
+                city_as_department[service_node_id] = service_node_dict
+            else:
+                city_as_department[service_node_id][municipality_id] += 1
 
         def add_city_as_department(service_node_id, muni):
             if city_as_department.get(service_node_id, {}).get(muni, 0) == 0:
