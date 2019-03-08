@@ -77,6 +77,8 @@ def test_service_node_counts_delete_units(units, api_client):
     for service_node in get_nodes(api_client):
         assert service_node['unit_count']['total'] == 0
         assert len(service_node['unit_count']['municipality']) == 0
+        assert 'city_as_department' not in service_node['unit_count']
+        #len(service_node['unit_count']['city_as_department']) == 0
 
     update_service_node_counts()
 
@@ -92,14 +94,28 @@ def test_service_node_counts_delete_units(units, api_client):
         assert service_node_1['unit_count']['total'] == 2
         assert service_node_1['unit_count']['municipality']['a'] == 1
         assert service_node_1['unit_count']['municipality']['b'] == 1
+        assert service_node_1['unit_count']['city_as_department']['c'] == 3
+        assert service_node_1['unit_count']['city_as_department']['d'] == 2
         assert len(service_node_1['unit_count']['municipality']) == 2
+        assert len(service_node_1['unit_count']['city_as_department']) == 2
+
         assert service_node_2['unit_count']['total'] == 2
         assert service_node_2['unit_count']['municipality']['a'] == 1
         assert service_node_2['unit_count']['municipality']['_unknown'] == 1
         assert len(service_node_2['unit_count']['municipality']) == 2
+        assert len(service_node_2['unit_count']['city_as_department']) == 1
+
         assert service_node_3['unit_count']['total'] == 1
         assert service_node_3['unit_count']['municipality']['a'] == 1
         assert len(service_node_3['unit_count']['municipality']) == 1
+        #??
+        assert len(service_node_3['unit_count']['city_as_department']) == 2
+
+        assert service_node_4['unit_count']['total'] == 1
+        assert service_node_4['unit_count']['municipality']['_unknown'] == 1
+        assert service_node_4['unit_count']['city_as_department']['c'] == 1
+        assert len(service_node_4['unit_count']['municipality']) == 1
+        assert len(service_node_4['unit_count']['city_as_department']) == 1
 
     check_before_deletions()
 
@@ -122,17 +138,32 @@ def test_service_node_counts_delete_units(units, api_client):
 
     assert service_node_1['id'] == 1
     assert service_node_2['id'] == 2
-    assert service_node_1['unit_count']['total'] == 1
-    assert service_node_1['unit_count']['municipality'].get('a') is None
+    assert service_node_1['unit_count']['total'] == 2
+    assert service_node_1['unit_count']['municipality']['a'] == 1
     assert service_node_1['unit_count']['municipality']['b'] == 1
-    assert len(service_node_1['unit_count']['municipality']) == 1
+    assert service_node_1['unit_count']['city_as_department']['c'] == 2
+    assert service_node_1['unit_count']['city_as_department']['d'] == 2
+    assert len(service_node_1['unit_count']['municipality']) == 2
+    #??
+    assert len(service_node_1['unit_count']['city_as_department']) == 2
+
     assert service_node_2['unit_count']['total'] == 1
     assert service_node_2['unit_count']['municipality'].get('a') is None
     assert service_node_2['unit_count']['municipality']['_unknown'] == 1
     assert len(service_node_2['unit_count']['municipality']) == 1
+    assert len(service_node_2['unit_count']['city_as_department']) == 0
+
     assert service_node_3['unit_count']['total'] == 1
     assert service_node_3['unit_count']['municipality']['a'] == 1
     assert len(service_node_3['unit_count']['municipality']) == 1
+    #??
+    assert len(service_node_3['unit_count']['city_as_department']) == 2
+
+    assert service_node_4['unit_count']['total'] == 1
+    assert service_node_4['unit_count']['municipality']['_unknown'] == 1
+    assert service_node_4['unit_count']['city_as_department']['c'] == 1
+    assert len(service_node_4['unit_count']['municipality']) == 1
+    assert len(service_node_4['unit_count']['city_as_department']) == 1
 
     # From service node 3 remove all units (delete unit)
     Unit.objects.get(pk=5).delete()
@@ -150,12 +181,24 @@ def test_service_node_counts_delete_units(units, api_client):
     assert service_node_1['unit_count']['municipality'].get('a') is None
     assert service_node_1['unit_count']['municipality']['b'] == 1
     assert len(service_node_1['unit_count']['municipality']) == 1
+    #??
+    assert len(service_node_1['unit_count']['city_as_department']) == 2
+
     assert service_node_2['unit_count']['total'] == 1
     assert service_node_2['unit_count']['municipality'].get('a') is None
     assert service_node_2['unit_count']['municipality']['_unknown'] == 1
     assert len(service_node_2['unit_count']['municipality']) == 1
+    assert len(service_node_2['unit_count']['city_as_department']) == 0
+
     assert service_node_3['unit_count']['total'] == 0
     assert len(service_node_3['unit_count']['municipality']) == 0
+    assert len(service_node_3['unit_count']['city_as_department']) == 0
+
+    assert service_node_4['unit_count']['total'] == 1
+    assert service_node_4['unit_count']['municipality']['_unknown'] == 1
+    assert service_node_4['unit_count']['city_as_department']['c'] == 1
+    assert len(service_node_4['unit_count']['municipality']) == 1
+    assert len(service_node_4['unit_count']['city_as_department']) == 1
 
     # From service node 2 remove unit with muncipality None
     Unit.objects.get(pk=3).delete()
@@ -172,13 +215,27 @@ def test_service_node_counts_delete_units(units, api_client):
     assert service_node_1['unit_count']['total'] == 1
     assert service_node_1['unit_count']['municipality'].get('a') is None
     assert service_node_1['unit_count']['municipality']['b'] == 1
+    assert service_node_1['unit_count']['city_as_department']['c'] == 1
+    assert service_node_1['unit_count']['city_as_department']['d'] == 1
     assert len(service_node_1['unit_count']['municipality']) == 1
+    # ??
+    assert len(service_node_1['unit_count']['city_as_department']) == 2
+
     assert service_node_2['unit_count']['total'] == 0
     assert service_node_2['unit_count']['municipality'].get('a') is None
     assert service_node_2['unit_count']['municipality'].get('_unknown') is None
     assert len(service_node_2['unit_count']['municipality']) == 0
+    assert len(service_node_2['unit_count']['city_as_department']) == 0
+
     assert service_node_3['unit_count']['total'] == 0
     assert len(service_node_3['unit_count']['municipality']) == 0
+    assert len(service_node_3['unit_count']['city_as_department']) == 0
+
+    assert service_node_4['unit_count']['total'] == 1
+    assert service_node_4['unit_count']['municipality']['_unknown'] == 1
+    assert service_node_4['unit_count']['city_as_department']['c'] == 1
+    assert len(service_node_4['unit_count']['municipality']) == 1
+    assert len(service_node_4['unit_count']['city_as_department']) == 1
 
 
 @pytest.mark.django_db
@@ -200,16 +257,31 @@ def test_service_node_counts_add_service_node_to_units(units, api_client):
     assert service_node_1['unit_count']['total'] == 2
     assert service_node_1['unit_count']['municipality']['a'] == 1
     assert service_node_1['unit_count']['municipality']['b'] == 1
+    assert service_node_1['unit_count']['city_as_department']['c'] == 3
+    assert service_node_1['unit_count']['city_as_department']['d'] == 2
     assert len(service_node_1['unit_count']['municipality']) == 2
+    assert len(service_node_1['unit_count']['city_as_department']) == 3
+
     assert service_node_2['unit_count']['total'] == 2
     assert service_node_2['unit_count']['municipality']['a'] == 1
     assert service_node_2['unit_count']['municipality']['_unknown'] == 1
     assert len(service_node_2['unit_count']['municipality']) == 2
-    assert service_node_3['unit_count']['total'] == 5
+    assert len(service_node_2['unit_count']['city_as_department']) == 1
+
+    assert service_node_3['unit_count']['total'] == 6
     assert service_node_3['unit_count']['municipality']['a'] == 3
     assert service_node_3['unit_count']['municipality']['b'] == 1
-    assert service_node_3['unit_count']['municipality']['_unknown'] == 1
+    assert service_node_3['unit_count']['municipality']['_unknown'] == 2
+    assert service_node_3['unit_count']['city_as_department']['c'] == 5
+    assert service_node_3['unit_count']['city_as_department']['d'] == 2
     assert len(service_node_3['unit_count']['municipality']) == 3
+    assert len(service_node_3['unit_count']['city_as_department']) == 2
+
+    assert service_node_4['unit_count']['total'] == 1
+    assert service_node_4['unit_count']['municipality']['_unknown'] == 1
+    assert service_node_4['unit_count']['city_as_department']['c'] == 1
+    assert len(service_node_4['unit_count']['municipality']) == 1
+    assert len(service_node_4['unit_count']['city_as_department']) == 1
 
 
 @pytest.mark.django_db
@@ -230,10 +302,21 @@ def test_service_node_counts_remove_service_node_from_units(units, api_client):
     assert service_node_2['id'] == 2
     assert service_node_1['unit_count']['total'] == 0
     assert len(service_node_1['unit_count']['municipality']) == 0
+    assert len(service_node_1['unit_count']['city_as_department']) == 0
+
     assert service_node_2['unit_count']['total'] == 2
     assert service_node_2['unit_count']['municipality']['a'] == 1
     assert service_node_2['unit_count']['municipality']['_unknown'] == 1
     assert len(service_node_2['unit_count']['municipality']) == 2
+    assert len(service_node_2['unit_count']['city_as_department']) == 1
+
     assert service_node_3['unit_count']['total'] == 1
     assert service_node_3['unit_count']['municipality']['a'] == 1
     assert len(service_node_3['unit_count']['municipality']) == 1
+    assert len(service_node_3['unit_count']['city_as_department']) == 2
+
+    assert service_node_4['unit_count']['total'] == 1
+    assert service_node_4['unit_count']['municipality']['_unknown'] == 1
+    assert service_node_4['unit_count']['city_as_department']['c'] == 1
+    assert len(service_node_4['unit_count']['municipality']) == 1
+    assert len(service_node_4['unit_count']['city_as_department']) == 1
