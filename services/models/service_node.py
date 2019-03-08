@@ -49,6 +49,7 @@ class ServiceNodeUnitCount(models.Model):
     division_type = models.ForeignKey(AdministrativeDivisionType, null=False)
     division = models.ForeignKey(AdministrativeDivision, null=True, db_index=True)
     count = models.PositiveIntegerField(null=False)
+    city_as_department = models.PositiveIntegerField(null=False)
 
     class Meta:
         unique_together = (('service_node', 'division'),)
