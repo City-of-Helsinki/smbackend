@@ -102,12 +102,12 @@ def get_nodes(api_client):
 
 @pytest.mark.django_db
 def test_service_node_counts_delete_units(units, api_client):
-    import pdb; pdb.set_trace()
+
     for service_node in get_nodes(api_client):
         assert service_node['unit_count']['total'] == 0
         assert len(service_node['unit_count']['municipality']) == 0
         assert 'city_as_department' not in service_node['unit_count']
-        #assert len(service_node['unit_count']['city_as_department']) == 0
+        # assert len(service_node['unit_count']['city_as_department']) == 0
 
     update_service_node_counts()
 
@@ -142,7 +142,7 @@ def test_service_node_counts_delete_units(units, api_client):
         assert service_node_3['unit_count']['city_as_department']['c'] == 1
         assert service_node_3['unit_count']['city_as_department']['d'] == 1
         assert len(service_node_3['unit_count']['municipality']) == 1
-        #??
+        # ??
         assert len(service_node_3['unit_count']['city_as_department']) == 2
 
         assert service_node_4['unit_count']['total'] == 1
@@ -179,7 +179,7 @@ def test_service_node_counts_delete_units(units, api_client):
     assert service_node_1['unit_count']['city_as_department']['c'] == 2
     assert service_node_1['unit_count']['city_as_department']['d'] == 2
     assert len(service_node_1['unit_count']['municipality']) == 2
-    #??
+    # ??
     assert len(service_node_1['unit_count']['city_as_department']) == 2
 
     assert service_node_2['unit_count']['total'] == 1
@@ -194,7 +194,7 @@ def test_service_node_counts_delete_units(units, api_client):
     assert service_node_3['unit_count']['city_as_department']['c'] == 1
     assert service_node_3['unit_count']['city_as_department']['d'] == 1
     assert len(service_node_3['unit_count']['municipality']) == 1
-    #??
+    # ??
     assert len(service_node_3['unit_count']['city_as_department']) == 2
 
     assert service_node_4['unit_count']['total'] == 1
@@ -222,7 +222,7 @@ def test_service_node_counts_delete_units(units, api_client):
     assert service_node_1['unit_count']['city_as_department']['c'] == 1
     assert service_node_1['unit_count']['city_as_department']['d'] == 1
     assert len(service_node_1['unit_count']['municipality']) == 1
-    #??
+    # ??
     assert len(service_node_1['unit_count']['city_as_department']) == 2
 
     assert service_node_2['unit_count']['total'] == 1
