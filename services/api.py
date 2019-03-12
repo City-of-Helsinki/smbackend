@@ -1005,6 +1005,10 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 .filter_or(address=q_val)
             )
 
+        IS_NOT_UNIT_SQ = (SQ(django_ct='services.service')
+                          | SQ(django_ct='services.servicenode')
+                          | SQ(django_ct='munigeo.address'))
+
         if 'municipality' in request.query_params:
             val = request.query_params['municipality'].lower().strip()
             if len(val) > 0:
@@ -1015,7 +1019,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                     muni_sq |= SQ(municipality=m)
 
                 queryset = queryset.filter(
-                    SQ(muni_sq & SQ(django_ct='services.unit')))
+                    SQ(muni_sq | IS_NOT_UNIT_SQ))
 
         if 'city_as_department' in request.query_params:
             val = request.query_params['city_as_department'].lower().strip()
@@ -1038,7 +1042,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
                 # updating queryset
                 queryset = queryset.filter(
-                    SQ(muni_sq & SQ(django_ct='services.unit') | SQ(dep_sq & SQ(django_ct='services.unit'))))
+                    SQ(muni_sq | dep_sq | IS_NOT_UNIT_SQ))
 
         service = request.query_params.get('service')
         if service:
