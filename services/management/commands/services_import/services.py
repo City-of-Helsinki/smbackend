@@ -184,6 +184,17 @@ def update_count_objects(service_node_unit_count_objects, city_as_department, no
     for node in node.get_children():
         yield from update_count_objects(service_node_unit_count_objects, city_as_department, node)
 
+def update_city_as_department(city_as_department, service_node_unit_counts, node):
+    counts = city_as_department.get(node.id, {})
+    for child in node.get_children():
+        child_counts = update_city_as_department(city_as_department, service_node_unit_counts, child)
+        for muni in child_counts.keys():
+            counts[muni] = counts.get(muni, 0) + child_counts[muni]
+            obj = service_node_unit_counts.get((node.id, muni), None)
+            if obj is not None:
+                obj.city_as_department = counts[muni]
+                obj.save()
+    return counts
 
 @db.transaction.atomic
 def save_objects(objects):
@@ -201,13 +212,19 @@ def update_service_node_counts():
         unit_set = units_by_service.setdefault(service_node_id, {}).setdefault(municipality, set())
         unit_set.add(unit_id)
         units_by_service[service_node_id][municipality] = unit_set
-        if municipality_id is not None:
-            if city_as_department.get(service_node_id, {}).get(municipality_id, 0) == 0:
+
+        def add_city_as_department(service_node_id, muni):
+            if city_as_department.get(service_node_id, {}).get(muni, 0) == 0:
                 service_node_dict = city_as_department.get(service_node_id, {})
-                service_node_dict[municipality_id] = 1
+                service_node_dict[muni] = 1
                 city_as_department[service_node_id] = service_node_dict
             else:
-                city_as_department[service_node_id][municipality_id] += 1
+                city_as_department[service_node_id][muni] += 1
+
+        if municipality_id is not None:
+            add_city_as_department(service_node_id, municipality_id)
+        if municipality != municipality_id:
+            add_city_as_department(service_node_id, municipality)
 
     unit_counts_to_be_updated = set(
         ((service_node_id, municipality) for service_node_id, municipality, _, _ in through_values))
@@ -230,6 +247,7 @@ def update_service_node_counts():
     objects_to_save = []
     for node in tree:
         objects_to_save.extend(update_count_objects(service_node_unit_count_objects, city_as_department, node))
+        update_city_as_department(city_as_department, service_node_unit_count_objects, node)
     save_objects(objects_to_save)
     return tree
 
