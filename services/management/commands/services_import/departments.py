@@ -34,14 +34,17 @@ def import_departments(noop=False, logger=None, fetch_resource=pk_get):
         parent_id = d.get('parent_id')
         if parent_id != obj.parent_id:
             obj_has_changed = True
-            try:
-                parent = Department.objects.get(uuid=parent_id)
-                obj.parent_id = parent.id
-            except Department.DoesNotExist:
-                logger and logger.error(
-                    "Department import: no parent with uuid {} found for {}".format(
-                        parent_id, d['id'])
-                )
+            if parent_id is None:
+                obj.parent_id = None
+            else:
+                try:
+                    parent = Department.objects.get(uuid=parent_id)
+                    obj.parent_id = parent.id
+                except Department.DoesNotExist:
+                    logger and logger.error(
+                        "Department import: no parent with uuid {} found for {}".format(
+                            parent_id, d['id'])
+                    )
 
         for field in fields_that_need_translation:
             if save_translated_field(obj, field, d, field):
