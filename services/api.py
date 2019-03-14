@@ -257,6 +257,9 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
         ret['unit_count'] = dict(municipality=dict((
             (x.division.name_fi.lower() if x.division else '_unknown', x.count)
             for x in obj.unit_counts.all())))
+        ret['unit_count']['city_as_department'] = dict(
+            (x.division.name_fi.lower() if x.division else '_unknown', x.city_as_department)
+            for x in obj.unit_counts.all())
         total = 0
         for _, part in ret['unit_count']['municipality'].items():
             total += part
