@@ -844,9 +844,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                                        | Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))).distinct()
 
         def get_services_by_servicenodes(servicenode_ids):
-            ids = [service.id for service in
-                   Service.objects.filter(servicenode__in=service_nodes_by_ancestors(servicenode_ids))]
-            return ids
+            return Service.objects.filter(servicenode__in=service_nodes_by_ancestors(servicenode_ids))\
+                .values_list('id', flat=True)
 
         # TODO: add validation
         if 'period' in filters:
