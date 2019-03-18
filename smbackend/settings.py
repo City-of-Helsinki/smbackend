@@ -206,6 +206,13 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
 
+MUNICIPALITY_DEPARTMENT_UUIDS = {
+    'helsinki': '83e74666-0836-4c1d-948a-4b34a8b90301',
+    'espoo': '520a4492-cb78-498b-9c82-86504de88dce',
+    'vantaa': '6d78f89c-9fd7-41d9-84e0-4b78c0fa25ce',
+    'kauniainen': '6f0458d4-42a3-434a-b9be-20c19fcfa5c3'
+}
+
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
 f = os.path.join(BASE_DIR, "local_settings.py")

@@ -184,6 +184,7 @@ def update_count_objects(service_node_unit_count_objects, city_as_department, no
     for node in node.get_children():
         yield from update_count_objects(service_node_unit_count_objects, city_as_department, node)
 
+
 def update_city_as_department(city_as_department, service_node_unit_counts, node):
     counts = city_as_department.get(node.id, {})
     for child in node.get_children():
@@ -200,6 +201,7 @@ def update_city_as_department(city_as_department, service_node_unit_counts, node
             obj.save()
 
     return counts
+
 
 @db.transaction.atomic
 def save_objects(objects):
