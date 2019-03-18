@@ -184,22 +184,6 @@ def update_count_objects(service_node_unit_count_objects, city_as_department, no
     for node in node.get_children():
         yield from update_count_objects(service_node_unit_count_objects, city_as_department, node)
 
-def update_city_as_department(city_as_department, service_node_unit_counts, node):
-    counts = city_as_department.get(node.id, {})
-    for child in node.get_children():
-        child_counts = update_city_as_department(city_as_department, service_node_unit_counts, child)
-        for muni in child_counts.keys():
-            if muni not in counts.keys():
-                counts[muni] = set()
-            counts[muni] = counts[muni] | child_counts[muni]
-
-    for muni in counts.keys():
-        obj = service_node_unit_counts.get((node.id, muni), None)
-        if obj is not None:
-            obj.city_as_department = len(counts[muni])
-            obj.save()
-
-    return counts
 
 def update_city_as_department(city_as_department, service_node_unit_counts, node):
     counts = city_as_department.get(node.id, {})
