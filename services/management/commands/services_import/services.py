@@ -232,18 +232,6 @@ def update_service_node_counts():
         if municipality != municipality_id:
             add_city_as_department(service_node_id, municipality_id)
 
-        def add_city_as_department(service_node_id, muni):
-            if city_as_department.get(service_node_id, {}).get(muni, 0) == 0:
-                service_node_dict = city_as_department.get(service_node_id, {})
-                service_node_dict[muni] = {unit_id}
-                city_as_department[service_node_id] = service_node_dict
-            else:
-                city_as_department[service_node_id][muni].add(unit_id)
-
-        add_city_as_department(service_node_id, municipality)
-        if municipality != municipality_id:
-            add_city_as_department(service_node_id, municipality_id)
-
     unit_counts_to_be_updated = set(
         ((service_node_id, municipality) for service_node_id, municipality, _, _ in through_values))
 
@@ -258,7 +246,7 @@ def update_service_node_counts():
 
     def count_object_pair(x):
         div = x.division.name_fi.lower() if x.division is not None else None
-        return ((x.service_node_id, div), x)
+        return (x.service_node_id, div), x
 
     service_node_unit_count_objects = dict((
         count_object_pair(x) for x in ServiceNodeUnitCount.objects.select_related('division').all()))
