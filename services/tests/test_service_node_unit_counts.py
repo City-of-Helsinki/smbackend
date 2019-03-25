@@ -94,6 +94,7 @@ def units(service_nodes, municipalities, root_departments):
     u5.service_nodes.add(s1)
     u5.service_nodes.add(s3)
     u6.service_nodes.add(s3)
+    # u4.service_nodes.add(s4)
 
     return Unit.objects.all().order_by('pk')
 
@@ -193,7 +194,7 @@ def test_service_node_counts_delete_units(units, api_client):
     assert len(service_node_3['unit_count']['municipality']) == 2
     assert len(service_node_3['unit_count']['city_as_department']) == 3
 
-    # From service node 3 remove all units (delete unit)
+    # From service node 3 remove all units (delete unit) (from service node 1 remove units 5 and 6)
     Unit.objects.get(pk=5).delete()
     Unit.objects.get(pk=6).delete()
     update_service_node_counts()
@@ -338,3 +339,63 @@ def test_service_node_counts_remove_service_node_from_units(units, api_client):
     assert service_node_3['unit_count']['city_as_department']['_unknown'] == 1
     assert len(service_node_3['unit_count']['municipality']) == 2
     assert len(service_node_3['unit_count']['city_as_department']) == 3
+
+
+@pytest.mark.django_db
+def test_service_node_counts_nested_service_nodes(units, api_client):
+    # Create service node 4 with service node 1 as a parent. Add node 4 to unit 4
+    sn1_obj = ServiceNode.objects.get(pk=1)
+    sn4_obj, created = ServiceNode.objects.get_or_create(id=4, name_fi='ServiceNode 4', last_modified_time=MOD_TIME,
+                                                         parent=sn1_obj)
+    u4_obj = Unit.objects.get(pk=4)
+    u4_obj.service_nodes.add(sn4_obj)
+
+    update_service_node_counts()
+
+    service_nodes = sorted(get_nodes(api_client), key=lambda x: x['id'])
+    service_node_1 = service_nodes[0]
+    service_node_4 = service_nodes[3]
+    print(service_node_1)
+
+    assert service_node_1['id'] == 1
+    assert service_node_4['id'] == 4
+    assert service_node_1['unit_count']['total'] == 4
+    assert service_node_1['unit_count']['municipality']['a'] == 3
+    assert service_node_1['unit_count']['municipality']['b'] == 1
+    assert service_node_1['unit_count']['city_as_department']['da792f32-6da7-4804-8059-16491b1ec0fa'] == 4
+    assert service_node_1['unit_count']['city_as_department']['92f9182e-0942-4d82-8b6a-09499fe9c46a'] == 2
+    assert len(service_node_1['unit_count']['municipality']) == 2
+    assert len(service_node_1['unit_count']['city_as_department']) == 2
+
+    # Create service node 5 with service node 4 as a parent. Add node 5 to unit 5
+    # Same unit in parent and child shouldn't add to total
+    sn5_obj, created = ServiceNode.objects.get_or_create(id=5, name_fi='ServiceNode 5', last_modified_time=MOD_TIME,
+                                                         parent=sn4_obj)
+    u5_obj = Unit.objects.get(pk=5)
+    u5_obj.service_nodes.add(sn5_obj)
+
+    update_service_node_counts()
+
+    service_nodes = sorted(get_nodes(api_client), key=lambda x: x['id'])
+    service_node_4 = service_nodes[3]
+    service_node_5 = service_nodes[4]
+    print(service_node_4)
+
+    assert service_node_1['id'] == 1
+    assert service_node_4['id'] == 4
+    assert service_node_5['id'] == 5
+    assert service_node_1['unit_count']['total'] == 4
+    assert service_node_1['unit_count']['municipality']['a'] == 3
+    assert service_node_1['unit_count']['municipality']['b'] == 1
+    assert service_node_1['unit_count']['city_as_department']['da792f32-6da7-4804-8059-16491b1ec0fa'] == 4
+    assert service_node_1['unit_count']['city_as_department']['92f9182e-0942-4d82-8b6a-09499fe9c46a'] == 2
+    assert len(service_node_1['unit_count']['municipality']) == 2
+    assert len(service_node_1['unit_count']['city_as_department']) == 2
+
+    assert service_node_4['unit_count']['total'] == 2
+    assert service_node_4['unit_count']['municipality']['a'] == 2
+    assert service_node_4['unit_count']['municipality'].get('b') is None
+    assert service_node_4['unit_count']['city_as_department']['da792f32-6da7-4804-8059-16491b1ec0fa'] == 2
+    assert service_node_4['unit_count']['city_as_department']['92f9182e-0942-4d82-8b6a-09499fe9c46a'] == 1
+    assert len(service_node_4['unit_count']['municipality']) == 2
+    assert len(service_node_4['unit_count']['city_as_department']) == 2
