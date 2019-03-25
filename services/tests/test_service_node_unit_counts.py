@@ -339,4 +339,3 @@ def test_service_node_counts_remove_service_node_from_units(units, api_client):
     assert service_node_3['unit_count']['city_as_department']['_unknown'] == 1
     assert len(service_node_3['unit_count']['municipality']) == 2
     assert len(service_node_3['unit_count']['city_as_department']) == 3
-
