@@ -199,6 +199,14 @@ def update_city_as_department(city_as_department, service_node_unit_counts, node
         if obj is not None:
             obj.city_as_department = len(counts[muni])
             obj.save()
+        else:
+            obj = ServiceNodeUnitCount(
+                service_node=node,
+                division_type=get_municipality_division_type(),
+                division=get_divisions_by_muni().get(muni),
+                count=0,
+                city_as_department=len(counts[muni]))
+            obj.save()
     return counts
 
 

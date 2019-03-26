@@ -397,5 +397,5 @@ def test_service_node_counts_nested_service_nodes(units, api_client):
     assert service_node_4['unit_count']['municipality'].get('b') is None
     assert service_node_4['unit_count']['city_as_department']['da792f32-6da7-4804-8059-16491b1ec0fa'] == 2
     assert service_node_4['unit_count']['city_as_department']['92f9182e-0942-4d82-8b6a-09499fe9c46a'] == 1
-    assert len(service_node_4['unit_count']['municipality']) == 2
+    assert len(service_node_4['unit_count']['municipality']) == 1
     assert len(service_node_4['unit_count']['city_as_department']) == 2
