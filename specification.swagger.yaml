@@ -45,7 +45,7 @@ tags:
 
 
 parameters:
-  page_param: #FIXME ONLY PARAM
+  page_param: #FIXME ONLY PARAM, DONE ??
     name: page
     in: query
     description: Request particular page in paginated results
@@ -64,13 +64,20 @@ parameters:
     items:
       type: string
     description: Embed the complete content of given reference-type fields directly into the response, otherwise they are returned as identifiers. Separate field names by commas.
+  only_param:
+    name: only
+    in: query
+    type: array
+    items:
+      type: string
+    description: Restrict the field returned in the results. Separate field names by commas. In the search endpoint, you must qualify the field names with the resource names using the format e.g. 'only=unit.name' # **\<resource_type>.<field_name>** because many kinds of resources are searched through. For example, instead of **only=name** you must specify **only=unit.name**
   unit_bbox_param:
     name: bbox
     in: query
     type: string
     description: Search for events that are within this bounding box. Decimal coordinates are given in order west, south, east, north. Period is used as decimal separator.
-  # FIXME: add all missing filters to units
 
+# FIXME: add all missing filters to units, DONE??
 definitions:
 
   unit:
@@ -179,7 +186,20 @@ definitions:
             "$ref": '#/definitions/department'
           provider_type:
             type: string
-            description: A description of how the service is provided by the organization providing it. One of a predefined set of values. # FIXME: describe values
+            # FIXME: describe values DONE??
+            description: |
+              A description of how the service is provided by the organization providing it. One of a predefined set of values:
+              1. SELF_PRODUCED
+              2. MUNICIPALITY
+              3. ASSOCIATION
+              4. PRIVATE_COMPANY
+              5. OTHER_PRODUCTION_METHOD
+              6. PURCHASED_SERVICE
+              7. UNKNOWN_PRODUCTION_METHOD
+              8. CONTRACT_SCHOOL
+              9. SUPPORTED_OPERATIONS
+              10. PAYMENT_COMMITMENT
+              11. VOUCHER_SERVICE
           organizer_type:
             type: string
             description: The type or sector of the organization which immediately is responsible for the unit. Can differ from the department, which can eg. be a municipality buying the service
@@ -202,7 +222,6 @@ definitions:
           streetview_entrance_url:
             type: string
             description: A link to a Google StreetView where the entrance to the unit is visible
-
 
           contract_type:
             description: A summarized description of how the service is provided in relation to the owning organizational department. Combines data from both provider_type and organizer_type.
@@ -263,7 +282,18 @@ definitions:
     properties:
       section_type:
         type: string
-        description: Specifies, which type of data this item represents. #FIXME specify types
+        # FIXME specify types. DONE?
+        description: |
+          Specifies, which type of data this item represents. Different section types are
+          1. PHONE_OR_EMAIL
+          2. LINK
+          3. TOPICAL
+          4. OTHER_INFO
+          5. OPENING_HOURS
+          6. SOCIAL_MEDIA_LINK
+          7. OTHER_ADDRESS
+          8. HIGHLIGHT
+          9. ESERVICE_LINK
       name:
         type: string
         description: User-readable label or description of the data
@@ -600,6 +630,7 @@ paths:
         - $ref: "#/parameters/page_param"
         - $ref: "#/parameters/pagesize_param"
         - $ref: "#/parameters/include_param"
+        - $ref: "#/parameters/only_param"
         - name: service
           in: query
           type: string
@@ -631,6 +662,7 @@ paths:
           required: false
         - name: city_as_department
           in: query
+          type: string
           description: Retrieve units which are _either_ owned/provided by the desired cities _or_ contained within the city's geographical boundaries. The parameter value must be an UUID identifying a top-level department which is a city.
           required: false
         - name: provider_type
@@ -646,7 +678,23 @@ paths:
         - name: level
           in: query
           type: string
-          description: A string value from a predefined list, which acts as a shorthand filter that aggregates several thematic services together, for example \"most common public services\" # FIXME: list values
+          # FIXME: list values ???
+          description: |
+            A string value from a predefined list, which acts as a shorthand filter that aggregates several thematic services together, for example \"most common public services\"
+            ** jotenkin näin? **
+            * 'common':
+              + 'type': 'include'/'exclude'
+              + 'service_nodes':
+                991   health stations
+                1097  basic education
+                2125  pre school education
+                869   municipal day care
+            * 'customer_service':
+              + 'type': 'include'/'exclude'
+              + 'service_nodes':
+                2006  statues & art
+                332   wlan hotspots
+                530   parking vending machines
           required: false
         - name: service_node
           in: query
@@ -670,11 +718,20 @@ paths:
           in: query
           type: string
           description: If parameter value is either true or 1, return the complex geometry of the unit in the field "geometry". Most units only have point type geometries, which are returned in the location field. Some however have polygon type geometries, eg. skiing tracks or outdoor areas. These complex geometries must be explicitly requested with this parameter.
-        # - name: maintenance_organization FIXME: no in use yet -- awaiting observations
-        #   in: query
-        #   type: string
-        #   description: A highly specialized query parameter used for filtering based on the
-
+        - name: maintenance_organization
+          in: query
+          type: string
+          description: A highly specialized query parameter used for filtering. Based on the
+        # ???
+        - name: category
+          in: query
+          type: string
+          description: Service or service node with it's id separated with semicolon e.g. 'service:234'. list or single value???
+        # ???
+        - name: type
+          in: query
+          type: string
+          description: ???Types of data objects to be included in response. Accepts service_node?, service, unit, address. list or single value???
       responses:
         200:
           description: List of units, paginated
@@ -736,6 +793,7 @@ paths:
         - $ref: "#/parameters/page_param"
         - $ref: "#/parameters/pagesize_param"
         - $ref: "#/parameters/include_param"
+        - $ref: "#/parameters/only_param"
         - name: id
           in: query
           type: string
@@ -783,6 +841,7 @@ paths:
         - $ref: "#/parameters/page_param"
         - $ref: "#/parameters/pagesize_param"
         - $ref: "#/parameters/include_param"
+        - $ref: "#/parameters/only_param"
         - name: id
           in: query
           type: string
@@ -815,6 +874,7 @@ paths:
         - $ref: "#/parameters/page_param"
         - $ref: "#/parameters/pagesize_param"
         - $ref: "#/parameters/include_param"
+        - $ref: "#/parameters/only_param"
       responses:
         200:
           description: List of departments, paginated
@@ -883,20 +943,10 @@ paths:
           in: query
           type: string
           description: A comma-separated list of service ids to be used to filter units.
-        - name: include
-          in: query
-          type: array
-          items:
-            type: string
-          description: Embed the complete content of given reference-type fields directly into the response, otherwise they are returned as identifiers. Separate field names by commas. In the search endpoint, you must qualify the field names with the resource names because many kinds of resources are searched through. For example, instead of **include=department** you must specify **include=unit.department**. The set of valid prefixes is the same as the set of valid values in the type field of the search endpoint.
-        - name: only
-          in: query
-          type: array
-          items:
-            type: string
-          description: Restrict the field returned in the results. Separate field names by commas. In the search endpoint, you must qualify the field names with the resource names using the format # **\<resource_type>.<field_name>** because many kinds of resources are searched through. For example, instead of **only=name** you must specify **only=unit.name**
         - $ref: "#/parameters/page_param"
         - $ref: "#/parameters/pagesize_param"
+        - $ref: "#/parameters/include_param"
+        - $ref: "#/parameters/only_param"
       responses:
         200:
           description: List of search results, paginated
@@ -923,6 +973,44 @@ paths:
           schema:
             $ref: "#/definitions/accessibility_rule"
 
+  /administrative_division/:
+    get:
+      operationId: Retrieve list of administrative divisions
+      summary: Retrieve list of administrative divisions
+      description: Retrieve list of administrative divisions
+      tags:
+        - geography
+      responses:
+        200:
+          description: List of administrative divisions, paginated
+          schema:
+            type: object
+            allOf:
+            - properties:
+                results:
+                  type: array
+                  items:
+                    $ref: '#/definitions/administrative_division'
+            - $ref: '#/definitions/common_collection'
+
+  /administrative_division/id/:
+    get:
+      operationId: Retrieve a single administrative division
+      summary: Retrieve a single administrative division
+      description: Retrieve a single administrative division
+      tags:
+        - geography
+      responses:
+        200:
+          description: The requested administrative division
+          schema:
+            $ref: '#/definitions/administrative_division'
+      parameters:
+      - name: id
+        in: path
+        type: string
+        description: Administrative division identifier as defined in administrative division schema
+        required: true
 
   /street/:
     get:
