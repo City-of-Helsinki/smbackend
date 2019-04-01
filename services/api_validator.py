@@ -33,7 +33,6 @@ class RequestFilters(BaseModel):
 
     page: int = None
     page_size: int = None
-    include: List[str] = None
     service: List[int] = None
     id: List[int] = None
     lat: float = None
@@ -79,13 +78,12 @@ class RequestFilters(BaseModel):
             if ':' not in c:
                 raise ValueError("'%s' not a valid category" % c)
             else:
-                k = c.split(':')[0]
-                v = c.split(':')[1]
+                k, v = c.split(':')
                 try:
                     int(v)
                 except ValueError as e:
                     raise ValueError('%s:%s, %s' % (k, v, str(e)))
-                if len(re.findall(r"\d", k)) > 0:
+                if k not in ['service', 'service_node']:
                     raise ValueError("value '%s' is not suitable for category" % k)
 
     @validator('type', whole=True)
@@ -153,7 +151,7 @@ class SearchRequestFilters(BaseModel):
     @validator('only', whole=True)
     def only_search_params(cls, v):
         if not any(p in only_list for p in v):
-            raise ValueError('include parameter must be one of: %s' % ', '.join(p for p in unit_fields))
+            raise ValueError('include parameter must be one of: %s' % ', '.join(p for p in only_list))
 
 
 class UnitRequestFilters(BaseModel):

@@ -692,10 +692,6 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                        if k in multivalued else v)
                    for k, v in self.request.query_params.items()}
 
-        # filters['bbox'] = self.request.query_params.get('bbox')
-
-        # print(filters)
-
         try:
             RequestFilters(**filters)
             UnitRequestFilters(**filters)
@@ -753,25 +749,19 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         service_nodes = filters.get('service_node', None)
 
-        service_node_ids = None
-        if service_nodes:
-            service_node_ids = service_nodes
-        elif level_specs:
+        if level_specs and not service_nodes:
             if level_specs['type'] == 'include':
-                service_node_ids = level_specs['service_nodes']
-        if service_node_ids:
-            queryset = queryset.filter(service_nodes__in=service_nodes_by_ancestors(service_node_ids)).distinct()
+                service_nodes = level_specs['service_nodes']
+        if service_nodes:
+            queryset = queryset.filter(service_nodes__in=service_nodes_by_ancestors(service_nodes)).distinct()
 
         service_nodes_excl = filters.get('exclude_service_nodes', None)
 
-        service_node_ids = None
-        if service_nodes_excl:
-            service_node_ids = service_nodes_excl
-        elif level_specs:
+        if level_specs and not service_nodes:
             if level_specs['type'] == 'exclude':
-                service_node_ids = level_specs['service_nodes']
-        if service_node_ids:
-            queryset = queryset.exclude(service_nodes__in=service_nodes_by_ancestors(service_node_ids)).distinct()
+                service_nodes_excl = level_specs['service_nodes']
+        if service_nodes_excl:
+            queryset = queryset.exclude(service_nodes__in=service_nodes_by_ancestors(service_nodes_excl)).distinct()
 
         services = filters.get('service')
         if services is not None:
@@ -1067,7 +1057,6 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         if 'city_as_department' in filters:
             deps_uuid = filters['city_as_department']
 
-            # forming municipality search query
             deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
             munis = [d.municipality.name for d in deps]
 
@@ -1075,12 +1064,10 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             for m in munis:
                 muni_sq |= SQ(municipality=m)
 
-            # forming root_department search query
             dep_sq = SQ(root_department=deps_uuid.pop())
             for d in deps_uuid:
                 dep_sq |= SQ(root_department=d)
 
-            # updating queryset
             queryset = queryset.filter(
                 SQ(muni_sq | dep_sq | IS_NOT_UNIT_SQ))
 

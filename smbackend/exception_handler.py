@@ -14,13 +14,15 @@ def custom_exception_handler(exc, context):
     json_resp = json.dumps(response.data) if response else exc
 
     if isinstance(exc, ValidationError):
-        return HttpResponseBadRequest(content='ValidationError: {}'.format(json_resp),
+        return HttpResponseBadRequest(content=json.dumps('ValidationError: {}'.format(json_resp)),
                                       content_type='application/json')
 
     if isinstance(exc, InternalError):
-        return HttpResponseBadRequest(content='Database Error: {}'.format(json_resp))
+        return HttpResponseBadRequest(content=json.dumps('Database Error: {}'.format(json_resp)),
+                                      content_type='application/json')
 
     if isinstance(exc, ValueError):
-        return HttpResponseBadRequest(content='ValueError: {}'.format(json_resp))
+        return HttpResponseBadRequest(content=json.dumps('ValueError: {}'.format(json_resp)),
+                                      content_type='application/json')
 
     return response
