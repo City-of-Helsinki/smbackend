@@ -1049,6 +1049,10 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             services = service.split(',')
             queryset = queryset.filter(django_ct='services.unit').filter(services__in=services)
 
+        # Only units marked public should be returned. For other types,
+        # public is always True.
+        queryset = queryset.filter(public=True)
+
         models = set()
         types = request.query_params.get('type', '').split(',')
         for t in types:

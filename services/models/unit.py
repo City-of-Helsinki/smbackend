@@ -84,7 +84,7 @@ class UnitSearchManager(models.GeoManager):
             for f in self.include_fields:
                 if f in unit_related_fields:
                     qs = qs.prefetch_related(f)
-        return qs.filter(public=True)
+        return qs
 
 
 class Unit(models.Model):

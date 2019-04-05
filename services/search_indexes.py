@@ -36,6 +36,7 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     autosuggest_exact = indexes.CharField(model_attr='name', boost=1.125)
     extra_searchwords = indexes.CharField()
     autosuggest_extra_searchwords = indexes.CharField()
+    public = indexes.BooleanField()
 
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
@@ -46,6 +47,9 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_updated_field(self):
         return 'last_modified_time'
+
+    def prepare_public(self, obj):
+        return True
 
     def _prepare_extra_searchwords(self, obj):
         return ' '.join([category.name for category in obj.keywords.filter(language=get_language())])
@@ -68,6 +72,9 @@ class UnitIndex(ServiceMapBaseIndex):
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
         self.model = apps.get_model(app_label='services', model_name='Unit')
+
+    def prepare_public(self, obj):
+        return obj.public
 
     def prepare_services(self, obj):
         return [ow.id for ow in obj.services.all()]
