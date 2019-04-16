@@ -19,10 +19,10 @@ def municipalities():
     t, created = AdministrativeDivisionType.objects.get_or_create(id=1, type='muni', defaults={'name': 'Municipality'})
     for i in range(2):
         n = str(i)
-        a, created = AdministrativeDivision.objects.get_or_create(type=t, id=i, name_fi='muni_'+n,
-                                                                  ocd_id='ocd-division/country:fi/kunta:muni_'+n)
+        a, created = AdministrativeDivision.objects.get_or_create(type=t, id=i, name_fi='muni_' + n,
+                                                                  ocd_id='ocd-division/country:fi/kunta:muni_' + n)
         if created:
-            Municipality.objects.get_or_create(id='muni_'+n, name_fi='muni_'+n, division=a)
+            Municipality.objects.get_or_create(id='muni_' + n, name_fi='muni_' + n, division=a)
     # print('MUNIS', Municipality.objects.all().order_by('pk'))
     return Municipality.objects.all().order_by('pk')
 
@@ -43,8 +43,7 @@ def departments(municipalities):
 @pytest.mark.django_db
 def units(municipalities, departments):
     for i in range(len(departments)):
-        Unit.objects.get_or_create(pk=i, name_fi='unit_'+str(i), municipality=municipalities[i],
-                                   root_department=departments[i], last_modified_time=TODAY)
+        Unit.objects.get_or_create(pk=i, name_fi='unit_' + str(i), municipality=municipalities[i],
+                                   root_department=departments[i], provider_type=i + 1, last_modified_time=TODAY)
     # print('UNITS', Unit.objects.values())
     return Unit.objects.all().order_by('pk')
-
