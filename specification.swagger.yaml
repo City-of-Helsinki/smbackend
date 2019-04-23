@@ -54,6 +54,8 @@ paths:
         - $ref: "#/components/parameters/only_param"
         - name: service
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of service ids to be used as a filter
           schema:
             type: array
@@ -62,6 +64,8 @@ paths:
           example: 868,873
         - name: id
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of one or more unit ids to be used as a filter
           required: false
           schema:
@@ -71,6 +75,8 @@ paths:
           example: 58532, 58533
         - name: lat
           in: query
+          style: form
+          explode: false
           description: A latitude coordinate to be used as part of a location filter
           required: false
           schema:
@@ -78,6 +84,8 @@ paths:
           example: 20.20
         - name: lon
           in: query
+          style: form
+          explode: false
           description: A longitude coordinate to be used as part of a location filter
           required: false
           schema:
@@ -85,6 +93,8 @@ paths:
           example: 20.20
         - name: distance
           in: query
+          style: form
+          explode: false
           description: A distance radius filter to be used as part of a location filter
             along with lat and lon
           required: false
@@ -93,6 +103,8 @@ paths:
           example: 20.20
         - name: municipality
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of one or more municipality ids. The returned
             units will be located within the municipalities\' boundaries. The
             municipality ids are either municipality names in Finnish, or full
@@ -108,6 +120,8 @@ paths:
           example: helsinki, espoo
         - name: city_as_department
           in: query
+          style: form
+          explode: false
           description: Retrieve units which are _either_ owned/provided by the desired
             cities _or_ contained within the city's geographical boundaries. The
             parameter value must be an UUID identifying a top-level department
@@ -120,6 +134,8 @@ paths:
           example: 83e74666-0836-4c1d-948a-4b34a8b90301,520a4492-cb78-498b-9c82-86504de88dce
         - name: provider_type
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of unit provider types to be used as a filter
           required: false
           schema:
@@ -129,6 +145,8 @@ paths:
           example: 1,8
         - name: provider_type__not
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of unit provider types to be used as an
             exclusion filter
           required: false
@@ -139,6 +157,8 @@ paths:
           example: 2,3
         - name: level
           in: query
+          style: form
+          explode: false
           description: >
             A string value from a predefined list, which acts as a shorthand
             filter that aggregates several thematic services together, for
@@ -149,6 +169,8 @@ paths:
           example: common
         - name: service_node
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of service node ids to be used as a filter.
             Prefer the *services* parameter unless service nodes are
             specifically needed.
@@ -159,6 +181,8 @@ paths:
           example: 2125,1090
         - name: exclude_service_nodes
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of service node ids to be used as an
             exclusion filter
           schema:
@@ -168,6 +192,8 @@ paths:
           example: 2125,1090
         - name: division
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of administrative divisions to be used as a
             filter. Use either full division ids or shorthands of the form
             muni/type\:id
@@ -180,6 +206,8 @@ paths:
         - $ref: "#/components/parameters/unit_bbox_param"
         - name: bbox_srid
           in: query
+          style: form
+          explode: false
           description: An SRID coordinate reference system identifier which specifies the
             coordinate system used in the bbox parameter
           schema:
@@ -187,6 +215,8 @@ paths:
           example: 3046
         - name: geometry
           in: query
+          style: form
+          explode: false
           description: If parameter value is either true or 1, return the complex geometry
             of the unit in the field "geometry". Most units only have point type
             geometries, which are returned in the location field. Some however
@@ -203,13 +233,17 @@ paths:
           example: true
         - name: maintenance_organization
           in: query
+          style: form
+          explode: false
           description: A highly specialized query parameter used for filtering.
           schema:
             type: string
           example:
         - name: category
           in: query
-          description: Comma-separated value which specifies which services or service nodes to filter in results. Identificator and it's id should be separated with semicolon, as 'service:234'. # FIXME corrections to description text
+          style: form
+          explode: false
+          description: Comma-separated value which specifies which services or service nodes to filter in results. Identificator and it's id should be separated with semicolon, as \'service:234\'. # FIXME corrections to description text
           schema:
             type: array
             items:
@@ -286,6 +320,8 @@ paths:
         - $ref: "#/components/parameters/only_param"
         - name: id
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of service ids to filter by
           schema:
             type: array
@@ -344,6 +380,8 @@ paths:
         - $ref: "#/components/parameters/only_param"
         - name: id
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of service_node ids to filter by
           schema:
             type: array
@@ -352,6 +390,8 @@ paths:
           example: 2125,1090
         - name: ancestor
           in: query
+          style: form
+          explode: false
           description: The id of a service_node whose descendants are to be returned in the
             response
           schema:
@@ -414,6 +454,8 @@ paths:
           example: 520a4492-cb78-498b-9c82-86504de88dce
         - name: include_hierarchy
           in: query
+          style: form
+          explode: false
           description: With an empty value or any value other than *no*, *false*, or *0*,
             include the whole descendant hierarchy beginning at this department
             in the response. Omitting this parameter, or including it with the
@@ -441,6 +483,8 @@ paths:
       parameters:
         - name: type
           in: query
+          style: form
+          explode: false
           description: If present, this parameter will restrict the types of resources
             returned in the results. Possible values are *service_node*,
             *service*, *unit*, *address*. If not present, the default types are
@@ -450,6 +494,8 @@ paths:
           example: service_node
         - name: language
           in: query
+          style: form
+          explode: false
           description: The two-character ISO 639-1 language code to be used in the search.
             If missing, the search will use the default language Finnish.
           schema:
@@ -457,18 +503,24 @@ paths:
           example: fi
         - name: q
           in: query
+          style: form
+          explode: false
           description: The complete search query to be used.
           schema:
             type: string
           example: sairaala,helsinki
         - name: input
           in: query
+          style: form
+          explode: false
           description: A partial user input to be used in an autosuggest search
           schema:
             type: string
           example:
         - name: municipality
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of municipalities to be used to filter units.
             Uses the simple format of lowercase municipality name in Finnish
             instead of an OCD id.
@@ -479,6 +531,8 @@ paths:
           example: helsinki,espoo
         - name: service
           in: query
+          style: form
+          explode: false
           description: A comma-separated list of service ids to be used to filter units.
           schema:
             type: array
@@ -487,6 +541,8 @@ paths:
           example: 456,567
         - name: include
           in: query
+          style: form
+          explode: false
           description: Embed the complete content of given reference-type fields directly
             into the response, otherwise they are returned as identifiers.
             Separate field names by commas. In the search endpoint, you must
@@ -502,6 +558,8 @@ paths:
             example: unit.department
         - name: only
           in: query
+          style: form
+          explode: false
           description: Restrict the field returned in the results. Separate field names by
             commas. In the search endpoint, you must qualify the field names
             with the resource names using the format
@@ -554,18 +612,24 @@ paths:
       parameters:
         - name: id
           in: query
+          style: form
+          explode: false
           description: A partial user input to be used in an autosuggest search # FIXME description text
           schema:
             type: string
           example: 222
         - name: input
           in: query
+          style: form
+          explode: false
           description: A partial user input to be used in an autosuggest search # FIXME description text
           schema:
             type: string
           example: hel
         - name: ocd_id
           in: query
+          style: form
+          explode: false
           description: Comma-separated list of # FIXME description text
           schema:
             type: array
@@ -574,6 +638,8 @@ paths:
           example: vantaa/äänestysalue:5
         - name: geometry
           in: query
+          style: form
+          explode: false
           description: If parameter value is either true or 1, return the complex geometry
             of the unit in the field "geometry". Most units only have point type
             geometries, which are returned in the location field. Some however
@@ -589,12 +655,16 @@ paths:
                 example: 1
         - name: origin_id
           in: query
+          style: form
+          explode: false
           description: Kuvaus tähän # FIXME description text
           schema:
             type: string
           example: 694
         - name: date
           in: query
+          style: form
+          explode: false
           description: Kuvaus tähän # FIXME description text
           schema:
             type: string
@@ -645,6 +715,8 @@ paths:
       parameters:
         - name: language
           in: query
+          style: form
+          explode: false
           description: The two-character ISO 639-1 language code to be used in the street
             names. If missing, the street name parameter will use the default
             language Finnish.
@@ -653,6 +725,8 @@ paths:
           example: fi
         - name: municipality
           in: query
+          style: form
+          explode: false
           description: A municipality id. The returned addresses will be located within the
             municipalitie\'s boundaries. The municipality id is either a
             municipality name in Finnish, or a full OCD ID of the form
@@ -667,6 +741,8 @@ paths:
           example: ocd-division/country\:fi/kunta\:helsinki
         - name: input
           in: query
+          style: form
+          explode: false
           description: An autosuggest search for street names, resulting in a prefix search.
           schema:
             type: string
@@ -713,18 +789,24 @@ paths:
       parameters:
         - name: lat
           in: query
+          style: form
+          explode: false
           description: The latitude coordinate to be used in reverse geocoding
           schema:
             type: number
           example: 20.20
         - name: lon
           in: query
+          style: form
+          explode: false
           description: The longitude coordinate to be used in reverse geocoding
           schema:
             type: number
           example: 20.20
         - name: language
           in: query
+          style: form
+          explode: false
           description: The two-character ISO 639-1 language code to be used in the street
             names of the addresses. If missing, the street name parameter will
             use the default language Finnish.
@@ -733,6 +815,8 @@ paths:
           example: fi
         - name: municipality
           in: query
+          style: form
+          explode: false
           description: A municipality id. The returned addresses will be located within the
             municipalitie\'s boundaries. The municipality id is either a
             municipality name in Finnish, or a full OCD ID of the form
@@ -745,6 +829,8 @@ paths:
           example: espoo,vantaa
         - name: municipality_name
           in: query
+          style: form
+          explode: false
           description: A municipality name to be used as a filter, in the language
             specified by the language parameter.
           schema:
@@ -752,6 +838,8 @@ paths:
           example: helsinki
         - name: street
           in: query
+          style: form
+          explode: false
           description: Filter address by street. If a numeric identifier, the parameter is
             interpreted as a street resource identifier (id field). If not, it
             is interpreted as the exact street name, case insensitive.
@@ -760,6 +848,8 @@ paths:
           example: siltasaarenkatu
         - name: number
           in: query
+          style: form
+          explode: false
           description: Filter by the number field of addresses.
           schema:
             type: integer
@@ -786,6 +876,8 @@ components:
     page_param:
       name: page
       in: query
+      style: form
+      explode: false
       description: Request particular page in paginated results
       required: false
       schema:
@@ -794,6 +886,8 @@ components:
     pagesize_param:
       name: page_size
       in: query
+      style: form
+      explode: false
       description: Request that server delivers page_size results in response
       required: false
       schema:
@@ -802,6 +896,8 @@ components:
     include_param:
       name: include
       in: query
+      style: form
+      explode: false
       description: Embed the complete content of given reference-type fields directly into
         the response, otherwise they are returned as identifiers. Separate field
         names by commas.
@@ -812,6 +908,8 @@ components:
     only_param:
       name: only
       in: query
+      style: form
+      explode: false
       description: Restrict the field returned in the results. Separate field names by
         commas.
       schema:
@@ -821,6 +919,8 @@ components:
     unit_bbox_param:
       name: bbox
       in: query
+      style: form
+      explode: false
       description: Search for events that are within this bounding box. Decimal coordinates
         are given in order west, south, east, north. Period is used as decimal
         separator.
