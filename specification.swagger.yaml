@@ -117,7 +117,7 @@ paths:
             type: array
             items:
               type: string
-          example: helsinki, espoo
+          example: helsinki,espoo
         - name: city_as_department
           in: query
           style: form
