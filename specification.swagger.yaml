@@ -813,7 +813,7 @@ components:
       name: only
       in: query
       description: Restrict the field returned in the results. Separate field names by
-        commas.'
+        commas.
       schema:
         type: array
         items:
