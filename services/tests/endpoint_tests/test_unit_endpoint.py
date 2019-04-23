@@ -107,19 +107,16 @@ def test_service_filter(units, unit_service_details, api_client):
     assert res[0]['services'][0] == 0
 
 
+@pytest.mark.django_db
+def test_service_filter_several_values(units, unit_service_details, api_client):
+    services = [0, 1]
+    res = get_unit_list(api_client, query_string='service=0,1')
+    assert len(res) == 2
+    for i in range(2):
+        assert res[i]['services'][0] == services[i]
+
 ###########################
 # these not working (related to many to many relations??)
-
-# returns all services but should return only two
-# @pytest.mark.django_db
-# def test_service_filter_several_values(units, unit_service_details, api_client):
-#     services = [0, 1]
-#     res = get_unit_list(api_client, query_string='services=0,1')
-#     print('---------', res)
-#     assert len(res) == 2
-#     for i in range(2):
-#         assert res[i]['services'][0] == services[0]
-
 
 # returns both units but should return only one
 # @pytest.mark.django_db
@@ -144,6 +141,35 @@ def test_service_filter(units, unit_service_details, api_client):
 
 
 @pytest.mark.django_db
+def test_category_filter(units, unit_service_details, api_client):
+    res = get_unit_list(api_client, query_string='category=service:0')
+    assert len(res) == 1
+    assert res[0]['services'][0] == 0
+
+    # res = get_unit_list(api_client, query_string='category=service_node:0')
+    # assert len(res) == 1
+    # assert res[0]['service_nodes'][0] == 0
+
+
+@pytest.mark.django_db
+def test_category_filter_several_values(units, unit_service_details, api_client):
+    res = get_unit_list(api_client, query_string='category=service:0,service:1')
+    assert len(res) == 2
+    assert res[0]['services'][0] == 0
+    assert res[1]['services'][0] == 1
+
+    # res = get_unit_list(api_client, query_string='category=service_node:0,service_node:1')
+    # assert len(res) == 2
+    # assert res[0]['service_nodes'][0] == 0
+    # assert res[1]['service_nodes'][0] == 1
+    #
+    # res = get_unit_list(api_client, query_string='category=service:0,service_node:1')
+    # assert len(res) == 2
+    # assert res[0]['services'][0] == 0
+    # assert res[1]['service_nodes'][0] == 1
+
+
+@pytest.mark.django_db
 def test_bbox_and_srid_filter(units, api_client):
     res = get_unit_list(api_client, query_string='bbox=385991.000,6672778.500,386659.000,6673421.500&srid=3067')
     assert len(res) == 2
@@ -157,6 +183,7 @@ def test_lat_lon_distance_filter(units, api_client):
                                                  '&distance=250')
     assert len(res) == 1
     assert res[0]['name']['fi'] == 'unit_2'
+
     res = get_unit_list(api_client, query_string='lat=60.180459083&lon=24.952835651'
                                                  '&distance=350')
     assert len(res) == 2
