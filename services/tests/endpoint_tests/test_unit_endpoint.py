@@ -17,7 +17,7 @@ def get_unit_list(api_client, data=None, query_string=None):
         url = '%s?%s' % (url, query_string)
         print(url)
     res = get(api_client, url, data=data).data['results']
-    res.reverse()
+    res.sort(key=lambda r: r['id'])
     return res
 
 
@@ -144,8 +144,21 @@ def test_service_filter(units, unit_service_details, api_client):
 
 
 @pytest.mark.django_db
-def test_bbox_and_srid_filter_returns_200(units, api_client):
+def test_bbox_and_srid_filter(units, api_client):
     res = get_unit_list(api_client, query_string='bbox=385991.000,6672778.500,386659.000,6673421.500&srid=3067')
+    assert len(res) == 2
+    assert res[0]['name']['fi'] == 'unit_2'
+    assert res[1]['name']['fi'] == 'unit_3'
+
+
+@pytest.mark.django_db
+def test_lat_lon_distance_filter(units, api_client):
+    res = get_unit_list(api_client, query_string='lat=60.180459083&lon=24.952835651'
+                                                 '&distance=250')
+    assert len(res) == 1
+    assert res[0]['name']['fi'] == 'unit_2'
+    res = get_unit_list(api_client, query_string='lat=60.180459083&lon=24.952835651'
+                                                 '&distance=350')
     assert len(res) == 2
     assert res[0]['name']['fi'] == 'unit_2'
     assert res[1]['name']['fi'] == 'unit_3'

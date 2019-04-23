@@ -56,7 +56,9 @@ def services():
 @pytest.fixture
 @pytest.mark.django_db
 def units(municipalities, departments, service_nodes, services):
+    # ympyrätalo
     pnt_0 = Point(24.949593, 60.180379, srid=4326)
+    # säästäpankinranta
     pnt_1 = Point(24.947442, 60.179162, srid=4326)
 
     u0, _ = Unit.objects.get_or_create(pk=0, name_fi='unit_0', municipality=municipalities[0],
