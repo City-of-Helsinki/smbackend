@@ -75,8 +75,6 @@ paths:
           example: 58532, 58533
         - name: lat
           in: query
-          style: form
-          explode: false
           description: A latitude coordinate to be used as part of a location filter
           required: false
           schema:
@@ -84,8 +82,6 @@ paths:
           example: 60.1695096
         - name: lon
           in: query
-          style: form
-          explode: false
           description: A longitude coordinate to be used as part of a location filter
           required: false
           schema:
@@ -93,8 +89,6 @@ paths:
           example: 24.9405559
         - name: distance
           in: query
-          style: form
-          explode: false
           description: A distance radius filter to be used as part of a location filter
             along with lat and lon
           required: false
@@ -157,8 +151,6 @@ paths:
           example: 2,3
         - name: level
           in: query
-          style: form
-          explode: false
           description: >
             A string value from a predefined list, which acts as a shorthand
             filter that aggregates several thematic services together, for
@@ -206,8 +198,6 @@ paths:
         - $ref: "#/components/parameters/unit_bbox_param"
         - name: bbox_srid
           in: query
-          style: form
-          explode: false
           description: An SRID coordinate reference system identifier which specifies the
             coordinate system used in the bbox parameter
           schema:
@@ -215,8 +205,6 @@ paths:
           example: 3046
         - name: geometry
           in: query
-          style: form
-          explode: false
           description: If parameter value is either true or 1, return the complex geometry
             of the unit in the field "geometry". Most units only have point type
             geometries, which are returned in the location field. Some however
@@ -232,8 +220,6 @@ paths:
           example: true
         - name: maintenance_organization
           in: query
-          style: form
-          explode: false
           description: >
             A lowercase municipality name in Finnish specifying which
             organization is responsible for maintenance of this unit.
@@ -400,8 +386,6 @@ paths:
           example: 2125,1090
         - name: ancestor
           in: query
-          style: form
-          explode: false
           description: The id of a service_node whose descendants are to be returned in the
             response
           schema:
@@ -464,8 +448,6 @@ paths:
           example: 520a4492-cb78-498b-9c82-86504de88dce
         - name: include_hierarchy
           in: query
-          style: form
-          explode: false
           description: With an empty value or any value other than *no*, *false*, or *0*,
             include the whole descendant hierarchy beginning at this department
             in the response. Omitting this parameter, or including it with the
@@ -493,8 +475,6 @@ paths:
       parameters:
         - name: type
           in: query
-          style: form
-          explode: false
           description: If present, this parameter will restrict the types of resources
             returned in the results. Possible values are *service_node*,
             *service*, *unit*, *address*. If not present, the default types are
@@ -504,8 +484,6 @@ paths:
           example: service_node
         - name: language
           in: query
-          style: form
-          explode: false
           description: The two-character ISO 639-1 language code to be used in the search.
             If missing, the search will use the default language Finnish.
           schema:
@@ -513,16 +491,12 @@ paths:
           example: fi
         - name: q
           in: query
-          style: form
-          explode: false
           description: The complete search query to be used.
           schema:
             type: string
           example: sairaala helsinki
         - name: input
           in: query
-          style: form
-          explode: false
           description: A partial user input to be used in an autosuggest search
           schema:
             type: string
@@ -625,16 +599,12 @@ paths:
       parameters:
         - name: id
           in: query
-          style: form
-          explode: false
           description: A partial user input to be used in an autosuggest search # FIXME description text
           schema:
             type: string
           example: 222
         - name: input
           in: query
-          style: form
-          explode: false
           description: A partial user input to be used in an autosuggest search # FIXME description text
           schema:
             type: string
@@ -651,8 +621,6 @@ paths:
           example: vantaa/äänestysalue:5
         - name: geometry
           in: query
-          style: form
-          explode: false
           description: If parameter is either true or 1, return the complex geometry
             of the administrative division in the field "geometry".
           schema:
@@ -663,16 +631,12 @@ paths:
                 example: 1
         - name: origin_id
           in: query
-          style: form
-          explode: false
           description: Kuvaus tähän # FIXME description text
           schema:
             type: string
           example: 694
         - name: date
           in: query
-          style: form
-          explode: false
           description: Kuvaus tähän # FIXME description text
           schema:
             type: string
@@ -723,8 +687,6 @@ paths:
       parameters:
         - name: language
           in: query
-          style: form
-          explode: false
           description: The two-character ISO 639-1 language code to be used in the street
             names. If missing, the street name parameter will use the default
             language Finnish.
@@ -733,8 +695,6 @@ paths:
           example: fi
         - name: municipality
           in: query
-          style: form
-          explode: false
           description: A municipality id. The returned addresses will be located within the
             municipalitie\'s boundaries. The municipality id is either a
             municipality name in Finnish, or a full OCD ID of the form
@@ -743,14 +703,10 @@ paths:
             Site](http://opencivicdata.readthedocs.io/en/latest/ocdids.html) for
             more information
           schema:
-            type: array
-            items:
-              type: string
+            type: string
           example: ocd-division/country\:fi/kunta\:helsinki
         - name: input
           in: query
-          style: form
-          explode: false
           description: An autosuggest search for street names, resulting in a prefix search.
           schema:
             type: string
@@ -797,24 +753,18 @@ paths:
       parameters:
         - name: lat
           in: query
-          style: form
-          explode: false
           description: The latitude coordinate to be used in reverse geocoding
           schema:
             type: number
           example: 60.1695096
         - name: lon
           in: query
-          style: form
-          explode: false
           description: The longitude coordinate to be used in reverse geocoding
           schema:
             type: number
           example: 24.9405559
         - name: language
           in: query
-          style: form
-          explode: false
           description: The two-character ISO 639-1 language code to be used in the street
             names of the addresses. If missing, the street name parameter will
             use the default language Finnish.
@@ -823,8 +773,6 @@ paths:
           example: fi
         - name: municipality
           in: query
-          style: form
-          explode: false
           description: A municipality id. The returned addresses will be located within the
             municipalitie\'s boundaries. The municipality id is either a
             municipality name in Finnish, or a full OCD ID of the form
@@ -834,11 +782,9 @@ paths:
             more information
           schema:
             type: string
-          example: espoo,vantaa
+          example: espoo
         - name: municipality_name
           in: query
-          style: form
-          explode: false
           description: A municipality name to be used as a filter, in the language
             specified by the language parameter.
           schema:
@@ -846,8 +792,6 @@ paths:
           example: helsinki
         - name: street
           in: query
-          style: form
-          explode: false
           description: Filter address by street. If a numeric identifier, the parameter is
             interpreted as a street resource identifier (id field). If not, it
             is interpreted as the exact street name, case insensitive.
@@ -856,8 +800,6 @@ paths:
           example: siltasaarenkatu
         - name: number
           in: query
-          style: form
-          explode: false
           description: Filter by the number field of addresses.
           schema:
             type: integer
@@ -884,8 +826,6 @@ components:
     page_param:
       name: page
       in: query
-      style: form
-      explode: false
       description: Request particular page in paginated results
       required: false
       schema:
@@ -894,8 +834,6 @@ components:
     pagesize_param:
       name: page_size
       in: query
-      style: form
-      explode: false
       description: Request that server delivers page_size results in response
       required: false
       schema:
