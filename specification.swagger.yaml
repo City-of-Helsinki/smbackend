@@ -81,7 +81,7 @@ paths:
           required: false
           schema:
             type: number
-          example: 20.20
+          example: 60.1695096
         - name: lon
           in: query
           style: form
@@ -90,7 +90,7 @@ paths:
           required: false
           schema:
             type: number
-          example: 20.20
+          example: 24.9405559
         - name: distance
           in: query
           style: form
@@ -802,7 +802,7 @@ paths:
           description: The latitude coordinate to be used in reverse geocoding
           schema:
             type: number
-          example: 20.20
+          example: 60.1695096
         - name: lon
           in: query
           style: form
@@ -810,7 +810,7 @@ paths:
           description: The longitude coordinate to be used in reverse geocoding
           schema:
             type: number
-          example: 20.20
+          example: 24.9405559
         - name: language
           in: query
           style: form
