@@ -570,9 +570,12 @@ paths:
           in: query
           style: form
           explode: false
-          description: Restrict the field returned in the results. Separate field names by
-            commas. In the search endpoint, you must qualify the field names
-            with the resource names using the format
+          description: >
+            Restrict the field returned in the results. Separate field
+            names by commas. In the search endpoint, you must qualify
+            the field names with the resource names using the format
+            [resource].[field] because the endpoint contains resources
+            of several kinds.
           schema:
             type: array
             items:
