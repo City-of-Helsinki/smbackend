@@ -237,7 +237,7 @@ paths:
           description: A highly specialized query parameter used for filtering.
           schema:
             type: string
-          example:
+          example: helsinki
         - name: category
           in: query
           style: form
@@ -520,7 +520,7 @@ paths:
           description: A partial user input to be used in an autosuggest search
           schema:
             type: string
-          example:
+          example: sairaal
         - name: municipality
           in: query
           style: form
