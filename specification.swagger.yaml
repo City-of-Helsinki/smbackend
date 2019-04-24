@@ -242,12 +242,17 @@ paths:
           in: query
           style: form
           explode: false
-          description: Comma-separated value which specifies which services or service nodes to filter in results. Identificator and it's id should be separated with semicolon, as \'service:234\'. # FIXME corrections to description text
+          description: >
+            Comma-separated value specifying which services or service
+            nodes to filter units by. The values are of the form
+            [category_type]:[id] where category_type is either
+            "service" or "service_node" and id is the primary id of a
+            resource of the corresponding type. Eg. "service:234".
           schema:
             type: array
             items:
               type: string
-          example: service:234
+          example: service:234,service:863
       responses:
         "200":
           description: List of units, paginated
