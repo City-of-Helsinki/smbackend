@@ -610,7 +610,7 @@ paths:
         - accessibility
       responses:
         "200":
-          description: List of accessibility rules and shorcoming messages
+          description: List of accessibility rules and shortcoming messages
           content:
             application/json:
               schema:
