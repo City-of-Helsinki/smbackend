@@ -882,7 +882,7 @@ components:
         type: array
         items:
           type: number
-      example: 382000.000,6673000.000,383000.000,6674000.000
+      example: 24.9405559,60.1695096,24.9805559,60.1895096
   schemas:
     unit:
       type: object
