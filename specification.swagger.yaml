@@ -512,7 +512,7 @@ paths:
           description: The complete search query to be used.
           schema:
             type: string
-          example: sairaala,helsinki
+          example: sairaala helsinki
         - name: input
           in: query
           style: form
