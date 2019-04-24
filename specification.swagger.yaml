@@ -790,8 +790,11 @@ paths:
           example: espoo
         - name: municipality_name
           in: query
-          description: A municipality name to be used as a filter, in the language
-            specified by the language parameter.
+          description: >
+            A municipality name to be used as a filter, in the
+            language specified by the language parameter. This is
+            mainly used to support UIs in different languages - the
+            municipality filter should be used in most cases.
           schema:
             type: string
           example: helsinki
