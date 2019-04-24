@@ -224,7 +224,6 @@ paths:
             These complex geometries must be explicitly requested with this
             parameter.
           schema:
-            # FIXME only this values are that matters?
             oneOf:
               - type: boolean
                 example: true
@@ -640,15 +639,10 @@ paths:
           in: query
           style: form
           explode: false
-          description: If parameter value is either true or 1, return the complex geometry
-            of the unit in the field "geometry". Most units only have point type
-            geometries, which are returned in the location field. Some however
-            have polygon type geometries, eg. skiing tracks or outdoor areas.
-            These complex geometries must be explicitly requested with this
-            parameter. # FIXME description text
+          description: If parameter is either true or 1, return the complex geometry
+            of the administrative division in the field "geometry".
           schema:
             oneOf:
-            # FIXME only this values are that matters?
               - type: boolean
                 example: true
               - type: integer
