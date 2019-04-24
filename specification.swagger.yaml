@@ -599,13 +599,13 @@ paths:
       parameters:
         - name: id
           in: query
-          description: A partial user input to be used in an autosuggest search # FIXME description text
+          description: Primary id of division
           schema:
             type: string
           example: 222
         - name: input
           in: query
-          description: A partial user input to be used in an autosuggest search # FIXME description text
+          description: A partial user input to be used in an autosuggest search, matching names of administrative divisions
           schema:
             type: string
           example: hel
@@ -613,7 +613,7 @@ paths:
           in: query
           style: form
           explode: false
-          description: Comma-separated list of # FIXME description text
+          description: Comma-separated list of ocd_ids of administrative divisions to match
           schema:
             type: array
             items:
@@ -631,16 +631,21 @@ paths:
                 example: 1
         - name: origin_id
           in: query
-          description: Kuvaus tähän # FIXME description text
+          description: Filter by origin_id, which is usually a primary id used in the original data source
           schema:
             type: string
           example: 694
         - name: date
           in: query
-          description: Kuvaus tähän # FIXME description text
+          description: >
+            Some administrative divisions such as school districts are
+            only valid during a specified period of time, eg. from
+            August 2019 to May 2020. The date filter is used to return only
+            the divisions whose associated time period contain the requested
+            date.
           schema:
             type: string
-          example: 2015-02-22
+          example: 2020-02-22
       responses:
         "200":
           description: List of administrative divisions, paginated
