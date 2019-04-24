@@ -234,7 +234,13 @@ paths:
           in: query
           style: form
           explode: false
-          description: A highly specialized query parameter used for filtering.
+          description: >
+            A lowercase municipality name in Finnish specifying which
+            organization is responsible for maintenance of this unit.
+            Needed mainly because of skiing trails near the border of
+            two municipalities where the maintaining municipality is
+            not always the same as the municipality (location) of the
+            unit.
           schema:
             type: string
           example: helsinki
