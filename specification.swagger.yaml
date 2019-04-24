@@ -199,7 +199,7 @@ paths:
         - name: bbox_srid
           in: query
           description: An SRID coordinate reference system identifier which specifies the
-            coordinate system used in the bbox parameter
+            coordinate system used in the bbox parameter. Currently supported values are 4326 and 3046.
           schema:
             type: integer
           example: 3046
