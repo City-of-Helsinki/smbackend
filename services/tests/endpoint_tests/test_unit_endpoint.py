@@ -22,6 +22,56 @@ def get_unit_list(api_client, data=None, query_string=None):
 
 
 @pytest.mark.django_db
+def test_page_filter(units, api_client):
+    res = get_unit_list(api_client, query_string='page=1')
+    assert len(res) == 4
+    assert res[0]['id'] == 0
+    assert res[3]['id'] == 3
+
+    res = get_unit_list(api_client, query_string='page=1&page_size=2')
+    assert len(res) == 2
+    assert res[0]['id'] == 2
+    assert res[1]['id'] == 3
+
+    res = get_unit_list(api_client, query_string='page=2&page_size=2')
+    assert len(res) == 2
+    assert res[0]['id'] == 0
+    assert res[1]['id'] == 1
+
+
+@pytest.mark.django_db
+def test_only_filter(units, api_client):
+    res = get_unit_list(api_client, query_string='only=id')
+    assert len(res) == 4
+    assert res[0]['id'] == 0
+    assert res[0].get('name') is None
+
+
+@pytest.mark.django_db
+def test_only_filter_several_values(units, api_client):
+    res = get_unit_list(api_client, query_string='only=id,name')
+    assert len(res) == 4
+    assert res[0]['id'] == 0
+    assert res[0]['name'] == {'fi': 'unit_0'}
+    assert res[0].get('provider_type') is None
+
+
+@pytest.mark.django_db
+def test_include_filter(units, api_client):
+    res = get_unit_list(api_client, query_string='include=municipality')
+    assert len(res) == 4
+    assert res[0]['municipality']['name'] == {'fi': 'muni_0'}
+
+
+@pytest.mark.django_db
+def test_include_filter_several_values(units, api_client):
+    res = get_unit_list(api_client, query_string='include=municipality,root_department')
+    assert len(res) == 4
+    assert res[0]['municipality']['name'] == {'fi': 'muni_0'}
+    assert res[0]['root_department']['name'] == {'fi': 'dep_0'}
+
+
+@pytest.mark.django_db
 def test_unit_id_filter(units, api_client):
     res = get_unit_list(api_client, query_string='id=0')
     assert len(res) == 1
