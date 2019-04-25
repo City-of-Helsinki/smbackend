@@ -21,7 +21,7 @@ info:
 
 
     Several fields are multilingual. These are implemented as objects with each language variant as property.
-  termsOfService: (depends on data provider)
+  termsOfService: https://hri.fi/data/fi/dataset/paakaupunkiseudun-palvelukartan-rest-rajapinta
   version: v2
 tags:
   - name: unit
@@ -828,7 +828,7 @@ paths:
                           $ref: "#/components/schemas/address"
                   - $ref: "#/components/schemas/common_collection"
 servers:
-  - url: http://localhost:8000/v2 #https://api.hel.fi/servicemap/v2
+  - url: https://api.hel.fi/servicemap/v2
 components:
   parameters:
     page_param:
