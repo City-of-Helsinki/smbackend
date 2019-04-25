@@ -15,7 +15,6 @@ def authenticate_user(api_client, user):
     api_client.credentials(HTTP_AUTHORIZATION='Token ' + token)
 
 
-# Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__create_observation(api_client, observable_property, unit, user):
     url = reverse(
@@ -53,7 +52,6 @@ def test__create_observation(api_client, observable_property, unit, user):
     assert Observation.objects.count() == count
 
 
-# Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__create_descriptive_observation(api_client, descriptive_property,
                                          unit, user):
