@@ -727,7 +727,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         if 'provider_type__not' in filters:
             val = filters.get('provider_type__not')
-            pr_ids = val.split('.')
+            pr_ids = val.split(',')
             queryset = queryset.exclude(provider_type__in=pr_ids)
 
         level = filters.get('level', None)
