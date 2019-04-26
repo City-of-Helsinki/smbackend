@@ -122,25 +122,22 @@ def test_city_as_department_filter_several_values(units, api_client):
     assert res[2]['root_department'] == UUID(deps[0])
 
 
-@pytest.mark.skip(reason="test not working, temporary disabled")
 @pytest.mark.django_db
 def test_division_filter(units, api_client):
     res = get_unit_list(api_client, query_string='division=ocd-division/country:fi/kunta:muni_0')
-    print('_____0', res)
-    assert len(res) == 1
+    assert len(res) == 2
     assert res[0]['municipality'] == 'muni_0'
+    assert res[1]['municipality'] == 'muni_0'
 
 
-@pytest.mark.skip(reason="test not working, temporary disabled")
 @pytest.mark.django_db
 def test_division_filter_several_values(units, api_client):
-    munis = ['muni_0', 'muni_1']
+    munis = ['muni_1', 'muni_2']
     res = get_unit_list(api_client, query_string='division=ocd-division/country:fi/kunta:{0},'
                                                  'ocd-division/country:fi/kunta:{1}'.format(munis[0], munis[1]))
-    print('_____1', res)
     assert len(res) == 2
-    for i in range(len(res)):
-        assert res[i]['municipality'] == munis[i]
+    assert res[0]['municipality'] == 'muni_1'
+    assert res[1]['municipality'] == 'muni_2'
 
 
 @pytest.mark.django_db
@@ -188,34 +185,24 @@ def test_service_filter_several_values(units, unit_service_details, api_client):
     for i in range(len(res)):
         assert res[i]['services'][0] == services[i]
 
-##############################################
-# these not working because of service_node. ¿related to many to many relation?
 
-
-# returns both units but should return only one
-@pytest.mark.skip(reason="test not working, temporary disabled")
 @pytest.mark.django_db
 def test_level_filter(units, api_client):
     levels = list(LEVELS.keys())
     res = get_unit_list(api_client, query_string='level=' + levels[0])
-    print('_____2', res)
     assert len(res) == 1
     assert len(res[0]['service_nodes']) == 1
     assert res[0]['service_nodes'][0] == 0
 
 
-# returns both units but should return only one
-@pytest.mark.skip(reason="test not working, temporary disabled")
 @pytest.mark.django_db
 def test_service_node_filter(units, api_client):
     res = get_unit_list(api_client, query_string='service_node=1')
-    print('_____3', res)
     assert len(res) == 1
     assert len(res[0]['service_nodes']) == 1
-    assert res[0]['service_nodes'][0] == 0
+    assert res[0]['service_nodes'][0] == 1
 
 
-@pytest.mark.skip(reason="temporary disabled")
 @pytest.mark.django_db
 def test_category_filter_service_node(units, unit_service_details, api_client):
     res = get_unit_list(api_client, query_string='category=service_node:0')
@@ -223,7 +210,6 @@ def test_category_filter_service_node(units, unit_service_details, api_client):
     assert res[0]['service_nodes'][0] == 0
 
 
-@pytest.mark.skip(reason="test not working, temporary disabled")
 @pytest.mark.django_db
 def test_category_filter_several_values_service_node(units, unit_service_details, api_client):
     res = get_unit_list(api_client, query_string='category=service_node:0,service_node:1')
@@ -235,8 +221,6 @@ def test_category_filter_several_values_service_node(units, unit_service_details
     assert len(res) == 2
     assert res[0]['services'][0] == 0
     assert res[1]['service_nodes'][0] == 1
-
-##############################################
 
 
 @pytest.mark.django_db

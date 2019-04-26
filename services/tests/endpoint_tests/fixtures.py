@@ -10,9 +10,9 @@ from munigeo.models import AdministrativeDivisionType, AdministrativeDivision, A
 
 
 TODAY = datetime.now()
-bbox_0 = MultiPolygon(Polygon(srid=4326).from_bbox((24.863962464, 60.186704901, 24.986374646, 60.148095083)))
-bbox_1 = MultiPolygon(Polygon(srid=4326).from_bbox((24.834427264, 60.153170852, 24.720668286, 60.197252873)))
-bbox_2 = MultiPolygon(Polygon(srid=4326).from_bbox((24.834504387, 60.266958912, 25.067844357, 60.357068896)))
+bbox_0 = MultiPolygon(Polygon.from_bbox((24.894676, 60.147743, 24.976559, 60.186355)), srid=4326)
+bbox_1 = MultiPolygon(Polygon.from_bbox((24.773140, 60.158678, 24.851418, 60.194108)), srid=4326)
+bbox_2 = MultiPolygon(Polygon.from_bbox((24.829788, 60.272515, 25.058784, 60.345468)), srid=4326)
 
 
 @pytest.fixture
