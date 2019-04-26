@@ -65,8 +65,9 @@ def service_nodes():
 @pytest.mark.django_db
 def services(service_nodes):
     for i in range(4):
-        Service.objects.get_or_create(id=i, name='service_' + str(i), root_service_node=service_nodes[i],
-                                      last_modified_time=TODAY)
+        s, _ = Service.objects.get_or_create(id=i, name='service_' + str(i), root_service_node=service_nodes[i],
+                                             last_modified_time=TODAY)
+        service_nodes[i].related_services.add(s)
     return Service.objects.all().order_by('pk')
 
 

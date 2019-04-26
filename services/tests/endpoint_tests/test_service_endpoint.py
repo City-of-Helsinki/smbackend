@@ -57,3 +57,19 @@ def test_include_filter(services, api_client):
     print(res)
     assert len(res) == 4
     assert res[0]['root_service_node']['name'] == 'service_node_0'
+
+
+@pytest.mark.django_db
+def test_service_id_filter(units, api_client):
+    res = get_service_list(api_client, query_string='id=0')
+    assert len(res) == 1
+    assert res[0]['id'] == 0
+
+
+@pytest.mark.django_db
+def test_service_id_filter_several_values(units, api_client):
+    ids = [0, 1]
+    res = get_service_list(api_client, query_string='id={0},{1}'.format(ids[0], ids[1]))
+    assert len(res) == 2
+    for i in range(len(res)):
+        assert res[i]['id'] == ids[i]
