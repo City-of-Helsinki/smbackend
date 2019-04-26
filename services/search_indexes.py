@@ -127,6 +127,10 @@ class AddressIndex(indexes.SearchIndex, indexes.Indexable):
     number = indexes.CharField(use_template=False)
     autosuggest = indexes.EdgeNgramField(use_template=False)
     autosuggest_exact = indexes.CharField(use_template=False)
+    public = indexes.BooleanField()
+
+    def prepare_public(self, obj):
+        return True
 
     def get_model(self):
         return apps.get_model('munigeo', 'Address')
