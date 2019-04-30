@@ -5,7 +5,7 @@ from services.utils import get_translated
 from .keyword import Keyword
 from .unit import Unit
 from .hierarchy import CustomTreeManager
-from .service import Service
+# from .service import Service
 from munigeo.models import AdministrativeDivisionType, AdministrativeDivision
 
 
@@ -16,7 +16,7 @@ class ServiceNode(MPTTModel):
     keywords = models.ManyToManyField(Keyword)
 
     service_reference = models.TextField(null=True)
-    related_services = models.ManyToManyField(Service)
+    # related_services = models.ManyToManyField('Service')
 
     last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
 

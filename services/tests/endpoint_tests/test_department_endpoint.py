@@ -45,9 +45,6 @@ def test_only_filter(departments, api_client):
     assert res[0]['id'] == deps[0]
     assert res[0].get('name') is None
 
-
-@pytest.mark.django_db
-def test_only_filter_several_values(departments, api_client):
     res = get_department_list(api_client, query_string='only=id,name')
     assert len(res) == 3
     assert res[1]['id'] == deps[1]

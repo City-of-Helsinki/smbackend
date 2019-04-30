@@ -10,9 +10,9 @@ from munigeo.models import AdministrativeDivisionType, AdministrativeDivision, A
 
 
 TODAY = datetime.now()
-bbox_0 = MultiPolygon(Polygon.from_bbox((24.894676, 60.147743, 24.976559, 60.186355)), srid=4326)
-bbox_1 = MultiPolygon(Polygon.from_bbox((24.773140, 60.158678, 24.851418, 60.194108)), srid=4326)
-bbox_2 = MultiPolygon(Polygon.from_bbox((24.829788, 60.272515, 25.058784, 60.345468)), srid=4326)
+bbox_0 = MultiPolygon(Polygon.from_bbox((24.916821, 60.163376, 24.960937, 60.185233)), srid=4326)
+bbox_1 = MultiPolygon(Polygon.from_bbox((24.818115, 60.179770, 24.840045, 60.190695)), srid=4326)
+bbox_2 = MultiPolygon(Polygon.from_bbox((24.785500, 60.272642, 25.004797, 60.342920)), srid=4326)
 
 
 @pytest.fixture
@@ -55,7 +55,7 @@ def departments(municipalities):
 
 @pytest.fixture
 @pytest.mark.django_db
-def service_nodes():
+def service_nodes_flat():
     for i in range(4):
         ServiceNode.objects.create(id=i, name='servicenode_' + str(i), last_modified_time=TODAY)
     return ServiceNode.objects.all().order_by('pk')
@@ -63,17 +63,30 @@ def service_nodes():
 
 @pytest.fixture
 @pytest.mark.django_db
-def services(service_nodes):
+def service_nodes_tree():
+    # node_0 is parent of node_1, node_1 is parent of node_2, node_0 and node_3 has no parents
     for i in range(4):
-        s, _ = Service.objects.get_or_create(id=i, name='service_' + str(i), root_service_node=service_nodes[i],
+        if i == 0 or i == 3:
+            s, _ = ServiceNode.objects.get_or_create(id=i, name='servicenode_' + str(i), last_modified_time=TODAY)
+        else:
+            ServiceNode.objects.get_or_create(id=i, name='servicenode_' + str(i),
+                                              parent=ServiceNode.objects.get(id=i - 1), last_modified_time=TODAY)
+    return ServiceNode.objects.all().order_by('pk')
+
+
+@pytest.fixture
+@pytest.mark.django_db
+def services(service_nodes_tree):
+    for i in range(4):
+        s, _ = Service.objects.get_or_create(id=i, name='service_' + str(i), root_service_node=service_nodes_tree[i],
                                              last_modified_time=TODAY)
-        service_nodes[i].related_services.add(s)
+        service_nodes_tree[i].related_services.add(s)
     return Service.objects.all().order_by('pk')
 
 
 @pytest.fixture
 @pytest.mark.django_db
-def units(municipalities, departments, service_nodes, services):
+def units(municipalities, departments):
     # ympyrätalo (muni_0)
     pnt_0 = Point(24.949593, 60.180379, srid=4326)
     # säästöpankinranta (muni_0)
@@ -95,16 +108,31 @@ def units(municipalities, departments, service_nodes, services):
     u3, _ = Unit.objects.get_or_create(pk=3, name_fi='unit_3', municipality=municipalities[0], location=pnt_0,
                                        root_department=departments[0], provider_type=3,
                                        last_modified_time=TODAY)
-
-    unis = Unit.objects.all().order_by('pk')
-    for i in range(len(unis)):
-        unis[i].service_nodes.add(service_nodes[i])
     return Unit.objects.all().order_by('pk')
 
 
 @pytest.fixture
 @pytest.mark.django_db
+def units_service_nodes_flat(units, service_nodes_flat):
+    unis = Unit.objects.all().order_by('pk')
+    for i in range(len(unis)):
+        unis[i].service_nodes.add(service_nodes_flat[i])
+
+
+@pytest.fixture
+@pytest.mark.django_db
+def units_service_nodes_tree(units, service_nodes_tree):
+    unis = Unit.objects.all().order_by('pk')
+    for i in range(len(unis)):
+        unis[i].service_nodes.add(service_nodes_tree[i])
+
+
+@pytest.fixture
+@pytest.mark.django_db
 def unit_service_details(units, services):
-    for i in range(len(units)):
+    # unit_0 assigned to service_0, unit_1 assigned to service_1,
+    # unit_2 assigned to service_2 and service_3, unit_3 not assigned to any service
+    for i in range(len(units) - 1):
         UnitServiceDetails.objects.get_or_create(unit=units[i], service=services[i])
+    UnitServiceDetails.objects.get_or_create(unit=units[2], service=services[3])
     return UnitServiceDetails.objects.all().order_by('pk')

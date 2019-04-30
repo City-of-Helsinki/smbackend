@@ -41,35 +41,27 @@ def test_only_filter(services, api_client):
     assert res[0]['id'] == 0
     assert res[0].get('name') is None
 
-
-@pytest.mark.django_db
-def test_only_filter_several_values(services, api_client):
     res = get_service_list(api_client, query_string='only=id,name')
     assert len(res) == 4
     assert res[0]['id'] == 0
     assert res[0]['name'] == {'fi': 'service_0'}
 
 
-@pytest.mark.skip(reason="test not working, temporary disabled")
+@pytest.mark.skip(reason="api is not working as expected, temporary disabled")
 @pytest.mark.django_db
 def test_include_filter(services, api_client):
     res = get_service_list(api_client, query_string='include=root_service_node')
-    print(res)
     assert len(res) == 4
     assert res[0]['root_service_node']['name'] == 'service_node_0'
 
 
 @pytest.mark.django_db
-def test_service_id_filter(units, api_client):
+def test_service_id_filter(services, api_client):
     res = get_service_list(api_client, query_string='id=0')
     assert len(res) == 1
     assert res[0]['id'] == 0
 
-
-@pytest.mark.django_db
-def test_service_id_filter_several_values(units, api_client):
-    ids = [0, 1]
-    res = get_service_list(api_client, query_string='id={0},{1}'.format(ids[0], ids[1]))
+    res = get_service_list(api_client, query_string='id=0,1')
     assert len(res) == 2
-    for i in range(len(res)):
-        assert res[i]['id'] == ids[i]
+    assert res[0]['id'] == 0
+    assert res[1]['id'] == 1

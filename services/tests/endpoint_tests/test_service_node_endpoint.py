@@ -17,7 +17,7 @@ def get_service_node_list(api_client, data=None, query_string=None):
 
 
 @pytest.mark.django_db
-def test_page_filter(service_nodes, api_client):
+def test_page_filter(service_nodes_tree, api_client):
     res = get_service_node_list(api_client, query_string='page=1')
     assert len(res) == 4
     assert res[0]['id'] == 0
@@ -35,15 +35,12 @@ def test_page_filter(service_nodes, api_client):
 
 
 @pytest.mark.django_db
-def test_only_filter(service_nodes, api_client):
+def test_only_filter(service_nodes_tree, api_client):
     res = get_service_node_list(api_client, query_string='only=id')
     assert len(res) == 4
     assert res[0]['id'] == 0
     assert res[0].get('name') is None
 
-
-@pytest.mark.django_db
-def test_only_filter_several_values(service_nodes, api_client):
     res = get_service_node_list(api_client, query_string='only=id,name')
     assert len(res) == 4
     assert res[0]['id'] == 0
@@ -51,7 +48,7 @@ def test_only_filter_several_values(service_nodes, api_client):
 
 
 @pytest.mark.django_db
-def test_include_filter(service_nodes, services, api_client):
+def test_include_filter(service_nodes_tree, services, api_client):
     res = get_service_node_list(api_client, query_string='include=related_services')
     assert len(res) == 4
     assert len(res[0]['related_services']) == 1
@@ -59,16 +56,16 @@ def test_include_filter(service_nodes, services, api_client):
 
 
 @pytest.mark.django_db
-def test_service_node_id_filter(service_nodes, api_client):
+def test_service_node_id_filter(service_nodes_tree, api_client):
     res = get_service_node_list(api_client, query_string='id=0')
     assert len(res) == 1
     assert res[0]['id'] == 0
 
+    res = get_service_node_list(api_client, query_string='id=3')
+    assert len(res) == 1
+    assert res[0]['id'] == 3
 
-@pytest.mark.django_db
-def test_id_filter_several_values(service_nodes, api_client):
-    ids = [0, 1]
-    res = get_service_node_list(api_client, query_string='id={0},{1}'.format(ids[0], ids[1]))
+    res = get_service_node_list(api_client, query_string='id=0,1')
     assert len(res) == 2
-    for i in range(len(res)):
-        assert res[i]['id'] == ids[i]
+    assert res[0]['id'] == 0
+    assert res[1]['id'] == 1

@@ -28,7 +28,7 @@ LEVELS = {
     'customer_service': {
         'type': 'exclude',
         'service_nodes': [
-            1
+            3
         ]
     }
 }
