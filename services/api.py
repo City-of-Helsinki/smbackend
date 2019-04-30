@@ -20,12 +20,13 @@ from haystack.inputs import AutoQuery
 
 from mptt.utils import drilldown_tree_for_node
 
-from services.models import Unit, Department, Service
-from services.models import ServiceNode, UnitConnection, UnitServiceDetails
-from services.models import UnitIdentifier, UnitAlias, UnitAccessibilityProperty
-from services.models.unit_connection import SECTION_TYPES
-from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES, CONTRACT_TYPES
 from services.accessibility import RULES as accessibility_rules
+from services.models import (Department, Service, ServiceNode, Unit, UnitAccessibilityProperty,
+                             UnitAccessibilityShortcomings, UnitAlias, UnitConnection, UnitIdentifier,
+                             UnitServiceDetails)
+from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES, CONTRACT_TYPES
+from services.models.unit_connection import SECTION_TYPES
+
 from munigeo.models import AdministrativeDivision, Municipality, Address
 from munigeo import api as munigeo_api
 
@@ -611,6 +612,15 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
 
         if 'extensions' in ret:
             ret['extensions'] = self.handle_extension_translations(ret['extensions'])
+
+        try:
+            shortcomings = obj.accessibility_shortcomings
+        except UnitAccessibilityShortcomings.DoesNotExist:
+            shortcomings = UnitAccessibilityShortcomings()
+        if 'accessibility_shortcoming_count' in getattr(self, 'keep_fields', ['accessibility_shortcoming_count']):
+            ret['accessibility_shortcoming_count'] = shortcomings.accessibility_shortcoming_count
+        if qparams.get('accessibility_description', '').lower() in ('true', '1'):
+            ret['accessibility_description'] = shortcomings.accessibility_description
 
         return ret
 

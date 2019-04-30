@@ -974,6 +974,7 @@ paths:
     get:
       operationId: Retrieve accessibility rule list
       summary: Retrieve the rule database for calculating the accessibility shortcomings of any unit
+      deprecated: true
       tags:
         - accessibility
       responses:

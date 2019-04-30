@@ -17,11 +17,11 @@ from munigeo.models import Municipality, AdministrativeDivisionGeometry
 
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.keyword import KeywordHandler
-from services.models import Unit, ServiceNode, Service, AccessibilityVariable, \
-    UnitConnection, UnitAccessibilityProperty, UnitIdentifier, UnitServiceDetails, Department
-from services.models.unit import (PROJECTION_SRID, PROVIDER_TYPES, ORGANIZER_TYPES,
-                                  CONTRACT_TYPES)
+from services.models import (AccessibilityVariable, Department, Service, ServiceNode, Unit, UnitAccessibilityProperty,
+                             UnitAccessibilityShortcomings, UnitConnection, UnitIdentifier, UnitServiceDetails)
+from services.models.unit import CONTRACT_TYPES, ORGANIZER_TYPES, PROJECTION_SRID, PROVIDER_TYPES
 from services.models.unit_connection import SECTION_TYPES
+from services.utils import AccessibilityShortcomingCalculator
 from .utils import clean_text, pk_get, save_translated_field, postcodes
 
 UTC_TIMEZONE = pytz.timezone('UTC')
@@ -522,6 +522,16 @@ def _import_unit_accessibility_variables(obj, info, obj_changed, update_fields):
         obj.accessibility_property_hash = acp_hash
         obj_changed = True
         update_fields.append('accessibility_property_hash')
+
+        # Recalculate accessibility shortcomings
+        description, shortcoming_count = AccessibilityShortcomingCalculator().calculate(obj)
+        UnitAccessibilityShortcomings.objects.update_or_create(
+            unit=obj,
+            defaults={
+                'accessibility_shortcoming_count': shortcoming_count,
+                'accessibility_description': description
+            })
+
     return obj_changed, update_fields
 
 
