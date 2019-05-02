@@ -41,6 +41,12 @@
                 "search_analyzer": "address",
                 "index_analyzer": "address",
                 "analyzer": null
+            },
+            "type": {
+                "type": "string",
+                "search_analyzer": "type",
+                "index_analyzer": "type",
+                "analyzer": null
             }
         }
     }

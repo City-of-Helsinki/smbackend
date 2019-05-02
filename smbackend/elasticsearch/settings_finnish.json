@@ -74,6 +74,12 @@
                 "tokenizer": "standard",
                 "filter": ["lowercase"],
                 "type": "custom"
+            },
+            "type": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "standard",
+                "filter": ["lowercase"],
+                "type": "custom"
             }
         },
         "filter": {
