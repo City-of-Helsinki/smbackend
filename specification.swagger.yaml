@@ -590,6 +590,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/accessibility_rule"
+  /oservation/:
+    get:
+      operationId: Retrieve list of observations
+      summary: Retrieve list of observations
+      description: Retrieve list of observations
+      tags:
+        - observation
+      parameters:
+        - $ref: "#/components/parameters/page_param"
+        - $ref: "#/components/parameters/pagesize_param"
+        - $ref: "#/components/parameters/include_param"
+        - $ref: "#/components/parameters/only_param"
+      responses:
+        "200":
+          description: List of accessibility rules and shortcoming messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/observation"
   /administrative_division/:
     get:
       operationId: Retrieve list of administrative divisions
@@ -598,12 +617,6 @@ paths:
       tags:
         - geography
       parameters:
-        - name: id
-          in: query
-          description: Primary id of division
-          schema:
-            type: string
-          example: 222
         - name: input
           in: query
           description: A partial user input to be used in an autosuggest search, matching names of administrative divisions
@@ -1324,6 +1337,69 @@ components:
           type: integer
           description: If the department is part of a municipal organization, this fields
             specifies the municipality
+    observable_property:
+      title: Observable Property
+      type: object
+      description: Specifies the detailed interpretation of observations.
+        Includes the unit of measurement.
+        Observations can only be made on units which have a service that
+        is linked to an ObservableProperty.  For example, only units which
+        are ice-skating fields can have observations with the property
+        "ice condition" or something similar.
+      properties:
+        id:
+          type: string
+          description: Primary identifier
+        name:
+          type: string
+          description: Name of observable property
+        measurement_unit:
+          type: string
+          description: Measurment unit e.g. celsius degrees
+        services:
+          $ref: "#/components/schemas/service"
+          description: Latest observations for units
+        observation_type:
+          type: string
+          description: Categorical or descriptive type of observation
+    allowed_value:
+      title: Allowed Value
+      type: object
+      description: Predefined value for categorical observation type
+      properties:
+        identifier:
+          type: string
+          description: Internal identifier of observed condition
+        quality:
+          type: string
+          description: Value describing the quality of observed unit
+        name:
+          type: string
+          description: Name of the allowed value
+        description:
+          type: string
+          description: Clearifying description for value
+        property:
+          $ref: "#/components/schemas/observable_property"
+    observation:
+      title: Observation
+      type: object
+      description: An observaton on conditions of an outdoor exercise unit
+        such as water temperature of swimming beach or condition of skating field
+      properties:
+        value:
+          $ref: "#/components/schemas/allowed_value"
+        time:
+          type: string
+          description: Exact time the observation was made
+        unit:
+          $ref: "#/components/schemas/unit"
+        units:
+          $ref: "#/components/schemas/unit"
+          description: Latest observations for units
+        property:
+          $ref: "#/components/schemas/observable_property"
+          description:
     administrative_division:
       title: Administrative division
       type: object
