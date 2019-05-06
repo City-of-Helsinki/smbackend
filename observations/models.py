@@ -178,7 +178,7 @@ class PluralityTokenAuthentication(rest_framework.authentication.TokenAuthentica
         if not token.active:
             raise exceptions.AuthenticationFailed(
                 _('Token inactive or deleted.'))
-        return (token.user, token)
+        return token.user, token
 
 
 class UserOrganization(models.Model):

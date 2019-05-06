@@ -15,7 +15,7 @@ class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     serializer_class = ObservationSerializer
 
     def create(self, request, *args, **kwargs):
-        if (request.auth is None):
+        if request.auth is None:
             raise AuthenticationFailed(_('Authentication required.'))
 
         return super(ObservationViewSet, self).create(request, *args, **kwargs)
