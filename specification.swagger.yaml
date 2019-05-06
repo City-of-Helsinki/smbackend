@@ -36,7 +36,34 @@ tags:
     description: Get rules for calculating accessibility shortcomings of a unit
   - name: geography
     description: Spatial information about municipalities where the services are located
+  - name: observation
+    description: A measured or observed value of a property of a unit at a certain time.
+
 paths:
+  "/unit/{id}/":
+    get:
+      summary: Retrieve single unit by id
+      operationId: Retrieve unit
+      tags:
+        - unit
+      responses:
+        "200":
+          description: Single unit object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/unit"
+      parameters:
+        - name: id
+          in: path
+          description: Unit identifier as defined in unit schema
+          required: true
+          schema:
+            type: integer
+          example: 58520
+        - $ref: "#/components/parameters/include_param"
+        - $ref: "#/components/parameters/only_param"
+        - $ref: "#/components/parameters/geometry_param"
   /unit/:
     get:
       operationId: Retrieve unit list
@@ -203,21 +230,7 @@ paths:
           schema:
             type: integer
           example: 3046
-        - name: geometry
-          in: query
-          description: If parameter value is either true or 1, return the complex geometry
-            of the unit in the field "geometry". Most units only have point type
-            geometries, which are returned in the location field. Some however
-            have polygon type geometries, eg. skiing tracks or outdoor areas.
-            These complex geometries must be explicitly requested with this
-            parameter.
-          schema:
-            oneOf:
-              - type: boolean
-                example: true
-              - type: integer
-                example: 1
-          example: true
+        - $ref: "#/components/parameters/geometry_param"
         - name: maintenance_organization
           in: query
           description: >
@@ -259,27 +272,6 @@ paths:
                         items:
                           $ref: "#/components/schemas/unit"
                   - $ref: "#/components/schemas/common_collection"
-  "/unit/{id}/":
-    get:
-      summary: Retrieve single unit by id
-      operationId: Retrieve unit
-      tags:
-        - unit
-      responses:
-        "200":
-          description: Single unit object
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/unit"
-      parameters:
-        - name: id
-          in: path
-          description: Unit identifier as defined in unit schema
-          required: true
-          schema:
-            type: integer
-          example: 58520
   "/service/{id}/":
     get:
       summary: Retrieve single service by id
@@ -301,6 +293,9 @@ paths:
           schema:
             type: integer
           example: 811
+        - $ref: "#/components/parameters/include_param"
+        - $ref: "#/components/parameters/only_param"
+        - $ref: "#/components/parameters/geometry_param"
   /service/:
     get:
       operationId: Retrieve service list
@@ -312,8 +307,6 @@ paths:
       parameters:
         - $ref: "#/components/parameters/page_param"
         - $ref: "#/components/parameters/pagesize_param"
-        - $ref: "#/components/parameters/include_param"
-        - $ref: "#/components/parameters/only_param"
         - name: id
           in: query
           style: form
@@ -360,6 +353,9 @@ paths:
           schema:
             type: integer
           example: 2125
+        - $ref: "#/components/parameters/include_param"
+        - $ref: "#/components/parameters/only_param"
+        - $ref: "#/components/parameters/geometry_param"
   /service_node/:
     get:
       operationId: Retrieve service node list
@@ -405,6 +401,40 @@ paths:
                         items:
                           $ref: "#/components/schemas/service_node"
                   - $ref: "#/components/schemas/common_collection"
+  "/department/{id}/":
+    get:
+      operationId: Retrieve a single department
+      summary: Return a single department
+      description: Return a single department
+      tags:
+        - organization
+      parameters:
+        - name: id
+          in: path
+          description: Department uuid
+          required: true
+          schema:
+            type: string
+          example: 520a4492-cb78-498b-9c82-86504de88dce
+        - name: include_hierarchy
+          in: query
+          description: With an empty value or any value other than *no*, *false*, or *0*,
+            include the whole descendant hierarchy beginning at this department
+            in the response. Omitting this parameter, or including it with the
+            value *no*, *false*, or *0*, disables expanding the hierarchy.
+          schema:
+            type: string
+          example: 1
+        - $ref: "#/components/parameters/include_param"
+        - $ref: "#/components/parameters/only_param"
+        - $ref: "#/components/parameters/geometry_param"
+      responses:
+        "200":
+          description: The requested department
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/department"
   /department/:
     get:
       operationId: Retrieve list of departments
@@ -431,37 +461,6 @@ paths:
                         items:
                           $ref: "#/components/schemas/department"
                   - $ref: "#/components/schemas/common_collection"
-  "/department/{id}/":
-    get:
-      operationId: Retrieve a single department
-      summary: Return a single department
-      description: Return a single department
-      tags:
-        - organization
-      parameters:
-        - name: id
-          in: path
-          description: Department uuid
-          required: true
-          schema:
-            type: string
-          example: 520a4492-cb78-498b-9c82-86504de88dce
-        - name: include_hierarchy
-          in: query
-          description: With an empty value or any value other than *no*, *false*, or *0*,
-            include the whole descendant hierarchy beginning at this department
-            in the response. Omitting this parameter, or including it with the
-            value *no*, *false*, or *0*, disables expanding the hierarchy.
-          schema:
-            type: string
-          example: 1
-      responses:
-        "200":
-          description: The requested department
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/department"
   /search/:
     get:
       operationId: Full text search
@@ -609,6 +608,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/observation"
+  "/administrative_division/{id}/":
+    get:
+      operationId: Retrieve a single administrative division
+      summary: Retrieve a single administrative division
+      description: Retrieve a single administrative division
+      tags:
+        - geography
+      responses:
+        "200":
+          description: The requested administrative division
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/administrative_division"
+      parameters:
+        - name: id
+          in: path
+          description: Administrative division identifier as defined in administrative
+            division schema
+          required: true
+          schema:
+            type: string
+          example: 222
+        - $ref: "#/components/parameters/include_param"
+        - $ref: "#/components/parameters/only_param"
+        - $ref: "#/components/parameters/geometry_param"
   /administrative_division/:
     get:
       operationId: Retrieve list of administrative divisions
@@ -633,16 +658,7 @@ paths:
             items:
               type: string
           example: vantaa/äänestysalue:5
-        - name: geometry
-          in: query
-          description: If parameter is either true or 1, return the complex geometry
-            of the administrative division in the field "geometry".
-          schema:
-            oneOf:
-              - type: boolean
-                example: true
-              - type: integer
-                example: 1
+        - $ref: "#/components/parameters/only_param"
         - name: origin_id
           in: query
           description: Filter by origin_id, which is usually a primary id used in the original data source
@@ -674,29 +690,6 @@ paths:
                         items:
                           $ref: "#/components/schemas/administrative_division"
                   - $ref: "#/components/schemas/common_collection"
-  "/administrative_division/{id}/":
-    get:
-      operationId: Retrieve a single administrative division
-      summary: Retrieve a single administrative division
-      description: Retrieve a single administrative division
-      tags:
-        - geography
-      responses:
-        "200":
-          description: The requested administrative division
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/administrative_division"
-      parameters:
-        - name: id
-          in: path
-          description: Administrative division identifier as defined in administrative
-            division schema
-          required: true
-          schema:
-            type: string
-          example: 222
   /street/:
     get:
       operationId: Retrieve list of streets
@@ -897,6 +890,22 @@ components:
         items:
           type: number
       example: 24.9405559,60.1695096,24.9805559,60.1895096
+    geometry_param:
+      name: geometry
+      in: query
+      description: If parameter value is either true or 1, return the complex geometry
+        of the unit in the field "geometry". Most units only have point type
+        geometries, which are returned in the location field. Some however
+        have polygon type geometries, eg. skiing tracks or outdoor areas.
+        These complex geometries must be explicitly requested with this
+        parameter.
+      schema:
+        oneOf:
+        - type: boolean
+          example: true
+        - type: integer
+          example: 1
+      example: true
   schemas:
     unit:
       type: object
@@ -1199,7 +1208,6 @@ components:
         user interfaces. **Instead of service nodes, services should almost
         always be used as the primary categories for filtering units. Only when
         a forest hierarchy of service categories is needed, use service nodes.**
-
 
         The service nodes of a particular unit are always derived from the services of the unit. The way a particular service node is derived from services is revealed in the service_reference field of service node.
       allOf:
