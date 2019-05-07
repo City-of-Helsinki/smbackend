@@ -170,7 +170,6 @@ class AddressIndex(indexes.SearchIndex, indexes.Indexable):
 class AdministrativeDivisionIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(use_template=False, document=True)
     name = indexes.CharField(use_template=False)
-    type = indexes.CharField(use_template=False)
     autosuggest = indexes.EdgeNgramField(use_template=False)
     autosuggest_exact = indexes.CharField(use_template=False)
     public = indexes.BooleanField()
@@ -183,9 +182,6 @@ class AdministrativeDivisionIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_text(self, obj):
         return ''
-
-    def prepare_type(self, obj):
-        return obj.type.id
 
     def prepare_name(self, obj):
         return obj.name
