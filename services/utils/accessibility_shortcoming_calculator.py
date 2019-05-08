@@ -75,7 +75,7 @@ class AccessibilityShortcomingCalculator(object, metaclass=Singleton):
         try:
             self.rules, self.messages = accessibility_rules.get_data()
         except FileNotFoundError as e:
-            logger.info(e)
+            logger.error(e)
             self.rules, self.messages = {}, []
 
     def calculate(self, unit):
