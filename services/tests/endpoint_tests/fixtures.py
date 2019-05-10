@@ -1,29 +1,46 @@
 import pytest
-from datetime import datetime
 
+from django.utils.timezone import now
 from django.contrib.gis.geos import Point, Polygon, MultiPolygon
 from rest_framework.test import APIClient
 
-from services.models import Unit, Department, ServiceNode, Service, UnitServiceDetails
 from munigeo.models import AdministrativeDivisionType, AdministrativeDivision, AdministrativeDivisionGeometry, \
-    Municipality, Address, Street
+    Municipality
+from services.models import Unit, Department, ServiceNode, Service, UnitServiceDetails
 
-
-TODAY = datetime.now()
-bbox_0 = MultiPolygon(Polygon.from_bbox((24.916821, 60.163376, 24.960937, 60.185233)), srid=4326)
-bbox_1 = MultiPolygon(Polygon.from_bbox((24.818115, 60.179770, 24.840045, 60.190695)), srid=4326)
-bbox_2 = MultiPolygon(Polygon.from_bbox((24.785500, 60.272642, 25.004797, 60.342920)), srid=4326)
+TODAY = now()
+data = {'bbox': [[24.916821, 60.163376, 24.960937, 60.185233],
+                 [24.818115, 60.179770, 24.840045, 60.190695],
+                 [24.785500, 60.272642, 25.004797, 60.342920]],
+        'departments': ['da792f32-6da7-4804-8059-16491b1ec0fa', '92f9182e-0942-4d82-8b6a-09499fe9c46a',
+                        '13108190-6157-4205-ad8e-1b92c084673a'],
+        'municipalities': ['muni_0', 'muni_1', 'muni_2']
+        }
 
 
 @pytest.fixture
 def api_client():
     return APIClient()
 
+# test set-up; IDs for units, municipalities, services, service nodes
+
+#  u | m | s  | s_n_tree(parent)
+# ---+---+----+----------
+#  0 | 0 | 0  | 0
+# ---+---+----+----------
+#  1 | 1 | 1  | 1(0)
+# ---+---+----+----------
+#  2 | 2 | 2,3| 2(1)
+# ---+---+----+----------
+#  3 | 0 | _  | 3
+# -----------------------
+
 
 @pytest.fixture
 @pytest.mark.django_db
 def municipalities():
-    bbox = [bbox_0, bbox_1, bbox_2]
+    bbox = [MultiPolygon(Polygon.from_bbox(tuple(bbox)), srid=4326) for bbox in data['bbox']]
+
     t, created = AdministrativeDivisionType.objects.get_or_create(id=1, type='muni', defaults={'name': 'Municipality'})
     for i in range(3):
         n = str(i)
@@ -36,18 +53,8 @@ def municipalities():
 
 @pytest.fixture
 @pytest.mark.django_db
-def addresses(municipalities):
-    pnt = Point(24.948475627, 60.180769286, srid=4326)
-    t, _ = Street.objects.get_or_create(name='Porthaninrinne', municipality=municipalities[0])
-    Address.objects.get_or_create(street=t, location=pnt)
-    return Address.objects.all().order_by('pk')
-
-
-@pytest.fixture
-@pytest.mark.django_db
 def departments(municipalities):
-    deps = ['da792f32-6da7-4804-8059-16491b1ec0fa', '92f9182e-0942-4d82-8b6a-09499fe9c46a',
-            '13108190-6157-4205-ad8e-1b92c084673a']
+    deps = data['departments']
     for i in range(len(deps)):
         Department.objects.get_or_create(uuid=deps[i], name='dep_' + str(i), municipality=municipalities[i])
     return Department.objects.all().order_by('pk')
@@ -64,7 +71,7 @@ def service_nodes_flat():
 @pytest.fixture
 @pytest.mark.django_db
 def service_nodes_tree():
-    # node_0 is parent of node_1, node_1 is parent of node_2, node_0 and node_3 has no parents
+    # node_0 is parent of node_1, node_1 is parent of node_2, node_0 and node_3 have no parents
     for i in range(4):
         if i == 0 or i == 3:
             s, _ = ServiceNode.objects.get_or_create(id=i, name='servicenode_' + str(i), last_modified_time=TODAY)
@@ -106,7 +113,7 @@ def units(municipalities, departments):
                                        root_department=departments[2], provider_type=3,
                                        last_modified_time=TODAY)
     u3, _ = Unit.objects.get_or_create(pk=3, name_fi='unit_3', municipality=municipalities[0], location=pnt_0,
-                                       root_department=departments[0], provider_type=3,
+                                       root_department=departments[1], provider_type=3,
                                        last_modified_time=TODAY)
     return Unit.objects.all().order_by('pk')
 

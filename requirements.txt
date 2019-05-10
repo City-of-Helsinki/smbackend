@@ -37,6 +37,7 @@ pycodestyle==2.5.0        # via flake8
 pyflakes==2.1.0           # via flake8
 pytest-django==3.4.5
 pytest==4.1.1             # via pytest-django
+pytest-cov==2.7.1
 python-dateutil==2.5.3
 pytz==2017.2
 pyyaml==3.13              # rq.filter: >=3.13,<4

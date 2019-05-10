@@ -18,9 +18,7 @@ def read_config(name):
 # Levels are groups or profiles of thematically related services
 LEVELS = {
     'common': {
-        'type': 'include',  # one of: {'exclude', 'include'}
-        # The service ids below are either included or excluded according
-        # to the type above.
+        'type': 'include',
         'service_nodes': [
             0
         ]
