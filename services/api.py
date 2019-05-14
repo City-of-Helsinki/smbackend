@@ -1074,11 +1074,13 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 models.add(Unit)
             elif t == 'address':
                 models.add(Address)
+            elif t == 'administrative_division':
+                models.add(AdministrativeDivision)
         if len(models) > 0:
             queryset = queryset.models(*list(models))
         else:
             # Hide the to-be-deprecated servicenode from default types
-            queryset = queryset.models(Service, Unit, Address)
+            queryset = queryset.models(Service, Unit, Address, AdministrativeDivision)
 
         only = getattr(self, 'only_fields') or {}
         include = getattr(self, 'include_fields') or {}
