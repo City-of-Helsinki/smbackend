@@ -4,6 +4,7 @@ exclude = .git,
           *migrations*,
           venv,
           services/models/__init__.py,
+          services/utils/__init__.py,
           # personal file
           local_settings.py,
           smbackend/settings_test.py
