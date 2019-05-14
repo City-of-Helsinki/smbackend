@@ -198,8 +198,8 @@ class AdministrativeDivisionIndex(indexes.SearchIndex, indexes.Indexable):
     def index_queryset(self, using=None):
         manager = self.get_model().objects
 
-        admin_div_types = AdministrativeDivisionType.objects.filter(type__in=('district', 'sub_district',
-                                                                              'neighborhood', 'postcode_area'))
+        admin_div_types = AdministrativeDivisionType.objects.filter(type__in=('sub_district', 'neighborhood',
+                                                                              'postcode_area'))
         manager = manager.filter(type__in=admin_div_types)
 
         return manager
