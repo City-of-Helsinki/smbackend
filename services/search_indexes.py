@@ -4,6 +4,7 @@ from django.utils.translation import get_language
 from django.db import models
 from django.apps import apps
 from django.db.models import Q
+from munigeo.models import AdministrativeDivisionType
 
 
 class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
@@ -164,3 +165,41 @@ class AddressIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_updated_field(self):
         return 'modified_at'
+
+
+class AdministrativeDivisionIndex(indexes.SearchIndex, indexes.Indexable):
+    text = indexes.CharField(use_template=False, document=True)
+    name = indexes.CharField(use_template=False)
+    autosuggest = indexes.EdgeNgramField(use_template=False)
+    autosuggest_exact = indexes.CharField(use_template=False)
+    public = indexes.BooleanField()
+
+    def prepare_public(self, obj):
+        return True
+
+    def get_model(self):
+        return apps.get_model('munigeo', 'AdministrativeDivision')
+
+    def prepare_text(self, obj):
+        return obj.name
+
+    def prepare_name(self, obj):
+        return obj.name
+
+    def prepare_autosuggest(self, obj):
+        return self.prepare_name(obj)
+
+    def prepare_autosuggest_exact(self, obj):
+        return None
+
+    def get_updated_field(self):
+        return 'modified_at'
+
+    def index_queryset(self, using=None):
+        manager = self.get_model().objects
+
+        admin_div_types = AdministrativeDivisionType.objects.filter(type__in=('sub_district', 'neighborhood',
+                                                                              'postcode_area'))
+        manager = manager.filter(type__in=admin_div_types)
+
+        return manager
