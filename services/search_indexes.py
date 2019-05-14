@@ -181,7 +181,7 @@ class AdministrativeDivisionIndex(indexes.SearchIndex, indexes.Indexable):
         return apps.get_model('munigeo', 'AdministrativeDivision')
 
     def prepare_text(self, obj):
-        return ''
+        return obj.name
 
     def prepare_name(self, obj):
         return obj.name
