@@ -32,3 +32,8 @@ class Department(MPTTModel):
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)
+
+    # This is used for unit indexing
+    def top_departments(self, depth=3):
+        ancestors = self.get_ancestors(include_self=True).filter(level__lt=depth)
+        return ' '.join([anc.name for anc in ancestors])
