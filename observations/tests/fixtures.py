@@ -1,7 +1,10 @@
 import pytest
 from rest_framework.test import APIClient
 from services.models import Service, Unit, Department, UnitServiceDetails
-from observations.models import ObservableProperty, CategoricalObservation, AllowedValue, UserOrganization
+from observations.models import (
+    ObservableProperty, CategoricalObservation, AllowedValue,
+    UserOrganization, UnitLatestObservation
+)
 import datetime as d
 from django.contrib.auth.models import User
 from munigeo.models import Municipality
@@ -66,17 +69,22 @@ def categorical_observations(unit, observable_property):
             time=d.datetime.now() - d.timedelta(days=1),
             unit=unit,
             property=observable_property,
-            value='good'),
+            value=observable_property.get_internal_value('good')),
         CategoricalObservation.objects.create(
             time=d.datetime.now() - d.timedelta(days=2),
             unit=unit,
             property=observable_property,
-            value='poor'),
+            value=observable_property.get_internal_value('poor')),
         CategoricalObservation.objects.create(
             time=d.datetime.now() - d.timedelta(days=3),
             unit=unit,
             property=observable_property,
-            value='closed')]
+            value=observable_property.get_internal_value('closed')),
+        CategoricalObservation.objects.create(
+            time=d.datetime.now() - d.timedelta(days=11),
+            unit=unit,
+            property=observable_property,
+            value=observable_property.get_internal_value('closed'))]
 
 
 @pytest.mark.django_db
@@ -85,6 +93,7 @@ def observable_property(service, unit):
     p = ObservableProperty.objects.create(
         id='skiing_trail_condition',
         name='Skiing trail condition',
+        expiration=d.timedelta(days=10),
         observation_type='observations.CategoricalObservation'
     )
     p.services.add(service)
@@ -105,8 +114,34 @@ def observable_property(service, unit):
         name='Poor condition',
         description='Poor skiing condition',
         property=p
+    ),
+    AllowedValue.objects.create(
+        identifier='closed',
+        name='Closed',
+        description='The trail is closed',
+        property=p
     )
     return p
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def unit_latest_observation(observable_property, unit, categorical_observations):
+    return UnitLatestObservation.objects.create(
+        observation=categorical_observations[2],
+        property=observable_property,
+        unit=unit
+    )
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def unit_latest_observation_expired(observable_property, unit, categorical_observations):
+    return UnitLatestObservation.objects.create(
+        observation=categorical_observations[3],
+        property=observable_property,
+        unit=unit
+    )
 
 
 @pytest.mark.django_db

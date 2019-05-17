@@ -1,11 +1,12 @@
 import re
 import logging
 import uuid
+from datetime import datetime
 
 from django.http import Http404
 from django.conf import settings
 from django.utils import translation
-from django.db.models import Q, Count
+from django.db.models import Q, F, Count, Prefetch
 from django.contrib.gis.geos import Point
 from django.contrib.gis.gdal import SpatialReference
 from django.shortcuts import get_object_or_404
@@ -26,6 +27,8 @@ from services.models import (Department, Service, ServiceNode, Unit, UnitAccessi
                              UnitServiceDetails)
 from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES, CONTRACT_TYPES
 from services.models.unit_connection import SECTION_TYPES
+
+from observations.models import Observation
 
 from munigeo.models import AdministrativeDivision, Municipality, Address
 from munigeo import api as munigeo_api
@@ -861,8 +864,17 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
 
         if 'observations' in self.include_fields:
             queryset = queryset.prefetch_related(
-                'observation_set__property__allowed_values').prefetch_related(
-                'observation_set__value')
+                Prefetch(
+                    "observation_set",
+                    queryset=Observation.objects.filter(
+                        Q(property__expiration=None)
+                        | Q(
+                            time__gt=datetime.now()
+                            - F("property__expiration")
+                        )
+                    ),
+                )
+            ).prefetch_related("observation_set__property__allowed_values").prefetch_related("observation_set__value")
 
         if 'service_nodes' in self.include_fields:
             queryset = queryset.prefetch_related('service_nodes')
