@@ -34,12 +34,19 @@ class ObservablePropertySerializer(TranslatedModelSerializer, serializers.ModelS
 
 class BaseObservationSerializer(serializers.BaseSerializer):
     def to_representation(self, obj):
+        expiration_time = None
+
+        if obj.property.expiration:
+            expiration_time = timezone.localtime(
+                obj.time + obj.property.expiration
+            ).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
         return dict(
             unit=int(obj.unit_id),
             id=obj.id,
             property=obj.property_id,
             time=timezone.localtime(obj.time).strftime(
                 '%Y-%m-%dT%H:%M:%S.%f%z'),
+            expiration_time=expiration_time,
         )
 
     def to_internal_value(self, data):

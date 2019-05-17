@@ -28,6 +28,7 @@ class ObservableProperty(models.Model):
     name = models.CharField(
         max_length=100, null=False, blank=False, db_index=True)
     measurement_unit = models.CharField(max_length=20, null=True, blank=False)
+    expiration = models.DurationField(blank=True, null=True)
     # todo: change to services
     services = models.ManyToManyField(services_models.Service, related_name='observable_properties')
     observation_type = models.CharField(max_length=80, null=False, blank=False)

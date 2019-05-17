@@ -4,7 +4,6 @@ from rest_framework.reverse import reverse
 from utils import match_observable_property_object_to_dict
 
 
-# Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__get_observable_properties_for_unit(api_client, observable_property):
     services = observable_property.services.all()
@@ -35,7 +34,6 @@ def test__get_observable_properties_for_unit(api_client, observable_property):
                 assert 'description' in v
 
 
-# Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__get_observable_properties_for_service(
         api_client, observable_property):
@@ -61,6 +59,23 @@ def test__get_observable_properties_for_service(
         assert 'observation_type' in returned_property
         match_observable_property_object_to_dict(
             observable_property, returned_property)
+
+
+@pytest.mark.django_db
+def test__observable_not_expired(
+        api_client, service, observable_property, unit_latest_observation):
+    url = reverse('unit-list') + '?service={}&include=observations'.format(service.pk)
+    response = api_client.get(url)
+    assert len(response.data.get('results')[0].get('observations')) == 1
+
+
+@pytest.mark.django_db
+def test__observable_expired(
+        api_client, service, observable_property, unit_latest_observation_expired):
+    url = reverse('unit-list') + '?service={}&include=observations'.format(service.pk)
+    response = api_client.get(url)
+    assert len(response.data.get('results')[0].get('observations')) == 0
+
 
 # @pytest.mark.django_db
 # def test__get_units_with_observations_sorted_by_latest_first(
