@@ -57,6 +57,7 @@
     name_en: Amount of cyanobacteria
     name_sv: TODO
     observation_type: observations.CategoricalObservation
+    expiration: "24:00"
     services:
       - 731
       - 730
