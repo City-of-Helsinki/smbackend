@@ -26,7 +26,6 @@ from services.models import (Department, Service, ServiceNode, Unit, UnitAccessi
                              UnitAccessibilityShortcomings, UnitAlias, UnitConnection, UnitIdentifier,
                              UnitServiceDetails)
 from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES, CONTRACT_TYPES
-from services.models.unit_connection import SECTION_TYPES
 
 from observations.models import Observation
 
@@ -407,7 +406,7 @@ class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSeria
         exclude = ['order']
 
     def get_section_type(self, obj):
-        return choicefield_string(SECTION_TYPES, 'section_type', obj)
+        return choicefield_string(UnitConnection.SECTION_TYPES, 'section_type', obj)
 
 
 class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):

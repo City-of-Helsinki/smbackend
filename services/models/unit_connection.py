@@ -1,20 +1,30 @@
 from django.db import models
 from .unit import Unit
 
-SECTION_TYPES = (
-    (1, 'PHONE_OR_EMAIL'),
-    (2, 'LINK'),
-    (3, 'TOPICAL'),
-    (4, 'OTHER_INFO'),
-    (5, 'OPENING_HOURS'),
-    (6, 'SOCIAL_MEDIA_LINK'),
-    (7, 'OTHER_ADDRESS'),
-    (8, 'HIGHLIGHT'),
-    (9, 'ESERVICE_LINK'),
-)
-
 
 class UnitConnection(models.Model):
+    PHONE_OR_EMAIL_TYPE = 1
+    LINK_TYPE = 2
+    TOPICAL_TYPE = 3
+    OTHER_INFO_TYPE = 4
+    OPENING_HOURS_TYPE = 5
+    SOCIAL_MEDIA_LINK_TYPE = 6
+    OTHER_ADDRESS_TYPE = 7
+    HIGHLIGHT_TYPE = 8
+    ESERVICE_LINK_TYPE = 9
+
+    SECTION_TYPES = (
+        (PHONE_OR_EMAIL_TYPE, 'PHONE_OR_EMAIL'),
+        (LINK_TYPE, 'LINK'),
+        (TOPICAL_TYPE, 'TOPICAL'),
+        (OTHER_INFO_TYPE, 'OTHER_INFO'),
+        (OPENING_HOURS_TYPE, 'OPENING_HOURS'),
+        (SOCIAL_MEDIA_LINK_TYPE, 'SOCIAL_MEDIA_LINK'),
+        (OTHER_ADDRESS_TYPE, 'OTHER_ADDRESS'),
+        (HIGHLIGHT_TYPE, 'HIGHLIGHT'),
+        (ESERVICE_LINK_TYPE, 'ESERVICE_LINK'),
+    )
+
     unit = models.ForeignKey(Unit, db_index=True, related_name='connections')
     name = models.CharField(max_length=600)
     www = models.URLField(null=True, max_length=400)

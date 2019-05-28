@@ -20,7 +20,6 @@ from services.management.commands.services_import.keyword import KeywordHandler
 from services.models import (AccessibilityVariable, Department, Service, ServiceNode, Unit, UnitAccessibilityProperty,
                              UnitAccessibilityShortcomings, UnitConnection, UnitIdentifier, UnitServiceDetails)
 from services.models.unit import CONTRACT_TYPES, ORGANIZER_TYPES, PROJECTION_SRID, PROVIDER_TYPES
-from services.models.unit_connection import SECTION_TYPES
 from services.utils import AccessibilityShortcomingCalculator
 from .utils import clean_text, pk_get, save_translated_field, postcodes
 
@@ -551,7 +550,7 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
             c = UnitConnection(unit=obj)
             save_translated_field(c, 'name', conn, 'name', max_length=600)
             save_translated_field(c, 'www', conn, 'www')
-            section_type = [val for val, str_val in SECTION_TYPES if str_val == conn['section_type']][0]
+            section_type = [val for val, str_val in UnitConnection.SECTION_TYPES if str_val == conn['section_type']][0]
             assert section_type
             c.section_type = section_type
 
