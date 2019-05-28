@@ -170,3 +170,11 @@ class Unit(models.Model):
         qs = ServiceNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         service_node_list = qs.values_list('id', flat=True).distinct()
         return sorted(service_node_list)
+
+    def service_names(self):
+        return "\n".join((service.name for service in self.services.all()))
+
+    def highlight_names(self):
+        UnitConnection = apps.get_model(app_label='services', model_name='UnitConnection')
+        return "\n".join((connection.name for connection in self.connections.filter(
+            section_type=UnitConnection.HIGHLIGHT_TYPE)))

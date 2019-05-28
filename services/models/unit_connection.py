@@ -1,6 +1,7 @@
 from django.db import models
 from .unit import Unit
 
+
 class UnitConnection(models.Model):
     PHONE_OR_EMAIL_TYPE = 1
     LINK_TYPE = 2
