@@ -3,7 +3,7 @@ from rest_framework.test import APIClient
 from services.models import Service, Unit, Department, UnitServiceDetails
 from observations.models import (
     ObservableProperty, CategoricalObservation, AllowedValue,
-    UserOrganization, UnitLatestObservation
+    UserOrganization, UnitLatestObservation, DescriptiveObservation
 )
 import datetime as d
 from django.contrib.auth.models import User
@@ -89,6 +89,22 @@ def categorical_observations(unit, observable_property):
 
 @pytest.mark.django_db
 @pytest.fixture
+def descriptive_observations(unit, descriptive_property):
+    value = AllowedValue.objects.create(
+        identifier=None,
+        name='No name',
+        description='Description',
+        property=descriptive_property)
+    return [
+        DescriptiveObservation.objects.create(
+            time=d.datetime.now() - d.timedelta(days=100),
+            unit=unit,
+            property=descriptive_property,
+            value=value)]
+
+
+@pytest.mark.django_db
+@pytest.fixture
 def observable_property(service, unit):
     p = ObservableProperty.objects.create(
         id='skiing_trail_condition',
@@ -142,6 +158,21 @@ def unit_latest_observation_expired(observable_property, unit, categorical_obser
         property=observable_property,
         unit=unit
     )
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def unit_latest_observation_both_expired_and_not_expirable(
+        descriptive_property, descriptive_observations, unit, unit_latest_observation_expired):
+
+    latest_observation = UnitLatestObservation.objects.create(
+        observation=descriptive_observations[0],
+        property=descriptive_property,
+        unit=unit)
+    return {
+        'expired': unit_latest_observation_expired,
+        'not_expirable': latest_observation
+    }
 
 
 @pytest.mark.django_db

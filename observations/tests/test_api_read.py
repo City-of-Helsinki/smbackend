@@ -77,6 +77,20 @@ def test__observable_expired(
     assert len(response.data.get('results')[0].get('observations')) == 0
 
 
+@pytest.mark.django_db
+def test__observable_expired_and_not_expired(
+        api_client, service, observable_property, unit_latest_observation_both_expired_and_not_expirable):
+    url = reverse('unit-list') + '?service={}&include=observations'.format(service.pk)
+    response = api_client.get(url)
+    unit_data = response.data.get('results')[0]
+    observations = unit_data.get('observations')
+    assert len(observations) == 1
+    observation = observations[0]
+    assert observation['property'] == 'notice'
+    assert observation['value']['fi'] == 'Description'
+    assert observation['id'] == unit_latest_observation_both_expired_and_not_expirable['not_expirable'].observation.id
+
+
 # @pytest.mark.django_db
 # def test__get_units_with_observations_sorted_by_latest_first(
 #    api_client, categorical_observations):
