@@ -75,13 +75,13 @@ def categorical_observations(unit, observable_property):
             unit=unit,
             property=observable_property,
             value=observable_property.get_internal_value('poor')),
-        CategoricalObservation.objects.create(
-            time=d.datetime.now() - d.timedelta(days=3),
+        CategoricalObservation.objects.create(  # Not expired
+            time=d.datetime.now() - d.timedelta(minutes=599),
             unit=unit,
             property=observable_property,
             value=observable_property.get_internal_value('closed')),
-        CategoricalObservation.objects.create(
-            time=d.datetime.now() - d.timedelta(days=11),
+        CategoricalObservation.objects.create(  # Expired
+            time=d.datetime.now() - d.timedelta(minutes=600),
             unit=unit,
             property=observable_property,
             value=observable_property.get_internal_value('closed'))]
@@ -93,7 +93,7 @@ def observable_property(service, unit):
     p = ObservableProperty.objects.create(
         id='skiing_trail_condition',
         name='Skiing trail condition',
-        expiration=d.timedelta(days=10),
+        expiration=d.timedelta(hours=10),
         observation_type='observations.CategoricalObservation'
     )
     p.services.add(service)

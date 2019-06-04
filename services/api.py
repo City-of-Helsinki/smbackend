@@ -1,11 +1,10 @@
 import re
 import logging
 import uuid
-from datetime import datetime
 
 from django.http import Http404
 from django.conf import settings
-from django.utils import translation
+from django.utils import translation, timezone
 from django.db.models import Q, F, Count, Prefetch
 from django.contrib.gis.geos import Point
 from django.contrib.gis.gdal import SpatialReference
@@ -868,7 +867,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                     queryset=Observation.objects.filter(
                         Q(property__expiration=None)
                         | Q(
-                            time__gt=datetime.now()
+                            time__gt=timezone.now()
                             - F("property__expiration")
                         )
                     ),
