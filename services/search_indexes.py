@@ -33,6 +33,8 @@ class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
 
 class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
+    name = indexes.CharField(model_attr='name', boost=1.125)
+    name_sort = indexes.CharField(model_attr='name')
     autosuggest = indexes.EdgeNgramField(model_attr='name')
     autosuggest_exact = indexes.CharField(model_attr='name', boost=1.125)
     extra_searchwords = indexes.CharField()

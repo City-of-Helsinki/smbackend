@@ -956,6 +956,7 @@ class SearchSerializer(serializers.Serializer):
         serializer = self.get_result_serializer(
             model, search_result.object)
         data = serializer.data
+        data['sort_index'] = search_result._sort_index
         data['object_type'] = model._meta.model_name
         data['score'] = search_result.score
         return data
@@ -1020,7 +1021,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         else:
             queryset = (
                 queryset
-                .filter(text=AutoQuery(q_val))
+                .filter(name=AutoQuery(q_val))
+                .filter_or(text=AutoQuery(q_val))
                 .filter_or(extra_searchwords=q_val)
                 .filter_or(address=q_val)
             )
@@ -1097,16 +1099,42 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         Unit.search_objects.only_fields = only.get('unit')
         Unit.search_objects.include_fields = include.get('unit')
 
-        self.object_list = queryset.load_all()
+        self.object_list = queryset.order_by('-_score', 'name_sort').load_all()
 
-        # Switch between paginated or standard style responses
         page = self.paginate_queryset(self.object_list)
+        self._add_sort_indices_to_paginated_results(page, request)
         serializer = self.get_serializer(page, many=True)
         resp = self.get_paginated_response(serializer.data)
 
         translation.activate(old_language)
 
         return resp
+
+    def _add_sort_indices_to_paginated_results(self, page, request):
+        """This is a hackish solution to store the original ordering of the
+        search results for UIs which sort the results in-place and
+        want to eventually restore the original ordering. The score
+        value cannot be used for sorting there, because our ordering
+        depends on both score and name.
+
+        This method is aware of the pagination context to avoid
+        iterating unused search results in the SearchQuerySet.
+
+        """
+        if (not hasattr(self, 'paginator')
+                or not hasattr(self.paginator, 'page')
+                or not hasattr(self.paginator.page, 'number')):
+            return
+
+        page_size = self.paginator.get_page_size(request)
+        page_number = self.paginator.page.number
+        if (page_size is None or page_number is None
+                or page_size < 1 or page_number < 1):
+            return
+
+        index_offset = (page_number - 1) * page_size
+        for i, x in enumerate(page):
+            x._sort_index = i + index_offset
 
     def get_serializer_context(self):
         context = super(SearchViewSet, self).get_serializer_context()
