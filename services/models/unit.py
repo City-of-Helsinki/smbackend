@@ -77,11 +77,25 @@ def get_unit_related_fields():
 class UnitSearchManager(models.GeoManager):
     def get_queryset(self):
         qs = super(UnitSearchManager, self).get_queryset()
-        if self.only_fields:
-            qs = qs.only(*self.only_fields)
-        if self.include_fields:
+        if self.only_fields is None:
+            only_fields = []
+        else:
+            only_fields = self.only_fields.copy()
+        if self.include_fields is None:
+            include_fields = []
+        else:
+            include_fields = self.include_fields.copy()
+        if 'accessibility_shortcoming_count' in only_fields:
+            # Accessibility shortcoming count is a special
+            # case because it's a related model in the database,
+            # but it's handled like a simple field in the API.
+            only_fields.remove('accessibility_shortcoming_count')
+            include_fields.append('accessibility_shortcomings')
+        if only_fields:
+            qs = qs.only(*only_fields)
+        if include_fields:
             unit_related_fields = get_unit_related_fields()
-            for f in self.include_fields:
+            for f in include_fields:
                 if f in unit_related_fields:
                     qs = qs.prefetch_related(f)
         return qs
