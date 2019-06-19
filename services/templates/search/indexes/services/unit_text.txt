@@ -1,4 +1,3 @@
-{{object.name}}
 {{object.service_names}}
 {{object.highlight_names}}
 {% if object.municipality %}{{object.municipality.name}}{% endif %}
