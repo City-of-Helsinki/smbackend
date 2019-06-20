@@ -145,7 +145,7 @@ class Unit(models.Model):
     municipality = models.ForeignKey(Municipality, null=True, db_index=True)
     address_zip = models.CharField(max_length=10, null=True)
 
-    data_source = models.CharField(max_length=30, null=True)
+    data_source = models.CharField(max_length=50, null=True)
     extensions = HStoreField(null=True)
 
     last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
