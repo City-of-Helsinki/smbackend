@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
--e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.15#egg=django-munigeo
+-e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.16#egg=django-munigeo
 atomicwrites==1.2.1       # via pytest
 attrs==18.2.0             # via pytest
 certifi==2018.10.15       # via requests
