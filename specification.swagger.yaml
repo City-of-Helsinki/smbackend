@@ -589,7 +589,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/accessibility_rule"
-  /oservation/:
+  /observation/:
     get:
       operationId: Retrieve list of observations
       summary: Retrieve list of observations
@@ -603,7 +603,7 @@ paths:
         - $ref: "#/components/parameters/only_param"
       responses:
         "200":
-          description: List of accessibility rules and shortcoming messages
+          description: List of all observations made about units
           content:
             application/json:
               schema:
@@ -911,7 +911,8 @@ components:
       type: object
       title: Unit
       description: Units are physical locations where organizations provide services for
-        patrons
+        patrons. Please note that the observations field is only displayed in the unit
+        endpoint if "observations" is supplied as a value to the "include" parameter.
       required:
         - id
         - name
@@ -1125,6 +1126,13 @@ components:
                     type: string
                   value:
                     type: string
+            observations:
+              type: array
+              items:
+                type: object
+                allOf:
+                  - $ref: "#/components/schemas/observation"
+
     unit_connection:
       title: Unit connection
       type: object
@@ -1363,7 +1371,7 @@ components:
           description: Name of observable property
         measurement_unit:
           type: string
-          description: Measurment unit e.g. celsius degrees
+          description: Measurement unit e.g. celsius degrees
         services:
           $ref: "#/components/schemas/service"
           description: Latest observations for units
@@ -1396,15 +1404,30 @@ components:
         such as water temperature of swimming beach or condition of skating field
       properties:
         value:
-          $ref: "#/components/schemas/allowed_value"
+          type: object
+          description: The measured value of the observation. Can be of any type.
+        primary:
+          type: boolean
+          description: Whether the observation is of the type that primarily determines
+            if the unit can be used for the sports activity.
+        quality:
+          type: string
+          desription: One of good, satisfactory, and unusable. Determines
+            how well the unit can be used for the sports activity.
+        id:
+          type: integer
+          description: The id of the observation
         time:
           type: string
-          description: Exact time the observation was made
+          description: The exact date and time when the observation was made in ISO 8601.
+        expiration_time:
+          type: string
+          description: Some observable properties are valid only for a pre-specified time period
+            after which they disappear from the unit endpoint's observations field. This is the exact
+            date and time the oveservation will expire and be removed from this field.
         unit:
           $ref: "#/components/schemas/unit"
-        units:
-          $ref: "#/components/schemas/unit"
-          description: Latest observations for units
+          description:
         property:
           $ref: "#/components/schemas/observable_property"
           description:
