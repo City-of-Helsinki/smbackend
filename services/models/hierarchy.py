@@ -20,9 +20,12 @@ class CustomTreeManager(TreeManager):
 
 class TreeQuerySet(QuerySet):
     def by_ancestor(self, ancestor):
+
         manager = self.model.objects
         max_level = manager.determine_max_level()
         qs = Q()
+        if max_level == 0:
+            return self.none()
         # Construct an OR'd queryset for each level of parenthood.
         for i in range(max_level):
             key = '__'.join(['parent'] * (i + 1))

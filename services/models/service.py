@@ -13,7 +13,7 @@ class Service(models.Model):
     clarification_enabled = models.BooleanField(default=True)
 
     last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
-    root_service_node = models.ForeignKey('ServiceNode', null=True)
+    root_service_node = models.ForeignKey('ServiceNode', null=True, related_name='related_services')
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, 'name'), self.id)

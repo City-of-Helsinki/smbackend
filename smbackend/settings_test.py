@@ -15,6 +15,22 @@ def read_config(name):
             'elasticsearch/{}.json'.format(name))))
 
 
+# Levels are groups or profiles of thematically related services
+LEVELS = {
+    'common': {
+        'type': 'include',
+        'service_nodes': [
+            0
+        ]
+    },
+    'customer_service': {
+        'type': 'exclude',
+        'service_nodes': [
+            3
+        ]
+    }
+}
+
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'multilingual_haystack.backends.MultilingualSearchEngine',
