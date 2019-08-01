@@ -19,7 +19,7 @@ django-mptt==0.8.7
 django-polymorphic==2.0.3
 django==1.11.23           # rq.filter: >=1.11,<2.0
 djangorestframework-jsonp==1.0.2
-djangorestframework==3.6.3
+djangorestframework==3.6.4
 elasticsearch==1.9.0
 entrypoints==0.3          # via flake8
 flake8==3.7.5
