@@ -62,7 +62,7 @@ class Command(BaseCommand):
             url = "%s%s/" % (url, res_id)
         if v3:
             url = url.replace('v4', 'v3')
-        resp = requests.get(url)
+        resp = requests.get(url, timeout=120)
         assert resp.status_code == 200, 'fuu status code {}'.format(resp.status_code)
         return resp.json()
 
