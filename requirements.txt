@@ -19,14 +19,14 @@ django-mptt==0.8.7
 django-polymorphic==2.0.3
 django==1.11.23
 djangorestframework-jsonp==1.0.2
-djangorestframework==3.9.4
+djangorestframework==3.10.2
 elasticsearch==1.9.0
 entrypoints==0.3          # via flake8
 flake8==3.7.5
 hypothesis==3.19.3
 idna==2.6                 # via requests
 lxml==4.3.0
-markdown==2.6.2
+markdown==3.1.1
 mccabe==0.6.1             # via flake8
 more-itertools==5.0.0     # via pytest
 pip-tools==4.0.0
@@ -49,4 +49,4 @@ tqdm==4.31.1
 urllib3==1.24.3           # via elasticsearch, requests
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==41.0.1        # via pytest
+# setuptools==41.0.1        # via markdown, pytest
