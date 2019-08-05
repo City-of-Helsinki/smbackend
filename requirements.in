@@ -1,5 +1,5 @@
 Django<2.0
-djangorestframework
+djangorestframework>3.6.4,<3.8
 elasticsearch>=1.0.0,<2.0.0
 Markdown
 django-filter
@@ -7,7 +7,7 @@ django-modeltranslation
 flake8
 requests
 requests_cache
--e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.15#egg=django-munigeo
+-e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.16#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions

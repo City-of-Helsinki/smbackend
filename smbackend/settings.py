@@ -152,7 +152,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'services.api_pagination.Pagination',
     'URL_FIELD_NAME': 'resource_uri',
     'UNAUTHENTICATED_USER': None,
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'observations.models.PluralityTokenAuthentication',
     ),
