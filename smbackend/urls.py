@@ -21,8 +21,8 @@ for view in services_views + munigeo_views + observations_views:
     else:
         registered_api_views.add(view['name'])
 
-    if 'base_name' in view:
-        kwargs['base_name'] = view['base_name']
+    if 'basename' in view:
+        kwargs['basename'] = view['basename']
     router.register(view['name'], view['class'], **kwargs)
 
 

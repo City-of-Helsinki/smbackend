@@ -1,5 +1,5 @@
 Django<2.0
-djangorestframework>3.6.4,<3.8
+djangorestframework>3.8.2,<3.10
 elasticsearch>=1.0.0,<2.0.0
 Markdown
 django-filter
@@ -18,7 +18,7 @@ lxml
 raven
 elasticsearch
 djangorestframework-jsonp
-pip-tools
+pip-tools>=4.0.0
 python-dateutil
 pytest-django
 django-polymorphic

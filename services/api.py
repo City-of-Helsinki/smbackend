@@ -50,10 +50,10 @@ serializers_by_model = {}
 all_views = []
 
 
-def register_view(klass, name, base_name=None):
+def register_view(klass, name, basename=None):
     entry = {'class': klass, 'name': name}
-    if base_name is not None:
-        entry['base_name'] = base_name
+    if basename is not None:
+        entry['basename'] = basename
     all_views.append(entry)
 
     if (klass.serializer_class
@@ -1145,7 +1145,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         return context
 
 
-register_view(SearchViewSet, 'search', base_name='search')
+register_view(SearchViewSet, 'search', basename='search')
 
 
 class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
@@ -1157,7 +1157,7 @@ class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
             'rules': rules, 'messages': messages})
 
 
-register_view(AccessibilityRuleView, 'accessibility_rule', base_name='accessibility_rule')
+register_view(AccessibilityRuleView, 'accessibility_rule', basename='accessibility_rule')
 
 
 class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSerializer):

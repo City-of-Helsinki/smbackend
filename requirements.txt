@@ -19,7 +19,7 @@ django-mptt==0.8.7
 django-polymorphic==2.0.3
 django==1.11.23
 djangorestframework-jsonp==1.0.2
-djangorestframework==3.7.7
+djangorestframework==3.9.4
 elasticsearch==1.9.0
 entrypoints==0.3          # via flake8
 flake8==3.7.5
@@ -29,7 +29,7 @@ lxml==4.3.0
 markdown==2.6.2
 mccabe==0.6.1             # via flake8
 more-itertools==5.0.0     # via pytest
-pip-tools==3.3.2
+pip-tools==4.0.0
 pluggy==0.8.1             # via pytest
 psycopg2==2.7.4
 py==1.7.0                 # via pytest
