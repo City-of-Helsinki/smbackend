@@ -7,7 +7,7 @@ from django.apps import apps
 from munigeo.models import Municipality
 from munigeo.utils import get_default_srid
 
-from services.utils import get_translated
+from services.utils import get_translated, check_valid_concrete_field
 from .department import Department
 from .keyword import Keyword
 
@@ -76,28 +76,16 @@ def get_unit_related_fields():
 
 class UnitSearchManager(models.GeoManager):
     def get_queryset(self):
-        qs = super(UnitSearchManager, self).get_queryset()
-        if self.only_fields is None:
-            only_fields = []
-        else:
-            only_fields = self.only_fields.copy()
-        if self.include_fields is None:
-            include_fields = []
-        else:
-            include_fields = self.include_fields.copy()
-        if 'accessibility_shortcoming_count' in only_fields:
-            # Accessibility shortcoming count is a special
-            # case because it's a related model in the database,
-            # but it's handled like a simple field in the API.
-            only_fields.remove('accessibility_shortcoming_count')
-            include_fields.append('accessibility_shortcomings')
-        if only_fields:
-            qs = qs.only(*only_fields)
-        if include_fields:
-            unit_related_fields = get_unit_related_fields()
-            for f in include_fields:
-                if f in unit_related_fields:
-                    qs = qs.prefetch_related(f)
+        qs = super(UnitSearchManager, self).get_queryset().prefetch_related('accessibility_shortcomings')
+        if self.only_fields:
+            fields = [f for f in self.only_fields if check_valid_concrete_field(Unit, f)]
+            qs = qs.only(*fields)
+        if not self.include_fields:
+            return qs
+        unit_related_fields = get_unit_related_fields()
+        for f in self.include_fields:
+            if f in unit_related_fields:
+                qs = qs.prefetch_related(f)
         return qs
 
 
