@@ -25,6 +25,7 @@ from services.models import (Department, Service, ServiceNode, Unit, UnitAccessi
                              UnitAccessibilityShortcomings, UnitAlias, UnitConnection, UnitIdentifier,
                              UnitServiceDetails)
 from services.models.unit import PROVIDER_TYPES, ORGANIZER_TYPES, CONTRACT_TYPES
+from services.utils import check_valid_concrete_field
 
 from observations.models import Observation
 
@@ -332,22 +333,12 @@ class JSONAPIViewSetMixin:
 
     def get_queryset(self):
         queryset = super(JSONAPIViewSetMixin, self).get_queryset()
+        if not self.only_fields:
+            return queryset
         model = queryset.model
-        if self.only_fields:
-            model_fields = model._meta.get_fields()
-            # Verify all field names are valid
-            for field_name in self.only_fields:
-                for field in model_fields:
-                    if field.name == field_name:
-                        break
-                else:
-                    raise ParseError("field '%s' supplied in 'only' not found" % field_name)
-            fields = self.only_fields.copy()
-            if 'parent' in fields:
-                fields.remove('parent')
-                fields.append('parent_id')
-            queryset = queryset.only(*fields)
-        return queryset
+        # department.uuid is a special case, hardcoded here for now
+        fields = [f for f in self.only_fields + ['uuid'] if check_valid_concrete_field(model, f)]
+        return queryset.only(*fields)
 
     def get_serializer_context(self):
         context = super(JSONAPIViewSetMixin, self).get_serializer_context()
@@ -691,6 +682,7 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
     def get_queryset(self):
         queryset = super(UnitViewSet, self).get_queryset()
 
+        queryset = queryset.prefetch_related('accessibility_shortcomings')
         if self._service_details_requested():
             queryset = queryset.prefetch_related('service_details')
             queryset = queryset.prefetch_related('service_details__service')
