@@ -63,10 +63,6 @@ def register_view(klass, name, basename=None):
         serializers_by_model[model] = klass.serializer_class
 
 
-# These are API fields which are not 1:1 simple
-# model fields and cannot be used as ORM only
-# parameters in db queries
-SPECIAL_FIELDS = {'accessibility_shortcoming_count'}
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
 
 logger = logging.getLogger(__name__)
@@ -344,10 +340,9 @@ class JSONAPIViewSetMixin:
                 for field in model_fields:
                     if field.name == field_name:
                         break
-                    if field_name not in SPECIAL_FIELDS:
-                        raise ParseError("field '%s' supplied in 'only' not found" % field_name)
+                else:
+                    raise ParseError("field '%s' supplied in 'only' not found" % field_name)
             fields = self.only_fields.copy()
-            fields = [f for f in self.only_fields if f not in SPECIAL_FIELDS]
             if 'parent' in fields:
                 fields.remove('parent')
                 fields.append('parent_id')
