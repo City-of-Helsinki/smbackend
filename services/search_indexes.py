@@ -68,6 +68,7 @@ class UnitIndex(ServiceMapBaseIndex):
     municipality = indexes.CharField(model_attr='municipality_id', null=True)
     services = indexes.MultiValueField()
     root_department = indexes.CharField(null=True)
+    suggest = indexes.MultiValueField()
 
     def read_queryset(self, using=None):
         return self.get_model().search_objects
@@ -85,6 +86,17 @@ class UnitIndex(ServiceMapBaseIndex):
     def prepare_root_department(self, obj):
         if obj.root_department is not None:
             return str(obj.root_department.uuid)
+
+    def prepare_suggest(self, obj):
+        values = []
+        values.append("{name}".format(name=obj.name))
+        for s in obj.services.all():
+            values.append("{municipality} {service}".format(
+                municipality=obj.municipality.name, service=s.name))
+            values.append("{service} {municipality}".format(
+                municipality=obj.municipality.name, service=s.name))
+
+        return values
 
 
 class ServiceIndex(ServiceMapBaseIndex):

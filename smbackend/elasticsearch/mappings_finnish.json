@@ -51,6 +51,14 @@
                 "search_analyzer": "address",
                 "index_analyzer": "address",
                 "analyzer": null
+            },
+            "suggest" : {
+                "type": "completion",
+                "index_analyzer": "simple",
+                "search_analyzer": "simple",
+                "payloads": false,
+                "preserve_separators": true,
+                "preserve_position_increments": true
             }
         }
     }
