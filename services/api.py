@@ -16,7 +16,7 @@ from rest_framework.exceptions import ParseError
 from django.core.exceptions import ValidationError
 
 from haystack.query import SearchQuerySet, SQ
-from haystack.inputs import AutoQuery
+from haystack.inputs import Clean
 
 from mptt.utils import drilldown_tree_for_node
 
@@ -1013,8 +1013,8 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
         else:
             queryset = (
                 queryset
-                .filter(name=AutoQuery(q_val))
-                .filter_or(text=AutoQuery(q_val))
+                .filter(name=Clean(q_val))
+                .filter_or(text=Clean(q_val))
                 .filter_or(extra_searchwords=q_val)
                 .filter_or(address=q_val)
             )
