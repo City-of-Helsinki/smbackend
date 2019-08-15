@@ -1,3 +1,4 @@
+import json
 from haystack import indexes, signals
 from django.conf import settings
 from django.utils.translation import get_language
@@ -46,6 +47,8 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     extra_searchwords = indexes.CharField()
     autosuggest_extra_searchwords = indexes.CharField()
     public = indexes.BooleanField()
+    suggest = indexes.CharField()
+    suggest_ngram = indexes.CharField()
 
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
@@ -69,12 +72,19 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     def prepare_autosuggest_extra_searchwords(self, obj):
         return self._prepare_extra_searchwords(obj)
 
+    def prepare_suggest(self, obj):
+        return dict(name=None, service=[], location=[])
+
+    def prepare_suggest_ngram(self, obj):
+        return self.prepare_suggest(obj)
+
 
 class UnitIndex(ServiceMapBaseIndex):
     municipality = indexes.CharField(model_attr='municipality_id', null=True)
     services = indexes.MultiValueField()
     root_department = indexes.CharField(null=True)
-    suggest = indexes.MultiValueField()
+    suggest = indexes.CharField()
+    suggest_ngram = indexes.CharField()
 
     def read_queryset(self, using=None):
         return self.get_model().search_objects
@@ -94,15 +104,17 @@ class UnitIndex(ServiceMapBaseIndex):
             return str(obj.root_department.uuid)
 
     def prepare_suggest(self, obj):
-        values = []
-        values.append("{name}".format(name=obj.name))
-        for s in obj.services.all():
-            values.append("{municipality} {service}".format(
-                municipality=obj.municipality.name, service=s.name))
-            values.append("{service} {municipality}".format(
-                municipality=obj.municipality.name, service=s.name))
-
+        values = {
+            'name': obj.name,
+            'service': list(set((s.name for s in obj.services.all()))),
+            'location': []
+        }
+        if obj.municipality:
+            values['location'].append(obj.municipality.name)
         return values
+
+    def prepare_suggest_ngram(self, obj):
+        return self.prepare_suggest(obj)
 
 
 class ServiceIndex(ServiceMapBaseIndex):
