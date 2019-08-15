@@ -186,13 +186,14 @@ HAYSTACK_CONNECTIONS = {
     },
     'default-fi': {
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
-    },
-    'default-en': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
-    },
-    'default-sv': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
     }
+# ,
+#     'default-en': {
+#         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
+#     },
+#     'default-sv': {
+#         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
+#     }
 }
 
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
