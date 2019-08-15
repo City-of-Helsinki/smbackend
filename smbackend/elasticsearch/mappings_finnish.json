@@ -52,13 +52,47 @@
                 "index_analyzer": "address",
                 "analyzer": null
             },
-            "suggest" : {
-                "type": "completion",
-                "index_analyzer": "simple",
-                "search_analyzer": "simple",
-                "payloads": false,
-                "preserve_separators": true,
-                "preserve_position_increments": true
+            "suggest": {
+                "type": "nested",
+                "include_in_parent": true,
+                "properties": {
+                    "name" : {
+                        "type": "string",
+                        "index_analyzer": "fulltext_index",
+                        "search_analyzer": "fulltext_query"
+                    },
+                    "service" : {
+                        "type": "string",
+                        "index_analyzer": "fulltext_index",
+                        "search_analyzer": "fulltext_query"
+                    },
+                    "location" : {
+                        "type": "string",
+                        "index_analyzer": "fulltext_index",
+                        "search_analyzer": "fulltext_query"
+                    }
+                }
+            },
+            "suggest_ngram": {
+                "type": "nested",
+                "include_in_parent": true,
+                "properties": {
+                    "name" : {
+                        "type": "string",
+                        "search_analyzer": "autosuggest_query",
+                        "index_analyzer": "edgengram_analyzer"
+                    },
+                    "service" : {
+                        "type": "string",
+                        "search_analyzer": "autosuggest_query",
+                        "index_analyzer": "edgengram_analyzer"
+                    },
+                    "location" : {
+                        "type": "string",
+                        "search_analyzer": "autosuggest_query",
+                        "index_analyzer": "edgengram_analyzer"
+                    }
+                }
             }
         }
     }
