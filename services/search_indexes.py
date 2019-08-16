@@ -108,7 +108,7 @@ class UnitIndex(ServiceMapBaseIndex):
         return values
 
     def prepare_partial(self, obj):
-        values =  self.prepare_suggest(obj)
+        return self.prepare_suggest(obj)
 
 
 class ServiceIndex(ServiceMapBaseIndex):
