@@ -48,7 +48,7 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     autosuggest_extra_searchwords = indexes.CharField()
     public = indexes.BooleanField()
     suggest = indexes.CharField()
-    suggest_ngram = indexes.CharField()
+    partial = indexes.CharField()
 
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
@@ -75,7 +75,7 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     def prepare_suggest(self, obj):
         return dict(name=None, service=[], location=[])
 
-    def prepare_suggest_ngram(self, obj):
+    def prepare_partial(self, obj):
         return self.prepare_suggest(obj)
 
 
@@ -84,7 +84,7 @@ class UnitIndex(ServiceMapBaseIndex):
     services = indexes.MultiValueField()
     root_department = indexes.CharField(null=True)
     suggest = indexes.CharField()
-    suggest_ngram = indexes.CharField()
+    partial = indexes.CharField()
 
     def read_queryset(self, using=None):
         return self.get_model().search_objects
@@ -113,8 +113,8 @@ class UnitIndex(ServiceMapBaseIndex):
             values['location'].append(obj.municipality.name)
         return values
 
-    def prepare_suggest_ngram(self, obj):
-        return self.prepare_suggest(obj)
+    def prepare_partial(self, obj):
+        values =  self.prepare_suggest(obj)
 
 
 class ServiceIndex(ServiceMapBaseIndex):
