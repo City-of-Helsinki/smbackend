@@ -57,6 +57,19 @@
                 ],
                 "type": "custom"
             },
+            "edgengram_trunc_analyzer": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "finnish",
+                "filter": [
+                    "keyword_repeat",
+                    "voikko_filter",
+                    "haystack_edgengram",
+                    "lowercase",
+                    "unique",
+                    "truncate_incomplete"
+                ],
+                "type": "custom"
+            },
             "autosuggest_exact": {
                 "char_filter": ["accented_letter_replacement"],
                 "tokenizer": "keyword",
@@ -108,6 +121,11 @@
             "extract_numbers" : {
                 "type" : "keep_types",
                 "types" : [ "<NUM>" ]
+            },
+            "truncate_incomplete" : {
+                "type" : "pattern_replace",
+                "pattern": ".$",
+                "replacement": ""
             }
         }
     }
