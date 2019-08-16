@@ -63,10 +63,10 @@
                 "filter": [
                     "keyword_repeat",
                     "voikko_filter",
+                    "truncate_incomplete",
                     "haystack_edgengram",
                     "lowercase",
-                    "unique",
-                    "truncate_incomplete"
+                    "unique"
                 ],
                 "type": "custom"
             },
@@ -124,8 +124,8 @@
             },
             "truncate_incomplete" : {
                 "type" : "pattern_replace",
-                "pattern": ".$",
-                "replacement": ""
+                "pattern": "(..).$",
+                "replacement": "$1"
             }
         }
     }
