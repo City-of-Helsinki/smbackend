@@ -73,24 +73,24 @@
                     }
                 }
             },
-            "suggest_ngram": {
+            "partial": {
                 "type": "nested",
                 "include_in_parent": true,
                 "properties": {
                     "name" : {
                         "type": "string",
                         "search_analyzer": "autosuggest_query",
-                        "index_analyzer": "edgengram_analyzer"
+                        "index_analyzer": "edgengram_trunc_analyzer"
                     },
                     "service" : {
                         "type": "string",
                         "search_analyzer": "autosuggest_query",
-                        "index_analyzer": "edgengram_analyzer"
+                        "index_analyzer": "edgengram_trunc_analyzer"
                     },
                     "location" : {
                         "type": "string",
                         "search_analyzer": "autosuggest_query",
-                        "index_analyzer": "edgengram_analyzer"
+                        "index_analyzer": "edgengram_trunc_analyzer"
                     }
                 }
             }
