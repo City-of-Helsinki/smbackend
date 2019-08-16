@@ -20,7 +20,7 @@ class OrderedByScoreDict(OrderedDict):
 ELASTIC = 'http://localhost:9200/servicemap-fi/'
 BASE_QUERY = """
 {
-    "_source": false,
+    "_source": ["suggest"],
     "size": 200,
     "highlight": {
         "fields": {
@@ -85,14 +85,35 @@ BASE_QUERY = """
                 }
             },
             "filter": {
-                "terms": {
-                    "django_ct": ["services.unit"]
-                }
+                "and": [
+                    {
+                        "terms": {
+                            "django_ct": ["services.unit"]
+                        }
+                    },
+                    {
+                        "or": [
+                            {
+                                "query": {
+                                    "query_string": {
+                                        "query": "text:insert and text and here"
+                                    }
+                                }
+                            },
+                            {
+                                "query": {
+                                    "query_string": {
+                                        "query": "text:insert text without last word here"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
             }
         }
     }
 }
-
 """
 
 
@@ -130,6 +151,14 @@ def get_suggestions(search_query, elastic_query=False):
             {'match': {'suggest.service': {'query': query_incomplete_part, 'operator': 'and'}}}
         ]
         query['query']['filtered']['query']['bool']['should'][1]['nested']['query']['bool']['should'] = partial_query
+
+    query['query']['filtered']['filter']['and'][1]['or'][0]['query']['query_string']['query'] = "text:({})".format(
+        " AND ".join(query_parts))
+    if len(query_parts) > 1:
+        query['query']['filtered']['filter']['and'][1]['or'][1]['query']['query_string']['query'] = "text:({})".format(
+            " AND ".join(query_parts[:-1]))
+    else:
+        del query['query']['filtered']['filter']['and'][1]['or'][1]
 
     if elastic_query:
         return json.dumps(query, indent=2)
@@ -190,7 +219,7 @@ if False:
     p(FUNC("A1-ranska esiopetus (koulun järjestämä) normaalikoulu"))
     p(FUNC("ui"))
 
-    # FUN: note the diffrence in analysis:
+    # FUN: note the difference in analysis:
     p(FUNC("helsing"))
     p(FUNC("helsink"))
     p(FUNC("helsingin"))
