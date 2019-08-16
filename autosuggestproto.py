@@ -95,15 +95,15 @@ BASE_QUERY = """
                         "or": [
                             {
                                 "query": {
-                                    "query_string": {
-                                        "query": "text:insert and text and here"
+                                    "match": {
+                                        "text": "insert and text and here"
                                     }
                                 }
                             },
                             {
                                 "query": {
-                                    "query_string": {
-                                        "query": "text:insert text without last word here"
+                                    "match": {
+                                        "text": "insert text without last word here"
                                     }
                                 }
                             }
@@ -157,9 +157,9 @@ def get_suggestions(search_query, elastic_query=False):
         query['query']['filtered']['query']['bool']['should'][1]['nested']['query']['bool']['should'] = partial_query
 
     if len(query_parts) > 1:
-        query['query']['filtered']['filter']['and'][1]['or'][0]['query']['query_string']['query'] = "text:({})".format(
+        query['query']['filtered']['filter']['and'][1]['or'][0]['query']['match']['text'] = "{}".format(
             " AND ".join(query_parts))
-        query['query']['filtered']['filter']['and'][1]['or'][1]['query']['query_string']['query'] = "text:({})".format(
+        query['query']['filtered']['filter']['and'][1]['or'][1]['query']['match']['text'] = "{}".format(
             " AND ".join(query_parts[:-1]))
     else:
         del query['query']['filtered']['filter']['and'][1]
