@@ -139,8 +139,12 @@ def get_suggestions(search_query, elastic_query=False):
     ]
 
     if len(query_parts) == 1:
-        del query['query']['filtered']['query']['bool']['should'][0]
-        query['query']['filtered']['query']['bool']['should'][0]['nested']['query']['bool']['should'] = partial_query
+        query['query']['filtered']['query']['bool']['should'][0]['nested']['query']['bool']['should'] = [
+            {'match': {'suggest.name': {'query': search_query, 'operator': 'and'}}},
+            {'match': {'suggest.location': {'query': search_query, 'operator': 'and'}}},
+            {'match': {'suggest.service': {'query': search_query, 'operator': 'and'}}}
+        ]
+        query['query']['filtered']['query']['bool']['should'][1]['nested']['query']['bool']['should'] = partial_query
     elif len(query_parts) > 1:
         query['query']['filtered']['query']['bool']['should'][0]['nested']['query']['bool']['should'] = [
             {'match': {'suggest.name': {'query': query_complete_part, 'operator': 'and'}}},
@@ -152,13 +156,13 @@ def get_suggestions(search_query, elastic_query=False):
         ]
         query['query']['filtered']['query']['bool']['should'][1]['nested']['query']['bool']['should'] = partial_query
 
-    query['query']['filtered']['filter']['and'][1]['or'][0]['query']['query_string']['query'] = "text:({})".format(
-        " AND ".join(query_parts))
     if len(query_parts) > 1:
+        query['query']['filtered']['filter']['and'][1]['or'][0]['query']['query_string']['query'] = "text:({})".format(
+            " AND ".join(query_parts))
         query['query']['filtered']['filter']['and'][1]['or'][1]['query']['query_string']['query'] = "text:({})".format(
             " AND ".join(query_parts[:-1]))
     else:
-        del query['query']['filtered']['filter']['and'][1]['or'][1]
+        del query['query']['filtered']['filter']['and'][1]
 
     if elastic_query:
         return json.dumps(query, indent=2)
@@ -170,11 +174,12 @@ def get_suggestions(search_query, elastic_query=False):
     # import pprint
     # pprint.pprint(result)
 
-    suggestions_complete = dict()
-    suggestions_incomplete = dict()
-    next_steps = set()
+    suggestions_complete = dict()    # already matched fields
+    suggestions_incomplete = dict()  # partially matching fields
+    next_steps = dict()              # for units in this set, what filters to add next?
 
     for doc in result.get('hits', {}).get('hits', []):
+        # TODO REFACTOR BELOW
         for partial in doc['inner_hits']['partial']['hits']['hits']:
             for suggestion_type, highlights in partial['highlight'].items():
                 suggestions_incomplete.setdefault(suggestion_type, {})
@@ -187,7 +192,13 @@ def get_suggestions(search_query, elastic_query=False):
                 for highlight in highlights:
                     count = suggestions_complete[suggestion_type].get(highlight, 0)
                     suggestions_complete[suggestion_type][highlight] = count + 1
-
+        for suggestion_type, next_suggestions in doc['_source']['suggest'].items():
+            next_steps.setdefault(suggestion_type, {})
+            if isinstance(next_suggestions, str):
+                next_suggestions = [next_suggestions]
+            for next_suggestion in next_suggestions:
+                count = next_steps[suggestion_type].get(next_suggestion, 0)
+                next_steps[suggestion_type][next_suggestion] = count + 1
 
     # todo: remove already "used" suggestions (existing in query)
 
@@ -206,8 +217,8 @@ def p(val):
         pprint(val)
 
 
-#FUNC = get_suggestions
-FUNC = suggestion_query
+FUNC = get_suggestions
+# FUNC = suggestion_query
 
 if False:
     p(FUNC("saksan wlan ala-aste"))
