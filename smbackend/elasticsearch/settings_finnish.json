@@ -62,6 +62,7 @@
                 "tokenizer": "finnish",
                 "filter": [
                     "keyword_repeat",
+                    "finnish_word_delimiter_filter",
                     "voikko_filter",
                     "truncate_incomplete",
                     "haystack_edgengram",
