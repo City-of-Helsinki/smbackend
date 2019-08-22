@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.utils.translation import ugettext_lazy as _
 
 from services.api import ServiceSerializer, UnitSerializer
@@ -13,6 +14,7 @@ from services.api import (
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Observation.objects.all()
     serializer_class = ObservationSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def create(self, request, *args, **kwargs):
         if request.auth is None:
@@ -21,7 +23,9 @@ class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
         return super(ObservationViewSet, self).create(request, *args, **kwargs)
 
     def get_serializer_context(self):
-        return {'user': self.request.user, 'auth': self.request.auth}
+        context = super().get_serializer_context()
+        context.update({'user': self.request.user, 'auth': self.request.auth})
+        return context
 
 
 class ObservableSerializerMixin:
