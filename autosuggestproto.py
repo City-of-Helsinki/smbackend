@@ -157,10 +157,14 @@ def get_suggestions(search_query, elastic_query=False):
         query['query']['filtered']['query']['bool']['should'][1]['nested']['query']['bool']['should'] = partial_query
 
     if len(query_parts) > 1:
-        query['query']['filtered']['filter']['and'][1]['or'][0]['query']['match']['text'] = "{}".format(
-            " AND ".join(query_parts))
-        query['query']['filtered']['filter']['and'][1]['or'][1]['query']['match']['text'] = "{}".format(
-            " AND ".join(query_parts[:-1]))
+        query['query']['filtered']['filter']['and'][1]['or'][0]['query']['match']['text'] = {
+            "query": "{}".format(" ".join(query_parts)),
+            "operator": "and"
+        }
+        query['query']['filtered']['filter']['and'][1]['or'][1]['query']['match']['text'] = {
+            "query": "{}".format(query_complete_part),
+            "operator": "and"
+        }
     else:
         del query['query']['filtered']['filter']['and'][1]
 
