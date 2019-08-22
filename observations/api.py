@@ -14,6 +14,7 @@ from services.api import (
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Observation.objects.all()
     serializer_class = ObservationSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def create(self, request, *args, **kwargs):
         if request.auth is None:
@@ -25,12 +26,6 @@ class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context.update({'user': self.request.user, 'auth': self.request.auth})
         return context
-
-    def get_permissions(self):
-        """
-        Allow GETting without credentials
-        """
-        return[IsAuthenticatedOrReadOnly()]
 
 
 class ObservableSerializerMixin:
