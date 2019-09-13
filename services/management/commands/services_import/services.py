@@ -4,7 +4,7 @@ import pytz
 from django import db
 from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
 from munigeo.importer.sync import ModelSyncher
-from services.models import ServiceNode, Service, Unit, ServiceNodeUnitCount
+from services.models import ServiceNode, Service, Unit, ServiceUnitCount, ServiceNodeUnitCount
 from services.management.commands.services_import.keyword import KeywordHandler
 from .utils import pk_get, save_translated_field
 
@@ -214,6 +214,42 @@ def update_service_node_counts():
         objects_to_save.extend(update_count_objects(service_node_unit_count_objects, node))
     save_objects(objects_to_save)
     return tree
+
+
+@db.transaction.atomic
+def update_service_counts():
+    values = Service.objects.values('id', 'units__municipality__division__id').annotate(
+        count=db.models.Count('units'))
+    unit_counts = dict()
+    for row in values:
+        c = unit_counts.setdefault(row['id'], {})
+        c[row['units__municipality__division__id']] = row['count']
+
+    municipality_type = AdministrativeDivisionType.objects.get(type='muni')
+    existing_count_objects = ServiceUnitCount.objects.filter(division_type=municipality_type)
+
+    # Step 1: modify existing count objects
+    for o in existing_count_objects:
+        if o.service_id not in unit_counts or o.division_id not in unit_counts[o.service_id]:
+            o.delete()
+            continue
+        count = unit_counts[o.service_id][o.division_id]
+        if count != o.count:
+            o.count = count
+            o.save()
+        del unit_counts[o.service_id][o.division_id]
+
+    # Step 2: create new count objects as needed
+    for service_id, c in unit_counts.items():
+        for division_id, count in c.items():
+            if count > 0:
+                o = ServiceUnitCount.objects.create(
+                    service_id=service_id,
+                    division_id=division_id,
+                    count=count,
+                    division_type=municipality_type)
+                o.save()
+    return
 
 
 @db.transaction.atomic

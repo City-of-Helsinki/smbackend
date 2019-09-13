@@ -5,7 +5,7 @@ import uuid
 from django.http import Http404
 from django.conf import settings
 from django.utils import translation, timezone
-from django.db.models import Q, F, Count, Prefetch
+from django.db.models import Q, F, Prefetch
 from django.contrib.gis.geos import Point
 from django.contrib.gis.gdal import SpatialReference
 from django.shortcuts import get_object_or_404
@@ -277,9 +277,15 @@ class ServiceNodeSerializer(TranslatedModelSerializer, MPTTModelSerializer, JSON
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
         ret = super(ServiceSerializer, self).to_representation(obj)
-        ret['unit_count'] = {}
-        if hasattr(obj, 'unit_count'):
-            ret.setdefault('unit_count', {})['total'] = obj.unit_count
+        ret['unit_count'] = {'municipality': {}}
+        total = 0
+        for unit_count in obj.unit_counts.filter(division_type__type='muni'):
+            div_name = unit_count.division.name.lower() if unit_count.division else None
+            if unit_count.count == 0:
+                continue
+            total += unit_count.count
+            ret['unit_count']['municipality'][div_name] = unit_count.count
+        ret['unit_count']['total'] = total
         return ret
 
     class Meta:
@@ -451,12 +457,13 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     serializer_class = ServiceSerializer
 
     def get_queryset(self):
-        queryset = super(ServiceViewSet, self).get_queryset().prefetch_related('keywords')
+        queryset = super(ServiceViewSet, self).get_queryset().prefetch_related(
+            'keywords', 'unit_counts', 'unit_counts__division')
         args = self.request.query_params
         if 'id' in args:
             id_list = args['id'].split(',')
             queryset = queryset.filter(id__in=id_list)
-        return queryset.annotate(unit_count=Count('units', distinct=True))
+        return queryset
 
 
 register_view(ServiceViewSet, 'service')

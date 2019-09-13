@@ -10,11 +10,13 @@ from rest_framework.reverse import reverse
 
 # from services.management.commands.services_import.services import import_services
 from services.management.commands.services_import.departments import import_departments
-from services.management.commands.services_import.services import import_services, update_service_node_counts
+from services.management.commands.services_import.services import import_services
+from services.management.commands.services_import.services import update_service_counts, update_service_node_counts
 from services.management.commands.services_import.units import import_units
 
 
 from services.models.unit import CONTRACT_TYPES as UNIT_CONTRACT_TYPES
+from services.models import ServiceNodeUnitCount, ServiceUnitCount
 from munigeo.models import AdministrativeDivisionType
 
 from .services_import_hypothesis import closed_object_set
@@ -26,12 +28,6 @@ CONTRACT_TYPES = [c[1] for c in UNIT_CONTRACT_TYPES]
 @pytest.fixture
 def api_client():
     return APIClient()
-
-
-@pytest.fixture
-def muni_admin_div_type():
-    defaults = {'name': 'Municipality'}
-    return AdministrativeDivisionType.objects.get_or_create(type='muni', defaults=defaults)
 
 
 LANGUAGES = [l[0] for l in django_settings.LANGUAGES]
@@ -281,7 +277,10 @@ def assert_service_details_correctly_imported(source, imported):
 @pytest.mark.django_db
 @settings(suppress_health_check=[HealthCheck.too_slow], timeout=60, max_examples=200)
 @given(closed_object_set())
-def test_import_units(api_client, muni_admin_div_type, resources):
+def test_import_units(api_client, resources):
+    # Manual setup: needed because of poor hypothesis-pytest integration
+    a, created = AdministrativeDivisionType.objects.get_or_create(type='muni', defaults=dict(name='Municipality'))
+    # End of manual setup
 
     def fetch_resource(name):
         return resources.get(name, set())
@@ -306,6 +305,7 @@ def test_import_units(api_client, muni_admin_div_type, resources):
         dept_syncher=dept_syncher)
 
     update_service_node_counts()
+    update_service_counts()
 
     response = get(api_client, '{}?include=department,services'.format(reverse('unit-list')))
     assert_resource_synced(response, 'unit', resources)
@@ -362,3 +362,9 @@ def test_import_units(api_client, muni_admin_div_type, resources):
         assert to['period_enabled'] == frm['can_add_schoolyear']
         assert to['clarification_enabled'] == frm['can_add_clarification']
         assert_keywords_correct(ontologyword_by_id.get(service['id']), service)
+
+    # Manual teardown: needed because of poor hypothesis-pytest integration
+    ServiceUnitCount.objects.all().delete()
+    ServiceNodeUnitCount.objects.all().delete()
+    a.delete()
+    # End of manual teardown
