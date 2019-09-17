@@ -142,7 +142,7 @@ def import_units(dept_syncher=None, fetch_only_id=None,
 
     target_srid = PROJECTION_SRID
     bounding_box = Polygon.from_bbox(settings.BOUNDING_BOX)
-    bounding_box.set_srid(4326)
+    bounding_box.srid = 4326
     gps_srs = SpatialReference(4326)
     target_srs = SpatialReference(target_srid)
     target_to_gps_ct = CoordTransform(target_srs, gps_srs)
