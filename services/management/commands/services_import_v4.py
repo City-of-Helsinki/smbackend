@@ -13,7 +13,7 @@ from django.utils.translation import activate, get_language
 from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.services import (
-    import_services, update_service_node_counts, update_service_root_service_nodes)
+    import_services, update_service_counts, update_service_node_counts, update_service_root_service_nodes)
 from services.management.commands.services_import.units import import_units
 
 from munigeo.models import AdministrativeDivision
@@ -128,15 +128,13 @@ class Command(BaseCommand):
         obj_list = self.pk_get('unit/{}/accessibility'.format(unit_pk))
         return obj_list
 
-    def update_service_node_unit_counts(self):
-        update_service_node_counts()
-
     def import_units(self, pk=None):
         if pk is not None:
             import_units(fetch_only_id=pk)
             return
         import_units()
-        self.update_service_node_unit_counts()
+        update_service_node_counts()
+        update_service_counts()
 
     @db.transaction.atomic
     def import_services(self):
