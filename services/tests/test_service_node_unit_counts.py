@@ -10,7 +10,7 @@ from munigeo.models import AdministrativeDivisionType, AdministrativeDivision, M
 from .utils import get
 
 
-MOD_TIME = datetime.datetime(year=2019, month=1, day=1, hour=1, minute=1, second=1)
+MOD_TIME = datetime.datetime(year=2019, month=1, day=1, hour=1, minute=1, second=1, tzinfo=datetime.timezone.utc)
 
 
 @pytest.fixture
