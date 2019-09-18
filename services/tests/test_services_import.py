@@ -1,3 +1,4 @@
+import hypothesis
 from hypothesis import given, settings, HealthCheck
 
 import pytest
@@ -275,7 +276,7 @@ def assert_service_details_correctly_imported(source, imported):
 
 
 @pytest.mark.django_db
-@settings(suppress_health_check=[HealthCheck.too_slow], timeout=60, max_examples=200)
+@settings(suppress_health_check=[HealthCheck.too_slow], timeout=hypothesis.unlimited, max_examples=200)
 @given(closed_object_set())
 def test_import_units(api_client, resources):
     # Manual setup: needed because of poor hypothesis-pytest integration
