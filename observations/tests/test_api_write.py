@@ -5,7 +5,7 @@ from data import observation_raw_data
 from rest_framework.reverse import reverse
 from django.utils import timezone
 from datetime import timedelta, datetime
-from django.core.urlresolvers import reverse as django_reverse
+from django.urls import reverse as django_reverse
 
 
 def authenticate_user(api_client, user):
