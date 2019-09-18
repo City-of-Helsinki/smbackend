@@ -62,6 +62,7 @@ class AllowedValue(models.Model):
     description = models.TextField(null=False, blank=False)
     property = models.ForeignKey(
         ObservableProperty,
+        on_delete=models.CASCADE,
         blank=False, null=False,
         related_name='allowed_values')
 
@@ -76,21 +77,25 @@ class Observation(PolymorphicModel):
     """
     value = models.ForeignKey(
         AllowedValue, blank=False, null=True,
+        on_delete=models.CASCADE,
         related_name='instances')
     time = models.DateTimeField(
         db_index=True,
         help_text='Exact time the observation was made')
     unit = models.ForeignKey(
         services_models.Unit, blank=False, null=False,
+        on_delete=models.CASCADE,
         help_text='The unit the observation is about',
         related_name='observation_history')
     units = models.ManyToManyField(
         services_models.Unit, through='UnitLatestObservation')
     auth = models.ForeignKey(
-        'PluralityAuthToken', null=True)
+        'PluralityAuthToken', null=True,
+        on_delete=models.CASCADE)
     property = models.ForeignKey(
         ObservableProperty,
         blank=False, null=False,
+        on_delete=models.CASCADE,
         help_text='The property observed')
 
     class Meta:
@@ -129,11 +134,14 @@ class UnitLatestObservation(models.Model):
     unit = models.ForeignKey(
         services_models.Unit,
         null=False, blank=False,
-        related_name='latest_observations')
+        related_name='latest_observations',
+        on_delete=models.CASCADE)
     property = models.ForeignKey(
-        ObservableProperty, null=False, blank=False)
+        ObservableProperty, null=False, blank=False,
+        on_delete=models.CASCADE)
     observation = models.ForeignKey(
-        Observation, null=False, blank=False)
+        Observation, null=False, blank=False,
+        on_delete=models.CASCADE)
 
     class Meta:
         unique_together = (
@@ -146,7 +154,8 @@ class PluralityAuthToken(models.Model):
     """
     key = models.CharField(max_length=40, primary_key=False, db_index=True)
     user = models.ForeignKey(
-        AUTH_USER_MODEL, related_name='auth_tokens', null=False)
+        AUTH_USER_MODEL, related_name='auth_tokens', null=False,
+        on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
 
@@ -183,6 +192,8 @@ class PluralityTokenAuthentication(rest_framework.authentication.TokenAuthentica
 
 
 class UserOrganization(models.Model):
-    organization = models.ForeignKey(services_models.Department)
+    organization = models.ForeignKey(
+        services_models.Department,
+        on_delete=models.CASCADE)
     user = models.OneToOneField(
         AUTH_USER_MODEL, related_name='organization', null=False)

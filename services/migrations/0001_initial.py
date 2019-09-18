@@ -134,7 +134,7 @@ class Migration(migrations.Migration):
                 ('tree_id', models.PositiveIntegerField(db_index=True, editable=False)),
                 ('level', models.PositiveIntegerField(db_index=True, editable=False)),
                 ('keywords', models.ManyToManyField(to='services.Keyword')),
-                ('parent', mptt.fields.TreeForeignKey(null=True, related_name='children', to='services.ServiceTreeNode')),
+                ('parent', mptt.fields.TreeForeignKey(null=True, related_name='children', to='services.ServiceTreeNode', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -181,11 +181,11 @@ class Migration(migrations.Migration):
                 ('identifier_hash', models.CharField(max_length=40, null=True, help_text='Automatically generated hash of other identifiers')),
                 ('root_services', models.CommaSeparatedIntegerField(max_length=50, null=True)),
                 ('root_servicenodes', models.CommaSeparatedIntegerField(max_length=50, null=True)),
-                ('department', models.ForeignKey(null=True, to='services.Department')),
+                ('department', models.ForeignKey(null=True, to='services.Department', on_delete=models.CASCADE)),
                 ('divisions', models.ManyToManyField(to='munigeo.AdministrativeDivision')),
                 ('keywords', models.ManyToManyField(to='services.Keyword')),
-                ('municipality', models.ForeignKey(null=True, to='munigeo.Municipality')),
-                ('organization', models.ForeignKey(to='services.Organization')),
+                ('municipality', models.ForeignKey(null=True, to='munigeo.Municipality', on_delete=models.CASCADE)),
+                ('organization', models.ForeignKey(to='services.Organization', on_delete=models.CASCADE)),
                 ('service_tree_nodes', models.ManyToManyField(related_name='units', to='services.ServiceTreeNode')),
                 ('services', models.ManyToManyField(related_name='units', to='services.Service')),
             ],
@@ -195,8 +195,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
                 ('value', models.CharField(max_length=100)),
-                ('unit', models.ForeignKey(related_name='accessibility_properties', to='services.Unit')),
-                ('variable', models.ForeignKey(to='services.AccessibilityVariable')),
+                ('unit', models.ForeignKey(related_name='accessibility_properties', to='services.Unit', on_delete=models.CASCADE)),
+                ('variable', models.ForeignKey(to='services.AccessibilityVariable', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -204,7 +204,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
                 ('second', models.IntegerField(unique=True, db_index=True)),
-                ('first', models.ForeignKey(related_name='aliases', to='services.Unit')),
+                ('first', models.ForeignKey(related_name='aliases', to='services.Unit', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -226,7 +226,7 @@ class Migration(migrations.Migration):
                 ('phone', models.CharField(max_length=50, null=True)),
                 ('phone_mobile', models.CharField(max_length=50, null=True)),
                 ('order', models.PositiveSmallIntegerField(default=0)),
-                ('unit', models.ForeignKey(related_name='connections', to='services.Unit')),
+                ('unit', models.ForeignKey(related_name='connections', to='services.Unit', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['order'],
@@ -238,7 +238,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
                 ('namespace', models.CharField(max_length=50)),
                 ('value', models.CharField(max_length=100)),
-                ('unit', models.ForeignKey(related_name='identifiers', to='services.Unit')),
+                ('unit', models.ForeignKey(related_name='identifiers', to='services.Unit', on_delete=models.CASCADE)),
             ],
         ),
         migrations.AlterUniqueTogether(
@@ -248,6 +248,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='department',
             name='organization',
-            field=models.ForeignKey(null=True, to='services.Organization'),
+            field=models.ForeignKey(null=True, to='services.Organization', on_delete=models.CASCADE),
         ),
     ]

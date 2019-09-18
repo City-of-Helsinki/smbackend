@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('sentence_fi', models.TextField(null=True)),
                 ('sentence_sv', models.TextField(null=True)),
                 ('sentence_en', models.TextField(null=True)),
-                ('unit', models.ForeignKey(to='services.Unit')),
+                ('unit', models.ForeignKey(to='services.Unit', on_delete=models.CASCADE)),
             ],
         ),
     ]
