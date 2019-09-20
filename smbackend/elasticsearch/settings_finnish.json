@@ -5,7 +5,7 @@
                 "type": "mapping",
                 "mappings": ["á=>a", "Á=>a", "é=>e", "É=>e", "í=>i", "Í=>i", "ó=>o", "Ó=>o", "ú=>u", "Ú=>u",
                             "â=>a", "Â=>a", "ê=>e", "Ê=>e", "î=>i", "Î=>i", "ô=>o", "Ô=>o", "û=>u", "Û=>u",
-                            "ë=>e", "Ë=>e", "ï=>i", "Ï=>i", "ü=>u", "Ü=>u", "ÿ=>y", "Ÿ=>y"] 
+                            "ë=>e", "Ë=>e", "ï=>i", "Ï=>i", "ü=>u", "Ü=>u", "ÿ=>y", "Ÿ=>y"]
             }
         },
         "analyzer": {
@@ -51,20 +51,6 @@
                 "filter": [
                     "keyword_repeat",
                     "voikko_filter",
-                    "haystack_edgengram",
-                    "lowercase",
-                    "unique"
-                ],
-                "type": "custom"
-            },
-            "edgengram_trunc_analyzer": {
-                "char_filter": ["accented_letter_replacement"],
-                "tokenizer": "finnish",
-                "filter": [
-                    "keyword_repeat",
-                    "finnish_word_delimiter_filter",
-                    "voikko_filter",
-                    "truncate_incomplete",
                     "haystack_edgengram",
                     "lowercase",
                     "unique"
@@ -122,11 +108,6 @@
             "extract_numbers" : {
                 "type" : "keep_types",
                 "types" : [ "<NUM>" ]
-            },
-            "truncate_incomplete" : {
-                "type" : "pattern_replace",
-                "pattern": "(..).$",
-                "replacement": "$1"
             }
         }
     }

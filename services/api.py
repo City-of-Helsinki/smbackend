@@ -968,7 +968,104 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
     serializer_class = SearchSerializer
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
 
-    queryset = Unit.objects.all()
+    def get_queryset(self):
+        queryset = SearchQuerySet()
+
+        if hasattr(self.request, 'accepted_media_type') and re.match(KML_REGEXP, self.request.accepted_media_type):
+            queryset = queryset.models(Unit)
+            self.only_fields['unit'].extend(['street_address', 'www'])
+
+        input_val = self.request.query_params.get('input', '').strip()
+        q_val = self.request.query_params.get('q', '').strip()
+
+        if not input_val and not q_val:
+            raise ParseError("Supply search terms with 'q=' or autocomplete entry with 'input='")
+        if input_val and q_val:
+            raise ParseError("Supply either 'q' or 'input', not both")
+
+        if input_val:
+            queryset = queryset.filter(
+                SQ(autosuggest=input_val)
+                | SQ(autosuggest_extra_searchwords=input_val)
+                | SQ(autosuggest_exact__exact=input_val)
+                | SQ(SQ(number=input_val) & SQ(autosuggest=input_val))
+            )
+        else:
+            queryset = (
+                queryset
+                .filter(name=Clean(q_val))
+                .filter_or(text=Clean(q_val))
+                .filter_or(extra_searchwords=q_val)
+                .filter_or(address=q_val)
+            )
+
+        IS_NOT_UNIT_SQ = (SQ(django_ct='services.service')
+                          | SQ(django_ct='services.servicenode')
+                          | SQ(django_ct='munigeo.address'))
+
+        if 'municipality' in self.request.query_params:
+            val = self.request.query_params['municipality'].lower().strip()
+            if len(val) > 0:
+                municipalities = val.split(',')
+
+                muni_sq = SQ(municipality=municipalities.pop().strip())
+                for m in municipalities:
+                    muni_sq |= SQ(municipality=m)
+
+                queryset = queryset.filter(
+                    SQ(muni_sq | IS_NOT_UNIT_SQ))
+
+        if 'city_as_department' in self.request.query_params:
+            val = self.request.query_params['city_as_department'].lower().strip()
+
+            if len(val) > 0:
+                deps_uuid = val.split(',')
+
+                # forming municipality search query
+                deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
+                munis = [d.municipality.name for d in deps]
+
+                muni_sq = SQ(municipality=munis.pop())
+                for m in munis:
+                    muni_sq |= SQ(municipality=m)
+
+                # forming root_deparment search query
+                dep_sq = SQ(root_department=deps_uuid.pop().strip())
+                for d in deps_uuid:
+                    dep_sq |= SQ(root_department=d)
+
+                # updating queryset
+                queryset = queryset.filter(
+                    SQ(muni_sq | dep_sq | IS_NOT_UNIT_SQ))
+
+        service = self.request.query_params.get('service')
+        if service:
+            services = service.split(',')
+            queryset = queryset.filter(django_ct='services.unit').filter(services__in=services)
+
+        # Only units marked public should be returned. For other types,
+        # public is always True.
+        queryset = queryset.filter(public=True)
+
+        models = set()
+        types = self.request.query_params.get('type', '').split(',')
+        for t in types:
+            if t == 'service_node':
+                models.add(ServiceNode)
+            elif t == 'service':
+                models.add(Service)
+            elif t == 'unit':
+                models.add(Unit)
+            elif t == 'address':
+                models.add(Address)
+            elif t == 'administrative_division':
+                models.add(AdministrativeDivision)
+        if len(models) > 0:
+            queryset = queryset.models(*list(models))
+        else:
+            # Hide the to-be-deprecated servicenode from default types
+            queryset = queryset.models(Service, Unit, Address, AdministrativeDivision)
+        return queryset
 
     def list(self, request, *args, **kwargs):
         # If the incoming language is not specified, go with the default.
@@ -993,112 +1090,19 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
             else:
                 setattr(self, key, None)
 
-        input_val = request.query_params.get('input', '').strip()
-        q_val = request.query_params.get('q', '').strip()
-
-        if not input_val and not q_val:
-            raise ParseError("Supply search terms with 'q=' or autocomplete entry with 'input='")
-        if input_val and q_val:
-            raise ParseError("Supply either 'q' or 'input', not both")
-
         old_language = translation.get_language()[:2]
         translation.activate(self.lang_code)
 
-        queryset = SearchQuerySet()
+        queryset = self.get_queryset()
 
-        if hasattr(request, 'accepted_media_type') and re.match(KML_REGEXP, request.accepted_media_type):
-            queryset = queryset.models(Unit)
-            self.only_fields['unit'].extend(['street_address', 'www'])
-
-        if input_val:
-            queryset = queryset.filter(
-                SQ(autosuggest=input_val)
-                | SQ(autosuggest_extra_searchwords=input_val)
-                | SQ(autosuggest_exact__exact=input_val)
-                | SQ(SQ(number=input_val) & SQ(autosuggest=input_val))
-            )
-        else:
-            queryset = (
-                queryset
-                .filter(name=Clean(q_val))
-                .filter_or(text=Clean(q_val))
-                .filter_or(extra_searchwords=q_val)
-                .filter_or(address=q_val)
-            )
-
-        IS_NOT_UNIT_SQ = (SQ(django_ct='services.service')
-                          | SQ(django_ct='services.servicenode')
-                          | SQ(django_ct='munigeo.address'))
-
-        if 'municipality' in request.query_params:
-            val = request.query_params['municipality'].lower().strip()
-            if len(val) > 0:
-                municipalities = val.split(',')
-
-                muni_sq = SQ(municipality=municipalities.pop().strip())
-                for m in municipalities:
-                    muni_sq |= SQ(municipality=m)
-
-                queryset = queryset.filter(
-                    SQ(muni_sq | IS_NOT_UNIT_SQ))
-
-        if 'city_as_department' in request.query_params:
-            val = request.query_params['city_as_department'].lower().strip()
-
-            if len(val) > 0:
-                deps_uuid = val.split(',')
-
-                # forming municipality search query
-                deps = Department.objects.filter(uuid__in=deps_uuid).select_related('municipality')
-                munis = [d.municipality.name for d in deps]
-
-                muni_sq = SQ(municipality=munis.pop())
-                for m in munis:
-                    muni_sq |= SQ(municipality=m)
-
-                # forming root_deparment search query
-                dep_sq = SQ(root_department=deps_uuid.pop().strip())
-                for d in deps_uuid:
-                    dep_sq |= SQ(root_department=d)
-
-                # updating queryset
-                queryset = queryset.filter(
-                    SQ(muni_sq | dep_sq | IS_NOT_UNIT_SQ))
-
-        service = request.query_params.get('service')
-        if service:
-            services = service.split(',')
-            queryset = queryset.filter(django_ct='services.unit').filter(services__in=services)
-
-        # Only units marked public should be returned. For other types,
-        # public is always True.
-        queryset = queryset.filter(public=True)
-
-        models = set()
-        types = request.query_params.get('type', '').split(',')
-        for t in types:
-            if t == 'service_node':
-                models.add(ServiceNode)
-            elif t == 'service':
-                models.add(Service)
-            elif t == 'unit':
-                models.add(Unit)
-            elif t == 'address':
-                models.add(Address)
-            elif t == 'administrative_division':
-                models.add(AdministrativeDivision)
-        if len(models) > 0:
-            queryset = queryset.models(*list(models))
-        else:
-            # Hide the to-be-deprecated servicenode from default types
-            queryset = queryset.models(Service, Unit, Address, AdministrativeDivision)
+        count = queryset.count()
+        if count > 0:
+            self.object_list = queryset.order_by('-_score', 'name_sort').load_all()
 
         only = getattr(self, 'only_fields') or {}
         include = getattr(self, 'include_fields') or {}
         Unit.search_objects.only_fields = only.get('unit')
         Unit.search_objects.include_fields = include.get('unit')
-
-        self.object_list = queryset.order_by('-_score', 'name_sort').load_all()
 
         page = self.paginate_queryset(self.object_list)
         self._add_sort_indices_to_paginated_results(page, request)
