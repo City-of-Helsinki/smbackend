@@ -20,223 +20,178 @@ class OrderedByScoreDict(OrderedDict):
 ELASTIC = 'http://localhost:9200/servicemap-fi/'
 BASE_QUERY = """
 {
-    "_source": ["suggest"],
-    "size": 200,
-    "highlight": {
-        "fields": {
-            "suggest": {},
-            "suggest.part": {}
-        }
-    },
-    "query": {
-        "filtered": {
-            "query": {
-                "bool": {
-                    "should": [
-                        {
-                            "nested": {
-                                "path": "suggest",
-                                "inner_hits": {
-                                    "_source": false,
-                                    "highlight": {
-                                        "order": "score",
-                                        "pre_tags": ["{"],
-                                        "post_tags": ["}"],
-                                        "fields": {
-                                            "suggest.name": {"number_of_fragments": 10},
-                                            "suggest.location": {"number_of_fragments": 10},
-                                            "suggest.service": {"number_of_fragments": 10}
-                                        }
-                                    }
-                                },
-                                "query": {
-                                    "bool": {
-                                        "should": [
-                                        ]
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "nested": {
-                                "path": "partial",
-                                "inner_hits": {
-                                    "_source": false,
-                                    "highlight": {
-                                        "order": "score",
-                                        "pre_tags": ["{"],
-                                        "post_tags": ["}"],
-                                        "fields": {
-                                            "partial.name": {"number_of_fragments": 10},
-                                            "partial.location": {"number_of_fragments": 10},
-                                            "partial.service": {"number_of_fragments": 10}
-                                        }
-                                    }
-                                },
-                                "query": {
-                                    "bool": {
-                                        "should": [
-                                        ]
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                }
-            },
-            "filter": {
-                "and": [
-                    {
-                        "terms": {
-                            "django_ct": ["services.unit"]
-                        }
-                    },
-                    {
-                        "or": [
-                            {
-                                "query": {
-                                    "match": {
-                                        "text": "insert and text and here"
-                                    }
-                                }
-                            },
-                            {
-                                "query": {
-                                    "match": {
-                                        "text": "insert text without last word here"
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
+  "_source": ["suggest"],
+  "size": 200,
+  "highlight": {
+    "fields": {
+      "suggest": {},
+      "suggest.part": {}
     }
+  },
+  "aggs" : {
+    "name" : {
+      "terms" : { "field" : "suggest.name.raw", "size": 5, "order": {"avg_score": "desc"} },
+      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
+    },
+    "location" : {
+      "terms" : { "field" : "suggest.location.raw", "size": 10, "order": {"avg_score": "desc"}  },
+      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
+    },
+    "service" : {
+      "terms" : { "field" : "suggest.service.raw", "size": 100, "order": {"avg_score": "desc"}   },
+      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
+    }
+  },
+  "query": {
+    "filtered": {
+      "query": {
+        "bool": {
+          "should": [
+          ]
+        }
+      },
+      "filter": {
+        "and": [
+          {
+            "terms": {
+              "django_ct": ["services.unit"]
+            }
+          },
+          {
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "match": {
+                      "text": {
+                        "query": "insert and text and here",
+                        "operator": "and"
+                      }
+                    }
+                  },
+                  {
+                    "bool": {
+                      "should": [
+                        { "match": {"suggest.service": "text"}},
+                        { "match": {"suggest.name": "text"}},
+                        { "match": {"suggest.location": "text"}}
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
 }
+
+
+
 """
 
 
-def unit_count(search_query):
-    data = requests.get('http://localhost:8000/v2/search/?type=unit&q={}'.format(search_query)).json()
-    return data['count']
+def unit_results(search_query):
+    _next = 'http://localhost:8000/v2/search/?type=unit&q={}'.format(search_query)
+    results = []
+    while _next is not None:
+        data = requests.get(_next).json()
+        _next = data['next']
+        results += data['results']
+    return results
 
 
-def get_suggestions(search_query, elastic_query=False):
-    query_parts = search_query.split()
-    query_complete_part = " ".join(query_parts[:-1])
-    query_incomplete_part = query_parts[-1]
+def get_suggestions(query):
+    result = suggestion_response(query)
+    for _type, value in result['aggregations'].items():
+        if _type == 'location' and len(value['buckets']) == 1:
+            continue
+        print("\n{}".format(_type))
+        print("".join(("=" for x in range(0, len(_type)))))
+        for term in value['buckets']:
+            print(term['key'], "[{}]".format(term['avg_score']['value']))
+    # rule 1: remove buckets with only one possibility (redundant) DONE
+    # rule 2: show most restrictive + least restrictive?
+    #  (except can't differentiate between multiple most restrictives)
+    # rule 3: if there are only one results, period, just show the name of the unit?
 
+
+def suggestion_response(query):
+    response = requests.get(
+        '{}/_search/?search_type=count'.format(ELASTIC),
+        data=json.dumps(suggestion_query(query)))
+    return response.json()
+
+
+def suggestion_query(search_query):
     query = json.loads(BASE_QUERY)
 
     if len(search_query.strip()) == 0:
         return None
 
-    partial_query = [
-        {'match': {'partial.name': {'query': query_incomplete_part}}},
-        {'match': {'partial.location': {'query': query_incomplete_part}}},
-        {'match': {'partial.service': {'query': query_incomplete_part}}}
+    last_word = None
+    first_words = None
+    split = search_query.split()
+    if len(split) > 0:
+        last_word = split[-1]
+        first_words = " ".join(split[:-1])
+
+    query['query']['filtered']['query']['bool']['should'] = [
+        {'match': {'suggest.name': {'query': search_query}}},
+        {'match': {'suggest.location': {'query': search_query}}},
+        {'match': {'suggest.service': {'query': search_query}}}
     ]
+    # del query['query']['filtered']['filter']['and'][1]
+    filter_query_must = query['query']['filtered']['filter']['and'][1]['query']['bool']['must']
 
-    if len(query_parts) == 1:
-        query['query']['filtered']['query']['bool']['should'][0]['nested']['query']['bool']['should'] = [
-            {'match': {'suggest.name': {'query': search_query, 'operator': 'and'}}},
-            {'match': {'suggest.location': {'query': search_query, 'operator': 'and'}}},
-            {'match': {'suggest.service': {'query': search_query, 'operator': 'and'}}}
-        ]
-        query['query']['filtered']['query']['bool']['should'][1]['nested']['query']['bool']['should'] = partial_query
-    elif len(query_parts) > 1:
-        query['query']['filtered']['query']['bool']['should'][0]['nested']['query']['bool']['should'] = [
-            {'match': {'suggest.name': {'query': query_complete_part, 'operator': 'and'}}},
-            {'match': {'suggest.location': {'query': query_complete_part, 'operator': 'and'}}},
-            {'match': {'suggest.service': {'query': query_complete_part, 'operator': 'and'}}},
-            {'match': {'suggest.name': {'query': query_incomplete_part, 'operator': 'and'}}},
-            {'match': {'suggest.location': {'query': query_incomplete_part, 'operator': 'and'}}},
-            {'match': {'suggest.service': {'query': query_incomplete_part, 'operator': 'and'}}}
-        ]
-        query['query']['filtered']['query']['bool']['should'][1]['nested']['query']['bool']['should'] = partial_query
-
-    if len(query_parts) > 1:
-        query['query']['filtered']['filter']['and'][1]['or'][0]['query']['match']['text'] = {
-            "query": "{}".format(" ".join(query_parts)),
-            "operator": "and"
-        }
-        query['query']['filtered']['filter']['and'][1]['or'][1]['query']['match']['text'] = {
-            "query": "{}".format(query_complete_part),
-            "operator": "and"
-        }
+    if first_words:
+        filter_query_must[0]['match']['text']['query'] = first_words
+        filter_query_must[1]['bool']['should'][0]['match']['suggest.service'] = last_word
+        filter_query_must[1]['bool']['should'][1]['match']['suggest.name'] = last_word
+        filter_query_must[1]['bool']['should'][2]['match']['suggest.location'] = last_word
     else:
         del query['query']['filtered']['filter']['and'][1]
-
-    if elastic_query:
-        return json.dumps(query, indent=2)
-
-    response = requests.get(
-        '{}/_search'.format(ELASTIC),
-        data=json.dumps(query))
-    result = response.json()
-    # import pprint
-    # pprint.pprint(result)
-
-    suggestions_complete = dict()    # already matched fields
-    suggestions_incomplete = dict()  # partially matching fields
-    next_steps = dict()              # for units in this set, what filters to add next?
-
-    for doc in result.get('hits', {}).get('hits', []):
-        # TODO REFACTOR BELOW
-        for partial in doc['inner_hits']['partial']['hits']['hits']:
-            for suggestion_type, highlights in partial['highlight'].items():
-                suggestions_incomplete.setdefault(suggestion_type, {})
-                for highlight in highlights:
-                    count = suggestions_incomplete[suggestion_type].get(highlight, 0)
-                    suggestions_incomplete[suggestion_type][highlight] = count + 1
-        for complete in doc['inner_hits'].get('suggest', {}).get('hits', {}).get('hits', []):
-            for suggestion_type, highlights in complete['highlight'].items():
-                suggestions_complete.setdefault(suggestion_type, {})
-                for highlight in highlights:
-                    count = suggestions_complete[suggestion_type].get(highlight, 0)
-                    suggestions_complete[suggestion_type][highlight] = count + 1
-        for suggestion_type, next_suggestions in doc['_source']['suggest'].items():
-            next_steps.setdefault(suggestion_type, {})
-            if isinstance(next_suggestions, str):
-                next_suggestions = [next_suggestions]
-            for next_suggestion in next_suggestions:
-                count = next_steps[suggestion_type].get(next_suggestion, 0)
-                next_steps[suggestion_type][next_suggestion] = count + 1
-
-    # todo: remove already "used" suggestions (existing in query)
-
-    return {'complete': suggestions_complete,
-            'incomplete': suggestions_incomplete,
-            'next': next_steps}
-
-
-def suggestion_query(query):
-    print(get_suggestions(query, elastic_query=True))
-    return None
+    return query
 
 
 def p(val):
     if val:
-        pprint(val)
+        pprint(val, width=100)
 
 
-FUNC = get_suggestions
-# FUNC = suggestion_query
+def f(q):
+    p(suggestion_query(q))
+    #p(suggestion_response(q))
+    get_suggestions(q)
+
+
+def loop():
+    while True:
+        q = input("\nsearch: ")
+        if q == '.':
+            break
+        elif q[-1] == '?':
+            for r in unit_results(q[:-1]):
+                print(r['name']['fi'], r['score'])
+        else:
+            f(q)
+
 
 if False:
-    p(FUNC("saksan wlan ala-aste"))
-    p(FUNC("helsinki uimastadion maa"))
-    p(FUNC("uimastadion"))
-    p(FUNC("ranska"))
-    p(FUNC("ranska esiope"))
-    p(FUNC("A1-ranska esiopetus (koulun järjestämä)"))
-    p(FUNC("A1-ranska esiopetus (koulun järjestämä) normaalikoulu"))
-    p(FUNC("ui"))
+    # saksan wlan ala-aste
+    # helsinki uimastadion maa
+    # uimastadion
+    # ranska
+    # ranska esiope
+    # A1-ranska esiopetus (koulun järjestämä)
+    # A1-ranska esiopetus (koulun järjestämä) normaalikoulu
+    # ui
 
-    # FUN: note the difference in analysis:
-    p(FUNC("helsing"))
-    p(FUNC("helsink"))
-    p(FUNC("helsingin"))
+    # # FUN: note the difference in analysis:
+    # helsing
+    # helsink
+    # helsingin
+    pass
 
-# TODO: problem 1: actual services come below
