@@ -40,6 +40,17 @@ BASE_QUERY = """
     "service" : {
       "terms" : { "field" : "suggest.service.raw", "size": 100, "order": {"avg_score": "desc"}   },
       "aggs": { "avg_score": { "avg": {"script": "_score"}}}
+    },
+    "complete_matches" : {
+      "filter" : {
+        "query": {
+          "query_string": {
+            "default_field":"text",
+            "default_operator": "AND",
+            "query": "(text:() OR extra_searchwords:())"
+          }
+        }
+      }
     }
   },
   "query": {
@@ -162,9 +173,9 @@ def p(val):
 
 
 def f(q):
-    p(suggestion_query(q))
-    #p(suggestion_response(q))
-    get_suggestions(q)
+    #p(suggestion_query(q))
+    p(suggestion_response(q))
+    #get_suggestions(q)
 
 
 def loop():
