@@ -114,15 +114,26 @@ def unit_results(search_query):
     return results
 
 
+def _matches_complete_word_tokens(result):
+    return result.get('aggregations', {}).get('complete_matches', {}).get('doc_count', 1) > 0
+
+
 def get_suggestions(query):
     result = suggestion_response(query)
+
+    last_word_probably_incomplete = _matches_complete_word_tokens(result)
+    last_word = query.split()[-1]
+
     for _type, value in result['aggregations'].items():
-        if _type == 'location' and len(value['buckets']) == 1:
+        if _type == 'location' and len(value['buckets']) == 1 or _type == 'complete_matches':
             continue
         print("\n{}".format(_type))
         print("".join(("=" for x in range(0, len(_type)))))
-        for term in value['buckets']:
-            print(term['key'], "[{}]".format(term['avg_score']['value']))
+        for term in value.get('buckets', []):
+            text = term['key']
+            if last_word.lower() in text.lower():
+                text += "** "
+            print(text, "[{}]".format(term['avg_score']['value']))
     # rule 1: remove buckets with only one possibility (redundant) DONE
     # rule 2: show most restrictive + least restrictive?
     #  (except can't differentiate between multiple most restrictives)
@@ -137,9 +148,10 @@ def suggestion_response(query):
 
 
 def suggestion_query(search_query):
+    search_query = search_query.strip()
     query = json.loads(BASE_QUERY)
 
-    if len(search_query.strip()) == 0:
+    if len(search_query) == 0:
         return None
 
     last_word = None
@@ -148,6 +160,9 @@ def suggestion_query(search_query):
     if len(split) > 0:
         last_word = split[-1]
         first_words = " ".join(split[:-1])
+
+    query['aggs']['complete_matches']['filter']['query']['query_string']['query'] = (
+        "(text:({0}) OR extra_searchwords:({0}))".format(search_query))
 
     query['query']['filtered']['query']['bool']['should'] = [
         {'match': {'suggest.name': {'query': search_query}}},
@@ -173,9 +188,9 @@ def p(val):
 
 
 def f(q):
-    #p(suggestion_query(q))
+    p(suggestion_query(q))
     p(suggestion_response(q))
-    #get_suggestions(q)
+    get_suggestions(q)
 
 
 def loop():
