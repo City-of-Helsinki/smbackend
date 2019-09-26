@@ -77,25 +77,25 @@ class Observation(PolymorphicModel):
     """
     value = models.ForeignKey(
         AllowedValue, blank=False, null=True,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='instances')
     time = models.DateTimeField(
         db_index=True,
         help_text='Exact time the observation was made')
     unit = models.ForeignKey(
         services_models.Unit, blank=False, null=False,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         help_text='The unit the observation is about',
         related_name='observation_history')
     units = models.ManyToManyField(
         services_models.Unit, through='UnitLatestObservation')
     auth = models.ForeignKey(
         'PluralityAuthToken', null=True,
-        on_delete=models.CASCADE)
+        on_delete=models.PROTECT)
     property = models.ForeignKey(
         ObservableProperty,
         blank=False, null=False,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         help_text='The property observed')
 
     class Meta:
@@ -155,7 +155,7 @@ class PluralityAuthToken(models.Model):
     key = models.CharField(max_length=40, primary_key=False, db_index=True)
     user = models.ForeignKey(
         AUTH_USER_MODEL, related_name='auth_tokens', null=False,
-        on_delete=models.CASCADE)
+        on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
 
