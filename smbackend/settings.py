@@ -49,14 +49,12 @@ INSTALLED_APPS = (
     'observations',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.gzip.GZipMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'profiler.middleware.ProfilerMiddleware',
 )
 
 ROOT_URLCONF = 'smbackend.urls'

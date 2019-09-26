@@ -7,6 +7,7 @@ from observations.models import (
 )
 import datetime as d
 from django.contrib.auth.models import User
+from django.utils import timezone
 from munigeo.models import Municipality
 
 
@@ -45,7 +46,7 @@ def service():
     return Service.objects.create(
         id=1,
         name='skiing',
-        last_modified_time=d.datetime.now())
+        last_modified_time=timezone.now())
 
 
 @pytest.mark.django_db
@@ -54,7 +55,7 @@ def unit(service, organization):
     unit = Unit.objects.create(
         id=1,
         name='skiing place',
-        last_modified_time=d.datetime.now(),
+        last_modified_time=timezone.now(),
         provider_type=1,
         department=organization)
     UnitServiceDetails(unit=unit, service=service).save()
@@ -66,22 +67,22 @@ def unit(service, organization):
 def categorical_observations(unit, observable_property):
     return [
         CategoricalObservation.objects.create(
-            time=d.datetime.now() - d.timedelta(days=1),
+            time=timezone.now() - d.timedelta(days=1),
             unit=unit,
             property=observable_property,
             value=observable_property.get_internal_value('good')),
         CategoricalObservation.objects.create(
-            time=d.datetime.now() - d.timedelta(days=2),
+            time=timezone.now() - d.timedelta(days=2),
             unit=unit,
             property=observable_property,
             value=observable_property.get_internal_value('poor')),
         CategoricalObservation.objects.create(  # Not expired
-            time=d.datetime.now() - d.timedelta(minutes=599),
+            time=timezone.now() - d.timedelta(minutes=599),
             unit=unit,
             property=observable_property,
             value=observable_property.get_internal_value('closed')),
         CategoricalObservation.objects.create(  # Expired
-            time=d.datetime.now() - d.timedelta(minutes=600),
+            time=timezone.now() - d.timedelta(minutes=600),
             unit=unit,
             property=observable_property,
             value=observable_property.get_internal_value('closed'))]
@@ -97,7 +98,7 @@ def descriptive_observations(unit, descriptive_property):
         property=descriptive_property)
     return [
         DescriptiveObservation.objects.create(
-            time=d.datetime.now() - d.timedelta(days=100),
+            time=timezone.now() - d.timedelta(days=100),
             unit=unit,
             property=descriptive_property,
             value=value)]

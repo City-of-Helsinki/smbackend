@@ -142,7 +142,7 @@ def import_units(dept_syncher=None, fetch_only_id=None,
 
     target_srid = PROJECTION_SRID
     bounding_box = Polygon.from_bbox(settings.BOUNDING_BOX)
-    bounding_box.set_srid(4326)
+    bounding_box.srid = 4326
     gps_srs = SpatialReference(4326)
     target_srs = SpatialReference(target_srid)
     target_to_gps_ct = CoordTransform(target_srs, gps_srs)
@@ -433,7 +433,7 @@ def _import_unit_service_nodes(obj, info, obj_changed, update_fields):
     if obj_service_node_ids != service_node_ids:
         # if not obj_created and VERBOSITY:
         #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_service_node_ids, service_node_ids))
-        obj.service_nodes = service_node_ids
+        obj.service_nodes.set(service_node_ids)
 
         # Update root service cache
         obj.root_service_nodes = ','.join(str(x) for x in obj.get_root_service_nodes())
