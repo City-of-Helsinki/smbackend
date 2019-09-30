@@ -196,7 +196,7 @@ def f(q):
 def loop():
     while True:
         q = input("\nsearch: ")
-        if q == '.':
+        if q == '' or q == '.':
             break
         elif q[-1] == '?':
             for r in unit_results(q[:-1]):
