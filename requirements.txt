@@ -17,7 +17,7 @@ django-haystack==2.6.1
 django-modeltranslation==0.13.3
 django-mptt==0.8.7
 django-polymorphic==2.0.3
-django==1.11.24
+django==1.11.25
 djangorestframework-jsonp==1.0.2
 djangorestframework==3.10.2
 elasticsearch==1.9.0
