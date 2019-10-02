@@ -1,7 +1,8 @@
 import requests
 import json
-from pprint import pprint
 from collections import OrderedDict
+import re
+import math
 
 
 class OrderedByScoreDict(OrderedDict):
@@ -30,7 +31,7 @@ BASE_QUERY = """
   },
   "aggs" : {
     "name" : {
-      "terms" : { "field" : "suggest.name.raw", "size": 5, "order": {"avg_score": "desc"} },
+      "terms" : { "field" : "suggest.name.raw", "size": 30, "order": {"avg_score": "desc"} },
       "aggs": { "avg_score": { "avg": {"script": "_score"}}}
     },
     "location" : {
@@ -38,7 +39,7 @@ BASE_QUERY = """
       "aggs": { "avg_score": { "avg": {"script": "_score"}}}
     },
     "service" : {
-      "terms" : { "field" : "suggest.service.raw", "size": 100, "order": {"avg_score": "desc"}   },
+      "terms" : { "field" : "suggest.service.raw", "size": 50, "order": {"avg_score": "desc"}   },
       "aggs": { "avg_score": { "avg": {"script": "_score"}}}
     },
     "complete_matches" : {
@@ -98,9 +99,6 @@ BASE_QUERY = """
     }
   }
 }
-
-
-
 """
 
 
@@ -119,25 +117,121 @@ def _matches_complete_word_tokens(result):
 
 
 def get_suggestions(query):
+    query_lower = query.lower()
     result = suggestion_response(query)
 
-    last_word_probably_incomplete = _matches_complete_word_tokens(result)
     last_word = query.split()[-1]
 
+    last_word_lower = last_word.lower()
+    last_word_re = re.compile(last_word_lower + '[-\w]*', flags=re.IGNORECASE)
+
+    suggestions_by_type = {}
+    completions = []
+    minimal_completions = {}
+
+    match_id = -1
     for _type, value in result['aggregations'].items():
         if _type == 'location' and len(value['buckets']) == 1 or _type == 'complete_matches':
             continue
-        print("\n{}".format(_type))
-        print("".join(("=" for x in range(0, len(_type)))))
         for term in value.get('buckets', []):
             text = term['key']
-            if last_word.lower() in text.lower():
-                text += "** "
-            print(text, "[{}]".format(term['avg_score']['value']))
+            text_lower = text.lower()
+            match_type = 'indirect'
+            boundaries = None
+            full_match = query_lower.find(text_lower)
+            if full_match == 0:
+                boundaries = [0, len(text_lower)]
+                match_type = 'full_query'
+            else:
+                partial_match = text_lower.find(last_word_lower)
+                if partial_match != -1:
+                    boundaries = [partial_match, partial_match + len(last_word_lower) + 1]
+                    match_type = 'prefix'
+                        
+            match_id += 1
+            match = {
+                'id': match_id,
+                'text': text,
+                'score': term['avg_score']['value'],
+                'doc_count': term['doc_count'],
+                'match': {
+                    'type': _type,
+                    'extent': match_type,
+                    'match_boundaries': boundaries
+                }
+            }
+            if match_type == 'prefix':
+                match_copy = match.copy()
+                text = match_copy['text']
+                match_copy['original'] = text
+                matching_part = last_word_re.search(text)
+                if matching_part:
+                    match_copy['text'] = matching_part.group(0)
+                    existing_completion = minimal_completions.get(match_copy['text'])
+                    if existing_completion:
+                        count = existing_completion['count']
+                    else:
+                        count = 0
+                    match_copy['count'] = count + 1
+                    minimal_completions[match_copy['text']] = match_copy
+            if match_type != 'indirect':
+                completions.append(match)
+            else:
+                suggestions_by_type.setdefault(_type, []).append(match)
+    suggestions_by_type['completions'] = completions
+    suggestions_by_type['minimal_completions'] = [v for v in minimal_completions.values() if v['count'] > 1]
+
+    return {
+        'incomplete_query': not _matches_complete_word_tokens(result),
+        'suggestions': suggestions_by_type
+    }
+    # rule 1: remove buckets with only one possibility (redundant) DONE
+    # indire
+
+
+ACTIVE_MATCH_TYPES = ['minimal_completions', 'completions', 'service', 'name', 'location']
+LIMITS = {
+    'minimal_completions': 10,
+    'completions': 10,
+    'service': 10,
+    'name': 10,
+    'location': 5}
+
+# TODO eliminate arabiankielinen -> arabiankielinen päiväh
+
+def choose_suggestions(suggestions, limits=LIMITS):
+    # rule 2: show most restrictive + least restrictive?
+    #  (except can't differentiate between multiple most restrictives)
+    # rule 3: if there are only one results, period, just show the name of the unit?
+    #   no: show whatever matches best
+
+    # TODO ! Must prefer "phrase prefix" matches: kallion kir -> kallion kirjasto/kirkko
+    # to kauklahden kir -- this is reflected in the score currently, but must make better
+    if suggestions['incomplete_query']:
+        active_match_types = ['minimal_completions', 'completions']
+    else:
+        active_match_types = ['completions', 'service', 'name', 'location']
+    suggestions_by_type = suggestions['suggestions']
+    # results_per_type = math.floor(limit / len(suggestions_by_type.keys()))
+    results = [match['text']
+               for _type in active_match_types
+               for match in suggestions_by_type.get(_type, [])[0:limits[_type]]]
+    return results
+    # ordering
+    # 1. minimal completions with doc_count == 1
+    #    ordered by score
+    # 2. minimal completions with more docs
+    #    ordered by score
+    # 3. other remaining completions ordered by score ? 
+    # full queries: add locations (randomly?)
+    
+
     # rule 1: remove buckets with only one possibility (redundant) DONE
     # rule 2: show most restrictive + least restrictive?
     #  (except can't differentiate between multiple most restrictives)
     # rule 3: if there are only one results, period, just show the name of the unit?
+
+    #   NOTE: actually, the tarkennus won't show up in the ui for already single-matching queries
 
 
 def suggestion_response(query):
@@ -181,16 +275,18 @@ def suggestion_query(search_query):
         del query['query']['filtered']['filter']['and'][1]
     return query
 
-
+import pprint
 def p(val):
     if val:
-        pprint(val, width=100)
-
+        pprint.pprint(val, width=100)
 
 def f(q):
-    p(suggestion_query(q))
+    # p(suggestion_query(q))
     p(suggestion_response(q))
-    get_suggestions(q)
+    suggestions = get_suggestions(q)
+    pprint.pprint(suggestions)
+    for x in choose_suggestions(suggestions):
+        print(x)
 
 
 def loop():
@@ -200,24 +296,8 @@ def loop():
             break
         elif q[-1] == '?':
             for r in unit_results(q[:-1]):
-                print(r['name']['fi'], r['score'])
+                print(r['name']['fi'],
+                      'https://palvelukartta.hel.fi/unit/{}'.format(r['id']),
+                      r['score'])
         else:
             f(q)
-
-
-if False:
-    # saksan wlan ala-aste
-    # helsinki uimastadion maa
-    # uimastadion
-    # ranska
-    # ranska esiope
-    # A1-ranska esiopetus (koulun järjestämä)
-    # A1-ranska esiopetus (koulun järjestämä) normaalikoulu
-    # ui
-
-    # # FUN: note the difference in analysis:
-    # helsing
-    # helsink
-    # helsingin
-    pass
-
