@@ -1097,9 +1097,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         queryset = self.get_queryset()
 
-        count = queryset.count()
-        if count > 0:
-            self.object_list = queryset.order_by('-_score', 'name_sort').load_all()
+        self.object_list = queryset.order_by('-_score', 'name_sort').load_all()
 
         only = getattr(self, 'only_fields') or {}
         include = getattr(self, 'include_fields') or {}
