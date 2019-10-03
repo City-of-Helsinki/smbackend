@@ -3,6 +3,7 @@ import json
 from collections import OrderedDict
 import re
 import math
+import pprint
 
 
 class OrderedByScoreDict(OrderedDict):
@@ -156,7 +157,7 @@ def get_suggestions(query):
                 'doc_count': term['doc_count'],
                 'match': {
                     'type': _type,
-                    'extent': match_type,
+                    'match_type': match_type,
                     'match_boundaries': boundaries
                 }
             }
@@ -174,14 +175,20 @@ def get_suggestions(query):
                         count = 0
                     match_copy['count'] = count + 1
                     minimal_completions[match_copy['text']] = match_copy
-            if match_type != 'indirect':
-                completions.append(match)
-            else:
+            if _type == 'name' and match_type == 'indirect':
+                continue
+            if _type == 'service' and match_type == 'full_query':
+                continue
+            if match_type == 'indirect':
                 suggestions_by_type.setdefault(_type, []).append(match)
+            else:
+                completions.append(match)
+
     suggestions_by_type['completions'] = completions
     suggestions_by_type['minimal_completions'] = [v for v in minimal_completions.values() if v['count'] > 1]
 
     return {
+        'query': query,
         'incomplete_query': not _matches_complete_word_tokens(result),
         'suggestions': suggestions_by_type
     }
@@ -199,6 +206,18 @@ LIMITS = {
 
 # TODO eliminate arabiankielinen -> arabiankielinen päiväh
 
+def output_suggestion(match, query):
+    if match['match']['match_type'] == 'indirect':
+        suggestion = '{} {}'.format(match['text'], query)
+    else:
+        suggestion = match['text']
+    return {
+        'suggestion': suggestion,
+        'count': match.get('doc_count')
+    }
+
+# problem arabia päiväkoti islamilainen päiväkoti
+
 def choose_suggestions(suggestions, limits=LIMITS):
     # rule 2: show most restrictive + least restrictive?
     #  (except can't differentiate between multiple most restrictives)
@@ -207,13 +226,14 @@ def choose_suggestions(suggestions, limits=LIMITS):
 
     # TODO ! Must prefer "phrase prefix" matches: kallion kir -> kallion kirjasto/kirkko
     # to kauklahden kir -- this is reflected in the score currently, but must make better
+    query = suggestions['query']
     if suggestions['incomplete_query']:
         active_match_types = ['minimal_completions', 'completions']
     else:
         active_match_types = ['completions', 'service', 'name', 'location']
     suggestions_by_type = suggestions['suggestions']
     # results_per_type = math.floor(limit / len(suggestions_by_type.keys()))
-    results = [match['text']
+    results = [output_suggestion(match, query)
                for _type in active_match_types
                for match in suggestions_by_type.get(_type, [])[0:limits[_type]]]
     return results
@@ -275,14 +295,13 @@ def suggestion_query(search_query):
         del query['query']['filtered']['filter']['and'][1]
     return query
 
-import pprint
 def p(val):
     if val:
         pprint.pprint(val, width=100)
 
 def f(q):
     # p(suggestion_query(q))
-    p(suggestion_response(q))
+    # p(suggestion_response(q))
     suggestions = get_suggestions(q)
     pprint.pprint(suggestions)
     for x in choose_suggestions(suggestions):
