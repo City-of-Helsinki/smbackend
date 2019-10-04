@@ -236,7 +236,10 @@ def choose_suggestions(suggestions, limits=LIMITS):
     results = [output_suggestion(match, query)
                for _type in active_match_types
                for match in suggestions_by_type.get(_type, [])[0:limits[_type]]]
-    return results
+    return {
+        'suggestions': results,
+        'requires_completion' :  suggestions['incomplete_query']
+    }
     # ordering
     # 1. minimal completions with doc_count == 1
     #    ordered by score
@@ -304,8 +307,11 @@ def f(q):
     # p(suggestion_response(q))
     suggestions = get_suggestions(q)
     pprint.pprint(suggestions)
-    for x in choose_suggestions(suggestions):
-        print(x)
+    chosen_suggestions = choose_suggestions(suggestions)
+    pprint.pprint(chosen_suggestions)
+    for s in chosen_suggestions['suggestions']:
+        print('{} ({} toimipistettä)'.format(s['suggestion'], s['count']))
+
 
 
 def loop():
@@ -314,9 +320,11 @@ def loop():
         if q == '' or q == '.':
             break
         elif q[-1] == '?':
-            for r in unit_results(q[:-1]):
+            results  =unit_results(q[:-1])
+            for r in results:
                 print(r['name']['fi'],
                       'https://palvelukartta.hel.fi/unit/{}'.format(r['id']),
                       r['score'])
+            print(len(results))
         else:
             f(q)
