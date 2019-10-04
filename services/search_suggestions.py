@@ -2,7 +2,6 @@ import requests
 import json
 from collections import OrderedDict
 import re
-import math
 import pprint
 
 
@@ -117,7 +116,7 @@ def _matches_complete_word_tokens(result):
     return result.get('aggregations', {}).get('complete_matches', {}).get('doc_count', 1) > 0
 
 
-def get_suggestions(query):
+def generate_suggestions(query):
     query_lower = query.lower()
     result = suggestion_response(query)
 
@@ -298,14 +297,20 @@ def suggestion_query(search_query):
         del query['query']['filtered']['filter']['and'][1]
     return query
 
+
+def get_suggestions(query):
+    return choose_suggestions(generate_suggestions(query))
+
+
 def p(val):
     if val:
         pprint.pprint(val, width=100)
 
+
 def f(q):
     # p(suggestion_query(q))
     # p(suggestion_response(q))
-    suggestions = get_suggestions(q)
+    suggestions = generate_suggestions(q)
     pprint.pprint(suggestions)
     chosen_suggestions = choose_suggestions(suggestions)
     pprint.pprint(chosen_suggestions)
