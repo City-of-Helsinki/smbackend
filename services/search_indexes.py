@@ -1,4 +1,3 @@
-import json
 from haystack import indexes, signals
 from django.conf import settings
 from django.utils.translation import get_language

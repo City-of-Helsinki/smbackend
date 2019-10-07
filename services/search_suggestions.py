@@ -123,7 +123,7 @@ def generate_suggestions(query):
     last_word = query.split()[-1]
 
     last_word_lower = last_word.lower()
-    last_word_re = re.compile(last_word_lower + '[-\w]*', flags=re.IGNORECASE)
+    last_word_re = re.compile(last_word_lower + r'[-\w]*', flags=re.IGNORECASE)
 
     suggestions_by_type = {}
     completions = []
@@ -147,7 +147,7 @@ def generate_suggestions(query):
                 if partial_match != -1:
                     boundaries = [partial_match, partial_match + len(last_word_lower) + 1]
                     match_type = 'prefix'
-                        
+
             match_id += 1
             match = {
                 'id': match_id,
@@ -205,6 +205,7 @@ LIMITS = {
 
 # TODO eliminate arabiankielinen -> arabiankielinen päiväh
 
+
 def output_suggestion(match, query):
     if match['match']['match_type'] == 'indirect':
         suggestion = '{} {}'.format(match['text'], query)
@@ -216,6 +217,7 @@ def output_suggestion(match, query):
     }
 
 # problem arabia päiväkoti islamilainen päiväkoti
+
 
 def choose_suggestions(suggestions, limits=LIMITS):
     # rule 2: show most restrictive + least restrictive?
@@ -237,17 +239,15 @@ def choose_suggestions(suggestions, limits=LIMITS):
                for match in suggestions_by_type.get(_type, [])[0:limits[_type]]]
     return {
         'suggestions': results,
-        'requires_completion' :  suggestions['incomplete_query']
+        'requires_completion': suggestions['incomplete_query']
     }
     # ordering
     # 1. minimal completions with doc_count == 1
     #    ordered by score
     # 2. minimal completions with more docs
     #    ordered by score
-    # 3. other remaining completions ordered by score ? 
+    # 3. other remaining completions ordered by score ?
     # full queries: add locations (randomly?)
-    
-
     # rule 1: remove buckets with only one possibility (redundant) DONE
     # rule 2: show most restrictive + least restrictive?
     #  (except can't differentiate between multiple most restrictives)
@@ -318,14 +318,13 @@ def f(q):
         print('{} ({} toimipistettä)'.format(s['suggestion'], s['count']))
 
 
-
 def loop():
     while True:
         q = input("\nsearch: ")
         if q == '' or q == '.':
             break
         elif q[-1] == '?':
-            results  =unit_results(q[:-1])
+            results = unit_results(q[:-1])
             for r in results:
                 print(r['name']['fi'],
                       'https://palvelukartta.hel.fi/unit/{}'.format(r['id']),
