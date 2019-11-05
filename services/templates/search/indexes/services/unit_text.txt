@@ -2,6 +2,5 @@
 {{object.service_names}}
 {{object.highlight_names}}
 {% if object.municipality %}{{object.municipality.name}}{% endif %}
-{% if object.street_address %}{{object.street_address}}{% endif %}
 {% if object.department %}{{object.department.top_departments}}{% endif %}
 {% if object.address_zip %}{{object.address_zip}}{% endif %}
