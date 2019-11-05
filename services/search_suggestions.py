@@ -163,18 +163,18 @@ def generate_suggestions(query):
             }
             if match_type == 'prefix':
                 match_copy = match.copy()
-                text = match_copy['text']
                 match_copy['original'] = text
                 matching_part = last_word_re.search(text)
                 if matching_part:
                     match_copy['text'] = matching_part.group(0)
-                    existing_completion = minimal_completions.get(match_copy['text'])
+                    existing_completion = minimal_completions.get(match_copy['text'].lower())
                     if existing_completion:
-                        count = existing_completion['count']
+                        count = existing_completion['doc_count']
                     else:
                         count = 0
-                    match_copy['count'] = count + 1
-                    minimal_completions[match_copy['text']] = match_copy
+                    match_copy['doc_count'] = count + term['doc_count'] # todo still don't work
+                    minimal_completions[match_copy['text'].lower()] = match_copy
+
             if _type == 'name' and match_type == 'indirect':
                 continue
             if _type == 'service' and match_type == 'full_query':
@@ -185,10 +185,11 @@ def generate_suggestions(query):
                 completions.append(match)
 
     suggestions_by_type['completions'] = completions
-    suggestions_by_type['minimal_completions'] = [v for v in minimal_completions.values() if v['count'] > 1]
+    suggestions_by_type['minimal_completions'] = [v for v in minimal_completions.values() if v['doc_count'] > 1]
 
     return {
         'query': query,
+        'query_word_count': len(query.split()),
         'incomplete_query': not _matches_complete_word_tokens(result),
         'suggestions': suggestions_by_type
     }
@@ -229,7 +230,10 @@ def choose_suggestions(suggestions, limits=LIMITS):
     # to kauklahden kir -- this is reflected in the score currently, but must make better
     query = suggestions['query']
     if suggestions['incomplete_query']:
-        active_match_types = ['minimal_completions', 'completions']
+        if suggestions['query_word_count'] == 1:
+            active_match_types = ['minimal_completions', 'completions']
+        else:
+            active_match_types = ['completions']
     else:
         active_match_types = ['completions', 'service', 'name', 'location']
     suggestions_by_type = suggestions['suggestions']
