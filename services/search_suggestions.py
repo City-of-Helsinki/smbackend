@@ -147,7 +147,10 @@ def generate_suggestions(query):
                 partial_match = text_lower.find(last_word_lower)
                 if partial_match != -1:
                     boundaries = [partial_match, partial_match + len(last_word_lower) + 1]
-                    match_type = 'prefix'
+                    match_type = 'substring'
+                    query_before_last_word = query.split()[:-1]
+                    if ' '.join(query_before_last_word).lower() not in text_lower:
+                        text = last_word_re.sub(text, query)
 
             match_id += 1
             match = {
@@ -161,7 +164,7 @@ def generate_suggestions(query):
                     'match_boundaries': boundaries
                 }
             }
-            if match_type == 'prefix':
+            if match_type == 'substring':
                 match_copy = match.copy()
                 match_copy['original'] = text
                 matching_part = last_word_re.search(text)
@@ -226,7 +229,7 @@ def choose_suggestions(suggestions, limits=LIMITS):
     # rule 3: if there are only one results, period, just show the name of the unit?
     #   no: show whatever matches best
 
-    # TODO ! Must prefer "phrase prefix" matches: kallion kir -> kallion kirjasto/kirkko
+    # TODO ! Must prefer "phrase substring" matches: kallion kir -> kallion kirjasto/kirkko
     # to kauklahden kir -- this is reflected in the score currently, but must make better
     query = suggestions['query']
     if suggestions['incomplete_query']:
