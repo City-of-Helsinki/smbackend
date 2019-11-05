@@ -196,7 +196,6 @@ def generate_suggestions(query):
     # indire
 
 
-ACTIVE_MATCH_TYPES = ['minimal_completions', 'completions', 'service', 'name', 'location']
 LIMITS = {
     'minimal_completions': 10,
     'completions': 10,
