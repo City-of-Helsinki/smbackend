@@ -172,7 +172,7 @@ def generate_suggestions(query):
                         count = existing_completion['doc_count']
                     else:
                         count = 0
-                    match_copy['doc_count'] = count + term['doc_count'] # todo still don't work
+                    match_copy['doc_count'] = count + term['doc_count']  # todo still don't work
                     minimal_completions[match_copy['text'].lower()] = match_copy
 
             if _type == 'name' and match_type == 'indirect':
