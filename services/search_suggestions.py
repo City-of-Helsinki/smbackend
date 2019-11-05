@@ -230,17 +230,29 @@ def choose_suggestions(suggestions, limits=LIMITS):
     # to kauklahden kir -- this is reflected in the score currently, but must make better
     query = suggestions['query']
     if suggestions['incomplete_query']:
-        if suggestions['query_word_count'] == 1:
-            active_match_types = ['minimal_completions', 'completions']
-        else:
-            active_match_types = ['completions']
+        active_match_types = ['completions']
     else:
         active_match_types = ['completions', 'service', 'name', 'location']
     suggestions_by_type = suggestions['suggestions']
     # results_per_type = math.floor(limit / len(suggestions_by_type.keys()))
-    results = [output_suggestion(match, query)
-               for _type in active_match_types
-               for match in suggestions_by_type.get(_type, [])[0:limits[_type]]]
+    results = []
+    seen = set()
+    for _type in active_match_types:
+        for match in suggestions_by_type.get(_type, [])[0:limits[_type]]:
+            suggestion = output_suggestion(match, query)
+            seen.add(suggestion['suggestion'])
+            results.append(suggestion)
+
+    minimal_results = []
+    if suggestions['query_word_count'] == 1:
+        for match in suggestions_by_type.get('minimal_completions', [])[0:limits['minimal_completions']]:
+            suggestion = output_suggestion(match, query)
+            if suggestion['suggestion'] not in seen:
+                seen.add(suggestion['suggestion'])
+                minimal_results.append(suggestion)
+
+        results = minimal_results + results
+
     return {
         'suggestions': results,
         'requires_completion': suggestions['incomplete_query']
