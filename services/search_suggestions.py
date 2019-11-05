@@ -31,16 +31,16 @@ BASE_QUERY = """
   },
   "aggs" : {
     "name" : {
-      "terms" : { "field" : "suggest.name.raw", "size": 30, "order": {"avg_score": "desc"} },
-      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
+      "terms" : { "field" : "suggest.name.raw", "size": 30, "order": {"max_score": "desc"} },
+      "aggs": { "max_score": { "max": {"script": "_score"}}}
     },
     "location" : {
-      "terms" : { "field" : "suggest.location.raw", "size": 10, "order": {"avg_score": "desc"}  },
-      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
+      "terms" : { "field" : "suggest.location.raw", "size": 10, "order": {"max_score": "desc"}  },
+      "aggs": { "max_score": { "max": {"script": "_score"}}}
     },
     "service" : {
-      "terms" : { "field" : "suggest.service.raw", "size": 50, "order": {"avg_score": "desc"}   },
-      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
+      "terms" : { "field" : "suggest.service.raw", "size": 50, "order": {"max_score": "desc"}   },
+      "aggs": { "max_score": { "max": {"script": "_score"}}}
     },
     "complete_matches" : {
       "filter" : {
@@ -138,6 +138,7 @@ def generate_suggestions(query):
             text_lower = text.lower()
             match_type = 'indirect'
             boundaries = None
+
             full_match = query_lower.find(text_lower)
             if full_match == 0:
                 boundaries = [0, len(text_lower)]
@@ -152,7 +153,7 @@ def generate_suggestions(query):
             match = {
                 'id': match_id,
                 'text': text,
-                'score': term['avg_score']['value'],
+                'score': term['max_score']['value'],
                 'doc_count': term['doc_count'],
                 'match': {
                     'type': _type,
