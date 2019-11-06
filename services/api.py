@@ -1006,9 +1006,6 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         queryset = SearchQuerySet()
 
-        if self._is_kml_media_type_request():
-            queryset = queryset.models(Unit)
-
         if input_val:
             queryset = queryset.filter(
                 SQ(autosuggest=input_val)
@@ -1086,7 +1083,9 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
                 models.add(Address)
             elif t == 'administrative_division':
                 models.add(AdministrativeDivision)
-        if len(models) > 0:
+        if self._is_kml_media_type_request():
+            queryset = queryset.models(Unit)
+        elif len(models) > 0:
             queryset = queryset.models(*list(models))
         else:
             # Hide the to-be-deprecated servicenode from default types
