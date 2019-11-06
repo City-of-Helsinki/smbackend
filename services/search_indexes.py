@@ -4,7 +4,7 @@ from django.utils.translation import get_language
 from django.db import models
 from django.apps import apps
 from django.db.models import Q
-from munigeo.models import AdministrativeDivisionType
+from munigeo.models import AdministrativeDivisionType, Street
 
 
 class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
@@ -69,6 +69,9 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
 
 
 class UnitIndex(ServiceMapBaseIndex):
+    text = indexes.CharField(document=True, use_template=False)
+    name = indexes.CharField(boost=1.125)
+    autosuggest = indexes.EdgeNgramField()
     municipality = indexes.CharField(model_attr='municipality_id', null=True)
     services = indexes.MultiValueField()
     root_department = indexes.CharField(null=True)
@@ -80,10 +83,51 @@ class UnitIndex(ServiceMapBaseIndex):
 
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
+        self._street_name_cache = None
         self.model = apps.get_model(app_label='services', model_name='Unit')
 
     def prepare_public(self, obj):
         return obj.public
+
+    def _get_street_name_cache(self):
+        if self._street_name_cache is None:
+            self._street_name_cache = set(Street.objects.values_list('name', flat=True))
+        return self._street_name_cache
+
+    def _word_matches_street_address(self, word):
+        return word in self._get_street_name_cache()
+
+    def _name_with_address_removed(self, name):
+        """We remove any street addresses appearing in unit names, because the
+        'name', 'text' and 'autosuggest' fields currently decompose
+        composite words (yhdyssana) into separate words, which leads
+        to confusing false positive matches because street names often
+        contain words which have nothing to do with the unit or its
+        services (for example "koira" in "koirakalliontie")
+
+        """
+        return " ".join((w for w in name.split()
+                         if not self._word_matches_street_address(w)))
+
+    def prepare_name(self, obj):
+        return self._name_with_address_removed(obj.name)
+
+    def prepare_autosuggest(self, obj):
+        return self._name_with_address_removed(obj.name)
+
+    def prepare_text(self, obj):
+        values = [
+            self._name_with_address_removed(obj.name),
+            obj.service_names(),
+            obj.highlight_names()
+        ]
+        if obj.municipality:
+            values.append(obj.municipality.name)
+        if obj.department:
+            values.append(obj.department.top_departments())
+        if obj.address_zip:
+            values.append(obj.address_zip)
+        return " ".join(values)
 
     def prepare_services(self, obj):
         return [ow.id for ow in obj.services.all()]
@@ -97,7 +141,7 @@ class UnitIndex(ServiceMapBaseIndex):
 
     def prepare_suggest(self, obj):
         values = {
-            'name': obj.name,
+            'name': self._name_with_address_removed(obj.name),
             'service': list(set((s.name for s in obj.services.all()))),
             'location': []
         }
