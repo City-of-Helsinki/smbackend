@@ -31,7 +31,7 @@ BASE_QUERY = """
   },
   "aggs" : {
     "name" : {
-      "terms" : { "field" : "suggest.name.raw", "size": 30, "order": {"max_score": "desc"} },
+      "terms" : { "field" : "suggest.name.raw", "size": 200, "order": {"max_score": "desc"} },
       "aggs": { "max_score": { "max": {"script": "_score"}}}
     },
     "location" : {
@@ -188,16 +188,16 @@ def generate_suggestions(query):
                 completions.append(match)
 
     suggestions_by_type['completions'] = completions
-    suggestions_by_type['minimal_completions'] = [v for v in minimal_completions.values() if v['doc_count'] > 1]
+    # TODO: originally filtered out single-document minimals
+    suggestions_by_type['minimal_completions'] = [v for v in minimal_completions.values()]
 
     return {
         'query': query,
         'query_word_count': len(query.split()),
+        'ambiguous_last_word': len(minimal_completions) > 1 and query.lower() in [s['text'].lower() for s in minimal_completions.values()],
         'incomplete_query': not _matches_complete_word_tokens(result),
         'suggestions': suggestions_by_type
     }
-    # rule 1: remove buckets with only one possibility (redundant) DONE
-    # indire
 
 
 LIMITS = {
@@ -206,8 +206,6 @@ LIMITS = {
     'service': 10,
     'name': 10,
     'location': 5}
-
-# TODO eliminate arabiankielinen -> arabiankielinen päiväh
 
 
 def output_suggestion(match, query):
@@ -238,23 +236,27 @@ def choose_suggestions(suggestions, limits=LIMITS):
         active_match_types = ['completions', 'service', 'name', 'location']
     suggestions_by_type = suggestions['suggestions']
     # results_per_type = math.floor(limit / len(suggestions_by_type.keys()))
+
     results = []
     seen = set()
-    for _type in active_match_types:
-        for match in suggestions_by_type.get(_type, [])[0:limits[_type]]:
-            suggestion = output_suggestion(match, query)
-            seen.add(suggestion['suggestion'])
-            results.append(suggestion)
-
     minimal_results = []
     if suggestions['query_word_count'] == 1:
-        for match in suggestions_by_type.get('minimal_completions', [])[0:limits['minimal_completions']]:
+        for index, match in enumerate(suggestions_by_type.get('minimal_completions', [])[0:limits['minimal_completions']]):
             suggestion = output_suggestion(match, query)
             if suggestion['suggestion'] not in seen:
                 seen.add(suggestion['suggestion'])
                 minimal_results.append(suggestion)
 
-        results = minimal_results + results
+    for _type in active_match_types:
+        for match in suggestions_by_type.get(_type, [])[0:limits[_type]]:
+            if suggestions['ambiguous_last_word'] and match['match']['match_type'] == 'indirect':
+                continue
+            suggestion = output_suggestion(match, query)
+            if suggestion['suggestion'] not in seen:
+                seen.add(suggestion['suggestion'])
+                results.append(suggestion)
+
+    results = minimal_results + results
 
     return {
         'suggestions': results,
@@ -330,8 +332,8 @@ def f(q):
     # p(suggestion_query(q))
     # p(suggestion_response(q))
     suggestions = generate_suggestions(q)
-    pprint.pprint(suggestions)
     chosen_suggestions = choose_suggestions(suggestions)
+    pprint.pprint(suggestions)
     pprint.pprint(chosen_suggestions)
     for s in chosen_suggestions['suggestions']:
         print('{} ({} toimipistettä)'.format(s['suggestion'], s['count']))
@@ -349,7 +351,7 @@ def loop():
                     print(r['name']['fi'],
                           'https://palvelukartta.hel.fi/unit/{}'.format(r['id']),
                           r['score'])
-                    print(len(results))
+                print(len(results))
             except requests.exceptions.ConnectionError:
                 print('Error connecting to smbackend api')
         else:
