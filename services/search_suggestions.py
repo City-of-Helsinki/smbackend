@@ -343,11 +343,14 @@ def loop():
         if q == '' or q == '.':
             break
         elif q[-1] == '?':
-            results = unit_results(q[:-1])
-            for r in results:
-                print(r['name']['fi'],
-                      'https://palvelukartta.hel.fi/unit/{}'.format(r['id']),
-                      r['score'])
-            print(len(results))
+            try:
+                results = unit_results(q[:-1])
+                for r in results:
+                    print(r['name']['fi'],
+                          'https://palvelukartta.hel.fi/unit/{}'.format(r['id']),
+                          r['score'])
+                    print(len(results))
+            except requests.exceptions.ConnectionError:
+                print('Error connecting to smbackend api')
         else:
             f(q)
