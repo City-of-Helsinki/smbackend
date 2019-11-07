@@ -1,3 +1,5 @@
+import re
+
 from haystack import indexes, signals
 from django.conf import settings
 from django.utils.translation import get_language
@@ -112,7 +114,7 @@ class UnitIndex(ServiceMapBaseIndex):
         services (for example "koira" in "koirakalliontie")
 
         """
-        return " ".join((w for w in name.split()
+        return " ".join((w for w in re.split(r'[ /]+', name)
                          if not self._word_matches_street_address(w)))
 
     def prepare_name(self, obj):
