@@ -212,7 +212,7 @@ LIMITS = {
 
 def output_suggestion(match, query):
     if match['match']['match_type'] == 'indirect':
-        suggestion = '{} {}'.format(match['text'], query)
+        suggestion = '{} + {}'.format(match['text'], query)
     else:
         suggestion = match['text']
     return {
