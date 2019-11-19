@@ -78,6 +78,17 @@
                             }
                         }
                     },
+                    "keyword" : {
+                        "type": "string",
+                        "search_analyzer": "autosuggest_query",
+                        "index_analyzer": "edgengram_analyzer",
+                        "fields": {
+                            "raw": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        }
+                    },
                     "location" : {
                         "type": "string",
                         "search_analyzer": "autosuggest_query",
