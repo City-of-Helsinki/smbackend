@@ -165,18 +165,20 @@ def generate_suggestions(query):
                 }
             }
             if match_type == 'substring':
-                match_copy = match.copy()
-                match_copy['original'] = text
                 matching_part = last_word_re.search(text)
                 if matching_part:
-                    match_copy['text'] = matching_part.group(0)
-                    existing_completion = minimal_completions.get(match_copy['text'].lower())
-                    if existing_completion:
-                        count = existing_completion['doc_count']
-                    else:
-                        count = 0
-                    match_copy['doc_count'] = count + term['doc_count']  # todo still don't work
-                    minimal_completions[match_copy['text'].lower()] = match_copy
+                    matching_text = matching_part.group(0)
+                    if matching_text.lower() != query_lower:
+                        match_copy = match.copy()
+                        match_copy['original'] = text
+                        match_copy['text'] = matching_text
+                        existing_completion = minimal_completions.get(match_copy['text'].lower())
+                        if existing_completion:
+                            count = existing_completion['doc_count']
+                        else:
+                            count = 0
+                        match_copy['doc_count'] = count + term['doc_count']  # todo still don't work
+                        minimal_completions[match_copy['text'].lower()] = match_copy
 
             if _type == 'name' and match_type == 'indirect':
                 continue
