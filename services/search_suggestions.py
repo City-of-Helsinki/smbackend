@@ -38,6 +38,10 @@ BASE_QUERY = """
       "terms" : { "field" : "suggest.location.raw", "size": 10, "order": {"max_score": "desc"}  },
       "aggs": { "max_score": { "max": {"script": "_score"}}}
     },
+    "keyword" : {
+      "terms" : { "field" : "suggest.keyword.raw", "size": 10, "order": {"max_score": "desc"}  },
+      "aggs": { "max_score": { "max": {"script": "_score"}}}
+    },
     "service" : {
       "terms" : { "field" : "suggest.service.raw", "size": 50, "order": {"max_score": "desc"}   },
       "aggs": { "max_score": { "max": {"script": "_score"}}}
@@ -95,6 +99,7 @@ BASE_QUERY = """
                       "should": [
                         { "match": {"suggest.service": "text"}},
                         { "match": {"suggest.name": "text"}},
+                        { "match": {"suggest.keyword": "text"}},
                         { "match": {"suggest.location": "text"}}
                       ]
                     }

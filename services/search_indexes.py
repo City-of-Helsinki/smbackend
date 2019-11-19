@@ -63,14 +63,14 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     def prepare_public(self, obj):
         return True
 
-    def _prepare_extra_searchwords(self, obj):
-        return ' '.join([category.name for category in obj.keywords.filter(language=get_language())])
+    def get_extra_searchwords(self, obj):
+        return [category.name for category in obj.keywords.filter(language=get_language())]
 
     def prepare_extra_searchwords(self, obj):
-        return self._prepare_extra_searchwords(obj)
+        return ' '.join(self.get_extra_searchwords(obj))
 
     def prepare_autosuggest_extra_searchwords(self, obj):
-        return self._prepare_extra_searchwords(obj)
+        return self.prepare_extra_searchwords(obj)
 
     def prepare_suggest(self, obj):
         return dict(name=None, service=[], location=[])
@@ -151,6 +151,7 @@ class UnitIndex(ServiceMapBaseIndex):
         values = {
             'name': self._name_with_address_removed(obj.name),
             'service': list(set((s.name for s in obj.services.all()))),
+            'keyword': self.get_extra_searchwords(obj),
             'location': []
         }
         if obj.municipality:
