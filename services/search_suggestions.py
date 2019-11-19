@@ -145,6 +145,8 @@ def generate_suggestions(query):
                 match_type = 'full_query'
             else:
                 partial_match = text_lower.find(last_word_lower)
+                if partial_match != -1:
+                    match_type = 'substring'
                 if partial_match == 0:
                     boundaries = [partial_match, partial_match + len(last_word_lower) + 1]
                     match_type = 'substring'
