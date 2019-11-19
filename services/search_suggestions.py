@@ -229,7 +229,8 @@ LIMITS = {
     'completions': 10,
     'service': 10,
     'name': 10,
-    'location': 5}
+    'location': 5,
+    'keyword': 5}
 
 
 def output_suggestion(match, query):
@@ -257,7 +258,7 @@ def choose_suggestions(suggestions, limits=LIMITS):
     if suggestions['incomplete_query']:
         active_match_types = ['completions']
     else:
-        active_match_types = ['completions', 'service', 'name', 'location']
+        active_match_types = ['completions', 'service', 'name', 'location', 'keyword']
     suggestions_by_type = suggestions['suggestions']
     # results_per_type = math.floor(limit / len(suggestions_by_type.keys()))
 
@@ -267,7 +268,7 @@ def choose_suggestions(suggestions, limits=LIMITS):
     if suggestions['query_word_count'] == 1:
         for index, match in enumerate(suggestions_by_type.get('minimal_completions', [])[0:limits['minimal_completions']]):
             suggestion = output_suggestion(match, query)
-            if suggestion['suggestion'] not in seen:
+            if suggestion['suggestion'].lower() not in seen:
                 seen.add(suggestion['suggestion'])
                 minimal_results.append(suggestion)
 
@@ -275,8 +276,10 @@ def choose_suggestions(suggestions, limits=LIMITS):
         for match in suggestions_by_type.get(_type, [])[0:limits[_type]]:
             if suggestions['ambiguous_last_word'] and match['match']['match_type'] == 'indirect':
                 continue
+            if match['match']['match_type'] == 'indirect' and _type == 'keyword':
+                continue
             suggestion = output_suggestion(match, query)
-            if suggestion['suggestion'] not in seen:
+            if suggestion['suggestion'].lower() not in seen:
                 seen.add(suggestion['suggestion'])
                 results.append(suggestion)
 
@@ -328,6 +331,7 @@ def suggestion_query(search_query):
     query['query']['filtered']['query']['bool']['should'] = [
         {'match': {'suggest.name': {'query': search_query}}},
         {'match': {'suggest.location': {'query': search_query}}},
+        {'match': {'suggest.keyword': {'query': search_query}}},
         {'match': {'suggest.service': {'query': search_query}}}
     ]
     # del query['query']['filtered']['filter']['and'][1]
@@ -337,7 +341,8 @@ def suggestion_query(search_query):
         filter_query_must[0]['match']['text']['query'] = first_words
         filter_query_must[1]['bool']['should'][0]['match']['suggest.service'] = last_word
         filter_query_must[1]['bool']['should'][1]['match']['suggest.name'] = last_word
-        filter_query_must[1]['bool']['should'][2]['match']['suggest.location'] = last_word
+        filter_query_must[1]['bool']['should'][2]['match']['suggest.keyword'] = last_word
+        filter_query_must[1]['bool']['should'][3]['match']['suggest.location'] = last_word
     else:
         del query['query']['filtered']['filter']['and'][1]
     return query
