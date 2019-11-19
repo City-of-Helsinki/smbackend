@@ -44,13 +44,22 @@ BASE_QUERY = """
     },
     "complete_matches" : {
       "filter" : {
-        "query": {
-          "query_string": {
-            "default_field":"text",
-            "default_operator": "AND",
-            "query": "(text:() OR extra_searchwords:())"
+        "and": [
+          {
+            "query": {
+              "query_string": {
+                "default_field":"text",
+                "default_operator": "AND",
+                "query": "(text:() OR extra_searchwords:())"
+              }
+            }
+          },
+          {
+            "terms": {
+              "public": [true]
+            }
           }
-        }
+        ]
       }
     }
   },
@@ -93,12 +102,18 @@ BASE_QUERY = """
                 ]
               }
             }
+          },
+          {
+            "terms": {
+              "public": [true]
+            }
           }
         ]
       }
     }
   }
 }
+
 """
 
 
@@ -302,7 +317,7 @@ def suggestion_query(search_query):
         last_word = split[-1]
         first_words = " ".join(split[:-1])
 
-    query['aggs']['complete_matches']['filter']['query']['query_string']['query'] = (
+    query['aggs']['complete_matches']['filter']['and'][0]['query']['query_string']['query'] = (
         "(text:({0}) OR extra_searchwords:({0}))".format(search_query))
 
     query['query']['filtered']['query']['bool']['should'] = [
