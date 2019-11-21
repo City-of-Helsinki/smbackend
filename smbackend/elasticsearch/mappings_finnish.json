@@ -56,6 +56,11 @@
                 "type": "nested",
                 "include_in_parent": true,
                 "properties": {
+                    "combined" : {
+                        "type": "string",
+                        "search_analyzer": "autosuggest_query",
+                        "index_analyzer": "edgengram_analyzer"
+                    },
                     "name" : {
                         "type": "string",
                         "search_analyzer": "autosuggest_query",
