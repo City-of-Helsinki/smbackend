@@ -148,15 +148,20 @@ class UnitIndex(ServiceMapBaseIndex):
             return str(obj.root_department.uuid)
 
     def prepare_suggest(self, obj):
-        values = {
-            'name': self._name_with_address_removed(obj.name),
+        terms_by_field = {
             'service': list(set((s.name for s in obj.services.all()))),
             'keyword': self.get_extra_searchwords(obj),
             'location': []
         }
         if obj.municipality:
-            values['location'].append(obj.municipality.name)
-        return values
+            terms_by_field['location'].append(obj.municipality.name)
+
+        combined = [term for terms in terms_by_field.values() for term in terms]
+        name = self._name_with_address_removed(obj.name)
+        combined.append(name)
+        terms_by_field['name'] = name
+        terms_by_field['combined'] = " ".join(combined)
+        return terms_by_field
 
 
 class ServiceIndex(ServiceMapBaseIndex):

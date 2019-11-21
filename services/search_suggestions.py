@@ -31,7 +31,7 @@ BASE_QUERY = """
   },
   "aggs" : {
     "name" : {
-      "terms" : { "field" : "suggest.name.raw", "size": 200, "order": {"max_score": "desc"} },
+      "terms" : { "field" : "suggest.name.raw", "size": 500, "order": {"max_score": "desc"} },
       "aggs": { "max_score": { "max": {"script": "_score"}}}
     },
     "location" : {
@@ -69,12 +69,7 @@ BASE_QUERY = """
   },
   "query": {
     "filtered": {
-      "query": {
-        "bool": {
-          "should": [
-          ]
-        }
-      },
+      "query": { },
       "filter": {
         "and": [
           {
@@ -94,16 +89,7 @@ BASE_QUERY = """
                       }
                     }
                   },
-                  {
-                    "bool": {
-                      "should": [
-                        { "match": {"suggest.service": "text"}},
-                        { "match": {"suggest.name": "text"}},
-                        { "match": {"suggest.keyword": "text"}},
-                        { "match": {"suggest.location": "text"}}
-                      ]
-                    }
-                  }
+                  { }
                 ]
               }
             }
@@ -328,21 +314,15 @@ def suggestion_query(search_query):
     query['aggs']['complete_matches']['filter']['and'][0]['query']['query_string']['query'] = (
         "(text:({0}) OR extra_searchwords:({0}))".format(search_query))
 
-    query['query']['filtered']['query']['bool']['should'] = [
-        {'match': {'suggest.name': {'query': search_query}}},
-        {'match': {'suggest.location': {'query': search_query}}},
-        {'match': {'suggest.keyword': {'query': search_query}}},
-        {'match': {'suggest.service': {'query': search_query}}}
-    ]
+    query['query']['filtered']['query'] = {
+        'match': {'suggest.combined': {'query': search_query}}}
     # del query['query']['filtered']['filter']['and'][1]
     filter_query_must = query['query']['filtered']['filter']['and'][1]['query']['bool']['must']
 
     if first_words:
         filter_query_must[0]['match']['text']['query'] = first_words
-        filter_query_must[1]['bool']['should'][0]['match']['suggest.service'] = last_word
-        filter_query_must[1]['bool']['should'][1]['match']['suggest.name'] = last_word
-        filter_query_must[1]['bool']['should'][2]['match']['suggest.keyword'] = last_word
-        filter_query_must[1]['bool']['should'][3]['match']['suggest.location'] = last_word
+        filter_query_must[1] = {
+            'match': {'suggest.combined': {'query': last_word}}}
     else:
         del query['query']['filtered']['filter']['and'][1]
     return query
