@@ -193,11 +193,11 @@ def generate_suggestions(query):
             # if _type == 'service' and match_type == 'full_query':
             #     continue
             if match_type == 'indirect':
-                suggestions_by_type.setdefault(_type, []).append(match)
+                key = _type
             else:
-                completions.append(match)
+                key = 'completions'
+            suggestions_by_type.setdefault(key, []).append(match)
 
-    suggestions_by_type['completions'] = completions
     # TODO: originally filtered out single-document minimals
     suggestions_by_type['minimal_completions'] = [v for v in minimal_completions.values()]
 
