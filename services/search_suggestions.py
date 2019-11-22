@@ -190,8 +190,8 @@ def generate_suggestions(query):
 
             if _type == 'name' and match_type == 'indirect':
                 continue
-            if _type == 'service' and match_type == 'full_query':
-                continue
+            # if _type == 'service' and match_type == 'full_query':
+            #     continue
             if match_type == 'indirect':
                 suggestions_by_type.setdefault(_type, []).append(match)
             else:
