@@ -155,7 +155,7 @@ def generate_suggestions(query):
                     match_type = 'substring'
                 if partial_match == 0:
                     boundaries = [partial_match, partial_match + len(last_word_lower) + 1]
-                    match_type = 'substring'
+                    match_type = 'prefix'
                     query_before_last_word = query.split()[:-1]
                     if ' '.join(query_before_last_word).lower() not in text_lower:
                         text = last_word_re.sub(text, query)
@@ -172,7 +172,7 @@ def generate_suggestions(query):
                     'match_boundaries': boundaries
                 }
             }
-            if match_type == 'substring':
+            if match_type == 'prefix':
                 matching_part = last_word_re.search(text)
                 if matching_part:
                     matching_text = matching_part.group(0)
