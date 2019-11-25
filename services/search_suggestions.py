@@ -1,25 +1,100 @@
 import requests
 import json
-from collections import OrderedDict
 import re
 import pprint
 
 
-class OrderedByScoreDict(OrderedDict):
-    def __init__(self, *args, **kwargs):
-        self.max_score = 0
-        super().__init__(*args, **kwargs)
-
-    def __setitem__(self, key, value):
-        super().__setitem__(key, value)
-        score = value['score']
-        if score > self.max_score:
-            self.move_to_end(key, last=False)
-            self.max_score = score
-
-
 ELASTIC = 'http://localhost:9200/servicemap-fi/'
-BASE_QUERY = """
+
+BASE_QUERY_SCORE = """
+{
+  "_source": ["suggest"],
+  "size": 200,
+  "highlight": {
+    "fields": {
+      "suggest": {},
+      "suggest.part": {}
+    }
+  },
+  "aggs" : {
+    "name" : {
+      "terms" : { "field" : "suggest.name.raw", "size": 500, "order": {"avg_score": "desc"} },
+      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
+    },
+    "location" : {
+      "terms" : { "field" : "suggest.location.raw", "size": 10, "order": {"avg_score": "desc"}  },
+      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
+    },
+    "keyword" : {
+      "terms" : { "field" : "suggest.keyword.raw", "size": 10, "order": {"avg_score": "desc"}  },
+      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
+    },
+    "service" : {
+      "terms" : { "field" : "suggest.service.raw", "size": 50, "order": {"avg_score": "desc"}   },
+      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
+    },
+    "complete_matches" : {
+      "filter" : {
+        "and": [
+          {
+            "query": {
+              "query_string": {
+                "default_field":"text",
+                "default_operator": "AND",
+                "query": "(text:() OR extra_searchwords:())"
+              }
+            }
+          },
+          {
+            "terms": {
+              "public": [true]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "query": {
+    "filtered": {
+      "query": { },
+      "filter": {
+        "and": [
+          {
+            "terms": {
+              "django_ct": ["services.unit"]
+            }
+          },
+          {
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "match": {
+                      "text": {
+                        "query": "insert and text and here",
+                        "operator": "and"
+                      }
+                    }
+                  },
+                  { }
+                ]
+              }
+            }
+          },
+          {
+            "terms": {
+              "public": [true]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+"""
+
+
+BASE_QUERY_UNIT_COUNT = """
 {
   "_source": ["suggest"],
   "size": 200,
@@ -35,15 +110,15 @@ BASE_QUERY = """
       "aggs": { "max_score": { "max": {"script": "_score"}}}
     },
     "location" : {
-      "terms" : { "field" : "suggest.location.raw", "size": 10, "order": {"max_score": "desc"}  },
+      "terms" : { "field" : "suggest.location.raw", "size": 10},
       "aggs": { "max_score": { "max": {"script": "_score"}}}
     },
     "keyword" : {
-      "terms" : { "field" : "suggest.keyword.raw", "size": 10, "order": {"max_score": "desc"}  },
+      "terms" : { "field" : "suggest.keyword.raw", "size": 10},
       "aggs": { "max_score": { "max": {"script": "_score"}}}
     },
     "service" : {
-      "terms" : { "field" : "suggest.service.raw", "size": 50, "order": {"max_score": "desc"}   },
+      "terms" : { "field" : "suggest.service.raw", "size": 50},
       "aggs": { "max_score": { "max": {"script": "_score"}}}
     },
     "complete_matches" : {
@@ -107,6 +182,17 @@ BASE_QUERY = """
 
 """
 
+# sorting by unit count is required to enable
+# intelligent extra searchword -> service
+# suggestions
+BASE_QUERY = BASE_QUERY_UNIT_COUNT
+
+# BASE_QUERY_SCORE breaks down with "lastentarha"
+# BASE_QUERY = BASE_QUERY_SCORE
+
+# TODO! don't show minimal completions which are laready included in other suggestions?
+# especially with unit sets identical
+
 
 def unit_results(search_query):
     _next = 'http://localhost:8000/v2/search/?type=unit&q={}'.format(search_query)
@@ -132,7 +218,6 @@ def generate_suggestions(query):
     last_word_re = re.compile(last_word_lower + r'[-\w]*', flags=re.IGNORECASE)
 
     suggestions_by_type = {}
-    completions = []
     minimal_completions = {}
 
     match_id = -1
@@ -164,13 +249,11 @@ def generate_suggestions(query):
             match = {
                 'id': match_id,
                 'text': text,
-                'score': term['max_score']['value'],
+                'score': term.get('avg_score', {}).get('value', None),
                 'doc_count': term['doc_count'],
-                'match': {
-                    'type': _type,
-                    'match_type': match_type,
-                    'match_boundaries': boundaries
-                }
+                'field': _type,
+                'match_type': match_type,
+                'match_boundaries': boundaries
             }
             if match_type == 'prefix':
                 matching_part = last_word_re.search(text)
@@ -219,8 +302,8 @@ LIMITS = {
     'keyword': 5}
 
 
-def output_suggestion(match, query):
-    if match['match']['match_type'] == 'indirect':
+def output_suggestion(match, query, keyword_match=False):
+    if match['match_type'] == 'indirect' and not keyword_match:
         suggestion = '{} + {}'.format(match['text'], query)
     else:
         suggestion = match['text']
@@ -232,6 +315,27 @@ def output_suggestion(match, query):
 # problem arabia päiväkoti islamilainen päiväkoti
 
 
+def query_found_as_keyword(suggestions, query):
+    query_lower = query.lower()
+
+    def exact_keyword_match(match):
+        return (
+            match['field'] == 'keyword'
+            and match['match_type'] == 'full_query'
+            and match['text'].lower() == query_lower
+        )
+
+    def partial_service_match(match):
+        return (
+            match['field'] == 'service'
+            and match['match_type'] != 'indirect'
+            and query_lower in match['text'].lower()
+        )
+    completions = suggestions.get('suggestions', {}).get('completions', [])
+    return (next((c for c in completions if exact_keyword_match(c)), None) is not None
+            and next((c for c in completions if partial_service_match(c)), None) is None)
+
+
 def choose_suggestions(suggestions, limits=LIMITS):
     # rule 2: show most restrictive + least restrictive?
     #  (except can't differentiate between multiple most restrictives)
@@ -241,10 +345,14 @@ def choose_suggestions(suggestions, limits=LIMITS):
     # TODO ! Must prefer "phrase substring" matches: kallion kir -> kallion kirjasto/kirkko
     # to kauklahden kir -- this is reflected in the score currently, but must make better
     query = suggestions['query']
+    keyword_match = query_found_as_keyword(suggestions, query)
     if suggestions['incomplete_query']:
         active_match_types = ['completions']
     else:
-        active_match_types = ['completions', 'service', 'name', 'location', 'keyword']
+        if keyword_match:
+            active_match_types = ['service', 'completions', 'service', 'name']
+        else:
+            active_match_types = ['completions', 'service', 'name', 'location', 'keyword']
     suggestions_by_type = suggestions['suggestions']
     # results_per_type = math.floor(limit / len(suggestions_by_type.keys()))
 
@@ -253,18 +361,20 @@ def choose_suggestions(suggestions, limits=LIMITS):
     minimal_results = []
     if suggestions['query_word_count'] == 1:
         for index, match in enumerate(suggestions_by_type.get('minimal_completions', [])[0:limits['minimal_completions']]):
-            suggestion = output_suggestion(match, query)
+            suggestion = output_suggestion(match, query, keyword_match=keyword_match)
             if suggestion['suggestion'].lower() not in seen:
                 seen.add(suggestion['suggestion'])
                 minimal_results.append(suggestion)
 
     for _type in active_match_types:
         for match in suggestions_by_type.get(_type, [])[0:limits[_type]]:
-            if suggestions['ambiguous_last_word'] and match['match']['match_type'] == 'indirect':
+            if suggestions['ambiguous_last_word'] and match['match_type'] == 'indirect':
                 continue
-            if match['match']['match_type'] == 'indirect' and _type == 'keyword':
+            if match['match_type'] == 'indirect' and _type == 'keyword':
                 continue
-            suggestion = output_suggestion(match, query)
+            if keyword_match and match['match_type'] == 'full_query' and match['field'] == 'keyword':
+                continue
+            suggestion = output_suggestion(match, query, keyword_match=keyword_match)
             if suggestion['suggestion'].lower() not in seen:
                 seen.add(suggestion['suggestion'])
                 results.append(suggestion)
@@ -342,8 +452,8 @@ def f(q):
     # p(suggestion_response(q))
     suggestions = generate_suggestions(q)
     chosen_suggestions = choose_suggestions(suggestions)
-    pprint.pprint(suggestions)
-    pprint.pprint(chosen_suggestions)
+    # pprint.pprint(suggestions)
+    # pprint.pprint(chosen_suggestions)
     for s in chosen_suggestions['suggestions']:
         print('{} ({} toimipistettä)'.format(s['suggestion'], s['count']))
 
