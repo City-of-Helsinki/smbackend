@@ -269,6 +269,7 @@ def generate_suggestions(query):
                         else:
                             count = 0
                         match_copy['doc_count'] = count + term['doc_count']  # todo still don't work
+                        match_copy['category'] = 'minimal_completion'
                         minimal_completions[match_copy['text'].lower()] = match_copy
 
             if _type == 'name' and match_type == 'indirect':
@@ -279,6 +280,7 @@ def generate_suggestions(query):
                 key = _type
             else:
                 key = 'completions'
+            match['category'] = match['field']
             suggestions_by_type.setdefault(key, []).append(match)
 
     # TODO: originally filtered out single-document minimals
@@ -309,7 +311,7 @@ def output_suggestion(match, query, keyword_match=False):
         suggestion = match['text']
     return {
         'suggestion': suggestion,
-        'count': match.get('doc_count')
+        'count': match.get('doc_count') if match.get('category') != 'minimal_completion' else None
     }
 
 # problem arabia päiväkoti islamilainen päiväkoti
@@ -455,7 +457,10 @@ def f(q):
     # pprint.pprint(suggestions)
     # pprint.pprint(chosen_suggestions)
     for s in chosen_suggestions['suggestions']:
-        print('{} ({} toimipistettä)'.format(s['suggestion'], s['count']))
+        if s['count']:
+            print('{} ({} toimipistettä)'.format(s['suggestion'], s['count']))
+        else:
+            print(s['suggestion'])
 
 
 def loop():
