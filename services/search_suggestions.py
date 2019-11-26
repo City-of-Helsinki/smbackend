@@ -276,7 +276,7 @@ def generate_suggestions(query):
                 continue
             # if _type == 'service' and match_type == 'full_query':
             #     continue
-            if match_type == 'indirect':
+            if match_type == 'indirect' or _type == 'name':
                 key = _type
             else:
                 key = 'completions'
@@ -299,7 +299,7 @@ LIMITS = {
     'minimal_completions': 10,
     'completions': 10,
     'service': 10,
-    'name': 10,
+    'name': 5,
     'location': 5,
     'keyword': 5}
 
@@ -342,7 +342,7 @@ def choose_suggestions(suggestions, limits=LIMITS):
     query = suggestions['query']
     keyword_match = query_found_as_keyword(suggestions, query)
     if suggestions['incomplete_query']:
-        active_match_types = ['completions']
+        active_match_types = ['completions', 'name']
     else:
         if keyword_match:
             active_match_types = ['service', 'completions', 'service', 'name']
