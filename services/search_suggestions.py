@@ -190,7 +190,7 @@ BASE_QUERY = BASE_QUERY_UNIT_COUNT
 # BASE_QUERY_SCORE breaks down with "lastentarha"
 # BASE_QUERY = BASE_QUERY_SCORE
 
-# TODO! don't show minimal completions which are laready included in other suggestions?
+# TODO! don't show minimal completions which are already included in other suggestions?
 # especially with unit sets identical
 
 
@@ -339,13 +339,6 @@ def query_found_as_keyword(suggestions, query):
 
 
 def choose_suggestions(suggestions, limits=LIMITS):
-    # rule 2: show most restrictive + least restrictive?
-    #  (except can't differentiate between multiple most restrictives)
-    # rule 3: if there are only one results, period, just show the name of the unit?
-    #   no: show whatever matches best
-
-    # TODO ! Must prefer "phrase substring" matches: kallion kir -> kallion kirjasto/kirkko
-    # to kauklahden kir -- this is reflected in the score currently, but must make better
     query = suggestions['query']
     keyword_match = query_found_as_keyword(suggestions, query)
     if suggestions['incomplete_query']:
@@ -356,7 +349,6 @@ def choose_suggestions(suggestions, limits=LIMITS):
         else:
             active_match_types = ['completions', 'service', 'name', 'location', 'keyword']
     suggestions_by_type = suggestions['suggestions']
-    # results_per_type = math.floor(limit / len(suggestions_by_type.keys()))
 
     results = []
     seen = set()
@@ -387,19 +379,6 @@ def choose_suggestions(suggestions, limits=LIMITS):
         'suggestions': results,
         'requires_completion': suggestions['incomplete_query']
     }
-    # ordering
-    # 1. minimal completions with doc_count == 1
-    #    ordered by score
-    # 2. minimal completions with more docs
-    #    ordered by score
-    # 3. other remaining completions ordered by score ?
-    # full queries: add locations (randomly?)
-    # rule 1: remove buckets with only one possibility (redundant) DONE
-    # rule 2: show most restrictive + least restrictive?
-    #  (except can't differentiate between multiple most restrictives)
-    # rule 3: if there are only one results, period, just show the name of the unit?
-
-    #   NOTE: actually, the tarkennus won't show up in the ui for already single-matching queries
 
 
 def suggestion_response(query):
