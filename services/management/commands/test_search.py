@@ -15,6 +15,13 @@ from django.utils import timezone
 from services.search_suggestions import get_suggestions
 
 
+SYMBOLS = {
+    'raise': '▲',
+    'lower': '▽',
+    'missing': '∅',
+    'new': '☛'
+}
+
 SEARCH_MODIFYING_PATHS = [
     "services/search_suggestions.py"
 ]
@@ -217,9 +224,9 @@ def format_difference(old_position, new_position, only_not_found=False, zero_sym
         if difference == 0:
             return '     '
         elif difference < 0:
-            return '{0:3} ▽'.format(abs(difference))
+            return '{0:3} {1}'.format(abs(difference), SYMBOLS['lower'])
         elif difference > 0:
-            return '{0:3} ▲'.format(difference)
+            return '{0:3} {1}'.format(difference, SYMBOLS['raise'])
 
 
 def get_rating_from_user():
@@ -300,9 +307,9 @@ def compare_results(commits, show_unchanged=False, no_input=False):
                     index for index, value in enumerate(new_suggestions)
                     if value['hash'] == suggestion_r['hash']), None)
 
-            print(format_difference(old_position, suggestion_l, zero_symbol='☛'),
+            print(format_difference(old_position, suggestion_l, zero_symbol=SYMBOLS['new']),
                   format_suggestion(suggestion_l, max_length=suggestion_max_length, direction='<'),
-                  format_difference(new_position, suggestion_r, only_not_found=True, zero_symbol='∅'),
+                  format_difference(new_position, suggestion_r, only_not_found=True, zero_symbol=SYMBOLS['missing']),
                   format_suggestion(suggestion_r, max_length=suggestion_max_length, direction='<'),
                   sep='    ')
         print('\n {:<{padding}}{:>}'.format(
