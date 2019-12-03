@@ -284,19 +284,22 @@ def generate_suggestions(query):
             suggestions_by_type.setdefault(key, []).append(match)
 
     # TODO: originally filtered out single-document minimals
-    suggestions_by_type['minimal_completions'] = [v for v in minimal_completions.values()]
+    suggestions_by_type['minimal_completions'] = sorted([v for v in minimal_completions.values()],
+                                                        key=lambda x: (-x['doc_count'], len(x['text']), x['text']))
 
+    last_word_is_ambigious = (len(minimal_completions) > 1 and query.lower() in [
+        s['text'].lower() for s in minimal_completions.values()])
     return {
         'query': query,
         'query_word_count': len(query.split()),
-        'ambiguous_last_word': len(minimal_completions) > 1 and query.lower() in [s['text'].lower() for s in minimal_completions.values()],
+        'ambiguous_last_word': last_word_is_ambigious,
         'incomplete_query': not _matches_complete_word_tokens(result),
         'suggestions': suggestions_by_type
     }
 
 
 LIMITS = {
-    'minimal_completions': 10,
+    'minimal_completions': 5,
     'completions': 10,
     'service': 10,
     'name': 5,
@@ -311,7 +314,7 @@ def output_suggestion(match, query, keyword_match=False):
         suggestion = match['text']
     return {
         'suggestion': suggestion,
-        'count': match.get('doc_count') if match.get('category') != 'minimal_completion' else None
+        'count': match.get('doc_count')  # if match.get('category') != 'minimal_completion' else None
     }
 
 # problem arabia päiväkoti islamilainen päiväkoti
@@ -345,7 +348,7 @@ def choose_suggestions(suggestions, limits=LIMITS):
         active_match_types = ['completions', 'name']
     else:
         if keyword_match:
-            active_match_types = ['service', 'completions', 'service', 'name']
+            active_match_types = ['completions', 'service', 'service', 'name']
         else:
             active_match_types = ['completions', 'service', 'name', 'location', 'keyword']
     suggestions_by_type = suggestions['suggestions']
@@ -354,7 +357,8 @@ def choose_suggestions(suggestions, limits=LIMITS):
     seen = set()
     minimal_results = []
     if suggestions['query_word_count'] == 1:
-        for index, match in enumerate(suggestions_by_type.get('minimal_completions', [])[0:limits['minimal_completions']]):
+        minimal_suggestions = suggestions_by_type.get('minimal_completions', [])
+        for index, match in enumerate(minimal_suggestions[0:limits['minimal_completions']]):
             suggestion = output_suggestion(match, query, keyword_match=keyword_match)
             if suggestion['suggestion'].lower() not in seen:
                 seen.add(suggestion['suggestion'])
@@ -365,8 +369,6 @@ def choose_suggestions(suggestions, limits=LIMITS):
             if suggestions['ambiguous_last_word'] and match['match_type'] == 'indirect':
                 continue
             if match['match_type'] == 'indirect' and _type == 'keyword':
-                continue
-            if keyword_match and match['match_type'] == 'full_query' and match['field'] == 'keyword':
                 continue
             suggestion = output_suggestion(match, query, keyword_match=keyword_match)
             if suggestion['suggestion'].lower() not in seen:
