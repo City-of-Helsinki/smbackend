@@ -4,7 +4,6 @@ Human-interpreted testing for full text queries
 Please note this is not meant to be run with pytest nor as part of CI
 since the process is only partly automated.
 """
-import datetime
 import hashlib
 from itertools import zip_longest
 import json
@@ -47,6 +46,7 @@ def incomplete_queries(queries):
     # Add variations with last characters missing from specified queries
     return [x[0:-1] for x in queries]
 
+
 QUERIES = {
     "revision": 3,
     "queries": sorted(BASE_QUERIES + incomplete_queries(BASE_QUERIES))
@@ -54,7 +54,7 @@ QUERIES = {
 
 
 def get_git_nth_commit(n=0):
-    command = ["git", "log", "-n", str(n+1), "--pretty=format:%h", '--']
+    command = ["git", "log", "-n", str(n + 1), "--pretty=format:%h", '--']
     command.extend(SEARCH_MODIFYING_PATHS)
     result = subprocess.run(command,
                             stdout=subprocess.PIPE,
@@ -197,7 +197,9 @@ def format_revision(commit, query):
         result = format_git_commit(commit)
     if quality:
         timestamp = quality['timestamp']
-        result += '   {stars} (awarded {timestamp})'.format(timestamp=timestamp, stars=format_star_rating(quality['grade']))
+        result += '   {stars} (awarded {timestamp})'.format(
+            timestamp=timestamp,
+            stars=format_star_rating(quality['grade']))
     return result
 
 
@@ -209,7 +211,7 @@ def format_difference(old_position, new_position, only_not_found=False, zero_sym
     if old_position is None:
         return '    ' + zero_symbol
     if only_not_found:
-        return  '     '
+        return '     '
     else:
         difference = old_position - new_position
         if difference == 0:
