@@ -1,3 +1,4 @@
+import logging
 import requests
 import json
 import re
@@ -5,7 +6,6 @@ import pprint
 
 
 ELASTIC = 'http://localhost:9200/servicemap-fi/'
-
 BASE_QUERY_SCORE = """
 {
   "_source": ["suggest"],
@@ -193,6 +193,8 @@ BASE_QUERY = BASE_QUERY_UNIT_COUNT
 # TODO! don't show minimal completions which are already included in other suggestions?
 # especially with unit sets identical
 
+logger = logging.getLogger(__name__)
+
 
 def unit_results(search_query):
     _next = 'http://localhost:8000/v2/search/?type=unit&q={}'.format(search_query)
@@ -314,7 +316,7 @@ def output_suggestion(match, query, keyword_match=False):
         suggestion = match['text']
     return {
         'suggestion': suggestion,
-        'count': match.get('doc_count')  # if match.get('category') != 'minimal_completion' else None
+        'count': match.get('doc_count')
     }
 
 # problem arabia päiväkoti islamilainen päiväkoti
@@ -358,7 +360,7 @@ def choose_suggestions(suggestions, limits=LIMITS):
     minimal_results = []
     if suggestions['query_word_count'] == 1:
         minimal_suggestions = suggestions_by_type.get('minimal_completions', [])
-        for index, match in enumerate(minimal_suggestions[0:limits['minimal_completions']]):
+        for index, match in enumerate(sorted(minimal_suggestions[0:limits['minimal_completions']], key=lambda x: len(x['text']))):
             suggestion = output_suggestion(match, query, keyword_match=keyword_match)
             if suggestion['suggestion'].lower() not in seen:
                 seen.add(suggestion['suggestion'])
@@ -421,8 +423,36 @@ def suggestion_query(search_query):
     return query
 
 
+def filter_suggestions(suggestions):
+    words = [w.strip('()/')
+             for suggestion in suggestions['suggestions']
+             for w in suggestion['suggestion'].split()
+             if w != '+']
+    query = ' '.join(words)
+    url = '{}_analyze?analyzer=suggestion_analyze'.format(ELASTIC)
+    response = requests.get(url, params={'text': query.encode('utf8')})
+    analyzed_terms = [t['token'] for t in response.json().get('tokens')]
+    if len(words) != len(analyzed_terms):
+        logger.warning(
+            'For the query text "{}", the suggestion analyzer returns the wrong number of terms.'.format(query))
+        return suggestions
+    analyzed_map = dict((x, y) for x, y in zip(words, analyzed_terms) if x.lower() != y.lower())
+    seen = set()
+    filtered_suggestions = []
+    for suggestion in suggestions['suggestions']:
+        analyzed = tuple(analyzed_map.get(w, w).lower() for w in suggestion['suggestion'].split())
+        if analyzed not in seen:
+            filtered_suggestions.append(suggestion)
+            seen.add(analyzed)
+    suggestions['suggestions'] = filtered_suggestions
+    return suggestions
+
+
 def get_suggestions(query):
-    return choose_suggestions(generate_suggestions(query))
+    s = generate_suggestions(query)
+    s = choose_suggestions(s)
+    s = filter_suggestions(s)
+    return s
 
 
 def p(val):
@@ -435,9 +465,10 @@ def f(q):
     # p(suggestion_response(q))
     suggestions = generate_suggestions(q)
     chosen_suggestions = choose_suggestions(suggestions)
+    filtered_suggestions = filter_suggestions(chosen_suggestions)
     # pprint.pprint(suggestions)
     # pprint.pprint(chosen_suggestions)
-    for s in chosen_suggestions['suggestions']:
+    for s in filtered_suggestions['suggestions']:
         if s['count']:
             print('{} ({} toimipistettä)'.format(s['suggestion'], s['count']))
         else:
