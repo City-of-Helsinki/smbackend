@@ -28,6 +28,13 @@
                     "unique"
                 ]
             },
+            "suggestion_analyze": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "finnish",
+                "filter": [
+                    "voikko_filter_noncompounds"
+                ]
+            },
             "autosuggest_query": {
                 "char_filter": ["accented_letter_replacement"],
                 "tokenizer": "finnish",
