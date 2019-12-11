@@ -1,31 +1,41 @@
-"""
-Django settings for smbackend project.
+import json
+import os
 
-For more information on this file, see
-https://docs.djangoproject.com/en/1.6/topics/settings/
+from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
+from django.core.exceptions import ImproperlyConfigured
+import environ
 
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.6/ref/settings/
-"""
+CONFIG_FILE_NAME = "config_dev.env"
+
+
+root = environ.Path(__file__) - 2  # two levels back in hierarchy
+env = environ.Env(
+    DEBUG=(bool, False),
+    LANGUAGES=(list, ['fi', 'sv', 'en']),
+    DATABASE_URL=(str, 'postgis:///servicemap'),
+    ELASTICSEARCH_URL=(str, None),
+    DISABLE_HAYSTACK_SIGNAL_PROCESSOR=(bool, False),
+    ALLOWED_HOSTS=(list, []),
+    SENTRY_DSN=(str, ''),
+    SENTRY_ENVIRONMENT=(str, 'development'),
+    COOKIE_PREFIX=(str, 'servicemap'),
+    INTERNAL_IPS=(list, []),
+)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = root()
 
+# Django environ has a nasty habit of complanining at level
+# WARN about env file not being preset. Here we pre-empt it.
+env_file_path = os.path.join(BASE_DIR, CONFIG_FILE_NAME)
+if os.path.exists(env_file_path):
+    # Logging configuration is not available at this point
+    print(f'Reading config from {env_file_path}')
+    environ.Env.read_env(env_file_path)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'hh!*t_%#ql6v3juo5usfry1m&t)9w@b+_y@u%0h$x742c18n!a'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-# TEMPLATE_DEBUG = True
-
-ALLOWED_HOSTS = []
-
+DEBUG = env('DEBUG')
+TEMPLATE_DEBUG = False
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 # Application definition
 
@@ -58,19 +68,13 @@ MIDDLEWARE = (
 )
 
 ROOT_URLCONF = 'smbackend.urls'
-
 WSGI_APPLICATION = 'smbackend.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'servicemap-api',
-        'ATOMIC_REQUESTS': True,
-    }
+    'default': env.db()
 }
 
 # Keep the database connection open for 120s
@@ -84,13 +88,15 @@ def gettext(s):
     return s
 
 
-LANGUAGES = (
-    ('fi', gettext('Finnish')),
-    ('sv', gettext('Swedish')),
-    ('en', gettext('English')),
-
-)
-LANGUAGE_CODE = 'fi'
+# Map language codes to the (code, name) tuples used by Django
+# We want to keep the ordering in LANGUAGES configuration variable,
+# thus some gyrations
+language_map = {x: y for x, y in GLOBAL_LANGUAGES}
+try:
+    LANGUAGES = tuple((l, language_map[l]) for l in env('LANGUAGES'))
+except KeyError as e:
+    raise ImproperlyConfigured(f"unknown language code \"{e.args[0]}\"")
+LANGUAGE_CODE = env('LANGUAGES')[0]
 MODELTRANSLATION_DEFAULT_LANGUAGE = LANGUAGE_CODE
 
 TIME_ZONE = 'Europe/Helsinki'
@@ -193,9 +199,64 @@ HAYSTACK_CONNECTIONS = {
     }
 }
 
+
+def read_config(name):
+    return json.load(open(
+        os.path.join(
+            BASE_DIR,
+            'smbackend',
+            'elasticsearch/{}.json'.format(name))))
+
+
+def haystack_connection_for_lang(language_code):
+    if language_code == "fi":
+        return {
+            'default-fi': {
+                'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+                'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
+                'URL': env('ELASTICSEARCH_URL'),
+                'INDEX_NAME': 'servicemap-fi',
+                'MAPPINGS': read_config('mappings_finnish')['modelresult']['properties'],
+                'SETTINGS': read_config('settings_finnish')
+            }
+        }
+    else:
+        return {
+            f'default-{language_code}': {
+                'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+                'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
+                'URL': env('ELASTICSEARCH_URL'),
+                'INDEX_NAME': f'servicemap-{language_code}'
+            }
+        }
+
+
+def dummy_haystack_connection_for_lang(language_code):
+    return {
+        f'default-{language_code}': {
+            'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+            'BASE_ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
+        }
+    }
+
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'multilingual_haystack.backends.MultilingualSearchEngine',
+    }
+}
+
+for language in [l[0] for l in LANGUAGES]:
+    if env('ELASTICSEARCH_URL'):
+        connection = haystack_connection_for_lang(language)
+    else:
+        connection = dummy_haystack_connection_for_lang(language)
+    HAYSTACK_CONNECTIONS.update(connection)
+
+
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
 HAYSTACK_SIGNAL_PROCESSOR = 'services.search_indexes.DeleteOnlySignalProcessor'
-DISABLE_HAYSTACK_SIGNAL_PROCESSOR = False
+DISABLE_HAYSTACK_SIGNAL_PROCESSOR = env('DISABLE_HAYSTACK_SIGNAL_PROCESSOR')
 
 KML_TRANSLATABLE_FIELDS = ['name', 'street_address', 'www']
 KML_REGEXP = r'application/vnd.google-earth\.kml'
