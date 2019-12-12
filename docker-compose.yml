@@ -14,6 +14,8 @@ services:
     elasticsearch:
         image: helsinki/elasticsearch:1.7-ubuntu
         container_name: elasticsearch
+        volumes:
+            - elastic-data:/var/lib/elasticsearch/elasticsearch
         ports:
             - "9200:9200"
     servicemap:
