@@ -20,6 +20,8 @@ env = environ.Env(
     SENTRY_ENVIRONMENT=(str, 'development'),
     COOKIE_PREFIX=(str, 'servicemap'),
     INTERNAL_IPS=(list, []),
+    MEDIA_ROOT=(environ.Path(), root('media')),
+    STATIC_ROOT=(environ.Path(), root('static')),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -58,13 +60,13 @@ INSTALLED_APPS = (
     'observations',
 )
 
-MIDDLEWARE = (
+MIDDLEWARE = [
     'django.middleware.gzip.GZipMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 ROOT_URLCONF = 'smbackend.urls'
 WSGI_APPLICATION = 'smbackend.wsgi.application'
@@ -139,6 +141,8 @@ LEVELS = {
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
+MEDIA_ROOT = env('MEDIA_ROOT')
+STATIC_ROOT = env('STATIC_ROOT')
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
