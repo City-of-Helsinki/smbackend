@@ -1,0 +1,32 @@
+version: '3'
+services:
+    postgres:
+        build: ./docker/postgres/
+        environment:
+            POSTGRES_USER: servicemap
+            POSTGRES_PASSWORD: servicemap
+            POSTGRES_DB: servicemap
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres-data-volume:/var/lib/postgres/data
+        container_name: servicemap-db
+
+    servicemap:
+        build:
+            context: ./
+            dockerfile: ./Dockerfile
+        environment:
+            DATABASE_URL: postgis://servicemap:servicemap@servicemap-db/servicemap
+        volumes:
+            - .:/servicemap-src
+            - django-media-volume:/var/media/
+        ports:
+            - "8000:8000"
+        depends_on:
+            - postgres
+        container_name: servicemap-backend
+
+volumes:
+        postgres-data-volume:
+        django-media-volume:
