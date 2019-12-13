@@ -10,10 +10,8 @@ services:
             - "5432:5432"
         volumes:
             - postgres-data:/var/lib/postgres/data
-        container_name: servicemap-db
     elasticsearch:
         image: helsinki/elasticsearch:1.7-ubuntu
-        container_name: elasticsearch
         volumes:
             - elastic-data:/var/lib/elasticsearch/elasticsearch
         ports:
@@ -24,18 +22,15 @@ services:
             dockerfile: ./Dockerfile
         command: ./docker-entrypoint.sh
         environment:
-            DATABASE_URL: postgis://servicemap:servicemap@servicemap-db/servicemap
+            DATABASE_URL: postgis://servicemap:servicemap@postgres/servicemap
         volumes:
-            - .:/servicemap-src
             - django-media:/var/media/
         ports:
             - "8000:8000"
         depends_on:
             - postgres
             - elasticsearch
-        container_name: servicemap-backend
-
 volumes:
-        postgres-data:
-        django-media:
-        elastic-data:
+    postgres-data:
+    django-media:
+    elastic-data:

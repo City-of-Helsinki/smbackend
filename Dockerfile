@@ -1,5 +1,5 @@
 FROM python:3.6
-WORKDIR /usr/src/app
+WORKDIR /servicemap
 
 RUN apt-get update && apt-get install -y gdal-bin postgresql-client netcat
 

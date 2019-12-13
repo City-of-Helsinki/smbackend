@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "Checking for database on host 'db', port 5432"
-until nc -z -v -w30 "servicemap-db" 5432
+echo "Checking for database on host 'postgres', port 5432"
+until nc -z -v -w30 postgres 5432
 do
   echo "Waiting for postgres database connection..."
   sleep 1
@@ -10,7 +10,7 @@ echo "Database found!"
 
 # Apply database migrations
 echo "Applying database migrations"
-python /servicemap-src/manage.py migrate --noinput
+python manage.py migrate --noinput
 
 set -e
 # Start server
