@@ -59,7 +59,7 @@ class MiniWFS:
             if payload[key] is None:
                 del payload[key]
 
-        return "{}?{}".format(self.base_url, urlencode(payload))
+        return "WFS:{}?{}".format(self.base_url, urlencode(payload))
 
 
 class Command(BaseCommand):
