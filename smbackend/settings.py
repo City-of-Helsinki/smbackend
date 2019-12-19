@@ -16,10 +16,10 @@ env = environ.Env(
     ELASTICSEARCH_URL=(str, None),
     DISABLE_HAYSTACK_SIGNAL_PROCESSOR=(bool, False),
     ALLOWED_HOSTS=(list, []),
-    SENTRY_DSN=(str, ''),
-    SENTRY_ENVIRONMENT=(str, 'development'),
-    COOKIE_PREFIX=(str, 'servicemap'),
-    INTERNAL_IPS=(list, []),
+    SENTRY_DSN=(str, ''),  # todo
+    SENTRY_ENVIRONMENT=(str, 'development'),  # todo
+    COOKIE_PREFIX=(str, 'servicemap'),  # todo
+    INTERNAL_IPS=(list, []),  # todo
     MEDIA_ROOT=(environ.Path(), root('media')),
     STATIC_ROOT=(environ.Path(), root('static')),
 )
@@ -257,6 +257,11 @@ KML_REGEXP = r'application/vnd.google-earth\.kml'
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
+
+SENTRY_DSN = env('SENTRY_DSN')
+SENTRY_ENVIRONMENT = env('SENTRY_ENVIRONMENT')
+COOKIE_PREFIX = env('COOKIE_PREFIX')
+INTERNAL_IPS = env('INTERNAL_IPS')
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
