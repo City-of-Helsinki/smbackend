@@ -22,7 +22,10 @@ env = environ.Env(
     INTERNAL_IPS=(list, []),  # todo
     MEDIA_ROOT=(environ.Path(), root('media')),
     STATIC_ROOT=(environ.Path(), root('static')),
+    SECURE_PROXY_SSL_HEADER=(tuple, None),
 )
+
+SECURE_PROXY_SSL_HEADER = env('SECURE_PROXY_SSL_HEADER')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = root()
