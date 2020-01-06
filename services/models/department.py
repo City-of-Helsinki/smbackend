@@ -22,7 +22,7 @@ class Department(MPTTModel):
 
     phone = models.CharField(max_length=30, null=True)
     address_zip = models.CharField(max_length=10, null=True)
-    oid = models.CharField(max_length=20, null=True)
+    oid = models.CharField(max_length=30, null=True)
 
     organization_type = models.CharField(max_length=50, null=True)
 
