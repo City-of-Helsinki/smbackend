@@ -4,7 +4,7 @@ elasticsearch>=1.0.0,<2.0.0
 Markdown>3.1
 django-filter~=2.0.0
 django-modeltranslation
-flake8
+flake8>3.6
 requests
 requests_cache
 -e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.29#egg=django-munigeo
@@ -25,3 +25,4 @@ django-polymorphic
 requests-mock
 hypothesis
 tqdm
+django-environ
