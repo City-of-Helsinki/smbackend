@@ -1,7 +1,6 @@
 *~
 *.pyc
 __pycache__
-local_settings.py
 data/
 .idea
 venv_smbackend
