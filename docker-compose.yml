@@ -20,8 +20,9 @@ services:
         build:
             context: ./
             dockerfile: ./Dockerfile
-        command: ./docker-entrypoint.sh
+        command: ["./docker-entrypoint.sh" "start_django_development_server"]
         environment:
+            APPLY_MIGRATIONS: true
             DATABASE_URL: postgis://servicemap:servicemap@postgres/servicemap
         volumes:
             - django-media:/var/media/
