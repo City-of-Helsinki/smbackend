@@ -12,4 +12,5 @@ COPY . .
 
 RUN mkdir -p www/media
 
-CMD ["./deploy/server.sh"]
+ENV APPLY_MIGRATIONS true
+ENTRYPOINT ["./docker-entrypoint.sh"]

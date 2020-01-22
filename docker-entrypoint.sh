@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 echo "Checking for database on host 'postgres', port 5432"
 until nc -z -v -w30 postgres 5432
@@ -8,11 +9,22 @@ do
 done
 echo "Database found!"
 
-# Apply database migrations
-echo "Applying database migrations"
-python manage.py migrate --noinput
+if [[ "$APPLY_MIGRATIONS" = "true" ]]; then
+    echo "Applying database migrations..."
+    ./manage.py migrate --noinput
+fi
 
-set -e
-# Start server
-echo "Starting server"
-python manage.py runserver 0.0.0.0:8000
+if [ "$1" = 'start_uwsgi_production_server' ]; then
+    # Start server
+    echo "Starting server"
+    ./deploy/server.sh
+
+elif [ "$1" = 'start_django_development_server' ]; then
+    # Start server
+    echo "Starting server"
+    python manage.py runserver 0.0.0.0:8000
+
+elif [ "$1" = 'maintenance_tasks' ]; then
+    shift
+    ./scripts/maintenance_tasks.sh "$@"
+fi
