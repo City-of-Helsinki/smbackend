@@ -215,10 +215,14 @@ def generate_suggestions(query):
     # TODO: originally filtered out single-document minimals
     suggestions_by_type['minimal_completions'] = [v for v in minimal_completions.values()]
 
+    ambiguous_last_word = (
+        len(minimal_completions) > 1
+        and query.lower() in [s['text'].lower() for s in minimal_completions.values()])
+
     return {
         'query': query,
         'query_word_count': len(query.split()),
-        'ambiguous_last_word': len(minimal_completions) > 1 and query.lower() in [s['text'].lower() for s in minimal_completions.values()],
+        'ambiguous_last_word': ambiguous_last_word,
         'incomplete_query': not _matches_complete_word_tokens(result),
         'suggestions': suggestions_by_type
     }
@@ -266,7 +270,8 @@ def choose_suggestions(suggestions, limits=LIMITS):
     seen = set()
     minimal_results = []
     if suggestions['query_word_count'] == 1:
-        for index, match in enumerate(suggestions_by_type.get('minimal_completions', [])[0:limits['minimal_completions']]):
+        for index, match in enumerate(
+                suggestions_by_type.get('minimal_completions', [])[0:limits['minimal_completions']]):
             suggestion = output_suggestion(match, query)
             if suggestion['suggestion'].lower() not in seen:
                 seen.add(suggestion['suggestion'])
