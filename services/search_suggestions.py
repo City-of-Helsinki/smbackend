@@ -324,7 +324,7 @@ LIMITS = {
 
 
 def output_suggestion(match, query, keyword_match=False):
-    if match['match_type'] == 'indirect' and not keyword_match:
+    if match['match_type'] == 'indirect' and not keyword_match and not match.get('rewritten'):
         suggestion = '{} + {}'.format(match['text'], query)
     else:
         suggestion = match['text']
@@ -383,6 +383,7 @@ def choose_suggestions(suggestions, limits=LIMITS):
         unit_name = match.get('single_match_document_name')
         if unit_name:
             match['text'] = unit_name
+            match['rewritten'] = True
             name_match_ids.add(match.get('single_match_document_id'))
         return True
 
