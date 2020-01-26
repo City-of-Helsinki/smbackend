@@ -351,7 +351,8 @@ def output_suggestion(match, query, keyword_match=False):
         suggestion = query
     elif match['match_type'] == 'indirect' and not keyword_match and not match.get('rewritten'):
         suggestion = '{} + {}'.format(match['text'], query)
-    elif match['field'] != 'name' and match['match_type'] == 'last_word_substring' and not keyword_match and not match.get('rewritten'):
+    elif (match['field'] != 'name' and match['match_type'] == 'last_word_substring'
+          and not keyword_match and not match.get('rewritten')):
         # We have to replace the last word in the query with the result match
         suggestion = query.replace(query.split()[-1], match['text'])
     else:
