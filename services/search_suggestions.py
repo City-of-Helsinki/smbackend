@@ -257,7 +257,15 @@ def generate_suggestions(query):
                 else:
                     partial_match = text_lower.find(last_word_lower)
                     if partial_match != -1:
-                        match_type = 'last_word_substring'
+                        i = len(query_lower) - 1
+                        j = len(text_lower) - 1
+                        while query_lower[i] == text_lower[j]:
+                            i -= 1
+                            j -= 1
+                        if len(query_lower) - i > len(last_word_lower):
+                            match_type = 'part_of_result_in_query'
+                        else:
+                            match_type = 'last_word_substring'
                         boundaries = [partial_match, partial_match + len(last_word_lower)]
                     if partial_match == 0:
                         boundaries = [partial_match, partial_match + len(last_word_lower)]
@@ -303,6 +311,8 @@ def generate_suggestions(query):
                         minimal_completions[match_copy['text'].lower()] = match_copy
 
             if _type == 'name' and match_type == 'indirect':
+                continue
+            if match_type == 'part_of_result_in_query':
                 continue
             if match_type == 'indirect' or _type == 'name':
                 key = _type
