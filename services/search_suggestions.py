@@ -222,7 +222,7 @@ def generate_suggestions(query):
     last_word = query.split()[-1]
 
     last_word_lower = last_word.lower()
-    last_word_re = re.compile(last_word_lower + r'[-\w]*', flags=re.IGNORECASE)
+    last_word_re = re.compile(re.escape(last_word_lower) + r'[-\w]*', flags=re.IGNORECASE)
 
     suggestions_by_type = {}
     minimal_completions = {}
