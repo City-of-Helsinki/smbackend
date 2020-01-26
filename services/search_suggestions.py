@@ -107,19 +107,24 @@ BASE_QUERY_UNIT_COUNT = """
   "aggs" : {
     "name" : {
       "terms" : { "field" : "suggest.name.raw", "size": 500, "order": {"max_score": "desc"} },
-      "aggs": { "max_score": { "max": {"script": "_score"}}}
+      "aggs": { "max_score": { "max": {"script": "_score"}},
+                "tops": {"top_hits": {"size":1, "_source": {"include": ["name"]}}}}
+
     },
     "location" : {
       "terms" : { "field" : "suggest.location.raw", "size": 10},
-      "aggs": { "max_score": { "max": {"script": "_score"}}}
+      "aggs": { "max_score": { "max": {"script": "_score"}},
+                "tops": {"top_hits": {"size":1, "_source": {"include": ["name"]}}}}
     },
     "keyword" : {
       "terms" : { "field" : "suggest.keyword.raw", "size": 10},
-      "aggs": { "max_score": { "max": {"script": "_score"}}}
+      "aggs": { "max_score": { "max": {"script": "_score"}},
+                "tops": {"top_hits": {"size":1, "_source": {"include": ["name"]}}}}
     },
     "service" : {
       "terms" : { "field" : "suggest.service.raw", "size": 50},
-      "aggs": { "max_score": { "max": {"script": "_score"}}}
+      "aggs": { "max_score": { "max": {"script": "_score"}},
+                "tops": {"top_hits": {"size":1, "_source": {"include": ["name"]}}}}
     },
     "complete_matches" : {
       "filter" : {
@@ -257,6 +262,9 @@ def generate_suggestions(query):
                 'match_type': match_type,
                 'match_boundaries': boundaries
             }
+            if match['doc_count'] == 1:
+                match['single_match_document_id'] = term['tops']['hits']['hits'][0]['_id']
+                match['single_match_document_name'] = term['tops']['hits']['hits'][0]['_source']['name']
             if match_type == 'prefix':
                 matching_part = last_word_re.search(text)
                 if matching_part:
@@ -272,6 +280,12 @@ def generate_suggestions(query):
                             count = 0
                         match_copy['doc_count'] = count + term['doc_count']  # todo still don't work
                         match_copy['category'] = 'minimal_completion'
+                        if match_copy['doc_count'] > 1:
+                            try:
+                                del match_copy['single_match_document_id']
+                                del match_copy['single_match_document_name']
+                            except KeyError:
+                                pass
                         minimal_completions[match_copy['text'].lower()] = match_copy
 
             if _type == 'name' and match_type == 'indirect':
@@ -355,12 +369,29 @@ def choose_suggestions(suggestions, limits=LIMITS):
             active_match_types = ['completions', 'service', 'name', 'location', 'keyword']
     suggestions_by_type = suggestions['suggestions']
 
+    name_match_ids = set(suggestion['single_match_document_id']
+                         for suggestion in suggestions_by_type.get('name', [])[0:limits['name']]
+                         if 'single_match_document_id' in suggestion)
+
     results = []
     seen = set()
     minimal_results = []
+
+    def rewrite_single_matches_to_unit_name(_type, match):
+        if _type != 'name' and match.get('single_match_document_id') in name_match_ids:
+            return False
+        unit_name = match.get('single_match_document_name')
+        if unit_name:
+            match['text'] = unit_name
+            name_match_ids.add(match.get('single_match_document_id'))
+        return True
+
     if suggestions['query_word_count'] == 1:
         minimal_suggestions = suggestions_by_type.get('minimal_completions', [])
-        for index, match in enumerate(sorted(minimal_suggestions[0:limits['minimal_completions']], key=lambda x: len(x['text']))):
+        for index, match in enumerate(
+                sorted(minimal_suggestions[0:limits['minimal_completions']], key=lambda x: len(x['text']))):
+            if not rewrite_single_matches_to_unit_name('minimal_completions', match):
+                continue
             suggestion = output_suggestion(match, query, keyword_match=keyword_match)
             if suggestion['suggestion'].lower() not in seen:
                 seen.add(suggestion['suggestion'])
@@ -368,6 +399,8 @@ def choose_suggestions(suggestions, limits=LIMITS):
 
     for _type in active_match_types:
         for match in suggestions_by_type.get(_type, [])[0:limits[_type]]:
+            if not rewrite_single_matches_to_unit_name(_type, match):
+                continue
             if suggestions['ambiguous_last_word'] and match['match_type'] == 'indirect':
                 continue
             if match['match_type'] == 'indirect' and _type == 'keyword':
