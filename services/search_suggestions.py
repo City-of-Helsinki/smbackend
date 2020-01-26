@@ -13,92 +13,6 @@ def word_is_alphabetic(word):
 
 
 ELASTIC = 'http://localhost:9200/servicemap-fi/'
-BASE_QUERY_SCORE = """
-{
-  "_source": ["suggest"],
-  "size": 200,
-  "highlight": {
-    "fields": {
-      "suggest": {},
-      "suggest.part": {}
-    }
-  },
-  "aggs" : {
-    "name" : {
-      "terms" : { "field" : "suggest.name.raw", "size": 500, "order": {"avg_score": "desc"} },
-      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
-    },
-    "location" : {
-      "terms" : { "field" : "suggest.location.raw", "size": 10, "order": {"avg_score": "desc"}  },
-      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
-    },
-    "keyword" : {
-      "terms" : { "field" : "suggest.keyword.raw", "size": 10, "order": {"avg_score": "desc"}  },
-      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
-    },
-    "service" : {
-      "terms" : { "field" : "suggest.service.raw", "size": 50, "order": {"avg_score": "desc"}   },
-      "aggs": { "avg_score": { "avg": {"script": "_score"}}}
-    },
-    "complete_matches" : {
-      "filter" : {
-        "and": [
-          {
-            "query": {
-              "query_string": {
-                "default_field":"text",
-                "default_operator": "AND",
-                "query": "(text:() OR extra_searchwords:())"
-              }
-            }
-          },
-          {
-            "terms": {
-              "public": [true]
-            }
-          }
-        ]
-      }
-    }
-  },
-  "query": {
-    "filtered": {
-      "query": { },
-      "filter": {
-        "and": [
-          {
-            "terms": {
-              "django_ct": ["services.unit"]
-            }
-          },
-          {
-            "query": {
-              "bool": {
-                "must": [
-                  {
-                    "match": {
-                      "text": {
-                        "query": "insert and text and here",
-                        "operator": "and"
-                      }
-                    }
-                  },
-                  { }
-                ]
-              }
-            }
-          },
-          {
-            "terms": {
-              "public": [true]
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-"""
 
 
 BASE_QUERY_UNIT_COUNT = """
@@ -198,12 +112,6 @@ BASE_QUERY_UNIT_COUNT = """
 # intelligent extra searchword -> service
 # suggestions
 BASE_QUERY = BASE_QUERY_UNIT_COUNT
-
-# BASE_QUERY_SCORE breaks down with "lastentarha"
-# BASE_QUERY = BASE_QUERY_SCORE
-
-# TODO! don't show minimal completions which are already included in other suggestions?
-# especially with unit sets identical
 
 logger = logging.getLogger(__name__)
 
