@@ -3,6 +3,13 @@ import requests
 import json
 import re
 import pprint
+import string
+
+LETTER_RE = re.compile('[{}]+'.format(string.digits + re.escape(string.punctuation)))
+
+
+def word_is_alphabetic(word):
+    return not LETTER_RE.fullmatch(word)
 
 
 ELASTIC = 'http://localhost:9200/servicemap-fi/'
@@ -472,10 +479,10 @@ def suggestion_query(search_query):
 
 
 def filter_suggestions(suggestions):
-    words = [w.strip('()/')
-             for suggestion in suggestions['suggestions']
-             for w in suggestion['suggestion'].split()
-             if w != '+']
+    words = list(set(w.strip('()/')
+                     for suggestion in suggestions['suggestions']
+                     for w in suggestion['suggestion'].split()
+                     if word_is_alphabetic(w)))
     query = ' '.join(words)
     url = '{}_analyze?analyzer=suggestion_analyze'.format(ELASTIC)
     response = requests.get(url, params={'text': query.encode('utf8')})
@@ -483,6 +490,8 @@ def filter_suggestions(suggestions):
     if len(words) != len(analyzed_terms):
         logger.warning(
             'For the query text "{}", the suggestion analyzer returns the wrong number of terms.'.format(query))
+        logger.warning(
+            'Result "{}", the suggestion analyzer returns the wrong number of terms.'.format(analyzed_terms))
         return suggestions
     analyzed_map = dict((x, y) for x, y in zip(words, analyzed_terms) if x.lower() != y.lower())
     seen = set()
