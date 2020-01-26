@@ -237,20 +237,27 @@ def generate_suggestions(query):
             match_type = 'indirect'
             boundaries = None
 
-            full_match = query_lower.find(text_lower)
-            if full_match == 0:
-                boundaries = [0, len(text_lower)]
-                match_type = 'full_query'
+            if text_lower.strip() == query_lower.strip():
+                match_type = 'full_query_match'
             else:
-                partial_match = text_lower.find(last_word_lower)
-                if partial_match != -1:
-                    match_type = 'substring'
-                if partial_match == 0:
-                    boundaries = [partial_match, partial_match + len(last_word_lower) + 1]
-                    match_type = 'prefix'
-                    query_before_last_word = query.split()[:-1]
-                    if ' '.join(query_before_last_word).lower() not in text_lower:
-                        text = last_word_re.sub(text, query)
+                full_match = query_lower.find(text_lower)
+                if full_match != -1:
+                    boundaries = [full_match, full_match + len(text_lower)]
+                    # if full_match == 0:
+                    #     match_type = 'result_matches_beginning_of_query'
+                    # else:
+                    match_type = 'result_is_substring_of_query'
+                else:
+                    partial_match = text_lower.find(last_word_lower)
+                    if partial_match != -1:
+                        match_type = 'last_word_substring'
+                        boundaries = [partial_match, partial_match + len(last_word_lower)]
+                    if partial_match == 0:
+                        boundaries = [partial_match, partial_match + len(last_word_lower)]
+                        match_type = 'last_word_prefix'
+                        query_before_last_word = query.split()[:-1]
+                        if ' '.join(query_before_last_word).lower() not in text_lower:
+                            text = last_word_re.sub(text, query)
 
             match_id += 1
             match = {
@@ -265,7 +272,7 @@ def generate_suggestions(query):
             if match['doc_count'] == 1:
                 match['single_match_document_id'] = term['tops']['hits']['hits'][0]['_id']
                 match['single_match_document_name'] = term['tops']['hits']['hits'][0]['_source']['name']
-            if match_type == 'prefix':
+            if match_type == 'last_word_prefix':
                 matching_part = last_word_re.search(text)
                 if matching_part:
                     matching_text = matching_part.group(0)
@@ -290,8 +297,6 @@ def generate_suggestions(query):
 
             if _type == 'name' and match_type == 'indirect':
                 continue
-            # if _type == 'service' and match_type == 'full_query':
-            #     continue
             if match_type == 'indirect' or _type == 'name':
                 key = _type
             else:
@@ -324,8 +329,14 @@ LIMITS = {
 
 
 def output_suggestion(match, query, keyword_match=False):
-    if match['match_type'] == 'indirect' and not keyword_match and not match.get('rewritten'):
+    print(match)
+    if match['match_type'] == 'result_is_substring_of_query':
+        suggestion = query
+    elif match['match_type'] == 'indirect' and not keyword_match and not match.get('rewritten'):
         suggestion = '{} + {}'.format(match['text'], query)
+    elif match['field'] != 'name' and match['match_type'] == 'last_word_substring' and not keyword_match and not match.get('rewritten'):
+        # We have to replace the last word in the query with the result match
+        suggestion = query.replace(query.split()[-1], match['text'])
     else:
         suggestion = match['text']
     return {
@@ -342,7 +353,7 @@ def query_found_as_keyword(suggestions, query):
     def exact_keyword_match(match):
         return (
             match['field'] == 'keyword'
-            and match['match_type'] == 'full_query'
+            and match['match_type'] == 'full_query_match'
             and match['text'].lower() == query_lower
         )
 
@@ -382,8 +393,11 @@ def choose_suggestions(suggestions, limits=LIMITS):
             return False
         unit_name = match.get('single_match_document_name')
         if unit_name:
-            match['text'] = unit_name
-            match['rewritten'] = True
+            name_match_ids.add(match.get('single_match_document_id'))
+            if _type != 'name':
+                match['original'] = match['text']
+                match['text'] = unit_name
+                match['rewritten'] = True
             name_match_ids.add(match.get('single_match_document_id'))
         return True
 
