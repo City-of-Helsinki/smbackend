@@ -358,6 +358,10 @@ class Command(BaseCommand):
                             help='Add for non-interactive usage.')
         parser.add_argument('--force-save', action='store_true',
                             help='Force saving with HEAD commit even with uncommitted changes')
+        parser.add_argument('--old', action='store',
+                            help='Explicitly compare this version')
+        parser.add_argument('--new', action='store',
+                            help='Explicitly compare this version')
 
     def handle(self, **options):
         subcommand = options['save']
@@ -371,7 +375,13 @@ class Command(BaseCommand):
                     exit(1)
             save_results(calculate_results(commit))
         else:
-            commits = get_relevant_commits()
+            if 'new' in options and 'old' in options:
+                commits = {
+                    'new': options['new'][0:7],
+                    'old': options['old'][0:7]
+                }
+            else:
+                commits = get_relevant_commits()
             try:
                 compare_results(commits,
                                 show_unchanged=options['show_unchanged'],
