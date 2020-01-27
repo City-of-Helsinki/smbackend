@@ -3,8 +3,10 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from rest_framework.exceptions import ParseError
 
 from .search_suggestions import get_suggestions
+LANGUAGES = [x[0] for x in settings.LANGUAGES]
 
 
 @require_http_methods(['GET', 'POST'])
@@ -12,7 +14,11 @@ def suggest(request):
     query = request.GET['q']
     if not query:
         return HttpResponseBadRequest()
-    return JsonResponse(get_suggestions(query), content_type='application/json')
+    lang_code = request.GET.get('language', LANGUAGES[0])
+    if lang_code not in LANGUAGES:
+        raise ParseError("Invalid language supplied. Supported languages: %s" %
+                         ','.join(LANGUAGES))
+    return JsonResponse(get_suggestions(query, lang_code), content_type='application/json')
 
 
 @csrf_exempt

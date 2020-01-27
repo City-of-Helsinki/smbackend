@@ -12,7 +12,11 @@ def word_is_alphabetic(word):
     return not LETTER_RE.fullmatch(word)
 
 
-ELASTIC = 'http://localhost:9200/servicemap-fi/'
+ELASTIC = 'http://localhost:9200/servicemap-{lang}/'
+
+
+def get_elastic(language):
+    return ELASTIC.format(lang=language)
 
 
 BASE_QUERY_UNIT_COUNT = """
@@ -130,9 +134,9 @@ def _matches_complete_word_tokens(result):
     return result.get('aggregations', {}).get('complete_matches', {}).get('doc_count', 1) > 0
 
 
-def generate_suggestions(query):
+def generate_suggestions(query, language):
     query_lower = query.lower()
-    result = suggestion_response(query)
+    result = suggestion_response(query, language)
 
     last_word = query.split()[-1]
 
@@ -359,9 +363,9 @@ def choose_suggestions(suggestions, limits=LIMITS):
     }
 
 
-def suggestion_response(query):
+def suggestion_response(query, language):
     response = requests.get(
-        '{}/_search/?search_type=count'.format(ELASTIC),
+        '{}/_search/?search_type=count'.format(get_elastic(language)),
         data=json.dumps(suggestion_query(query)))
     return response.json()
 
@@ -397,13 +401,13 @@ def suggestion_query(search_query):
     return query
 
 
-def filter_suggestions(suggestions):
+def filter_suggestions(suggestions, language):
     words = list(set(w.strip('()/')
                      for suggestion in suggestions['suggestions']
                      for w in suggestion['suggestion'].split()
                      if word_is_alphabetic(w)))
     query = ' '.join(words)
-    url = '{}_analyze?analyzer=suggestion_analyze'.format(ELASTIC)
+    url = '{}_analyze?analyzer=suggestion_analyze'.format(get_elastic(language))
     response = requests.get(url, params={'text': query.encode('utf8')})
     analyzed_terms = [t['token'] for t in response.json().get('tokens')]
     if len(words) != len(analyzed_terms):
@@ -424,10 +428,11 @@ def filter_suggestions(suggestions):
     return suggestions
 
 
-def get_suggestions(query):
-    s = generate_suggestions(query)
+def get_suggestions(query, language):
+    s = generate_suggestions(query, language)
     s = choose_suggestions(s)
-    s = filter_suggestions(s)
+    if language == 'fi':
+        s = filter_suggestions(s, language)
     return s
 
 
