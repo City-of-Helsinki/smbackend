@@ -1,0 +1,103 @@
+{
+    "analysis": {
+        "char_filter": {
+            "accented_letter_replacement": {
+                "type": "mapping",
+                "mappings": ["á=>a", "Á=>a", "é=>e", "É=>e", "í=>i", "Í=>i", "ó=>o", "Ó=>o", "ú=>u", "Ú=>u",
+                            "â=>a", "Â=>a", "ê=>e", "Ê=>e", "î=>i", "Î=>i", "ô=>o", "Ô=>o", "û=>u", "Û=>u",
+                            "ë=>e", "Ë=>e", "ï=>i", "Ï=>i", "ü=>u", "Ü=>u", "ÿ=>y", "Ÿ=>y"]
+            }
+        },
+        "analyzer": {
+            "fulltext_index": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "finnish",
+                "filter": [
+                    "lowercase",
+                    "finnish_word_delimiter_filter"
+                ]
+            },
+            "fulltext_query": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "finnish",
+                "filter": [
+                    "lowercase",
+                    "unique"
+                ]
+            },
+            "suggestion_analyze": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "finnish"
+            },
+            "autosuggest_query": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "finnish",
+                "filter": [
+                    "autosuggest_truncate",
+                    "lowercase",
+                    "unique"
+                ],
+                "type": "custom"
+            },
+            "number": {
+                "tokenizer": "standard",
+                "filter": ["extract_numbers"],
+                "type": "custom"
+            },
+            "edgengram_analyzer": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "finnish",
+                "filter": [
+                    "haystack_edgengram",
+                    "lowercase",
+                    "unique"
+                ],
+                "type": "custom"
+            },
+            "autosuggest_exact": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "keyword",
+                "filter": ["lowercase", "haystack_edgengram"],
+                "type": "custom"
+            },
+            "autosuggest_exact_query": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "keyword",
+                "filter": ["lowercase", "autosuggest_truncate"],
+                "type": "custom"
+            },
+            "address": {
+                "char_filter": ["accented_letter_replacement"],
+                "tokenizer": "standard",
+                "filter": ["lowercase"],
+                "type": "custom"
+            }
+        },
+        "filter": {
+            "finnish_word_delimiter_filter": {
+                "type": "word_delimiter",
+                "generate_word_parts": true,
+                "generate_number_parts": false,
+                "catenate_words": false,
+                "catenate_numbers": false,
+                "preserve_original": true,
+                "split_on_numerics": false,
+                "stem_english_possessive": false
+            },
+            "autosuggest_truncate": {
+                "type": "truncate",
+                "length": 15
+            },
+            "haystack_edgengram": {
+                "max_gram": "15",
+                "min_gram": "1",
+                "side": "front",
+                "type": "edgeNGram"
+            },
+            "extract_numbers" : {
+                "type" : "keep_types",
+                "types" : [ "<NUM>" ]
+            }
+        }
+    }
+}

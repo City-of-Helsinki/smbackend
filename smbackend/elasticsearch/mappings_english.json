@@ -1,0 +1,112 @@
+{
+    "modelresult": {
+        "properties": {
+            "autosuggest": {
+                "type": "string",
+                "search_analyzer": "autosuggest_query",
+                "index_analyzer": "edgengram_analyzer",
+                "analyzer": null
+            },
+            "name_sort": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "autosuggest_exact": {
+                "type": "string",
+                "search_quote_analyzer": "autosuggest_exact_query",
+                "search_analyzer": "autosuggest_exact_query",
+                "index_analyzer": "autosuggest_exact",
+                "analyzer": null
+            },
+            "name": {
+                "type": "string",
+                "index_analyzer": "fulltext_index",
+                "search_analyzer": "fulltext_query",
+                "analyzer": null
+            },
+            "text": {
+                "type": "string",
+                "index_analyzer": "fulltext_index",
+                "search_analyzer": "fulltext_query",
+                "analyzer": null
+            },
+            "number": {
+                "type": "string",
+                "index_analyzer": "number",
+                "search_analyzer": "number",
+                "analyzer": null
+            },
+            "autosuggest_extra_searchwords": {
+                "type": "string",
+                "search_analyzer": "autosuggest_query",
+                "index_analyzer": "edgengram_analyzer",
+                "analyzer": null
+            },
+            "extra_searchwords": {
+                "type": "string",
+                "analyzer": null
+            },
+            "address": {
+                "type": "string",
+                "search_analyzer": "address",
+                "index_analyzer": "address",
+                "analyzer": null
+            },
+            "suggest": {
+                "type": "nested",
+                "include_in_parent": true,
+                "properties": {
+                    "combined" : {
+                        "type": "string",
+                        "search_analyzer": "autosuggest_query",
+                        "index_analyzer": "edgengram_analyzer"
+                    },
+                    "name" : {
+                        "type": "string",
+                        "search_analyzer": "autosuggest_query",
+                        "index_analyzer": "edgengram_analyzer",
+                        "fields": {
+                            "raw": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        }
+                    },
+                    "service" : {
+                        "type": "string",
+                        "search_analyzer": "autosuggest_query",
+                        "index_analyzer": "edgengram_analyzer",
+                        "fields": {
+                            "raw": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        }
+                    },
+                    "keyword" : {
+                        "type": "string",
+                        "search_analyzer": "autosuggest_query",
+                        "index_analyzer": "edgengram_analyzer",
+                        "fields": {
+                            "raw": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        }
+                    },
+                    "location" : {
+                        "type": "string",
+                        "search_analyzer": "autosuggest_query",
+                        "index_analyzer": "edgengram_analyzer",
+                        "fields": {
+                            "raw": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
