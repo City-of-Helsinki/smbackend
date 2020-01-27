@@ -9,7 +9,7 @@ from haystack.utils.loading import load_backend
 class MultilingualSearchBackend(BaseSearchBackend):
     def _operate(self, method_name, *args, **kwargs):
         backends = set()
-        for language, _ in [('fi', 'boo')]:
+        for language, _ in settings.LANGUAGES:
             using = '%s-%s' % (self.connection_alias, language)
             # Ensure each backend is called only once
             if using in backends:
