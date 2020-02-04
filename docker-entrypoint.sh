@@ -1,14 +1,6 @@
 #!/bin/bash
 set -e
 
-echo "Checking for database on host 'postgres', port 5432"
-until nc -z -v -w30 postgres 5432
-do
-  echo "Waiting for postgres database connection..."
-  sleep 1
-done
-echo "Database found!"
-
 if [[ "$APPLY_MIGRATIONS" = "true" ]]; then
     echo "Applying database migrations..."
     ./manage.py migrate --noinput
@@ -26,5 +18,5 @@ elif [ "$1" = 'start_django_development_server' ]; then
 
 elif [ "$1" = 'maintenance_tasks' ]; then
     shift
-    ./scripts/maintenance_tasks.sh "$@"
+    ./scripts/run_imports.sh "$@"
 fi
