@@ -19,4 +19,7 @@ elif [ "$1" = 'start_django_development_server' ]; then
 elif [ "$1" = 'maintenance_tasks' ]; then
     shift
     ./scripts/run_imports.sh "$@"
+
+else
+    exec "$@"
 fi

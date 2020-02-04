@@ -12,5 +12,4 @@ COPY . .
 
 RUN mkdir -p www/media
 
-ENV APPLY_MIGRATIONS true
 ENTRYPOINT ["./docker-entrypoint.sh"]
