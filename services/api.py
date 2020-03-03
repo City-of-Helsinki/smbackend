@@ -1068,7 +1068,7 @@ class SearchViewSet(munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics
 
         # Only units marked public should be returned. For other types,
         # public is always True.
-        queryset = queryset.filter(public=True)
+        queryset = queryset.filter(public='true')
 
         models = set()
         types = request.query_params.get('type', '').split(',')
