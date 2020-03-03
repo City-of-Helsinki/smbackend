@@ -7,6 +7,12 @@ from django.db.models import Q
 from munigeo.models import AdministrativeDivisionType
 
 
+ADMIN_DIV_TYPES = (
+    'sub_district',
+    'neighborhood',
+    'postcode_area')
+
+
 class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
     """
     Delete models from index automatically.
@@ -197,11 +203,9 @@ class AdministrativeDivisionIndex(indexes.SearchIndex, indexes.Indexable):
     def get_updated_field(self):
         return 'modified_at'
 
+    @staticmethod
+    def indexed_types():
+        return AdministrativeDivisionType.objects.filter(type__in=ADMIN_DIV_TYPES)
+
     def index_queryset(self, using=None):
-        manager = self.get_model().objects
-
-        admin_div_types = AdministrativeDivisionType.objects.filter(type__in=('sub_district', 'neighborhood',
-                                                                              'postcode_area'))
-        manager = manager.filter(type__in=admin_div_types)
-
-        return manager
+        return self.get_model().objects.filter(type__in=self.indexed_types())
