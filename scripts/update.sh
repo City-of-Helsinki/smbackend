@@ -41,4 +41,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo >> $LOG_FILE
+echo "Verifying search index integrity" >> $LOG_FILE
+set +e
+python manage.py verify_search_index_integrity >> $LOG_FILE 2>&1
+if [ $? -eq 0 ]; then
+    echo "  Integrity verified!" >> $LOG_FILE 2&>1
+fi
+
 curl --retry 3 'https://hchk.io/6c320360-7e66-4ae2-975a-1ecd4e9fd92e'
