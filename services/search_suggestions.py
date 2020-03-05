@@ -5,6 +5,8 @@ import re
 import pprint
 import string
 
+from django.conf import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -16,11 +18,14 @@ def word_is_alphabetic(word):
     return not LETTER_RE.fullmatch(word)
 
 
-ELASTIC = 'http://localhost:9200/servicemap-{lang}/'  # IMPORTANT FIXME
-
-
 def get_elastic(language):
-    return ELASTIC.format(lang=language)
+    try:
+        return next(
+            ("{}{}/".format(c['URL'], c['INDEX_NAME'])
+             for k, c in settings.HAYSTACK_CONNECTIONS.items()
+             if k == 'default-{}'.format(language)))
+    except StopIteration:
+        raise ValueError("Unconfigured language {}".format(language))
 
 
 # TODO: refactor into smaller pieces.
@@ -256,7 +261,6 @@ LIMITS = {
 
 
 def output_suggestion(match, query, keyword_match=False):
-    print(match)
     if match['match_type'] == 'result_is_substring_of_query':
         suggestion = query
     elif match['match_type'] == 'indirect' and not keyword_match and not match.get('rewritten'):
