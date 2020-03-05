@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
--e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.25-hotfix-django-1.11#egg=django-munigeo  # via -r requirements.in
+-e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.29#egg=django-munigeo  # via -r requirements.in
 atomicwrites==1.3.0       # via pytest
 attrs==19.1.0             # via packaging, pytest
 certifi==2018.10.15       # via requests
