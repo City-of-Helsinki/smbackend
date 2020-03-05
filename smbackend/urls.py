@@ -38,6 +38,6 @@ urlpatterns = [
     url(r'^v2/', include(router.urls)),
     url(r'^v2/api-token-auth/', obtain_auth_token, name='api-auth-token'),
     url(r'^v2/redirect/unit/', UnitRedirectViewSet.as_view({'get': 'list'})),
-    url(r'^v2/suggest/', views.suggest, name='suggest'),
+    url(r'^v2/suggestion/', views.suggestion, name='suggestion'),
     url(r'', include(shortcutter_urls)),
 ]

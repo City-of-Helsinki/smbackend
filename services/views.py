@@ -10,7 +10,7 @@ LANGUAGES = [x[0] for x in settings.LANGUAGES]
 
 
 @require_http_methods(['GET', 'POST'])
-def suggest(request):
+def suggestion(request):
     query = request.GET['q']
     if not query:
         return HttpResponseBadRequest()
