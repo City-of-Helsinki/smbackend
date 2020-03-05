@@ -1,10 +1,12 @@
+import re
+
 from haystack import indexes, signals
 from django.conf import settings
 from django.utils.translation import get_language
 from django.db import models
 from django.apps import apps
 from django.db.models import Q
-from munigeo.models import AdministrativeDivisionType
+from munigeo.models import AdministrativeDivisionType, Street
 
 
 ADMIN_DIV_TYPES = (
@@ -46,6 +48,7 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     extra_searchwords = indexes.CharField()
     autosuggest_extra_searchwords = indexes.CharField()
     public = indexes.BooleanField()
+    suggest = indexes.CharField()
 
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
@@ -60,37 +63,105 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     def prepare_public(self, obj):
         return True
 
-    def _prepare_extra_searchwords(self, obj):
-        return ' '.join([category.name for category in obj.keywords.filter(language=get_language())])
+    def get_extra_searchwords(self, obj):
+        return [category.name for category in obj.keywords.filter(language=get_language())]
 
     def prepare_extra_searchwords(self, obj):
-        return self._prepare_extra_searchwords(obj)
+        return ' '.join(self.get_extra_searchwords(obj))
 
     def prepare_autosuggest_extra_searchwords(self, obj):
-        return self._prepare_extra_searchwords(obj)
+        return self.prepare_extra_searchwords(obj)
+
+    def prepare_suggest(self, obj):
+        return dict(name=None, service=[], location=[])
 
 
 class UnitIndex(ServiceMapBaseIndex):
+    text = indexes.CharField(document=True, use_template=False)
+    name = indexes.CharField(boost=1.125)
+    autosuggest = indexes.EdgeNgramField()
     municipality = indexes.CharField(model_attr='municipality_id', null=True)
     services = indexes.MultiValueField()
     root_department = indexes.CharField(null=True)
+    suggest = indexes.CharField()
+    address = indexes.CharField(use_template=False)
 
     def read_queryset(self, using=None):
         return self.get_model().search_objects
 
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
+        self._street_name_cache = None
         self.model = apps.get_model(app_label='services', model_name='Unit')
 
     def prepare_public(self, obj):
         return obj.public
 
+    def _get_street_name_cache(self):
+        if self._street_name_cache is None:
+            self._street_name_cache = set(Street.objects.values_list('name', flat=True))
+        return self._street_name_cache
+
+    def _word_matches_street_address(self, word):
+        return word in self._get_street_name_cache()
+
+    def _name_with_address_removed(self, name):
+        """We remove any street addresses appearing in unit names, because the
+        'name', 'text' and 'autosuggest' fields currently decompose
+        composite words (yhdyssana) into separate words, which leads
+        to confusing false positive matches because street names often
+        contain words which have nothing to do with the unit or its
+        services (for example "koira" in "koirakalliontie")
+
+        """
+        return " ".join((w for w in re.split(r'[ /]+', name)
+                         if not self._word_matches_street_address(w)))
+
+    def prepare_name(self, obj):
+        return self._name_with_address_removed(obj.name)
+
+    def prepare_autosuggest(self, obj):
+        return self._name_with_address_removed(obj.name)
+
+    def prepare_text(self, obj):
+        values = [
+            self._name_with_address_removed(obj.name),
+            obj.service_names(),
+            obj.highlight_names()
+        ]
+        if obj.municipality:
+            values.append(obj.municipality.name)
+        if obj.department:
+            values.append(obj.department.top_departments())
+        if obj.address_zip:
+            values.append(obj.address_zip)
+        return " ".join(values)
+
     def prepare_services(self, obj):
         return [ow.id for ow in obj.services.all()]
+
+    def prepare_address(self, obj):
+        return obj.street_address
 
     def prepare_root_department(self, obj):
         if obj.root_department is not None:
             return str(obj.root_department.uuid)
+
+    def prepare_suggest(self, obj):
+        terms_by_field = {
+            'service': list(set((s.name for s in obj.services.all()))),
+            'keyword': self.get_extra_searchwords(obj),
+            'location': []
+        }
+        if obj.municipality:
+            terms_by_field['location'].append(obj.municipality.name)
+
+        combined = [term for terms in terms_by_field.values() for term in terms]
+        name = self._name_with_address_removed(obj.name)
+        combined.append(name)
+        terms_by_field['name'] = name
+        terms_by_field['combined'] = " ".join(combined)
+        return terms_by_field
 
 
 class ServiceIndex(ServiceMapBaseIndex):
