@@ -14,8 +14,7 @@
                 "tokenizer": "finnish",
                 "filter": [
                     "lowercase",
-                    "finnish_word_delimiter_filter",
-                    "voikko_filter"
+                    "finnish_word_delimiter_filter"
                 ]
             },
             "fulltext_query": {
@@ -23,24 +22,18 @@
                 "tokenizer": "finnish",
                 "filter": [
                     "lowercase",
-                    "keyword_repeat",
-                    "voikko_filter_noncompounds",
                     "unique"
                 ]
             },
             "suggestion_analyze": {
                 "char_filter": ["accented_letter_replacement"],
-                "tokenizer": "finnish",
-                "filter": [
-                    "voikko_filter_noncompounds"
-                ]
+                "tokenizer": "finnish"
             },
             "autosuggest_query": {
                 "char_filter": ["accented_letter_replacement"],
                 "tokenizer": "finnish",
                 "filter": [
                     "keyword_repeat",
-                    "voikko_filter_noncompounds",
                     "autosuggest_truncate",
                     "lowercase",
                     "unique"
@@ -56,8 +49,6 @@
                 "char_filter": ["accented_letter_replacement"],
                 "tokenizer": "finnish",
                 "filter": [
-                    "keyword_repeat",
-                    "voikko_filter",
                     "haystack_edgengram",
                     "lowercase",
                     "unique"
@@ -93,14 +84,6 @@
                 "preserve_original": true,
                 "split_on_numerics": false,
                 "stem_english_possessive": false
-            },
-            "voikko_filter": {
-                "type": "voikko",
-                "expandCompounds": true
-            },
-            "voikko_filter_noncompounds": {
-                "type": "voikko",
-                "expandCompounds": false
             },
             "autosuggest_truncate": {
                 "type": "truncate",
