@@ -11,7 +11,7 @@ requests_cache
 pytz
 django-cors-headers
 django-extensions
-psycopg2
+psycopg2<2.9
 django-mptt
 django-haystack
 lxml
