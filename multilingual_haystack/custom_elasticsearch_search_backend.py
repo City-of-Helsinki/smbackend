@@ -1,3 +1,4 @@
+import copy
 import collections
 from haystack.backends import elasticsearch_backend as es_backend
 from haystack.query import SearchQuerySet
@@ -33,6 +34,7 @@ class CustomEsSearchBackend(es_backend.ElasticsearchSearchBackend):
         self.custom_mappings = connection_options.get('MAPPINGS')
         settings = connection_options.get('SETTINGS')
         if settings:
+            self.DEFAULT_SETTINGS = copy.deepcopy(self.DEFAULT_SETTINGS)
             default_settings = self.DEFAULT_SETTINGS['settings']
             update(default_settings, settings)
 
