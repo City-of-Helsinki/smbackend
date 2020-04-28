@@ -8,14 +8,14 @@ Installation
 
 First, install the necessary Debian packages.
 
-    libpython3.4-dev virtualenvwrapper libyaml-dev libxml2-dev libxslt1-dev
+    libpython3.7-dev virtualenvwrapper libyaml-dev libxml2-dev libxslt1-dev
 
 You might need to start a new shell for the virtualenvwrapper commands to activate.
 
 1. Make a Python virtual environment.
 
 ```
-mkvirtualenv -p /usr/bin/python3.4 smbackend
+mkvirtualenv -p /usr/bin/python3 smbackend
 ```
 
 2. Install pip requirements.
@@ -31,13 +31,13 @@ Local setup:
 ```
 sudo su postgres
 
-createuser -R -S -D -P smbackend
+psql template1 -c 'CREATE EXTENSION IF NOT EXISTS postgis;'
+psql template1 -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
 
-createdb -O smbackend -T template0 -l fi_FI.UTF-8 -E utf8 smbackend
+createuser -RSPd smbackend
 
-echo "CREATE EXTENSION postgis;" | psql smbackend
+createdb -O smbackend -T template1 -l fi_FI.UTF-8 -E utf8 smbackend
 
-echo "CREATE EXTENSION hstore;" | psql smbackend
 ```
 
 Docker setup (modify as needed, starts the database on local port 8765):
@@ -64,11 +64,10 @@ DATABASES = {
 5. Create database tables.
 
 ```
-./manage.py syncdb
 ./manage.py migrate
 ```
 
-If these commands fail with: `django.core.exceptions.ImproperlyConfigured: GEOS is required and has not been detected.`,
+If this command fails with: `django.core.exceptions.ImproperlyConfigured: GEOS is required and has not been detected.`,
 then install the GEOS library. On a Mac this can be achieved with HomeBrew:
 ```
 brew install geos
