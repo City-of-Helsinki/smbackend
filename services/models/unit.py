@@ -1,4 +1,3 @@
-from django.core.validators import validate_comma_separated_integer_list
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_noop as _
@@ -157,8 +156,7 @@ class Unit(models.Model):
     accessibility_viewpoints = JSONField(default="{}", null=True)
 
     # Cached fields for better performance
-    root_service_nodes = models.CharField(max_length=50, null=True,
-                                          validators=[validate_comma_separated_integer_list])
+    root_service_nodes = models.CharField(max_length=50, null=True)
 
     objects = GeoManager()
     search_objects = UnitSearchManager()
