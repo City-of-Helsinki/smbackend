@@ -153,7 +153,7 @@ class Unit(models.Model):
                                        help_text='Automatically generated hash of other identifiers')
     service_details_hash = models.CharField(max_length=40, null=True)
 
-    accessibility_viewpoints = JSONField(default="{}", null=True)
+    accessibility_viewpoints = JSONField(default=dict, null=True)
 
     # Cached fields for better performance
     root_service_nodes = models.CharField(max_length=50, null=True)
