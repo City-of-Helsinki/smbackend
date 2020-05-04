@@ -25,7 +25,7 @@ class UnitConnection(models.Model):
         (ESERVICE_LINK_TYPE, 'ESERVICE_LINK'),
     )
 
-    unit = models.ForeignKey(Unit, db_index=True, related_name='connections')
+    unit = models.ForeignKey(Unit, db_index=True, related_name='connections', on_delete=models.CASCADE)
     name = models.CharField(max_length=600)
     www = models.URLField(null=True, max_length=400)
     section_type = models.PositiveSmallIntegerField(choices=SECTION_TYPES, null=True)

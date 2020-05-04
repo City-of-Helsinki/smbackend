@@ -196,4 +196,4 @@ class UserOrganization(models.Model):
         services_models.Department,
         on_delete=models.CASCADE)
     user = models.OneToOneField(
-        AUTH_USER_MODEL, related_name='organization', null=False)
+        AUTH_USER_MODEL, related_name='organization', null=False, on_delete=models.CASCADE)

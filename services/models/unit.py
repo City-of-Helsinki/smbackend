@@ -96,8 +96,11 @@ class Unit(models.Model):
 
     location = models.PointField(null=True, srid=PROJECTION_SRID)  # lat, lng?
     geometry = models.GeometryField(srid=PROJECTION_SRID, null=True)
-    department = models.ForeignKey(Department, null=True)
-    root_department = models.ForeignKey(Department, null=True, related_name='descendant_units')
+    department = models.ForeignKey(Department, null=True, on_delete=models.CASCADE)
+    root_department = models.ForeignKey(Department,
+                                        null=True,
+                                        related_name='descendant_units',
+                                        on_delete=models.CASCADE)
 
     organizer_type = models.PositiveSmallIntegerField(choices=ORGANIZER_TYPES, null=True)
     organizer_name = models.CharField(max_length=150, null=True)
@@ -130,7 +133,7 @@ class Unit(models.Model):
 
     created_time = models.DateTimeField(null=True)  # ASK API: are these UTC? no Z in output
 
-    municipality = models.ForeignKey(Municipality, null=True, db_index=True)
+    municipality = models.ForeignKey(Municipality, null=True, db_index=True, on_delete=models.CASCADE)
     address_zip = models.CharField(max_length=10, null=True)
 
     data_source = models.CharField(max_length=50, null=True)
