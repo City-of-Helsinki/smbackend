@@ -434,7 +434,7 @@ class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = ServiceNode.objects.all()
     serializer_class = ServiceNodeSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ['level', 'parent']
+    filterset_fields = ['level', 'parent']
 
     def get_queryset(self):
         queryset = super(ServiceNodeViewSet, self).get_queryset().prefetch_related(
