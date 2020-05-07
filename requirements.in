@@ -1,8 +1,8 @@
-Django<2.0
+Django~=2.2
 djangorestframework>3.9.4,<3.11
 elasticsearch>=1.0.0,<2.0.0
 Markdown>3.1
-django-filter
+django-filter~=2.0.0
 django-modeltranslation
 flake8
 requests
@@ -15,7 +15,7 @@ psycopg2<2.9
 django-mptt
 django-haystack
 lxml
-raven
+raven~=6.10.0
 elasticsearch
 djangorestframework-jsonp
 pip-tools>=4.0.0

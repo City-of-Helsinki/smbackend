@@ -1,4 +1,3 @@
-from django.core.validators import validate_comma_separated_integer_list
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_noop as _
@@ -10,6 +9,7 @@ from munigeo.utils import get_default_srid
 from services.utils import get_translated, check_valid_concrete_field
 from .department import Department
 from .keyword import Keyword
+from django.db.models import Manager as GeoManager
 
 from django.contrib.postgres.fields import HStoreField
 
@@ -74,7 +74,7 @@ def get_unit_related_fields():
     return _unit_related_fields
 
 
-class UnitSearchManager(models.GeoManager):
+class UnitSearchManager(GeoManager):
     def get_queryset(self):
         qs = super(UnitSearchManager, self).get_queryset().prefetch_related('accessibility_shortcomings')
         if self.only_fields:
@@ -96,8 +96,11 @@ class Unit(models.Model):
 
     location = models.PointField(null=True, srid=PROJECTION_SRID)  # lat, lng?
     geometry = models.GeometryField(srid=PROJECTION_SRID, null=True)
-    department = models.ForeignKey(Department, null=True)
-    root_department = models.ForeignKey(Department, null=True, related_name='descendant_units')
+    department = models.ForeignKey(Department, null=True, on_delete=models.CASCADE)
+    root_department = models.ForeignKey(Department,
+                                        null=True,
+                                        related_name='descendant_units',
+                                        on_delete=models.CASCADE)
 
     organizer_type = models.PositiveSmallIntegerField(choices=ORGANIZER_TYPES, null=True)
     organizer_name = models.CharField(max_length=150, null=True)
@@ -130,7 +133,7 @@ class Unit(models.Model):
 
     created_time = models.DateTimeField(null=True)  # ASK API: are these UTC? no Z in output
 
-    municipality = models.ForeignKey(Municipality, null=True, db_index=True)
+    municipality = models.ForeignKey(Municipality, null=True, db_index=True, on_delete=models.CASCADE)
     address_zip = models.CharField(max_length=10, null=True)
 
     data_source = models.CharField(max_length=50, null=True)
@@ -150,13 +153,12 @@ class Unit(models.Model):
                                        help_text='Automatically generated hash of other identifiers')
     service_details_hash = models.CharField(max_length=40, null=True)
 
-    accessibility_viewpoints = JSONField(default="{}", null=True)
+    accessibility_viewpoints = JSONField(default=dict, null=True)
 
     # Cached fields for better performance
-    root_service_nodes = models.CharField(max_length=50, null=True,
-                                          validators=[validate_comma_separated_integer_list])
+    root_service_nodes = models.CharField(max_length=50, null=True)
 
-    objects = models.GeoManager()
+    objects = GeoManager()
     search_objects = UnitSearchManager()
 
     class Meta:

@@ -11,7 +11,7 @@ from .service import Service
 class ServiceNode(MPTTModel):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=200, db_index=True)
-    parent = TreeForeignKey('self', null=True, related_name='children')
+    parent = TreeForeignKey('self', null=True, related_name='children', on_delete=models.CASCADE)
     keywords = models.ManyToManyField(Keyword)
 
     service_reference = models.TextField(null=True)
