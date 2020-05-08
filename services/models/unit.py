@@ -9,7 +9,7 @@ from munigeo.utils import get_default_srid
 from services.utils import get_translated, check_valid_concrete_field
 from .department import Department
 from .keyword import Keyword
-from django.db.models import Manager as GeoManager
+from django.db.models import Manager
 
 from django.contrib.postgres.fields import HStoreField
 
@@ -74,7 +74,7 @@ def get_unit_related_fields():
     return _unit_related_fields
 
 
-class UnitSearchManager(GeoManager):
+class UnitSearchManager(Manager):
     def get_queryset(self):
         qs = super(UnitSearchManager, self).get_queryset().prefetch_related('accessibility_shortcomings')
         if self.only_fields:
@@ -158,7 +158,7 @@ class Unit(models.Model):
     # Cached fields for better performance
     root_service_nodes = models.CharField(max_length=50, null=True)
 
-    objects = GeoManager()
+    objects = Manager()
     search_objects = UnitSearchManager()
 
     class Meta:
