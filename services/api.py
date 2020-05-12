@@ -599,6 +599,16 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         if 'connections' in include_fields:
             ret['connections'] = UnitConnectionSerializer(obj.connections, many=True).data
 
+        if 'extensions' in ret:
+            ret['extensions'] = self.handle_extension_translations(ret['extensions'])
+
+        try:
+            shortcomings = obj.accessibility_shortcomings
+        except UnitAccessibilityShortcomings.DoesNotExist:
+            shortcomings = UnitAccessibilityShortcomings()
+        if 'accessibility_shortcoming_count' in getattr(self, 'keep_fields', ['accessibility_shortcoming_count']):
+            ret['accessibility_shortcoming_count'] = shortcomings.accessibility_shortcoming_count
+
         if 'request' not in self.context:
             return ret
         qparams = self.context['request'].query_params
@@ -609,15 +619,6 @@ class UnitSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer,
         elif 'geometry' in ret:
             del ret['geometry']
 
-        if 'extensions' in ret:
-            ret['extensions'] = self.handle_extension_translations(ret['extensions'])
-
-        try:
-            shortcomings = obj.accessibility_shortcomings
-        except UnitAccessibilityShortcomings.DoesNotExist:
-            shortcomings = UnitAccessibilityShortcomings()
-        if 'accessibility_shortcoming_count' in getattr(self, 'keep_fields', ['accessibility_shortcoming_count']):
-            ret['accessibility_shortcoming_count'] = shortcomings.accessibility_shortcoming_count
         if qparams.get('accessibility_description', '').lower() in ('true', '1'):
             ret['accessibility_description'] = shortcomings.accessibility_description
 
