@@ -13,7 +13,7 @@ django-cors-headers
 django-extensions
 psycopg2<2.9
 django-mptt
-django-haystack
+django-haystack>=2.8.1
 lxml
 raven~=6.10.0
 elasticsearch
