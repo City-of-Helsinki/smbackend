@@ -1,4 +1,5 @@
 Django~=2.2
+appdynamics
 djangorestframework>3.9.4,<3.11
 elasticsearch>=1.0.0,<2.0.0
 Markdown>3.1
