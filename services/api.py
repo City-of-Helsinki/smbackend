@@ -14,6 +14,8 @@ from rest_framework import serializers, viewsets, generics
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 from django.core.exceptions import ValidationError
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
 
 from haystack.query import SearchQuerySet, SQ
 from haystack.inputs import Clean
@@ -827,7 +829,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                 except ValueError:
                     raise ParseError("'distance' needs to be a floating point number")
                 queryset = queryset.filter(location__distance_lte=(point, distance))
-            queryset = queryset.distance(point, field_name='geometry').order_by('distance')
+            queryset = queryset.filter(location__distance_lte=(point, D(m=distance)))\
+                .annotate(distance=Distance("location", point)).order_by("distance")
 
         if 'bbox' in filters:
             val = self.request.query_params.get('bbox', None)
