@@ -1,8 +1,10 @@
 *~
 *.pyc
 __pycache__
+local_settings.py
 data/
 .idea
+.coverage
 venv_smbackend
 venv
 .env
@@ -14,4 +16,3 @@ smbackend/test/tpr_mock_data/*.json
 **/.hypothesis
 .python-version
 *.mo
-.coverage
