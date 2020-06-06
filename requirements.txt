@@ -17,7 +17,7 @@ django-haystack==2.8.1    # via -r requirements.in
 django-modeltranslation==0.13.3  # via -r requirements.in, django-munigeo
 django-mptt==0.8.7        # via -r requirements.in, django-munigeo
 django-polymorphic==2.0.3  # via -r requirements.in
-django==2.2.12            # via -r requirements.in, django-cors-headers, django-filter, django-haystack, django-munigeo, django-polymorphic
+django==2.2.13            # via -r requirements.in, django-cors-headers, django-filter, django-haystack, django-munigeo, django-polymorphic
 djangorestframework-jsonp==1.0.2  # via -r requirements.in
 djangorestframework==3.10.2  # via -r requirements.in
 elasticsearch==1.9.0      # via -r requirements.in
@@ -25,7 +25,6 @@ entrypoints==0.3          # via flake8
 flake8==3.7.5             # via -r requirements.in
 hypothesis==3.19.3        # via -r requirements.in
 idna==2.6                 # via requests
-importlib-metadata==0.23  # via pluggy, pytest
 lxml==4.3.0               # via -r requirements.in
 markdown==3.1.1           # via -r requirements.in
 mccabe==0.6.1             # via flake8
@@ -52,7 +51,6 @@ sqlparse==0.3.1           # via django
 tqdm==4.31.1              # via -r requirements.in
 urllib3==1.24.3           # via elasticsearch, requests
 wcwidth==0.1.7            # via pytest
-zipp==0.6.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
