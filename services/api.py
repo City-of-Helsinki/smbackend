@@ -828,9 +828,8 @@ class UnitViewSet(munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnly
                         raise ValueError()
                 except ValueError:
                     raise ParseError("'distance' needs to be a floating point number")
-                queryset = queryset.filter(location__distance_lte=(point, distance))
-            queryset = queryset.filter(location__distance_lte=(point, D(m=distance)))\
-                .annotate(distance=Distance("location", point)).order_by("distance")
+                queryset = queryset.filter(location__distance_lte=(point, D(m=distance)))
+            queryset = queryset.annotate(distance=Distance("location", point)).order_by("distance")
 
         if 'bbox' in filters:
             val = self.request.query_params.get('bbox', None)
