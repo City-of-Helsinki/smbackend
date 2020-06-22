@@ -16,3 +16,5 @@ smbackend/test/tpr_mock_data/*.json
 **/.hypothesis
 .python-version
 *.mo
+config_dev.env
+.django_secret

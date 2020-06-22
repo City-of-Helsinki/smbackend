@@ -8,13 +8,13 @@ fi
 
 if [ "$1" = 'start_uwsgi_production_server' ]; then
     # Start server
-    echo "Starting server"
+    echo "Starting production server"
     ./deploy/server.sh
 
 elif [ "$1" = 'start_django_development_server' ]; then
     # Start server
-    echo "Starting server"
-    python manage.py runserver 0.0.0.0:8000
+    echo "Starting development server"
+    ./manage.py runserver 0.0.0.0:8000
 
 elif [ "$1" = 'maintenance_tasks' ]; then
     shift
