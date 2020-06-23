@@ -7,7 +7,7 @@ data/
 .coverage
 venv_smbackend
 venv
-.env
+*.env
 .DS_Store
 .cache
 Procfile
@@ -16,5 +16,4 @@ smbackend/test/tpr_mock_data/*.json
 **/.hypothesis
 .python-version
 *.mo
-config_dev.env
 .django_secret
