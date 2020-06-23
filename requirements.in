@@ -21,6 +21,7 @@ djangorestframework-jsonp
 pip-tools>=4.0.0
 python-dateutil
 pytest-django
+pytest-cov
 django-polymorphic
 requests-mock
 hypothesis
