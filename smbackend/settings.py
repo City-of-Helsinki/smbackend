@@ -180,21 +180,6 @@ TEMPLATES = [
     },
 ]
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
-    },
-    'default-fi': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
-    },
-    'default-en': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
-    },
-    'default-sv': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
-    }
-}
-
 
 def read_config(name):
     return json.load(open(
@@ -204,50 +189,37 @@ def read_config(name):
             'elasticsearch/{}.json'.format(name))))
 
 
-def haystack_connection_for_lang(language_code):
-    if language_code == "fi":
-        return {
-            'default-fi': {
-                'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-                'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-                'URL': env('ELASTICSEARCH_URL'),
-                'INDEX_NAME': 'servicemap-fi',
-                'MAPPINGS': read_config('mappings_finnish')['modelresult']['properties'],
-                'SETTINGS': read_config('settings_finnish')
-            }
-        }
-    else:
-        return {
-            f'default-{language_code}': {
-                'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-                'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-                'URL': env('ELASTICSEARCH_URL'),
-                'INDEX_NAME': f'servicemap-{language_code}'
-            }
-        }
-
-
-def dummy_haystack_connection_for_lang(language_code):
-    return {
-        f'default-{language_code}': {
-            'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-            'BASE_ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
-        }
-    }
-
+ELASTICSEARCH_URL = env('ELASTICSEARCH_URL')
 
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'multilingual_haystack.backends.MultilingualSearchEngine',
+    },
+    'default-fi': {
+        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
+        'URL': ELASTICSEARCH_URL,
+        'INDEX_NAME': 'servicemap-fi',
+        'MAPPINGS': read_config('mappings_finnish')['modelresult']['properties'],
+        'SETTINGS': read_config('settings_finnish')
+    },
+    'default-sv': {
+        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
+        'URL': ELASTICSEARCH_URL,
+        'INDEX_NAME': 'servicemap-sv',
+        'MAPPINGS': read_config('mappings_swedish')['modelresult']['properties'],
+        'SETTINGS': read_config('settings_swedish')
+    },
+    'default-en': {
+        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
+        'URL': ELASTICSEARCH_URL,
+        'INDEX_NAME': 'servicemap-en',
+        'MAPPINGS': read_config('mappings_english')['modelresult']['properties'],
+        'SETTINGS': read_config('settings_english')
     }
 }
-
-for language in [l[0] for l in LANGUAGES]:
-    if env('ELASTICSEARCH_URL'):
-        connection = haystack_connection_for_lang(language)
-    else:
-        connection = dummy_haystack_connection_for_lang(language)
-    HAYSTACK_CONNECTIONS.update(connection)
 
 
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
