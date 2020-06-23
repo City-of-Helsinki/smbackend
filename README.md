@@ -3,7 +3,23 @@ Service Map Backend
 
 This is the backend service for the Service Map UI.
 
-Installation
+Installation with Docker Compose
+------------
+
+First configure development environment settings as stated in `config_dev.env.example` and in `config_dev_ui.env.example`.
+
+### Running the application
+
+Run application with `docker-compose up`
+
+This will startup and bind local postgres, elasticsearch, servicemap backend and servicemap frontend containers.
+
+### Importing data
+
+To import data for development usage and automatically index it, run command:
+`docker-compose run servicemap maintenance_tasks all`
+
+Installation without Docker
 ------------
 
 First, install the necessary Debian packages.
@@ -15,7 +31,7 @@ You might need to start a new shell for the virtualenvwrapper commands to activa
 1. Make a Python virtual environment.
 
 ```
-mkvirtualenv -p /usr/bin/python3 smbackend
+mkvirtualenv -p /usr/bin/python3 servicemap
 ```
 
 2. Install pip requirements.
@@ -34,17 +50,17 @@ sudo su postgres
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS postgis;'
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
 
-createuser -RSPd smbackend
+createuser -RSPd servicemap
 
-createdb -O smbackend -T template1 -l fi_FI.UTF-8 -E utf8 smbackend
+createdb -O servicemap -T template1 -l fi_FI.UTF-8 -E utf8 servicemap
 
 ```
 
 Docker setup (modify as needed, starts the database on local port 8765):
 ```
-docker run --name smbackend-psql -e POSTGRES_USER=smbackend -e POSTGRES_PASSWORD=smbackend -p 8765:5432 -d mdillon/postgis
+docker run --name servicemap-psql -e POSTGRES_USER=servicemap -e POSTGRES_PASSWORD=servicemap -p 8765:5432 -d mdillon/postgis
 # you'll need the hstore extension enabled:
-echo "CREATE EXTENSION hstore;" | docker exec -i smbackend-psql psql -U smbackend
+echo "CREATE EXTENSION hstore;" | docker exec -i servicemap-psql psql -U servicemap
 ```
 
 4. Modify `local_settings.py` to contain the local database info.
@@ -54,9 +70,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'HOST': '127.0.0.1',
-        'NAME': 'smbackend',
-        'USER': 'smbackend',
-        'PASSWORD': 'smbackend',
+        'NAME': 'servicemap',
+        'USER': 'servicemap',
+        'PASSWORD': 'servicemap',
     }
 }
 ```
@@ -112,12 +128,16 @@ HAYSTACK_CONNECTIONS = {
         'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
         'URL': 'http://localhost:9200/',
         'INDEX_NAME': 'servicemap-sv',
+        'MAPPINGS': read_config('mappings_swedish')['modelresult']['properties'],
+        'SETTINGS': read_config('settings_swedish')
     },
     'default-en': {
         'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
         'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
         'URL': 'http://localhost:9200/',
         'INDEX_NAME': 'servicemap-en',
+        'MAPPINGS': read_config('mappings_english')['modelresult']['properties'],
+        'SETTINGS': read_config('settings_english')
     },
 }
 ```
