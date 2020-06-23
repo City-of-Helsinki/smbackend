@@ -23,7 +23,7 @@ before_script:
   - psql template1 -c 'create extension hstore;'
 
 install:
-  - pip install pytest-cov -r requirements.txt
+  - pip install -r requirements.txt
 
 script:
   - flake8
