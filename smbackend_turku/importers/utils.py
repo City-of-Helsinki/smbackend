@@ -161,3 +161,9 @@ def get_weekday_str(index, lang='fi'):
 def get_localized_value(data, preferred_language='fi'):
     assert preferred_language in ('fi', 'sv', 'en')
     return data.get(preferred_language) or ''
+
+
+def convert_code_to_int(code):
+    if code:
+        return int.from_bytes(code.encode(), 'big')
+    return None
