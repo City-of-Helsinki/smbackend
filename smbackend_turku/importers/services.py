@@ -8,7 +8,7 @@ from services.management.commands.services_import.services import update_service
 
 from services.models import ServiceNode, Service
 from smbackend_turku.importers.utils import get_turku_resource, set_syncher_tku_translated_field, \
-    set_syncher_object_field
+    set_syncher_object_field, convert_code_to_int
 
 UTC_TIMEZONE = pytz.timezone('UTC')
 
@@ -66,14 +66,18 @@ class ServiceImporter:
         return tree
 
     def _add_service_tree_children(self, parent_classes, service_classes):
-        parent_classes['children'] = [s_cls for s_cls in service_classes if
-                                      s_cls.get('ylatason_koodi') == parent_classes['koodi']]
+        parent_classes["children"] = [
+            s_cls
+            for s_cls in service_classes
+            if convert_code_to_int(s_cls.get("ylatason_koodi"))
+            == convert_code_to_int(parent_classes["koodi"])
+        ]
 
         for child_ot in parent_classes['children']:
             self._add_service_tree_children(child_ot, service_classes)
 
     def _handle_service_node(self, node, keyword_handler):
-        node_id = node['koodi']
+        node_id = convert_code_to_int(node['koodi'])
         obj = self.nodesyncher.get(node_id)
         if not obj:
             obj = ServiceNode(id=node_id)
@@ -87,7 +91,8 @@ class ServiceImporter:
             set_syncher_object_field(obj, 'name_fi', name)
 
         if 'ylatason_koodi' in node:
-            parent = self.nodesyncher.get(node['ylatason_koodi'])
+            parent_id = convert_code_to_int(node['ylatason_koodi'])
+            parent = self.nodesyncher.get(parent_id)
             assert parent
         else:
             parent = None
@@ -97,10 +102,10 @@ class ServiceImporter:
 
         self._save_object(obj)
 
-        if not node_id.startswith(SERVICE_AS_SERVICE_NODE_PREFIX):
+        if not node['koodi'].startswith(SERVICE_AS_SERVICE_NODE_PREFIX):
             self._handle_related_services(obj, node)
         else:
-            set_syncher_object_field(obj, 'service_reference', node['koodi'])
+            set_syncher_object_field(obj, 'service_reference', convert_code_to_int(node['koodi']))
 
         self.nodesyncher.mark(obj)
 
