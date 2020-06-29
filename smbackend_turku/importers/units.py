@@ -71,7 +71,7 @@ LANGUAGES = ('fi', 'sv', 'en')
 SOURCE_DATA_SRID = 4326
 
 BOUNDING_BOX = Polygon.from_bbox(settings.BOUNDING_BOX)
-BOUNDING_BOX.set_srid(settings.DEFAULT_SRID)
+BOUNDING_BOX.srid = settings.DEFAULT_SRID
 BOUNDING_BOX.transform(SOURCE_DATA_SRID)
 
 
