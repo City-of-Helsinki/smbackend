@@ -22,6 +22,8 @@ env = environ.Env(
     INTERNAL_IPS=(list, []),  # todo
     MEDIA_ROOT=(environ.Path(), root('media')),
     STATIC_ROOT=(environ.Path(), root('static')),
+    MEDIA_URL=(str, '/media/'),
+    STATIC_URL=(str, '/static/'),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
 )
 
@@ -142,10 +144,11 @@ LEVELS = {
     }
 }
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-MEDIA_ROOT = env('MEDIA_ROOT')
+# Static & Media files
 STATIC_ROOT = env('STATIC_ROOT')
+STATIC_URL = env('STATIC_URL')
+MEDIA_ROOT = env('MEDIA_ROOT')
+MEDIA_URL = env('MEDIA_URL')
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
