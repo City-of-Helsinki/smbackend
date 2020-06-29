@@ -25,6 +25,9 @@ env = environ.Env(
     MEDIA_URL=(str, '/media/'),
     STATIC_URL=(str, '/static/'),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
+    OPEN311_URL_BASE=(str, None),
+    OPEN311_API_KEY=(str, None),
+    OPEN311_INTERNAL_API_KEY=(str, None),
 )
 
 SECURE_PROXY_SSL_HEADER = env('SECURE_PROXY_SSL_HEADER')
@@ -142,6 +145,13 @@ LEVELS = {
             530    # parking vending machines
         ]
     }
+}
+
+# Configuration for Open311 feedback forwarding
+OPEN311 = {
+    'URL_BASE': env('OPEN311_URL_BASE'),
+    'API_KEY': env('OPEN311_API_KEY'),
+    'INTERNAL_FEEDBACK_API_KEY': env('OPEN311_INTERNAL_API_KEY'),
 }
 
 # Static & Media files
