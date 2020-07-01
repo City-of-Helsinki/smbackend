@@ -28,6 +28,7 @@ env = environ.Env(
     OPEN311_URL_BASE=(str, None),
     OPEN311_API_KEY=(str, None),
     OPEN311_INTERNAL_API_KEY=(str, None),
+    SHORTCUTTER_UNIT_URL=(str, None),
 )
 
 SECURE_PROXY_SSL_HEADER = env('SECURE_PROXY_SSL_HEADER')
@@ -153,6 +154,9 @@ OPEN311 = {
     'API_KEY': env('OPEN311_API_KEY'),
     'INTERNAL_FEEDBACK_API_KEY': env('OPEN311_INTERNAL_API_KEY'),
 }
+
+# Shortcut generation URL template
+SHORTCUTTER_UNIT_URL = env('SHORTCUTTER_UNIT_URL')
 
 # Static & Media files
 STATIC_ROOT = env('STATIC_ROOT')
