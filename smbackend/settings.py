@@ -208,36 +208,43 @@ def read_config(name):
 
 ELASTICSEARCH_URL = env('ELASTICSEARCH_URL')
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'multilingual_haystack.backends.MultilingualSearchEngine',
-    },
-    'default-fi': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': ELASTICSEARCH_URL,
-        'INDEX_NAME': 'servicemap-fi',
-        'MAPPINGS': read_config('mappings_finnish')['modelresult']['properties'],
-        'SETTINGS': read_config('settings_finnish')
-    },
-    'default-sv': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': ELASTICSEARCH_URL,
-        'INDEX_NAME': 'servicemap-sv',
-        'MAPPINGS': read_config('mappings_swedish')['modelresult']['properties'],
-        'SETTINGS': read_config('settings_swedish')
-    },
-    'default-en': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': ELASTICSEARCH_URL,
-        'INDEX_NAME': 'servicemap-en',
-        'MAPPINGS': read_config('mappings_english')['modelresult']['properties'],
-        'SETTINGS': read_config('settings_english')
+if ELASTICSEARCH_URL:
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'multilingual_haystack.backends.MultilingualSearchEngine',
+        },
+        'default-fi': {
+            'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+            'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
+            'URL': ELASTICSEARCH_URL,
+            'INDEX_NAME': 'servicemap-fi',
+            'MAPPINGS': read_config('mappings_finnish')['modelresult']['properties'],
+            'SETTINGS': read_config('settings_finnish')
+        },
+        'default-sv': {
+            'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+            'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
+            'URL': ELASTICSEARCH_URL,
+            'INDEX_NAME': 'servicemap-sv',
+            'MAPPINGS': read_config('mappings_swedish')['modelresult']['properties'],
+            'SETTINGS': read_config('settings_swedish')
+        },
+        'default-en': {
+            'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
+            'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
+            'URL': ELASTICSEARCH_URL,
+            'INDEX_NAME': 'servicemap-en',
+            'MAPPINGS': read_config('mappings_english')['modelresult']['properties'],
+            'SETTINGS': read_config('settings_english')
+        }
     }
-}
-
+else:
+    # Default fallback, when real search capabilities are not needed
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'multilingual_haystack.backends.SimpleEngine',
+        }
+    }
 
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
 HAYSTACK_SIGNAL_PROCESSOR = 'services.search_indexes.DeleteOnlySignalProcessor'
