@@ -69,6 +69,9 @@ INSTALLED_APPS = (
     'observations',
 )
 
+if env("ADDITIONAL_INSTALLED_APPS", default=None):
+    INSTALLED_APPS += env.tuple("ADDITIONAL_INSTALLED_APPS")
+
 MIDDLEWARE = [
     'django.middleware.gzip.GZipMiddleware',
     'corsheaders.middleware.CorsMiddleware',
