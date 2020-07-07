@@ -1,0 +1,43 @@
+[
+    {
+        "koodi": "11",
+        "nimi_kieliversiot": {
+            "fi": "Tontit",
+            "sv": "Tomter"
+        },
+        "tila": {
+            "koodi": "1"
+        },
+        "palvelutarjoukset": [
+            {
+                "koodi": "123",
+                "nimi_kieliversiot": {
+                    "fi": "Tontit"
+                },
+                "tila": {
+                    "koodi": "1"
+                }
+            }
+        ]
+    },
+        {
+        "koodi": "12",
+        "nimi_kieliversiot": {
+            "fi": "Pysäköinti"
+        },
+        "tila": {
+            "koodi": "1"
+        },
+        "palvelutarjoukset": [
+            {
+                "koodi": "456",
+                "nimi_kieliversiot": {
+                    "fi": "Pysäköinti"
+                },
+                "tila": {
+                    "koodi": "1"
+                }
+            }
+        ]
+    }
+]
