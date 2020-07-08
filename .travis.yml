@@ -29,4 +29,5 @@ script:
   - flake8
   - pytest --cov=. --hypothesis-profile=ci
 
-after_success: codecov
+after_success:
+  - curl -s https://codecov.io/bash | bash
