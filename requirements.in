@@ -27,3 +27,6 @@ requests-mock
 hypothesis
 tqdm
 django-environ
+black
+isort
+pep8-naming
