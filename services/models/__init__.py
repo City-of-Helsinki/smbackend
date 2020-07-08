@@ -9,5 +9,5 @@ from .unit_accessibility_property import UnitAccessibilityProperty
 from .unit_accessibility_shortcomings import UnitAccessibilityShortcomings
 from .unit_alias import UnitAlias
 from .unit_connection import UnitConnection
-from .unit_count import ServiceUnitCount, ServiceNodeUnitCount
+from .unit_count import ServiceNodeUnitCount, ServiceUnitCount
 from .unit_identifier import UnitIdentifier

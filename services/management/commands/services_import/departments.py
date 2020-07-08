@@ -1,6 +1,8 @@
 from munigeo.importer.sync import ModelSyncher
-from services.models import Department
 from munigeo.models import Municipality
+
+from services.models import Department
+
 from .utils import pk_get, save_translated_field
 
 

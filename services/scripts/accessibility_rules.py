@@ -1,9 +1,9 @@
-import sys
-from sys import argv
-from collections import OrderedDict as odict
 import csv
-import re
 import pprint
+import re
+import sys
+from collections import OrderedDict as odict
+from sys import argv
 
 """
 A module for parsing accessibility rules and sentences from

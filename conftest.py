@@ -1,4 +1,4 @@
-from hypothesis import settings, Verbosity, HealthCheck
+from hypothesis import HealthCheck, settings, Verbosity
 
 settings.register_profile("ci", settings(
     max_examples=1000,

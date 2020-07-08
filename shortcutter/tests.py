@@ -1,7 +1,7 @@
 import pytest
 from django.test import Client
-from django.urls import reverse
 from django.test.utils import override_settings
+from django.urls import reverse
 
 
 @pytest.fixture

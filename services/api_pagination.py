@@ -1,6 +1,6 @@
-from rest_framework.pagination import PageNumberPagination
-from django.conf import settings
 import re
+from django.conf import settings
+from rest_framework.pagination import PageNumberPagination
 
 KML_REGEXP = re.compile(settings.KML_REGEXP)
 

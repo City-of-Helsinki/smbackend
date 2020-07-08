@@ -1,11 +1,12 @@
 import pytest
-from fixtures import *  # noqa: F401,F403
-from observations.models import Observation
-from data import observation_raw_data
-from rest_framework.reverse import reverse
-from django.utils import timezone
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 from django.urls import reverse as django_reverse
+from django.utils import timezone
+from fixtures import *  # noqa: F401,F403
+from rest_framework.reverse import reverse
+
+from data import observation_raw_data
+from observations.models import Observation
 
 
 def authenticate_user(api_client, user):

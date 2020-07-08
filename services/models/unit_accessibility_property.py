@@ -1,6 +1,7 @@
 from django.db import models
-from .unit import Unit
+
 from .accessibility_variable import AccessibilityVariable
+from .unit import Unit
 
 
 class UnitAccessibilityProperty(models.Model):

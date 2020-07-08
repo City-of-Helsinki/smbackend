@@ -1,11 +1,21 @@
 # from hypothesis import composite
+from django.conf import settings
 from hypothesis import event
 from hypothesis.strategies import (
-    text, integers, booleans, lists, composite, uuids, sampled_from, none, one_of,
-    floats, permutations, sets)
-from string import digits, ascii_letters, punctuation
-
-from django.conf import settings
+    booleans,
+    composite,
+    floats,
+    integers,
+    lists,
+    none,
+    one_of,
+    permutations,
+    sampled_from,
+    sets,
+    text,
+    uuids,
+)
+from string import ascii_letters, digits, punctuation
 
 SAFE_LETTERS = digits + ascii_letters + punctuation
 

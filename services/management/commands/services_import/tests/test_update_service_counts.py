@@ -1,13 +1,15 @@
-from django.utils.timezone import now
-
 import pytest
+from django.utils.timezone import now
+from munigeo.models import (
+    AdministrativeDivision,
+    AdministrativeDivisionType,
+    Municipality,
+)
+from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
 
 from services.management.commands.services_import.services import update_service_counts
-from services.models import Unit, Service, ServiceUnitCount, UnitServiceDetails
-from munigeo.models import AdministrativeDivision, AdministrativeDivisionType, Municipality
-
-from rest_framework.test import APIClient
-from rest_framework.reverse import reverse
+from services.models import Service, ServiceUnitCount, Unit, UnitServiceDetails
 
 
 @pytest.fixture

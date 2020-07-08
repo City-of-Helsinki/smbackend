@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
-import sys
-import re
 import logging
-
-import requests
 import pytz
-from django.core.management.base import BaseCommand
+import re
+import requests
+import sys
 from django import db
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from django.utils.translation import activate, get_language
+from munigeo.models import AdministrativeDivision
 
 from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.services import (
-    import_services, update_service_counts, update_service_node_counts, update_service_root_service_nodes)
+    import_services,
+    update_service_counts,
+    update_service_node_counts,
+    update_service_root_service_nodes,
+)
 from services.management.commands.services_import.units import import_units
-
-from munigeo.models import AdministrativeDivision
 
 URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
 GK25_SRID = 3879

@@ -1,10 +1,9 @@
-from urllib.parse import urlencode
-
 import pytest
 from django.core.management import call_command
 from django.utils.timezone import now
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
+from urllib.parse import urlencode
 
 from services.models import AccessibilityVariable, Unit, UnitAccessibilityProperty
 from services.utils.accessibility_shortcoming_calculator import OperatorException
@@ -56,6 +55,7 @@ def test_get_unit(api_client, unit, query_params, include_count, include_descrip
 @pytest.fixture
 def patch_rules():
     from services.utils import AccessibilityShortcomingCalculator
+
     # Verify that AccessibilityShortcomingCalculator is singleton
     assert AccessibilityShortcomingCalculator() == AccessibilityShortcomingCalculator()
 

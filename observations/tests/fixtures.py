@@ -1,14 +1,19 @@
-import pytest
-from rest_framework.test import APIClient
-from services.models import Service, Unit, Department, UnitServiceDetails
-from observations.models import (
-    ObservableProperty, CategoricalObservation, AllowedValue,
-    UserOrganization, UnitLatestObservation, DescriptiveObservation
-)
 import datetime as d
+import pytest
 from django.contrib.auth.models import User
 from django.utils import timezone
 from munigeo.models import Municipality
+from rest_framework.test import APIClient
+
+from observations.models import (
+    AllowedValue,
+    CategoricalObservation,
+    DescriptiveObservation,
+    ObservableProperty,
+    UnitLatestObservation,
+    UserOrganization,
+)
+from services.models import Department, Service, Unit, UnitServiceDetails
 
 
 @pytest.fixture

@@ -1,10 +1,9 @@
-from urllib.parse import urlencode
 import logging
-
-from django.core.management.base import BaseCommand
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal.error import GDALException
-from django.contrib.gis.geos import LineString, MultiLineString, Polygon, MultiPolygon
+from django.contrib.gis.geos import LineString, MultiLineString, MultiPolygon, Polygon
+from django.core.management.base import BaseCommand
+from urllib.parse import urlencode
 
 from services.models.unit_identifier import UnitIdentifier
 

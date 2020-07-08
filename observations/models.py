@@ -1,14 +1,15 @@
-from django.conf import settings
-from django.db import models
-from django.apps import apps
-from django.utils.translation import ugettext_lazy as _
-from services import models as services_models
-from polymorphic.models import PolymorphicModel
 import binascii
 import os
-from rest_framework import exceptions
-import rest_framework.authtoken.models
 import rest_framework.authentication
+import rest_framework.authtoken.models
+from django.apps import apps
+from django.conf import settings
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+from polymorphic.models import PolymorphicModel
+from rest_framework import exceptions
+
+from services import models as services_models
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 

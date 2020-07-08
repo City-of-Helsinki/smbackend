@@ -1,9 +1,9 @@
-from django.core.management.base import BaseCommand, CommandError
-
-from munigeo.models import AdministrativeDivisionType
-from services.models import Unit, UnitAlias
 import datetime
 import pprint
+from django.core.management.base import BaseCommand, CommandError
+from munigeo.models import AdministrativeDivisionType
+
+from services.models import Unit, UnitAlias
 
 TYPES = [
     'lower_comprehensive_school_district_fi',

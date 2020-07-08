@@ -1,13 +1,11 @@
 import re
-
-from haystack import indexes, signals
-from django.conf import settings
-from django.utils.translation import get_language
-from django.db import models
 from django.apps import apps
+from django.conf import settings
+from django.db import models
 from django.db.models import Q
+from django.utils.translation import get_language
+from haystack import indexes, signals
 from munigeo.models import AdministrativeDivisionType, Street
-
 
 ADMIN_DIV_TYPES = (
     'sub_district',

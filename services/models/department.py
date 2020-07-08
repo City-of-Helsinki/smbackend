@@ -3,6 +3,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from munigeo.models import Municipality
 
 from services.utils import get_translated
+
 from .hierarchy import CustomTreeManager
 
 

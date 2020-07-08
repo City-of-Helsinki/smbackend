@@ -1,5 +1,7 @@
 from django.db import models
+
 from services.utils import get_translated
+
 from .keyword import Keyword
 
 

@@ -2,9 +2,9 @@ try:
     import cProfile as profile
 except ImportError:
     import profile
-import pstats
 
 import io
+import pstats
 from django.conf import settings
 
 
