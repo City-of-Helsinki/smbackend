@@ -8,23 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0030_reverse_unit_ordering'),
+        ("services", "0030_reverse_unit_ordering"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unit',
-            name='address_postal_full_en',
+            model_name="unit",
+            name="address_postal_full_en",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='unit',
-            name='address_postal_full_fi',
+            model_name="unit",
+            name="address_postal_full_fi",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='unit',
-            name='address_postal_full_sv',
+            model_name="unit",
+            name="address_postal_full_sv",
             field=models.CharField(max_length=100, null=True),
         ),
     ]

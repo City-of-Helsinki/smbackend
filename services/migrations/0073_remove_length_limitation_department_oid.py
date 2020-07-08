@@ -8,13 +8,11 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0072_make_department_oid_field_longer'),
+        ("services", "0072_make_department_oid_field_longer"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='department',
-            name='oid',
-            field=models.TextField(null=True),
+            model_name="department", name="oid", field=models.TextField(null=True),
         ),
     ]

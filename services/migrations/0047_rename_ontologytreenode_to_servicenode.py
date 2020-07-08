@@ -8,22 +8,17 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0046_remove_organization_model'),
+        ("services", "0046_remove_organization_model"),
     ]
 
     operations = [
-        migrations.RenameModel(
-            old_name='OntologyTreeNode',
-            new_name='ServiceNode',
+        migrations.RenameModel(old_name="OntologyTreeNode", new_name="ServiceNode",),
+        migrations.RenameField(
+            model_name="unit",
+            old_name="root_ontologytreenodes",
+            new_name="root_servicenodes",
         ),
         migrations.RenameField(
-            model_name='unit',
-            old_name='root_ontologytreenodes',
-            new_name='root_servicenodes',
-        ),
-        migrations.RenameField(
-            model_name='unit',
-            old_name='service_tree_nodes',
-            new_name='service_nodes',
+            model_name="unit", old_name="service_tree_nodes", new_name="service_nodes",
         ),
     ]

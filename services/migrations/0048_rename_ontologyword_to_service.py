@@ -9,77 +9,95 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0047_rename_ontologytreenode_to_servicenode'),
+        ("services", "0047_rename_ontologytreenode_to_servicenode"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UnitServiceDetails',
+            name="UnitServiceDetails",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('period_begin_year', models.PositiveSmallIntegerField(null=True)),
-                ('period_end_year', models.PositiveSmallIntegerField(null=True)),
-                ('clarification', models.CharField(blank=True, max_length=200)),
-                ('clarification_fi', models.CharField(blank=True, max_length=200, null=True)),
-                ('clarification_sv', models.CharField(blank=True, max_length=200, null=True)),
-                ('clarification_en', models.CharField(blank=True, max_length=200, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("period_begin_year", models.PositiveSmallIntegerField(null=True)),
+                ("period_end_year", models.PositiveSmallIntegerField(null=True)),
+                ("clarification", models.CharField(blank=True, max_length=200)),
+                (
+                    "clarification_fi",
+                    models.CharField(blank=True, max_length=200, null=True),
+                ),
+                (
+                    "clarification_sv",
+                    models.CharField(blank=True, max_length=200, null=True),
+                ),
+                (
+                    "clarification_en",
+                    models.CharField(blank=True, max_length=200, null=True),
+                ),
             ],
         ),
-        migrations.RenameModel(
-            old_name='OntologyWord',
-            new_name='Service',
+        migrations.RenameModel(old_name="OntologyWord", new_name="Service",),
+        migrations.AlterUniqueTogether(
+            name="unitontologyworddetails", unique_together=set([]),
+        ),
+        migrations.RemoveField(
+            model_name="unitontologyworddetails", name="ontologyword",
+        ),
+        migrations.RemoveField(model_name="unitontologyworddetails", name="unit",),
+        migrations.RenameField(
+            model_name="servicenode",
+            old_name="related_ontologywords",
+            new_name="related_services",
+        ),
+        migrations.RenameField(
+            model_name="servicenode",
+            old_name="ontologyword_reference",
+            new_name="service_reference",
+        ),
+        migrations.RenameField(
+            model_name="unit",
+            old_name="ontologyword_details_hash",
+            new_name="service_details_hash",
+        ),
+        migrations.RemoveField(model_name="unit", name="ontologywords",),
+        migrations.DeleteModel(name="UnitOntologyWordDetails",),
+        migrations.AddField(
+            model_name="unitservicedetails",
+            name="service",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="unit_details",
+                to="services.Service",
+            ),
+        ),
+        migrations.AddField(
+            model_name="unitservicedetails",
+            name="unit",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="service_details",
+                to="services.Unit",
+            ),
+        ),
+        migrations.AddField(
+            model_name="unit",
+            name="services",
+            field=models.ManyToManyField(
+                related_name="units",
+                through="services.UnitServiceDetails",
+                to="services.Service",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='unitontologyworddetails',
-            unique_together=set([]),
-        ),
-        migrations.RemoveField(
-            model_name='unitontologyworddetails',
-            name='ontologyword',
-        ),
-        migrations.RemoveField(
-            model_name='unitontologyworddetails',
-            name='unit',
-        ),
-        migrations.RenameField(
-            model_name='servicenode',
-            old_name='related_ontologywords',
-            new_name='related_services',
-        ),
-        migrations.RenameField(
-            model_name='servicenode',
-            old_name='ontologyword_reference',
-            new_name='service_reference',
-        ),
-        migrations.RenameField(
-            model_name='unit',
-            old_name='ontologyword_details_hash',
-            new_name='service_details_hash',
-        ),
-        migrations.RemoveField(
-            model_name='unit',
-            name='ontologywords',
-        ),
-        migrations.DeleteModel(
-            name='UnitOntologyWordDetails',
-        ),
-        migrations.AddField(
-            model_name='unitservicedetails',
-            name='service',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='unit_details', to='services.Service'),
-        ),
-        migrations.AddField(
-            model_name='unitservicedetails',
-            name='unit',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='service_details', to='services.Unit'),
-        ),
-        migrations.AddField(
-            model_name='unit',
-            name='services',
-            field=models.ManyToManyField(related_name='units', through='services.UnitServiceDetails', to='services.Service'),
-        ),
-        migrations.AlterUniqueTogether(
-            name='unitservicedetails',
-            unique_together=set([('period_begin_year', 'unit', 'service', 'clarification_fi')]),
+            name="unitservicedetails",
+            unique_together=set(
+                [("period_begin_year", "unit", "service", "clarification_fi")]
+            ),
         ),
     ]

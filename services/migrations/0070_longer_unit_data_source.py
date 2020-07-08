@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0069_update_unitaccessibilityshortcomings'),
+        ("services", "0069_update_unitaccessibilityshortcomings"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unit',
-            name='data_source',
+            model_name="unit",
+            name="data_source",
             field=models.CharField(max_length=50, null=True),
         ),
     ]

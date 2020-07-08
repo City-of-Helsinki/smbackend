@@ -9,13 +9,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0066_service_root_service_node'),
+        ("services", "0066_service_root_service_node"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unit',
-            name='extensions',
+            model_name="unit",
+            name="extensions",
             field=django.contrib.postgres.fields.hstore.HStoreField(null=True),
         ),
     ]

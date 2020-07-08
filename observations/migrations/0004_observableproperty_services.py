@@ -8,14 +8,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0067_unit_extensions'),
-        ('observations', '0003_remove_observableproperty_services'),
+        ("services", "0067_unit_extensions"),
+        ("observations", "0003_remove_observableproperty_services"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='observableproperty',
-            name='services',
-            field=models.ManyToManyField(related_name='observable_properties', to='services.Service'),
+            model_name="observableproperty",
+            name="services",
+            field=models.ManyToManyField(
+                related_name="observable_properties", to="services.Service"
+            ),
         ),
     ]

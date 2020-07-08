@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0063_make_unit_connection_name_longer'),
+        ("services", "0063_make_unit_connection_name_longer"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unit',
-            name='organizer_name',
+            model_name="unit",
+            name="organizer_name",
             field=models.CharField(max_length=150, null=True),
         ),
     ]

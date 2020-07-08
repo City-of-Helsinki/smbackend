@@ -8,20 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('observations', '0002_change_org_to_dept'),
-        ('services', '0045_ontologytreenode_related_ontologywords'),
+        ("observations", "0002_change_org_to_dept"),
+        ("services", "0045_ontologytreenode_related_ontologywords"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='department',
-            name='organization',
-        ),
-        migrations.RemoveField(
-            model_name='unit',
-            name='organization',
-        ),
-        migrations.DeleteModel(
-            name='Organization',
-        ),
+        migrations.RemoveField(model_name="department", name="organization",),
+        migrations.RemoveField(model_name="unit", name="organization",),
+        migrations.DeleteModel(name="Organization",),
     ]

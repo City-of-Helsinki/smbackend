@@ -9,13 +9,18 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0061_remove_department_hierarchy_level'),
+        ("services", "0061_remove_department_hierarchy_level"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unit',
-            name='root_department',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='descendant_units', to='services.Department'),
+            model_name="unit",
+            name="root_department",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="descendant_units",
+                to="services.Department",
+            ),
         ),
     ]

@@ -10,7 +10,7 @@ class MultilingualSearchBackend(BaseSearchBackend):
     def _operate(self, method_name, *args, **kwargs):
         backends = set()
         for language, _ in settings.LANGUAGES:
-            using = '%s-%s' % (self.connection_alias, language)
+            using = "%s-%s" % (self.connection_alias, language)
             # Ensure each backend is called only once
             if using in backends:
                 continue
@@ -22,13 +22,14 @@ class MultilingualSearchBackend(BaseSearchBackend):
                 fn(backend, *args, **kwargs)
 
     def update(self, *args, **kwargs):
-        self._operate('update', *args, **kwargs)
+        self._operate("update", *args, **kwargs)
 
     def remove(self, *args, **kwargs):
-        self._operate('remove', *args, **kwargs)
+        self._operate("remove", *args, **kwargs)
 
     def clear(self, **kwargs):
         return
+
 
 # class MultilingualSearchQuery(BaseSearchQuery):
 #    def __init__(self, using=DEFAULT_ALIAS):
@@ -41,10 +42,12 @@ class MultilingualSearchEngine(BaseEngine):
     def get_query(self):
         active_language = translation.get_language()
         if not active_language:
-            raise ValueError('Please set an active language before doing searches '
-                             '(e.g. django.utils.translation.activate("fi"))')
+            raise ValueError(
+                "Please set an active language before doing searches "
+                '(e.g. django.utils.translation.activate("fi"))'
+            )
         language = active_language[:2]
-        using = '%s-%s' % (self.using, language)
+        using = "%s-%s" % (self.using, language)
         return connections[using].get_query()
 
 
@@ -60,12 +63,15 @@ class LanguageSearchQuery(BaseSearchQuery):
 
 class LanguageSearchEngine(BaseEngine):
     def __init__(self, **kwargs):
-        conn_config = settings.HAYSTACK_CONNECTIONS[kwargs['using']]
-        base_engine = load_backend(conn_config['BASE_ENGINE'])(**kwargs)
+        conn_config = settings.HAYSTACK_CONNECTIONS[kwargs["using"]]
+        base_engine = load_backend(conn_config["BASE_ENGINE"])(**kwargs)
 
         backend_bases = (LanguageSearchBackend, base_engine.backend)
-        backend_class = type('LanguageSearchBackend', backend_bases,
-                             {'parent_class': base_engine.backend})
+        backend_class = type(
+            "LanguageSearchBackend",
+            backend_bases,
+            {"parent_class": base_engine.backend},
+        )
         self.backend = backend_class
 
         self.query = base_engine.query

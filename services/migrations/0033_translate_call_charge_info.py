@@ -8,23 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0032_remove_unit_address_city'),
+        ("services", "0032_remove_unit_address_city"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unit',
-            name='call_charge_info_en',
+            model_name="unit",
+            name="call_charge_info_en",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='unit',
-            name='call_charge_info_fi',
+            model_name="unit",
+            name="call_charge_info_fi",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='unit',
-            name='call_charge_info_sv',
+            model_name="unit",
+            name="call_charge_info_sv",
             field=models.CharField(max_length=100, null=True),
         ),
     ]

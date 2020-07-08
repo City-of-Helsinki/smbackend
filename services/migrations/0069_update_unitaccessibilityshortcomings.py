@@ -10,27 +10,30 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0068_unitaccessibilityshortcomings'),
+        ("services", "0068_unitaccessibilityshortcomings"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='unitaccessibilityshortcomings',
-            name='id',
-        ),
+        migrations.RemoveField(model_name="unitaccessibilityshortcomings", name="id",),
         migrations.AlterField(
-            model_name='unitaccessibilityshortcomings',
-            name='accessibility_description',
+            model_name="unitaccessibilityshortcomings",
+            name="accessibility_description",
             field=django.contrib.postgres.fields.jsonb.JSONField(default=[], null=True),
         ),
         migrations.AlterField(
-            model_name='unitaccessibilityshortcomings',
-            name='accessibility_shortcoming_count',
+            model_name="unitaccessibilityshortcomings",
+            name="accessibility_shortcoming_count",
             field=django.contrib.postgres.fields.jsonb.JSONField(default={}, null=True),
         ),
         migrations.AlterField(
-            model_name='unitaccessibilityshortcomings',
-            name='unit',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='accessibility_shortcomings', serialize=False, to='services.Unit'),
+            model_name="unitaccessibilityshortcomings",
+            name="unit",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                primary_key=True,
+                related_name="accessibility_shortcomings",
+                serialize=False,
+                to="services.Unit",
+            ),
         ),
     ]

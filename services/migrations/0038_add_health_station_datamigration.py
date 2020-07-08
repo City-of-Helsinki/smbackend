@@ -5,20 +5,16 @@ from __future__ import unicode_literals
 from django.db import migrations
 from uuid import UUID
 
-UNITS_TO_REDIRECT = [
-    6215,  # Kallio
-    5846,  # Vallila
-    6225   # Herttoniemi
-]
+UNITS_TO_REDIRECT = [6215, 5846, 6225]  # Kallio  # Vallila  # Herttoniemi
 
 
 def add_health_station_redirects(apps, schema_editor):
-    UnitAlias = apps.get_model('services', 'UnitAlias')
-    Unit = apps.get_model('services', 'Unit')
+    UnitAlias = apps.get_model("services", "UnitAlias")
+    Unit = apps.get_model("services", "Unit")
     target = None
     try:
         target = Unit.objects.get(pk=56241)  # Kalasataman terveysasema
-        if target.organization.uuid != UUID('83e74666-0836-4c1d-948a-4b34a8b90301'):
+        if target.organization.uuid != UUID("83e74666-0836-4c1d-948a-4b34a8b90301"):
             return
     except Unit.DoesNotExist:
         return
@@ -29,7 +25,7 @@ def add_health_station_redirects(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0037_add_ordering_to_ontologymodels'),
+        ("services", "0037_add_ordering_to_ontologymodels"),
     ]
 
     operations = [

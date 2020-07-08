@@ -11,7 +11,7 @@ from rest_framework import exceptions
 
 from services import models as services_models
 
-AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
 
 class ObservableProperty(models.Model):
@@ -24,14 +24,16 @@ class ObservableProperty(models.Model):
     "ice condition" or something similar.
 
     """
+
     # TODO move back to sequential id field
     id = models.CharField(max_length=50, primary_key=True)
-    name = models.CharField(
-        max_length=100, null=False, blank=False, db_index=True)
+    name = models.CharField(max_length=100, null=False, blank=False, db_index=True)
     measurement_unit = models.CharField(max_length=20, null=True, blank=False)
     expiration = models.DurationField(blank=True, null=True)
     # todo: change to services
-    services = models.ManyToManyField(services_models.Service, related_name='observable_properties')
+    services = models.ManyToManyField(
+        services_models.Service, related_name="observable_properties"
+    )
     observation_type = models.CharField(max_length=80, null=False, blank=False)
 
     def __str__(self):
@@ -52,55 +54,61 @@ class ObservableProperty(models.Model):
 
 class AllowedValue(models.Model):
     # Currently only works for categorical observations
-    identifier = models.CharField(
-        max_length=50, null=True, blank=False, db_index=True)
+    identifier = models.CharField(max_length=50, null=True, blank=False, db_index=True)
     quality = models.CharField(
-        max_length=50, null=True, blank=False, db_index=True,
-        default='unknown')
-    name = models.CharField(
-        max_length=100, null=True,
-        blank=False, db_index=True)
+        max_length=50, null=True, blank=False, db_index=True, default="unknown"
+    )
+    name = models.CharField(max_length=100, null=True, blank=False, db_index=True)
     description = models.TextField(null=False, blank=False)
     property = models.ForeignKey(
         ObservableProperty,
         on_delete=models.CASCADE,
-        blank=False, null=False,
-        related_name='allowed_values')
+        blank=False,
+        null=False,
+        related_name="allowed_values",
+    )
 
     class Meta:
-        unique_together = (
-            ('identifier', 'property'),)
+        unique_together = (("identifier", "property"),)
 
 
 class Observation(PolymorphicModel):
     """An observation is a measured/observed value of
     a property of a unit at a certain time.
     """
+
     value = models.ForeignKey(
-        AllowedValue, blank=False, null=True,
+        AllowedValue,
+        blank=False,
+        null=True,
         on_delete=models.PROTECT,
-        related_name='instances')
+        related_name="instances",
+    )
     time = models.DateTimeField(
-        db_index=True,
-        help_text='Exact time the observation was made')
+        db_index=True, help_text="Exact time the observation was made"
+    )
     unit = models.ForeignKey(
-        services_models.Unit, blank=False, null=False,
+        services_models.Unit,
+        blank=False,
+        null=False,
         on_delete=models.PROTECT,
-        help_text='The unit the observation is about',
-        related_name='observation_history')
+        help_text="The unit the observation is about",
+        related_name="observation_history",
+    )
     units = models.ManyToManyField(
-        services_models.Unit, through='UnitLatestObservation')
-    auth = models.ForeignKey(
-        'PluralityAuthToken', null=True,
-        on_delete=models.PROTECT)
+        services_models.Unit, through="UnitLatestObservation"
+    )
+    auth = models.ForeignKey("PluralityAuthToken", null=True, on_delete=models.PROTECT)
     property = models.ForeignKey(
         ObservableProperty,
-        blank=False, null=False,
+        blank=False,
+        null=False,
         on_delete=models.PROTECT,
-        help_text='The property observed')
+        help_text="The property observed",
+    )
 
     class Meta:
-        ordering = ['-time']
+        ordering = ["-time"]
 
 
 class CategoricalObservation(Observation):
@@ -109,7 +117,7 @@ class CategoricalObservation(Observation):
 
     @staticmethod
     def get_type():
-        return 'categorical'
+        return "categorical"
 
     @staticmethod
     def get_internal_value(oproperty, value):
@@ -124,7 +132,7 @@ class DescriptiveObservation(Observation):
 
     @staticmethod
     def get_type():
-        return 'descriptive'
+        return "descriptive"
 
     @staticmethod
     def get_internal_value(oproperty, value):
@@ -134,29 +142,34 @@ class DescriptiveObservation(Observation):
 class UnitLatestObservation(models.Model):
     unit = models.ForeignKey(
         services_models.Unit,
-        null=False, blank=False,
-        related_name='latest_observations',
-        on_delete=models.CASCADE)
+        null=False,
+        blank=False,
+        related_name="latest_observations",
+        on_delete=models.CASCADE,
+    )
     property = models.ForeignKey(
-        ObservableProperty, null=False, blank=False,
-        on_delete=models.CASCADE)
+        ObservableProperty, null=False, blank=False, on_delete=models.CASCADE
+    )
     observation = models.ForeignKey(
-        Observation, null=False, blank=False,
-        on_delete=models.CASCADE)
+        Observation, null=False, blank=False, on_delete=models.CASCADE
+    )
 
     class Meta:
-        unique_together = (
-            ('unit', 'property'),)
+        unique_together = (("unit", "property"),)
 
 
 class PluralityAuthToken(models.Model):
     """
     A token class which can have multiple active tokens per user.
     """
+
     key = models.CharField(max_length=40, primary_key=False, db_index=True)
     user = models.ForeignKey(
-        AUTH_USER_MODEL, related_name='auth_tokens', null=False,
-        on_delete=models.PROTECT)
+        AUTH_USER_MODEL,
+        related_name="auth_tokens",
+        null=False,
+        on_delete=models.PROTECT,
+    )
     created = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
 
@@ -166,7 +179,7 @@ class PluralityAuthToken(models.Model):
         #
         # Also see corresponding ticket:
         # https://github.com/tomchristie/django-rest-framework/issues/705
-        abstract = 'rest_framework.authtoken' not in settings.INSTALLED_APPS
+        abstract = "rest_framework.authtoken" not in settings.INSTALLED_APPS
 
     def save(self, *args, **kwargs):
         if not self.key:
@@ -185,16 +198,20 @@ class PluralityTokenAuthentication(rest_framework.authentication.TokenAuthentica
 
     def authenticate_credentials(self, key):
         user, token = super(
-            PluralityTokenAuthentication, self).authenticate_credentials(key)
+            PluralityTokenAuthentication, self
+        ).authenticate_credentials(key)
         if not token.active:
-            raise exceptions.AuthenticationFailed(
-                _('Token inactive or deleted.'))
+            raise exceptions.AuthenticationFailed(_("Token inactive or deleted."))
         return token.user, token
 
 
 class UserOrganization(models.Model):
     organization = models.ForeignKey(
-        services_models.Department,
-        on_delete=models.CASCADE)
+        services_models.Department, on_delete=models.CASCADE
+    )
     user = models.OneToOneField(
-        AUTH_USER_MODEL, related_name='organization', null=False, on_delete=models.CASCADE)
+        AUTH_USER_MODEL,
+        related_name="organization",
+        null=False,
+        on_delete=models.CASCADE,
+    )

@@ -8,23 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('observations', '0004_observableproperty_services'),
+        ("observations", "0004_observableproperty_services"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='observableproperty',
-            name='name_en',
+            model_name="observableproperty",
+            name="name_en",
             field=models.CharField(db_index=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='observableproperty',
-            name='name_fi',
+            model_name="observableproperty",
+            name="name_fi",
             field=models.CharField(db_index=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='observableproperty',
-            name='name_sv',
+            model_name="observableproperty",
+            name="name_sv",
             field=models.CharField(db_index=True, max_length=100, null=True),
         ),
     ]

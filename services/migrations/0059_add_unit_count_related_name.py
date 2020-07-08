@@ -9,13 +9,17 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0058_add_servicenodeunitcount'),
+        ("services", "0058_add_servicenodeunitcount"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='servicenodeunitcount',
-            name='service_node',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='unit_counts', to='services.ServiceNode'),
+            model_name="servicenodeunitcount",
+            name="service_node",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="unit_counts",
+                to="services.ServiceNode",
+            ),
         ),
     ]

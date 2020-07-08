@@ -12,14 +12,17 @@ class UnitRedirectViewSet(viewsets.ViewSet):
     based filters in unit endpoint to new TPR v4 ontologytree node ids.
 
     """
+
     def _malformed_error(self):
-        return Response({'error': 'malformed service id'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "malformed service id"}, status=status.HTTP_404_NOT_FOUND
+        )
 
     def list(self, request):
         params = self.request.query_params.copy()
         service_id_param = None
         try:
-            service_id_param = params.pop('service')
+            service_id_param = params.pop("service")
         except KeyError:
             return self._malformed_error()
         if not service_id_param or len(service_id_param) == 0:
@@ -30,12 +33,14 @@ class UnitRedirectViewSet(viewsets.ViewSet):
             return self._malformed_error()
         queryset = ServiceMapping.objects.filter(service_id__in=service_ids)
         if queryset.count() == 0:
-            return Response({'message': 'service id not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"message": "service id not found"}, status=status.HTTP_404_NOT_FOUND
+            )
         return Response(self._generate_redirect_parameters(queryset, params))
 
     def _generate_redirect_parameters(self, queryset, params):
         for mapping in queryset:
-            params.appendlist('service_node', str(mapping.node_id.id))
+            params.appendlist("service_node", str(mapping.node_id.id))
             additional_filter = parse_qs(mapping.filter)
             for k, val in additional_filter.items():
                 for x in val:
@@ -43,6 +48,6 @@ class UnitRedirectViewSet(viewsets.ViewSet):
 
         final_query = QueryDict().copy()
         for key, val in params.lists():
-            final_query[key] = ','.join(val)
+            final_query[key] = ",".join(val)
 
         return final_query

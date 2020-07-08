@@ -8,13 +8,11 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0024_remove_unit_description'),
+        ("services", "0024_remove_unit_description"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unit',
-            name='public',
-            field=models.BooleanField(default=True),
+            model_name="unit", name="public", field=models.BooleanField(default=True),
         ),
     ]

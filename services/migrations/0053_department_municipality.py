@@ -9,13 +9,17 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0052_remove_unit_accessibility_sentence_hash'),
+        ("services", "0052_remove_unit_accessibility_sentence_hash"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='department',
-            name='municipality',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='munigeo.Municipality'),
+            model_name="department",
+            name="municipality",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="munigeo.Municipality",
+            ),
         ),
     ]

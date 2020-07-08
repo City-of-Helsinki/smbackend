@@ -11,43 +11,58 @@ from services.models import (
 
 
 class ServiceTranslationOptions(TranslationOptions):
-    fields = ('name',)
+    fields = ("name",)
 
 
 translator.register(Service, ServiceTranslationOptions)
 
 
 class UnitServiceDetailsTranslationOptions(TranslationOptions):
-    fields = ('clarification',)
+    fields = ("clarification",)
 
 
 translator.register(UnitServiceDetails, UnitServiceDetailsTranslationOptions)
 
 
 class ServiceNodeTranslationOptions(TranslationOptions):
-    fields = ('name',)
+    fields = ("name",)
 
 
 translator.register(ServiceNode, ServiceNodeTranslationOptions)
 
 
 class DepartmentTranslationOptions(TranslationOptions):
-    fields = ('name', 'abbr', 'street_address', 'address_city', 'address_postal_full', 'www')
+    fields = (
+        "name",
+        "abbr",
+        "street_address",
+        "address_city",
+        "address_postal_full",
+        "www",
+    )
 
 
 translator.register(Department, DepartmentTranslationOptions)
 
 
 class UnitTranslationOptions(TranslationOptions):
-    fields = ('name', 'www', 'street_address', 'description', 'short_description',
-              'picture_caption', 'address_postal_full', 'call_charge_info')
+    fields = (
+        "name",
+        "www",
+        "street_address",
+        "description",
+        "short_description",
+        "picture_caption",
+        "address_postal_full",
+        "call_charge_info",
+    )
 
 
 translator.register(Unit, UnitTranslationOptions)
 
 
 class UnitConnectionTranslationOptions(TranslationOptions):
-    fields = ('name', 'www')
+    fields = ("name", "www")
 
 
 translator.register(UnitConnection, UnitConnectionTranslationOptions)

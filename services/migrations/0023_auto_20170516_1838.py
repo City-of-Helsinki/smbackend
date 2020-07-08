@@ -8,23 +8,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0022_auto_20170516_1833'),
+        ("services", "0022_auto_20170516_1833"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unit',
-            name='short_desc_en',
-            field=models.TextField(null=True),
+            model_name="unit", name="short_desc_en", field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='unit',
-            name='short_desc_fi',
-            field=models.TextField(null=True),
+            model_name="unit", name="short_desc_fi", field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='unit',
-            name='short_desc_sv',
-            field=models.TextField(null=True),
+            model_name="unit", name="short_desc_sv", field=models.TextField(null=True),
         ),
     ]

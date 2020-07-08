@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0014_servicemapping'),
+        ("services", "0014_servicemapping"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='servicemapping',
-            name='service_id',
+            model_name="servicemapping",
+            name="service_id",
             field=models.IntegerField(unique=True),
         ),
     ]

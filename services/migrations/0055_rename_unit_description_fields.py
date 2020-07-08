@@ -8,48 +8,38 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0054_rename_last_modified_time'),
+        ("services", "0054_rename_last_modified_time"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='unit',
-            old_name='desc',
-            new_name='description',
+            model_name="unit", old_name="desc", new_name="description",
         ),
         migrations.RenameField(
-            model_name='unit',
-            old_name='desc_en',
-            new_name='description_en',
+            model_name="unit", old_name="desc_en", new_name="description_en",
         ),
         migrations.RenameField(
-            model_name='unit',
-            old_name='desc_fi',
-            new_name='description_fi',
+            model_name="unit", old_name="desc_fi", new_name="description_fi",
         ),
         migrations.RenameField(
-            model_name='unit',
-            old_name='desc_sv',
-            new_name='description_sv',
+            model_name="unit", old_name="desc_sv", new_name="description_sv",
         ),
         migrations.RenameField(
-            model_name='unit',
-            old_name='short_desc',
-            new_name='short_description',
+            model_name="unit", old_name="short_desc", new_name="short_description",
         ),
         migrations.RenameField(
-            model_name='unit',
-            old_name='short_desc_en',
-            new_name='short_description_en',
+            model_name="unit",
+            old_name="short_desc_en",
+            new_name="short_description_en",
         ),
         migrations.RenameField(
-            model_name='unit',
-            old_name='short_desc_fi',
-            new_name='short_description_fi',
+            model_name="unit",
+            old_name="short_desc_fi",
+            new_name="short_description_fi",
         ),
         migrations.RenameField(
-            model_name='unit',
-            old_name='short_desc_sv',
-            new_name='short_description_sv',
+            model_name="unit",
+            old_name="short_desc_sv",
+            new_name="short_description_sv",
         ),
     ]

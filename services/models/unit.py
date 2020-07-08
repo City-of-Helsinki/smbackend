@@ -13,47 +13,47 @@ from .keyword import Keyword
 
 PROJECTION_SRID = get_default_srid()
 PROVIDER_TYPES = (
-    (1, 'SELF_PRODUCED'),
-    (2, 'MUNICIPALITY'),
-    (3, 'ASSOCIATION'),
-    (4, 'PRIVATE_COMPANY'),
-    (5, 'OTHER_PRODUCTION_METHOD'),
-    (6, 'PURCHASED_SERVICE'),
-    (7, 'UNKNOWN_PRODUCTION_METHOD'),
-    (8, 'CONTRACT_SCHOOL'),
-    (9, 'SUPPORTED_OPERATIONS'),
-    (10, 'PAYMENT_COMMITMENT'),
-    (11, 'VOUCHER_SERVICE'),
+    (1, "SELF_PRODUCED"),
+    (2, "MUNICIPALITY"),
+    (3, "ASSOCIATION"),
+    (4, "PRIVATE_COMPANY"),
+    (5, "OTHER_PRODUCTION_METHOD"),
+    (6, "PURCHASED_SERVICE"),
+    (7, "UNKNOWN_PRODUCTION_METHOD"),
+    (8, "CONTRACT_SCHOOL"),
+    (9, "SUPPORTED_OPERATIONS"),
+    (10, "PAYMENT_COMMITMENT"),
+    (11, "VOUCHER_SERVICE"),
 )
 
 ORGANIZER_TYPES = (
-    (0, 'ASSOCIATION'),
-    (1, 'FOUNDATION'),
-    (2, 'GOVERNMENT'),
-    (3, 'GOVERNMENTAL_COMPANY'),
-    (4, 'JOINT_MUNICIPAL_AUTHORITY'),
-    (5, 'MUNICIPAL_ENTERPRISE_GROUP'),
-    (6, 'MUNICIPALITY'),
-    (7, 'MUNICIPALLY_OWNED_COMPANY'),
-    (8, 'ORGANIZATION'),
-    (9, 'OTHER_REGIONAL_COOPERATION_ORGANIZATION'),
-    (10, 'PRIVATE_ENTERPRISE'),
-    (11, 'UNKNOWN'),
+    (0, "ASSOCIATION"),
+    (1, "FOUNDATION"),
+    (2, "GOVERNMENT"),
+    (3, "GOVERNMENTAL_COMPANY"),
+    (4, "JOINT_MUNICIPAL_AUTHORITY"),
+    (5, "MUNICIPAL_ENTERPRISE_GROUP"),
+    (6, "MUNICIPALITY"),
+    (7, "MUNICIPALLY_OWNED_COMPANY"),
+    (8, "ORGANIZATION"),
+    (9, "OTHER_REGIONAL_COOPERATION_ORGANIZATION"),
+    (10, "PRIVATE_ENTERPRISE"),
+    (11, "UNKNOWN"),
 )
 
 CONTRACT_TYPES = (
-    (0, _('contract_school')),
-    (1, _('municipal_service')),
-    (2, _('private_service')),
-    (3, _('purchased_service')),
-    (4, _('service_by_joint_municipal_authority')),
-    (5, _('service_by_municipal_group_entity')),
-    (6, _('service_by_municipally_owned_company')),
-    (7, _('service_by_other_municipality')),
-    (8, _('service_by_regional_cooperation_organization')),
-    (9, _('state_service')),
-    (10, _('supported_operations')),
-    (11, _('voucher_service'))
+    (0, _("contract_school")),
+    (1, _("municipal_service")),
+    (2, _("private_service")),
+    (3, _("purchased_service")),
+    (4, _("service_by_joint_municipal_authority")),
+    (5, _("service_by_municipal_group_entity")),
+    (6, _("service_by_municipally_owned_company")),
+    (7, _("service_by_other_municipality")),
+    (8, _("service_by_regional_cooperation_organization")),
+    (9, _("state_service")),
+    (10, _("supported_operations")),
+    (11, _("voucher_service")),
 )
 
 
@@ -64,7 +64,7 @@ def get_unit_related_fields():
     global _unit_related_fields
     if len(_unit_related_fields) > 0:
         return _unit_related_fields
-    Unit = apps.get_model(app_label='services', model_name='Unit')
+    Unit = apps.get_model(app_label="services", model_name="Unit")
     for f in Unit._meta.get_fields():
         if f.is_relation:
             _unit_related_fields.add(f.name)
@@ -73,9 +73,15 @@ def get_unit_related_fields():
 
 class UnitSearchManager(Manager):
     def get_queryset(self):
-        qs = super(UnitSearchManager, self).get_queryset().prefetch_related('accessibility_shortcomings')
+        qs = (
+            super(UnitSearchManager, self)
+            .get_queryset()
+            .prefetch_related("accessibility_shortcomings")
+        )
         if self.only_fields:
-            fields = [f for f in self.only_fields if check_valid_concrete_field(Unit, f)]
+            fields = [
+                f for f in self.only_fields if check_valid_concrete_field(Unit, f)
+            ]
             qs = qs.only(*fields)
         if not self.include_fields:
             return qs
@@ -94,12 +100,13 @@ class Unit(models.Model):
     location = models.PointField(null=True, srid=PROJECTION_SRID)  # lat, lng?
     geometry = models.GeometryField(srid=PROJECTION_SRID, null=True)
     department = models.ForeignKey(Department, null=True, on_delete=models.CASCADE)
-    root_department = models.ForeignKey(Department,
-                                        null=True,
-                                        related_name='descendant_units',
-                                        on_delete=models.CASCADE)
+    root_department = models.ForeignKey(
+        Department, null=True, related_name="descendant_units", on_delete=models.CASCADE
+    )
 
-    organizer_type = models.PositiveSmallIntegerField(choices=ORGANIZER_TYPES, null=True)
+    organizer_type = models.PositiveSmallIntegerField(
+        choices=ORGANIZER_TYPES, null=True
+    )
     organizer_name = models.CharField(max_length=150, null=True)
     organizer_business_id = models.CharField(max_length=10, null=True)
 
@@ -128,26 +135,43 @@ class Unit(models.Model):
     accessibility_email = models.EmailField(max_length=100, null=True)
     accessibility_www = models.URLField(max_length=400, null=True)
 
-    created_time = models.DateTimeField(null=True)  # ASK API: are these UTC? no Z in output
+    created_time = models.DateTimeField(
+        null=True
+    )  # ASK API: are these UTC? no Z in output
 
-    municipality = models.ForeignKey(Municipality, null=True, db_index=True, on_delete=models.CASCADE)
+    municipality = models.ForeignKey(
+        Municipality, null=True, db_index=True, on_delete=models.CASCADE
+    )
     address_zip = models.CharField(max_length=10, null=True)
 
     data_source = models.CharField(max_length=50, null=True)
     extensions = HStoreField(null=True)
 
-    last_modified_time = models.DateTimeField(db_index=True, help_text='Time of last modification')
+    last_modified_time = models.DateTimeField(
+        db_index=True, help_text="Time of last modification"
+    )
 
-    service_nodes = models.ManyToManyField("ServiceNode", related_name='units')
-    services = models.ManyToManyField("Service", related_name='units', through='UnitServiceDetails')
+    service_nodes = models.ManyToManyField("ServiceNode", related_name="units")
+    services = models.ManyToManyField(
+        "Service", related_name="units", through="UnitServiceDetails"
+    )
     keywords = models.ManyToManyField(Keyword)
 
-    connection_hash = models.CharField(max_length=40, null=True,
-                                       help_text='Automatically generated hash of connection info')
+    connection_hash = models.CharField(
+        max_length=40,
+        null=True,
+        help_text="Automatically generated hash of connection info",
+    )
     accessibility_property_hash = models.CharField(
-        max_length=40, null=True, help_text='Automatically generated hash of accessibility property info')
-    identifier_hash = models.CharField(max_length=40, null=True,
-                                       help_text='Automatically generated hash of other identifiers')
+        max_length=40,
+        null=True,
+        help_text="Automatically generated hash of accessibility property info",
+    )
+    identifier_hash = models.CharField(
+        max_length=40,
+        null=True,
+        help_text="Automatically generated hash of other identifiers",
+    )
     service_details_hash = models.CharField(max_length=40, null=True)
 
     accessibility_viewpoints = JSONField(default=dict, null=True)
@@ -159,23 +183,31 @@ class Unit(models.Model):
     search_objects = UnitSearchManager()
 
     class Meta:
-        ordering = ['-pk']
+        ordering = ["-pk"]
 
     def __str__(self):
-        return "%s (%s)" % (get_translated(self, 'name'), self.id)
+        return "%s (%s)" % (get_translated(self, "name"), self.id)
 
     def get_root_service_nodes(self):
         from .service_node import ServiceNode
 
-        tree_ids = self.service_nodes.all().values_list('tree_id', flat=True).distinct()
+        tree_ids = self.service_nodes.all().values_list("tree_id", flat=True).distinct()
         qs = ServiceNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
-        service_node_list = qs.values_list('id', flat=True).distinct()
+        service_node_list = qs.values_list("id", flat=True).distinct()
         return sorted(service_node_list)
 
     def service_names(self):
         return "\n".join((service.name for service in self.services.all()))
 
     def highlight_names(self):
-        UnitConnection = apps.get_model(app_label='services', model_name='UnitConnection')
-        return "\n".join((connection.name for connection in self.connections.filter(
-            section_type=UnitConnection.HIGHLIGHT_TYPE)))
+        UnitConnection = apps.get_model(
+            app_label="services", model_name="UnitConnection"
+        )
+        return "\n".join(
+            (
+                connection.name
+                for connection in self.connections.filter(
+                    section_type=UnitConnection.HIGHLIGHT_TYPE
+                )
+            )
+        )

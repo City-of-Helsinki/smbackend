@@ -8,13 +8,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0019_auto_20170514_1612'),
+        ("services", "0019_auto_20170514_1612"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='organization',
-            old_name='object_identifier',
-            new_name='oid',
+            model_name="organization", old_name="object_identifier", new_name="oid",
         ),
     ]

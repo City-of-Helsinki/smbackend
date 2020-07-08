@@ -7,9 +7,9 @@ class CustomTreeManager(TreeManager):
         return TreeQuerySet(self.model, using=self._db)
 
     def determine_max_level(self):
-        if hasattr(self, '_max_level'):
+        if hasattr(self, "_max_level"):
             return self._max_level
-        qs = self.all().order_by('-level')
+        qs = self.all().order_by("-level")
         if qs.count():
             self._max_level = qs[0].level
         else:
@@ -25,6 +25,6 @@ class TreeQuerySet(QuerySet):
         qs = Q()
         # Construct an OR'd queryset for each level of parenthood.
         for i in range(max_level):
-            key = '__'.join(['parent'] * (i + 1))
+            key = "__".join(["parent"] * (i + 1))
             qs |= Q(**{key: ancestor})
         return self.filter(qs)

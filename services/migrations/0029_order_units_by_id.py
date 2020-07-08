@@ -8,12 +8,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0028_remove_unit_extra_searchwords'),
+        ("services", "0028_remove_unit_extra_searchwords"),
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='unit',
-            options={'ordering': ['id']},
-        ),
+        migrations.AlterModelOptions(name="unit", options={"ordering": ["id"]},),
     ]

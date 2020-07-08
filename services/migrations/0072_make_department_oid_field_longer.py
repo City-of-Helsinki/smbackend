@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0071_add_serviceunitcount'),
+        ("services", "0071_add_serviceunitcount"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='department',
-            name='oid',
+            model_name="department",
+            name="oid",
             field=models.CharField(max_length=30, null=True),
         ),
     ]

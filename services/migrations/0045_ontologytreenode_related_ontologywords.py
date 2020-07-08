@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0044_add_ontologyword_fields'),
+        ("services", "0044_add_ontologyword_fields"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ontologytreenode',
-            name='related_ontologywords',
-            field=models.ManyToManyField(to='services.OntologyWord'),
+            model_name="ontologytreenode",
+            name="related_ontologywords",
+            field=models.ManyToManyField(to="services.OntologyWord"),
         ),
     ]

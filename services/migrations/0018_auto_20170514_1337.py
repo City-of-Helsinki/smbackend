@@ -8,13 +8,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0017_auto_20170512_0909'),
+        ("services", "0017_auto_20170512_0909"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='unit',
-            old_name='root_servicenodes',
-            new_name='root_ontologytreenodes',
+            model_name="unit",
+            old_name="root_servicenodes",
+            new_name="root_ontologytreenodes",
         ),
     ]

@@ -15,28 +15,26 @@ registered_api_views = set()
 
 for view in services_views + munigeo_views + observations_views:
     kwargs = {}
-    if view['name'] in registered_api_views:
+    if view["name"] in registered_api_views:
         continue
     else:
-        registered_api_views.add(view['name'])
+        registered_api_views.add(view["name"])
 
-    if 'basename' in view:
-        kwargs['basename'] = view['basename']
-    router.register(view['name'], view['class'], **kwargs)
+    if "basename" in view:
+        kwargs["basename"] = view["basename"]
+    router.register(view["name"], view["class"], **kwargs)
 
 
 urlpatterns = [
     # Examples:
     # url(r'^$', 'smbackend.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
-
     # url(r'^', include(v1_api.urls)),
     # url(r'^admin/', include(admin.site.urls)),
-
-    url(r'^open311/', views.post_service_request, name='services'),
-    url(r'^v2/', include(router.urls)),
-    url(r'^v2/api-token-auth/', obtain_auth_token, name='api-auth-token'),
-    url(r'^v2/redirect/unit/', UnitRedirectViewSet.as_view({'get': 'list'})),
-    url(r'^v2/suggestion/', views.suggestion, name='suggestion'),
-    url(r'', include(shortcutter_urls)),
+    url(r"^open311/", views.post_service_request, name="services"),
+    url(r"^v2/", include(router.urls)),
+    url(r"^v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
+    url(r"^v2/redirect/unit/", UnitRedirectViewSet.as_view({"get": "list"})),
+    url(r"^v2/suggestion/", views.suggestion, name="suggestion"),
+    url(r"", include(shortcutter_urls)),
 ]
