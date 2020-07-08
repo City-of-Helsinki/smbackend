@@ -1,5 +1,5 @@
-import copy
 import collections
+import copy
 from haystack.backends import elasticsearch_backend as es_backend
 from haystack.query import SearchQuerySet
 

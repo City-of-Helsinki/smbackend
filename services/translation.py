@@ -1,6 +1,13 @@
-from modeltranslation.translator import translator, TranslationOptions
-from services.models import Service, UnitServiceDetails, ServiceNode,\
-    Department, Unit, UnitConnection
+from modeltranslation.translator import TranslationOptions, translator
+
+from services.models import (
+    Department,
+    Service,
+    ServiceNode,
+    Unit,
+    UnitConnection,
+    UnitServiceDetails,
+)
 
 
 class ServiceTranslationOptions(TranslationOptions):

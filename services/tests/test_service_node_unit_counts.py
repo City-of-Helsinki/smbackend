@@ -1,14 +1,19 @@
-import pytest
 import datetime
-
-from rest_framework.test import APIClient
+import pytest
+from munigeo.models import (
+    AdministrativeDivision,
+    AdministrativeDivisionType,
+    Municipality,
+)
 from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
 
-from services.management.commands.services_import.services import update_service_node_counts
+from services.management.commands.services_import.services import (
+    update_service_node_counts,
+)
 from services.models import ServiceNode, Unit
-from munigeo.models import AdministrativeDivisionType, AdministrativeDivision, Municipality
-from .utils import get
 
+from .utils import get
 
 MOD_TIME = datetime.datetime(year=2019, month=1, day=1, hour=1, minute=1, second=1, tzinfo=datetime.timezone.utc)
 

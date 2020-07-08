@@ -2,13 +2,11 @@ from django.conf import settings
 from django.core.exceptions import FieldError
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import translation
-
 from haystack.query import SearchQuerySet
-
-from services.models import Unit, Service
-from services.search_indexes import AdministrativeDivisionIndex
 from munigeo.models import Address, AdministrativeDivision
 
+from services.models import Service, Unit
+from services.search_indexes import AdministrativeDivisionIndex
 
 LANGUAGES = [l[0] for l in settings.LANGUAGES]
 

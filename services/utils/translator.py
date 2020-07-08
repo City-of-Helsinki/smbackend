@@ -1,6 +1,5 @@
 from django.conf import settings
 
-
 DEFAULT_LANG = settings.LANGUAGES[0][0]
 
 

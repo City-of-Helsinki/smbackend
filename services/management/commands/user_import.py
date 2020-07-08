@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from services.models import Department
+from django.core.management.base import BaseCommand
+
 from observations.models import UserOrganization
+from services.models import Department
 
 
 class Command(BaseCommand):

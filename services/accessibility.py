@@ -1,5 +1,6 @@
 import os
 from django.conf import settings
+
 from .scripts import accessibility_rules
 
 

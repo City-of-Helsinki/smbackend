@@ -1,11 +1,19 @@
-from datetime import datetime
-import re
 import pytz
+import re
+from datetime import datetime
 from django import db
-from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
 from munigeo.importer.sync import ModelSyncher
-from services.models import ServiceNode, Service, Unit, ServiceUnitCount, ServiceNodeUnitCount
+from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
+
 from services.management.commands.services_import.keyword import KeywordHandler
+from services.models import (
+    Service,
+    ServiceNode,
+    ServiceNodeUnitCount,
+    ServiceUnitCount,
+    Unit,
+)
+
 from .utils import pk_get, save_translated_field
 
 UTC_TIMEZONE = pytz.timezone('UTC')

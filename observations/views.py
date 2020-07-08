@@ -1,7 +1,7 @@
+import rest_framework.authtoken.views
 from rest_framework.response import Response
 
 from .models import PluralityAuthToken
-import rest_framework.authtoken.views
 
 
 class ObtainPluralityAuthToken(rest_framework.authtoken.views.ObtainAuthToken):

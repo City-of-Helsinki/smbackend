@@ -1,14 +1,13 @@
 from django.conf.urls import include, url
+from munigeo.api import all_views as munigeo_views
+from rest_framework import routers
+
+from observations.api import views as observations_views
+from observations.views import obtain_auth_token
+from services import views
 from services.api import all_views as services_views
 from services.unit_redirect_viewset import UnitRedirectViewSet
-from observations.api import views as observations_views
-from rest_framework import routers
-from observations.views import obtain_auth_token
-from munigeo.api import all_views as munigeo_views
 from shortcutter import urls as shortcutter_urls
-
-from services import views
-
 
 router = routers.DefaultRouter()
 

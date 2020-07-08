@@ -1,10 +1,9 @@
-import os
 import csv
-
+import os
 from django import db
 from django.conf import settings
 
-from services.models import UnitAlias, Unit
+from services.models import Unit, UnitAlias
 
 RELEVANT_COLS = [3, 5]  # IMPORTANT: verify the ids are in these columns
 

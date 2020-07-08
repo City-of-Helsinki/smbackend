@@ -1,14 +1,18 @@
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import viewsets
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from django.utils.translation import ugettext_lazy as _
-
-from services.api import ServiceSerializer, UnitSerializer
-from .serializers import ObservationSerializer, ObservablePropertySerializer
-from . import models
 
 from services.api import (
-    JSONAPIViewSetMixin, ServiceViewSet, UnitViewSet)
+    JSONAPIViewSetMixin,
+    ServiceSerializer,
+    ServiceViewSet,
+    UnitSerializer,
+    UnitViewSet,
+)
+
+from . import models
+from .serializers import ObservablePropertySerializer, ObservationSerializer
 
 
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):

@@ -5,10 +5,10 @@ The need is to find examples of extreme or pathological content
 with either long field contents or a large amount of related
 objects.
 """
+from django.db.models import Case, Count, IntegerField, Sum, When
 from django.db.models.functions import Length
-from django.db.models import Count, Sum, Case, When, IntegerField
-from services.models import Unit
 
+from services.models import Unit
 
 ESERVICE_LINK_SECTION_TYPE = 9
 

@@ -1,6 +1,6 @@
-from django.shortcuts import redirect
 from django.conf import settings
 from django.http.response import HttpResponse
+from django.shortcuts import redirect
 
 
 class HttpResponseNotImplemented(HttpResponse):

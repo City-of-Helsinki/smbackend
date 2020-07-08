@@ -1,7 +1,7 @@
 from django.db import models
+from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
 
 from . import Service, ServiceNode
-from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
 
 
 class BaseUnitCount(models.Model):

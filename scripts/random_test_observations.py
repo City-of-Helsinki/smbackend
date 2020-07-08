@@ -1,8 +1,8 @@
 #!/usr/bin/env python
+import os
+import random
 import requests
 import sys
-import random
-import os
 
 values = {
     33418: {'ice_skating_field_condition': ['closed', 'plowed', 'frozen', 'freezing_started']},

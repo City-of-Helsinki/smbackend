@@ -5,15 +5,13 @@ Please note this is not meant to be run with pytest nor as part of CI
 since the process is only partly automated.
 """
 import hashlib
-from itertools import zip_longest
 import json
 import subprocess
-
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from itertools import zip_longest
 
 from services.search_suggestions import get_suggestions
-
 
 SYMBOLS = {
     'raise': '▲',

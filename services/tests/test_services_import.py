@@ -1,24 +1,22 @@
 import hypothesis
-from hypothesis import given, settings, HealthCheck
-
-import pytest
 import math
-
+import pytest
 from django.conf import settings as django_settings
-
-from rest_framework.test import APIClient
+from hypothesis import given, HealthCheck, settings
+from munigeo.models import AdministrativeDivisionType
 from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
 
 # from services.management.commands.services_import.services import import_services
 from services.management.commands.services_import.departments import import_departments
-from services.management.commands.services_import.services import import_services
-from services.management.commands.services_import.services import update_service_counts, update_service_node_counts
+from services.management.commands.services_import.services import (
+    import_services,
+    update_service_counts,
+    update_service_node_counts,
+)
 from services.management.commands.services_import.units import import_units
-
-
-from services.models.unit import CONTRACT_TYPES as UNIT_CONTRACT_TYPES
 from services.models import ServiceNodeUnitCount, ServiceUnitCount
-from munigeo.models import AdministrativeDivisionType
+from services.models.unit import CONTRACT_TYPES as UNIT_CONTRACT_TYPES
 
 from .services_import_hypothesis import closed_object_set
 from .utils import get

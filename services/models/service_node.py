@@ -1,11 +1,13 @@
 from django.db import models
-from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
+from mptt.models import MPTTModel, TreeForeignKey
+
 from services.utils import get_translated
-from .keyword import Keyword
-from .unit import Unit
+
 from .hierarchy import CustomTreeManager
+from .keyword import Keyword
 from .service import Service
+from .unit import Unit
 
 
 class ServiceNode(MPTTModel):

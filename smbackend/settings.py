@@ -1,9 +1,8 @@
+import environ
 import json
 import os
-
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
-import environ
 
 CONFIG_FILE_NAME = "config_dev.env"
 

@@ -1,18 +1,15 @@
-from django.contrib.gis.db import models
-from django.contrib.postgres.fields import JSONField
-from django.utils.translation import ugettext_noop as _
 from django.apps import apps
-
+from django.contrib.gis.db import models
+from django.contrib.postgres.fields import HStoreField, JSONField
+from django.db.models import Manager
+from django.utils.translation import ugettext_noop as _
 from munigeo.models import Municipality
 from munigeo.utils import get_default_srid
 
-from services.utils import get_translated, check_valid_concrete_field
+from services.utils import check_valid_concrete_field, get_translated
+
 from .department import Department
 from .keyword import Keyword
-from django.db.models import Manager
-
-from django.contrib.postgres.fields import HStoreField
-
 
 PROJECTION_SRID = get_default_srid()
 PROVIDER_TYPES = (

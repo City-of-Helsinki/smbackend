@@ -1,6 +1,7 @@
+import logging
+
 from services.accessibility import RULES as accessibility_rules
 
-import logging
 logger = logging.getLogger(__name__)
 
 PROFILE_IDS = {

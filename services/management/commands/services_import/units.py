@@ -1,27 +1,41 @@
 import datetime
 import hashlib
 import json
-import os
 import logging
-
+import os
 import pytz
 from collections import defaultdict
-from operator import itemgetter
-
 from django import db
 from django.conf import settings
+from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point, Polygon
-from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from munigeo.importer.sync import ModelSyncher
-from munigeo.models import Municipality, AdministrativeDivisionGeometry
+from munigeo.models import AdministrativeDivisionGeometry, Municipality
+from operator import itemgetter
 
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.keyword import KeywordHandler
-from services.models import (AccessibilityVariable, Department, Service, ServiceNode, Unit, UnitAccessibilityProperty,
-                             UnitAccessibilityShortcomings, UnitConnection, UnitIdentifier, UnitServiceDetails)
-from services.models.unit import CONTRACT_TYPES, ORGANIZER_TYPES, PROJECTION_SRID, PROVIDER_TYPES
+from services.models import (
+    AccessibilityVariable,
+    Department,
+    Service,
+    ServiceNode,
+    Unit,
+    UnitAccessibilityProperty,
+    UnitAccessibilityShortcomings,
+    UnitConnection,
+    UnitIdentifier,
+    UnitServiceDetails,
+)
+from services.models.unit import (
+    CONTRACT_TYPES,
+    ORGANIZER_TYPES,
+    PROJECTION_SRID,
+    PROVIDER_TYPES,
+)
 from services.utils import AccessibilityShortcomingCalculator
-from .utils import clean_text, pk_get, save_translated_field, postcodes
+
+from .utils import clean_text, pk_get, postcodes, save_translated_field
 
 UTC_TIMEZONE = pytz.timezone('UTC')
 ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
