@@ -9,13 +9,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0055_rename_unit_description_fields'),
+        ("services", "0055_rename_unit_description_fields"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unit',
-            name='accessibility_viewpoints',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default='{}', null=True),
+            model_name="unit",
+            name="accessibility_viewpoints",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default="{}", null=True
+            ),
         ),
     ]

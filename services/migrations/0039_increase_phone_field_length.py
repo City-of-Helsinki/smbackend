@@ -8,23 +8,50 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0038_add_health_station_datamigration'),
+        ("services", "0038_add_health_station_datamigration"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unit',
-            name='phone',
+            model_name="unit",
+            name="phone",
             field=models.CharField(max_length=70, null=True),
         ),
         migrations.AlterField(
-            model_name='unit',
-            name='provider_type',
-            field=models.PositiveSmallIntegerField(choices=[(1, 'SELF_PRODUCED'), (2, 'MUNICIPALITY'), (3, 'ASSOCIATION'), (4, 'PRIVATE_COMPANY'), (5, 'OTHER_PRODUCTION_METHOD'), (6, 'PURCHASED_SERVICE'), (7, 'UNKNOWN_PRODUCTION_METHOD'), (8, 'CONTRACT_SCHOOL'), (9, 'SUPPORTED_OPERATIONS'), (10, 'PAYMENT_COMMITMENT'), (11, 'VOUCHER_SERVICE')], null=True),
+            model_name="unit",
+            name="provider_type",
+            field=models.PositiveSmallIntegerField(
+                choices=[
+                    (1, "SELF_PRODUCED"),
+                    (2, "MUNICIPALITY"),
+                    (3, "ASSOCIATION"),
+                    (4, "PRIVATE_COMPANY"),
+                    (5, "OTHER_PRODUCTION_METHOD"),
+                    (6, "PURCHASED_SERVICE"),
+                    (7, "UNKNOWN_PRODUCTION_METHOD"),
+                    (8, "CONTRACT_SCHOOL"),
+                    (9, "SUPPORTED_OPERATIONS"),
+                    (10, "PAYMENT_COMMITMENT"),
+                    (11, "VOUCHER_SERVICE"),
+                ],
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='unitconnection',
-            name='section_type',
-            field=models.PositiveSmallIntegerField(choices=[(1, 'PHONE_OR_EMAIL'), (2, 'LINK'), (3, 'TOPICAL'), (4, 'OTHER_INFO'), (5, 'OPENING_HOURS'), (6, 'SOCIAL_MEDIA_LINK'), (7, 'OTHER_ADDRESS'), (8, 'HIGHLIGHT')], null=True),
+            model_name="unitconnection",
+            name="section_type",
+            field=models.PositiveSmallIntegerField(
+                choices=[
+                    (1, "PHONE_OR_EMAIL"),
+                    (2, "LINK"),
+                    (3, "TOPICAL"),
+                    (4, "OTHER_INFO"),
+                    (5, "OPENING_HOURS"),
+                    (6, "SOCIAL_MEDIA_LINK"),
+                    (7, "OTHER_ADDRESS"),
+                    (8, "HIGHLIGHT"),
+                ],
+                null=True,
+            ),
         ),
     ]

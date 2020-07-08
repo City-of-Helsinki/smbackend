@@ -8,7 +8,7 @@ class HttpResponseNotImplemented(HttpResponse):
 
 
 def unit_short_url(request, unit_id):
-    unit_url = getattr(settings, 'SHORTCUTTER_UNIT_URL', None)
+    unit_url = getattr(settings, "SHORTCUTTER_UNIT_URL", None)
     if not unit_url:
         return HttpResponseNotImplemented()
 

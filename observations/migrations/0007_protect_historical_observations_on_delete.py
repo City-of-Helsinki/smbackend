@@ -10,33 +10,55 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('observations', '0006_observableproperty_expiration'),
+        ("observations", "0006_observableproperty_expiration"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='observation',
-            name='auth',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='observations.PluralityAuthToken'),
+            model_name="observation",
+            name="auth",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="observations.PluralityAuthToken",
+            ),
         ),
         migrations.AlterField(
-            model_name='observation',
-            name='property',
-            field=models.ForeignKey(help_text='The property observed', on_delete=django.db.models.deletion.PROTECT, to='observations.ObservableProperty'),
+            model_name="observation",
+            name="property",
+            field=models.ForeignKey(
+                help_text="The property observed",
+                on_delete=django.db.models.deletion.PROTECT,
+                to="observations.ObservableProperty",
+            ),
         ),
         migrations.AlterField(
-            model_name='observation',
-            name='unit',
-            field=models.ForeignKey(help_text='The unit the observation is about', on_delete=django.db.models.deletion.PROTECT, related_name='observation_history', to='services.Unit'),
+            model_name="observation",
+            name="unit",
+            field=models.ForeignKey(
+                help_text="The unit the observation is about",
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="observation_history",
+                to="services.Unit",
+            ),
         ),
         migrations.AlterField(
-            model_name='observation',
-            name='value',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='instances', to='observations.AllowedValue'),
+            model_name="observation",
+            name="value",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="instances",
+                to="observations.AllowedValue",
+            ),
         ),
         migrations.AlterField(
-            model_name='pluralityauthtoken',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='auth_tokens', to=settings.AUTH_USER_MODEL),
+            model_name="pluralityauthtoken",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="auth_tokens",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

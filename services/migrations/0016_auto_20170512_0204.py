@@ -8,12 +8,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0015_auto_20170512_0132'),
+        ("services", "0015_auto_20170512_0132"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='ServiceTreeNode',
-            new_name='OntologyTreeNode',
+            old_name="ServiceTreeNode", new_name="OntologyTreeNode",
         ),
     ]

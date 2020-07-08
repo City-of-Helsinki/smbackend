@@ -8,23 +8,17 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0021_auto_20170516_1649'),
+        ("services", "0021_auto_20170516_1649"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='unit',
-            old_name='description_en',
-            new_name='desc_en',
+            model_name="unit", old_name="description_en", new_name="desc_en",
         ),
         migrations.RenameField(
-            model_name='unit',
-            old_name='description_fi',
-            new_name='desc_fi',
+            model_name="unit", old_name="description_fi", new_name="desc_fi",
         ),
         migrations.RenameField(
-            model_name='unit',
-            old_name='description_sv',
-            new_name='desc_sv',
+            model_name="unit", old_name="description_sv", new_name="desc_sv",
         ),
     ]

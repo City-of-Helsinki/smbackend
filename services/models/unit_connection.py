@@ -15,18 +15,20 @@ class UnitConnection(models.Model):
     ESERVICE_LINK_TYPE = 9
 
     SECTION_TYPES = (
-        (PHONE_OR_EMAIL_TYPE, 'PHONE_OR_EMAIL'),
-        (LINK_TYPE, 'LINK'),
-        (TOPICAL_TYPE, 'TOPICAL'),
-        (OTHER_INFO_TYPE, 'OTHER_INFO'),
-        (OPENING_HOURS_TYPE, 'OPENING_HOURS'),
-        (SOCIAL_MEDIA_LINK_TYPE, 'SOCIAL_MEDIA_LINK'),
-        (OTHER_ADDRESS_TYPE, 'OTHER_ADDRESS'),
-        (HIGHLIGHT_TYPE, 'HIGHLIGHT'),
-        (ESERVICE_LINK_TYPE, 'ESERVICE_LINK'),
+        (PHONE_OR_EMAIL_TYPE, "PHONE_OR_EMAIL"),
+        (LINK_TYPE, "LINK"),
+        (TOPICAL_TYPE, "TOPICAL"),
+        (OTHER_INFO_TYPE, "OTHER_INFO"),
+        (OPENING_HOURS_TYPE, "OPENING_HOURS"),
+        (SOCIAL_MEDIA_LINK_TYPE, "SOCIAL_MEDIA_LINK"),
+        (OTHER_ADDRESS_TYPE, "OTHER_ADDRESS"),
+        (HIGHLIGHT_TYPE, "HIGHLIGHT"),
+        (ESERVICE_LINK_TYPE, "ESERVICE_LINK"),
     )
 
-    unit = models.ForeignKey(Unit, db_index=True, related_name='connections', on_delete=models.CASCADE)
+    unit = models.ForeignKey(
+        Unit, db_index=True, related_name="connections", on_delete=models.CASCADE
+    )
     name = models.CharField(max_length=600)
     www = models.URLField(null=True, max_length=400)
     section_type = models.PositiveSmallIntegerField(choices=SECTION_TYPES, null=True)
@@ -36,4 +38,4 @@ class UnitConnection(models.Model):
     order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
-        ordering = ['order']
+        ordering = ["order"]

@@ -8,18 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0043_fix_ontologyworddetails_unique_together'),
+        ("services", "0043_fix_ontologyworddetails_unique_together"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ontologyword',
-            name='clarification_enabled',
+            model_name="ontologyword",
+            name="clarification_enabled",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='ontologyword',
-            name='period_enabled',
+            model_name="ontologyword",
+            name="period_enabled",
             field=models.BooleanField(default=True),
         ),
     ]

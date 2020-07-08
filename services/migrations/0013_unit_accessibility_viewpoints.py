@@ -9,13 +9,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0012_unit_accessibility_sentence_hash'),
+        ("services", "0012_unit_accessibility_sentence_hash"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unit',
-            name='accessibility_viewpoints',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default='{}'),
+            model_name="unit",
+            name="accessibility_viewpoints",
+            field=django.contrib.postgres.fields.jsonb.JSONField(default="{}"),
         ),
     ]

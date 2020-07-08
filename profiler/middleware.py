@@ -26,13 +26,14 @@ class ProfilerMiddleware(object):
     This is adapted from an example found here:
     http://www.slideshare.net/zeeg/django-con-high-performance-django-presentation.
     """
+
     def can(self, request):
-        has_user = hasattr(request, 'user')
+        has_user = hasattr(request, "user")
         is_staff = False
         if has_user and request.user is not None and request.user.is_staff:
             is_staff = True
 
-        return settings.DEBUG and 'prof' in request.GET and (not has_user or is_staff)
+        return settings.DEBUG and "prof" in request.GET and (not has_user or is_staff)
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
         if self.can(request):
@@ -50,8 +51,8 @@ class ProfilerMiddleware(object):
             self.profiler.create_stats()
             stream = io.StringIO()
             stats = pstats.Stats(self.profiler, stream=stream)
-            stats.strip_dirs().sort_stats(request.GET.get('prof_sort', 'time'))
-            stats.print_stats(int(request.GET.get('prof_count', 100)))
-            response.content = '<pre>%s</pre>' % stream.getvalue()
-            response['content-type'] = 'text/html'
+            stats.strip_dirs().sort_stats(request.GET.get("prof_sort", "time"))
+            stats.print_stats(int(request.GET.get("prof_count", 100)))
+            response.content = "<pre>%s</pre>" % stream.getvalue()
+            response["content-type"] = "text/html"
         return response

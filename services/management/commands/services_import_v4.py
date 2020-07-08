@@ -20,15 +20,15 @@ from services.management.commands.services_import.services import (
 )
 from services.management.commands.services_import.units import import_units
 
-URL_BASE = 'http://www.hel.fi/palvelukarttaws/rest/v4/'
+URL_BASE = "http://www.hel.fi/palvelukarttaws/rest/v4/"
 GK25_SRID = 3879
 
-UTC_TIMEZONE = pytz.timezone('UTC')
+UTC_TIMEZONE = pytz.timezone("UTC")
 
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
-    importer_types = ['departments', 'services', 'units', 'aliases']
+    importer_types = ["departments", "services", "units", "aliases"]
     supported_languages = [l[0] for l in settings.LANGUAGES]
 
     def __init__(self):
@@ -42,19 +42,29 @@ class Command(BaseCommand):
         self.existing_service_node_ids = None
 
     def add_arguments(self, parser):
-        parser.add_argument('import_types', nargs='*', choices=self.importer_types)
-        parser.add_argument('--cached', action='store_true', dest='cached',
-                            default=False, help='cache HTTP requests')
-        parser.add_argument('--single', action='store', dest='id',
-                            default=None, help='import only single entity')
+        parser.add_argument("import_types", nargs="*", choices=self.importer_types)
+        parser.add_argument(
+            "--cached",
+            action="store_true",
+            dest="cached",
+            default=False,
+            help="cache HTTP requests",
+        )
+        parser.add_argument(
+            "--single",
+            action="store",
+            dest="id",
+            default=None,
+            help="import only single entity",
+        )
 
     def clean_text(self, text):
         # text = text.replace('\n', ' ')
         # text = text.replace(u'\u00a0', ' ')
         # remove consecutive whitespaces
-        text = re.sub(r'\s\s+', ' ', text, re.U)
+        text = re.sub(r"\s\s+", " ", text, re.U)
         # remove nil bytes
-        text = text.replace('\u0000', ' ')
+        text = text.replace("\u0000", " ")
         text = text.strip()
         return text
 
@@ -63,29 +73,33 @@ class Command(BaseCommand):
         if res_id is None:
             url = "%s%s/" % (url, res_id)
         if v3:
-            url = url.replace('v4', 'v3')
+            url = url.replace("v4", "v3")
         resp = requests.get(url, timeout=120)
-        assert resp.status_code == 200, 'fuu status code {}'.format(resp.status_code)
+        assert resp.status_code == 200, "fuu status code {}".format(resp.status_code)
         return resp.json()
 
-    def _save_translated_field(self, obj, obj_field_name, info, info_field_name, max_length=None):
-        for lang in ('fi', 'sv', 'en'):
-            key = '%s_%s' % (info_field_name, lang)
+    def _save_translated_field(
+        self, obj, obj_field_name, info, info_field_name, max_length=None
+    ):
+        for lang in ("fi", "sv", "en"):
+            key = "%s_%s" % (info_field_name, lang)
             if key in info:
                 val = self.clean_text(info[key])
             else:
                 val = None
             if max_length and val and len(val) > max_length:
                 if self.verbosity:
-                    self.logger.warning("%s: field '%s' too long" % (obj, obj_field_name))
+                    self.logger.warning(
+                        "%s: field '%s' too long" % (obj, obj_field_name)
+                    )
                 val = None
-            obj_key = '%s_%s' % (obj_field_name, lang)
+            obj_key = "%s_%s" % (obj_field_name, lang)
             obj_val = getattr(obj, obj_key, None)
             if obj_val == val:
                 continue
 
             setattr(obj, obj_key, val)
-            if lang == 'fi':
+            if lang == "fi":
                 setattr(obj, obj_field_name, val)
             obj._changed = True
 
@@ -100,7 +114,7 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def update_division_units(self):
-        rescue_areas = AdministrativeDivision.objects.filter(type__type='rescue_area')
+        rescue_areas = AdministrativeDivision.objects.filter(type__type="rescue_area")
         # TODO: request this data to be added to pel_suojelupiiri
         mapping = {
             1: 8953,
@@ -110,7 +124,7 @@ class Command(BaseCommand):
             5: 8956,
             6: 8958,
             7: 8957,
-            8: 8957
+            8: 8957,
         }
         for area in rescue_areas:
             area.service_point_id = mapping[int(area.origin_id)]
@@ -125,9 +139,10 @@ class Command(BaseCommand):
 
     def _fetch_unit_accessibility_properties(self, unit_pk):
         if self.verbosity:
-            self.logger.info("Fetching unit accessibility "
-                             "properties for unit {}".format(unit_pk))
-        obj_list = self.pk_get('unit/{}/accessibility'.format(unit_pk))
+            self.logger.info(
+                "Fetching unit accessibility " "properties for unit {}".format(unit_pk)
+            )
+        obj_list = self.pk_get("unit/{}/accessibility".format(unit_pk))
         return obj_list
 
     def import_units(self, pk=None):
@@ -145,7 +160,7 @@ class Command(BaseCommand):
 
     def handle(self, **options):
         self.options = options
-        self.verbosity = int(options.get('verbosity', 1))
+        self.verbosity = int(options.get("verbosity", 1))
         self.dept_syncher = None
         self.logger = logging.getLogger(__name__)
         self.services_changed = False
@@ -165,8 +180,8 @@ class Command(BaseCommand):
             method = getattr(self, "import_%s" % imp)
             if self.verbosity:
                 print("Importing %s..." % imp)
-            if 'id' in options and options.get('id'):
-                method(pk=options['id'])
+            if "id" in options and options.get("id"):
+                method(pk=options["id"])
             else:
                 method()
             import_count += 1

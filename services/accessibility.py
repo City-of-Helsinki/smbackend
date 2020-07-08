@@ -33,21 +33,21 @@ class AccessibilityRules(object):
         raise FileNotFoundError("Data file '%s' not found" % data_file)
 
     def _parse(self):
-        tree, self.messages = (
-            accessibility_rules.parse_accessibility_rules(
-                self.find_data_file(self.filename)))
+        tree, self.messages = accessibility_rules.parse_accessibility_rules(
+            self.find_data_file(self.filename)
+        )
 
         self.tree = {}
-        mode_letters = 'ABC'
+        mode_letters = "ABC"
         for case, expression in tree.items():
-            for mode in range(0, len(expression.messages['case_names'])):
+            for mode in range(0, len(expression.messages["case_names"])):
                 expression.set_mode(mode)
                 self.tree[str(case) + mode_letters[mode]] = expression.val()
 
 
-if hasattr(settings, 'PROJECT_ROOT'):
+if hasattr(settings, "PROJECT_ROOT"):
     root_dir = settings.PROJECT_ROOT
 else:
     root_dir = settings.BASE_DIR
-DATA_PATHS = [os.path.join(root_dir, 'data')]
-RULES = AccessibilityRules(DATA_PATHS, 'accessibility_rules.csv')
+DATA_PATHS = [os.path.join(root_dir, "data")]
+RULES = AccessibilityRules(DATA_PATHS, "accessibility_rules.csv")

@@ -9,6 +9,7 @@ class UnitAccessibilityShortcomings(models.Model):
         Unit,
         on_delete=models.CASCADE,
         primary_key=True,
-        related_name='accessibility_shortcomings')
+        related_name="accessibility_shortcomings",
+    )
     accessibility_shortcoming_count = JSONField(default=dict, null=True)
     accessibility_description = JSONField(default=list, null=True)

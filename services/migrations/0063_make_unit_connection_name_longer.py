@@ -8,33 +8,46 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0062_unit_root_department'),
+        ("services", "0062_unit_root_department"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unitconnection',
-            name='name',
+            model_name="unitconnection",
+            name="name",
             field=models.CharField(max_length=600),
         ),
         migrations.AlterField(
-            model_name='unitconnection',
-            name='name_en',
+            model_name="unitconnection",
+            name="name_en",
             field=models.CharField(max_length=600, null=True),
         ),
         migrations.AlterField(
-            model_name='unitconnection',
-            name='name_fi',
+            model_name="unitconnection",
+            name="name_fi",
             field=models.CharField(max_length=600, null=True),
         ),
         migrations.AlterField(
-            model_name='unitconnection',
-            name='name_sv',
+            model_name="unitconnection",
+            name="name_sv",
             field=models.CharField(max_length=600, null=True),
         ),
         migrations.AlterField(
-            model_name='unitconnection',
-            name='section_type',
-            field=models.PositiveSmallIntegerField(choices=[(1, 'PHONE_OR_EMAIL'), (2, 'LINK'), (3, 'TOPICAL'), (4, 'OTHER_INFO'), (5, 'OPENING_HOURS'), (6, 'SOCIAL_MEDIA_LINK'), (7, 'OTHER_ADDRESS'), (8, 'HIGHLIGHT'), (9, 'ESERVICE_LINK')], null=True),
+            model_name="unitconnection",
+            name="section_type",
+            field=models.PositiveSmallIntegerField(
+                choices=[
+                    (1, "PHONE_OR_EMAIL"),
+                    (2, "LINK"),
+                    (3, "TOPICAL"),
+                    (4, "OTHER_INFO"),
+                    (5, "OPENING_HOURS"),
+                    (6, "SOCIAL_MEDIA_LINK"),
+                    (7, "OTHER_ADDRESS"),
+                    (8, "HIGHLIGHT"),
+                    (9, "ESERVICE_LINK"),
+                ],
+                null=True,
+            ),
         ),
     ]

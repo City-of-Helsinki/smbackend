@@ -11,7 +11,9 @@ class Department(MPTTModel):
     uuid = models.UUIDField(db_index=True, editable=False, unique=True)
     business_id = models.CharField(max_length=10)  # take into consideration intl. ids
 
-    parent = TreeForeignKey('self', null=True, related_name='children', on_delete=models.CASCADE)
+    parent = TreeForeignKey(
+        "self", null=True, related_name="children", on_delete=models.CASCADE
+    )
 
     # translateable group here
     name = models.CharField(max_length=200, db_index=True)
@@ -27,14 +29,16 @@ class Department(MPTTModel):
 
     organization_type = models.CharField(max_length=50, null=True)
 
-    municipality = models.ForeignKey(Municipality, null=True, db_index=True, on_delete=models.CASCADE)
+    municipality = models.ForeignKey(
+        Municipality, null=True, db_index=True, on_delete=models.CASCADE
+    )
 
     objects = CustomTreeManager()
 
     def __str__(self):
-        return "%s (%s)" % (get_translated(self, 'name'), self.id)
+        return "%s (%s)" % (get_translated(self, "name"), self.id)
 
     # This is used for unit indexing
     def top_departments(self, depth=3):
         ancestors = self.get_ancestors(include_self=True).filter(level__lt=depth)
-        return ' '.join([anc.name for anc in ancestors])
+        return " ".join([anc.name for anc in ancestors])

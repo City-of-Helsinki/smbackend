@@ -9,13 +9,15 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('observations', '0001_initial'),
+        ("observations", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='userorganization',
-            name='organization',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='services.Department'),
+            model_name="userorganization",
+            name="organization",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="services.Department"
+            ),
         ),
     ]

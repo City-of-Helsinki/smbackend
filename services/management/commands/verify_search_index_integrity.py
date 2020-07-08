@@ -16,9 +16,10 @@ def _check_index_integrity(model):
     # Unit._meta.label_lower
 
     def format_error(model=None, public=None, db=None, index=None, language=None):
-        return ("Differing count for language {language} model {model} "
-                "with public=={public}, db: {db}, index: {index}").format(
-                    model=model, public=public, db=db, index=index, language=language)
+        return (
+            "Differing count for language {language} model {model} "
+            "with public=={public}, db: {db}, index: {index}"
+        ).format(model=model, public=public, db=db, index=index, language=language)
 
     for language in LANGUAGES:
         with translation.override(language):
@@ -34,11 +35,22 @@ def _check_index_integrity(model):
                 if model == AdministrativeDivision:
                     qs = qs.filter(type__in=AdministrativeDivisionIndex.indexed_types())
                 db_count = qs.count()
-                haystack_count = SearchQuerySet().filter(
-                    django_ct=model._meta.label_lower).filter(public=str(public).lower()).count()
+                haystack_count = (
+                    SearchQuerySet()
+                    .filter(django_ct=model._meta.label_lower)
+                    .filter(public=str(public).lower())
+                    .count()
+                )
                 if db_count != haystack_count:
-                    errors.append(format_error(model=model, db=db_count, language=language,
-                                               index=haystack_count, public=public))
+                    errors.append(
+                        format_error(
+                            model=model,
+                            db=db_count,
+                            language=language,
+                            index=haystack_count,
+                            public=public,
+                        )
+                    )
     return errors
 
 
@@ -47,8 +59,12 @@ class Command(BaseCommand):
     in elasticsearch matches the expected amount. """
 
     def handle(self, *args, **options):
-        errors = dict(((model._meta.label_lower, _check_index_integrity(model)) for model in [
-            Unit, Service, Address, AdministrativeDivision]))
+        errors = dict(
+            (
+                (model._meta.label_lower, _check_index_integrity(model))
+                for model in [Unit, Service, Address, AdministrativeDivision]
+            )
+        )
         if len(errors):
             error_strings = ["Integrity errors"]
             for key, value in errors.items():

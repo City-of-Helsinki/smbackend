@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0073_remove_length_limitation_department_oid'),
+        ("services", "0073_remove_length_limitation_department_oid"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unit',
-            name='root_service_nodes',
+            model_name="unit",
+            name="root_service_nodes",
             field=models.CharField(max_length=50, null=True),
         ),
     ]

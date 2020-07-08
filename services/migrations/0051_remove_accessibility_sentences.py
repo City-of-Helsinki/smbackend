@@ -8,15 +8,10 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0050_sane_data_source'),
+        ("services", "0050_sane_data_source"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='accessibilitysentence',
-            name='unit',
-        ),
-        migrations.DeleteModel(
-            name='AccessibilitySentence',
-        ),
+        migrations.RemoveField(model_name="accessibilitysentence", name="unit",),
+        migrations.DeleteModel(name="AccessibilitySentence",),
     ]

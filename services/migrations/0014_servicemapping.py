@@ -9,17 +9,31 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0013_unit_accessibility_viewpoints'),
+        ("services", "0013_unit_accessibility_viewpoints"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ServiceMapping',
+            name="ServiceMapping",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('service_id', models.IntegerField()),
-                ('filter', models.TextField(blank=True, default='', null=True)),
-                ('node_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='services.ServiceTreeNode')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("service_id", models.IntegerField()),
+                ("filter", models.TextField(blank=True, default="", null=True)),
+                (
+                    "node_id",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="services.ServiceTreeNode",
+                    ),
+                ),
             ],
         ),
     ]

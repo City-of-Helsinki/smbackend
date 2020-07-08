@@ -7,10 +7,7 @@ from django.utils.translation import get_language
 from haystack import indexes, signals
 from munigeo.models import AdministrativeDivisionType, Street
 
-ADMIN_DIV_TYPES = (
-    'sub_district',
-    'neighborhood',
-    'postcode_area')
+ADMIN_DIV_TYPES = ("sub_district", "neighborhood", "postcode_area")
 
 
 class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
@@ -20,7 +17,8 @@ class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
     Use the settings key DISABLE_HAYSTACK_SIGNAL_PROCESSOR to
     disable.
     """
-    settings_key = 'DISABLE_HAYSTACK_SIGNAL_PROCESSOR'
+
+    settings_key = "DISABLE_HAYSTACK_SIGNAL_PROCESSOR"
 
     def handle_delete(self, sender, instance, **kwargs):
         if not getattr(settings, self.settings_key, False):
@@ -39,10 +37,10 @@ class DeleteOnlySignalProcessor(signals.BaseSignalProcessor):
 
 class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
-    name = indexes.CharField(model_attr='name', boost=1.125)
-    name_sort = indexes.CharField(model_attr='name')
-    autosuggest = indexes.EdgeNgramField(model_attr='name')
-    autosuggest_exact = indexes.CharField(model_attr='name', boost=1.125)
+    name = indexes.CharField(model_attr="name", boost=1.125)
+    name_sort = indexes.CharField(model_attr="name")
+    autosuggest = indexes.EdgeNgramField(model_attr="name")
+    autosuggest_exact = indexes.CharField(model_attr="name", boost=1.125)
     extra_searchwords = indexes.CharField()
     autosuggest_extra_searchwords = indexes.CharField()
     public = indexes.BooleanField()
@@ -56,16 +54,18 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
         return self.model
 
     def get_updated_field(self):
-        return 'last_modified_time'
+        return "last_modified_time"
 
     def prepare_public(self, obj):
         return True
 
     def get_extra_searchwords(self, obj):
-        return [category.name for category in obj.keywords.filter(language=get_language())]
+        return [
+            category.name for category in obj.keywords.filter(language=get_language())
+        ]
 
     def prepare_extra_searchwords(self, obj):
-        return ' '.join(self.get_extra_searchwords(obj))
+        return " ".join(self.get_extra_searchwords(obj))
 
     def prepare_autosuggest_extra_searchwords(self, obj):
         return self.prepare_extra_searchwords(obj)
@@ -78,7 +78,7 @@ class UnitIndex(ServiceMapBaseIndex):
     text = indexes.CharField(document=True, use_template=False)
     name = indexes.CharField(boost=1.125)
     autosuggest = indexes.EdgeNgramField()
-    municipality = indexes.CharField(model_attr='municipality_id', null=True)
+    municipality = indexes.CharField(model_attr="municipality_id", null=True)
     services = indexes.MultiValueField()
     root_department = indexes.CharField(null=True)
     suggest = indexes.CharField()
@@ -90,14 +90,14 @@ class UnitIndex(ServiceMapBaseIndex):
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
         self._street_name_cache = None
-        self.model = apps.get_model(app_label='services', model_name='Unit')
+        self.model = apps.get_model(app_label="services", model_name="Unit")
 
     def prepare_public(self, obj):
         return obj.public
 
     def _get_street_name_cache(self):
         if self._street_name_cache is None:
-            self._street_name_cache = set(Street.objects.values_list('name', flat=True))
+            self._street_name_cache = set(Street.objects.values_list("name", flat=True))
         return self._street_name_cache
 
     def _word_matches_street_address(self, word):
@@ -112,8 +112,13 @@ class UnitIndex(ServiceMapBaseIndex):
         services (for example "koira" in "koirakalliontie")
 
         """
-        return " ".join((w for w in re.split(r'[ /]+', name)
-                         if not self._word_matches_street_address(w)))
+        return " ".join(
+            (
+                w
+                for w in re.split(r"[ /]+", name)
+                if not self._word_matches_street_address(w)
+            )
+        )
 
     def prepare_name(self, obj):
         return self._name_with_address_removed(obj.name)
@@ -125,7 +130,7 @@ class UnitIndex(ServiceMapBaseIndex):
         values = [
             self._name_with_address_removed(obj.name),
             obj.service_names(),
-            obj.highlight_names()
+            obj.highlight_names(),
         ]
         if obj.municipality:
             values.append(obj.municipality.name)
@@ -147,31 +152,31 @@ class UnitIndex(ServiceMapBaseIndex):
 
     def prepare_suggest(self, obj):
         terms_by_field = {
-            'service': list(set((s.name for s in obj.services.all()))),
-            'keyword': self.get_extra_searchwords(obj),
-            'location': []
+            "service": list(set((s.name for s in obj.services.all()))),
+            "keyword": self.get_extra_searchwords(obj),
+            "location": [],
         }
         if obj.municipality:
-            terms_by_field['location'].append(obj.municipality.name)
+            terms_by_field["location"].append(obj.municipality.name)
 
         combined = [term for terms in terms_by_field.values() for term in terms]
         name = self._name_with_address_removed(obj.name)
         combined.append(name)
-        terms_by_field['name'] = name
-        terms_by_field['combined'] = " ".join(combined)
+        terms_by_field["name"] = name
+        terms_by_field["combined"] = " ".join(combined)
         return terms_by_field
 
 
 class ServiceIndex(ServiceMapBaseIndex):
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
-        self.model = apps.get_model(app_label='services', model_name='Service')
+        self.model = apps.get_model(app_label="services", model_name="Service")
 
 
 class ServiceNodeIndex(ServiceMapBaseIndex):
     def __init__(self, *args, **kwargs):
         super(*args, **kwargs)
-        self.model = apps.get_model(app_label='services', model_name='ServiceNode')
+        self.model = apps.get_model(app_label="services", model_name="ServiceNode")
 
     def index_queryset(self, using=None):
         manager = self.get_model().objects
@@ -187,16 +192,21 @@ class ServiceNodeIndex(ServiceMapBaseIndex):
             # Note the empty order_by clause which prevents
             # default ordering from interfering with the grouping.
             manager.exclude(service_reference__isnull=True)
-            .values('service_reference')
-            .annotate(id=models.Min('id'))
-            .values_list('id', flat=True)
-            .order_by())
+            .values("service_reference")
+            .annotate(id=models.Min("id"))
+            .values_list("id", flat=True)
+            .order_by()
+        )
 
         return manager.filter(
-            Q(id__in=unique_ids) | Q(
+            Q(id__in=unique_ids)
+            | Q(
                 # We have to separately add all nodes with null references
                 # and level > 0.
-                Q(level__gt=0) & Q(service_reference__isnull=True)))
+                Q(level__gt=0)
+                & Q(service_reference__isnull=True)
+            )
+        )
 
 
 class AddressIndex(indexes.SearchIndex, indexes.Indexable):
@@ -211,10 +221,10 @@ class AddressIndex(indexes.SearchIndex, indexes.Indexable):
         return True
 
     def get_model(self):
-        return apps.get_model('munigeo', 'Address')
+        return apps.get_model("munigeo", "Address")
 
     def prepare_text(self, obj):
-        return ''
+        return ""
 
     def prepare_number(self, obj):
         return obj.number
@@ -231,7 +241,7 @@ class AddressIndex(indexes.SearchIndex, indexes.Indexable):
             number=obj.number,
             number_end=number_end,
             letter=letter,
-            municipality=obj.street.municipality
+            municipality=obj.street.municipality,
         )
 
     def prepare_autosuggest(self, obj):
@@ -241,7 +251,7 @@ class AddressIndex(indexes.SearchIndex, indexes.Indexable):
         return None
 
     def get_updated_field(self):
-        return 'modified_at'
+        return "modified_at"
 
 
 class AdministrativeDivisionIndex(indexes.SearchIndex, indexes.Indexable):
@@ -255,7 +265,7 @@ class AdministrativeDivisionIndex(indexes.SearchIndex, indexes.Indexable):
         return True
 
     def get_model(self):
-        return apps.get_model('munigeo', 'AdministrativeDivision')
+        return apps.get_model("munigeo", "AdministrativeDivision")
 
     def prepare_text(self, obj):
         return obj.name
@@ -270,7 +280,7 @@ class AdministrativeDivisionIndex(indexes.SearchIndex, indexes.Indexable):
         return None
 
     def get_updated_field(self):
-        return 'modified_at'
+        return "modified_at"
 
     @staticmethod
     def indexed_types():

@@ -8,12 +8,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0051_remove_accessibility_sentences'),
+        ("services", "0051_remove_accessibility_sentences"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='unit',
-            name='accessibility_sentence_hash',
-        ),
+        migrations.RemoveField(model_name="unit", name="accessibility_sentence_hash",),
     ]

@@ -8,12 +8,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0031_translate_unit_postal_address'),
+        ("services", "0031_translate_unit_postal_address"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='unit',
-            name='address_city',
-        ),
+        migrations.RemoveField(model_name="unit", name="address_city",),
     ]

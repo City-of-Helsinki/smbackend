@@ -8,12 +8,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('observations', '0002_change_org_to_dept'),
+        ("observations", "0002_change_org_to_dept"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='observableproperty',
-            name='services',
-        ),
+        migrations.RemoveField(model_name="observableproperty", name="services",),
     ]

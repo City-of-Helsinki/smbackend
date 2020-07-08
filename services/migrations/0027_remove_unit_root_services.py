@@ -8,12 +8,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0026_make_department_hierarchical'),
+        ("services", "0026_make_department_hierarchical"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='unit',
-            name='root_services',
-        ),
+        migrations.RemoveField(model_name="unit", name="root_services",),
     ]

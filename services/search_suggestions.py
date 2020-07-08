@@ -9,7 +9,7 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
-LETTER_RE = re.compile('[{}]+'.format(string.digits + re.escape(string.punctuation)))
+LETTER_RE = re.compile("[{}]+".format(string.digits + re.escape(string.punctuation)))
 
 
 def word_is_alphabetic(word):
@@ -19,9 +19,12 @@ def word_is_alphabetic(word):
 def get_elastic(language):
     try:
         return next(
-            ("{}{}/".format(c['URL'], c['INDEX_NAME'])
-             for k, c in settings.HAYSTACK_CONNECTIONS.items()
-             if k == 'default-{}'.format(language)))
+            (
+                "{}{}/".format(c["URL"], c["INDEX_NAME"])
+                for k, c in settings.HAYSTACK_CONNECTIONS.items()
+                if k == "default-{}".format(language)
+            )
+        )
     except StopIteration:
         raise ValueError("Unconfigured language {}".format(language))
 
@@ -122,17 +125,20 @@ BASE_QUERY = """
 
 
 def unit_results(search_query):
-    _next = 'http://localhost:8000/v2/search/?type=unit&q={}'.format(search_query)
+    _next = "http://localhost:8000/v2/search/?type=unit&q={}".format(search_query)
     results = []
     while _next is not None:
         data = requests.get(_next).json()
-        _next = data['next']
-        results += data['results']
+        _next = data["next"]
+        results += data["results"]
     return results
 
 
 def _matches_complete_word_tokens(result):
-    return result.get('aggregations', {}).get('complete_matches', {}).get('doc_count', 1) > 0
+    return (
+        result.get("aggregations", {}).get("complete_matches", {}).get("doc_count", 1)
+        > 0
+    )
 
 
 def generate_suggestions(query, language):
@@ -142,23 +148,29 @@ def generate_suggestions(query, language):
     last_word = query.split()[-1]
 
     last_word_lower = last_word.lower()
-    last_word_re = re.compile(re.escape(last_word_lower) + r'[-\w]*', flags=re.IGNORECASE)
+    last_word_re = re.compile(
+        re.escape(last_word_lower) + r"[-\w]*", flags=re.IGNORECASE
+    )
 
     suggestions_by_type = {}
     minimal_completions = {}
 
     match_id = -1
-    for _type, value in result['aggregations'].items():
-        if _type == 'location' and len(value['buckets']) == 1 or _type == 'complete_matches':
+    for _type, value in result["aggregations"].items():
+        if (
+            _type == "location"
+            and len(value["buckets"]) == 1
+            or _type == "complete_matches"
+        ):
             continue
-        for term in value.get('buckets', []):
-            text = term['key']
+        for term in value.get("buckets", []):
+            text = term["key"]
             text_lower = text.lower()
-            match_type = 'indirect'
+            match_type = "indirect"
             boundaries = None
 
             if text_lower.strip() == query_lower.strip():
-                match_type = 'full_query_match'
+                match_type = "full_query_match"
             else:
                 full_match = query_lower.find(text_lower)
                 if full_match != -1:
@@ -166,7 +178,7 @@ def generate_suggestions(query, language):
                     # if full_match == 0:
                     #     match_type = 'result_matches_beginning_of_query'
                     # else:
-                    match_type = 'result_is_substring_of_query'
+                    match_type = "result_is_substring_of_query"
                 else:
                     partial_match = text_lower.find(last_word_lower)
                     if partial_match != -1:
@@ -176,103 +188,126 @@ def generate_suggestions(query, language):
                             i -= 1
                             j -= 1
                         if len(query_lower) - i > len(last_word_lower):
-                            match_type = 'part_of_result_in_query'
+                            match_type = "part_of_result_in_query"
                         else:
-                            match_type = 'last_word_substring'
-                        boundaries = [partial_match, partial_match + len(last_word_lower)]
+                            match_type = "last_word_substring"
+                        boundaries = [
+                            partial_match,
+                            partial_match + len(last_word_lower),
+                        ]
                     if partial_match == 0:
-                        boundaries = [partial_match, partial_match + len(last_word_lower)]
-                        match_type = 'last_word_prefix'
+                        boundaries = [
+                            partial_match,
+                            partial_match + len(last_word_lower),
+                        ]
+                        match_type = "last_word_prefix"
                         query_before_last_word = query.split()[:-1]
-                        if ' '.join(query_before_last_word).lower() not in text_lower:
+                        if " ".join(query_before_last_word).lower() not in text_lower:
                             text = last_word_re.sub(text, query)
 
             match_id += 1
             match = {
-                'id': match_id,
-                'text': text,
-                'score': term.get('avg_score', {}).get('value', None),
-                'doc_count': term['doc_count'],
-                'field': _type,
-                'match_type': match_type,
-                'match_boundaries': boundaries
+                "id": match_id,
+                "text": text,
+                "score": term.get("avg_score", {}).get("value", None),
+                "doc_count": term["doc_count"],
+                "field": _type,
+                "match_type": match_type,
+                "match_boundaries": boundaries,
             }
-            if match['doc_count'] == 1:
-                match['single_match_document_id'] = term['tops']['hits']['hits'][0]['_id']
-                match['single_match_document_name'] = term['tops']['hits']['hits'][0]['_source']['name']
-            if match_type == 'last_word_prefix':
+            if match["doc_count"] == 1:
+                match["single_match_document_id"] = term["tops"]["hits"]["hits"][0][
+                    "_id"
+                ]
+                match["single_match_document_name"] = term["tops"]["hits"]["hits"][0][
+                    "_source"
+                ]["name"]
+            if match_type == "last_word_prefix":
                 matching_part = last_word_re.search(text)
                 if matching_part:
                     matching_text = matching_part.group(0)
                     if matching_text.lower() != query_lower:
                         match_copy = match.copy()
-                        match_copy['original'] = text
-                        match_copy['text'] = matching_text
-                        existing_completion = minimal_completions.get(match_copy['text'].lower())
+                        match_copy["original"] = text
+                        match_copy["text"] = matching_text
+                        existing_completion = minimal_completions.get(
+                            match_copy["text"].lower()
+                        )
                         if existing_completion:
-                            count = existing_completion['doc_count']
+                            count = existing_completion["doc_count"]
                         else:
                             count = 0
-                        match_copy['doc_count'] = count + term['doc_count']  # todo still don't work
-                        match_copy['category'] = 'minimal_completion'
-                        if match_copy['doc_count'] > 1:
+                        match_copy["doc_count"] = (
+                            count + term["doc_count"]
+                        )  # todo still don't work
+                        match_copy["category"] = "minimal_completion"
+                        if match_copy["doc_count"] > 1:
                             try:
-                                del match_copy['single_match_document_id']
-                                del match_copy['single_match_document_name']
+                                del match_copy["single_match_document_id"]
+                                del match_copy["single_match_document_name"]
                             except KeyError:
                                 pass
-                        minimal_completions[match_copy['text'].lower()] = match_copy
+                        minimal_completions[match_copy["text"].lower()] = match_copy
 
-            if _type == 'name' and match_type == 'indirect':
+            if _type == "name" and match_type == "indirect":
                 continue
-            if match_type == 'part_of_result_in_query':
+            if match_type == "part_of_result_in_query":
                 continue
-            if match_type == 'indirect' or _type == 'name':
+            if match_type == "indirect" or _type == "name":
                 key = _type
             else:
-                key = 'completions'
-            match['category'] = match['field']
+                key = "completions"
+            match["category"] = match["field"]
             suggestions_by_type.setdefault(key, []).append(match)
 
     # TODO: originally filtered out single-document minimals
-    suggestions_by_type['minimal_completions'] = sorted([v for v in minimal_completions.values()],
-                                                        key=lambda x: (-x['doc_count'], len(x['text']), x['text']))
+    suggestions_by_type["minimal_completions"] = sorted(
+        [v for v in minimal_completions.values()],
+        key=lambda x: (-x["doc_count"], len(x["text"]), x["text"]),
+    )
 
-    last_word_is_ambigious = (len(minimal_completions) > 1 and query.lower() in [
-        s['text'].lower() for s in minimal_completions.values()])
+    last_word_is_ambigious = len(minimal_completions) > 1 and query.lower() in [
+        s["text"].lower() for s in minimal_completions.values()
+    ]
     return {
-        'query': query,
-        'query_word_count': len(query.split()),
-        'ambiguous_last_word': last_word_is_ambigious,
-        'incomplete_query': not _matches_complete_word_tokens(result),
-        'suggestions': suggestions_by_type
+        "query": query,
+        "query_word_count": len(query.split()),
+        "ambiguous_last_word": last_word_is_ambigious,
+        "incomplete_query": not _matches_complete_word_tokens(result),
+        "suggestions": suggestions_by_type,
     }
 
 
 LIMITS = {
-    'minimal_completions': 5,
-    'completions': 10,
-    'service': 10,
-    'name': 5,
-    'location': 5,
-    'keyword': 5}
+    "minimal_completions": 5,
+    "completions": 10,
+    "service": 10,
+    "name": 5,
+    "location": 5,
+    "keyword": 5,
+}
 
 
 def output_suggestion(match, query, keyword_match=False):
-    if match['match_type'] == 'result_is_substring_of_query':
+    if match["match_type"] == "result_is_substring_of_query":
         suggestion = query
-    elif match['match_type'] == 'indirect' and not keyword_match and not match.get('rewritten'):
-        suggestion = '{} + {}'.format(match['text'], query)
-    elif (match['field'] != 'name' and match['match_type'] == 'last_word_substring'
-          and not keyword_match and not match.get('rewritten')):
+    elif (
+        match["match_type"] == "indirect"
+        and not keyword_match
+        and not match.get("rewritten")
+    ):
+        suggestion = "{} + {}".format(match["text"], query)
+    elif (
+        match["field"] != "name"
+        and match["match_type"] == "last_word_substring"
+        and not keyword_match
+        and not match.get("rewritten")
+    ):
         # We have to replace the last word in the query with the result match
-        suggestion = query.replace(query.split()[-1], match['text'])
+        suggestion = query.replace(query.split()[-1], match["text"])
     else:
-        suggestion = match['text']
-    return {
-        'suggestion': suggestion,
-        'count': match.get('doc_count')
-    }
+        suggestion = match["text"]
+    return {"suggestion": suggestion, "count": match.get("doc_count")}
 
 
 def query_found_as_keyword(suggestions, query):
@@ -280,91 +315,107 @@ def query_found_as_keyword(suggestions, query):
 
     def exact_keyword_match(match):
         return (
-            match['field'] == 'keyword'
-            and match['match_type'] == 'full_query_match'
-            and match['text'].lower() == query_lower
+            match["field"] == "keyword"
+            and match["match_type"] == "full_query_match"
+            and match["text"].lower() == query_lower
         )
 
     def partial_service_match(match):
         return (
-            match['field'] == 'service'
-            and match['match_type'] != 'indirect'
-            and query_lower in match['text'].lower()
+            match["field"] == "service"
+            and match["match_type"] != "indirect"
+            and query_lower in match["text"].lower()
         )
-    completions = suggestions.get('suggestions', {}).get('completions', [])
-    return (next((c for c in completions if exact_keyword_match(c)), None) is not None
-            and next((c for c in completions if partial_service_match(c)), None) is None)
+
+    completions = suggestions.get("suggestions", {}).get("completions", [])
+    return (
+        next((c for c in completions if exact_keyword_match(c)), None) is not None
+        and next((c for c in completions if partial_service_match(c)), None) is None
+    )
 
 
 def choose_suggestions(suggestions, limits=LIMITS):
-    query = suggestions['query']
+    query = suggestions["query"]
     keyword_match = query_found_as_keyword(suggestions, query)
-    if suggestions['incomplete_query']:
-        active_match_types = ['completions', 'name']
+    if suggestions["incomplete_query"]:
+        active_match_types = ["completions", "name"]
     else:
         if keyword_match:
-            active_match_types = ['completions', 'service', 'service', 'name']
+            active_match_types = ["completions", "service", "service", "name"]
         else:
-            active_match_types = ['completions', 'service', 'name', 'location', 'keyword']
-    suggestions_by_type = suggestions['suggestions']
+            active_match_types = [
+                "completions",
+                "service",
+                "name",
+                "location",
+                "keyword",
+            ]
+    suggestions_by_type = suggestions["suggestions"]
 
-    name_match_ids = set(suggestion['single_match_document_id']
-                         for suggestion in suggestions_by_type.get('name', [])[0:limits['name']]
-                         if 'single_match_document_id' in suggestion)
+    name_match_ids = set(
+        suggestion["single_match_document_id"]
+        for suggestion in suggestions_by_type.get("name", [])[0 : limits["name"]]
+        if "single_match_document_id" in suggestion
+    )
 
     results = []
     seen = set()
     minimal_results = []
 
     def rewrite_single_matches_to_unit_name(_type, match):
-        if _type != 'name' and match.get('single_match_document_id') in name_match_ids:
+        if _type != "name" and match.get("single_match_document_id") in name_match_ids:
             return False
-        unit_name = match.get('single_match_document_name')
+        unit_name = match.get("single_match_document_name")
         if unit_name:
-            name_match_ids.add(match.get('single_match_document_id'))
-            if _type != 'name':
-                match['original'] = match['text']
-                match['text'] = unit_name
-                match['rewritten'] = True
-            name_match_ids.add(match.get('single_match_document_id'))
+            name_match_ids.add(match.get("single_match_document_id"))
+            if _type != "name":
+                match["original"] = match["text"]
+                match["text"] = unit_name
+                match["rewritten"] = True
+            name_match_ids.add(match.get("single_match_document_id"))
         return True
 
-    if suggestions['query_word_count'] == 1:
-        minimal_suggestions = suggestions_by_type.get('minimal_completions', [])
+    if suggestions["query_word_count"] == 1:
+        minimal_suggestions = suggestions_by_type.get("minimal_completions", [])
         for index, match in enumerate(
-                sorted(minimal_suggestions[0:limits['minimal_completions']], key=lambda x: len(x['text']))):
-            if not rewrite_single_matches_to_unit_name('minimal_completions', match):
+            sorted(
+                minimal_suggestions[0 : limits["minimal_completions"]],
+                key=lambda x: len(x["text"]),
+            )
+        ):
+            if not rewrite_single_matches_to_unit_name("minimal_completions", match):
                 continue
             suggestion = output_suggestion(match, query, keyword_match=keyword_match)
-            if suggestion['suggestion'].lower() not in seen:
-                seen.add(suggestion['suggestion'])
+            if suggestion["suggestion"].lower() not in seen:
+                seen.add(suggestion["suggestion"])
                 minimal_results.append(suggestion)
 
     for _type in active_match_types:
-        for match in suggestions_by_type.get(_type, [])[0:limits[_type]]:
+        for match in suggestions_by_type.get(_type, [])[0 : limits[_type]]:
             if not rewrite_single_matches_to_unit_name(_type, match):
                 continue
-            if suggestions['ambiguous_last_word'] and match['match_type'] == 'indirect':
+            if suggestions["ambiguous_last_word"] and match["match_type"] == "indirect":
                 continue
-            if match['match_type'] == 'indirect' and _type == 'keyword':
+            if match["match_type"] == "indirect" and _type == "keyword":
                 continue
             suggestion = output_suggestion(match, query, keyword_match=keyword_match)
-            if suggestion['suggestion'].lower() not in seen:
-                seen.add(suggestion['suggestion'])
+            if suggestion["suggestion"].lower() not in seen:
+                seen.add(suggestion["suggestion"])
                 results.append(suggestion)
 
     results = minimal_results + results
 
     return {
-        'suggestions': results,
-        'requires_completion': suggestions['incomplete_query']
+        "suggestions": results,
+        "requires_completion": suggestions["incomplete_query"],
     }
 
 
 def suggestion_response(query, language):
     response = requests.get(
-        '{}/_search/?search_type=count'.format(get_elastic(language)),
-        data=json.dumps(suggestion_query(query)))
+        "{}/_search/?search_type=count".format(get_elastic(language)),
+        data=json.dumps(suggestion_query(query)),
+    )
     return response.json()
 
 
@@ -382,54 +433,71 @@ def suggestion_query(search_query):
         last_word = split[-1]
         first_words = " ".join(split[:-1])
 
-    query['aggs']['complete_matches']['filter']['and'][0]['query']['query_string']['query'] = (
-        "(text:({0}) OR extra_searchwords:({0}))".format(search_query))
+    query["aggs"]["complete_matches"]["filter"]["and"][0]["query"]["query_string"][
+        "query"
+    ] = "(text:({0}) OR extra_searchwords:({0}))".format(search_query)
 
-    query['query']['filtered']['query'] = {
-        'match': {'suggest.combined': {'query': search_query}}}
+    query["query"]["filtered"]["query"] = {
+        "match": {"suggest.combined": {"query": search_query}}
+    }
     # del query['query']['filtered']['filter']['and'][1]
-    filter_query_must = query['query']['filtered']['filter']['and'][1]['query']['bool']['must']
+    filter_query_must = query["query"]["filtered"]["filter"]["and"][1]["query"]["bool"][
+        "must"
+    ]
 
     if first_words:
-        filter_query_must[0]['match']['text']['query'] = first_words
-        filter_query_must[1] = {
-            'match': {'suggest.combined': {'query': last_word}}}
+        filter_query_must[0]["match"]["text"]["query"] = first_words
+        filter_query_must[1] = {"match": {"suggest.combined": {"query": last_word}}}
     else:
-        del query['query']['filtered']['filter']['and'][1]
+        del query["query"]["filtered"]["filter"]["and"][1]
     return query
 
 
 def filter_suggestions(suggestions, language):
-    words = list(set(w.strip('()/')
-                     for suggestion in suggestions['suggestions']
-                     for w in suggestion['suggestion'].split()
-                     if word_is_alphabetic(w)))
-    query = ' '.join(words)
-    url = '{}_analyze?analyzer=suggestion_analyze'.format(get_elastic(language))
-    response = requests.get(url, params={'text': query.encode('utf8')})
-    analyzed_terms = [t['token'] for t in response.json().get('tokens')]
+    words = list(
+        set(
+            w.strip("()/")
+            for suggestion in suggestions["suggestions"]
+            for w in suggestion["suggestion"].split()
+            if word_is_alphabetic(w)
+        )
+    )
+    query = " ".join(words)
+    url = "{}_analyze?analyzer=suggestion_analyze".format(get_elastic(language))
+    response = requests.get(url, params={"text": query.encode("utf8")})
+    analyzed_terms = [t["token"] for t in response.json().get("tokens")]
     if len(words) != len(analyzed_terms):
         logger.warning(
-            'For the query text "{}", the suggestion analyzer returns the wrong number of terms.'.format(query))
+            'For the query text "{}", the suggestion analyzer returns the wrong number of terms.'.format(
+                query
+            )
+        )
         logger.warning(
-            'Result "{}", the suggestion analyzer returns the wrong number of terms.'.format(analyzed_terms))
+            'Result "{}", the suggestion analyzer returns the wrong number of terms.'.format(
+                analyzed_terms
+            )
+        )
         return suggestions
-    analyzed_map = dict((x, y) for x, y in zip(words, analyzed_terms) if x.lower() != y.lower())
+    analyzed_map = dict(
+        (x, y) for x, y in zip(words, analyzed_terms) if x.lower() != y.lower()
+    )
     seen = set()
     filtered_suggestions = []
-    for suggestion in suggestions['suggestions']:
-        analyzed = tuple(analyzed_map.get(w, w).lower() for w in suggestion['suggestion'].split())
+    for suggestion in suggestions["suggestions"]:
+        analyzed = tuple(
+            analyzed_map.get(w, w).lower() for w in suggestion["suggestion"].split()
+        )
         if analyzed not in seen:
             filtered_suggestions.append(suggestion)
             seen.add(analyzed)
-    suggestions['suggestions'] = filtered_suggestions
+    suggestions["suggestions"] = filtered_suggestions
     return suggestions
 
 
 def get_suggestions(query, language):
     s = generate_suggestions(query, language)
     s = choose_suggestions(s)
-    if language == 'fi':
+    if language == "fi":
         s = filter_suggestions(s, language)
     return s
 
@@ -450,27 +518,29 @@ def _f(q):
     filtered_suggestions = filter_suggestions(chosen_suggestions)
     # pprint.pprint(suggestions)
     # pprint.pprint(chosen_suggestions)
-    for s in filtered_suggestions['suggestions']:
-        if s['count']:
-            print('{} ({} toimipistettä)'.format(s['suggestion'], s['count']))
+    for s in filtered_suggestions["suggestions"]:
+        if s["count"]:
+            print("{} ({} toimipistettä)".format(s["suggestion"], s["count"]))
         else:
-            print(s['suggestion'])
+            print(s["suggestion"])
 
 
 def _loop():
     while True:
         q = input("\nsearch: ")
-        if q == '' or q == '.':
+        if q == "" or q == ".":
             break
-        elif q[-1] == '?':
+        elif q[-1] == "?":
             try:
                 results = unit_results(q[:-1])
                 for r in results:
-                    print(r['name']['fi'],
-                          'https://palvelukartta.hel.fi/unit/{}'.format(r['id']),
-                          r['score'])
+                    print(
+                        r["name"]["fi"],
+                        "https://palvelukartta.hel.fi/unit/{}".format(r["id"]),
+                        r["score"],
+                    )
                 print(len(results))
             except requests.exceptions.ConnectionError:
-                print('Error connecting to smbackend api')
+                print("Error connecting to smbackend api")
         else:
             _f(q)

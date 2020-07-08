@@ -8,23 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0041_unit_ontologyword_details_hash'),
+        ("services", "0041_unit_ontologyword_details_hash"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unitontologyworddetails',
-            name='clarification_en',
+            model_name="unitontologyworddetails",
+            name="clarification_en",
             field=models.CharField(blank=True, max_length=200, null=True),
         ),
         migrations.AddField(
-            model_name='unitontologyworddetails',
-            name='clarification_fi',
+            model_name="unitontologyworddetails",
+            name="clarification_fi",
             field=models.CharField(blank=True, max_length=200, null=True),
         ),
         migrations.AddField(
-            model_name='unitontologyworddetails',
-            name='clarification_sv',
+            model_name="unitontologyworddetails",
+            name="clarification_sv",
             field=models.CharField(blank=True, max_length=200, null=True),
         ),
     ]

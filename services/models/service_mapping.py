@@ -10,8 +10,7 @@ class ServiceMapping(models.Model):
 
     def __str__(self):
         if filter:
-            return u"map %s -> %s [%s]" % (self.service_id, self.node_id,
-                                           self.filter)
+            return u"map %s -> %s [%s]" % (self.service_id, self.node_id, self.filter)
 
         else:
             return u"map %s -> %s" % (self.service_id, self.node_id)

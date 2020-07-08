@@ -10,13 +10,23 @@ import re
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0018_auto_20170514_1337'),
+        ("services", "0018_auto_20170514_1337"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unit',
-            name='root_ontologytreenodes',
-            field=models.CharField(max_length=50, null=True, validators=[django.core.validators.RegexValidator(re.compile('^\\d+(?:\\,\\d+)*\\Z', 32), code='invalid', message='Enter only digits separated by commas.')]),
+            model_name="unit",
+            name="root_ontologytreenodes",
+            field=models.CharField(
+                max_length=50,
+                null=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        re.compile("^\\d+(?:\\,\\d+)*\\Z", 32),
+                        code="invalid",
+                        message="Enter only digits separated by commas.",
+                    )
+                ],
+            ),
         ),
     ]

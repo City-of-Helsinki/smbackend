@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('observations', '0005_translate_observable_properties'),
+        ("observations", "0005_translate_observable_properties"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='observableproperty',
-            name='expiration',
+            model_name="observableproperty",
+            name="expiration",
             field=models.DurationField(blank=True, null=True),
         ),
     ]
