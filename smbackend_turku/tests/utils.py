@@ -12,9 +12,17 @@ def create_municipality():
     Municipality.objects.create(id="turku", name="Turku", name_fi="Turku", name_sv="Åbo")
 
 
-def get_test_resource():
+def get_test_resource(resource_name):
     test_dir = os.path.dirname(__file__)
-    file = os.path.join(test_dir, "data/units.json")
+
+    if resource_name == "accessibility/variables":
+        file = os.path.join(test_dir, "data/accessibility_variables.json")
+    elif resource_name == "properties":
+        file = os.path.join(test_dir, "data/accessibility_unit_properties.json")
+    elif resource_name == "info":
+        file = os.path.join(test_dir, "data/accessibility_unit_info.json")
+    else:
+        file = os.path.join(test_dir, "data/units.json")
 
     with open(file) as file:
         data = json.load(file)
