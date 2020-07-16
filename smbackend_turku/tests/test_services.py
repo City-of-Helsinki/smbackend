@@ -1,6 +1,4 @@
-import json
 import logging
-import os
 from unittest.mock import patch
 
 import pytest
@@ -10,20 +8,7 @@ from services.management.commands.services_import.services import (
     update_service_root_service_nodes,
 )
 from services.models import Service, ServiceNode
-
-
-def get_test_resource(resource_name):
-    """
-    Mock calling the API by fetching dummy data from files.
-    """
-    test_dir = os.path.dirname(__file__)
-    if resource_name == "palvelut":
-        services_file = os.path.join(test_dir, "services.json")
-    else:
-        services_file = os.path.join(test_dir, "service_nodes.json")
-    with open(services_file) as f:
-        data = json.load(f)
-    return data
+from smbackend_turku.tests.utils import get_test_resource
 
 
 @pytest.mark.django_db
