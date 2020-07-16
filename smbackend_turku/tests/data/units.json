@@ -1,0 +1,199 @@
+[
+    {
+        "tila": {
+            "koodi": "1"
+        },
+        "lisatiedot": [
+            {
+                "kuvaus_kieliversiot": {
+                    "fi": "http://www.turku.fi/"
+                },
+                "lisatietotyyppi": {
+                    "koodi": "16",
+                    "nimi": "laskutusosoite"
+                },
+                "nimi": "http://www.turku.fi/"
+            },
+            {
+                "kuvaus_kieliversiot": {
+                    "fi": "www.turku.fi/"
+                },
+                "lisatietotyyppi": {
+                    "koodi": "18",
+                    "nimi": "palautelinkki"
+                },
+                "nimi": "www.turku.fi/"
+            }
+        ],
+        "nimi_kieliversiot": {
+            "fi": "Terapia"
+        },
+        "puhelinnumerot": [
+            {
+                "kuvaus_kieliversiot": {
+                    "en": "Phone",
+                    "sv": "Telefon",
+                    "fi": "Puhelin"
+                },
+                "numero": "47392746",
+                "maakoodi": "358",
+                "numerotyyppi": {
+                    "teksti_fi": "Puhelin",
+                    "teksti_sv": ""
+                }
+            },
+            {
+                "kuvaus_kieliversiot": {
+                    "en": "Telephone Switchboard of Turku City",
+                    "sv": "Åbo stads telefonväxel",
+                    "fi": "Turun kaupungin puhelinvaihde"
+                },
+                "numero": "5638675",
+                "maakoodi": "358",
+                "numerotyyppi": {
+                    "teksti_fi": "Vaihde",
+                    "teksti_sv": ""
+                }
+            }
+        ],
+        "koodi": "740",
+        "fyysinenPaikka": {
+            "lisatiedot": [
+                {
+                    "lisatietotyyppi": {
+                        "koodi": "5",
+                        "nimi": "toimipistekuva"
+                    },
+                    "nimi": ""
+                }
+            ],
+            "pituusaste": "22.274070900000",
+            "leveysaste": "60.437878600000",
+            "osoitteet": [
+                {
+                    "katuosoite_fi": "Testitie 2",
+                    "kunta": {
+                        "nimi_fi": "Turku",
+                        "koodi": "853",
+                        "nimi_sv": "Åbo"
+                    },
+                    "postitoimipaikka_en": "",
+                    "postitoimipaikka_fi": "Turku",
+                    "postinumero": "20810",
+                    "katuosoite_sv": "",
+                    "katuosoite_en": "",
+                    "postitoimipaikka_sv": ""
+                }
+            ],
+            "aukioloajat": [
+                {
+                    "voimassaoloAlkamishetki": "",
+                    "viikonpaiva": "1-5",
+                    "kuvaus_kieliversiot": {
+                        "en": "Opening hours",
+                        "sv": "Öppettidet",
+                        "fi": "Aukioloajat"
+                    },
+                    "voimassaoloPaattymishetki": "",
+                    "avaamisaika": "08:00:00",
+                    "aukiolotyyppi": "normaali",
+                    "sulkemisaika": "15:00:00"
+                }
+            ]
+        },
+        "muutospvm": "2016-09-14",
+        "ptv_id": "8j76h2hj-hb8b-8j87-j7g7-8796hg87654k"
+    },
+    {
+        "tila": {
+            "koodi": "1"
+        },
+        "nimi_kieliversiot": {
+            "fi": "Päiväkoti"
+        },
+        "puhelinnumerot": [
+            {
+                "kuvaus_kieliversiot": {
+                    "en": "Day Care Centre",
+                    "sv": "Dagvårdsenheten",
+                    "fi": "Päiväkoti"
+                },
+                "numero": "64932647",
+                "maakoodi": "358",
+                "numerotyyppi": {
+                    "teksti_fi": "Puhelin",
+                    "teksti_sv": ""
+                }
+            },
+            {
+                "numero": "45362987",
+                "maakoodi": "358",
+                "numerotyyppi": {
+                    "teksti_fi": "Puhelin",
+                    "teksti_sv": ""
+                }
+            },
+            {
+                "kuvaus_kieliversiot": {
+                    "en": "Care Center",
+                    "sv": "Vårdcentral",
+                    "fi": "Hoitokeskus"
+                },
+                "numero": "758403958",
+                "maakoodi": "358",
+                "numerotyyppi": {
+                    "teksti_fi": "Vaihde",
+                    "teksti_sv": ""
+                }
+            }
+        ],
+        "sahkoposti": "testi.15@turku.fi",
+        "koodi": "967",
+        "fyysinenPaikka": {
+            "lisatiedot": [
+                {
+                    "lisatietotyyppi": {
+                        "koodi": "5",
+                        "nimi": "toimipistekuva"
+                    },
+                    "nimi": ""
+                }
+            ],
+            "pituusaste": "22.321061900000",
+            "leveysaste": "60.472240800000",
+            "osoitteet": [
+                {
+                    "katuosoite_fi": "Testikatu 21",
+                    "kunta": {
+                        "nimi_fi": "",
+                        "koodi": "",
+                        "nimi_sv": ""
+                    },
+                    "postitoimipaikka_en": "",
+                    "postitoimipaikka_fi": "Turku",
+                    "postinumero": "20540",
+                    "katuosoite_sv": "",
+                    "katuosoite_en": "",
+                    "postitoimipaikka_sv": ""
+                }
+            ],
+            "aukioloajat": [
+                {
+                    "voimassaoloAlkamishetki": "",
+                    "viikonpaiva": "1-5",
+                    "kuvaus_kieliversiot": {
+                        "en": "Open",
+                        "sv": "Öppet",
+                        "fi": "Avoinna"
+                    },
+                    "voimassaoloPaattymishetki": "",
+                    "avaamisaika": "06:30:00",
+                    "aukiolotyyppi": "normaali",
+                    "sulkemisaika": "17:00:00"
+                }
+            ]
+        },
+        "muutospvm": "2019-01-22",
+        "ptv_id": "hs8790h7-h898-97h7-s9kj-86597867g978"
+    }
+]
