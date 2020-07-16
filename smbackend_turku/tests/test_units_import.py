@@ -19,7 +19,7 @@ def test_unit_import(resource):
     # Create Turku municipality
     create_municipality()
 
-    resource.return_value = get_test_resource()
+    resource.return_value = get_test_resource(resource_name=None)
     unit_importer.import_units()
 
     units = Unit.objects.count()
