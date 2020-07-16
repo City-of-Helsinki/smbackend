@@ -1,0 +1,38 @@
+[
+    {
+        "systemId": "s76s6j76-87b6-87h5-86k8-b6f785jj8979",
+        "servicePointId": "8j76h2hj-hb8b-8j87-j7g7-8796hg87654k",
+        "name": "Terapia",
+        "addressStreetName": "TESTITIE",
+        "addressNo": "2",
+        "addressCity": "TURKU",
+        "locEasting": 240043,
+        "locNorthing": 6709513,
+        "accessibilityPhone": null,
+        "accessibilityEmail": null,
+        "accessibilityWww": null,
+        "created": "2019-09-30T08:25:51",
+        "modified": "2019-09-30T08:25:51",
+        "entrances": [
+            27507
+        ]
+    },
+    {
+        "systemId": "s76s6j76-87b6-87h5-86k8-b6f785jj8979",
+        "servicePointId": "hs8790h7-h898-97h7-s9kj-86597867g978",
+        "name": "Päiväkoti",
+        "addressStreetName": "TESTIKATU",
+        "addressNo": "21",
+        "addressCity": "TURKU",
+        "locEasting": 242896,
+        "locNorthing": 6713147,
+        "accessibilityPhone": null,
+        "accessibilityEmail": null,
+        "accessibilityWww": null,
+        "created": "2018-06-07T14:11:04",
+        "modified": "2018-06-07T14:11:04",
+        "entrances": [
+            24541
+        ]
+    }
+]
