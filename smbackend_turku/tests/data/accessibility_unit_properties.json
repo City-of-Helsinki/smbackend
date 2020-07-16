@@ -1,0 +1,37 @@
+[
+    {
+        "systemId": "s76s6j76-87b6-87h5-86k8-b6f785jj8979",
+        "servicePointId": "8j76h2hj-hb8b-8j87-j7g7-8796hg87654k",
+        "variableId": 259,
+        "variableName": "INTERIOR.DOORS.stand_out_clearly",
+        "value": "true"
+    },
+    {
+        "systemId": "s76s6j76-87b6-87h5-86k8-b6f785jj8979",
+        "servicePointId": "8j76h2hj-hb8b-8j87-j7g7-8796hg87654k",
+        "variableId": 94,
+        "variableName": "INTERIOR.has_directions_to_facilities",
+        "value": "true"
+    },
+    {
+        "systemId": "s76s6j76-87b6-87h5-86k8-b6f785jj8979",
+        "servicePointId": "8j76h2hj-hb8b-8j87-j7g7-8796hg87654k",
+        "variableId": 172,
+        "variableName": "INTERIOR.wheelchair_lift",
+        "value": "false"
+    },
+    {
+        "systemId": "s76s6j76-87b6-87h5-86k8-b6f785jj8979",
+        "servicePointId": "hs8790h7-h898-97h7-s9kj-86597867g978",
+        "variableId": 749,
+        "variableName": "SERVICE_POINT.general_type",
+        "value": "indoor_facility"
+    },
+    {
+        "systemId": "d26b5f28-41c6-40a3-99f9-a1b762cc8191",
+        "servicePointId": "hs8790h7-h898-97h7-s9kj-86597867g978",
+        "variableId": 72,
+        "variableName": "ENTRANCE.DOOR.sufficiently_room_for_wheelchair_in_front",
+        "value": "false"
+    }
+]

@@ -1,0 +1,43 @@
+[
+    {
+        "variableId": 72,
+        "variableName": "ENTRANCE.DOOR.sufficiently_room_for_wheelchair_in_front",
+        "values": [
+            "true",
+            "false"
+        ]
+    },
+    {
+        "variableId": 94,
+        "variableName": "INTERIOR.has_directions_to_facilities",
+        "values": [
+            "true",
+            "false"
+        ]
+    },
+        {
+        "variableId": 172,
+        "variableName": "INTERIOR.wheelchair_lift",
+        "values": [
+            "true",
+            "false"
+        ]
+    },
+    {
+        "variableId": 259,
+        "variableName": "INTERIOR.DOORS.stand_out_clearly",
+        "values": [
+            "true",
+            "false"
+        ]
+    },
+    {
+        "variableId": 749,
+        "variableName": "SERVICE_POINT.general_type",
+        "values": [
+            "indoor_facility",
+            "outdoor_facility",
+            "meeting_room"
+        ]
+    }
+]
