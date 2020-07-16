@@ -13,19 +13,25 @@ def create_municipality():
 
 
 def get_test_resource(resource_name):
-    test_dir = os.path.dirname(__file__)
-
-    if resource_name == "accessibility/variables":
-        file = os.path.join(test_dir, "data/accessibility_variables.json")
+    """
+     Mock calling the API by fetching dummy data from files.
+    """
+    data_path = os.path.join(os.path.dirname(__file__), "data")
+    if resource_name == "palvelut":
+        file = os.path.join(data_path, "services.json")
+    elif resource_name == "palveluluokat":
+        file = os.path.join(data_path, "service_nodes.json")
+    elif resource_name == "accessibility/variables":
+        file = os.path.join(data_path, "accessibility_variables.json")
     elif resource_name == "properties":
-        file = os.path.join(test_dir, "data/accessibility_unit_properties.json")
+        file = os.path.join(data_path, "accessibility_unit_properties.json")
     elif resource_name == "info":
-        file = os.path.join(test_dir, "data/accessibility_unit_info.json")
+        file = os.path.join(data_path, "accessibility_unit_info.json")
     else:
-        file = os.path.join(test_dir, "data/units.json")
+        file = os.path.join(data_path, "units.json")
 
-    with open(file) as file:
-        data = json.load(file)
+    with open(file) as f:
+        data = json.load(f)
     return data
 
 
