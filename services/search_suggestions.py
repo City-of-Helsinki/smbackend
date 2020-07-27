@@ -156,109 +156,113 @@ def generate_suggestions(query, language):
     minimal_completions = {}
 
     match_id = -1
-    for _type, value in result["aggregations"].items():
-        if (
-            _type == "location"
-            and len(value["buckets"]) == 1
-            or _type == "complete_matches"
-        ):
-            continue
-        for term in value.get("buckets", []):
-            text = term["key"]
-            text_lower = text.lower()
-            match_type = "indirect"
-            boundaries = None
+    if "aggregations" in result:
+        for _type, value in result["aggregations"].items():
+            if (
+                _type == "location"
+                and len(value["buckets"]) == 1
+                or _type == "complete_matches"
+            ):
+                continue
+            for term in value.get("buckets", []):
+                text = term["key"]
+                text_lower = text.lower()
+                match_type = "indirect"
+                boundaries = None
 
-            if text_lower.strip() == query_lower.strip():
-                match_type = "full_query_match"
-            else:
-                full_match = query_lower.find(text_lower)
-                if full_match != -1:
-                    boundaries = [full_match, full_match + len(text_lower)]
-                    # if full_match == 0:
-                    #     match_type = 'result_matches_beginning_of_query'
-                    # else:
-                    match_type = "result_is_substring_of_query"
+                if text_lower.strip() == query_lower.strip():
+                    match_type = "full_query_match"
                 else:
-                    partial_match = text_lower.find(last_word_lower)
-                    if partial_match != -1:
-                        i = len(query_lower) - 1
-                        j = len(text_lower) - 1
-                        while query_lower[i] == text_lower[j]:
-                            i -= 1
-                            j -= 1
-                        if len(query_lower) - i > len(last_word_lower):
-                            match_type = "part_of_result_in_query"
-                        else:
-                            match_type = "last_word_substring"
-                        boundaries = [
-                            partial_match,
-                            partial_match + len(last_word_lower),
-                        ]
-                    if partial_match == 0:
-                        boundaries = [
-                            partial_match,
-                            partial_match + len(last_word_lower),
-                        ]
-                        match_type = "last_word_prefix"
-                        query_before_last_word = query.split()[:-1]
-                        if " ".join(query_before_last_word).lower() not in text_lower:
-                            text = last_word_re.sub(text, query)
+                    full_match = query_lower.find(text_lower)
+                    if full_match != -1:
+                        boundaries = [full_match, full_match + len(text_lower)]
+                        # if full_match == 0:
+                        #     match_type = 'result_matches_beginning_of_query'
+                        # else:
+                        match_type = "result_is_substring_of_query"
+                    else:
+                        partial_match = text_lower.find(last_word_lower)
+                        if partial_match != -1:
+                            i = len(query_lower) - 1
+                            j = len(text_lower) - 1
+                            while query_lower[i] == text_lower[j]:
+                                i -= 1
+                                j -= 1
+                            if len(query_lower) - i > len(last_word_lower):
+                                match_type = "part_of_result_in_query"
+                            else:
+                                match_type = "last_word_substring"
+                            boundaries = [
+                                partial_match,
+                                partial_match + len(last_word_lower),
+                            ]
+                        if partial_match == 0:
+                            boundaries = [
+                                partial_match,
+                                partial_match + len(last_word_lower),
+                            ]
+                            match_type = "last_word_prefix"
+                            query_before_last_word = query.split()[:-1]
+                            if (
+                                " ".join(query_before_last_word).lower()
+                                not in text_lower
+                            ):
+                                text = last_word_re.sub(text, query)
 
-            match_id += 1
-            match = {
-                "id": match_id,
-                "text": text,
-                "score": term.get("avg_score", {}).get("value", None),
-                "doc_count": term["doc_count"],
-                "field": _type,
-                "match_type": match_type,
-                "match_boundaries": boundaries,
-            }
-            if match["doc_count"] == 1:
-                match["single_match_document_id"] = term["tops"]["hits"]["hits"][0][
-                    "_id"
-                ]
-                match["single_match_document_name"] = term["tops"]["hits"]["hits"][0][
-                    "_source"
-                ]["name"]
-            if match_type == "last_word_prefix":
-                matching_part = last_word_re.search(text)
-                if matching_part:
-                    matching_text = matching_part.group(0)
-                    if matching_text.lower() != query_lower:
-                        match_copy = match.copy()
-                        match_copy["original"] = text
-                        match_copy["text"] = matching_text
-                        existing_completion = minimal_completions.get(
-                            match_copy["text"].lower()
-                        )
-                        if existing_completion:
-                            count = existing_completion["doc_count"]
-                        else:
-                            count = 0
-                        match_copy["doc_count"] = (
-                            count + term["doc_count"]
-                        )  # todo still don't work
-                        match_copy["category"] = "minimal_completion"
-                        if match_copy["doc_count"] > 1:
-                            try:
-                                del match_copy["single_match_document_id"]
-                                del match_copy["single_match_document_name"]
-                            except KeyError:
-                                pass
-                        minimal_completions[match_copy["text"].lower()] = match_copy
+                match_id += 1
+                match = {
+                    "id": match_id,
+                    "text": text,
+                    "score": term.get("avg_score", {}).get("value", None),
+                    "doc_count": term["doc_count"],
+                    "field": _type,
+                    "match_type": match_type,
+                    "match_boundaries": boundaries,
+                }
+                if match["doc_count"] == 1:
+                    match["single_match_document_id"] = term["tops"]["hits"]["hits"][0][
+                        "_id"
+                    ]
+                    match["single_match_document_name"] = term["tops"]["hits"]["hits"][
+                        0
+                    ]["_source"]["name"]
+                if match_type == "last_word_prefix":
+                    matching_part = last_word_re.search(text)
+                    if matching_part:
+                        matching_text = matching_part.group(0)
+                        if matching_text.lower() != query_lower:
+                            match_copy = match.copy()
+                            match_copy["original"] = text
+                            match_copy["text"] = matching_text
+                            existing_completion = minimal_completions.get(
+                                match_copy["text"].lower()
+                            )
+                            if existing_completion:
+                                count = existing_completion["doc_count"]
+                            else:
+                                count = 0
+                            match_copy["doc_count"] = (
+                                count + term["doc_count"]
+                            )  # todo still don't work
+                            match_copy["category"] = "minimal_completion"
+                            if match_copy["doc_count"] > 1:
+                                try:
+                                    del match_copy["single_match_document_id"]
+                                    del match_copy["single_match_document_name"]
+                                except KeyError:
+                                    pass
+                            minimal_completions[match_copy["text"].lower()] = match_copy
 
-            if _type == "name" and match_type == "indirect":
-                continue
-            if match_type == "part_of_result_in_query":
-                continue
-            if match_type == "indirect" or _type == "name":
-                key = _type
-            else:
-                key = "completions"
-            match["category"] = match["field"]
-            suggestions_by_type.setdefault(key, []).append(match)
+                if _type == "name" and match_type == "indirect":
+                    continue
+                if match_type == "part_of_result_in_query":
+                    continue
+                if match_type == "indirect" or _type == "name":
+                    key = _type
+                else:
+                    key = "completions"
+                match["category"] = match["field"]
+                suggestions_by_type.setdefault(key, []).append(match)
 
     # TODO: originally filtered out single-document minimals
     suggestions_by_type["minimal_completions"] = sorted(
