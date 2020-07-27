@@ -27,6 +27,8 @@ install:
 
 script:
   - flake8
+  - black --check .
+  - isort -c
   - pytest --cov=. --hypothesis-profile=ci
 
 after_success:
