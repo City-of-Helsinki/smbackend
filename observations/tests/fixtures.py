@@ -24,20 +24,20 @@ def api_client():
 @pytest.mark.django_db
 @pytest.fixture
 def user():
-    USERNAME = "test_user"
-    PASSWORD = "test_password"
-    MUNICIPALITY = "helsinki"
-    user = User.objects.create(username=USERNAME)
-    municipality = Municipality.objects.create(id=MUNICIPALITY, name=MUNICIPALITY)
+    username = "test_user"
+    password = "test_password"
+    municipality = "helsinki"
+    user = User.objects.create(username=username)
+    municipality = Municipality.objects.create(id=municipality, name=municipality)
     organization = Department.objects.create(
         name_fi="test_org",
         municipality=municipality,
         uuid="063c6150-ccc7-4886-b44b-ecee7670d065",
     )
     UserOrganization.objects.create(user=user, organization=organization)
-    user.set_password(PASSWORD)
+    user.set_password(password)
     user.save()
-    return {"username": USERNAME, "password": PASSWORD}
+    return {"username": username, "password": password}
 
 
 @pytest.mark.django_db

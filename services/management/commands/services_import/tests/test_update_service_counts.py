@@ -55,16 +55,16 @@ def services():
 @pytest.fixture
 def units(services, municipalities):
     units = []
-    MAX_UNIT_COUNT = 5
+    max_unit_count = 5
     index = 1
     unit_id = 0
     distinct_service_muni_counts = set()
     unit_names = set()
     for municipality in municipalities:
         for service in services:
-            if index % MAX_UNIT_COUNT > 0:
+            if index % max_unit_count > 0:
                 distinct_service_muni_counts.add((service.id, municipality.id))
-            for i in range(0, index % MAX_UNIT_COUNT):
+            for i in range(0, index % max_unit_count):
                 name = "unit_s{}_m{}_{}".format(service.id, municipality.id, i)
                 unit = Unit.objects.create(
                     id=unit_id,
