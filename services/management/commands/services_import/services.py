@@ -162,14 +162,14 @@ def get_municipality_division_type():
 
 def get_divisions_by_muni():
     global DIVISIONS_BY_MUNI
-    TYPE = get_municipality_division_type()
-    if TYPE is None:
+    type = get_municipality_division_type()
+    if type is None:
         return {}
     if DIVISIONS_BY_MUNI is None:
         DIVISIONS_BY_MUNI = dict(
             (
                 (x.name_fi.lower(), x)
-                for x in AdministrativeDivision.objects.filter(type=TYPE)
+                for x in AdministrativeDivision.objects.filter(type=type)
             )
         )
     return DIVISIONS_BY_MUNI

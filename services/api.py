@@ -25,7 +25,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 
 from observations.models import Observation
-from services.accessibility import RULES as accessibility_rules
+from services.accessibility import RULES
 from services.models import (
     Department,
     Service,
@@ -1112,7 +1112,7 @@ class SearchViewSet(
                 .filter_or(address=q_val)
             )
 
-        IS_NOT_UNIT_SQ = (
+        is_not_unit_sq = (
             SQ(django_ct="services.service")
             | SQ(django_ct="services.servicenode")
             | SQ(django_ct="munigeo.address")
@@ -1127,7 +1127,7 @@ class SearchViewSet(
                 for m in municipalities:
                     muni_sq |= SQ(municipality=m)
 
-                queryset = queryset.filter(SQ(muni_sq | IS_NOT_UNIT_SQ))
+                queryset = queryset.filter(SQ(muni_sq | is_not_unit_sq))
 
         if "city_as_department" in self.request.query_params:
             val = self.request.query_params["city_as_department"].lower().strip()
@@ -1151,7 +1151,7 @@ class SearchViewSet(
                     dep_sq |= SQ(root_department=d)
 
                 # updating queryset
-                queryset = queryset.filter(SQ(muni_sq | dep_sq | IS_NOT_UNIT_SQ))
+                queryset = queryset.filter(SQ(muni_sq | dep_sq | is_not_unit_sq))
 
         service = self.request.query_params.get("service")
         if service:
@@ -1287,7 +1287,7 @@ class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
     serializer_class = None
 
     def list(self, request, *args, **kwargs):
-        rules, messages = accessibility_rules.get_data()
+        rules, messages = RULES.get_data()
         return Response({"rules": rules, "messages": messages})
 
 

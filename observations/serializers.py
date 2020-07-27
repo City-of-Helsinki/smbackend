@@ -159,8 +159,7 @@ class ObservationSerializer(serializers.BaseSerializer):
         observable_property = models.ObservableProperty.objects.get(
             id="ski_trail_maintenance"
         )
-        MaintenanceModelClass = apps.get_model(observable_property.observation_type)
-        obj = MaintenanceModelClass.objects.create(
+        obj = apps.get_model(observable_property.observation_type).objects.create(
             unit_id=input["unit_id"],
             property_id="ski_trail_maintenance",
             time=input["time"],

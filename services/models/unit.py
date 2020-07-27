@@ -64,8 +64,8 @@ def get_unit_related_fields():
     global _unit_related_fields
     if len(_unit_related_fields) > 0:
         return _unit_related_fields
-    Unit = apps.get_model(app_label="services", model_name="Unit")
-    for f in Unit._meta.get_fields():
+    unit_model = apps.get_model(app_label="services", model_name="Unit")
+    for f in unit_model._meta.get_fields():
         if f.is_relation:
             _unit_related_fields.add(f.name)
     return _unit_related_fields
@@ -200,14 +200,14 @@ class Unit(models.Model):
         return "\n".join((service.name for service in self.services.all()))
 
     def highlight_names(self):
-        UnitConnection = apps.get_model(
+        unit_connection_model = apps.get_model(
             app_label="services", model_name="UnitConnection"
         )
         return "\n".join(
             (
                 connection.name
                 for connection in self.connections.filter(
-                    section_type=UnitConnection.HIGHLIGHT_TYPE
+                    section_type=unit_connection_model.HIGHLIGHT_TYPE
                 )
             )
         )

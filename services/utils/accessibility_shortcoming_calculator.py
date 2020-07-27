@@ -1,6 +1,6 @@
 import logging
 
-from services.accessibility import RULES as accessibility_rules
+from services.accessibility import RULES
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class Singleton(type):
 class AccessibilityShortcomingCalculator(object, metaclass=Singleton):
     def __init__(self):
         try:
-            self.rules, self.messages = accessibility_rules.get_data()
+            self.rules, self.messages = RULES.get_data()
         except FileNotFoundError as e:
             logger.error(e)
             self.rules, self.messages = {}, []
@@ -188,15 +188,15 @@ class AccessibilityShortcomingCalculator(object, metaclass=Singleton):
             self.shortcomings[profile_id][segment].add(message)
 
         segment = rule["path"][0]
-        requirementId = rule["requirement_id"]
+        requirement_id = rule["requirement_id"]
         messages[segment] = messages.get(segment, {})
-        messages[segment][requirementId] = messages[segment].get(requirementId, [])
-        if rule["id"] == requirementId:
+        messages[segment][requirement_id] = messages[segment].get(requirement_id, [])
+        if rule["id"] == requirement_id:
             # This is a top level requirement - only add top level message if there are no specific messages.
-            if not messages[segment][requirementId]:
-                messages[segment][requirementId].append(rule["msg"])
+            if not messages[segment][requirement_id]:
+                messages[segment][requirement_id].append(rule["msg"])
                 record(segment, rule["msg"])
         else:
-            messages[segment][requirementId].append(rule["msg"])
+            messages[segment][requirement_id].append(rule["msg"])
             record(segment, rule["msg"])
         return True
