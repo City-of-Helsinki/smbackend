@@ -144,6 +144,8 @@ def _matches_complete_word_tokens(result):
 def generate_suggestions(query, language):
     query_lower = query.lower()
     result = suggestion_response(query, language)
+    if result["hits"]["total"] == 0:
+        return None
 
     last_word = query.split()[-1]
 
@@ -500,6 +502,9 @@ def filter_suggestions(suggestions, language):
 
 def get_suggestions(query, language):
     s = generate_suggestions(query, language)
+    if not s:
+        query = query.replace(" ", "")
+        s = generate_suggestions(query, language)
     s = choose_suggestions(s)
     if language == "fi":
         s = filter_suggestions(s, language)
