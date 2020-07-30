@@ -520,11 +520,15 @@ def _p(val):
 
 
 def _f(q):
+    language = "fi"
     # _p(suggestion_query(q))
-    # _p(suggestion_response(q))
-    suggestions = generate_suggestions(q)
+    # _p(suggestion_response(q, language))
+    suggestions = generate_suggestions(q, language)
+    if not suggestions:
+        q = q.replace(" ", "")
+        suggestions = generate_suggestions(q, language)
     chosen_suggestions = choose_suggestions(suggestions)
-    filtered_suggestions = filter_suggestions(chosen_suggestions)
+    filtered_suggestions = filter_suggestions(chosen_suggestions, language)
     # pprint.pprint(suggestions)
     # pprint.pprint(chosen_suggestions)
     for s in filtered_suggestions["suggestions"]:
