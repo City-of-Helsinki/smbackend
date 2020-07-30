@@ -91,7 +91,7 @@ class Observation(PolymorphicModel):
         services_models.Unit,
         blank=False,
         null=False,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         help_text="The unit the observation is about",
         related_name="observation_history",
     )

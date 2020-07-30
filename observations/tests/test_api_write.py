@@ -7,6 +7,7 @@ from rest_framework.reverse import reverse
 
 from data import observation_raw_data
 from observations.models import Observation
+from services.models import Unit
 
 
 def authenticate_user(api_client, user):
@@ -16,7 +17,6 @@ def authenticate_user(api_client, user):
     api_client.credentials(HTTP_AUTHORIZATION="Token " + token)
 
 
-# Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__create_observation(api_client, observable_property, unit, user):
     url = (
@@ -53,7 +53,6 @@ def test__create_observation(api_client, observable_property, unit, user):
     assert Observation.objects.count() == count
 
 
-# Skipping test until observations migrated to v2
 @pytest.mark.django_db
 def test__create_descriptive_observation(api_client, descriptive_property, unit, user):
     url = (
@@ -106,3 +105,12 @@ def test__create_descriptive_observation(api_client, descriptive_property, unit,
         assert data["unit"] == raw_data["unit"]
 
     assert Observation.objects.count() == count
+
+
+@pytest.mark.django_db
+def test__delete_unit_with_observation_link(categorical_observations, unit):
+    assert Unit.objects.count() == 1
+    assert Observation.objects.count() == 4
+    unit.delete()
+    assert Unit.objects.count() == 0
+    assert Observation.objects.count() == 0
