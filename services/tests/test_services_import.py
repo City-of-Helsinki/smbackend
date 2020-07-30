@@ -286,7 +286,7 @@ def assert_service_details_correctly_imported(source, imported):
 @settings(
     suppress_health_check=[HealthCheck.too_slow],
     timeout=hypothesis.unlimited,
-    max_examples=200,
+    max_examples=100,
 )
 @given(closed_object_set())
 def test_import_units(api_client, resources):
