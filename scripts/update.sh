@@ -1,5 +1,6 @@
 #!/bin/bash
 
+% export PYTHONIOENCODING=utf-8
 set -e
 
 TIMESTAMP_FORMAT="+%Y-%m-%d %H:%M:%S"

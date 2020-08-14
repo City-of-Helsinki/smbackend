@@ -1,5 +1,7 @@
 #!/bin/bash
 
+% export PYTHONIOENCODING=utf-8
+
 function stage_0 {
     # Very seldomly executed imports (once a year max)
     # Finnish municipalities in munigeo
