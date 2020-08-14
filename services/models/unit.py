@@ -124,7 +124,7 @@ class Unit(models.Model):
 
     www = models.URLField(max_length=400, null=True)
     address_postal_full = models.CharField(max_length=100, null=True)
-    call_charge_info = models.CharField(max_length=100, null=True)
+    call_charge_info = models.CharField(max_length=500, null=True)
 
     picture_caption = models.TextField(null=True)
 
