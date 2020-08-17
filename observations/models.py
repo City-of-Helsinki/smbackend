@@ -5,6 +5,7 @@ import rest_framework.authtoken.models
 from django.apps import apps
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from polymorphic.models import PolymorphicModel
 from rest_framework import exceptions
@@ -72,6 +73,20 @@ class AllowedValue(models.Model):
         unique_together = (("identifier", "property"),)
 
 
+def get_sentinel_unit():
+    unit = services_models.Unit.objects.filter(name="DELETED_UNIT").first()
+    if unit:
+        return unit
+    if services_models.Unit.objects.count() > 0:
+        next_id = services_models.Unit.objects.order_by("-id").first().id + 1
+    else:
+        next_id = 1
+    unit = services_models.Unit.objects.create(
+        id=next_id, name="DELETED_UNIT", last_modified_time=timezone.now()
+    )
+    return unit
+
+
 class Observation(PolymorphicModel):
     """An observation is a measured/observed value of
     a property of a unit at a certain time.
@@ -91,7 +106,7 @@ class Observation(PolymorphicModel):
         services_models.Unit,
         blank=False,
         null=False,
-        on_delete=models.CASCADE,
+        on_delete=models.SET(get_sentinel_unit),
         help_text="The unit the observation is about",
         related_name="observation_history",
     )

@@ -107,10 +107,13 @@ def test__create_descriptive_observation(api_client, descriptive_property, unit,
     assert Observation.objects.count() == count
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 def test__delete_unit_with_observation_link(categorical_observations, unit):
     assert Unit.objects.count() == 1
     assert Observation.objects.count() == 4
     unit.delete()
-    assert Unit.objects.count() == 0
-    assert Observation.objects.count() == 0
+    assert Unit.objects.count() == 1
+    assert Observation.objects.count() == 4
+    deleted_unit = Unit.objects.filter(name="DELETED_UNIT").first()
+    for observation in Observation.objects.all():
+        assert observation.unit == deleted_unit
