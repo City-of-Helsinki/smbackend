@@ -1300,11 +1300,11 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
     def to_representation(self, obj):
         ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
 
-        req = self.context.get("request", None)
-        if req:
-            unit_include = req.query_params.get("unit_include", None)
-        else:
-            unit_include = None
+        if "request" not in self.context:
+            return ret
+
+        query_params = self.context["request"].query_params
+        unit_include = query_params.get("unit_include", None)
         service_point_id = ret["service_point_id"]
         if service_point_id and unit_include:
             try:
@@ -1318,6 +1318,11 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
             if unit:
                 ser = UnitSerializer(unit, context={"only": unit_include.split(",")})
                 ret["unit"] = ser.data
+
+        include_fields = query_params.get("include", None)
+        if "centroid" in include_fields and obj.geometry:
+            centroid = obj.geometry.boundary.centroid
+            ret["centroid"] = munigeo_api.geom_to_json(centroid, self.srs)
 
         return ret
 
