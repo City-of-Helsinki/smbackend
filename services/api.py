@@ -1319,7 +1319,7 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
                 ser = UnitSerializer(unit, context={"only": unit_include.split(",")})
                 ret["unit"] = ser.data
 
-        include_fields = query_params.get("include", None)
+        include_fields = query_params.get("include", [])
         if "centroid" in include_fields and obj.geometry:
             centroid = obj.geometry.boundary.centroid
             ret["centroid"] = munigeo_api.geom_to_json(centroid, self.srs)
