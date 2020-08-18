@@ -146,6 +146,18 @@ HAYSTACK_CONNECTIONS = {
 }
 ```
 
+Observations
+------------
+
+Load initial observation data with commands:
+```
+./manage.py loaddata observations/fixtures/maintenance_users.yaml 
+./manage.py loaddata observations/fixtures/initial_observable_properties_common.yaml 
+./manage.py loaddata observations/fixtures/initial_observable_properties_skating.yaml
+./manage.py loaddata observations/fixtures/initial_observable_properties_skiing.yaml 
+./manage.py loaddata observations/fixtures/initial_observable_properties_swimming.yaml 
+```
+
 
 Troubleshooting
 ---------------
