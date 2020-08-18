@@ -2,6 +2,7 @@ from django.apps import apps
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import HStoreField, JSONField
 from django.db.models import Manager
+from django.utils import timezone
 from django.utils.translation import ugettext_noop as _
 from munigeo.models import Municipality
 from munigeo.utils import get_default_srid
@@ -71,6 +72,19 @@ def get_unit_related_fields():
     return _unit_related_fields
 
 
+class SoftDeleteModel(models.Model):
+    is_active = models.BooleanField(_("Active"), default=True)
+    deleted_at = models.DateTimeField(_("Deleted at"), blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+    def soft_delete(self):
+        self.is_active = False
+        self.deleted_at = timezone.now()
+        self.save()
+
+
 class UnitSearchManager(Manager):
     def get_queryset(self):
         qs = (
@@ -92,7 +106,7 @@ class UnitSearchManager(Manager):
         return qs
 
 
-class Unit(models.Model):
+class Unit(SoftDeleteModel):
     id = models.IntegerField(primary_key=True)
 
     public = models.BooleanField(null=False, default=True)

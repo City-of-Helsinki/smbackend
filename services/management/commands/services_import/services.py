@@ -206,7 +206,9 @@ def save_objects(objects):
 def update_service_node_counts():
     units_by_service = {}
     through_values = (
-        Unit.service_nodes.through.objects.filter(unit__public=True)
+        Unit.service_nodes.through.objects.filter(
+            unit__public=True, unit__is_active=True
+        )
         .values_list("servicenode_id", "unit__municipality", "unit_id")
         .distinct()
     )

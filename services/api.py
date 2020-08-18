@@ -744,7 +744,7 @@ class KmlRenderer(renderers.BaseRenderer):
 class UnitViewSet(
     munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet
 ):
-    queryset = Unit.objects.filter(public=True)
+    queryset = Unit.objects.filter(public=True, is_active=True)
     serializer_class = UnitSerializer
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
     filter_backends = (DjangoFilterBackend,)
@@ -1007,7 +1007,7 @@ class UnitViewSet(
 
     def retrieve(self, request, pk=None):
         try:
-            unit = Unit.objects.get(pk=pk, public=True)
+            unit = Unit.objects.get(pk=pk, public=True, is_active=True)
         except Unit.DoesNotExist:
             unit_alias = get_object_or_404(UnitAlias, second=pk)
             unit = unit_alias.first

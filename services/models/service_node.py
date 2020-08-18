@@ -37,7 +37,9 @@ class ServiceNode(MPTTModel):
         )
         srv_list.add(self.id)
         count = (
-            Unit.objects.filter(public=True, service_nodes__in=list(srv_list))
+            Unit.objects.filter(
+                public=True, is_active=True, service_nodes__in=list(srv_list)
+            )
             .distinct()
             .count()
         )

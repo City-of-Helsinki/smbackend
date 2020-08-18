@@ -1,5 +1,6 @@
 import pytest
 from datetime import datetime, timedelta
+from django.db.models import ProtectedError
 from django.urls import reverse as django_reverse
 from django.utils import timezone
 from fixtures import *  # noqa: F401,F403
@@ -107,13 +108,30 @@ def test__create_descriptive_observation(api_client, descriptive_property, unit,
     assert Observation.objects.count() == count
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
+def test__soft_delete_unit_with_observation_link(categorical_observations, unit):
+    assert Unit.objects.count() == 1
+    assert Observation.objects.count() == 4
+    assert unit.is_active is True
+    assert unit.deleted_at is None
+    unit.soft_delete()
+    assert Unit.objects.count() == 1
+    assert Observation.objects.count() == 4
+    assert unit.is_active is False
+    assert unit.deleted_at is not None
+    for observation in Observation.objects.all():
+        assert observation.unit == unit
+
+
+@pytest.mark.django_db
 def test__delete_unit_with_observation_link(categorical_observations, unit):
     assert Unit.objects.count() == 1
     assert Observation.objects.count() == 4
-    unit.delete()
+    with pytest.raises(ProtectedError) as e:
+        unit.delete()
+    assert (
+        "Cannot delete some instances of model 'Unit' because they are referenced through a protected foreign key"
+        in str(e.value)
+    )
     assert Unit.objects.count() == 1
     assert Observation.objects.count() == 4
-    deleted_unit = Unit.objects.filter(name="DELETED_UNIT").first()
-    for observation in Observation.objects.all():
-        assert observation.unit == deleted_unit
