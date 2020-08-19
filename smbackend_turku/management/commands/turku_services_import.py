@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
 import sys
-
 from django import db
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -15,7 +14,7 @@ from smbackend_turku.importers.units import import_units
 
 class Command(BaseCommand):
     help = "Import services from City of Turku APIs"
-    importer_types = ['services', 'accessibility', 'units', 'addresses']
+    importer_types = ["services", "accessibility", "units", "addresses"]
 
     supported_languages = [l[0] for l in settings.LANGUAGES]
 
@@ -32,11 +31,21 @@ class Command(BaseCommand):
         self.logger = None
 
     def add_arguments(self, parser):
-        parser.add_argument('import_types', nargs='*', choices=self.importer_types)
-        parser.add_argument('--cached', action='store_true', dest='cached',
-                            default=False, help='cache HTTP requests')
-        parser.add_argument('--single', action='store', dest='id',
-                            default=False, help='import only single entity')
+        parser.add_argument("import_types", nargs="*", choices=self.importer_types)
+        parser.add_argument(
+            "--cached",
+            action="store_true",
+            dest="cached",
+            default=False,
+            help="cache HTTP requests",
+        )
+        parser.add_argument(
+            "--single",
+            action="store",
+            dest="id",
+            default=False,
+            help="import only single entity",
+        )
 
     @db.transaction.atomic
     def import_services(self):
@@ -59,7 +68,7 @@ class Command(BaseCommand):
     @translation.override(settings.LANGUAGES[0][0])
     def handle(self, **options):
         self.options = options
-        self.verbosity = int(options.get('verbosity', 1))
+        self.verbosity = int(options.get("verbosity", 1))
         self.logger = logging.getLogger(__name__)
 
         import_count = 0
