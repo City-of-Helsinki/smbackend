@@ -1,11 +1,15 @@
+import logging
 import math
 import pytest
-import logging
-
 from unittest.mock import patch
-from services.models import Unit, UnitConnection
 
-from smbackend_turku.tests.utils import get_test_resource, get_location, get_opening_hours, create_municipality
+from services.models import Unit, UnitConnection
+from smbackend_turku.tests.utils import (
+    create_municipality,
+    get_location,
+    get_opening_hours,
+    get_test_resource,
+)
 
 
 @pytest.mark.django_db
@@ -42,7 +46,9 @@ def test_unit_import(resource):
     assert unit_1.municipality_id == "turku"
     assert unit_2.municipality.id == "turku"
     assert unit_1.address_postal_full.replace(u"\xa0", " ") == "Testitie 2 20810 Turku"
-    assert unit_2.address_postal_full.replace(u"\xa0", " ") == "Testikatu 21 20540 Turku"
+    assert (
+        unit_2.address_postal_full.replace(u"\xa0", " ") == "Testikatu 21 20540 Turku"
+    )
     assert unit_1.street_address == "Testitie 2"
     assert unit_2.street_address == "Testikatu 21"
     assert unit_1.address_zip == "20810"
@@ -51,16 +57,22 @@ def test_unit_import(resource):
     assert unit_1.identifiers.first().value == "8j76h2hj-hb8b-8j87-j7g7-8796hg87654k"
     assert unit_2.identifiers.first().value == "hs8790h7-h898-97h7-s9kj-86597867g978"
 
-    OPENING_HOURS_SECTION_TYPE = 5
-    unit_connections_opening_hours = UnitConnection.objects.filter(section_type=OPENING_HOURS_SECTION_TYPE).count()
-    unit_connection_1 = UnitConnection.objects.get(unit=unit_1, section_type=OPENING_HOURS_SECTION_TYPE)
-    unit_connection_2 = UnitConnection.objects.get(unit=unit_2, section_type=OPENING_HOURS_SECTION_TYPE)
+    opening_hours_section_type = 5
+    unit_connections_opening_hours = UnitConnection.objects.filter(
+        section_type=opening_hours_section_type
+    ).count()
+    unit_connection_1 = UnitConnection.objects.get(
+        unit=unit_1, section_type=opening_hours_section_type
+    )
+    unit_connection_2 = UnitConnection.objects.get(
+        unit=unit_2, section_type=opening_hours_section_type
+    )
 
     opening_hours_1 = get_opening_hours("08:00:00", "15:00:00", "1-5")
     opening_hours_2 = get_opening_hours("06:30:00", "17:00:00", "1-5")
 
-    opening_hours_name_1 = '{} {}'.format('<b>Aukioloajat</b>', opening_hours_1)
-    opening_hours_name_2 = '{} {}'.format('<b>Avoinna</b>', opening_hours_2)
+    opening_hours_name_1 = "{} {}".format("<b>Aukioloajat</b>", opening_hours_1)
+    opening_hours_name_2 = "{} {}".format("<b>Avoinna</b>", opening_hours_2)
 
     assert unit_connections_opening_hours == 2
     assert unit_connection_1.name == opening_hours_name_1

@@ -1,15 +1,16 @@
-import os
 import json
-
+import os
 from django.conf import settings
-from munigeo.models import Municipality
 from django.contrib.gis.geos import Point
+from munigeo.models import Municipality
 
 from smbackend_turku.importers.utils import get_weekday_str
 
 
 def create_municipality():
-    Municipality.objects.create(id="turku", name="Turku", name_fi="Turku", name_sv="Åbo")
+    Municipality.objects.create(
+        id="turku", name="Turku", name_fi="Turku", name_sv="Åbo"
+    )
 
 
 def get_test_resource(resource_name):
@@ -37,17 +38,19 @@ def get_test_resource(resource_name):
 
 def format_time(time_str):
     if not time_str:
-        return ''
-    parts = time_str.split(':')[:2]
+        return ""
+    parts = time_str.split(":")[:2]
     parts[0] = str(int(parts[0]))
-    return ':'.join(parts)
+    return ":".join(parts)
 
 
 def get_opening_hours(opening_time, closing_time, weekday):
     opening_time = format_time(opening_time)
     closing_time = format_time(closing_time)
-    weekday_str = '–'.join([get_weekday_str(int(wd), 'fi') if wd else '' for wd in weekday.split('-')])
-    return '{}&nbsp;{}–{}'.format(weekday_str, opening_time, closing_time)
+    weekday_str = "–".join(
+        [get_weekday_str(int(wd), "fi") if wd else "" for wd in weekday.split("-")]
+    )
+    return "{}&nbsp;{}–{}".format(weekday_str, opening_time, closing_time)
 
 
 def get_location(latitude, longitude, srid):
