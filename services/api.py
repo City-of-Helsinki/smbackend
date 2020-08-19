@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.utils.module_loading import import_string
 from django_filters.rest_framework import DjangoFilterBackend
-from haystack.inputs import Clean
+from haystack.inputs import Clean, Exact
 from haystack.query import SearchQuerySet, SQ
 from modeltranslation.translator import NotRegistered, translator
 from mptt.utils import drilldown_tree_for_node
@@ -1078,6 +1078,10 @@ class SearchViewSet(
     serializer_class = SearchSerializer
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
 
+    def use_exact_query(self, input):
+        """ Define extra rules when to use exact search """
+        return bool(re.search(r"\d-\d", input)) or bool(re.search(r"\d\.", input))
+
     def get_queryset(self):
         queryset = SearchQuerySet()
 
@@ -1089,6 +1093,7 @@ class SearchViewSet(
 
         input_val = self.request.query_params.get("input", "").strip()
         q_val = self.request.query_params.get("q", "").strip()
+        exact_query = self.use_exact_query(q_val)
 
         if not input_val and not q_val:
             raise ParseError(
@@ -1105,12 +1110,20 @@ class SearchViewSet(
                 | SQ(SQ(number=input_val) & SQ(autosuggest=input_val))
             )
         else:
-            queryset = (
-                queryset.filter(name=Clean(q_val))
-                .filter_or(text=Clean(q_val))
-                .filter_or(extra_searchwords=q_val)
-                .filter_or(address=q_val)
-            )
+            if not exact_query:
+                queryset = (
+                    queryset.filter(name=Clean(q_val))
+                    .filter_or(text=Clean(q_val))
+                    .filter_or(extra_searchwords=Clean(q_val))
+                    .filter_or(address=Clean(q_val))
+                )
+            else:
+                queryset = (
+                    queryset.filter(name=Exact(q_val))
+                    .filter_or(text=Exact(q_val))
+                    .filter_or(extra_searchwords=Exact(q_val))
+                    .filter_or(address=Exact(q_val))
+                )
 
         is_not_unit_sq = (
             SQ(django_ct="services.service")
