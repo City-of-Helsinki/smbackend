@@ -116,3 +116,13 @@
     description_sv: Stängd av andra skäl
     description_en: Closed for other reasons than cyanobacteria
     quality: unusable
+- model: observations.ObservableProperty
+  pk: live_swimming_water_temperature
+  fields:
+    name_fi: Veden lämpötila (sensori)
+    name_en: Water temperature (sensor)
+    name_sv: Vattentemperatur (sensor)
+    observation_type: observations.DescriptiveObservation
+    services:
+      - 731
+      - 730
