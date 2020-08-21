@@ -71,8 +71,8 @@ def test_unit_import(resource):
     opening_hours_1 = get_opening_hours("08:00:00", "15:00:00", "1-5")
     opening_hours_2 = get_opening_hours("06:30:00", "17:00:00", "1-5")
 
-    opening_hours_name_1 = "{} {}".format("<b>Aukioloajat</b>", opening_hours_1)
-    opening_hours_name_2 = "{} {}".format("<b>Avoinna</b>", opening_hours_2)
+    opening_hours_name_1 = "{} {}".format("Aukioloajat", opening_hours_1)
+    opening_hours_name_2 = "{} {}".format("Avoinna", opening_hours_2)
 
     assert unit_connections_opening_hours == 2
     assert unit_connection_1.name == opening_hours_name_1

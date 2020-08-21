@@ -50,7 +50,7 @@ def get_opening_hours(opening_time, closing_time, weekday):
     weekday_str = "–".join(
         [get_weekday_str(int(wd), "fi") if wd else "" for wd in weekday.split("-")]
     )
-    return "{}&nbsp;{}–{}".format(weekday_str, opening_time, closing_time)
+    return "{} {}–{}".format(weekday_str, opening_time, closing_time)
 
 
 def get_location(latitude, longitude, srid):

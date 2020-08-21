@@ -370,7 +370,7 @@ class UnitImporter:
                         (weekday_str, CLOSED_STR[language])
                     )
                 else:
-                    opening_hours_value[language] = "{}&nbsp;{}–{}".format(
+                    opening_hours_value[language] = "{} {}–{}".format(
                         weekday_str, opening_time, closing_time
                     )
 
@@ -398,7 +398,7 @@ class UnitImporter:
                 for language in LANGUAGES:
                     first_part = value[0][language]
                     if opening_hours_type in (NORMAL, NORMAL_EXTRA, SPECIAL):
-                        first_part = "<b>{}</b>".format(first_part)
+                        first_part = "{}".format(first_part)
                     second_part = " ".join(v[language] for v in value[1])
                     names["name_{}".format(language)] = "{} {}".format(
                         first_part, second_part
