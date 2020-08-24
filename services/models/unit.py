@@ -213,6 +213,14 @@ class Unit(SoftDeleteModel):
     def service_names(self):
         return "\n".join((service.name for service in self.services.all()))
 
+    def service_keywords(self):
+        return "\n".join(
+            (
+                "\n".join((keyword.name for keyword in service.keywords.all()))
+                for service in self.services.all()
+            )
+        )
+
     def highlight_names(self):
         unit_connection_model = apps.get_model(
             app_label="services", model_name="UnitConnection"
