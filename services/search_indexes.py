@@ -130,6 +130,7 @@ class UnitIndex(ServiceMapBaseIndex):
         values = [
             self._name_with_address_removed(obj.name),
             obj.service_names(),
+            obj.service_keywords(),
             obj.highlight_names(),
         ]
         if obj.municipality:
