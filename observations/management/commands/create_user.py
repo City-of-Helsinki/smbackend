@@ -8,7 +8,7 @@ from services.models import Department
 
 
 class Command(BaseCommand):
-    help = "Import users, manage.py user_import username password city"
+    help = "Create user, manage.py create_user username password city"
 
     def add_arguments(self, parser):
         parser.add_argument("username")
