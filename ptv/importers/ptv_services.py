@@ -6,12 +6,15 @@ from django.db.models import Max
 from munigeo.importer.sync import ModelSyncher
 
 from ptv.models import ServicePTVIdentifier
-from ptv.utils import get_ptv_resource, UTC_TIMEZONE
-from services.models import Service
+from ptv.utils import get_ptv_resource, TKU_PTV_NODE_MAPPING, UTC_TIMEZONE
+from services.management.commands.services_import.services import (
+    update_service_root_service_nodes,
+)
+from services.models import Service, ServiceNode
 
 
 class PTVServiceImporter:
-    def __init__(self, area_code):
+    def __init__(self, area_code, logger=None):
         self.service_syncher = ModelSyncher(
             Service.objects.filter(ptv_ids__isnull=False), lambda obj: obj.id
         )
@@ -19,6 +22,7 @@ class PTVServiceImporter:
             ServicePTVIdentifier.objects.all(), lambda obj: obj.id
         )
         self.are_code = area_code
+        self.logger = logger
 
     @db.transaction.atomic
     def import_services(self):
@@ -78,6 +82,7 @@ class PTVServiceImporter:
             self._save_object(id_obj)
 
         self._save_object(service_obj)
+        self._handle_service_nodes(service_data, service_obj)
 
     def _handle_service_names(self, service_data, service_obj):
         for name in service_data.get("serviceNames"):
@@ -85,6 +90,32 @@ class PTVServiceImporter:
             value = name.get("value")
             obj_key = "{}_{}".format("name", lang)
             setattr(service_obj, obj_key, value)
+
+    def _handle_service_nodes(self, service_data, service_obj):
+        for service_class in service_data.get("serviceClasses"):
+            self._handle_service_node(service_class, service_obj)
+        update_service_root_service_nodes()
+
+    def _handle_service_node(self, node, service_obj):
+        for name in node.get("name"):
+            if name.get("language") == "fi":
+                value = name.get("value")
+                # TODO: Alternative solution to the Turku mapping
+                if value in TKU_PTV_NODE_MAPPING:
+                    value_list = TKU_PTV_NODE_MAPPING.get(value)
+                    for node_name in value_list:
+                        node_obj = ServiceNode.objects.filter(name=node_name).first()
+                        if not node_obj:
+                            # TODO: What to do with the nodes that can't be mapped to the existing ones.
+                            self.logger.warning(
+                                'ServiceNode "{}" does not exist!'.format(node_name)
+                            )
+                            break
+
+                        node_obj.related_services.add(service_obj)
+                        node_obj.units.add(*service_obj.units.all())
+                        node_obj._changed = True
+                        self._save_object(node_obj)
 
     def _save_object(self, obj):
         if obj._changed:
