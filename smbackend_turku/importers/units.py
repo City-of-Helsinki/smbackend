@@ -16,10 +16,12 @@ from services.models import (
     Service,
     ServiceNode,
     Unit,
+    UnitAccessibilityShortcomings,
     UnitConnection,
     UnitIdentifier,
     UnitServiceDetails,
 )
+from services.utils import AccessibilityShortcomingCalculator
 from smbackend_turku.importers.utils import (
     get_localized_value,
     get_turku_resource,
@@ -138,6 +140,7 @@ class UnitImporter:
         self._handle_opening_hours(obj, unit_data)
         self._handle_email_and_phone_numbers(obj, unit_data)
         self._handle_services_and_service_nodes(obj, unit_data)
+        self._handle_accessibility_shortcomings(obj)
         self._save_object(obj)
 
         self.unitsyncher.mark(obj)
@@ -279,6 +282,16 @@ class UnitImporter:
             obj,
             "root_service_nodes",
             ",".join(str(x) for x in obj.get_root_service_nodes()),
+        )
+
+    def _handle_accessibility_shortcomings(self, obj):
+        description, count = AccessibilityShortcomingCalculator().calculate(obj)
+        UnitAccessibilityShortcomings.objects.update_or_create(
+            unit=obj,
+            defaults={
+                "accessibility_shortcoming_count": count,
+                "accessibility_description": description,
+            },
         )
 
     def _handle_service_descriptions(self, obj, unit_data):
