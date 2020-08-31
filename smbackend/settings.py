@@ -30,6 +30,8 @@ env = environ.Env(
     OPEN311_INTERNAL_API_KEY=(str, None),
     SHORTCUTTER_UNIT_URL=(str, None),
     ADDRESS_SEARCH_RADIUS=(int, 50),
+    TURKU_API_KEY=(str, None),
+    ACCESSIBILITY_SYSTEM_ID=(str, None),
 )
 
 SECURE_PROXY_SSL_HEADER = env("SECURE_PROXY_SSL_HEADER")
@@ -72,6 +74,9 @@ INSTALLED_APPS = (
 
 if env("ADDITIONAL_INSTALLED_APPS", default=None):
     INSTALLED_APPS += env.tuple("ADDITIONAL_INSTALLED_APPS")
+
+TURKU_API_KEY = env("TURKU_API_KEY")
+ACCESSIBILITY_SYSTEM_ID = env("ACCESSIBILITY_SYSTEM_ID")
 
 MIDDLEWARE = [
     "django.middleware.gzip.GZipMiddleware",
