@@ -1,5 +1,6 @@
 import json
 import os
+
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from munigeo.models import Municipality
@@ -15,7 +16,7 @@ def create_municipality():
 
 def get_test_resource(resource_name):
     """
-     Mock calling the API by fetching dummy data from files.
+    Mock calling the API by fetching dummy data from files.
     """
     data_path = os.path.join(os.path.dirname(__file__), "data")
     if resource_name == "palvelut":

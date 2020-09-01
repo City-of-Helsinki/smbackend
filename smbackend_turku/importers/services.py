@@ -1,5 +1,6 @@
-import pytz
 from datetime import datetime
+
+import pytz
 from munigeo.importer.sync import ModelSyncher
 
 from services.management.commands.services_import.keyword import KeywordHandler

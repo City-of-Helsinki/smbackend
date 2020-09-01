@@ -1,5 +1,6 @@
 import logging
 import math
+
 import pytest
 from munigeo.models import Address
 
