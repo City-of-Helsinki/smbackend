@@ -1,6 +1,7 @@
 import logging
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from services.management.commands.services_import.keyword import KeywordHandler
 from services.management.commands.services_import.services import (

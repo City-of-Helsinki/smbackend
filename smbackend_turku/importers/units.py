@@ -1,11 +1,12 @@
-import pytz
 from collections import defaultdict, OrderedDict
 from datetime import date, datetime
+from functools import lru_cache
+
+import pytz
 from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
 from django.utils import formats, translation
 from django.utils.dateparse import parse_date
-from functools import lru_cache
 from munigeo.importer.sync import ModelSyncher
 from munigeo.models import Municipality
 

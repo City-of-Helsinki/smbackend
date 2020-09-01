@@ -1,7 +1,8 @@
 import logging
 import math
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from services.models import Unit, UnitConnection
 from smbackend_turku.tests.utils import (
