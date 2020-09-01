@@ -12,5 +12,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameModel(old_name="Service", new_name="OntologyWord",),
+        migrations.RenameModel(
+            old_name="Service",
+            new_name="OntologyWord",
+        ),
     ]

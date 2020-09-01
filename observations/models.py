@@ -1,5 +1,6 @@
 import binascii
 import os
+
 import rest_framework.authentication
 import rest_framework.authtoken.models
 from django.apps import apps

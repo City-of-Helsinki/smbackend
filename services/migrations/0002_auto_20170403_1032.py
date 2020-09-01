@@ -11,24 +11,78 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="unit", name="description_en",),
-        migrations.RemoveField(model_name="unit", name="description_fi",),
-        migrations.RemoveField(model_name="unit", name="description_sv",),
-        migrations.RemoveField(model_name="unit", name="extensions",),
-        migrations.RemoveField(model_name="unit", name="name_en",),
-        migrations.RemoveField(model_name="unit", name="name_fi",),
-        migrations.RemoveField(model_name="unit", name="name_sv",),
-        migrations.RemoveField(model_name="unit", name="origin_last_modified_time",),
-        migrations.RemoveField(model_name="unit", name="picture_caption_en",),
-        migrations.RemoveField(model_name="unit", name="picture_caption_fi",),
-        migrations.RemoveField(model_name="unit", name="picture_caption_sv",),
-        migrations.RemoveField(model_name="unit", name="street_address_en",),
-        migrations.RemoveField(model_name="unit", name="street_address_fi",),
-        migrations.RemoveField(model_name="unit", name="street_address_sv",),
-        migrations.RemoveField(model_name="unit", name="www_url",),
-        migrations.RemoveField(model_name="unit", name="www_url_en",),
-        migrations.RemoveField(model_name="unit", name="www_url_fi",),
-        migrations.RemoveField(model_name="unit", name="www_url_sv",),
+        migrations.RemoveField(
+            model_name="unit",
+            name="description_en",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="description_fi",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="description_sv",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="extensions",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="name_en",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="name_fi",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="name_sv",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="origin_last_modified_time",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="picture_caption_en",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="picture_caption_fi",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="picture_caption_sv",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="street_address_en",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="street_address_fi",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="street_address_sv",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="www_url",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="www_url_en",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="www_url_fi",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="www_url_sv",
+        ),
         migrations.AddField(
             model_name="unit",
             name="accessibility_email",
@@ -60,7 +114,9 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name="unit", name="desc", field=models.TextField(null=True),
+            model_name="unit",
+            name="desc",
+            field=models.TextField(null=True),
         ),
         migrations.AddField(
             model_name="unit",
@@ -98,7 +154,9 @@ class Migration(migrations.Migration):
             field=models.URLField(null=True, max_length=250),
         ),
         migrations.AddField(
-            model_name="unit", name="short_desc", field=models.TextField(null=True),
+            model_name="unit",
+            name="short_desc",
+            field=models.TextField(null=True),
         ),
         migrations.AddField(
             model_name="unit",

@@ -13,9 +13,11 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(
-            name="ontologytreenode", options={"ordering": ["-pk"]},
+            name="ontologytreenode",
+            options={"ordering": ["-pk"]},
         ),
         migrations.AlterModelOptions(
-            name="ontologyword", options={"ordering": ["-pk"]},
+            name="ontologyword",
+            options={"ordering": ["-pk"]},
         ),
     ]

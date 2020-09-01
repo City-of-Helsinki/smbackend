@@ -11,9 +11,11 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(
-            name="categoricalobservation", options={"base_manager_name": "objects"},
+            name="categoricalobservation",
+            options={"base_manager_name": "objects"},
         ),
         migrations.AlterModelOptions(
-            name="descriptiveobservation", options={"base_manager_name": "objects"},
+            name="descriptiveobservation",
+            options={"base_manager_name": "objects"},
         ),
     ]

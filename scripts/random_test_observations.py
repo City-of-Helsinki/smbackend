@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import os
 import random
-import requests
 import sys
+
+import requests
 
 values = {
     33418: {

@@ -1,5 +1,6 @@
-import hypothesis
 import math
+
+import hypothesis
 import pytest
 from django.conf import settings as django_settings
 from hypothesis import given, HealthCheck, settings

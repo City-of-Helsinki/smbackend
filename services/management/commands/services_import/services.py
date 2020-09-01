@@ -1,6 +1,7 @@
-import pytz
 import re
 from datetime import datetime
+
+import pytz
 from django import db
 from munigeo.importer.sync import ModelSyncher
 from munigeo.models import AdministrativeDivision, AdministrativeDivisionType

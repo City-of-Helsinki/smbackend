@@ -12,13 +12,19 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name="unit", name="description_en", field=models.TextField(null=True),
+            model_name="unit",
+            name="description_en",
+            field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name="unit", name="description_fi", field=models.TextField(null=True),
+            model_name="unit",
+            name="description_fi",
+            field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name="unit", name="description_sv", field=models.TextField(null=True),
+            model_name="unit",
+            name="description_sv",
+            field=models.TextField(null=True),
         ),
         migrations.AddField(
             model_name="unit",

@@ -12,5 +12,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="unit", name="root_services",),
+        migrations.RemoveField(
+            model_name="unit",
+            name="root_services",
+        ),
     ]

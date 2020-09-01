@@ -13,6 +13,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="department", name="oid", field=models.TextField(null=True),
+            model_name="department",
+            name="oid",
+            field=models.TextField(null=True),
         ),
     ]

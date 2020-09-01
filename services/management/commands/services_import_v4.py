@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import logging
-import pytz
 import re
-import requests
 import sys
+
+import pytz
+import requests
 from django import db
 from django.conf import settings
 from django.core.management.base import BaseCommand

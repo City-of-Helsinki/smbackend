@@ -3,8 +3,9 @@
 from __future__ import unicode_literals
 
 import datetime
-from django.db import migrations, models
+
 import pytz
+from django.db import migrations, models
 
 UTC_TIMEZONE = pytz.timezone("UTC")
 
@@ -16,7 +17,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="unit", name="modified_time",),
+        migrations.RemoveField(
+            model_name="unit",
+            name="modified_time",
+        ),
         migrations.AddField(
             model_name="unit",
             name="origin_last_modified_time",

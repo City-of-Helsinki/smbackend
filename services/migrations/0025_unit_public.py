@@ -13,6 +13,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name="unit", name="public", field=models.BooleanField(default=True),
+            model_name="unit",
+            name="public",
+            field=models.BooleanField(default=True),
         ),
     ]

@@ -12,5 +12,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="unit", name="divisions",),
+        migrations.RemoveField(
+            model_name="unit",
+            name="divisions",
+        ),
     ]

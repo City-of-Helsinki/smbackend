@@ -12,5 +12,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="unit", name="accessibility_sentence_hash",),
+        migrations.RemoveField(
+            model_name="unit",
+            name="accessibility_sentence_hash",
+        ),
     ]

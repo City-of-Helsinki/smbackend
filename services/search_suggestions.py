@@ -2,8 +2,9 @@ import json
 import logging
 import pprint
 import re
-import requests
 import string
+
+import requests
 from django.conf import settings
 
 logger = logging.getLogger(__name__)

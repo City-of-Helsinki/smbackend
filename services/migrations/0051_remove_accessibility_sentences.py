@@ -12,6 +12,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="accessibilitysentence", name="unit",),
-        migrations.DeleteModel(name="AccessibilitySentence",),
+        migrations.RemoveField(
+            model_name="accessibilitysentence",
+            name="unit",
+        ),
+        migrations.DeleteModel(
+            name="AccessibilitySentence",
+        ),
     ]

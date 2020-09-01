@@ -1,4 +1,5 @@
 import datetime
+
 import pytest
 from munigeo.models import (
     AdministrativeDivision,

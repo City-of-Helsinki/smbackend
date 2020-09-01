@@ -1,4 +1,6 @@
 # from hypothesis import composite
+from string import ascii_letters, digits, punctuation
+
 from django.conf import settings
 from hypothesis import event
 from hypothesis.strategies import (
@@ -15,7 +17,6 @@ from hypothesis.strategies import (
     text,
     uuids,
 )
-from string import ascii_letters, digits, punctuation
 
 SAFE_LETTERS = digits + ascii_letters + punctuation
 

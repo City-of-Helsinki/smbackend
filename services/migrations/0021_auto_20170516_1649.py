@@ -13,6 +13,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameField(
-            model_name="department", old_name="object_identifier", new_name="oid",
+            model_name="department",
+            old_name="object_identifier",
+            new_name="oid",
         ),
     ]

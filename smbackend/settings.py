@@ -1,6 +1,7 @@
-import environ
 import json
 import os
+
+import environ
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
 
@@ -28,7 +29,7 @@ env = environ.Env(
     OPEN311_API_KEY=(str, None),
     OPEN311_INTERNAL_API_KEY=(str, None),
     SHORTCUTTER_UNIT_URL=(str, None),
-    ADDRESS_SEARCH_RADIUS=(int, 50)
+    ADDRESS_SEARCH_RADIUS=(int, 50),
 )
 
 SECURE_PROXY_SSL_HEADER = env("SECURE_PROXY_SSL_HEADER")

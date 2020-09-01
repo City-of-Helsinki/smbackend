@@ -1,9 +1,10 @@
+from urllib.parse import urlencode
+
 import pytest
 from django.core.management import call_command
 from django.utils.timezone import now
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
-from urllib.parse import urlencode
 
 from services.models import AccessibilityVariable, Unit, UnitAccessibilityProperty
 from services.utils.accessibility_shortcoming_calculator import OperatorException
@@ -16,7 +17,11 @@ def api_client():
 
 @pytest.fixture
 def unit():
-    unit = Unit.objects.create(id=1, name="test unit", last_modified_time=now(),)
+    unit = Unit.objects.create(
+        id=1,
+        name="test unit",
+        last_modified_time=now(),
+    )
     return unit
 
 

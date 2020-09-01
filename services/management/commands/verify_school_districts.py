@@ -1,5 +1,6 @@
 import datetime
 import pprint
+
 from django.core.management.base import BaseCommand, CommandError
 from munigeo.models import AdministrativeDivisionType
 

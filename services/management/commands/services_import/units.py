@@ -3,15 +3,16 @@ import hashlib
 import json
 import logging
 import os
-import pytz
 from collections import defaultdict
+from operator import itemgetter
+
+import pytz
 from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point, Polygon
 from munigeo.importer.sync import ModelSyncher
 from munigeo.models import AdministrativeDivisionGeometry, Municipality
-from operator import itemgetter
 
 from services.management.commands.services_import.departments import import_departments
 from services.management.commands.services_import.keyword import KeywordHandler

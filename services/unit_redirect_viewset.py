@@ -1,7 +1,8 @@
+from urllib.parse import parse_qs
+
 from django.http import QueryDict
 from rest_framework import status, viewsets
 from rest_framework.response import Response
-from urllib.parse import parse_qs
 
 from services.models.service_mapping import ServiceMapping
 

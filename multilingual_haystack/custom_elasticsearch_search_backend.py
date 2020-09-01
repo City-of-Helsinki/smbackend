@@ -1,5 +1,6 @@
 import collections
 import copy
+
 from haystack.backends import elasticsearch_backend as es_backend
 from haystack.query import SearchQuerySet
 
@@ -19,7 +20,7 @@ def update(d, u):
 
 
 class CustomEsSearchBackend(es_backend.ElasticsearchSearchBackend):
-    """ A slight modification of the default Haystack elasticsearch
+    """A slight modification of the default Haystack elasticsearch
     backend which allows custom mapping configurations for specified
     fields in the connection options.
 

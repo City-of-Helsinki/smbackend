@@ -12,5 +12,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="department", name="hierarchy_level",),
+        migrations.RemoveField(
+            model_name="department",
+            name="hierarchy_level",
+        ),
     ]

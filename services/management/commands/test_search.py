@@ -7,9 +7,10 @@ since the process is only partly automated.
 import hashlib
 import json
 import subprocess
+from itertools import zip_longest
+
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from itertools import zip_longest
 
 from services.search_suggestions import get_suggestions
 

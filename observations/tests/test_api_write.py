@@ -1,5 +1,6 @@
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
 from django.db.models import ProtectedError
 from django.urls import reverse as django_reverse
 from django.utils import timezone

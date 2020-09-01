@@ -13,7 +13,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="department", name="organization",),
-        migrations.RemoveField(model_name="unit", name="organization",),
-        migrations.DeleteModel(name="Organization",),
+        migrations.RemoveField(
+            model_name="department",
+            name="organization",
+        ),
+        migrations.RemoveField(
+            model_name="unit",
+            name="organization",
+        ),
+        migrations.DeleteModel(
+            name="Organization",
+        ),
     ]

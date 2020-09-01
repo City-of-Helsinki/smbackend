@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameModel(
-            old_name="ServiceTreeNode", new_name="OntologyTreeNode",
+            old_name="ServiceTreeNode",
+            new_name="OntologyTreeNode",
         ),
     ]

@@ -3,8 +3,8 @@
 from __future__ import unicode_literals
 
 import django.contrib.postgres.fields.jsonb
-from django.db import migrations, models
 import django.db.models.deletion
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -14,7 +14,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="unitaccessibilityshortcomings", name="id",),
+        migrations.RemoveField(
+            model_name="unitaccessibilityshortcomings",
+            name="id",
+        ),
         migrations.AlterField(
             model_name="unitaccessibilityshortcomings",
             name="accessibility_description",

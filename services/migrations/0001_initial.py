@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
-import mptt.fields
-import django.contrib.postgres.fields.hstore
 import django.contrib.gis.db.models.fields
+import django.contrib.postgres.fields.hstore
+import mptt.fields
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -271,7 +271,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"abstract": False,},
+            options={
+                "abstract": False,
+            },
         ),
         migrations.CreateModel(
             name="Unit",
@@ -482,7 +484,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"ordering": ["order"],},
+            options={
+                "ordering": ["order"],
+            },
         ),
         migrations.CreateModel(
             name="UnitIdentifier",
@@ -509,7 +513,8 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.AlterUniqueTogether(
-            name="keyword", unique_together=set([("language", "name")]),
+            name="keyword",
+            unique_together=set([("language", "name")]),
         ),
         migrations.AddField(
             model_name="department",

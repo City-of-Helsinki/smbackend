@@ -11,11 +11,26 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="unitconnection", name="contact_person",),
-        migrations.RemoveField(model_name="unitconnection", name="phone",),
-        migrations.RemoveField(model_name="unitconnection", name="phone_mobile",),
-        migrations.RemoveField(model_name="unitconnection", name="section",),
-        migrations.RemoveField(model_name="unitconnection", name="type",),
+        migrations.RemoveField(
+            model_name="unitconnection",
+            name="contact_person",
+        ),
+        migrations.RemoveField(
+            model_name="unitconnection",
+            name="phone",
+        ),
+        migrations.RemoveField(
+            model_name="unitconnection",
+            name="phone_mobile",
+        ),
+        migrations.RemoveField(
+            model_name="unitconnection",
+            name="section",
+        ),
+        migrations.RemoveField(
+            model_name="unitconnection",
+            name="type",
+        ),
         migrations.AddField(
             model_name="unitconnection",
             name="section_type",
