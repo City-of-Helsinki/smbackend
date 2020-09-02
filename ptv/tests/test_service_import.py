@@ -5,7 +5,7 @@ import pytest
 from ptv.importers.ptv_services import PTVServiceImporter
 from ptv.importers.ptv_units import UnitPTVImporter
 from ptv.tests.utils import create_municipality, get_ptv_test_resource
-from services.models import Service
+from services.models import Service, Unit
 
 
 @pytest.mark.django_db
@@ -24,3 +24,11 @@ def test_service_import():
     assert Service.objects.count() == 2
     assert Service.objects.get(name="Hammaslääkäri")
     assert Service.objects.get(name="Perusopetus")
+
+    service_1 = Service.objects.get(name="Hammaslääkäri")
+    service_2 = Service.objects.get(name="Perusopetus")
+    unit_1 = Unit.objects.get(name="Terveysasema")
+    unit_2 = Unit.objects.get(name="Peruskoulu")
+
+    assert service_1 in unit_1.services.all()
+    assert service_2 in unit_2.services.all()
