@@ -7,7 +7,7 @@ from django.db.models import Max
 from munigeo.importer.sync import ModelSyncher
 from munigeo.models import Municipality
 
-from ptv.models import UnitPTVIdentifier
+from ptv.models import ServicePTVIdentifier, UnitPTVIdentifier
 from ptv.utils import get_ptv_resource, UTC_TIMEZONE
 from services.models import Unit, UnitConnection, UnitIdentifier
 
@@ -30,6 +30,9 @@ class UnitPTVImporter:
         Unit.objects.filter(ptv_id__isnull=False), lambda obj: obj.id
     )
     unit_id_syncher = ModelSyncher(UnitPTVIdentifier.objects.all(), lambda obj: obj.id)
+    service_id_syncher = ModelSyncher(
+        ServicePTVIdentifier.objects.all(), lambda obj: obj.id
+    )
 
     def __init__(self, area_code):
         self.are_code = area_code
@@ -66,6 +69,7 @@ class UnitPTVImporter:
             self._save_object(ptv_id_obj)
 
         self._handle_fields(unit_obj, unit_data)
+        self._handle_service_ids(unit_data)
         self._save_object(unit_obj)
         self.unit_syncher.mark(unit_obj)
 
@@ -251,6 +255,15 @@ class UnitPTVImporter:
             value = data.get("value")
         obj_key = "{}_{}".format(field_name, lang)
         setattr(obj, obj_key, value)
+
+    def _handle_service_ids(self, unit_data):
+        for service in unit_data["services"]:
+            uuid_id = uuid.UUID(service.get("service").get("id"))
+            id_obj = self.service_id_syncher.get(uuid_id)
+            if not id_obj:
+                id_obj = ServicePTVIdentifier(id=uuid_id)
+                id_obj._changed = True
+            self._save_object(id_obj)
 
     def _save_object(self, obj):
         if obj._changed:

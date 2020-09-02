@@ -1,5 +1,6 @@
 import pytest
 
+from ptv.models import ServicePTVIdentifier
 from ptv.tests.utils import create_municipality, get_ptv_test_resource
 from services.models import Unit, UnitConnection
 
@@ -36,3 +37,6 @@ def test_unit_import():
         unit.connections.filter(section_type=5).first().name_fi
         == "Normaalit palveluajat\nKe 08:00-16:00\nPe 08:00-14:00"
     )
+
+    assert ServicePTVIdentifier.objects.count() == 3
+    assert ServicePTVIdentifier.objects.get(id="0008afc0-182c-4580-ba73-7472287f4d63")

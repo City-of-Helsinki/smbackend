@@ -23,12 +23,15 @@ def create_municipality():
     return municipality
 
 
-def get_ptv_test_resource():
+def get_ptv_test_resource(resource_name=None):
     """
     Mock calling the API by fetching dummy data from file.
     """
     data_path = os.path.join(os.path.dirname(__file__), "test_data")
-    file = os.path.join(data_path, "municipality_channels.json")
+    if resource_name == "service":
+        file = os.path.join(data_path, "municipality_services.json")
+    else:
+        file = os.path.join(data_path, "municipality_channels.json")
 
     with open(file) as f:
         data = json.load(f)
