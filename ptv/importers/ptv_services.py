@@ -8,9 +8,11 @@ from munigeo.importer.sync import ModelSyncher
 from ptv.models import ServicePTVIdentifier
 from ptv.utils import get_ptv_resource, UTC_TIMEZONE
 from services.management.commands.services_import.services import (
+    update_service_counts,
+    update_service_node_counts,
     update_service_root_service_nodes,
 )
-from services.models import Service, ServiceNode
+from services.models import Service, ServiceNode, Unit
 
 TKU_PTV_NODE_MAPPING = {
     "Aamu- ja iltapäiväkerhotoiminta": "Perusopetus",
@@ -102,6 +104,8 @@ class PTVServiceImporter:
     @db.transaction.atomic
     def import_services(self):
         self._import_services()
+        self._clean_services()
+        update_service_counts()
 
     def _import_services(self):
         data = get_ptv_resource(self.are_code, "service")
@@ -139,6 +143,7 @@ class PTVServiceImporter:
 
         self._handle_service_names(service_data, service_obj)
         self._save_object(service_obj)
+        self._handle_units(service_data, service_obj)
         self._handle_service_nodes(service_data, service_obj)
 
     def _handle_service_names(self, service_data, service_obj):
@@ -148,9 +153,25 @@ class PTVServiceImporter:
             obj_key = "{}_{}".format("name", lang)
             setattr(service_obj, obj_key, value)
 
+    def _handle_units(self, service_data, service_obj):
+        for channel in service_data.get("serviceChannels"):
+            unit_uuid = uuid.UUID(channel.get("serviceChannel").get("id"))
+            try:
+                unit_obj = Unit.objects.get(ptv_id__id=unit_uuid)
+                service_obj.units.add(unit_obj)
+                unit_obj.root_service_nodes = ",".join(
+                    str(x) for x in unit_obj.get_root_service_nodes()
+                )
+                unit_obj._changed = True
+                self._save_object(unit_obj)
+
+            except Unit.DoesNotExist:
+                continue
+
     def _handle_service_nodes(self, service_data, service_obj):
         for service_class in service_data.get("serviceClasses"):
             self._handle_service_node(service_class, service_obj)
+        update_service_node_counts()
         update_service_root_service_nodes()
 
     def _handle_service_node(self, node, service_obj):
@@ -170,8 +191,12 @@ class PTVServiceImporter:
                     break
 
                 node_obj.related_services.add(service_obj)
+                node_obj.units.add(*service_obj.units.all())
                 node_obj._changed = True
                 self._save_object(node_obj)
+
+    def _clean_services(self):
+        Service.objects.filter(units__isnull=True, ptv_id__isnull=False).delete()
 
     def _save_object(self, obj):
         if obj._changed:
