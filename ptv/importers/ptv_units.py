@@ -40,6 +40,13 @@ class UnitPTVImporter:
     @db.transaction.atomic
     def import_units(self):
         data = get_ptv_resource(self.are_code)
+        page_count = data["pageCount"]
+        for page in range(1, page_count + 1):
+            if page > 1:
+                data = get_ptv_resource(self.are_code, page=page)
+            self._import_units(data)
+
+    def _import_units(self, data):
         id_counter = 1
         for item in data["itemList"]:
             # Import only the channels that have a location

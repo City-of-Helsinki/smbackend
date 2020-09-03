@@ -103,12 +103,19 @@ class PTVServiceImporter:
 
     @db.transaction.atomic
     def import_services(self):
-        self._import_services()
+        data = get_ptv_resource(self.are_code, "service")
+        page_count = data["pageCount"]
+        for page in range(1, page_count + 1):
+            if page > 1:
+                data = get_ptv_resource(
+                    self.are_code, resource_name="service", page=page
+                )
+            self._import_services(data)
+
         self._clean_services()
         update_service_counts()
 
-    def _import_services(self):
-        data = get_ptv_resource(self.are_code, "service")
+    def _import_services(self, data):
         id_counter = 1
         for service in data["itemList"]:
             self._handle_service(service, id_counter)
