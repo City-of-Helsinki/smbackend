@@ -63,6 +63,12 @@ class UnitPTVImporter:
     def _handle_unit(self, unit_data, id_counter):
         uuid_id = uuid.UUID(unit_data["id"])
 
+        # Skip the import if unit has been imported from another source
+        if Unit.objects.filter(
+            identifiers__value=uuid_id, identifiers__namespace="ptv"
+        ).exclude(data_source="PTV"):
+            return
+
         ptv_id_obj = self.unit_id_syncher.get(uuid_id)
         if not ptv_id_obj:
             ptv_id_obj = UnitPTVIdentifier(
