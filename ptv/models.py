@@ -8,6 +8,7 @@ class UnitPTVIdentifier(models.Model):
     unit = models.OneToOneField(
         Unit, on_delete=models.CASCADE, related_name="ptv_id", blank=True, null=True
     )
+    source_municipality = models.IntegerField(null=True)
 
 
 class ServicePTVIdentifier(models.Model):

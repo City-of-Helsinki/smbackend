@@ -1,0 +1,243 @@
+{
+  "pageNumber": 1,
+  "pageSize": 100,
+  "pageCount": 1,
+  "itemList": [
+    {
+      "id": "0001a1c4-6273-424f-8d17-2ac62be89741",
+      "sourceId": null,
+      "oid": null,
+      "serviceChannelType": "ServiceLocation",
+      "organizationId": "00022b78-dd97-4a66-8846-68b179d983e0",
+      "serviceChannelNames": [
+        {
+          "language": "fi",
+          "value": "Terveysasema",
+          "type": "Name"
+        },
+        {
+          "language": "sv",
+          "value": "Hälsostationen",
+          "type": "Name"
+        }
+      ],
+      "displayNameType": [
+        {
+          "type": "Name",
+          "language": "fi"
+        }
+      ],
+      "serviceChannelDescriptions": [
+        {
+          "language": "fi",
+          "value": "Terveysasema palvelee sairaustapauksissa.",
+          "type": "Summary"
+        },
+        {
+          "language": "fi",
+          "value": "Terveysasema palvelee sairaustapauksissa.",
+          "type": "Description"
+        }
+      ],
+      "areaType": "LimitedType",
+      "areas": [
+        {
+          "type": "Municipality",
+          "code": null,
+          "name": null,
+          "municipalities": [
+            {
+              "code": "1",
+              "name": [
+                {
+                  "value": "Testikunta",
+                  "language": "sv"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "en"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "fi"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "phoneNumbers": [
+        {
+          "type": "Phone",
+          "additionalInformation": "Asiakaspalvelu",
+          "serviceChargeType": "Chargeable",
+          "chargeDescription": null,
+          "prefixNumber": "+358",
+          "isFinnishServiceNumber": false,
+          "number": "101010100",
+          "language": "fi"
+        }
+      ],
+      "emails": [
+        {
+          "value": "test-email@test.fi",
+          "language": "fi"
+        }
+      ],
+      "languages": [
+        "fi"
+      ],
+      "webPages": [
+        {
+          "url": "https://www.testpage.fi",
+          "value": "Web page of the service",
+          "language": "fi"
+        }
+      ],
+      "addresses": [
+        {
+          "type": "Location",
+          "subType": "Single",
+          "postOfficeBoxAddress": null,
+          "streetAddress": {
+            "street": [
+              {
+                "value": "Testitie",
+                "language": "fi"
+              },
+              {
+                "value": "Testitie",
+                "language": "sv"
+              },
+              {
+                "value": "Testitie",
+                "language": "en"
+              }
+            ],
+            "streetNumber": "13",
+            "postalCode": "12345",
+            "postOffice": [
+              {
+                "value": "TESTIKUNTA",
+                "language": "sms"
+              },
+              {
+                "value": "TESTIKUNTA",
+                "language": "en"
+              },
+              {
+                "value": "TESTIKUNTA",
+                "language": "fi"
+              }
+            ],
+            "municipality": {
+              "code": "1",
+              "name": [
+                {
+                  "value": "Testikunta",
+                  "language": "sv"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "en"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "fi"
+                }
+              ]
+            },
+            "additionalInformation": [],
+            "latitude": "6730000.000",
+            "longitude": "258000.000",
+            "coordinateState": "Ok"
+          },
+          "otherAddress": null,
+          "locationAbroad": null,
+          "entrances": [],
+          "country": "FI"
+        }
+      ],
+      "serviceHours": [
+        {
+          "serviceHourType": "DaysOfTheWeek",
+          "validFrom": null,
+          "validTo": null,
+          "isClosed": false,
+          "validForNow": true,
+          "isAlwaysOpen": false,
+          "isReservation": false,
+          "additionalInformation": [
+            {
+              "value": "Normaali",
+              "language": "fi"
+            }
+          ],
+          "openingHour": [
+            {
+              "dayFrom": "Monday",
+              "dayTo": "",
+              "from": "08:00:00",
+              "to": "16:00:00"
+            },
+            {
+              "dayFrom": "Tuesday",
+              "dayTo": "",
+              "from": "08:00:00",
+              "to": "16:00:00"
+            },
+            {
+              "dayFrom": "Wednesday",
+              "dayTo": "",
+              "from": "08:00:00",
+              "to": "16:00:00"
+            },
+            {
+              "dayFrom": "Thursday",
+              "dayTo": "",
+              "from": "08:00:00",
+              "to": "16:00:00"
+            },
+            {
+              "dayFrom": "Friday",
+              "dayTo": "",
+              "from": "08:00:00",
+              "to": "14:00:00"
+            }
+          ]
+        }
+      ],
+      "services": [
+        {
+          "service": {
+            "id": "0008afc0-182c-4580-ba73-7472287f4d63",
+            "name": "Hammaslääkäri"
+          },
+          "serviceChargeType": null,
+          "description": [],
+          "extraTypes": [],
+          "serviceHours": [],
+          "contactDetails": null,
+          "digitalAuthorizations": [],
+          "modified": "2020-08-21T06:55:52.144738"
+        },
+        {
+          "service": {
+            "id": "00096585-c0c8-41a7-8345-07e35afde1b6",
+            "name": "Neuvolapalvelut"
+          },
+          "serviceChargeType": null,
+          "description": [],
+          "extraTypes": [],
+          "serviceHours": [],
+          "contactDetails": null,
+          "digitalAuthorizations": [],
+          "modified": "2020-08-21T06:55:23.499969"
+        }
+      ],
+      "publishingStatus": "Published",
+      "modified": "2020-03-04T14:07:04.840483",
+      "responsibleSoteOrganization": null
+    }
+  ]
+}

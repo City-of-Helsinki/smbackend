@@ -1,0 +1,173 @@
+{
+  "pageNumber": 1,
+  "pageSize": 100,
+  "pageCount": 1,
+  "itemList": [
+    {
+      "id": "0009b6a3-ff15-47cd-a461-48f5c452d9be",
+      "sourceId": null,
+      "oid": null,
+      "serviceChannelType": "ServiceLocation",
+      "organizationId": "000d2b5c-ee77-452e-a3f9-f163842a92e9",
+      "serviceChannelNames": [
+        {
+          "language": "fi",
+          "value": "Terveyskeskus",
+          "type": "Name"
+        },
+        {
+          "language": "sv",
+          "value": "Hälsostationen",
+          "type": "Name"
+        }
+      ],
+      "displayNameType": [
+        {
+          "type": "Name",
+          "language": "fi"
+        }
+      ],
+      "serviceChannelDescriptions": [
+        {
+          "language": "fi",
+          "value": "Terveyskeskus palvelee sairaustapauksissa.",
+          "type": "Summary"
+        },
+        {
+          "language": "fi",
+          "value": "Terveyskeskus palvelee sairaustapauksissa.",
+          "type": "Description"
+        }
+      ],
+      "areaType": "LimitedType",
+      "areas": [
+        {
+          "type": "Municipality",
+          "code": null,
+          "name": null,
+          "municipalities": [
+            {
+              "code": "1",
+              "name": [
+                {
+                  "value": "Testikunta",
+                  "language": "sv"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "en"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "fi"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "phoneNumbers": [],
+      "emails": [],
+      "languages": [
+        "fi"
+      ],
+      "webPages": [],
+      "addresses": [
+        {
+          "type": "Location",
+          "subType": "Single",
+          "postOfficeBoxAddress": null,
+          "streetAddress": {
+            "street": [
+              {
+                "value": "Testitie",
+                "language": "fi"
+              },
+              {
+                "value": "Testitie",
+                "language": "sv"
+              },
+              {
+                "value": "Testitie",
+                "language": "en"
+              }
+            ],
+            "streetNumber": "13",
+            "postalCode": "12345",
+            "postOffice": [
+              {
+                "value": "TESTIKUNTA",
+                "language": "sms"
+              },
+              {
+                "value": "TESTIKUNTA",
+                "language": "en"
+              },
+              {
+                "value": "TESTIKUNTA",
+                "language": "fi"
+              }
+            ],
+            "municipality": {
+              "code": "1",
+              "name": [
+                {
+                  "value": "Testikunta",
+                  "language": "sv"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "en"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "fi"
+                }
+              ]
+            },
+            "additionalInformation": [],
+            "latitude": "6730000.000",
+            "longitude": "258000.000",
+            "coordinateState": "Ok"
+          },
+          "otherAddress": null,
+          "locationAbroad": null,
+          "entrances": [],
+          "country": "FI"
+        }
+      ],
+      "serviceHours": [],
+      "services": [
+        {
+          "service": {
+            "id": "0008afc0-182c-4580-ba73-7472287f4d63",
+            "name": "Hammaslääkäri"
+          },
+          "serviceChargeType": null,
+          "description": [],
+          "extraTypes": [],
+          "serviceHours": [],
+          "contactDetails": null,
+          "digitalAuthorizations": [],
+          "modified": "2020-08-21T06:55:52.144738"
+        },
+        {
+          "service": {
+            "id": "00096585-c0c8-41a7-8345-07e35afde1b6",
+            "name": "Neuvolapalvelut"
+          },
+          "serviceChargeType": null,
+          "description": [],
+          "extraTypes": [],
+          "serviceHours": [],
+          "contactDetails": null,
+          "digitalAuthorizations": [],
+          "modified": "2020-08-21T06:55:23.499969"
+        }
+      ],
+      "publishingStatus": "Published",
+      "modified": "2020-03-04T14:07:04.840483",
+      "responsibleSoteOrganization": null
+    }
+  ]
+}
