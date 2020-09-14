@@ -30,6 +30,10 @@ def get_ptv_test_resource(resource_name=None):
     data_path = os.path.join(os.path.dirname(__file__), "test_data")
     if resource_name == "service":
         file = os.path.join(data_path, "municipality_services.json")
+    elif resource_name == "channel_2":
+        file = os.path.join(data_path, "municipality_channels_2.json")
+    elif resource_name == "channel_3":
+        file = os.path.join(data_path, "municipality_channels_3.json")
     else:
         file = os.path.join(data_path, "municipality_channels.json")
 

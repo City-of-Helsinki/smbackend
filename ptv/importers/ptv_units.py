@@ -27,8 +27,12 @@ WEEKDAYS = {
 
 class UnitPTVImporter:
     def __init__(self, area_code):
+        self.are_code = area_code
         self.unit_syncher = ModelSyncher(
-            Unit.objects.filter(ptv_id__isnull=False), lambda obj: obj.id
+            Unit.objects.filter(
+                ptv_id__isnull=False, ptv_id__source_municipality=self.are_code
+            ),
+            lambda obj: obj.id,
         )
         self.unit_id_syncher = ModelSyncher(
             UnitPTVIdentifier.objects.all(), lambda obj: obj.id
@@ -36,7 +40,6 @@ class UnitPTVImporter:
         self.service_id_syncher = ModelSyncher(
             ServicePTVIdentifier.objects.all(), lambda obj: obj.id
         )
-        self.are_code = area_code
 
     @db.transaction.atomic
     def import_units(self):
@@ -46,6 +49,8 @@ class UnitPTVImporter:
             if page > 1:
                 data = get_ptv_resource(self.are_code, page=page)
             self._import_units(data)
+
+        self.unit_syncher.finish()
 
     def _import_units(self, data):
         id_counter = 1
@@ -60,7 +65,9 @@ class UnitPTVImporter:
 
         ptv_id_obj = self.unit_id_syncher.get(uuid_id)
         if not ptv_id_obj:
-            ptv_id_obj = UnitPTVIdentifier(id=uuid_id)
+            ptv_id_obj = UnitPTVIdentifier(
+                id=uuid_id, source_municipality=self.are_code
+            )
             ptv_id_obj._changed = True
 
         if ptv_id_obj.unit:
@@ -74,8 +81,12 @@ class UnitPTVImporter:
             unit_obj = Unit(id=unit_id)
             unit_obj._changed = True
             ptv_id_obj.unit = unit_obj
-            self._save_object(ptv_id_obj)
 
+        if not ptv_id_obj.source_municipality:
+            ptv_id_obj.source_municipality = self.are_code
+            ptv_id_obj._changed = True
+
+        self._save_object(ptv_id_obj)
         self._handle_fields(unit_obj, unit_data)
         self._handle_service_ids(unit_obj, unit_data)
         self._save_object(unit_obj)

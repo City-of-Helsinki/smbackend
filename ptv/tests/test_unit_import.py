@@ -39,3 +39,39 @@ def test_unit_import():
 
     assert ServicePTVIdentifier.objects.count() == 3
     assert ServicePTVIdentifier.objects.get(id="0008afc0-182c-4580-ba73-7472287f4d63")
+
+
+@pytest.mark.django_db
+def test_unit_syncher_finish():
+    """
+    Make sure unit_syncher.finish() removes only the units that are no longer in the source data of the
+    selected municipality.
+    """
+    create_municipality()
+
+    unit_importer = UnitPTVImporter(area_code="001")
+    data = get_ptv_test_resource()
+    unit_importer._import_units(data)
+    unit_importer.unit_syncher.finish()
+    assert Unit.objects.get(name="Terveysasema")
+    assert Unit.objects.get(name="Peruskoulu")
+
+    # Import data from other municipality
+    unit_importer = UnitPTVImporter(area_code="003")
+    data = get_ptv_test_resource(resource_name="channel_3")
+    unit_importer._import_units(data)
+    unit_importer.unit_syncher.finish()
+    assert Unit.objects.get(name="Terveyskeskus")
+
+    assert Unit.objects.count() == 3
+
+    # Import data from the first municipality, but now one unit is no longer in the source
+    unit_importer = UnitPTVImporter(area_code="001")
+    data = get_ptv_test_resource(resource_name="channel_2")
+    unit_importer._import_units(data)
+    unit_importer.unit_syncher.finish()
+
+    assert Unit.objects.count() == 2
+    assert Unit.objects.get(name="Terveysasema")
+    assert Unit.objects.get(name="Terveyskeskus")
+    assert not Unit.objects.filter(name="Peruskoulu").exists()
