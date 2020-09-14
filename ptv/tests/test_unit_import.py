@@ -1,8 +1,10 @@
+import datetime
+
 import pytest
 
-from ptv.models import ServicePTVIdentifier
+from ptv.models import ServicePTVIdentifier, UnitPTVIdentifier
 from ptv.tests.utils import create_municipality, get_ptv_test_resource
-from services.models import Unit, UnitConnection
+from services.models import Unit, UnitConnection, UnitIdentifier
 
 
 @pytest.mark.django_db
@@ -78,3 +80,51 @@ def test_unit_syncher_finish():
     assert Unit.objects.get(name="Terveysasema")
     assert Unit.objects.get(name="Terveyskeskus")
     assert not Unit.objects.filter(name="Peruskoulu").exists()
+
+
+@pytest.mark.django_db
+def test_skip_units_from_another_source():
+    create_municipality()
+    modified_time = datetime.datetime(
+        year=2020,
+        month=1,
+        day=1,
+        hour=1,
+        minute=1,
+        second=1,
+        tzinfo=datetime.timezone.utc,
+    )
+
+    # Unit imported from another source
+    unit = Unit.objects.create(id=777, last_modified_time=modified_time)
+    unit_ptv_id = "0001a1c4-6273-424f-8d17-2ac62be89741"
+    UnitIdentifier.objects.create(namespace="ptv", value=unit_ptv_id, unit=unit)
+
+    # Unit imported from PTV
+    ptv_unit = Unit.objects.create(
+        id=778, last_modified_time=modified_time, data_source="PTV"
+    )
+    ptv_unit_ptv_id = "00006fe3-7df2-409e-9cd6-cce4bf4338b1"
+    UnitIdentifier.objects.create(namespace="ptv", value=ptv_unit_ptv_id, unit=ptv_unit)
+    UnitPTVIdentifier.objects.create(
+        id=ptv_unit_ptv_id, unit=ptv_unit, source_municipality=1
+    )
+
+    assert Unit.objects.count() == 2
+
+    from ptv.importers.ptv_units import UnitPTVImporter
+
+    unit_importer = UnitPTVImporter(area_code="001")
+    data = get_ptv_test_resource()
+    unit_importer._import_units(data)
+    unit_importer.unit_syncher.finish()
+
+    assert Unit.objects.count() == 2
+    assert (
+        Unit.objects.get(identifiers__value=unit_ptv_id).last_modified_time
+        == modified_time
+    )
+    assert (
+        Unit.objects.get(identifiers__value=ptv_unit_ptv_id).last_modified_time
+        != modified_time
+    )
