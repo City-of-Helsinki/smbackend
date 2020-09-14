@@ -152,10 +152,6 @@ def postcodes():
     return _postcodes
 
 
-def nl2br(string):
-    return "<br>".join(string.splitlines())
-
-
 def get_weekday_str(index, lang="fi"):
     assert 1 <= index <= 7 and lang in ("fi", "sv", "en")
     weekdays = (
