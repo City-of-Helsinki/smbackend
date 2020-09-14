@@ -27,7 +27,6 @@ from smbackend_turku.importers.utils import (
     get_localized_value,
     get_turku_resource,
     get_weekday_str,
-    nl2br,
     set_syncher_object_field,
     set_syncher_tku_translated_field,
 )
@@ -298,7 +297,7 @@ class UnitImporter:
     def _handle_service_descriptions(self, obj, unit_data):
         description_data = unit_data.get("kuvaus_kieliversiot", {})
         descriptions = {
-            lang: nl2br(description_data.get(lang, "")) for lang in ("fi", "sv", "en")
+            lang: description_data.get(lang, "") for lang in ("fi", "sv", "en")
         }
         set_syncher_tku_translated_field(obj, "description", descriptions, clean=False)
 
