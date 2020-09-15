@@ -26,11 +26,6 @@ WEEKDAYS = {
 
 
 class UnitPTVImporter:
-    unit_id_syncher = ModelSyncher(UnitPTVIdentifier.objects.all(), lambda obj: obj.id)
-    service_id_syncher = ModelSyncher(
-        ServicePTVIdentifier.objects.all(), lambda obj: obj.id
-    )
-
     def __init__(self, area_code):
         self.are_code = area_code
         self.unit_syncher = ModelSyncher(
@@ -38,6 +33,12 @@ class UnitPTVImporter:
                 ptv_id__isnull=False, ptv_id__source_municipality=self.are_code
             ),
             lambda obj: obj.id,
+        )
+        self.unit_id_syncher = ModelSyncher(
+            UnitPTVIdentifier.objects.all(), lambda obj: obj.id
+        )
+        self.service_id_syncher = ModelSyncher(
+            ServicePTVIdentifier.objects.all(), lambda obj: obj.id
         )
 
     @db.transaction.atomic

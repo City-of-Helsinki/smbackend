@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 
+from ptv.importers.ptv_units import UnitPTVImporter
 from ptv.models import ServicePTVIdentifier, UnitPTVIdentifier
 from ptv.tests.utils import create_municipality, get_ptv_test_resource
 from services.models import Unit, UnitConnection, UnitIdentifier
@@ -9,8 +10,6 @@ from services.models import Unit, UnitConnection, UnitIdentifier
 
 @pytest.mark.django_db
 def test_unit_import():
-    from ptv.importers.ptv_units import UnitPTVImporter
-
     unit_importer = UnitPTVImporter(area_code="001")
     municipality = create_municipality()
 
@@ -50,8 +49,6 @@ def test_unit_syncher_finish():
     Make sure unit_syncher.finish() removes only the units that are no longer in the source data of the
     selected municipality.
     """
-    from ptv.importers.ptv_units import UnitPTVImporter
-
     create_municipality()
 
     unit_importer = UnitPTVImporter(area_code="001")
@@ -111,8 +108,6 @@ def test_skip_units_from_another_source():
     )
 
     assert Unit.objects.count() == 2
-
-    from ptv.importers.ptv_units import UnitPTVImporter
 
     unit_importer = UnitPTVImporter(area_code="001")
     data = get_ptv_test_resource()

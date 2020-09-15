@@ -90,16 +90,15 @@ TKU_PTV_NODE_MAPPING = {
 
 
 class PTVServiceImporter:
-    service_syncher = ModelSyncher(
-        Service.objects.filter(ptv_id__isnull=False), lambda obj: obj.id
-    )
-    service_id_syncher = ModelSyncher(
-        ServicePTVIdentifier.objects.all(), lambda obj: obj.id
-    )
-
     def __init__(self, area_code, logger=None):
         self.are_code = area_code
         self.logger = logger
+        self.service_syncher = ModelSyncher(
+            Service.objects.filter(ptv_id__isnull=False), lambda obj: obj.id
+        )
+        self.service_id_syncher = ModelSyncher(
+            ServicePTVIdentifier.objects.all(), lambda obj: obj.id
+        )
 
     @db.transaction.atomic
     def import_services(self):
