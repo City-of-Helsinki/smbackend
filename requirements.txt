@@ -4,7 +4,7 @@
 #
 #    pip-compile
 #
--e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.38#egg=django-munigeo  # via -r requirements.in
+-e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.39#egg=django-munigeo  # via -r requirements.in
 appdirs==1.4.4            # via black
 appnope==0.1.0            # via ipython
 atomicwrites==1.3.0       # via pytest
