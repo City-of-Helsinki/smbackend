@@ -28,6 +28,7 @@ env = environ.Env(
     OPEN311_URL_BASE=(str, None),
     OPEN311_API_KEY=(str, None),
     OPEN311_INTERNAL_API_KEY=(str, None),
+    OPEN311_SERVICE_CODE=(str, None),
     SHORTCUTTER_UNIT_URL=(str, None),
     ADDRESS_SEARCH_RADIUS=(int, 50),
     TURKU_API_KEY=(str, None),
@@ -161,6 +162,7 @@ OPEN311 = {
     "URL_BASE": env("OPEN311_URL_BASE"),
     "API_KEY": env("OPEN311_API_KEY"),
     "INTERNAL_FEEDBACK_API_KEY": env("OPEN311_INTERNAL_API_KEY"),
+    "SERVICE_CODE": env("OPEN311_SERVICE_CODE"),
 }
 
 # Shortcut generation URL template

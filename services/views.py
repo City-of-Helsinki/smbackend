@@ -39,6 +39,14 @@ def post_service_request(request):
     outgoing["api_key"] = api_key
     url = settings.OPEN311["URL_BASE"]
     session = requests.Session()
+
+    # Modify parameters for request in case of City of Turku
+    if "smbackend_turku" in settings.INSTALLED_APPS:
+        outgoing.pop("service_request_type")
+        outgoing.pop("can_be_published")
+        outgoing["address_string"] = "null"
+        outgoing["service_code"] = settings.OPEN311["SERVICE_CODE"]
+
     r = session.post(url, data=outgoing)
     if r.status_code != 200:
         return HttpResponseBadRequest()
