@@ -3,8 +3,12 @@ import math
 from unittest.mock import patch
 
 import pytest
+from django.utils import timezone
 
-from services.models import Unit, UnitConnection
+from services.management.commands.services_import.services import (
+    update_service_root_service_nodes,
+)
+from services.models import Service, ServiceNode, Unit, UnitConnection
 from smbackend_turku.tests.utils import (
     create_municipality,
     get_location,
@@ -24,12 +28,29 @@ def test_unit_import(resource):
     # Create Turku municipality
     create_municipality()
 
+    ServiceNode.objects.create(id=333, name="Tontit", last_modified_time=timezone.now())
+    service = Service.objects.create(
+        id=111, name="Päiväkotitoiminta", last_modified_time=timezone.now()
+    )
+    node = ServiceNode.objects.create(
+        id=222, name="Päiväkodit", last_modified_time=timezone.now()
+    )
+    node.related_services.add(service)
+    update_service_root_service_nodes()
+    assert ServiceNode.objects.count() == 2
+
     resource.return_value = get_test_resource(resource_name=None)
     unit_importer.import_units()
+
+    assert ServiceNode.objects.count() == 1
+    assert ServiceNode.objects.filter(name="Päiväkodit").exists()
 
     units = Unit.objects.count()
     unit_1 = Unit.objects.get(id=740)
     unit_2 = Unit.objects.get(id=967)
+
+    assert node in unit_2.service_nodes.all()
+    assert service in unit_2.services.all()
 
     assert units == 2
     assert unit_1.name == "Terapia"
