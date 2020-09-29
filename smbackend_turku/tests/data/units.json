@@ -193,6 +193,18 @@
                 }
             ]
         },
+        "palvelutarjoukset": [
+            {
+                "palvelut": [
+                    {
+                        "koodi": "111",
+                        "nimi_kieliversiot": {
+                            "fi": "Päiväkotitoiminta"
+                        }
+                    }
+                ]
+            }
+        ],
         "muutospvm": "2019-01-22",
         "ptv_id": "hs8790h7-h898-97h7-s9kj-86597867g978"
     }

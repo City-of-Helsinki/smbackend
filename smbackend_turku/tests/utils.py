@@ -3,14 +3,22 @@ import os
 
 from django.conf import settings
 from django.contrib.gis.geos import Point
-from munigeo.models import Municipality
+from munigeo.models import (
+    AdministrativeDivision,
+    AdministrativeDivisionType,
+    Municipality,
+)
 
 from smbackend_turku.importers.utils import get_weekday_str
 
 
 def create_municipality():
+    division_type = AdministrativeDivisionType.objects.create(id=1, type="muni")
+    division = AdministrativeDivision.objects.create(
+        type=division_type, id=1, name_fi="Turku"
+    )
     Municipality.objects.create(
-        id="turku", name="Turku", name_fi="Turku", name_sv="Åbo"
+        id="turku", name="Turku", name_fi="Turku", name_sv="Åbo", division=division
     )
 
 
