@@ -10,9 +10,10 @@ function stage_0 {
 
 function stage_1 {
     # Somewhat rarely executed imports (once a month max)
-    # Helsinki and Espoo administrative division munigeo data
+    # Helsinki, Espoo and HSY administrative division munigeo data
     ./manage.py geo_import helsinki --divisions
     ./manage.py geo_import espoo --divisions
+    ./manage.py geo_import hsy --divisions
 }
 
 function stage_2 {
