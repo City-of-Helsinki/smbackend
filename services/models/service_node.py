@@ -54,4 +54,4 @@ class ServiceNode(MPTTModel):
         )
 
     class Meta:
-        ordering = ["-pk"]
+        ordering = ["name"]
