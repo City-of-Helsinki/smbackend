@@ -1,4 +1,5 @@
 from django.conf.urls import include, url
+from django.contrib import admin
 from munigeo.api import all_views as munigeo_views
 from rest_framework import routers
 
@@ -31,6 +32,7 @@ urlpatterns = [
     # url(r'^blog/', include('blog.urls')),
     # url(r'^', include(v1_api.urls)),
     # url(r'^admin/', include(admin.site.urls)),
+    url(r"^admin/", admin.site.urls),
     url(r"^open311/", views.post_service_request, name="services"),
     url(r"^v2/", include(router.urls)),
     url(r"^v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
