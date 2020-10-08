@@ -1,7 +1,9 @@
 from modeltranslation.translator import TranslationOptions, translator
 
 from services.models import (
+    Announcement,
     Department,
+    ErrorMessage,
     Service,
     ServiceNode,
     Unit,
@@ -66,3 +68,11 @@ class UnitConnectionTranslationOptions(TranslationOptions):
 
 
 translator.register(UnitConnection, UnitConnectionTranslationOptions)
+
+
+class NotificationTranslationOptions(TranslationOptions):
+    fields = ("title", "content")
+
+
+translator.register(Announcement, NotificationTranslationOptions)
+translator.register(ErrorMessage, NotificationTranslationOptions)

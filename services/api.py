@@ -28,7 +28,9 @@ from rest_framework.response import Response
 from observations.models import Observation
 from services.accessibility import RULES
 from services.models import (
+    Announcement,
     Department,
+    ErrorMessage,
     Service,
     ServiceNode,
     Unit,
@@ -1353,3 +1355,31 @@ class AddressViewSet(munigeo_api.AddressViewSet):
 
 
 register_view(AddressViewSet, "address")
+
+
+class AnnouncementSerializer(TranslatedModelSerializer, JSONAPISerializer):
+    class Meta:
+        model = Announcement
+        fields = ["title", "content"]
+
+
+class AnnouncementViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Announcement.objects.filter(active=True)
+    serializer_class = AnnouncementSerializer
+
+
+register_view(AnnouncementViewSet, "announcement")
+
+
+class ErrorMessageSerializer(TranslatedModelSerializer, JSONAPISerializer):
+    class Meta:
+        model = ErrorMessage
+        fields = ["title", "content"]
+
+
+class ErrorMessageViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ErrorMessage.objects.filter(active=True)
+    serializer_class = ErrorMessageSerializer
+
+
+register_view(ErrorMessageViewSet, "error_message")
