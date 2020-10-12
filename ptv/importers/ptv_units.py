@@ -3,12 +3,11 @@ from datetime import datetime
 
 from django import db
 from django.contrib.gis.geos import Point
-from django.db.models import Max
 from munigeo.importer.sync import ModelSyncher
 from munigeo.models import Municipality
 
 from ptv.models import ServicePTVIdentifier, UnitPTVIdentifier
-from ptv.utils import get_ptv_resource, UTC_TIMEZONE
+from ptv.utils import create_available_id, get_ptv_resource, UTC_TIMEZONE
 from services.models import Unit, UnitConnection, UnitIdentifier
 
 PHONE_OR_EMAIL_SECTION_TYPE = 1
@@ -80,7 +79,7 @@ class UnitPTVImporter:
             unit_id = ptv_id_obj.unit.id
         else:
             # Create an id by getting next available id since AutoField is not in use.
-            unit_id = (Unit.objects.aggregate(Max("id"))["id__max"] or 0) + id_counter
+            unit_id = create_available_id(Unit, id_counter)
 
         unit_obj = self.unit_syncher.get(unit_id)
         if not unit_obj:

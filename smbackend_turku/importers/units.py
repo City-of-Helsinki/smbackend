@@ -99,7 +99,9 @@ def get_municipality(name):
 
 
 class UnitImporter:
-    unitsyncher = ModelSyncher(Unit.objects.all(), lambda obj: obj.id)
+    unitsyncher = ModelSyncher(
+        Unit.objects.filter(ptv_id__isnull=True), lambda obj: obj.id
+    )
 
     def __init__(self, logger=None, importer=None):
         self.logger = logger

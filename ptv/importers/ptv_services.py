@@ -2,11 +2,10 @@ import uuid
 from datetime import datetime
 
 from django import db
-from django.db.models import Max
 from munigeo.importer.sync import ModelSyncher
 
 from ptv.models import ServicePTVIdentifier
-from ptv.utils import get_ptv_resource, UTC_TIMEZONE
+from ptv.utils import create_available_id, get_ptv_resource, UTC_TIMEZONE
 from services.management.commands.services_import.services import (
     update_service_counts,
     update_service_node_counts,
@@ -130,10 +129,7 @@ class PTVServiceImporter:
         if id_obj.service:
             service_id = id_obj.service.id
         else:
-            # Create an id by getting next available id since AutoField is not in use.
-            service_id = (
-                Service.objects.aggregate(Max("id"))["id__max"] or 0
-            ) + id_counter
+            service_id = create_available_id(Service, id_counter)
 
         service_obj = self.service_syncher.get(service_id)
         if not service_obj:
