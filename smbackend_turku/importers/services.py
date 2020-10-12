@@ -28,7 +28,9 @@ BLACKLISTED_SERVICE_NODES = [
 
 class ServiceImporter:
     nodesyncher = ModelSyncher(ServiceNode.objects.all(), lambda obj: obj.id)
-    servicesyncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
+    servicesyncher = ModelSyncher(
+        Service.objects.filter(ptv_ids__isnull=True), lambda obj: obj.id
+    )
 
     def __init__(self, logger=None, importer=None):
         self.logger = logger

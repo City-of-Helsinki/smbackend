@@ -33,6 +33,7 @@ env = environ.Env(
     ADDRESS_SEARCH_RADIUS=(int, 50),
     TURKU_API_KEY=(str, None),
     ACCESSIBILITY_SYSTEM_ID=(str, None),
+    TURKU_ID_BUFFER=(int, 10000),
 )
 
 SECURE_PROXY_SSL_HEADER = env("SECURE_PROXY_SSL_HEADER")
@@ -81,6 +82,8 @@ if env("ADDITIONAL_INSTALLED_APPS", default=None):
 
 TURKU_API_KEY = env("TURKU_API_KEY")
 ACCESSIBILITY_SYSTEM_ID = env("ACCESSIBILITY_SYSTEM_ID")
+
+TURKU_ID_BUFFER = env("TURKU_ID_BUFFER")
 
 MIDDLEWARE = [
     "django.middleware.gzip.GZipMiddleware",
