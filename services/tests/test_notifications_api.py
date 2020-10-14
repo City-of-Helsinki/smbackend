@@ -10,7 +10,10 @@ def create_notifications(model):
     model.objects.create(
         title_en="Visible notification",
         title_fi="Esimerkki-ilmoitus",
+        lead_paragraph_en="Lead of the alert.",
         content_en="About the alert...",
+        external_url_en="https://example.com/",
+        picture_url="https://example.com/picture",
         active=True,
     )
     model.objects.create(
@@ -50,6 +53,13 @@ def test_get_notification_list(api_client, notification_model, endpoint):
         "fi": "Esimerkki-ilmoitus",
         "en": "Visible notification",
     }
+    assert results[0].get("lead_paragraph") == {
+        "en": "Lead of the alert.",
+    }
     assert results[0].get("content") == {
         "en": "About the alert...",
     }
+    assert results[0].get("external_url") == {
+        "en": "https://example.com/",
+    }
+    assert results[0].get("picture_url") == "https://example.com/picture"

@@ -1,7 +1,7 @@
 FROM python:3.6
 WORKDIR /servicemap
 
-RUN apt-get update && apt-get install -y gdal-bin postgresql-client netcat
+RUN apt-get update && apt-get install -y gdal-bin postgresql-client netcat gettext
 
 COPY requirements.txt .
 COPY deploy/requirements.txt ./deploy/requirements.txt

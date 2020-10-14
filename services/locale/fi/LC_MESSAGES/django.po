@@ -1,0 +1,115 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-10-13 14:26+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: services/models/notification.py:6
+msgid "Title"
+msgstr "Otsikko"
+
+#: services/models/notification.py:7
+msgid "Lead paragraph"
+msgstr "Ingressi"
+
+#: services/models/notification.py:8
+msgid "Content"
+msgstr "Sisältö"
+
+#: services/models/notification.py:9
+msgid "External URL"
+msgstr "Ulkoinen URL"
+
+#: services/models/notification.py:10
+msgid "Picture URL"
+msgstr "Kuvan URL"
+
+#: services/models/notification.py:13 services/models/unit.py:76
+msgid "Active"
+msgstr "Aktiivinen"
+
+#: services/models/notification.py:14
+msgid "Only active objects are visible in the API."
+msgstr "Vain aktiiviseksi merkityt ilmoitukset näkyvät rajapinnassa."
+
+#: services/models/notification.py:27
+msgid "announcement"
+msgstr "uutinen"
+
+#: services/models/notification.py:28
+msgid "announcements"
+msgstr "uutiset"
+
+#: services/models/notification.py:33
+msgid "error message"
+msgstr "vikaviesti"
+
+#: services/models/notification.py:34
+msgid "error messages"
+msgstr "vikaviestit"
+
+#: services/models/unit.py:46
+msgid "contract_school"
+msgstr ""
+
+#: services/models/unit.py:47
+msgid "municipal_service"
+msgstr ""
+
+#: services/models/unit.py:48
+msgid "private_service"
+msgstr ""
+
+#: services/models/unit.py:49
+msgid "purchased_service"
+msgstr ""
+
+#: services/models/unit.py:50
+msgid "service_by_joint_municipal_authority"
+msgstr ""
+
+#: services/models/unit.py:51
+msgid "service_by_municipal_group_entity"
+msgstr ""
+
+#: services/models/unit.py:52
+msgid "service_by_municipally_owned_company"
+msgstr ""
+
+#: services/models/unit.py:53
+msgid "service_by_other_municipality"
+msgstr ""
+
+#: services/models/unit.py:54
+msgid "service_by_regional_cooperation_organization"
+msgstr ""
+
+#: services/models/unit.py:55
+msgid "state_service"
+msgstr ""
+
+#: services/models/unit.py:56
+msgid "supported_operations"
+msgstr ""
+
+#: services/models/unit.py:57
+msgid "voucher_service"
+msgstr ""
+
+#: services/models/unit.py:77
+msgid "Deleted at"
+msgstr ""

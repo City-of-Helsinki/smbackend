@@ -1360,7 +1360,7 @@ register_view(AddressViewSet, "address")
 class AnnouncementSerializer(TranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = Announcement
-        fields = ["title", "content"]
+        exclude = ["id", "active"]
 
 
 class AnnouncementViewSet(viewsets.ReadOnlyModelViewSet):
@@ -1374,7 +1374,7 @@ register_view(AnnouncementViewSet, "announcement")
 class ErrorMessageSerializer(TranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = ErrorMessage
-        fields = ["title", "content"]
+        exclude = ["id", "active"]
 
 
 class ErrorMessageViewSet(viewsets.ReadOnlyModelViewSet):
