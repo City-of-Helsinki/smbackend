@@ -7,6 +7,9 @@ class Notification(models.Model):
     lead_paragraph = models.TextField(blank=True, verbose_name=_("Lead paragraph"))
     content = models.TextField(verbose_name=_("Content"))
     external_url = models.URLField(blank=True, verbose_name=_("External URL"))
+    external_url_title = models.CharField(
+        null=True, blank=True, max_length=100, verbose_name=_("External URL title")
+    )
     picture_url = models.URLField(blank=True, verbose_name=_("Picture URL"))
     active = models.BooleanField(
         default=False,

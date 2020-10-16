@@ -13,6 +13,9 @@ def create_notifications(model):
         lead_paragraph_en="Lead of the alert.",
         content_en="About the alert...",
         external_url_en="https://example.com/",
+        external_url_title_en="Example external URL title",
+        external_url_title_fi="Esimerkki ulkoinen URL otsikko",
+        external_url_title_sv="Exempel på extern URL titel",
         picture_url="https://example.com/picture",
         active=True,
     )
@@ -61,5 +64,10 @@ def test_get_notification_list(api_client, notification_model, endpoint):
     }
     assert results[0].get("external_url") == {
         "en": "https://example.com/",
+    }
+    assert results[0].get("external_url_title") == {
+        "fi": "Esimerkki ulkoinen URL otsikko",
+        "en": "Example external URL title",
+        "sv": "Exempel på extern URL titel",
     }
     assert results[0].get("picture_url") == "https://example.com/picture"
