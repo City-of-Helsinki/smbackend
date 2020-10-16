@@ -71,7 +71,13 @@ translator.register(UnitConnection, UnitConnectionTranslationOptions)
 
 
 class NotificationTranslationOptions(TranslationOptions):
-    fields = ("title", "lead_paragraph", "content", "external_url")
+    fields = (
+        "title",
+        "lead_paragraph",
+        "content",
+        "external_url",
+        "external_url_title",
+    )
 
 
 translator.register(Announcement, NotificationTranslationOptions)

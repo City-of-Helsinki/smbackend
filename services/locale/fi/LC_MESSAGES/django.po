@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-16 10:11+0300\n"
+"POT-Creation-Date: 2020-10-16 14:52+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,31 +38,35 @@ msgstr "Sisältö"
 msgid "External URL"
 msgstr "Ulkoinen URL"
 
-#: services/models/notification.py:10
+#: services/models/notification.py:11
+msgid "External URL title"
+msgstr "Ulkoinen URL otsikko"
+
+#: services/models/notification.py:13
 msgid "Picture URL"
 msgstr "Kuvan URL"
 
-#: services/models/notification.py:13 services/models/unit.py:76
+#: services/models/notification.py:16 services/models/unit.py:76
 msgid "Active"
 msgstr "Aktiivinen"
 
-#: services/models/notification.py:14
+#: services/models/notification.py:17
 msgid "Only active objects are visible in the API."
 msgstr "Vain aktiiviseksi merkityt ilmoitukset näkyvät rajapinnassa."
 
-#: services/models/notification.py:27
+#: services/models/notification.py:30
 msgid "announcement"
 msgstr "uutinen"
 
-#: services/models/notification.py:28
+#: services/models/notification.py:31
 msgid "announcements"
 msgstr "uutiset"
 
-#: services/models/notification.py:34
+#: services/models/notification.py:37
 msgid "error message"
 msgstr "vikaviesti"
 
-#: services/models/notification.py:35
+#: services/models/notification.py:38
 msgid "error messages"
 msgstr "vikaviestit"
 
