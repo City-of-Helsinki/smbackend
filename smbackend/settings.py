@@ -72,7 +72,7 @@ INSTALLED_APPS = (
     "django.contrib.admin",
     "haystack",
     "munigeo",
-    "services",
+    "services.apps.ServicesConfig",
     "observations",
 )
 
