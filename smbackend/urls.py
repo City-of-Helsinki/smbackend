@@ -1,5 +1,6 @@
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 from munigeo.api import all_views as munigeo_views
 from rest_framework import routers
 
@@ -9,6 +10,9 @@ from services import views
 from services.api import all_views as services_views
 from services.unit_redirect_viewset import UnitRedirectViewSet
 from shortcutter import urls as shortcutter_urls
+
+admin.site.site_header = _("Servicemap administration")
+admin.site.index_title = _("Application management")
 
 router = routers.DefaultRouter()
 
