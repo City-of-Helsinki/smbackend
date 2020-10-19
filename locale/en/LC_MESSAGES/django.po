@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-29 18:11+0300\n"
+"POT-Creation-Date: 2020-10-19 12:48+0300\n"
 "PO-Revision-Date: 2017-08-29 18:21+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,102 +17,18 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: observations/api.py:20
+#: observations/api.py:25
 msgid "Authentication required."
 msgstr ""
 
-#: observations/models.py:155
+#: observations/models.py:205
 msgid "Token inactive or deleted."
 msgstr ""
 
-#: services/management/commands/mski_skitracks_import.py:107
-msgid "_illuminated"
-msgstr "illuminated"
-
-#: services/management/commands/mski_skitracks_import.py:108
-msgid "_not_illuminated"
-msgstr "not illuminated"
-
-#: services/management/commands/mski_skitracks_import.py:109
-msgid "_partly_illuminated"
-msgstr "partly illuminated"
-
-#: services/management/commands/mski_skitracks_import.py:110
-msgid "_unknown"
-msgstr "unknown"
-
-#: services/management/commands/mski_skitracks_import.py:111
-msgid "_classic/free"
-msgstr "classic/free"
-
-#: services/management/commands/mski_skitracks_import.py:112
-msgid "_classic"
-msgstr "classic"
-
-#: services/management/commands/mski_skitracks_import.py:113
-msgid "_free"
-msgstr "free"
-
-#: services/management/commands/mski_skitracks_import.py:114
-msgid "_skating_in_parts"
-msgstr "skating in parts"
-
-#: services/models/unit.py:45
-msgid "contract_school"
-msgstr "contract school"
-
-#: services/models/unit.py:46
-msgid "municipal_service"
-msgstr "municipal service"
-
-#: services/models/unit.py:47
-msgid "private_service"
-msgstr "private service"
-
-#: services/models/unit.py:48
-msgid "purchased_service"
-msgstr "purchased service"
-
-#: services/models/unit.py:49
-msgid "service_by_joint_municipal_authority"
-msgstr "service by joint municipal authority"
-
-#: services/models/unit.py:50
-msgid "service_by_municipal_group_entity"
-msgstr "service by municipal group entity"
-
-#: services/models/unit.py:51
-msgid "service_by_municipally_owned_company"
-msgstr "service by municipally owned company"
-
-#: services/models/unit.py:52
-msgid "service_by_other_municipality"
-msgstr "service by other municipality"
-
-#: services/models/unit.py:53
-msgid "service_by_regional_cooperation_organization"
-msgstr "service by regional cooperation organization"
-
-#: services/models/unit.py:54
-msgid "state_service"
-msgstr "state service"
-
-#: services/models/unit.py:55
-msgid "supported_operations"
-msgstr "supported operations"
-
-#: services/models/unit.py:56
-msgid "voucher_service"
-msgstr "voucher service"
-
-#: smbackend/settings.py:88
-msgid "Finnish"
+#: smbackend/urls.py:14
+msgid "Servicemap administration"
 msgstr ""
 
-#: smbackend/settings.py:89
-msgid "Swedish"
-msgstr ""
-
-#: smbackend/settings.py:90
-msgid "English"
+#: smbackend/urls.py:15
+msgid "Application management"
 msgstr ""

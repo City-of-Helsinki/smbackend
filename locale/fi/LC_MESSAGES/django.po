@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-16 12:52+0300\n"
+"POT-Creation-Date: 2020-10-19 12:48+0300\n"
 "PO-Revision-Date: 2017-09-05 17:29+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,76 +20,16 @@ msgstr ""
 
 #: observations/api.py:25
 msgid "Authentication required."
-msgstr ""
+msgstr "Tunnistautuminen vaaditaan"
 
 #: observations/models.py:205
 msgid "Token inactive or deleted."
-msgstr ""
+msgstr "Tunnus ei voimassa tai poistettu"
 
-#: smbackend/urls.py:16
+#: smbackend/urls.py:14
 msgid "Servicemap administration"
 msgstr "Palvelukartan ylläpito"
 
-#: smbackend/urls.py:17
+#: smbackend/urls.py:15
 msgid "Application management"
 msgstr "Sovelluksen hallinta"
-
-#~ msgid "_illuminated"
-#~ msgstr "valaistu"
-
-#~ msgid "_not_illuminated"
-#~ msgstr "ei valaistu"
-
-#~ msgid "_partly_illuminated"
-#~ msgstr "osittain valaistu"
-
-#~ msgid "_unknown"
-#~ msgstr "ei tiedossa"
-
-#~ msgid "_classic/free"
-#~ msgstr "perinteinen/vapaa"
-
-#~ msgid "_classic"
-#~ msgstr "perinteinen"
-
-#~ msgid "_free"
-#~ msgstr "vapaa"
-
-#~ msgid "_skating_in_parts"
-#~ msgstr "osittain luistelu"
-
-#~ msgid "contract_school"
-#~ msgstr "sopimuskoulu"
-
-#~ msgid "municipal_service"
-#~ msgstr "kunnallinen palvelu"
-
-#~ msgid "private_service"
-#~ msgstr "yksityinen palvelu"
-
-#~ msgid "purchased_service"
-#~ msgstr "ostopalvelu"
-
-#~ msgid "service_by_joint_municipal_authority"
-#~ msgstr "kuntayhtymän palvelu"
-
-#~ msgid "service_by_municipal_group_entity"
-#~ msgstr "kunnan konserniyhteisön palvelu"
-
-#~ msgid "service_by_municipally_owned_company"
-#~ msgstr "kunnan liikelaitoksen palvelu"
-
-#~ msgid "service_by_other_municipality"
-#~ msgstr "toisen kunnan palvelu"
-
-#~ msgid "service_by_regional_cooperation_organization"
-#~ msgstr "alueellisen yhteistoimintaorganisaation palvelu"
-
-#~ msgid "state_service"
-#~ msgstr "valtion palvelu"
-
-#~ msgid "supported_operations"
-#~ msgstr "avustettava toiminta"
-
-#~ msgid "voucher_service"
-#~ msgstr "palvelusetelipalvelu"

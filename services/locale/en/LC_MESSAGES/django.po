@@ -9,115 +9,114 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-19 12:48+0300\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2017-08-29 18:21+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: services/apps.py:7
 msgid "Services"
-msgstr "Palvelut"
+msgstr ""
 
 #: services/models/notification.py:6
 msgid "Title"
-msgstr "Otsikko"
+msgstr ""
 
 #: services/models/notification.py:7
 msgid "Lead paragraph"
-msgstr "Ingressi"
+msgstr ""
 
 #: services/models/notification.py:8
 msgid "Content"
-msgstr "Sisältö"
+msgstr ""
 
 #: services/models/notification.py:9
 msgid "External URL"
-msgstr "Ulkoinen URL"
+msgstr ""
 
 #: services/models/notification.py:11
 msgid "External URL title"
-msgstr "Ulkoinen URL otsikko"
+msgstr ""
 
 #: services/models/notification.py:13
 msgid "Picture URL"
-msgstr "Kuvan URL"
+msgstr ""
 
 #: services/models/notification.py:16 services/models/unit.py:76
 msgid "Active"
-msgstr "Aktiivinen"
+msgstr ""
 
 #: services/models/notification.py:17
 msgid "Only active objects are visible in the API."
-msgstr "Vain aktiiviseksi merkityt ilmoitukset näkyvät rajapinnassa."
+msgstr ""
 
 #: services/models/notification.py:30
 msgid "announcement"
-msgstr "uutinen"
+msgstr ""
 
 #: services/models/notification.py:31
 msgid "announcements"
-msgstr "uutiset"
+msgstr ""
 
 #: services/models/notification.py:37
 msgid "error message"
-msgstr "vikaviesti"
+msgstr ""
 
 #: services/models/notification.py:38
 msgid "error messages"
-msgstr "vikaviestit"
+msgstr ""
 
 #: services/models/unit.py:46
 msgid "contract_school"
-msgstr "sopimuskoulu"
+msgstr "contract school"
 
 #: services/models/unit.py:47
 msgid "municipal_service"
-msgstr "kunnallinen palvelu"
+msgstr "municipal service"
 
 #: services/models/unit.py:48
 msgid "private_service"
-msgstr "yksityinen palvelu"
+msgstr "private service"
 
 #: services/models/unit.py:49
 msgid "purchased_service"
-msgstr "ostopalvelu"
+msgstr "purchased service"
 
 #: services/models/unit.py:50
 msgid "service_by_joint_municipal_authority"
-msgstr "kuntayhtymän palvelu"
+msgstr "service by joint municipal authority"
 
 #: services/models/unit.py:51
 msgid "service_by_municipal_group_entity"
-msgstr "kunnan konserniyhteisön palvelu"
+msgstr "service by municipal group entity"
 
 #: services/models/unit.py:52
 msgid "service_by_municipally_owned_company"
-msgstr "kunnan liikelaitoksen palvelu"
+msgstr "service by municipally owned company"
 
 #: services/models/unit.py:53
 msgid "service_by_other_municipality"
-msgstr "toisen kunnan palvelu"
+msgstr "service by other municipality"
 
 #: services/models/unit.py:54
 msgid "service_by_regional_cooperation_organization"
-msgstr "alueellisen yhteistoimintaorganisaation palvelu"
+msgstr "service by regional cooperation organization"
 
 #: services/models/unit.py:55
 msgid "state_service"
-msgstr "valtion palvelu"
+msgstr "state service"
 
 #: services/models/unit.py:56
 msgid "supported_operations"
-msgstr "avustettava toiminta"
+msgstr "supported operations"
 
 #: services/models/unit.py:57
 msgid "voucher_service"
-msgstr "palvelusetelipalvelu"
+msgstr "voucher service"
 
 #: services/models/unit.py:77
 msgid "Deleted at"
-msgstr "Poistettu-aikaleima"
+msgstr ""

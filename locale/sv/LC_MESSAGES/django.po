@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-29 18:11+0300\n"
+"POT-Creation-Date: 2020-10-19 12:48+0300\n"
 "PO-Revision-Date: 2017-08-29 18:28+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,102 +18,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: observations/api.py:20
+#: observations/api.py:25
 msgid "Authentication required."
 msgstr ""
 
-#: observations/models.py:155
+#: observations/models.py:205
 msgid "Token inactive or deleted."
 msgstr ""
 
-#: services/management/commands/mski_skitracks_import.py:107
-msgid "_illuminated"
+#: smbackend/urls.py:14
+msgid "Servicemap administration"
 msgstr ""
 
-#: services/management/commands/mski_skitracks_import.py:108
-msgid "_not_illuminated"
-msgstr ""
-
-#: services/management/commands/mski_skitracks_import.py:109
-msgid "_partly_illuminated"
-msgstr ""
-
-#: services/management/commands/mski_skitracks_import.py:110
-msgid "_unknown"
-msgstr ""
-
-#: services/management/commands/mski_skitracks_import.py:111
-msgid "_classic/free"
-msgstr ""
-
-#: services/management/commands/mski_skitracks_import.py:112
-msgid "_classic"
-msgstr ""
-
-#: services/management/commands/mski_skitracks_import.py:113
-msgid "_free"
-msgstr ""
-
-#: services/management/commands/mski_skitracks_import.py:114
-msgid "_skating_in_parts"
-msgstr ""
-
-#: services/models/unit.py:45
-msgid "contract_school"
-msgstr "avtalsskola"
-
-#: services/models/unit.py:46
-msgid "municipal_service"
-msgstr "kommunal tjänst"
-
-#: services/models/unit.py:47
-msgid "private_service"
-msgstr "privat tjänst"
-
-#: services/models/unit.py:48
-msgid "purchased_service"
-msgstr "köpt tjänst"
-
-#: services/models/unit.py:49
-msgid "service_by_joint_municipal_authority"
-msgstr "tjänst från samkommunen"
-
-#: services/models/unit.py:50
-msgid "service_by_municipal_group_entity"
-msgstr "tjänst från kommunal koncernsammanslutning"
-
-#: services/models/unit.py:51
-msgid "service_by_municipally_owned_company"
-msgstr "tjänst från kommunalt affärsverk"
-
-#: services/models/unit.py:52
-msgid "service_by_other_municipality"
-msgstr "annan kommuns tjänst"
-
-#: services/models/unit.py:53
-msgid "service_by_regional_cooperation_organization"
-msgstr "tjänst från regional samarbetsorganisation"
-
-#: services/models/unit.py:54
-msgid "state_service"
-msgstr "statlig tjänst"
-
-#: services/models/unit.py:55
-msgid "supported_operations"
-msgstr "verksamhet som beviljas bidrag"
-
-#: services/models/unit.py:56
-msgid "voucher_service"
-msgstr "servicesedeltjänst"
-
-#: smbackend/settings.py:88
-msgid "Finnish"
-msgstr ""
-
-#: smbackend/settings.py:89
-msgid "Swedish"
-msgstr ""
-
-#: smbackend/settings.py:90
-msgid "English"
+#: smbackend/urls.py:15
+msgid "Application management"
 msgstr ""
