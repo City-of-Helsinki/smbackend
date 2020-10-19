@@ -5,87 +5,18 @@ from django import db
 from munigeo.importer.sync import ModelSyncher
 
 from ptv.models import ServicePTVIdentifier
-from ptv.utils import create_available_id, get_ptv_resource, UTC_TIMEZONE
+from ptv.utils import (
+    create_available_id,
+    get_ptv_resource,
+    TKU_PTV_NODE_MAPPING,
+    UTC_TIMEZONE,
+)
 from services.management.commands.services_import.services import (
     update_service_counts,
     update_service_node_counts,
     update_service_root_service_nodes,
 )
 from services.models import Service, ServiceNode, Unit
-
-TKU_PTV_NODE_MAPPING = {
-    "Aamu- ja iltapäiväkerhotoiminta": "Perusopetus",
-    "Aikuis- ja täydennyskoulutus": "Aikuiskoulutus",
-    "Ammatinvalinta ja opintojen ohjaus": "Perusopetus",
-    "Ammatinvalinta ja urasuunnittelu": "Aikuiskoulutus",
-    "Arkistot": "Aineisto- ja tietopalvelut",
-    "Asiakirja- ja tietopyynnöt": "Aineisto- ja tietopalvelut",
-    "Asumispalvelut": "Tuet ja etuudet",
-    "Elinkeinot": "Työ- ja yrityspalvelut",
-    "Erikoissairaanhoito": "Erikoissairaanhoidon palvelut",
-    "Esiopetus": "Päivähoito ja esiopetus",
-    "Henkilöstöhankinta": "Työllisyyspalvelut",
-    "Henkilöstön kehittäminen": "Työ- ja yrityspalvelut",
-    "Hyvinvointipalvelujen tukipalvelut": "Sosiaalipalvelut",
-    "Jätehuolto": "Asuminen",
-    "Kansainvälistymispalvelut": "Palvelut yrityksille",
-    "Kiinteistöt": "Kaavoitus, kiinteistöt ja rakentaminen",
-    "Kirjastot ja tietopalvelut": "Aineisto- ja tietopalvelut",
-    "Korkeakoulutus": "Ammattikorkeakoulut ja yliopistot",
-    "Korjaus- ja energia-avustukset": "Kaavoitus, kiinteistöt ja rakentaminen",
-    "Kotihoito ja kotipalvelut": "Tuet ja etuudet",
-    "Kotisairaanhoito ja omaishoito": "Vanhus- ja vammaispalvelut",
-    "Koulu- ja opiskelijahuollon sosiaalipalvelut": "Muu sosiaalihuolto",
-    "Koulu- ja opiskelijaterveydenhuolto": "Koulu- ja opiskeluterveydenhuolto",
-    "Koulutus": "Päivähoito ja koulutus",
-    "Kuntoutus": "Kuntoutumispalvelut",
-    "Lasten päivähoito": "Päivähoito ja esiopetus",
-    "Liiketoiminnan kehittäminen": "Palvelut yrityksille",
-    "Liikunta ja urheilu": "Liikunta ja ulkoilu",
-    "Maankäyttö, kaavoitus ja tontit": "Kaavoitus, kiinteistöt ja rakentaminen",
-    "Neuvolapalvelut": "Neuvolat",
-    "Oikeusturva": "Oikeudelliset palvelut",
-    "Omistajanvaihdos": "Palvelut yrityksille",
-    "Oppisopimus": "Ammatillinen koulutus",
-    "Päihde- ja mielenterveyspalvelut": "Mielenterveys- ja päihdepalvelut",
-    "Perheiden palvelut": "Lapsiperheen tuet",
-    "Perusterveydenhuolto": "Terveyspalvelut",
-    "Rakentaminen": "Kaavoitus, kiinteistöt ja rakentaminen",
-    "Retkeily": "Leirialueet ja saaret",
-    "Rokotukset": "Koulu- ja opiskeluterveydenhuolto",
-    "Röntgen, laboratorio ja muut tutkimuspalvelut": "Terveyspalvelut",
-    "Sosiaalipalvelujen neuvonta- ja ohjauspalvelut": "Sosiaalipalvelut",
-    "Sosiaalipalvelujen oheis- ja tukipalvelut": "Tuet ja etuudet",
-    "Suun ja hampaiden terveydenhuolto": "Suun terveydenhuolto",
-    "Taiteet": "Kulttuuri",
-    "Terveyden ja hyvinvoinnin neuvonta- ja ohjauspalvelut": "Terveysaseman palvelut",
-    "Terveydenhuolto, sairaanhoito ja ravitsemus": "Terveysaseman palvelut",
-    "Terveystarkastukset": "Työterveyshuolto",
-    "Tienpito": "Liikenne",
-    "Tilaisuuksien järjestäminen": "Tontit ja toimitilat",
-    "Toimialakohtaiset luvat ja velvoitteet": "Asuminen ja ympäristö",
-    "Toimitilat": "Tontit ja toimitilat",
-    "Toisen asteen ammatillinen koulutus": "Ammatillinen koulutus",
-    "Työ ja työttömyys": "Työllisyyspalvelut",
-    "Työelämän säännöt ja työehtosopimukset": "Työ- ja yrityspalvelut",
-    "Työkyky ja ammatillinen kuntoutus": "Työllisyyspalvelut",
-    "Työnantajan palvelut": "Palvelut yrityksille",
-    "Työnhaku ja työpaikat": "Työ- ja yrityspalvelut",
-    "Väestönsuojelu": "Turvallisuus",
-    "Vammaisten muut kuin asumis- ja kotipalvelut": "Vanhus- ja vammaispalvelut",
-    "Vanhusten palvelut": "Vanhus- ja vammaispalvelut",
-    "Vapaa sivistystyö ja taidekasvatus": "Päivähoito ja koulutus",
-    "Vapaa-ajan palvelut": "Vapaa-aika",
-    "Vesihuolto": "Asuminen ja ympäristö",
-    "Vuokra-asuminen": "Asuminen",
-    "Yleiset tieto- ja hallintopalvelut": "Aineisto- ja tietopalvelut",
-    "Ympäristöilmoitukset ja luvat": "Asuminen ja ympäristö",
-    "Yrityksen perustaminen": "Palvelut yrityksille",
-    "Yrityksen talous- ja velkaneuvonta": "Palvelut yrityksille",
-    "Yrityskoulutus": "Palvelut yrityksille",
-    "Yritysrahoitus": "Palvelut yrityksille",
-    "Yritystoiminnan lopettaminen": "Palvelut yrityksille",
-}
 
 
 class PTVServiceImporter:
@@ -182,20 +113,20 @@ class PTVServiceImporter:
                 value = name.get("value")
                 # TODO: Alternative solution to the Turku mapping
                 if value in TKU_PTV_NODE_MAPPING:
-                    value = TKU_PTV_NODE_MAPPING.get(value)
+                    value_list = TKU_PTV_NODE_MAPPING.get(value)
+                    for node_name in value_list:
+                        node_obj = ServiceNode.objects.filter(name=node_name).first()
+                        if not node_obj:
+                            # TODO: What to do with the nodes that can't be mapped to the existing ones.
+                            self.logger.warning(
+                                'ServiceNode "{}" does not exist!'.format(node_name)
+                            )
+                            break
 
-                node_obj = ServiceNode.objects.filter(name=value).first()
-                if not node_obj:
-                    # TODO: What to do with the nodes that can't be mapped to the existing ones.
-                    self.logger.warning(
-                        'ServiceNode "{}" does not exist!'.format(value)
-                    )
-                    break
-
-                node_obj.related_services.add(service_obj)
-                node_obj.units.add(*service_obj.units.all())
-                node_obj._changed = True
-                self._save_object(node_obj)
+                        node_obj.related_services.add(service_obj)
+                        node_obj.units.add(*service_obj.units.all())
+                        node_obj._changed = True
+                        self._save_object(node_obj)
 
     def _clean_services(self):
         Service.objects.filter(units__isnull=True, ptv_id__isnull=False).delete()
