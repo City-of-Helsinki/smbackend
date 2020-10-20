@@ -132,6 +132,12 @@ ADDRESS_SEARCH_RADIUS = env("ADDRESS_SEARCH_RADIUS")
 # The Finnish national grid coordinates in TM35-FIN according to JHS-180
 # specification. We use it as a bounding box.
 BOUNDING_BOX = [-548576, 6291456, 1548576, 8388608]
+BOUNDING_BOX_WSG84 = [
+    10.26199739324485,
+    55.61796354326285,
+    60.48175983974826,
+    72.86779143337851,
+]
 
 # If no country specified (for example through a REST API call), use this
 # as default.
