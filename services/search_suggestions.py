@@ -501,7 +501,15 @@ def filter_suggestions(suggestions, language):
     return suggestions
 
 
+def clean_query(query):
+    query = query.strip()
+    if query[-1] == "-":
+        query = query.replace("-", "")
+    return query
+
+
 def get_suggestions(query, language):
+    query = clean_query(query)
     s = generate_suggestions(query, language)
     if s is None:
         query = query.replace(" ", "")
