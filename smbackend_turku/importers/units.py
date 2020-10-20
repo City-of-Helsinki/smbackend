@@ -4,6 +4,7 @@ from functools import lru_cache
 
 import pytz
 from django.conf import settings
+from django.contrib.gis.gdal import GDAL_VERSION
 from django.contrib.gis.geos import Point, Polygon
 from django.utils import formats, translation
 from django.utils.dateparse import parse_date
@@ -85,9 +86,15 @@ LANGUAGES = ("fi", "sv", "en")
 
 SOURCE_DATA_SRID = 4326
 
-BOUNDING_BOX = Polygon.from_bbox(settings.BOUNDING_BOX)
-BOUNDING_BOX.srid = settings.DEFAULT_SRID
-BOUNDING_BOX.transform(SOURCE_DATA_SRID)
+# Use implicit bounding box with GDAL 3 and greater, because axis order has been changed:
+# https://trac.osgeo.org/gdal/wiki/rfc73_proj6_wkt2_srsbarn#Axisorderissues
+if GDAL_VERSION[0] >= 3 and settings.BOUNDING_BOX_WSG84:
+    BOUNDING_BOX = Polygon.from_bbox(settings.BOUNDING_BOX_WSG84)
+    BOUNDING_BOX.srid = SOURCE_DATA_SRID
+else:
+    BOUNDING_BOX = Polygon.from_bbox(settings.BOUNDING_BOX)
+    BOUNDING_BOX.srid = settings.DEFAULT_SRID
+    BOUNDING_BOX.transform(SOURCE_DATA_SRID)
 
 
 @lru_cache(None)
