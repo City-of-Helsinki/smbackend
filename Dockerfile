@@ -13,3 +13,5 @@ COPY . .
 RUN mkdir -p www/media
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
+
+RUN python manage.py compilemessages
