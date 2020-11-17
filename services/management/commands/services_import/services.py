@@ -311,3 +311,10 @@ def update_service_root_service_nodes():
     for service in services:
         service.root_service_node_id = service_roots[service.id]
         service.save(update_fields=["root_service_node"])
+
+
+def remove_empty_service_nodes(logger):
+    nodes = ServiceNode.objects.filter(unit_counts=None)
+    delete_count = nodes.count()
+    nodes.delete()
+    logger.info("Deleted {} service nodes without units.".format(delete_count))

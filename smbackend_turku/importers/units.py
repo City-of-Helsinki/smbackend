@@ -12,6 +12,7 @@ from munigeo.importer.sync import ModelSyncher
 from munigeo.models import Municipality
 
 from services.management.commands.services_import.services import (
+    remove_empty_service_nodes,
     update_service_node_counts,
 )
 from services.models import (
@@ -121,7 +122,7 @@ class UnitImporter:
         self.unitsyncher.finish()
 
         update_service_node_counts()
-        self._remove_empty_service_nodes()
+        remove_empty_service_nodes(self.logger)
 
     def _handle_unit(self, unit_data):
         unit_id = int(unit_data["koodi"])
@@ -557,12 +558,6 @@ class UnitImporter:
                 set_syncher_tku_translated_field(obj, model_field, value)
             else:
                 set_syncher_object_field(obj, model_field, value)
-
-    def _remove_empty_service_nodes(self):
-        nodes = ServiceNode.objects.filter(unit_counts=None)
-        delete_count = nodes.count()
-        nodes.delete()
-        self.logger.info("Deleted {} service nodes without units.".format(delete_count))
 
 
 def import_units(**kwargs):
