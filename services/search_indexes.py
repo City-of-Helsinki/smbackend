@@ -107,32 +107,15 @@ class UnitIndex(ServiceMapBaseIndex):
     def _word_matches_street_address(self, word):
         return word in self._get_street_name_cache()
 
-    def _name_with_address_removed(self, name):
-        """We remove any street addresses appearing in unit names, because the
-        'name', 'text' and 'autosuggest' fields currently decompose
-        composite words (yhdyssana) into separate words, which leads
-        to confusing false positive matches because street names often
-        contain words which have nothing to do with the unit or its
-        services (for example "koira" in "koirakalliontie")
-
-        """
-        return " ".join(
-            (
-                w
-                for w in re.split(r"[ /]+", name)
-                if not self._word_matches_street_address(w)
-            )
-        )
-
     def prepare_name(self, obj):
-        return self._name_with_address_removed(obj.name)
+        return obj.name
 
     def prepare_autosuggest(self, obj):
-        return self._name_with_address_removed(obj.name)
+        return obj.name
 
     def prepare_text(self, obj):
         values = [
-            self._name_with_address_removed(obj.name),
+            obj.name,
             obj.service_names(),
             obj.service_keywords(),
             obj.highlight_names(),
@@ -165,7 +148,7 @@ class UnitIndex(ServiceMapBaseIndex):
             terms_by_field["location"].append(obj.municipality.name)
 
         combined = [term for terms in terms_by_field.values() for term in terms]
-        name = self._name_with_address_removed(obj.name)
+        name = obj.name
         combined.append(name)
         terms_by_field["name"] = name
         terms_by_field["combined"] = " ".join(combined)
