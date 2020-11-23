@@ -62,8 +62,11 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
         values = [
             category.name for category in obj.keywords.filter(language=get_language())
         ]
-        if obj.address_zip:
-            values.append(obj.address_zip)
+        try:
+            if obj.address_zip:
+                values.append(obj.address_zip)
+        except AttributeError:
+            pass
         return values
 
     def prepare_extra_searchwords(self, obj):
