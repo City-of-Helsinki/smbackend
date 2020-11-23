@@ -1010,6 +1010,11 @@ class UnitViewSet(
 
     def retrieve(self, request, pk=None):
         try:
+            int(pk)
+        except ValueError:
+            raise Http404
+
+        try:
             unit = Unit.objects.get(pk=pk, public=True, is_active=True)
         except Unit.DoesNotExist:
             unit_alias = get_object_or_404(UnitAlias, second=pk)
