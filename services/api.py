@@ -802,9 +802,17 @@ class UnitViewSet(
             val = filters["city_as_department"].lower().strip()
 
             if len(val) > 0:
-                deps_uuid = val.split(",")
+                deps_uuids = val.split(",")
 
-                deps = Department.objects.filter(uuid__in=deps_uuid).select_related(
+                for deps_uuid in deps_uuids:
+                    try:
+                        uuid.UUID(deps_uuid)
+                    except ValueError:
+                        raise serializers.ValidationError(
+                            "'city_as_department' value must be a valid UUID"
+                        )
+
+                deps = Department.objects.filter(uuid__in=deps_uuids).select_related(
                     "municipality"
                 )
                 munis = [d.municipality for d in deps]
