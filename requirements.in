@@ -7,7 +7,7 @@ django-modeltranslation
 flake8>3.6
 requests
 requests_cache
--e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.42#egg=django-munigeo
+-e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.43#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions
@@ -18,7 +18,7 @@ lxml
 raven~=6.10.0
 elasticsearch
 djangorestframework-jsonp
-pip-tools>=4.0.0
+pip-tools>=5.4.0
 python-dateutil
 pytest-django
 pytest-cov
