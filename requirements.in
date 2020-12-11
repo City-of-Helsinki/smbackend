@@ -1,10 +1,10 @@
-Django~=2.2
+Django>=2.2.17,<3.0
 djangorestframework>3.9.4,<3.11
 elasticsearch>=1.0.0,<2.0.0
-Markdown>3.1
-django-filter~=2.0.0
+Markdown
+django-filter
 django-modeltranslation
-flake8>3.6
+flake8
 requests
 requests_cache
 -e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.44#egg=django-munigeo
@@ -13,12 +13,12 @@ django-cors-headers
 django-extensions
 psycopg2<2.9
 django-mptt
-django-haystack>=2.8.1
+django-haystack
 lxml
 raven~=6.10.0
 elasticsearch
 djangorestframework-jsonp
-pip-tools>=5.4.0
+pip-tools
 python-dateutil
 pytest-django
 pytest-cov
