@@ -30,4 +30,3 @@ django-environ
 black
 isort
 pep8-naming
-ipython
