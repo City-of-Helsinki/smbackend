@@ -20,7 +20,7 @@ from hypothesis.strategies import (
 
 SAFE_LETTERS = digits + ascii_letters + punctuation
 
-LANGUAGES = [l[0] for l in settings.LANGUAGES]
+LANGUAGES = [lang[0] for lang in settings.LANGUAGES]
 
 RESOURCES = [
     "unit",

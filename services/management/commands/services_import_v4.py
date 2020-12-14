@@ -31,7 +31,7 @@ UTC_TIMEZONE = pytz.timezone("UTC")
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
     importer_types = ["departments", "services", "units", "aliases"]
-    supported_languages = [l[0] for l in settings.LANGUAGES]
+    supported_languages = [lang[0] for lang in settings.LANGUAGES]
 
     def __init__(self):
         super(Command, self).__init__()

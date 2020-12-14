@@ -5,7 +5,7 @@ from services.models import Keyword
 
 class KeywordHandler:
     def __init__(self, verbosity=False, logger=None):
-        self.supported_languages = [l[0] for l in settings.LANGUAGES]
+        self.supported_languages = [lang[0] for lang in settings.LANGUAGES]
         self.keywords = self._keywords()
         self.keywords_by_id = self._keywords_by_id()
         self.verbosity = verbosity

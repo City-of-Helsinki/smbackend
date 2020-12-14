@@ -264,8 +264,8 @@ def _load_postcodes():
         f = open(path, "r", encoding="utf-8")
     except FileNotFoundError:
         return
-    for l in f.readlines():
-        code, muni = l.split(",")
+    for line in f.readlines():
+        code, muni = line.split(",")
         postcodes[code] = muni.strip()
     return postcodes
 

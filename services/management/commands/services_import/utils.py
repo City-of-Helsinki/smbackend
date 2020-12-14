@@ -66,7 +66,7 @@ def postcodes():
     path = os.path.join(settings.BASE_DIR, "data", "fi", "postcodes.txt")
     postcodes = {}
     f = open(path, "r", encoding="utf-8")
-    for l in f.readlines():
-        code, muni = l.split(",")
+    for line in f.readlines():
+        code, muni = line.split(",")
         postcodes[code] = muni.strip()
     return postcodes

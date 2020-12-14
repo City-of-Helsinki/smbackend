@@ -17,7 +17,7 @@ class Command(BaseCommand):
     help = "Import services from City of Turku APIs"
     importer_types = ["services", "accessibility", "units", "addresses"]
 
-    supported_languages = [l[0] for l in settings.LANGUAGES]
+    supported_languages = [lang[0] for lang in settings.LANGUAGES]
 
     def __init__(self):
         super(Command, self).__init__()

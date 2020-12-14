@@ -30,7 +30,7 @@ def api_client():
     return APIClient()
 
 
-LANGUAGES = [l[0] for l in django_settings.LANGUAGES]
+LANGUAGES = [lang[0] for lang in django_settings.LANGUAGES]
 
 FIELD_MAPPINGS = {
     "desc": "description",
@@ -234,8 +234,8 @@ def assert_unit_correctly_imported(unit, source_unit, source_services):
         assert is_missing_contract_type_allowed(s, d)
     else:
         assert d["contract_type"]["id"] in CONTRACT_TYPES
-        for l in LANGUAGES:
-            assert len(d["contract_type"]["description"][l]) > 0
+        for lang in LANGUAGES:
+            assert len(d["contract_type"]["description"][lang]) > 0
 
     # TODO 'modified_time'
     # TODO 'created_time'

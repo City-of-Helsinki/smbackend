@@ -8,7 +8,7 @@ from munigeo.models import Address, AdministrativeDivision
 from services.models import Service, Unit
 from services.search_indexes import AdministrativeDivisionIndex
 
-LANGUAGES = [l[0] for l in settings.LANGUAGES]
+LANGUAGES = [lang[0] for lang in settings.LANGUAGES]
 
 
 def _check_index_integrity(model):

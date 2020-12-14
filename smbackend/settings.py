@@ -113,7 +113,7 @@ def gettext(s):
 # thus some gyrations
 language_map = {x: y for x, y in GLOBAL_LANGUAGES}
 try:
-    LANGUAGES = tuple((l, language_map[l]) for l in env("LANGUAGES"))
+    LANGUAGES = tuple((lang, language_map[lang]) for lang in env("LANGUAGES"))
 except KeyError as e:
     raise ImproperlyConfigured(f'unknown language code "{e.args[0]}"')
 LANGUAGE_CODE = env("LANGUAGES")[0]
