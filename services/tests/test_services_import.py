@@ -286,8 +286,7 @@ def assert_service_details_correctly_imported(source, imported):
 @pytest.mark.django_db
 @settings(
     suppress_health_check=[HealthCheck.too_slow],
-    timeout=hypothesis.unlimited,
-    max_examples=100,
+    max_examples=50,
 )
 @given(closed_object_set())
 def test_import_units(api_client, resources):
