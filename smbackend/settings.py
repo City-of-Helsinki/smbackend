@@ -14,6 +14,7 @@ env = environ.Env(
     LANGUAGES=(list, ["fi", "sv", "en"]),
     DATABASE_URL=(str, "postgis:///servicemap"),
     ELASTICSEARCH_URL=(str, None),
+    ELASTICSEARCH_INDEX_PREFIX=(str, 'servicemap'),
     DISABLE_HAYSTACK_SIGNAL_PROCESSOR=(bool, False),
     ALLOWED_HOSTS=(list, []),
     SENTRY_DSN=(str, None),
@@ -229,6 +230,7 @@ def read_config(name):
 
 
 ELASTICSEARCH_URL = env("ELASTICSEARCH_URL")
+ELASTICSEARCH_INDEX_PREFIX = env("ELASTICSEARCH_INDEX_PREFIX")
 
 if ELASTICSEARCH_URL:
     HAYSTACK_CONNECTIONS = {
@@ -239,7 +241,7 @@ if ELASTICSEARCH_URL:
             "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
             "BASE_ENGINE": "multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine",
             "URL": ELASTICSEARCH_URL,
-            "INDEX_NAME": "servicemap-fi",
+            "INDEX_NAME": "{}-fi".format(ELASTICSEARCH_INDEX_PREFIX),
             "MAPPINGS": read_config("mappings_finnish")["modelresult"]["properties"],
             "SETTINGS": read_config("settings_finnish"),
         },
@@ -247,7 +249,7 @@ if ELASTICSEARCH_URL:
             "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
             "BASE_ENGINE": "multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine",
             "URL": ELASTICSEARCH_URL,
-            "INDEX_NAME": "servicemap-sv",
+            "INDEX_NAME": "{}-sv".format(ELASTICSEARCH_INDEX_PREFIX),
             "MAPPINGS": read_config("mappings_swedish")["modelresult"]["properties"],
             "SETTINGS": read_config("settings_swedish"),
         },
@@ -255,7 +257,7 @@ if ELASTICSEARCH_URL:
             "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
             "BASE_ENGINE": "multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine",
             "URL": ELASTICSEARCH_URL,
-            "INDEX_NAME": "servicemap-en",
+            "INDEX_NAME": "{}-en".format(ELASTICSEARCH_INDEX_PREFIX),
             "MAPPINGS": read_config("mappings_english")["modelresult"]["properties"],
             "SETTINGS": read_config("settings_english"),
         },
