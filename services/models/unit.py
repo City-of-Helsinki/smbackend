@@ -1,7 +1,7 @@
 from django.apps import apps
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import HStoreField, JSONField
-from django.db.models import Manager
+from django.contrib.postgres.fields import HStoreField
+from django.db.models import JSONField, Manager
 from django.utils import timezone
 from django.utils.translation import ugettext_noop as _
 from munigeo.models import Municipality
