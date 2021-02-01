@@ -1,0 +1,59 @@
+name: Service Map API tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    # Ubuntu latest is Ubuntu 18.04 as of 2020/12
+    runs-on: ubuntu-latest
+
+    env:
+      # Database for tests
+      DATABASE_URL: postgis://postgres:postgres@localhost/smbackend
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install required Ubuntu packages
+      run: |
+        sudo apt-get install gdal-bin
+    - name: Create needed postgis extensions
+      run: |
+        psql -h localhost -U postgres template1 -c 'create extension hstore;'
+    - name: Install PyPI dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run Python side code neatness tests
+      run: |
+        flake8
+        black --check .
+        isort . -c
+    - name: Run pytest code functionality tests
+      run: |
+        pytest --cov=. --hypothesis-profile=ci
+
+    # Majority of the tests require database
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgis/postgis:10-2.5
+        # Provide the password for postgres
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
