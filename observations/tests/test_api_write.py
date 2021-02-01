@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 import pytest
-from django.db.models import ProtectedError
+from django.db.models.deletion import ProtectedError
 from django.urls import reverse as django_reverse
 from django.utils import timezone
 from fixtures import *  # noqa: F401,F403
@@ -130,8 +130,9 @@ def test__delete_unit_with_observation_link(categorical_observations, unit):
     assert Observation.objects.count() == 4
     with pytest.raises(ProtectedError) as e:
         unit.delete()
+    assert e.type is ProtectedError
     assert (
-        "Cannot delete some instances of model 'Unit' because they are referenced through a protected foreign key"
+        "Cannot delete some instances of model 'Unit' because they are referenced through protected foreign key"
         in str(e.value)
     )
     assert Unit.objects.count() == 1
