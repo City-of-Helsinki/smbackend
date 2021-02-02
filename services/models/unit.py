@@ -3,7 +3,7 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import HStoreField
 from django.db.models import JSONField, Manager
 from django.utils import timezone
-from django.utils.translation import ugettext_noop as _
+from django.utils.translation import ugettext as _
 from munigeo.models import Municipality
 from munigeo.utils import get_default_srid
 
@@ -43,7 +43,23 @@ ORGANIZER_TYPES = (
 )
 
 CONTRACT_TYPES = (
-    (0, _("contract_school")),
+    (0, "private_contract_school"),
+    (1, "municipal_service"),
+    (2, "private_service"),
+    (3, "purchased_service"),
+    (4, "service_by_joint_municipal_authority"),
+    (5, "service_by_municipal_group_entity"),
+    (6, "service_by_municipally_owned_company"),
+    (7, "service_by_other_municipality"),
+    (8, "service_by_regional_cooperation_organization"),
+    (9, "state_service"),
+    (10, "supported_operations"),
+    (11, "voucher_service"),
+    (12, "state_contract_school"),
+)
+
+CONTRACT_TYPES_TRANSLATED = (
+    (0, _("private_contract_school")),
     (1, _("municipal_service")),
     (2, _("private_service")),
     (3, _("purchased_service")),
@@ -55,6 +71,7 @@ CONTRACT_TYPES = (
     (9, _("state_service")),
     (10, _("supported_operations")),
     (11, _("voucher_service")),
+    (12, _("state_contract_school")),
 )
 
 

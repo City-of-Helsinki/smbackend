@@ -82,7 +82,7 @@ CONTRACT_TYPE_MAPPINGS = [
     ("MUNICIPALITY", "VOUCHER_SERVICE", None, "voucher_service"),
     ("MUNICIPALITY", "PAYMENT_COMMITMENT", None, "private_service"),
     ("MUNICIPALITY", "SUPPORTED_OPERATIONS", None, "supported_operations"),
-    ("MUNICIPALITY", "CONTRACT_SCHOOL", None, "contract_school"),
+    ("MUNICIPALITY", "CONTRACT_SCHOOL", None, "private_contract_school"),
     (
         "MUNICIPALLY_OWNED_COMPANY",
         "SELF_PRODUCED",
@@ -108,10 +108,16 @@ CONTRACT_TYPE_MAPPINGS = [
         "service_by_regional_cooperation_organization",
     ),
     ("GOVERNMENT", "SELF_PRODUCED", None, "state_service"),
+    ("GOVERNMENT", "CONTRACT_SCHOOL", None, "state_contract_school"),
     ("GOVERNMENTAL_COMPANY", "SELF_PRODUCED", None, "state_service"),
     ("ORGANIZATION", "SELF_PRODUCED", None, "private_service"),
+    ("ORGANIZATION", "CONTRACT_SCHOOL", None, "private_contract_school"),
     ("FOUNDATION", "SELF_PRODUCED", None, "private_service"),
+    ("FOUNDATION", "CONTRACT_SCHOOL", None, "private_contract_school"),
     ("ASSOCIATION", "SELF_PRODUCED", None, "private_service"),
+    ("ASSOCIATION", "CONTRACT_SCHOOL", None, "private_contract_school"),
+    ("PRIVATE_ENTERPRISE", "SELF_PRODUCED", None, "private_service"),
+    ("PRIVATE_ENTERPRISE", "CONTRACT_SCHOOL", None, "private_contract_school"),
     (
         "MUNICIPALITY",
         "OTHER_PRODUCTION_METHOD",
@@ -401,17 +407,14 @@ def _import_unit(
     contract_type = None
     if dept:
         organization_type = dept.organization_type
-        if organization_type == "PRIVATE_ENTERPRISE":
-            contract_type = "private_service"
-        else:
-            for mapping in CONTRACT_TYPE_MAPPINGS:
-                if mapping[0] != organization_type:
-                    continue
-                if mapping[1] != info.get("provider_type"):
-                    continue
-                if mapping[2] in [None, info.get("organizer_type")]:
-                    contract_type = mapping[3]
-                    break
+        for mapping in CONTRACT_TYPE_MAPPINGS:
+            if mapping[0] != organization_type:
+                continue
+            if mapping[1] != info.get("provider_type"):
+                continue
+            if mapping[2] in [None, info.get("organizer_type")]:
+                contract_type = mapping[3]
+                break
     if contract_type:
         ctype = next(
             (val for val, str_val in CONTRACT_TYPES if str_val == contract_type)
