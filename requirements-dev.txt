@@ -4,8 +4,10 @@
 #
 #    pip-compile requirements-dev.in
 #
--e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.44#egg=django-munigeo
-    # via -r requirements.in
+-e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.46#egg=django-munigeo
+    # via
+    #   -r requirements-dev.in
+    #   -r requirements.in
 appdirs==1.4.4
     # via black
 appnope==0.1.2
@@ -26,11 +28,11 @@ click==7.1.2
     # via
     #   black
     #   pip-tools
-coverage==5.3.1
+coverage==5.4
     # via pytest-cov
 decorator==4.4.2
     # via ipython
-django-cors-headers==3.6.0
+django-cors-headers==3.7.0
     # via -r requirements.in
 django-environ==0.4.5
     # via -r requirements.in
@@ -52,7 +54,7 @@ django-mptt==0.11.0
     #   django-munigeo
 django-polymorphic==3.0.0
     # via -r requirements.in
-django==3.1.5
+django==3.1.6
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -89,7 +91,7 @@ iniconfig==1.1.1
     # via pytest
 ipython-genutils==0.2.0
     # via traitlets
-ipython==7.19.0
+ipython==7.20.0
     # via -r requirements-dev.in
 isort==5.7.0
     # via -r requirements.in
@@ -105,7 +107,7 @@ mccabe==0.6.1
     # via flake8
 mypy-extensions==0.4.3
     # via black
-packaging==20.8
+packaging==20.9
     # via pytest
 parso==0.7.1
     # via
@@ -123,7 +125,7 @@ pip-tools==5.5.0
     # via -r requirements.in
 pluggy==0.13.1
     # via pytest
-prompt-toolkit==3.0.13
+prompt-toolkit==3.0.14
     # via ipython
 psycopg2==2.8.6
     # via -r requirements.in
@@ -143,13 +145,13 @@ pytest-cov==2.11.1
     # via -r requirements.in
 pytest-django==4.1.0
     # via -r requirements.in
-pytest==6.2.1
+pytest==6.2.2
     # via
     #   pytest-cov
     #   pytest-django
 python-dateutil==2.8.1
     # via -r requirements.in
-pytz==2020.5
+pytz==2021.1
     # via
     #   -r requirements.in
     #   django
@@ -193,7 +195,7 @@ typing-extensions==3.7.4.3
     # via
     #   black
     #   importlib-metadata
-urllib3==1.26.2
+urllib3==1.26.3
     # via
     #   elasticsearch
     #   requests
