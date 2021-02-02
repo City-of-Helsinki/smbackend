@@ -121,7 +121,7 @@ def is_missing_contract_type_allowed(s, d):
     if s["dept_id"] is None:
         return True
     if d["department"]["organization_type"] == "PRIVATE_ENTERPRISE":
-        return False
+        return True
     if d["department"]["organization_type"] == "UNKNOWN":
         return True
     if d["department"]["organization_type"] == "MUNICIPALITY":

@@ -6,6 +6,8 @@ from django.utils.translation import get_language
 from haystack import indexes, signals
 from munigeo.models import AdministrativeDivisionType, Street
 
+from .models.unit import CONTRACT_TYPES_TRANSLATED
+
 ADMIN_DIV_TYPES = ("sub_district", "neighborhood", "postcode_area")
 
 
@@ -67,6 +69,11 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
                 values.append(obj.address_zip)
         except AttributeError:
             pass
+        try:
+            if obj.contract_type is not None:
+                self.get_contract_type(obj, values)
+        except AttributeError:
+            pass
         return values
 
     def prepare_extra_searchwords(self, obj):
@@ -77,6 +84,11 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_suggest(self, obj):
         return dict(name=None, service=[], location=[])
+
+    def get_contract_type(self, obj, values):
+        contract_type = CONTRACT_TYPES_TRANSLATED[obj.contract_type]
+        if contract_type:
+            values.append(contract_type[1])
 
 
 class UnitIndex(ServiceMapBaseIndex):
@@ -127,6 +139,8 @@ class UnitIndex(ServiceMapBaseIndex):
             values.append(obj.department.top_departments())
         if obj.address_zip:
             values.append(obj.address_zip)
+        if obj.contract_type is not None:
+            self.get_contract_type(obj, values)
         return " ".join(values)
 
     def prepare_services(self, obj):
