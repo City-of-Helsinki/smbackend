@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-19 12:48+0300\n"
+"POT-Creation-Date: 2021-02-04 10:32+0200\n"
 "PO-Revision-Date: 2017-08-29 18:28+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,18 +18,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: observations/api.py:25
 msgid "Authentication required."
 msgstr ""
 
-#: observations/models.py:205
 msgid "Token inactive or deleted."
 msgstr ""
 
-#: smbackend/urls.py:14
 msgid "Servicemap administration"
 msgstr ""
 
-#: smbackend/urls.py:15
 msgid "Application management"
 msgstr ""

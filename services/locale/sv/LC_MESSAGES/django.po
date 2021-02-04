@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-19 12:48+0300\n"
+"POT-Creation-Date: 2021-02-04 10:32+0200\n"
 "PO-Revision-Date: 2017-08-29 18:28+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,106 +18,83 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: services/apps.py:7
 msgid "Services"
 msgstr ""
 
-#: services/models/notification.py:6
 msgid "Title"
 msgstr ""
 
-#: services/models/notification.py:7
 msgid "Lead paragraph"
 msgstr ""
 
-#: services/models/notification.py:8
 msgid "Content"
 msgstr ""
 
-#: services/models/notification.py:9
 msgid "External URL"
 msgstr ""
 
-#: services/models/notification.py:11
 msgid "External URL title"
 msgstr ""
 
-#: services/models/notification.py:13
 msgid "Picture URL"
 msgstr ""
 
-#: services/models/notification.py:16 services/models/unit.py:76
 msgid "Active"
 msgstr ""
 
-#: services/models/notification.py:17
 msgid "Only active objects are visible in the API."
 msgstr ""
 
-#: services/models/notification.py:30
 msgid "announcement"
 msgstr ""
 
-#: services/models/notification.py:31
 msgid "announcements"
 msgstr ""
 
-#: services/models/notification.py:37
 msgid "error message"
 msgstr ""
 
-#: services/models/notification.py:38
 msgid "error messages"
 msgstr ""
 
-#: services/models/unit.py:46
-msgid "contract_school"
-msgstr "avtalsskola"
+msgid "private_contract_school"
+msgstr "privat avtalsskola"
 
-#: services/models/unit.py:47
 msgid "municipal_service"
 msgstr "kommunal tjänst"
 
-#: services/models/unit.py:48
 msgid "private_service"
 msgstr "privat tjänst"
 
-#: services/models/unit.py:49
 msgid "purchased_service"
 msgstr "köpt tjänst"
 
-#: services/models/unit.py:50
 msgid "service_by_joint_municipal_authority"
 msgstr "tjänst från samkommunen"
 
-#: services/models/unit.py:51
 msgid "service_by_municipal_group_entity"
 msgstr "tjänst från kommunal koncernsammanslutning"
 
-#: services/models/unit.py:52
 msgid "service_by_municipally_owned_company"
 msgstr "tjänst från kommunalt affärsverk"
 
-#: services/models/unit.py:53
 msgid "service_by_other_municipality"
 msgstr "annan kommuns tjänst"
 
-#: services/models/unit.py:54
 msgid "service_by_regional_cooperation_organization"
 msgstr "tjänst från regional samarbetsorganisation"
 
-#: services/models/unit.py:55
 msgid "state_service"
 msgstr "statlig tjänst"
 
-#: services/models/unit.py:56
 msgid "supported_operations"
 msgstr "verksamhet som beviljas bidrag"
 
-#: services/models/unit.py:57
 msgid "voucher_service"
 msgstr "servicesedeltjänst"
 
-#: services/models/unit.py:77
+msgid "state_contract_school"
+msgstr "statlig avtalsskola"
+
 msgid "Deleted at"
 msgstr ""
