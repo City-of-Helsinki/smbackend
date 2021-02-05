@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements-dev.in
 #
--e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.47#egg=django-munigeo
+-e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.48#egg=django-munigeo
     # via
     #   -r requirements-dev.in
     #   -r requirements.in

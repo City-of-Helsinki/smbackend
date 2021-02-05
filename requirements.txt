@@ -42,7 +42,7 @@ django-mptt==0.11.0
     # via
     #   -r requirements.in
     #   django-munigeo
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.47#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.48#egg=django-munigeo
     # via -r requirements.in
 django-polymorphic==3.0.0
     # via -r requirements.in
