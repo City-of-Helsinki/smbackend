@@ -38,7 +38,6 @@ env = environ.Env(
 )
 
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = root()
 
@@ -225,10 +224,34 @@ TEMPLATES = [
     },
 ]
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "timestamped_named": {
+            "format": "%(asctime)s %(name)s %(levelname)s: %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "timestamped_named",
+        },
+        # Just for reference, not used
+        "blackhole": {"class": "logging.NullHandler"},
+    },
+    "loggers": {
+        "django": {"handlers": ["console"], "level": "INFO"},
+    },
+}
+
 
 def read_config(name):
     return json.load(
-        open(os.path.join(BASE_DIR, "smbackend", "elasticsearch/{}.json".format(name)), encoding='utf-8')
+        open(
+            os.path.join(BASE_DIR, "smbackend", "elasticsearch/{}.json".format(name)),
+            encoding="utf-8",
+        )
     )
 
 
