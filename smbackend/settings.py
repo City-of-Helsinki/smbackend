@@ -13,6 +13,8 @@ env = environ.Env(
     DEBUG=(bool, False),
     LANGUAGES=(list, ["fi", "sv", "en"]),
     DATABASE_URL=(str, "postgis:///servicemap"),
+    TRUST_X_FORWARDED_HOST=(bool, False),
+    SECURE_PROXY_SSL_HEADER=(tuple, None),
     ELASTICSEARCH_URL=(str, None),
     ELASTICSEARCH_INDEX_PREFIX=(str, "servicemap"),
     DISABLE_HAYSTACK_SIGNAL_PROCESSOR=(bool, False),
@@ -25,7 +27,6 @@ env = environ.Env(
     STATIC_ROOT=(environ.Path(), root("static")),
     MEDIA_URL=(str, "/media/"),
     STATIC_URL=(str, "/static/"),
-    SECURE_PROXY_SSL_HEADER=(tuple, None),
     OPEN311_URL_BASE=(str, None),
     OPEN311_API_KEY=(str, None),
     OPEN311_INTERNAL_API_KEY=(str, None),
@@ -36,7 +37,7 @@ env = environ.Env(
     ACCESSIBILITY_SYSTEM_ID=(str, None),
 )
 
-SECURE_PROXY_SSL_HEADER = env("SECURE_PROXY_SSL_HEADER")
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = root()
@@ -125,6 +126,8 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+USE_X_FORWARDED_HOST = env("TRUST_X_FORWARDED_HOST")
+SECURE_PROXY_SSL_HEADER = env("SECURE_PROXY_SSL_HEADER")
 CORS_ORIGIN_ALLOW_ALL = True
 TASTYPIE_DEFAULT_FORMATS = ["json"]
 
@@ -225,7 +228,7 @@ TEMPLATES = [
 
 def read_config(name):
     return json.load(
-        open(os.path.join(BASE_DIR, "smbackend", "elasticsearch/{}.json".format(name)))
+        open(os.path.join(BASE_DIR, "smbackend", "elasticsearch/{}.json".format(name)), encoding='utf-8')
     )
 
 
