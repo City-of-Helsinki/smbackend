@@ -19,5 +19,6 @@ elif [ "$1" ]; then
     $1
 else
     exec uwsgi --plugin http,python3 --master --http :8000 --need-app --wsgi-file deploy/wsgi.py \
-               --static-map /static=/srv/smbackend/static --processes 4 --threads 1
+               --static-map /static=/srv/smbackend/static --processes 4 --threads 1 \
+               --die-on-term
 fi
