@@ -22,6 +22,11 @@ RUN mkdir -p /srv/servicemap/static
 RUN python manage.py compilemessages
 RUN python manage.py collectstatic
 
-USER nobody
+# Munigeo will fetch data to this directory
+RUN mkdir -p /servicemap/data && chgrp -R 0 /servicemap/data && chmod -R g+w /servicemap/data
+
+# Openshift starts the container process with group zero and random ID
+# we mimic that here with nobody and group zero
+USER nobody:0
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
