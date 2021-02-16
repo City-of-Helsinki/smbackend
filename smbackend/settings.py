@@ -35,6 +35,8 @@ env = environ.Env(
     ADDRESS_SEARCH_RADIUS=(int, 50),
     TURKU_API_KEY=(str, None),
     ACCESSIBILITY_SYSTEM_ID=(str, None),
+    ADDITIONAL_INSTALLED_APPS=(list, None),
+    ADDITIONAL_MIDDLEWARE=(list, None),
 )
 
 
@@ -54,7 +56,7 @@ TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 # Application definition
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     "polymorphic",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -75,10 +77,10 @@ INSTALLED_APPS = (
     "munigeo",
     "services.apps.ServicesConfig",
     "observations",
-)
+]
 
-if env("ADDITIONAL_INSTALLED_APPS", default=None):
-    INSTALLED_APPS += env.tuple("ADDITIONAL_INSTALLED_APPS")
+if env("ADDITIONAL_INSTALLED_APPS"):
+    INSTALLED_APPS += env("ADDITIONAL_INSTALLED_APPS")
 
 TURKU_API_KEY = env("TURKU_API_KEY")
 ACCESSIBILITY_SYSTEM_ID = env("ACCESSIBILITY_SYSTEM_ID")
@@ -94,6 +96,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.locale.LocaleMiddleware",
 ]
+
+if env("ADDITIONAL_MIDDLEWARE"):
+    MIDDLEWARE += env("ADDITIONAL_MIDDLEWARE")
 
 ROOT_URLCONF = "smbackend.urls"
 WSGI_APPLICATION = "smbackend.wsgi.application"
