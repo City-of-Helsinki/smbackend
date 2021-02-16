@@ -1,6 +1,6 @@
 # Using Ubuntu base for access to GDAL PPA
 FROM ubuntu:20.04
-WORKDIR /servicemap
+WORKDIR /smbackend
 
 # tzdata installation requires settings frontend
 RUN apt-get update && \
@@ -16,14 +16,14 @@ RUN pip install --no-cache-dir -r deploy/requirements.txt
 COPY . .
 
 # smbackend needs only static files, media is not used
-ENV STATIC_ROOT /srv/servicemap/static
-RUN mkdir -p /srv/servicemap/static
+ENV STATIC_ROOT /srv/smbackend/static
+RUN mkdir -p /srv/smbackend/static
 
 RUN python manage.py compilemessages
 RUN python manage.py collectstatic
 
 # Munigeo will fetch data to this directory
-RUN mkdir -p /servicemap/data && chgrp -R 0 /servicemap/data && chmod -R g+w /servicemap/data
+RUN mkdir -p /smbackend/data && chgrp -R 0 /smbackend/data && chmod -R g+w /smbackend/data
 
 # Openshift starts the container process with group zero and random ID
 # we mimic that here with nobody and group zero
