@@ -1,6 +1,6 @@
 #!/bin/bash
 
-% export PYTHONIOENCODING=utf-8
+export PYTHONIOENCODING=utf-8
 
 function stage_0 {
     # Very seldomly executed imports (once a year max)
@@ -42,4 +42,3 @@ do
     shift
 done
 echo
-
