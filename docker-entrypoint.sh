@@ -18,8 +18,11 @@ elif [ "$1" ]; then
     echo "Running command: $1"
     $1
 else
-    exec uwsgi --plugin http,python3 --master --http :8000 --need-app --wsgi-file deploy/wsgi.py \
-               --static-map ${STATIC_URL:-/static}=${STATIC_ROOT:-/srv/smbackend/static} \
+    exec uwsgi --plugin http,python3 --master --http :8000 \
                --processes 4 --threads 1 \
-               --die-on-term
+               --need-app \
+               --mount ${URL_PREFIX:-/}=deploy/wsgi.py \
+               --manage-script-name \
+               --die-on-term \
+               --strict
 fi
