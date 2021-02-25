@@ -86,6 +86,7 @@ TURKU_API_KEY = env("TURKU_API_KEY")
 ACCESSIBILITY_SYSTEM_ID = env("ACCESSIBILITY_SYSTEM_ID")
 
 MIDDLEWARE = [
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.gzip.GZipMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
