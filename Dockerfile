@@ -9,9 +9,8 @@ RUN apt-get update && \
     ln -s /usr/bin/python3 /usr/local/bin/python
 
 COPY requirements.txt .
-COPY deploy/requirements.txt ./deploy/requirements.txt
 
-RUN pip install --no-cache-dir -r deploy/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
