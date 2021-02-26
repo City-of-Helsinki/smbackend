@@ -26,7 +26,7 @@ django-cors-headers==3.7.0
     # via -r requirements.in
 django-environ==0.4.5
     # via -r requirements.in
-django-extensions==3.1.0
+django-extensions==3.1.1
     # via -r requirements.in
 django-filter==2.4.0
     # via -r requirements.in
@@ -34,7 +34,7 @@ django-haystack==3.0
     # via -r requirements.in
 django-js-asset==1.2.2
     # via django-mptt
-django-modeltranslation==0.16.1
+django-modeltranslation==0.16.2
     # via
     #   -r requirements.in
     #   django-munigeo
@@ -42,11 +42,11 @@ django-mptt==0.11.0
     # via
     #   -r requirements.in
     #   django-munigeo
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.49#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.50#egg=django-munigeo
     # via -r requirements.in
 django-polymorphic==3.0.0
     # via -r requirements.in
-django==3.1.6
+django==3.1.7
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -73,7 +73,7 @@ hypothesis==3.19.3
     # via -r requirements.in
 idna==2.10
     # via requests
-importlib-metadata==3.4.0
+importlib-metadata==3.7.0
     # via
     #   flake8
     #   markdown
@@ -87,7 +87,7 @@ jedi==0.17.2
     # via -r requirements.in
 lxml==4.6.2
     # via -r requirements.in
-markdown==3.3.3
+markdown==3.3.4
     # via -r requirements.in
 mccabe==0.6.1
     # via flake8
@@ -161,7 +161,7 @@ toml==0.10.2
     # via
     #   black
     #   pytest
-tqdm==4.56.0
+tqdm==4.58.0
     # via -r requirements.in
 typed-ast==1.4.2
     # via black

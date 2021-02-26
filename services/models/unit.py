@@ -3,7 +3,7 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import HStoreField
 from django.db.models import JSONField, Manager
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from munigeo.models import Municipality
 from munigeo.utils import get_default_srid
 

@@ -1,5 +1,5 @@
-from django.conf.urls import include, url
 from django.contrib import admin
+from django.urls import include, re_path
 from django.utils.translation import gettext_lazy as _
 from munigeo.api import all_views as munigeo_views
 from rest_framework import routers
@@ -36,11 +36,11 @@ urlpatterns = [
     # url(r'^blog/', include('blog.urls')),
     # url(r'^', include(v1_api.urls)),
     # url(r'^admin/', include(admin.site.urls)),
-    url(r"^admin/", admin.site.urls),
-    url(r"^open311/", views.post_service_request, name="services"),
-    url(r"^v2/", include(router.urls)),
-    url(r"^v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
-    url(r"^v2/redirect/unit/", UnitRedirectViewSet.as_view({"get": "list"})),
-    url(r"^v2/suggestion/", views.suggestion, name="suggestion"),
-    url(r"", include(shortcutter_urls)),
+    re_path(r"^admin/", admin.site.urls),
+    re_path(r"^open311/", views.post_service_request, name="services"),
+    re_path(r"^v2/", include(router.urls)),
+    re_path(r"^v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
+    re_path(r"^v2/redirect/unit/", UnitRedirectViewSet.as_view({"get": "list"})),
+    re_path(r"^v2/suggestion/", views.suggestion, name="suggestion"),
+    re_path(r"", include(shortcutter_urls)),
 ]
