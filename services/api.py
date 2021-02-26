@@ -559,7 +559,7 @@ class UnitSerializer(
                 continue
             for lang in LANGUAGES:
                 with translation.override(lang):
-                    translated_value = translation.ugettext(value)
+                    translated_value = translation.gettext(value)
                     if translated_value != value:
                         translations[lang] = translated_value
                     translated_value = None
@@ -593,7 +593,7 @@ class UnitSerializer(
         translations = {}
         for lang in LANGUAGES:
             with translation.override(lang):
-                translations[lang] = translation.ugettext(key)
+                translations[lang] = translation.gettext(key)
         return {"id": key, "description": translations}
 
     def to_representation(self, obj):
