@@ -13,6 +13,7 @@ from munigeo.models import AdministrativeDivision
 
 from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
+from services.management.commands.services_import.entrances import import_entrances
 from services.management.commands.services_import.services import (
     import_services,
     remove_empty_service_nodes,
@@ -30,7 +31,7 @@ UTC_TIMEZONE = pytz.timezone("UTC")
 
 class Command(BaseCommand):
     help = "Import services from Palvelukartta REST API"
-    importer_types = ["departments", "services", "units", "aliases"]
+    importer_types = ["departments", "services", "units", "aliases", "entrances"]
     supported_languages = [lang[0] for lang in settings.LANGUAGES]
 
     def __init__(self):
@@ -138,6 +139,9 @@ class Command(BaseCommand):
 
     def import_aliases(self):
         import_aliases()
+
+    def import_entrances(self):
+        import_entrances()
 
     def _fetch_unit_accessibility_properties(self, unit_pk):
         if self.verbosity:

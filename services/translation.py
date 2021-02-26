@@ -8,6 +8,7 @@ from services.models import (
     ServiceNode,
     Unit,
     UnitConnection,
+    UnitEntrance,
     UnitServiceDetails,
 )
 
@@ -82,3 +83,10 @@ class NotificationTranslationOptions(TranslationOptions):
 
 translator.register(Announcement, NotificationTranslationOptions)
 translator.register(ErrorMessage, NotificationTranslationOptions)
+
+
+class UnitEntranceTranslationOptions(TranslationOptions):
+    fields = ("name",)
+
+
+translator.register(UnitEntrance, UnitEntranceTranslationOptions)

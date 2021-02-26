@@ -38,6 +38,7 @@ from services.models import (
     UnitAccessibilityShortcomings,
     UnitAlias,
     UnitConnection,
+    UnitEntrance,
     UnitIdentifier,
     UnitServiceDetails,
 )
@@ -459,6 +460,30 @@ class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):
 register_view(UnitConnectionViewSet, "unit_connection")
 
 
+class UnitEntranceSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer):
+    location = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UnitEntrance
+        fields = "__all__"
+
+    def get_location(self, obj):
+        return munigeo_api.geom_to_json(obj.location, self.srs)
+
+
+class UnitEntranceViewSet(munigeo_api.GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
+    queryset = UnitEntrance.objects.all()
+    serializer_class = UnitEntranceSerializer
+
+    def get_serializer_context(self):
+        ret = super(UnitEntranceViewSet, self).get_serializer_context()
+        ret["srs"] = self.srs
+        return ret
+
+
+register_view(UnitEntranceViewSet, "unit_entrance")
+
+
 class UnitAccessibilityPropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = UnitAccessibilityProperty
@@ -527,6 +552,7 @@ class UnitSerializer(
     TranslatedModelSerializer, munigeo_api.GeoModelSerializer, JSONAPISerializer
 ):
     connections = UnitConnectionSerializer(many=True)
+    entrances = UnitEntranceSerializer(many=True)
     accessibility_properties = UnitAccessibilityPropertySerializer(many=True)
     identifiers = UnitIdentifierSerializer(many=True)
     department = serializers.SerializerMethodField("department_uuid")
@@ -537,7 +563,7 @@ class UnitSerializer(
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
-        for f in ("connections", "accessibility_properties"):
+        for f in ("connections", "accessibility_properties", "entrances"):
             if f not in self.fields:
                 continue
             ser = self.fields[f]

@@ -11,4 +11,5 @@ from .unit_accessibility_shortcomings import UnitAccessibilityShortcomings
 from .unit_alias import UnitAlias
 from .unit_connection import UnitConnection
 from .unit_count import ServiceNodeUnitCount, ServiceUnitCount
+from .unit_entrance import UnitEntrance
 from .unit_identifier import UnitIdentifier
