@@ -192,6 +192,11 @@ SHORTCUTTER_UNIT_URL = env("SHORTCUTTER_UNIT_URL")
 # Static & Media files
 STATIC_ROOT = env("STATIC_ROOT")
 STATIC_URL = env("STATIC_URL")
+# This must be changed if STATIC_URL needs to point somewhere that
+# does not map to /static/ in the app. The usual mapping of
+# /servicemap/static/ is mapped by uwsgi to /static/
+# See: http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_STATIC_PREFIX
+WHITENOISE_STATIC_PREFIX = "/static/"
 MEDIA_ROOT = env("MEDIA_ROOT")
 MEDIA_URL = env("MEDIA_URL")
 
