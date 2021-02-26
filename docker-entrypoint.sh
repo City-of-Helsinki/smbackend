@@ -21,7 +21,7 @@ else
     exec uwsgi --plugin http,python3 --master --http :8000 \
                --processes 4 --threads 1 \
                --need-app \
-               --mount ${URL_PREFIX:-/}=deploy/wsgi.py \
+               --mount ${URL_PREFIX:-/}=smbackend/wsgi.py \
                --manage-script-name \
                --die-on-term \
                --strict
