@@ -24,5 +24,6 @@ timeout 20m nice python manage.py update_index -a 2 2>&1
 
 timeout 20m nice python manage.py verify_search_index_integrity 2>&1
 
-curl --retry 3 'https://hchk.io/6c320360-7e66-4ae2-975a-1ecd4e9fd92e'
-
+if [[ -n "${IMPORT_HEALTHCHECK_URL}" ]]; then
+  curl --retry 3 "${IMPORT_HEALTHCHECK_URL}"
+fi
