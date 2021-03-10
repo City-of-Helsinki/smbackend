@@ -1,0 +1,64 @@
+[
+  {
+    "id": 993,
+    "unit_id": 23,
+    "is_main_entrance": "Y",
+    "northing_etrs_gk25": "6678455",
+    "easting_etrs_gk25": "25491832",
+    "latitude": "60.2187627998523283",
+    "longitude": "24.8526402360551693"
+  },
+  {
+    "id": 2801,
+    "unit_id": 23,
+    "is_main_entrance": "N",
+    "name_fi": "vaihtoehtoinen sisäänkäynti",
+    "name_sv": "alternativ ingång",
+    "name_en": "alternative entrance",
+    "northing_etrs_gk25": "6678436",
+    "easting_etrs_gk25": "25491825",
+    "latitude": "60.2185902753135878",
+    "longitude": "24.852525143795333"
+  },
+  {
+    "id": 14611,
+    "unit_id": 23,
+    "is_main_entrance": "N",
+    "name_fi": "Päädyn sisäänkäynti",
+    "northing_etrs_gk25": "6678426",
+    "easting_etrs_gk25": "25491848",
+    "latitude": "60.2184979999369858",
+    "longitude": "24.8529283653709712"
+  },
+  {
+    "id": 590,
+    "unit_id": 8062,
+    "is_main_entrance": "Y",
+    "northing_etrs_gk25": "6676030",
+    "easting_etrs_gk25": "25493083",
+    "latitude": "60.1970227360937358",
+    "longitude": "24.8752966547740719"
+  },
+  {
+    "id": 2742,
+    "unit_id": 8062,
+    "is_main_entrance": "N",
+    "name_fi": "vaihtoehtoinen sisäänkäynti",
+    "name_sv": "alternativ ingång",
+    "name_en": "alternative entrance",
+    "northing_etrs_gk25": "6676013",
+    "easting_etrs_gk25": "25493099",
+    "latitude": "60.1968655580322931",
+    "longitude": "24.8755774464237298"
+  },
+  {
+    "id": 11004,
+    "unit_id": 8062,
+    "is_main_entrance": "N",
+    "name_fi": "sivuovi, kulku hissillä nuorisotaloon",
+    "northing_etrs_gk25": "6676018",
+    "easting_etrs_gk25": "25493090",
+    "latitude": "60.1969081114434772",
+    "longitude": "24.8754303600792639"
+  }
+]
