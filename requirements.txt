@@ -73,19 +73,13 @@ hypothesis==3.19.3
     # via -r requirements.in
 idna==2.10
     # via requests
-importlib-metadata==3.7.0
-    # via
-    #   flake8
-    #   markdown
-    #   pluggy
-    #   pytest
 iniconfig==1.1.1
     # via pytest
 isort==5.7.0
     # via -r requirements.in
 jedi==0.17.2
     # via -r requirements.in
-lxml==4.6.2
+lxml==4.6.3
     # via -r requirements.in
 markdown==3.3.4
     # via -r requirements.in
@@ -166,17 +160,13 @@ tqdm==4.58.0
 typed-ast==1.4.2
     # via black
 typing-extensions==3.7.4.3
-    # via
-    #   black
-    #   importlib-metadata
+    # via black
 urllib3==1.26.3
     # via
     #   elasticsearch
     #   requests
 whitenoise==5.2.0
     # via -r requirements.in
-zipp==3.4.0
-    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
