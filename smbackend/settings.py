@@ -109,6 +109,8 @@ DATABASES = {"default": env.db()}
 # Keep the database connection open for 120s
 CONN_MAX_AGE = 120
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 
 def gettext(s):
     return s
