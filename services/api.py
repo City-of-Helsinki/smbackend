@@ -876,10 +876,17 @@ class UnitViewSet(
 
         service_nodes = filters.get("service_node", None)
 
+        def validate_service_node_ids(service_node_ids):
+            return [
+                str(service_node_id).strip()
+                for service_node_id in service_node_ids
+                if service_node_id.isdigit()
+            ]
+
         service_node_ids = None
         if service_nodes:
             service_nodes = service_nodes.lower()
-            service_node_ids = service_nodes.split(",")
+            service_node_ids = validate_service_node_ids(service_nodes.split(","))
         elif level_specs:
             if level_specs["type"] == "include":
                 service_node_ids = level_specs["service_nodes"]
@@ -892,7 +899,7 @@ class UnitViewSet(
         val = filters.get("exclude_service_nodes", None)
         if val:
             val = val.lower()
-            service_node_ids = val.split(",")
+            service_node_ids = validate_service_node_ids(val.split(","))
         elif level_specs:
             if level_specs["type"] == "exclude":
                 service_node_ids = level_specs["service_nodes"]
