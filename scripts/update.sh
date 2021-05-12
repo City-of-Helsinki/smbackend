@@ -20,7 +20,7 @@ timeout 20m nice python manage.py services_import_v4 --traceback departments ser
 
 timeout 20m nice python manage.py lipas_import --muni-id=92 --muni-id=91 --muni-id=49 --muni-id=235 2>&1
 
-timeout 20m nice python manage.py update_index -a 2 2>&1
+timeout 20m nice python manage.py update_index -a 2 --remove 2>&1
 
 timeout 20m nice python manage.py verify_search_index_integrity 2>&1
 
