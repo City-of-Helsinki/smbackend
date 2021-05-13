@@ -274,6 +274,10 @@ if ELASTICSEARCH_URL:
     HAYSTACK_CONNECTIONS = {
         "default": {
             "ENGINE": "multilingual_haystack.backends.MultilingualSearchEngine",
+            "KWARGS": {
+                "use_ssl": True,
+                "verify_certs": False,
+            },
         },
         "default-fi": {
             "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
@@ -282,6 +286,10 @@ if ELASTICSEARCH_URL:
             "INDEX_NAME": "{}-fi".format(ELASTICSEARCH_INDEX_PREFIX),
             "MAPPINGS": read_config("mappings_finnish")["modelresult"]["properties"],
             "SETTINGS": read_config("settings_finnish"),
+            "KWARGS": {
+                "use_ssl": True,
+                "verify_certs": False,
+            },
         },
         "default-sv": {
             "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
@@ -290,6 +298,10 @@ if ELASTICSEARCH_URL:
             "INDEX_NAME": "{}-sv".format(ELASTICSEARCH_INDEX_PREFIX),
             "MAPPINGS": read_config("mappings_swedish")["modelresult"]["properties"],
             "SETTINGS": read_config("settings_swedish"),
+            "KWARGS": {
+                "use_ssl": True,
+                "verify_certs": False,
+            },
         },
         "default-en": {
             "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
@@ -298,12 +310,22 @@ if ELASTICSEARCH_URL:
             "INDEX_NAME": "{}-en".format(ELASTICSEARCH_INDEX_PREFIX),
             "MAPPINGS": read_config("mappings_english")["modelresult"]["properties"],
             "SETTINGS": read_config("settings_english"),
+            "KWARGS": {
+                "use_ssl": True,
+                "verify_certs": False,
+            },
         },
     }
 else:
     # Default fallback, when real search capabilities are not needed
     HAYSTACK_CONNECTIONS = {
-        "default": {"ENGINE": "multilingual_haystack.backends.SimpleEngine"}
+        "default": {
+            "ENGINE": "multilingual_haystack.backends.SimpleEngine",
+            "KWARGS": {
+                "use_ssl": True,
+                "verify_certs": False,
+            },
+        }
     }
 
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
