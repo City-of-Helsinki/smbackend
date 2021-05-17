@@ -275,7 +275,7 @@ if ELASTICSEARCH_URL:
         "default": {
             "ENGINE": "multilingual_haystack.backends.MultilingualSearchEngine",
             "KWARGS": {
-                "use_ssl": True,
+                "use_ssl": False,
                 "verify_certs": False,
             },
         },
@@ -287,7 +287,7 @@ if ELASTICSEARCH_URL:
             "MAPPINGS": read_config("mappings_finnish")["modelresult"]["properties"],
             "SETTINGS": read_config("settings_finnish"),
             "KWARGS": {
-                "use_ssl": True,
+                "use_ssl": False,
                 "verify_certs": False,
             },
         },
@@ -299,7 +299,7 @@ if ELASTICSEARCH_URL:
             "MAPPINGS": read_config("mappings_swedish")["modelresult"]["properties"],
             "SETTINGS": read_config("settings_swedish"),
             "KWARGS": {
-                "use_ssl": True,
+                "use_ssl": False,
                 "verify_certs": False,
             },
         },
@@ -311,7 +311,7 @@ if ELASTICSEARCH_URL:
             "MAPPINGS": read_config("mappings_english")["modelresult"]["properties"],
             "SETTINGS": read_config("settings_english"),
             "KWARGS": {
-                "use_ssl": True,
+                "use_ssl": False,
                 "verify_certs": False,
             },
         },
@@ -322,7 +322,7 @@ else:
         "default": {
             "ENGINE": "multilingual_haystack.backends.SimpleEngine",
             "KWARGS": {
-                "use_ssl": True,
+                "use_ssl": False,
                 "verify_certs": False,
             },
         }
