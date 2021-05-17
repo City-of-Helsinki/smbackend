@@ -1,7 +1,6 @@
 import collections
 import copy
 
-import elasticsearch
 from haystack.backends import elasticsearch_backend as es_backend
 from haystack.query import SearchQuerySet
 
@@ -33,12 +32,6 @@ class CustomEsSearchBackend(es_backend.ElasticsearchSearchBackend):
     def __init__(self, connection_alias, **connection_options):
         super(CustomEsSearchBackend, self).__init__(
             connection_alias, **connection_options
-        )
-        self.conn = elasticsearch.Elasticsearch(
-            connection_options["URL"],
-            timeout=self.timeout,
-            use_ssl=True,
-            verify_certs=False,
         )
         self.custom_mappings = connection_options.get("MAPPINGS")
         settings = connection_options.get("SETTINGS")
