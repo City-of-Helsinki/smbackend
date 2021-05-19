@@ -515,7 +515,7 @@ def get_suggestions(query, language):
     query = clean_query(query)
     s = generate_suggestions(query, language)
     if s is None:
-        query = query.replace(" ", "")
+        query = re.sub(r"\s+", "", query, flags=re.UNICODE)
         s = generate_suggestions(query, language)
     s = choose_suggestions(s)
     if language == "fi":
