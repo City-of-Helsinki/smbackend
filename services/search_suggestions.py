@@ -6,6 +6,7 @@ import string
 
 import requests
 from django.conf import settings
+from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
@@ -472,6 +473,8 @@ def filter_suggestions(suggestions, language):
     query = " ".join(words)
     url = "{}_analyze?analyzer=suggestion_analyze".format(get_elastic(language))
     response = requests.get(url, params={"text": query.encode("utf8")})
+    if response.status_code == status.HTTP_404_NOT_FOUND:
+        return suggestions
     analyzed_terms = [t["token"] for t in response.json().get("tokens")]
     if len(words) != len(analyzed_terms):
         logger.warning(
