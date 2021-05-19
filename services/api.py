@@ -1128,7 +1128,7 @@ class SearchViewSet(
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
 
     def use_exact_query(self, input):
-        """ Define extra rules when to use exact search """
+        """Define extra rules when to use exact search"""
         return bool(re.search(r"\d-\d", input)) or bool(re.search(r"\d\.", input))
 
     def get_queryset(self):

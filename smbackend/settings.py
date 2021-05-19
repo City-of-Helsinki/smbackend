@@ -303,7 +303,9 @@ if ELASTICSEARCH_URL:
 else:
     # Default fallback, when real search capabilities are not needed
     HAYSTACK_CONNECTIONS = {
-        "default": {"ENGINE": "multilingual_haystack.backends.SimpleEngine"}
+        "default": {
+            "ENGINE": "multilingual_haystack.backends.SimpleEngine",
+        }
     }
 
 HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
