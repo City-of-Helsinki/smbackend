@@ -23,22 +23,30 @@ class AllowedValueSerializer(TranslatedModelSerializer, serializers.Serializer):
 class ObservablePropertySerializer(
     TranslatedModelSerializer, serializers.ModelSerializer
 ):
-
-    allowed_values = AllowedValueSerializer(many=True, read_only=True)
-
     class Meta:
         model = models.ObservableProperty
         fields = (
             "id",
             "name",
             "measurement_unit",
-            "allowed_values",
             "observation_type",
         )
 
     def to_representation(self, obj):
         data = super(ObservablePropertySerializer, self).to_representation(obj)
-        data["observation_type"] = obj.get_observation_type()
+        observation_type = obj.get_observation_type()
+        data["observation_type"] = observation_type
+        if observation_type == "categorical":
+            # Outside categorical observations, currently for
+            # descriptive observations, the allowed_value count can
+            # rise indefinitely (because every observation.value is an
+            # allowed_value) and so must not be serialized in this
+            # context
+            data["allowed_values"] = AllowedValueSerializer(
+                many=True, read_only=True
+            ).to_representation(obj.allowed_values.all())
+        else:
+            data["allowed_values"] = []
         return data
 
 
