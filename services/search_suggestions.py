@@ -6,6 +6,7 @@ import string
 
 import requests
 from django.conf import settings
+from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
@@ -472,6 +473,8 @@ def filter_suggestions(suggestions, language):
     query = " ".join(words)
     url = "{}_analyze?analyzer=suggestion_analyze".format(get_elastic(language))
     response = requests.get(url, params={"text": query.encode("utf8")})
+    if response.status_code == status.HTTP_404_NOT_FOUND:
+        return suggestions
     analyzed_terms = [t["token"] for t in response.json().get("tokens")]
     if len(words) != len(analyzed_terms):
         logger.warning(
@@ -512,7 +515,7 @@ def get_suggestions(query, language):
     query = clean_query(query)
     s = generate_suggestions(query, language)
     if s is None:
-        query = query.replace(" ", "")
+        query = re.sub(r"\s+", "", query, flags=re.UNICODE)
         s = generate_suggestions(query, language)
     s = choose_suggestions(s)
     if language == "fi":

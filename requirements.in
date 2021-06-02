@@ -32,3 +32,4 @@ pep8-naming
 jedi==0.17.2
 parso==0.7.1
 whitenoise
+django-redis
