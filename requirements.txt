@@ -10,9 +10,9 @@ asgiref==3.3.4
     # via django
 attrs==21.2.0
     # via pytest
-black==21.5b1
+black==21.5b2
     # via -r requirements.in
-certifi==2020.12.5
+certifi==2021.5.30
     # via requests
 chardet==4.0.0
     # via requests
@@ -20,7 +20,7 @@ click==8.0.1
     # via
     #   black
     #   pip-tools
-coverage[toml]==5.5
+coverage==5.5
     # via pytest-cov
 django-cors-headers==3.7.0
     # via -r requirements.in
@@ -34,7 +34,7 @@ django-haystack==3.0
     # via -r requirements.in
 django-js-asset==1.2.2
     # via django-mptt
-django-modeltranslation==0.17.1
+django-modeltranslation==0.17.2
     # via
     #   -r requirements.in
     #   django-munigeo
@@ -46,7 +46,7 @@ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.51#egg=django-munige
     # via -r requirements.in
 django-polymorphic==3.0.0
     # via -r requirements.in
-django-redis==4.12.1
+django-redis==5.0.0
     # via -r requirements.in
 django==3.2.3
     # via
@@ -77,7 +77,7 @@ hypothesis==3.19.3
     # via -r requirements.in
 idna==2.10
     # via requests
-importlib-metadata==4.2.0
+importlib-metadata==4.4.0
     # via
     #   click
     #   flake8
@@ -127,7 +127,7 @@ pyflakes==2.3.1
     # via flake8
 pyparsing==2.4.7
     # via packaging
-pytest-cov==2.12.0
+pytest-cov==2.12.1
     # via -r requirements.in
 pytest-django==4.3.0
     # via -r requirements.in
@@ -153,7 +153,7 @@ requests-cache==0.6.3
     # via
     #   -r requirements.in
     #   django-munigeo
-requests-mock==1.9.2
+requests-mock==1.9.3
     # via -r requirements.in
 requests==2.25.1
     # via
@@ -173,9 +173,9 @@ sqlparse==0.4.1
 toml==0.10.2
     # via
     #   black
-    #   coverage
     #   pep517
     #   pytest
+    #   pytest-cov
 tqdm==4.61.0
     # via -r requirements.in
 typed-ast==1.4.3

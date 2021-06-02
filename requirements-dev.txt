@@ -16,7 +16,7 @@ asgiref==3.3.4
     #   django
 backcall==0.2.0
     # via ipython
-certifi==2020.12.5
+certifi==2021.5.30
     # via
     #   -c requirements.txt
     #   requests
@@ -30,7 +30,7 @@ django-js-asset==1.2.2
     # via
     #   -c requirements.txt
     #   django-mptt
-django-modeltranslation==0.17.1
+django-modeltranslation==0.17.2
     # via
     #   -c requirements.txt
     #   django-munigeo
@@ -50,7 +50,7 @@ idna==2.10
     #   requests
 ipython-genutils==0.2.0
     # via traitlets
-ipython==7.23.1
+ipython==7.24.0
     # via -r requirements-dev.in
 itsdangerous==2.0.1
     # via
