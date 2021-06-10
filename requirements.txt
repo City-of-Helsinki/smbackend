@@ -48,7 +48,7 @@ django-polymorphic==3.0.0
     # via -r requirements.in
 django-redis==5.0.0
     # via -r requirements.in
-django==3.2.3
+django==3.2.4
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -77,14 +77,6 @@ hypothesis==3.19.3
     # via -r requirements.in
 idna==2.10
     # via requests
-importlib-metadata==4.4.0
-    # via
-    #   click
-    #   flake8
-    #   markdown
-    #   pep517
-    #   pluggy
-    #   pytest
 iniconfig==1.1.1
     # via pytest
 isort==5.8.0
@@ -178,13 +170,6 @@ toml==0.10.2
     #   pytest-cov
 tqdm==4.61.0
     # via -r requirements.in
-typed-ast==1.4.3
-    # via black
-typing-extensions==3.10.0.0
-    # via
-    #   asgiref
-    #   black
-    #   importlib-metadata
 url-normalize==1.4.3
     # via requests-cache
 urllib3==1.26.5
@@ -193,10 +178,6 @@ urllib3==1.26.5
     #   requests
 whitenoise==5.2.0
     # via -r requirements.in
-zipp==3.4.1
-    # via
-    #   importlib-metadata
-    #   pep517
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
