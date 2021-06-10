@@ -8,8 +8,6 @@
     # via
     #   -c requirements.txt
     #   -r requirements-dev.in
-appnope==0.1.2
-    # via ipython
 asgiref==3.3.4
     # via
     #   -c requirements.txt
@@ -38,7 +36,7 @@ django-mptt==0.12.0
     # via
     #   -c requirements.txt
     #   django-munigeo
-django==3.2.3
+django==3.2.4
     # via
     #   -c requirements.txt
     #   django-modeltranslation
@@ -98,7 +96,6 @@ six==1.16.0
     #   -c requirements.txt
     #   django-modeltranslation
     #   django-munigeo
-    #   url-normalize
 sqlparse==0.4.1
     # via
     #   -c requirements.txt
@@ -107,10 +104,6 @@ traitlets==5.0.5
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==3.10.0.0
-    # via
-    #   -c requirements.txt
-    #   asgiref
 url-normalize==1.4.3
     # via
     #   -c requirements.txt
