@@ -10,7 +10,7 @@ asgiref==3.3.4
     # via django
 attrs==21.2.0
     # via pytest
-black==21.5b2
+black==21.6b0
     # via -r requirements.in
 certifi==2021.5.30
     # via requests
@@ -77,6 +77,14 @@ hypothesis==3.19.3
     # via -r requirements.in
 idna==2.10
     # via requests
+importlib-metadata==4.5.0
+    # via
+    #   click
+    #   flake8
+    #   markdown
+    #   pep517
+    #   pluggy
+    #   pytest
 iniconfig==1.1.1
     # via pytest
 isort==5.8.0
@@ -121,7 +129,7 @@ pyparsing==2.4.7
     # via packaging
 pytest-cov==2.12.1
     # via -r requirements.in
-pytest-django==4.3.0
+pytest-django==4.4.0
     # via -r requirements.in
 pytest==6.2.4
     # via
@@ -141,7 +149,7 @@ redis==3.5.3
     # via django-redis
 regex==2021.4.4
     # via black
-requests-cache==0.6.3
+requests-cache==0.6.4
     # via
     #   -r requirements.in
     #   django-munigeo
@@ -168,8 +176,15 @@ toml==0.10.2
     #   pep517
     #   pytest
     #   pytest-cov
-tqdm==4.61.0
+tqdm==4.61.1
     # via -r requirements.in
+typed-ast==1.4.3
+    # via black
+typing-extensions==3.10.0.0
+    # via
+    #   asgiref
+    #   black
+    #   importlib-metadata
 url-normalize==1.4.3
     # via requests-cache
 urllib3==1.26.5
@@ -178,6 +193,10 @@ urllib3==1.26.5
     #   requests
 whitenoise==5.2.0
     # via -r requirements.in
+zipp==3.4.1
+    # via
+    #   importlib-metadata
+    #   pep517
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

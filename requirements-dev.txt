@@ -8,6 +8,8 @@
     # via
     #   -c requirements.txt
     #   -r requirements-dev.in
+appnope==0.1.2
+    # via ipython
 asgiref==3.3.4
     # via
     #   -c requirements.txt
@@ -48,7 +50,7 @@ idna==2.10
     #   requests
 ipython-genutils==0.2.0
     # via traitlets
-ipython==7.24.0
+ipython==7.24.1
     # via -r requirements-dev.in
 itsdangerous==2.0.1
     # via
@@ -82,7 +84,7 @@ pyyaml==5.4.1
     # via
     #   -c requirements.txt
     #   django-munigeo
-requests-cache==0.6.3
+requests-cache==0.6.4
     # via
     #   -c requirements.txt
     #   django-munigeo
@@ -96,6 +98,7 @@ six==1.16.0
     #   -c requirements.txt
     #   django-modeltranslation
     #   django-munigeo
+    #   url-normalize
 sqlparse==0.4.1
     # via
     #   -c requirements.txt
@@ -104,6 +107,10 @@ traitlets==5.0.5
     # via
     #   ipython
     #   matplotlib-inline
+typing-extensions==3.10.0.0
+    # via
+    #   -c requirements.txt
+    #   asgiref
 url-normalize==1.4.3
     # via
     #   -c requirements.txt
