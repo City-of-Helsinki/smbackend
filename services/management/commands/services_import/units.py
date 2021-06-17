@@ -119,6 +119,12 @@ CONTRACT_TYPE_MAPPINGS = [
     ("PRIVATE_ENTERPRISE", "SELF_PRODUCED", None, "private_service"),
     ("PRIVATE_ENTERPRISE", "CONTRACT_SCHOOL", None, "private_contract_school"),
     (
+        "PRIVATE_ENTERPRICE",
+        "OTHER_PRODUCTION_METHOD",
+        "PRIVATE_ENTERPRISE",
+        "private_service",
+    ),
+    (
         "MUNICIPALITY",
         "OTHER_PRODUCTION_METHOD",
         "MUNICIPALITY",

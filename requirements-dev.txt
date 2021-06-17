@@ -38,7 +38,7 @@ django-mptt==0.12.0
     # via
     #   -c requirements.txt
     #   django-munigeo
-django==3.2.3
+django==3.2.4
     # via
     #   -c requirements.txt
     #   django-modeltranslation
@@ -50,7 +50,7 @@ idna==2.10
     #   requests
 ipython-genutils==0.2.0
     # via traitlets
-ipython==7.24.0
+ipython==7.24.1
     # via -r requirements-dev.in
 itsdangerous==2.0.1
     # via
@@ -84,7 +84,7 @@ pyyaml==5.4.1
     # via
     #   -c requirements.txt
     #   django-munigeo
-requests-cache==0.6.3
+requests-cache==0.6.4
     # via
     #   -c requirements.txt
     #   django-munigeo
