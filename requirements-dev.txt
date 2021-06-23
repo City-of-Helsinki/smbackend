@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements-dev.in
 #
--e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.51#egg=django-munigeo
+-e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.52#egg=django-munigeo
     # via
     #   -c requirements.txt
     #   -r requirements-dev.in
@@ -70,7 +70,7 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-prompt-toolkit==3.0.18
+prompt-toolkit==3.0.19
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
