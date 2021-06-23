@@ -121,7 +121,7 @@ CONTRACT_TYPE_MAPPINGS = [
     (
         "PRIVATE_ENTERPRICE",
         "OTHER_PRODUCTION_METHOD",
-        "PRIVATE_ENTERPRISE",
+        None,
         "private_service",
     ),
     (
