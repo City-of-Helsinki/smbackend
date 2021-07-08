@@ -29,7 +29,7 @@ django-environ
 black
 isort
 pep8-naming
-jedi==0.17.2
-parso==0.7.1
+jedi
+parso
 whitenoise
 django-redis
