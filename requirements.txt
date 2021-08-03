@@ -12,11 +12,11 @@ attrs==21.2.0
     # via
     #   pytest
     #   requests-cache
-black==21.6b0
+black==21.7b0
     # via -r requirements.in
 certifi==2021.5.30
     # via requests
-chardet==4.0.0
+charset-normalizer==2.0.4
     # via requests
 click==8.0.1
     # via
@@ -24,7 +24,7 @@ click==8.0.1
     #   pip-tools
 coverage==5.5
     # via pytest-cov
-django==3.2.5
+django==3.2.6
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -78,9 +78,9 @@ flake8-polyfill==1.0.2
     # via pep8-naming
 hypothesis==3.19.3
     # via -r requirements.in
-idna==2.10
+idna==3.2
     # via requests
-importlib-metadata==4.6.1
+importlib-metadata==4.6.3
     # via
     #   click
     #   flake8
@@ -90,7 +90,7 @@ importlib-metadata==4.6.1
     #   pytest
 iniconfig==1.1.1
     # via pytest
-isort==5.9.2
+isort==5.9.3
     # via -r requirements.in
 itsdangerous==2.0.1
     # via requests-cache
@@ -110,9 +110,9 @@ parso==0.8.2
     # via
     #   -r requirements.in
     #   jedi
-pathspec==0.8.1
+pathspec==0.9.0
     # via black
-pep517==0.10.0
+pep517==0.11.0
     # via pip-tools
 pep8-naming==0.12.0
     # via -r requirements.in
@@ -138,7 +138,7 @@ pytest-cov==2.12.1
     # via -r requirements.in
 pytest-django==4.4.0
     # via -r requirements.in
-python-dateutil==2.8.1
+python-dateutil==2.8.2
     # via -r requirements.in
 pytz==2021.1
     # via
@@ -154,13 +154,13 @@ redis==3.5.3
     # via django-redis
 regex==2021.7.6
     # via black
-requests==2.25.1
+requests==2.26.0
     # via
     #   -r requirements.in
     #   django-munigeo
     #   requests-cache
     #   requests-mock
-requests-cache==0.7.0
+requests-cache==0.7.2
     # via
     #   -r requirements.in
     #   django-munigeo
@@ -177,11 +177,13 @@ sqlparse==0.4.1
     # via django
 toml==0.10.2
     # via
-    #   black
-    #   pep517
     #   pytest
     #   pytest-cov
-tqdm==4.61.2
+tomli==1.2.0
+    # via
+    #   black
+    #   pep517
+tqdm==4.62.0
     # via -r requirements.in
 typed-ast==1.4.3
     # via black
@@ -198,7 +200,7 @@ urllib3==1.26.6
     #   requests
 wheel==0.36.2
     # via pip-tools
-whitenoise==5.2.0
+whitenoise==5.3.0
     # via -r requirements.in
 zipp==3.5.0
     # via
