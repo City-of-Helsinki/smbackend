@@ -7,7 +7,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from services.models import AccessibilityVariable, Unit, UnitAccessibilityProperty
-from services.utils.accessibility_shortcoming_calculator import OperatorException
+from services.utils.accessibility_shortcoming_calculator import OperatorError
 
 
 @pytest.fixture
@@ -135,7 +135,7 @@ def test_calculate_shortcomings_no_properties(unit, patch_rules):
 def test_check_invalid_rule(unit_with_props, patch_rules, rules):
     patch_rules(rules, ["message"])
 
-    with pytest.raises(OperatorException) as e:
+    with pytest.raises(OperatorError) as e:
         call_command("calculate_accessibility_shortcomings")
 
     assert str(e.value) == "ERR"
