@@ -1,4 +1,4 @@
-# File: smbackend/azure-pipelines.yml
+# File: smbackend/azure-pipelines-devtest.yml
 
 # Continuous integration (CI) triggers cause a pipeline to run whenever you push
 # an update to the specified branches or you push specified tags.
@@ -33,4 +33,4 @@ resources:
     name: palvelukartta/palvelukartta-pipelines
 
 extends:
-  template: azure-pipelines-palvelukartta-api-master.yml@palvelukartta-pipelines
+  template: azure-pipelines-palvelukartta-api-devtest.yml@palvelukartta-pipelines
