@@ -9,7 +9,6 @@ from django import db
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.translation import activate, get_language
-from munigeo.models import AdministrativeDivision
 
 from services.management.commands.services_import.aliases import import_aliases
 from services.management.commands.services_import.departments import import_departments
@@ -116,24 +115,6 @@ class Command(BaseCommand):
         obj._changed = True
 
     @db.transaction.atomic
-    def update_division_units(self):
-        rescue_areas = AdministrativeDivision.objects.filter(type__type="rescue_area")
-        # TODO: request this data to be added to pel_suojelupiiri
-        mapping = {
-            1: 8953,
-            2: 8954,
-            3: 8952,
-            4: 8955,
-            5: 8956,
-            6: 8958,
-            7: 8957,
-            8: 8957,
-        }
-        for area in rescue_areas:
-            area.service_point_id = mapping[int(area.origin_id)]
-            area.save()
-
-    @db.transaction.atomic
     def import_departments(self, noop=False):
         import_departments(logger=self.logger, noop=noop)
 
@@ -195,7 +176,6 @@ class Command(BaseCommand):
 
         # if self.services_changed:
         #     self.update_root_services()
-        self.update_division_units()
 
         if not import_count:
             sys.stderr.write("Nothing to import.\n")
