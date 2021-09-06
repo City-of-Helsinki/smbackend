@@ -30,11 +30,10 @@ charset-normalizer==2.0.4
     #   requests
 decorator==5.0.9
     # via ipython
-django==3.2.6
+django==3.2.7
     # via
     #   -c requirements.txt
     #   django-modeltranslation
-    #   django-mptt
     #   django-munigeo
 django-js-asset==1.2.2
     # via
@@ -44,7 +43,7 @@ django-modeltranslation==0.17.3
     # via
     #   -c requirements.txt
     #   django-munigeo
-django-mptt==0.12.0
+django-mptt==0.13.2
     # via
     #   -c requirements.txt
     #   django-munigeo
@@ -52,10 +51,8 @@ idna==3.2
     # via
     #   -c requirements.txt
     #   requests
-ipython==7.26.0
+ipython==7.27.0
     # via -r requirements-dev.in
-ipython-genutils==0.2.0
-    # via traitlets
 itsdangerous==2.0.1
     # via
     #   -c requirements.txt
@@ -74,11 +71,11 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-prompt-toolkit==3.0.19
+prompt-toolkit==3.0.20
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
-pygments==2.9.0
+pygments==2.10.0
     # via ipython
 pytz==2021.1
     # via
@@ -94,7 +91,7 @@ requests==2.26.0
     #   -c requirements.txt
     #   django-munigeo
     #   requests-cache
-requests-cache==0.7.2
+requests-cache==0.7.4
     # via
     #   -c requirements.txt
     #   django-munigeo
@@ -108,11 +105,11 @@ sqlparse==0.4.1
     # via
     #   -c requirements.txt
     #   django
-traitlets==5.0.5
+traitlets==5.1.0
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==3.10.0.0
+typing-extensions==3.10.0.2
     # via
     #   -c requirements.txt
     #   asgiref
