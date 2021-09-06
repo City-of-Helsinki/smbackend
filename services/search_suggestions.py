@@ -189,7 +189,7 @@ def generate_suggestions(query, language):
                         if partial_match != -1:
                             i = len(query_lower) - 1
                             j = len(text_lower) - 1
-                            while query_lower[i] == text_lower[j]:
+                            while query_lower[i] == text_lower[j] and i >= 0 and j >= 0:
                                 i -= 1
                                 j -= 1
                             if len(query_lower) - i > len(last_word_lower):

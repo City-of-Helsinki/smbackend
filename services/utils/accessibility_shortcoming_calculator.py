@@ -41,7 +41,7 @@ PATH_TITLES = {
 }
 
 
-class OperatorException(Exception):
+class OperatorError(Exception):
     def __init__(self, operator):
         self.message = "Invalid operator {}".format(operator)
 
@@ -117,7 +117,7 @@ class AccessibilityShortcomingCalculator(object, metaclass=Singleton):
                 return True, False
 
             if rule["operator"] not in ["EQ", "NEQ"]:
-                raise OperatorException(rule["operator"])
+                raise OperatorError(rule["operator"])
 
             val = rule["operands"][1]
             is_ok = (prop == val) if rule["operator"] == "EQ" else (prop != val)
@@ -156,7 +156,7 @@ class AccessibilityShortcomingCalculator(object, metaclass=Singleton):
             return_values.append(is_ok)
 
         if rule["operator"] not in ["AND", "OR"]:
-            raise OperatorException(rule["operator"])
+            raise OperatorError(rule["operator"])
 
         if rule["operator"] == "AND" and False not in return_values:
             logger.debug("{}: AND met".format(rule["id"]))

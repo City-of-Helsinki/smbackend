@@ -250,3 +250,7 @@ class Unit(SoftDeleteModel):
                 )
             )
         )
+
+    def soft_delete(self):
+        self.public = False
+        super().soft_delete()
