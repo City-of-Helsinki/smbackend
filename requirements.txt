@@ -75,8 +75,6 @@ flake8==3.9.2
     #   pep8-naming
 flake8-polyfill==1.0.2
     # via pep8-naming
-hypothesis==3.19.3
-    # via -r requirements.in
 idna==3.2
     # via requests
 importlib-metadata==4.8.1

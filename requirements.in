@@ -23,7 +23,6 @@ pytest-django
 pytest-cov
 django-polymorphic
 requests-mock
-hypothesis==3.19.3
 tqdm
 django-environ
 black
