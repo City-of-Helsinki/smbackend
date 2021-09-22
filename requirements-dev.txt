@@ -4,10 +4,6 @@
 #
 #    pip-compile requirements-dev.in
 #
--e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.53#egg=django-munigeo
-    # via
-    #   -c requirements.txt
-    #   -r requirements-dev.in
 appdirs==1.4.4
     # via
     #   -c requirements.txt
@@ -33,7 +29,7 @@ certifi==2021.5.30
     # via
     #   -c requirements.txt
     #   requests
-charset-normalizer==2.0.5
+charset-normalizer==2.0.6
     # via
     #   -c requirements.txt
     #   requests
@@ -56,6 +52,10 @@ django-mptt==0.13.3
     # via
     #   -c requirements.txt
     #   django-munigeo
+-e git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.54#egg=django-munigeo
+    # via
+    #   -c requirements.txt
+    #   -r requirements-dev.in
 idna==3.2
     # via
     #   -c requirements.txt
@@ -95,7 +95,7 @@ requests==2.26.0
     #   -c requirements.txt
     #   django-munigeo
     #   requests-cache
-requests-cache==0.8.0
+requests-cache==0.8.1
     # via
     #   -c requirements.txt
     #   django-munigeo

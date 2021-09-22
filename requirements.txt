@@ -19,7 +19,7 @@ cattrs==1.8.0
     # via requests-cache
 certifi==2021.5.30
     # via requests
-charset-normalizer==2.0.5
+charset-normalizer==2.0.6
     # via requests
 click==8.0.1
     # via
@@ -58,7 +58,7 @@ django-mptt==0.13.3
     # via
     #   -r requirements.in
     #   django-munigeo
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.53#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.54#egg=django-munigeo
     # via -r requirements.in
 django-polymorphic==3.0.0
     # via -r requirements.in
@@ -111,7 +111,7 @@ pep517==0.11.0
     # via pip-tools
 pep8-naming==0.12.1
     # via -r requirements.in
-pip-tools==6.2.0
+pip-tools==6.3.0
     # via -r requirements.in
 platformdirs==2.3.0
     # via black
@@ -153,7 +153,7 @@ requests==2.26.0
     #   django-munigeo
     #   requests-cache
     #   requests-mock
-requests-cache==0.8.0
+requests-cache==0.8.1
     # via
     #   -r requirements.in
     #   django-munigeo
@@ -176,7 +176,7 @@ tomli==1.2.1
     # via
     #   black
     #   pep517
-tqdm==4.62.2
+tqdm==4.62.3
     # via -r requirements.in
 typed-ast==1.4.3
     # via black
