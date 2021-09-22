@@ -32,4 +32,3 @@ pep8-naming
 jedi
 parso
 whitenoise
-django-redis

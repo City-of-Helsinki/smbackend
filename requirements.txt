@@ -37,7 +37,6 @@ django==3.2.7
     #   django-modeltranslation
     #   django-munigeo
     #   django-polymorphic
-    #   django-redis
     #   djangorestframework
 django-cors-headers==3.8.0
     # via -r requirements.in
@@ -62,8 +61,6 @@ django-mptt==0.13.3
 git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.53#egg=django-munigeo
     # via -r requirements.in
 django-polymorphic==3.0.0
-    # via -r requirements.in
-django-redis==5.0.0
     # via -r requirements.in
 djangorestframework==3.12.4
     # via -r requirements.in
@@ -150,8 +147,6 @@ pyyaml==5.4.1
     # via django-munigeo
 raven==6.10.0
     # via -r requirements.in
-redis==3.5.3
-    # via django-redis
 regex==2021.8.28
     # via black
 requests==2.26.0
