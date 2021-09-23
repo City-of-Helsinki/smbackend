@@ -3,7 +3,7 @@ import os
 
 from django.conf import settings
 from django.contrib.gis.geos import Point
-from munigeo.models import Address, Municipality, Street, get_default_srid
+from munigeo.models import Address, get_default_srid, Municipality, Street
 
 
 class AddressImporter:
