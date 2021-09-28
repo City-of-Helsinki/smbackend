@@ -8,7 +8,7 @@ django-modeltranslation
 flake8
 requests
 requests_cache
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.52#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.56#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions
@@ -23,7 +23,6 @@ pytest-django
 pytest-cov
 django-polymorphic
 requests-mock
-hypothesis==3.19.3
 tqdm
 django-environ
 black
@@ -32,4 +31,3 @@ pep8-naming
 jedi
 parso
 whitenoise
-django-redis

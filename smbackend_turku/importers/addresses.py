@@ -3,7 +3,7 @@ import os
 
 from django.conf import settings
 from django.contrib.gis.geos import Point
-from munigeo.models import Address, Municipality, Street
+from munigeo.models import Address, get_default_srid, Municipality, Street
 
 
 class AddressImporter:
@@ -21,7 +21,7 @@ class AddressImporter:
 
     def _import_address(self, entry):
         street, _ = Street.objects.get_or_create(**entry["street"])
-        location = Point(srid=3877, **entry["point"])
+        location = Point(srid=get_default_srid(), **entry["point"])
 
         Address.objects.get_or_create(
             street=street, defaults={"location": location}, **entry["address"]

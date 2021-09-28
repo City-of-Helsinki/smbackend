@@ -15,7 +15,7 @@ def pk_get(resource_name, res_id=None, params=None):
     if params:
         url += "?" + urlencode(params)
     print("CALLING URL >>> ", url)
-    resp = requests.get(url, timeout=120)
+    resp = requests.get(url, timeout=300)
     assert resp.status_code == 200, "fuu status code {}".format(resp.status_code)
     return resp.json()
 

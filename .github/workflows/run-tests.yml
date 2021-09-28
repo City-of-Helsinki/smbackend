@@ -38,7 +38,7 @@ jobs:
         isort . -c
     - name: Run pytest code functionality tests
       run: |
-        pytest --cov=. --hypothesis-profile=ci
+        pytest --cov=.
 
     # Majority of the tests require database
     services:

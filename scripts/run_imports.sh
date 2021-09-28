@@ -14,6 +14,7 @@ function stage_1 {
     ./manage.py geo_import helsinki --divisions
     ./manage.py geo_import espoo --divisions
     ./manage.py geo_import hsy --divisions
+    ./manage.py update_parking_areas
 }
 
 function stage_2 {
