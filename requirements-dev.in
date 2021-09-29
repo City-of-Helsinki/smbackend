@@ -1,3 +1,2 @@
 -c requirements.txt
 ipython
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.56#egg=django-munigeo
