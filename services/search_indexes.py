@@ -48,7 +48,7 @@ class ServiceMapBaseIndex(indexes.SearchIndex, indexes.Indexable):
     suggest = indexes.CharField()
 
     def __init__(self, *args, **kwargs):
-        super(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.model = None
 
     def get_model(self):
@@ -105,7 +105,7 @@ class UnitIndex(ServiceMapBaseIndex):
         return self.get_model().search_objects
 
     def __init__(self, *args, **kwargs):
-        super(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._street_name_cache = None
         self.model = apps.get_model(app_label="services", model_name="Unit")
 
@@ -172,13 +172,13 @@ class UnitIndex(ServiceMapBaseIndex):
 
 class ServiceIndex(ServiceMapBaseIndex):
     def __init__(self, *args, **kwargs):
-        super(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.model = apps.get_model(app_label="services", model_name="Service")
 
 
 class ServiceNodeIndex(ServiceMapBaseIndex):
     def __init__(self, *args, **kwargs):
-        super(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.model = apps.get_model(app_label="services", model_name="ServiceNode")
 
     def index_queryset(self, using=None):
