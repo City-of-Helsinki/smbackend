@@ -121,7 +121,7 @@ def run_tests(queries=QUERIES):
         "queries": {},
     }
     for query in queries["queries"]:
-        results = get_suggestions(query)
+        results = get_suggestions(query, language="fi")
         all_results["queries"][query] = {
             "query": query,
             "results": process_results(results["suggestions"]),
