@@ -38,9 +38,9 @@ urlpatterns = [
     # url(r'^admin/', include(admin.site.urls)),
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^open311/", views.post_service_request, name="services"),
-    re_path(r"^v2/", include(router.urls)),
-    re_path(r"^v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
-    re_path(r"^v2/redirect/unit/", UnitRedirectViewSet.as_view({"get": "list"})),
+    re_path(r"^api/v2/", include(router.urls)),
+    re_path(r"^api/v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
+    re_path(r"^api/v2/redirect/unit/", UnitRedirectViewSet.as_view({"get": "list"})),
     re_path(r"^v2/suggestion/", views.suggestion, name="suggestion"),
     re_path(r"", include(shortcutter_urls)),
 ]
