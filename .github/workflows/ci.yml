@@ -1,4 +1,4 @@
-name: Service Map API tests
+name: Continuous Integration
 on:
   push:
     branches: [ develop, master ]
