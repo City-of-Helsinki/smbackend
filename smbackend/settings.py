@@ -337,6 +337,7 @@ INTERNAL_IPS = env("INTERNAL_IPS")
 
 class ConfigurationError(Exception):
     """Raised when the application configuration is not valid"""
+
     pass
 
 
