@@ -105,17 +105,8 @@ ROOT_URLCONF = "smbackend.urls"
 WSGI_APPLICATION = "smbackend.wsgi.application"
 
 # Database
-#DATABASES = {"default": env.db()}
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'PORT': '5432',
-        'HOST': '127.0.0.1',
-        'NAME': 'servicemap',
-        'USER': 'servicemap',
-        'PASSWORD': 'servicemap',
-    }
-}
+DATABASES = {"default": env.db()}
+
 # Keep the database connection open for 120s
 CONN_MAX_AGE = 120
 
