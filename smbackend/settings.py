@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "munigeo",
     "services.apps.ServicesConfig",
     "observations",
+    "eco_counter.apps.EcoCounterConfig",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
@@ -104,8 +105,17 @@ ROOT_URLCONF = "smbackend.urls"
 WSGI_APPLICATION = "smbackend.wsgi.application"
 
 # Database
-DATABASES = {"default": env.db()}
-
+#DATABASES = {"default": env.db()}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'PORT': '5432',
+        'HOST': '127.0.0.1',
+        'NAME': 'servicemap',
+        'USER': 'servicemap',
+        'PASSWORD': 'servicemap',
+    }
+}
 # Keep the database connection open for 120s
 CONN_MAX_AGE = 120
 
@@ -254,6 +264,8 @@ LOGGING = {
     },
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO"},
+        "eco_counter": {"handlers": ["console"], "level": "INFO"},
+
     },
 }
 
