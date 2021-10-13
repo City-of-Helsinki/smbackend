@@ -1,8 +1,7 @@
-name: Build
+name: SonarCloud Analysis
 on:
   push:
-    branches:
-      - master
+    branches: [ develop, master ]
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
