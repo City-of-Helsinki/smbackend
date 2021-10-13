@@ -1,5 +1,5 @@
 """
-To run test: pytest -m eco_counter_importer 
+To run test: pytest -m test_import_eco_counter
 Test has been marked with the eco_counter_import marker and is not
 executed by default. The reason is that the tests are very slow 
 and only needed if changes are made to the importer.
@@ -8,7 +8,6 @@ imports and calculates the data correctly.
 """
 from io import StringIO
 import dateutil.parser
-from datetime import time, timedelta
 import calendar
 import pytest
 from django.core.management import call_command
@@ -39,7 +38,7 @@ def import_command(*args, **kwargs):
         )
         return out.getvalue()
 
-@pytest.mark.eco_counter_importer
+@pytest.mark.test_import_eco_counter
 @pytest.mark.django_db
 def test_importer():
     """
