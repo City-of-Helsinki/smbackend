@@ -1,20 +1,14 @@
 name: Service Map API tests
-
 on:
   push:
-    branches: [ master ]
+    branches: [ develop, master ]
   pull_request:
-    branches: [ master ]
-
+    types: [opened, synchronize, reopened]
 jobs:
   build:
-    # Ubuntu latest is Ubuntu 18.04 as of 2020/12
     runs-on: ubuntu-latest
-
     env:
-      # Database for tests
       DATABASE_URL: postgis://postgres:postgres@localhost/smbackend
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.7
@@ -39,17 +33,11 @@ jobs:
     - name: Run pytest code functionality tests
       run: |
         pytest --cov=.
-
-    # Majority of the tests require database
     services:
-      # Label used to access the service container
       postgres:
-        # Docker Hub image
-        image: postgis/postgis:10-2.5
-        # Provide the password for postgres
+        image: postgis/postgis:11-2.5
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
-        # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
