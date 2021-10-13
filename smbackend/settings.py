@@ -334,6 +334,12 @@ if SENTRY_DSN:
 COOKIE_PREFIX = env("COOKIE_PREFIX")
 INTERNAL_IPS = env("INTERNAL_IPS")
 
+
+class ConfigurationError(Exception):
+    """Raised when the application configuration is not valid"""
+    pass
+
+
 if "SECRET_KEY" not in locals():
     secret_file = os.path.join(BASE_DIR, ".django_secret")
     try:
@@ -358,7 +364,7 @@ if "SECRET_KEY" not in locals():
             secret.write(SECRET_KEY)
             secret.close()
         except IOError:
-            raise Exception(
+            raise ConfigurationError(
                 "Please create a %s file with random characters to generate your secret key!"
                 % secret_file
             )
