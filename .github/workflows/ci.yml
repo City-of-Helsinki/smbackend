@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgis://postgres:postgres@localhost/smbackend
+      SECRET_KEY: test-secret
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.7
