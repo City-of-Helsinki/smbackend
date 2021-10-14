@@ -13,6 +13,7 @@ env = environ.Env(
     DEBUG=(bool, False),
     LANGUAGES=(list, ["fi", "sv", "en"]),
     DATABASE_URL=(str, "postgis:///servicemap"),
+    SECRET_KEY=(str, ""),
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
     ELASTICSEARCH_URL=(str, None),
@@ -52,6 +53,7 @@ if os.path.exists(env_file_path):
     environ.Env.read_env(env_file_path)
 
 DEBUG = env("DEBUG")
+SECRET_KEY = env("SECRET_KEY")
 TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
