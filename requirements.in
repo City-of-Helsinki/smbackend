@@ -31,5 +31,4 @@ pep8-naming
 jedi
 parso
 whitenoise
-djangorestframework-gis
 pandas

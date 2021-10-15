@@ -193,4 +193,4 @@ def test__station(api_client, station):
     url = reverse("eco_counter:stations-list")
     response = api_client.get(url)
     assert response.status_code == 200
-    assert response.json()["results"]["features"][0]["properties"]["name"] == station.name
+    assert response.json()["results"][0]["name"] == station.name
