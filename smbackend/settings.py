@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "munigeo",
     "services.apps.ServicesConfig",
     "observations",
+    "eco_counter.apps.EcoCounterConfig",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
@@ -254,6 +255,8 @@ LOGGING = {
     },
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO"},
+        "eco_counter": {"handlers": ["console"], "level": "INFO"},
+
     },
 }
 
