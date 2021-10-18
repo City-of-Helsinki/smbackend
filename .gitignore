@@ -18,3 +18,4 @@ smbackend/test/tpr_mock_data/*.json
 .python-version
 *.mo
 .django_secret
+.scannerwork
