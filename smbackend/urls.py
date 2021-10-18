@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.http import HttpResponse
 from django.urls import include, re_path
 from django.utils.translation import gettext_lazy as _
 from munigeo.api import all_views as munigeo_views
@@ -30,12 +31,31 @@ for view in services_views + munigeo_views + observations_views:
     router.register(view["name"], view["class"], **kwargs)
 
 
+def healthz(*args, **kwargs):
+    """Returns status code 200 if the server is alive."""
+    return HttpResponse(status=200)
+
+
+def readiness(*args, **kwargs):
+    """
+    Returns status code 200 if the server is ready to perform its duties.
+
+    This goes through each database connection and perform a standard SQL
+    query without requiring any particular tables to exist.
+    """
+    from django.db import connections
+
+    for name in connections:
+        cursor = connections[name].cursor()
+        cursor.execute("SELECT 1;")
+        cursor.fetchone()
+
+    return HttpResponse(status=200)
+
+
 urlpatterns = [
-    # Examples:
-    # url(r'^$', 'smbackend.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-    # url(r'^', include(v1_api.urls)),
-    # url(r'^admin/', include(admin.site.urls)),
+    re_path(r"^healthz/", healthz),
+    re_path(r"^readiness/", readiness),
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^open311/", views.post_service_request, name="services"),
     re_path(r"^v2/", include(router.urls)),

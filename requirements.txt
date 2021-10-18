@@ -17,17 +17,17 @@ black==21.9b0
     # via -r requirements.in
 cattrs==1.8.0
     # via requests-cache
-certifi==2021.5.30
+certifi==2021.10.8
     # via requests
-charset-normalizer==2.0.6
+charset-normalizer==2.0.7
     # via requests
-click==8.0.1
+click==8.0.3
     # via
     #   black
     #   pip-tools
-coverage==5.5
+coverage[toml]==6.0.2
     # via pytest-cov
-django==3.2.7
+django==3.2.8
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -38,7 +38,7 @@ django==3.2.7
     #   django-munigeo
     #   django-polymorphic
     #   djangorestframework
-django-cors-headers==3.9.0
+django-cors-headers==3.10.0
     # via -r requirements.in
 django-environ==0.7.0
     # via -r requirements.in
@@ -58,7 +58,7 @@ django-mptt==0.13.4
     # via
     #   -r requirements.in
     #   django-munigeo
-django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.57
+django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.58
     # via -r requirements.in
 django-polymorphic==3.0.0
     # via -r requirements.in
@@ -68,16 +68,16 @@ djangorestframework-jsonp==1.0.2
     # via -r requirements.in
 elasticsearch==1.9.0
     # via -r requirements.in
-flake8==3.9.2
+flake8==4.0.1
     # via
     #   -r requirements.in
     #   flake8-polyfill
     #   pep8-naming
 flake8-polyfill==1.0.2
     # via pep8-naming
-idna==3.2
+idna==3.3
     # via requests
-importlib-metadata==4.8.1
+importlib-metadata==4.2.0
     # via
     #   click
     #   flake8
@@ -111,7 +111,7 @@ pep517==0.11.0
     # via pip-tools
 pep8-naming==0.12.1
     # via -r requirements.in
-pip-tools==6.3.0
+pip-tools==6.4.0
     # via -r requirements.in
 platformdirs==2.4.0
     # via black
@@ -121,9 +121,9 @@ psycopg2==2.8.6
     # via -r requirements.in
 py==1.10.0
     # via pytest
-pycodestyle==2.7.0
+pycodestyle==2.8.0
     # via flake8
-pyflakes==2.3.1
+pyflakes==2.4.0
     # via flake8
 pyparsing==2.4.7
     # via packaging
@@ -131,21 +131,21 @@ pytest==6.2.5
     # via
     #   pytest-cov
     #   pytest-django
-pytest-cov==2.12.1
+pytest-cov==3.0.0
     # via -r requirements.in
 pytest-django==4.4.0
     # via -r requirements.in
 python-dateutil==2.8.2
     # via -r requirements.in
-pytz==2021.1
+pytz==2021.3
     # via
     #   -r requirements.in
     #   django
-pyyaml==5.4.1
+pyyaml==6.0
     # via django-munigeo
 raven==6.10.0
     # via -r requirements.in
-regex==2021.9.24
+regex==2021.10.8
     # via black
 requests==2.26.0
     # via
@@ -169,12 +169,11 @@ six==1.16.0
 sqlparse==0.4.2
     # via django
 toml==0.10.2
-    # via
-    #   pytest
-    #   pytest-cov
+    # via pytest
 tomli==1.2.1
     # via
     #   black
+    #   coverage
     #   pep517
 tqdm==4.62.3
     # via -r requirements.in
@@ -196,7 +195,7 @@ wheel==0.37.0
     # via pip-tools
 whitenoise==5.3.0
     # via -r requirements.in
-zipp==3.5.1
+zipp==3.6.0
     # via
     #   importlib-metadata
     #   pep517

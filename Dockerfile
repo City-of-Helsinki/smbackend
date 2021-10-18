@@ -18,6 +18,7 @@ COPY . .
 ENV STATIC_ROOT /srv/smbackend/static
 RUN mkdir -p /srv/smbackend/static
 
+ENV SECRET_KEY "only-for-build"
 RUN python manage.py compilemessages
 RUN python manage.py collectstatic
 

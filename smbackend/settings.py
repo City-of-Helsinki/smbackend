@@ -5,14 +5,12 @@ import environ
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
 
-CONFIG_FILE_NAME = "config_dev.env"
-
-
 root = environ.Path(__file__) - 2  # two levels back in hierarchy
 env = environ.Env(
     DEBUG=(bool, False),
     LANGUAGES=(list, ["fi", "sv", "en"]),
     DATABASE_URL=(str, "postgis:///servicemap"),
+    SECRET_KEY=(str, ""),
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
     ELASTICSEARCH_URL=(str, None),
@@ -39,19 +37,13 @@ env = environ.Env(
     ADDITIONAL_MIDDLEWARE=(list, None),
 )
 
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = root()
 
-# Django environ has a nasty habit of complanining at level
-# WARN about env file not being preset. Here we pre-empt it.
-env_file_path = os.path.join(BASE_DIR, CONFIG_FILE_NAME)
-if os.path.exists(env_file_path):
-    # Logging configuration is not available at this point
-    print(f"Reading config from {env_file_path}")
-    environ.Env.read_env(env_file_path)
+if os.path.exists(".env"):
+    environ.Env().read_env(".env")
 
 DEBUG = env("DEBUG")
+SECRET_KEY = env("SECRET_KEY")
 TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
@@ -333,32 +325,3 @@ if SENTRY_DSN:
 
 COOKIE_PREFIX = env("COOKIE_PREFIX")
 INTERNAL_IPS = env("INTERNAL_IPS")
-
-if "SECRET_KEY" not in locals():
-    secret_file = os.path.join(BASE_DIR, ".django_secret")
-    try:
-        SECRET_KEY = open(secret_file).read().strip()
-    except IOError:
-        import random
-
-        system_random = random.SystemRandom()
-        try:
-            SECRET_KEY = "".join(
-                [
-                    system_random.choice(
-                        "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"
-                    )
-                    for i in range(64)
-                ]
-            )
-            secret = open(secret_file, "w")
-            import os
-
-            os.chmod(secret_file, 0o0600)
-            secret.write(SECRET_KEY)
-            secret.close()
-        except IOError:
-            Exception(
-                "Please create a %s file with random characters to generate your secret key!"
-                % secret_file
-            )

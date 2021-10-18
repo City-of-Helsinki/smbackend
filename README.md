@@ -149,7 +149,7 @@ HAYSTACK_CONNECTIONS = {
 Observations
 ------------
 
-Load initial observation data with command:
+Load the initial observation data with the command:
 ```
 ./scripts/import_observation_initial_data.sh
 ```
