@@ -299,10 +299,10 @@ class Command(BaseCommand):
                     current_time_dst_hour = dateutil.parser.parse(str(current_time.tzinfo.utcoffset(current_time)))
                     prev_time_dst_hour = dateutil.parser.parse(str(prev_time.tzinfo.utcoffset(prev_time)))                        
                     # If the prev_time_dst_hour is less than current_time_dst_hour, 
-                    # then this is the hour clocks are changed backwards, i.e. summer time
+                    # then this is the hour clocks are changed backwards, i.e. summertime
                     if prev_time_dst_hour < current_time_dst_hour:
-                        # Add an hour where values are 0, for the nonexistent hour 3:00-4:00
-                        # So that the rest of the hours for the day are correct
+                        # Add an hour where the values are 0, for the nonexistent hour 3:00-4:00
+                        # To keep the hour data consistent with 24 hours. 
                         temp_hour = {}
                         for station in stations:
                             temp_hour[station] = {}                                
