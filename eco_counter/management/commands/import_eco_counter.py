@@ -52,7 +52,7 @@ import dateutil.parser
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.utils.timezone import make_aware
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.contrib.gis.geos import Point
 from eco_counter.models import (
     Station, 
@@ -69,7 +69,7 @@ from eco_counter.models import (
     )
 
 STATIONS_URL = "https://dev.turku.fi/datasets/ecocounter/liikennelaskimet.geojson"
-OBSERATIONS_URL = "https://dev.turku.fi/datasets/ecocounter/2020/counters-15min.csv"
+OBSERVATIONS_URL = "https://data.turku.fi/cjtv3brqr7gectdv7rfttc/counters-15min.csv"
 logger = logging.getLogger("eco_counter")
 
 
@@ -94,9 +94,9 @@ class Command(BaseCommand):
         ImportState.objects.all().delete()
 
     def get_dataframe(self):
-        response = requests.get(OBSERATIONS_URL) 
+        response = requests.get(OBSERVATIONS_URL) 
         assert response.status_code == 200, "Fetching observations csv {} status code: {}".\
-            format(OBSERATIONS_URL, response.status_code)
+            format(OBSERVATIONS_URL, response.status_code)
         string_data = response.content
         csv_data = pd.read_csv(io.StringIO(string_data.decode('utf-8')))
         return csv_data
@@ -159,9 +159,9 @@ class Command(BaseCommand):
             day_data.value_jt = sum(current_hour.values_jt)
             day_data.save()
    
-    def save_hour_data(self, current_hour, current_hours):
+    def save_hour_data(self, current_hour, current_hours):       
         for station in current_hour:                   
-            hour_data = current_hours[station]            
+            hour_data = current_hours[station]                        
             # Store "Auto"
             if "AK" and "AP" in current_hour[station]:
                 ak = current_hour[station]["AK"]
@@ -187,7 +187,7 @@ class Command(BaseCommand):
                 hour_data.values_jp.append(jp)
                 hour_data.values_jt.append(tot)  
 
-            hour_data.save()
+            hour_data.save()       
 
     def save_stations(self):
         response = requests.get(STATIONS_URL)
@@ -215,19 +215,25 @@ class Command(BaseCommand):
         """
         Generates testdata for a given timespan, 
         for every 15min the value 1 is set.
-        """
-       
+        """       
         df = pd.DataFrame(columns=keys)
         df.keys = keys
         cur_time = start_time
         c = 0
         while cur_time <= end_time:
-            vals = [1 for x in range(24)]
+            # Add value to all keys(sensor stations)
+            vals = [1 for x in range(len(keys)-1)]
             vals.insert(0, str(cur_time))
             df.loc[c] = vals
             cur_time = cur_time + timedelta(minutes=15)
             c += 1            
         return df       
+
+    def get_station_name_and_type(self,column):
+        #Station type is always: A|P|J + K|P  
+        station_type = re.findall("[APJ][PK]", column)[0]
+        station_name = column.replace(station_type,"").strip()               
+        return station_name, station_type                   
 
     def save_observations(self, csv_data, start_time):        
         stations = {}
@@ -254,7 +260,7 @@ class Command(BaseCommand):
         prev_month_number = current_month_number
         prev_week_number = current_week_number
         current_time = None
-        prev_time = None
+        prev_time = None       
         # All Hourly, daily and weekly data that are past the current_week_number
         # are delete thus they are repopulated.  HourData and DayData are deleted
         # thus their on_delete is set to models.CASCADE.     
@@ -273,20 +279,38 @@ class Command(BaseCommand):
             current_weeks[station].years.add(current_years[station])
           
         for index, row in csv_data.iterrows():           
-            #print(" . " + str(index), end = "")
             try:
-                try:
-                    current_time = dateutil.parser.parse(row["aika"]) # 2021-08-23 00:00:00
-                except dateutil.parser._parser.ParserError:
-                    # If malformed time
-                    current_time = prev_time+timedelta(minutes=15)
-                    current_time = current_time.replace(tzinfo=None)
-                current_time = make_aware(current_time)
-            except pytz.exceptions.NonExistentTimeError as err:                           
-                logging.warning("NonExistentTimeError at time: " + str(current_time) + " Err: " + str(err))
-            except pytz.exceptions.AmbiguousTimeError as err:
-                #For some reason raises sometimes AmibiousTimeError for times that seems to be ok. e.g. 2020-03-29 03:45:00
-                logging.warning("AmibiguousTimeError at time: " + str(current_time) + " Err: " + str(err))
+                aika = row.get("aika", None)
+                if type(aika)==str:
+                    current_time = dateutil.parser.parse(aika) 
+                # When the time is changed due to daylight savings
+                # Input data does not contain any timestamp for that hour, only data
+                # so the current_time is calculated
+                else:
+                    current_time = prev_time+timedelta(minutes=15)  
+            except dateutil.parser._parser.ParserError:
+                # If malformed time calcultate new current_time.
+                current_time = prev_time+timedelta(minutes=15)
+
+            if prev_time:
+                # Compare the utcoffset, if not equal the daylight saving has changed.
+                if current_time.tzinfo.utcoffset(current_time) != prev_time.tzinfo.utcoffset(prev_time):
+                    # Take the daylight saving time (dst) hour from the utcoffset
+                    current_time_dst_hour = dateutil.parser.parse(str(current_time.tzinfo.utcoffset(current_time)))
+                    prev_time_dst_hour = dateutil.parser.parse(str(prev_time.tzinfo.utcoffset(prev_time)))                        
+                    # If the prev_time_dst_hour is less than current_time_dst_hour, 
+                    # then this is the hour clocks are changed backwards, i.e. summer time
+                    if prev_time_dst_hour < current_time_dst_hour:
+                        # Add an hour where values are 0, for the nonexistent hour 3:00-4:00
+                        # So that the rest of the hours for the day are correct
+                        temp_hour = {}
+                        for station in stations:
+                            temp_hour[station] = {}                                
+                        for column in self.columns[1:]: 
+                            station_name, station_type = self.get_station_name_and_type(column)        
+                            temp_hour[station_name][station_type] = 0
+                        self.save_hour_data(temp_hour, current_hours)             
+            
             current_year_number = current_time.year
             current_week_number = int(current_time.strftime("%-V"))
             current_weekday_number = current_time.weekday()
@@ -298,14 +322,14 @@ class Command(BaseCommand):
                 # Clear current_hour after storage, to get data for every hour.
                 current_hour = {}
             
-            if prev_weekday_number != current_weekday_number or not current_hours:  
+            if prev_weekday_number != current_weekday_number or not current_hours: 
                 # Store hour data if data exists.
                 if current_hours:
                     self.create_and_save_day_data(stations, current_hours, current_days)
                 current_hours = {}
                 
                 # Year, month, week tables are created before the day tables 
-                # to ensure correct relations .            
+                # to ensure correct relations.            
                 if prev_year_number != current_year_number or not current_years:
                     # if we have a prev_year_number and it is not the current_year_number store yearly data.
                     if prev_year_number:                   
@@ -353,9 +377,7 @@ class Command(BaseCommand):
             Note the first col is the "aika" and is discarded, the rest are observations for every station
             """
             for column in self.columns[1:]: 
-                #Station type is always: A|P|J + K|P           
-                station_type = re.findall("[APJ][PK]", column)[0]
-                station_name = column.replace(station_type,"").strip()               
+                station_name, station_type = self.get_station_name_and_type(column)                          
                 value = row[column]
                 if math.isnan(value):
                     value = int(0)
@@ -407,29 +429,30 @@ class Command(BaseCommand):
             self.save_stations()      
         logger.info("Retrieving observations...")
         csv_data = self.get_dataframe()
+        self.columns = csv_data.keys()  
+
         start_time = None
-        if options["test_mode"]:
-            self.columns = [
-                'aika', 'Teatterisilta PK', 'Teatterisilta JP', 'Auransilta JP',
-                'Auransilta JK', 'Piispanristi P PK', 'Teatterisilta PP',
-                'Auransilta AK', 'Kirjastosilta PK', 'Piispanristi E PK',
-                'Auransilta PP', 'Kirjastosilta JP', 'Raisiontie PP',
-                'Teatteri ranta PK', 'Kirjastosilta JK', 'Teatteri ranta PP',
-                'Teatteri ranta JP', 'Auransilta PK', 'Teatterisilta JK',
-                'Piispanristi E PP', 'Raisiontie PK', 'Kirjastosilta PP',
-                'Auransilta AP', 'Teatteri ranta JK', 'Piispanristi P PP'
-            ]
+        if options["test_mode"]:         
             logger.info("Retrieving observations in test mode.")
             self.save_stations()      
-            start_time = options["test_mode"][0]
+            start_time = options["test_mode"][0]            
             csv_data = self.gen_test_csv(csv_data.keys(), start_time, options["test_mode"][1]) 
         else:
-            self.columns = csv_data.keys()         
             import_state = ImportState.load() 
             start_time = "{year}-{month}-1 00:00:00".format(year=import_state.current_year_number, \
-                month=import_state.current_month_number)
+                month=import_state.current_month_number)         
+            timezone = pytz.timezone("Europe/Helsinki")
             start_time = dateutil.parser.parse(start_time)
-            start_index = csv_data.index[csv_data["aika"]==str(start_time)].values[0]
+            start_time = make_aware(start_time, timezone)
+            # The timeformat for the input data is : 2020-01-01 00:00:00+02:00
+            # Convert starting time to input datas timeformat
+            start_time_string = start_time.strftime("%Y-%m-%d %H:%M:%S%z")
+            # Add a colon separator to the offset segment, +0200 -> +02:00 
+            start_time_string = "{0}:{1}".format(
+                start_time_string[:-2],
+                start_time_string[-2:]
+            )
+            start_index = csv_data.index[csv_data["aika"]==start_time_string].values[0]  
             logger.info("Starting import at index: {}".format(start_index))
             csv_data = csv_data[start_index:]
         self.save_observations(csv_data, start_time)
