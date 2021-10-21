@@ -48,8 +48,8 @@ def test_importer():
     1.1.2020 is used as the starting point thus it is the same 
     starting point as in the real data.
     """
-    start_time = dateutil.parser.parse("2020-01-01 00:00:00")
-    end_time = dateutil.parser.parse("2020-02-29 23:45:45")        
+    start_time = dateutil.parser.parse("2020-01-01 00:00:00+02:00")
+    end_time = dateutil.parser.parse("2020-02-29 23:45:45+02:00")        
     out = import_command(test_mode=(start_time, end_time))
 
     num_stations = Station.objects.all().count()
@@ -122,8 +122,8 @@ def test_importer():
     week = Week.objects.filter(week_number=5)[0]        
     assert week.days.all().count() == num_stations
     # test incremental importing
-    start_time = dateutil.parser.parse("2020-02-01 00:00:00")
-    end_time = dateutil.parser.parse("2020-03-31 23:45:45")                
+    start_time = dateutil.parser.parse("2020-02-01 00:00:00+02:00")
+    end_time = dateutil.parser.parse("2020-03-31 23:45:45+02:00")                
     out = import_command(test_mode=(start_time, end_time))
     # test that state is updated
     state = ImportState.load()
@@ -158,8 +158,8 @@ def test_importer():
     year_data = YearData.objects.filter(year__year_number=2020)[0]       
     assert year_data.value_jp == (jan_month_days*96+feb_month_days*96+mar_month_days*96)
     # Test new year
-    start_time = dateutil.parser.parse("2021-09-01 00:00:00")
-    end_time = dateutil.parser.parse("2021-09-30 23:45:45")        
+    start_time = dateutil.parser.parse("2021-09-01 00:00:00+03:00")
+    end_time = dateutil.parser.parse("2021-09-30 23:45:45+03:00")        
     out = import_command(test_mode=(start_time, end_time))      
     assert Year.objects.get(station__name=TEST_STATION_NAME, year_number=2020) 
     assert Year.objects.get(station__name=TEST_STATION_NAME, year_number=2021)   
@@ -187,8 +187,8 @@ def test_importer():
     assert state.current_month_number == 9
     assert state.current_year_number == 2021
     #test year change and week 53
-    start_time = dateutil.parser.parse("2020-12-26 00:00:00")
-    end_time = dateutil.parser.parse("2021-01-11 23:45:45")
+    start_time = dateutil.parser.parse("2020-12-26 00:00:00+03:00")
+    end_time = dateutil.parser.parse("2021-01-11 23:45:45+03:00")
     out = import_command(test_mode=(start_time, end_time))
     weeks = Week.objects.filter(week_number=53, years__year_number=2020)
     assert len(weeks) == num_stations
