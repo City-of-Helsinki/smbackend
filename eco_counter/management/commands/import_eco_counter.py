@@ -68,10 +68,10 @@ from eco_counter.models import (
     ImportState
     )
 
-STATIONS_URL = "https://dev.turku.fi/datasets/ecocounter/liikennelaskimet.geojson"
-OBSERVATIONS_URL = "https://data.turku.fi/cjtv3brqr7gectdv7rfttc/counters-15min.csv"
-logger = logging.getLogger("eco_counter")
 
+logger = logging.getLogger("eco_counter")
+assert settings.ECO_COUNTER_STATIONS_URL, "Missing ECO_COUNTER_STATIONS_URL in env."
+assert settings.ECO_COUNTER_OBSERVATIONS_URL, "Missing ECO_COUNTER_OBSERVATIONS_URL in env."
 
 class Command(BaseCommand):
     help = "Imports Turku Traffic Volumes"
@@ -94,9 +94,9 @@ class Command(BaseCommand):
         ImportState.objects.all().delete()
 
     def get_dataframe(self):
-        response = requests.get(OBSERVATIONS_URL) 
+        response = requests.get(settings.ECO_COUNTER_OBSERVATIONS_URL) 
         assert response.status_code == 200, "Fetching observations csv {} status code: {}".\
-            format(OBSERVATIONS_URL, response.status_code)
+            format(settings.ECO_COUNTER_OBSERVATIONS_URL, response.status_code)
         string_data = response.content
         csv_data = pd.read_csv(io.StringIO(string_data.decode('utf-8')))
         return csv_data
@@ -190,9 +190,9 @@ class Command(BaseCommand):
             hour_data.save()       
 
     def save_stations(self):
-        response = requests.get(STATIONS_URL)
+        response = requests.get(settings.ECO_COUNTER_STATIONS_URL)
         assert response.status_code == 200, "Fetching stations from {} , status code {}"\
-            .format(STATIONS_URL, response.status_code)
+            .format(settings.ECO_COUNTER_STATIONS_URL, response.status_code)
         response_json = response.json()
         features = response_json["features"]
         saved = 0

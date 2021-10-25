@@ -37,8 +37,9 @@ env = environ.Env(
     ACCESSIBILITY_SYSTEM_ID=(str, None),
     ADDITIONAL_INSTALLED_APPS=(list, None),
     ADDITIONAL_MIDDLEWARE=(list, None),
+    ECO_COUNTER_STATIONS_URL=(str, None),
+    ECO_COUNTER_OBSERVATIONS_URL=(str, None)
 )
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = root()
@@ -105,8 +106,17 @@ ROOT_URLCONF = "smbackend.urls"
 WSGI_APPLICATION = "smbackend.wsgi.application"
 
 # Database
-DATABASES = {"default": env.db()}
-
+#DATABASES = {"default": env.db()}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'PORT': '5432',
+        'HOST': '127.0.0.1',
+        'NAME': 'servicemap',
+        'USER': 'servicemap',
+        'PASSWORD': 'servicemap',
+    }
+}
 # Keep the database connection open for 120s
 CONN_MAX_AGE = 120
 
@@ -365,3 +375,6 @@ if "SECRET_KEY" not in locals():
                 "Please create a %s file with random characters to generate your secret key!"
                 % secret_file
             )
+
+ECO_COUNTER_OBSERVATIONS_URL=env("ECO_COUNTER_OBSERVATIONS_URL")
+ECO_COUNTER_STATIONS_URL=env("ECO_COUNTER_STATIONS_URL")
