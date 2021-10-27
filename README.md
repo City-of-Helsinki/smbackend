@@ -1,6 +1,7 @@
-[![Build status](https://api.travis-ci.com/City-of-Helsinki/smbackend.svg?branch=master)](https://travis-ci.org/github/City-of-Helsinki/smbackend)
+![CI](https://github.com/City-of-Helsinki/smbackend/actions/workflows/ci.yml/badge.svg)
+[![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=City-of-Helsinki_smbackend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=City-of-Helsinki_smbackend)
 [![Codecov](https://codecov.io/gh/City-of-Helsinki/smbackend/branch/master/graph/badge.svg)](https://codecov.io/gh/City-of-Helsinki/smbackend)
-[![Requirements](https://requires.io/github/City-of-Helsinki/smbackend/requirements.svg?branch=master)](https://requires.io/github/City-of-Helsinki/smbackend/requirements/?branch=master)
+[![Requirements](https://requires.io/github/City-of-Helsinki/smbackend/requirements.svg?branch=develop)](https://requires.io/github/City-of-Helsinki/smbackend/requirements/?branch=develop)
 
 Service Map Backend
 ===================
