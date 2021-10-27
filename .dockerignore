@@ -1,3 +1,6 @@
 *~
 *.env
-
+# ignore .cache folder
+.pytest_cache
+# ignore sonar cache
+.scannerwork
