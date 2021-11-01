@@ -13,6 +13,7 @@ class UnitConnection(models.Model):
     OTHER_ADDRESS_TYPE = 7
     HIGHLIGHT_TYPE = 8
     ESERVICE_LINK_TYPE = 9
+    PRICE = 10
 
     SECTION_TYPES = (
         (PHONE_OR_EMAIL_TYPE, "PHONE_OR_EMAIL"),
@@ -24,6 +25,7 @@ class UnitConnection(models.Model):
         (OTHER_ADDRESS_TYPE, "OTHER_ADDRESS"),
         (HIGHLIGHT_TYPE, "HIGHLIGHT"),
         (ESERVICE_LINK_TYPE, "ESERVICE_LINK"),
+        (PRICE, "PRICE"),
     )
 
     unit = models.ForeignKey(
