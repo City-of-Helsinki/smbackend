@@ -8,7 +8,7 @@ from mobility_data.importers.charging_stations import(
     save_to_database,
     CHARGING_STATIONS_URL
 )
-logger = logging.getLogger("__name__")
+logger = logging.getLogger("mobility_data")
     
 class Command(BaseCommand):
 
@@ -28,7 +28,7 @@ class Command(BaseCommand):
             json_data = json.load(f)
             objects = get_filtered_charging_station_objects(json_data=json_data)       
         else:
-            logger.info("Fetcing charging stations from: {}"\
+            logger.info("Fetching charging stations from: {}"\
                 .format(CHARGING_STATIONS_URL))
             objects = get_filtered_charging_station_objects()
         save_to_database(objects)

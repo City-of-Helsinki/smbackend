@@ -11,8 +11,6 @@ router.register("content_types", views.ContentTypeViewSet, basename="content_typ
 router.register("mobile_units", views.MobileUnitViewSet, basename="mobile_units")
 router.register("mobile_unit_groups", views.MobileUnitGroupViewSet, basename="mobile_unit_groups")
 
-router.register("charging_stations", views.ChargingStationContentViewSet, basename="charging_stations")
-router.register("gas_filling_stations", views.GasFillingStationtContentViewSet, basename="gas_filling_stations")
 urlpatterns = [
     path("", include(router.urls), name="mobility_data"),
 ]

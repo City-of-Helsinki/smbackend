@@ -4,7 +4,6 @@ from django.core.management import call_command
 from mobility_data.models import (
     MobileUnit,
     ContentType,
-    GasFillingStationContent,   
 )
 
 def import_command(*args, **kwargs):
@@ -29,7 +28,4 @@ def test_importer():
     # Transform to source data srid
     unit.geometry.transform(3857)
     assert pytest.approx(unit.geometry.x, 0.0000000001) ==  2472735.3962113541
-    assert GasFillingStationContent.objects.all().count() == 2  
-    content = GasFillingStationContent.objects.get(mobile_unit__name="Turku Satama") 
-    assert content.operator == "Gasum"
-    assert content.mobile_unit == unit
+    assert unit.extra["operator"] == "Gasum"

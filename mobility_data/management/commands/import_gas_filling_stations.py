@@ -9,7 +9,7 @@ from mobility_data.importers.gas_filling_station import(
     GAS_FILLING_STATIONS_URL
 )
 from mobility_data.models import ContentType
-logger = logging.getLogger("__name__")
+logger = logging.getLogger("mobility_data")
 
 class Command(BaseCommand):
 
@@ -18,7 +18,7 @@ class Command(BaseCommand):
             "--test-mode",             
             nargs="+",
             default=False,
-            help="Run script in test mode. ",
+            help="Run script in test mode.",
         )       
     
     def handle(self, *args, **options):
@@ -29,7 +29,7 @@ class Command(BaseCommand):
             json_data = json.load(f)
             objects = get_filtered_gas_filling_station_objects(json_data=json_data)       
         else:
-            logger.info("Fetcing gas filling stations from: {}"\
+            logger.info("Fetching gas filling stations from: {}"\
                 .format(GAS_FILLING_STATIONS_URL))            
             objects = get_filtered_gas_filling_station_objects()       
         save_to_database(objects)

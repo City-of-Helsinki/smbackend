@@ -6,9 +6,8 @@ from .utils import delete_tables, fetch_json
 from mobility_data.models import (
     MobileUnit,
     ContentType,
-    ChargingStationContent
     )
-logger = logging.getLogger("__name__")
+logger = logging.getLogger("mobility_data")
 
 CHARGING_STATIONS_URL = "https://services1.arcgis.com/rhs5fjYxdOG1Et61/ArcGIS/rest/services/ChargingStations/FeatureServer/0/query?f=json&where=1%20%3D%201%20OR%201%20%3D%201&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=LOCATION_ID%2CNAME%2CADDRESS%2CURL%2COBJECTID%2CTYPE"
 GEOMETRY_ID = 11 #  11 Varsinaissuomi # 10 Uusim
@@ -51,7 +50,6 @@ def get_filtered_charging_station_objects(json_data=None):
     filtered_objects = []
     # Filter objects
     for object in objects:    
-        #point = Point(object.x, object.y)        
         if polygon.intersects(object.point):
             filtered_objects.append(object)
     logger.info("Filtered: {} charging stations by location to: {}."\
@@ -67,7 +65,6 @@ def save_to_database(objects, delete_table=True):
     content_type, _ = ContentType.objects.get_or_create(
         type_name=ContentType.CHARGING_STATION,
         name="Charging Station",
-        class_name=ContentType.CONTENT_TYPES[ContentType.CHARGING_STATION],
         description=description
     )
     for object in objects:
@@ -75,18 +72,20 @@ def save_to_database(objects, delete_table=True):
         name = object.name
         address = object.address
         url = object.url
-        charger_type = object.charger_type  
-        mobile_unit = MobileUnit.objects.create(
+        extra = {}
+        extra["charger_type"] = object.charger_type  
+        extra["mobile_unit"] = MobileUnit.objects.create(
             is_active=is_active,
             name=name,
             address=address,
             geometry=object.point,
+            extra=extra,
             content_type=content_type
         )
-        content = ChargingStationContent.objects.create(
-            mobile_unit=mobile_unit,
-            url=url,
-            charger_type=charger_type
-        )
+        # content = ChargingStationContent.objects.create(
+        #     mobile_unit=mobile_unit,
+        #     url=url,
+        #     charger_type=charger_type
+        # )
        
     logger.info("Saved charging stations to database.")

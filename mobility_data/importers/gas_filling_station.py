@@ -5,10 +5,9 @@ from django.conf import settings
 from mobility_data.models import (
     MobileUnit, 
     ContentType, 
-    GasFillingStationContent
 )
 from .utils import fetch_json, delete_tables, GEOMETRY_URL
-logger = logging.getLogger("__name__")
+logger = logging.getLogger("mobility_data")
 GAS_FILLING_STATIONS_URL = "https://services1.arcgis.com/rhs5fjYxdOG1Et61/ArcGIS/rest/services/GasFillingStations/FeatureServer/0/query?f=json&where=1%3D1&outFields=OPERATOR%2CLAT%2CLON%2CSTATION_NAME%2CADDRESS%2CCITY%2CZIP_CODE%2CLNG_CNG%2CObjectId"
 
 
@@ -62,7 +61,6 @@ def save_to_database(objects, delete_table=True):
     content_type, _ = ContentType.objects.get_or_create(
         type_name=ContentType.GAS_FILLING_STATION,
         name="Gas Filling Station",
-        class_name=ContentType.CONTENT_TYPES[ContentType.GAS_FILLING_STATION],
         description=description
     )
     for object in objects:
@@ -70,19 +68,22 @@ def save_to_database(objects, delete_table=True):
         name = object.name
         address = object.address       
         address += ", " + object.zip_code + " " + object.city
-        operator = object.operator
-        lng_cng = object.lng_cng 
+        extra = {}
+        extra["operator"] = object.operator
+        extra["lng_cng"] = object.lng_cng 
+
         mobile_unit = MobileUnit.objects.create(
             is_active=is_active,
             name=name,
             address=address,
             geometry=object.point,
+            extra=extra,
             content_type=content_type
         )
-        content = GasFillingStationContent.objects.create(
-            mobile_unit=mobile_unit,
-            operator=operator,
-            lng_cng=lng_cng
-        )        
+        # content = GasFillingStationContent.objects.create(
+        #     mobile_unit=mobile_unit,
+        #     operator=operator,
+        #     lng_cng=lng_cng
+        # )        
 
     logger.info("Saved gas filling stations to database.")

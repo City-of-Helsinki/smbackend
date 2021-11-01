@@ -8,19 +8,13 @@ from ..models import (
     MobileUnitGroup,
     MobileUnit,
     ContentType,
-    GroupType,
-    GasFillingStationContent,
-    ChargingStationContent,
+    GroupType,   
 )
 from .serializers import(   
     MobileUnitGroupSerializer, 
     MobileUnitSerializer,   
     GroupTypeSerializer,
-    ContentTypeSerializer,
-    ChargingStationContentSerializer,
-    ChargingStationSerializer,
-    GasFillingStationContentSerializer,
-    GasFillingStationSerializer,
+    ContentTypeSerializer,    
 )
 
 class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
@@ -139,19 +133,10 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
 class GroupTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = GroupType.objects.all()
     serializer_class = GroupTypeSerializer
-   
-        #wueryset = MobileUnitGroup.objects.filter
+  
 
 class ContentTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContentType.objects.all()
     serializer_class = ContentTypeSerializer
 
 
-class ChargingStationContentViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ChargingStationContent.objects.all()
-    serializer_class = ChargingStationContentSerializer
-
-
-class GasFillingStationtContentViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = GasFillingStationContent.objects.all()
-    serializer_class = GasFillingStationContentSerializer

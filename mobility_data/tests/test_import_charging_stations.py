@@ -4,7 +4,6 @@ from django.core.management import call_command
 from mobility_data.models import (
     MobileUnit,
     ContentType,
-    ChargingStationContent,
 )
 
 def import_command(*args, **kwargs):
@@ -29,8 +28,5 @@ def test_importer():
     assert unit
     # Transform to source data srid
     unit.geometry.transform(4326)
-    assert pytest.approx(unit.geometry.x, 0.0001) == 22.247
-    assert ChargingStationContent.objects.all().count() == 2  
-    content = ChargingStationContent.objects.get(mobile_unit__name="Hotel Kakola") 
-    assert content.charger_type == "Type2"
-    assert content.mobile_unit == unit
+    assert pytest.approx(unit.geometry.x, 0.0001) == 22.247    
+    assert unit.extra["charger_type"] == "Type2"

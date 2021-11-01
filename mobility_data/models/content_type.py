@@ -4,9 +4,6 @@ from django.contrib.gis.db import models
 class BaseType(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     name = models.CharField(max_length=64, null=True)
-    class_name = models.CharField(
-        max_length=64, null=True, verbose_name="Name of the content class"
-    )
     description = models.TextField(
         null=True, verbose_name="Optional description of the content type."
     )
@@ -22,13 +19,13 @@ class ContentType(BaseType):
     """
     CHARGING_STATION = "CGS"
     GAS_FILLING_STATION = "GFS"
-    CONTENT_TYPES = {
-        CHARGING_STATION: "ChargingStation",
-        GAS_FILLING_STATION: "GasFillingStation",
-    }
+    CONTENT_TYPES = [
+        (CHARGING_STATION, "ChargingStation"),
+        (GAS_FILLING_STATION, "GasFillingStation"),
+    ]
     type_name = models.CharField(
         max_length=3, 
-        choices=[(k,v) for k,v in CONTENT_TYPES.items()], 
+        choices=CONTENT_TYPES, 
         null=True
     )
 
@@ -40,11 +37,11 @@ class GroupType(BaseType):
     """
     EXAMPLE_GROUP = "EGP"
 
-    GROUP_TYPES = {
-        EXAMPLE_GROUP: "ExampleGroup",
-    }
+    GROUP_TYPES = [
+        (EXAMPLE_GROUP, "ExampleGroup"),
+    ]
     type_name = models.CharField(
         max_length=3, 
-        choices= [(k,v) for k,v in GROUP_TYPES.items()], 
+        choices=GROUP_TYPES, 
         null=True
     )

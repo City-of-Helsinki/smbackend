@@ -56,7 +56,8 @@ class MobileUnit(BaseUnit):
         null=True,
         related_name="units"
     ) 
-   
+    extra = models.JSONField(null=True)
+
     def transform(self):
         self.geometry.transform(4326)
         print("transform", self.geometry.coords)
