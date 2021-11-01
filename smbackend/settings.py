@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "services.apps.ServicesConfig",
     "observations",
     "eco_counter.apps.EcoCounterConfig",
+    "mobility_data.apps.MobilityDataConfig",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
@@ -266,6 +267,7 @@ LOGGING = {
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO"},
         "eco_counter": {"handlers": ["console"], "level": "INFO"},
+        "mobility_data": {"handlers": ["console"], "level": "INFO"},
 
     },
 }

@@ -11,6 +11,7 @@ from services.api import all_views as services_views
 from services.unit_redirect_viewset import UnitRedirectViewSet
 from shortcutter import urls as shortcutter_urls
 import eco_counter.api.urls
+import mobility_data.api.urls
 
 admin.site.site_header = _("Servicemap administration")
 admin.site.index_title = _("Application management")
@@ -43,6 +44,9 @@ urlpatterns = [
     re_path(r"^api/v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
     re_path(r"^api/v2/redirect/unit/", UnitRedirectViewSet.as_view({"get": "list"})),
     re_path(r"^v2/suggestion/", views.suggestion, name="suggestion"),
-    re_path(r"^eco-counter/", include(eco_counter.api.urls)),
+    re_path(r"^mobility_data", include(mobility_data.api.urls), name="mobility_data"),
+    re_path(r"^eco-counter/", include(eco_counter.api.urls), name="eco_counter"),
     re_path(r"", include(shortcutter_urls)),
+
 ]
+#breakpoint()
