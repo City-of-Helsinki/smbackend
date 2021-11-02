@@ -1,9 +1,8 @@
 from mobility_data.api.serializers.mobile_unit import MobileUnitSerializer
 from rest_framework import serializers
 from . import MobileUnitSerializer
-from ...models import(
-    MobileUnitGroup
-)
+from ...models import  MobileUnitGroup
+
 
 class MobileUnitGroupSerializer(serializers.ModelSerializer):
     units = MobileUnitSerializer(

@@ -9,6 +9,7 @@ class ContentTypeSerializer(serializers.ModelSerializer):
         model = ContentType
         fields = [
             "id", 
+            "name",
             "type_name",
             "description"
             ]

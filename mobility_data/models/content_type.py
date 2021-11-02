@@ -14,8 +14,9 @@ class BaseType(models.Model):
 
 class ContentType(BaseType):
     """
-    Every MobileUnit has a ContetType, it descriptes the type,
-    and gives a way to identify MobileUnit by their types.
+    Every MobileUnit has a ContetType, it describes the type,
+    and gives a way to identify MobileUnits by their types. The
+    ContentType is bound to the data source.
     """
     CHARGING_STATION = "CGS"
     GAS_FILLING_STATION = "GFS"

@@ -1,0 +1,88 @@
+swagger: "2.0"
+info:
+  description: "."
+  version: "0.0.0"
+  title: "Turku Mobility-Data"
+  termsOfService: ""
+  contact:
+    email: "email@email.com"
+host: "127.0.0.1:8000"
+basePath: "/mobility_data"
+
+schemes:
+- "https"
+- "http"
+produces:
+- application/json
+
+definitions:
+  mobility_unit:
+    type: object
+    title: MobilityUnit
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+      content_type:
+        type: string
+      unit_id:
+        type: integer
+      unit_group:
+        type: string
+      extra:
+        type: object
+  
+paths:
+  /mobile_units/{id}:
+    get:
+      summary: "Returna a MobileUnit object."
+      parameters:
+        - $ref: "#/components/parameters/srid_param"
+      responses: 
+        200:
+          description: "MobileUnit object"
+          results:
+            schema:
+              $ref: "#/definitions/mobility_unit"
+      
+  /mobile_units/:
+    get:
+      summary: "Returna a paginated list of Units."
+      parameters:
+        - $ref: "#/components/parameters/srid_param"
+        - $ref: "#/components/parameters/type_name_param"
+      responses:
+        200:
+          description: "List of units."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/mobility_unit"
+
+components:
+  parameters:
+    srid_param:
+      name: srid
+      in: query
+      description: Transform to particular srid
+      required: false
+      schema:
+        type: integer
+      example: 432
+
+    type_name_param:
+      name: type_name
+      in: query
+      description: Return only MobileUnits that are of type the given type_name.
+      required: false
+      schema:
+        type: string
+      example: GFS
+      
+            

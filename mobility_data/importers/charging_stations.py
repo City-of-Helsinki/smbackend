@@ -2,7 +2,12 @@ import logging
 from django.contrib.gis.geos import Point, Polygon
 from django import db
 from django.conf import settings
-from .utils import delete_tables, fetch_json
+from .utils import (
+    get_or_create_content_type,
+    delete_mobile_units, 
+    fetch_json, 
+    GEOMETRY_URL
+)
 from mobility_data.models import (
     MobileUnit,
     ContentType,
@@ -10,8 +15,6 @@ from mobility_data.models import (
 logger = logging.getLogger("mobility_data")
 
 CHARGING_STATIONS_URL = "https://services1.arcgis.com/rhs5fjYxdOG1Et61/ArcGIS/rest/services/ChargingStations/FeatureServer/0/query?f=json&where=1%20%3D%201%20OR%201%20%3D%201&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=LOCATION_ID%2CNAME%2CADDRESS%2CURL%2COBJECTID%2CTYPE"
-GEOMETRY_ID = 11 #  11 Varsinaissuomi # 10 Uusim
-GEOMETRY_URL = "https://tie.digitraffic.fi/api/v3/data/traffic-messages/area-geometries?id={id}&lastUpdated=false".format(id=GEOMETRY_ID)
 
 
 class ChargingStation:
@@ -58,15 +61,14 @@ def get_filtered_charging_station_objects(json_data=None):
 
 
 @db.transaction.atomic    
-def save_to_database(objects, delete_table=True):
-    if delete_table:
-        delete_tables(ContentType.CHARGING_STATION)
-    description = "Charging stations in province of SouthWest Finland."
-    content_type, _ = ContentType.objects.get_or_create(
-        type_name=ContentType.CHARGING_STATION,
-        name="Charging Station",
-        description=description
-    )
+def save_to_database(objects, delete_tables=True):
+    if delete_tables:
+        delete_mobile_units(ContentType.CHARGING_STATION)
+    description = "Charging stations in province of SouthWest Finland."  
+    name="Charging Station", 
+    content_type, _ = get_or_create_content_type(
+        ContentType.CHARGING_STATION, name, description)
+    
     for object in objects:
         is_active = object.is_active 
         name = object.name
@@ -82,10 +84,4 @@ def save_to_database(objects, delete_table=True):
             extra=extra,
             content_type=content_type
         )
-        # content = ChargingStationContent.objects.create(
-        #     mobile_unit=mobile_unit,
-        #     url=url,
-        #     charger_type=charger_type
-        # )
-       
     logger.info("Saved charging stations to database.")

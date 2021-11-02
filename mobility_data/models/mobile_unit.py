@@ -29,17 +29,15 @@ class MobileUnitGroup(BaseUnit):
         on_delete=models.CASCADE,        
         related_name="unit_groups"
     )
-    def transform(self):
-        for unit in self.units.all():
-            unit.geometry.transform(4326)
 
 
 class MobileUnit(BaseUnit):
     """
     MobileUnit is the base model. It contains basic information about the
-    MobileUnit such as name, geometry. Every MobileUnit has a relation to a 
-    ContentType that describes the specific type of the unit. MobileUnit
-    can also have a relation to a UnitGroup.     
+    MobileUnit such as name, geometry. Eeach MobileUnit has a relation to a 
+    ContentType that describes the specific type of the unit. MobileUnits
+    can also have a relation to a UnitGroup. The extra field can contain
+    data that are specific for a data source.
     """
     geometry = models.GeometryField(srid=settings.DEFAULT_SRID, null=True)
     address = models.CharField(max_length=100, null=True)
@@ -48,7 +46,9 @@ class MobileUnit(BaseUnit):
         on_delete=models.CASCADE,       
         related_name="units"
     )
-    unit_id = models.IntegerField(null=True)
+    unit_id = models.IntegerField(
+        null=True, 
+        verbose_name="optonal id to a unit in the servicemap")
     # TODO, think. maybe many-to-many???
     unit_group = models.ForeignKey(
         MobileUnitGroup, 
@@ -58,8 +58,6 @@ class MobileUnit(BaseUnit):
     ) 
     extra = models.JSONField(null=True)
 
-    def transform(self):
-        self.geometry.transform(4326)
-        print("transform", self.geometry.coords)
+   
        
  

@@ -6,7 +6,12 @@ from mobility_data.models import (
     MobileUnit, 
     ContentType, 
 )
-from .utils import fetch_json, delete_tables, GEOMETRY_URL
+from .utils import (
+    get_or_create_content_type,
+    fetch_json, 
+    delete_mobile_units, 
+    GEOMETRY_URL
+)
 logger = logging.getLogger("mobility_data")
 GAS_FILLING_STATIONS_URL = "https://services1.arcgis.com/rhs5fjYxdOG1Et61/ArcGIS/rest/services/GasFillingStations/FeatureServer/0/query?f=json&where=1%3D1&outFields=OPERATOR%2CLAT%2CLON%2CSTATION_NAME%2CADDRESS%2CCITY%2CZIP_CODE%2CLNG_CNG%2CObjectId"
 
@@ -40,7 +45,7 @@ def get_filtered_gas_filling_station_objects(json_data=None):
     if not json_data:
         json_data = fetch_json(GAS_FILLING_STATIONS_URL)
     #srid = json_data["spatialReference"]["wkid"]
-    # NOTE, hack to fix srid 102100 causes "crs not found"
+    # NOTE, hack to fix srid 102100 in source data causes "crs not found"
     srid = 4326
     # Create list of GasFillingStation objects
     objects = [GasFillingStation(data, srid=srid) for data in json_data["features"]]
@@ -54,15 +59,14 @@ def get_filtered_gas_filling_station_objects(json_data=None):
     return filtered_objects
 
 @db.transaction.atomic  
-def save_to_database(objects, delete_table=True):
-    if delete_table:
-        delete_tables(ContentType.GAS_FILLING_STATION)        
-    description = "Gas filling stations in province of SouthWest Finland."
-    content_type, _ = ContentType.objects.get_or_create(
-        type_name=ContentType.GAS_FILLING_STATION,
-        name="Gas Filling Station",
-        description=description
-    )
+def save_to_database(objects, delete_tables=True):
+    if delete_tables:
+        delete_mobile_units(ContentType.GAS_FILLING_STATION)        
+    description = "Gas filling stations in province of SouthWest Finland."   
+    name="Gas Filling Stations"
+    content_type, _ = get_or_create_content_type(
+        ContentType.GAS_FILLING_STATION, name, description)
+    
     for object in objects:
         is_active = object.is_active    
         name = object.name
@@ -79,11 +83,6 @@ def save_to_database(objects, delete_table=True):
             geometry=object.point,
             extra=extra,
             content_type=content_type
-        )
-        # content = GasFillingStationContent.objects.create(
-        #     mobile_unit=mobile_unit,
-        #     operator=operator,
-        #     lng_cng=lng_cng
-        # )        
+        )      
 
     logger.info("Saved gas filling stations to database.")

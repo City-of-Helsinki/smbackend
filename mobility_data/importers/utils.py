@@ -1,6 +1,6 @@
 import requests
 from mobility_data.models import ContentType
-GEOMETRY_ID = 11 #  11 Varsinaissuomi # 10 Uusim
+GEOMETRY_ID = 11 #  11 Varsinaissuomi 
 GEOMETRY_URL = "https://tie.digitraffic.fi/api/v3/data/traffic-messages/area-geometries?id={id}&lastUpdated=false".format(id=GEOMETRY_ID)
 
 def fetch_json(url):
@@ -9,6 +9,13 @@ def fetch_json(url):
             format(url, response.status_code)
     return response.json()
 
-
-def delete_tables(type_name):
+def delete_mobile_units(type_name):
     ContentType.objects.filter(type_name=type_name).delete()
+
+def get_or_create_content_type(type_name, name, description):
+    content_type, created = ContentType.objects.get_or_create(
+        type_name=type_name,
+        name=name,
+        description=description
+    )
+    return content_type, created

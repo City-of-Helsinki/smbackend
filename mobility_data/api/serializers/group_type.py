@@ -9,6 +9,7 @@ class GroupTypeSerializer(serializers.ModelSerializer):
         model = GroupType
         fields = [
             "id", 
+            "name",
             "type_name",
             "description"
             ]
