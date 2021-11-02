@@ -13,7 +13,7 @@ attrs==21.2.0
     #   cattrs
     #   pytest
     #   requests-cache
-black==21.9b0
+black==21.10b0
     # via -r requirements.in
 cattrs==1.8.0
     # via requests-cache
@@ -25,9 +25,9 @@ click==8.0.3
     # via
     #   black
     #   pip-tools
-coverage[toml]==6.0.2
+coverage[toml]==6.1.1
     # via pytest-cov
-django==3.2.8
+django==3.2.9
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -99,7 +99,7 @@ mccabe==0.6.1
     # via flake8
 mypy-extensions==0.4.3
     # via black
-packaging==21.0
+packaging==21.2
     # via pytest
 parso==0.8.2
     # via
@@ -125,7 +125,7 @@ pycodestyle==2.8.0
     # via flake8
 pyflakes==2.4.0
     # via flake8
-pyparsing==3.0.1
+pyparsing==2.4.7
     # via packaging
 pytest==6.2.5
     # via
