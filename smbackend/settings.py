@@ -38,7 +38,7 @@ env = environ.Env(
     ADDITIONAL_INSTALLED_APPS=(list, None),
     ADDITIONAL_MIDDLEWARE=(list, None),
     ECO_COUNTER_STATIONS_URL=(str, None),
-    ECO_COUNTER_OBSERVATIONS_URL=(str, None)
+    ECO_COUNTER_OBSERVATIONS_URL=(str, None), 
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
