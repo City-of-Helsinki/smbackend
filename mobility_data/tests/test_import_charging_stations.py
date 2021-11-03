@@ -27,7 +27,6 @@ def test_importer():
     unit = MobileUnit.objects.get(name="Hotel Kakola")
     assert unit
     # Transform to source data srid
-    breakpoint()
     unit.geometry.transform(4326)
     assert pytest.approx(unit.geometry.x, 0.0001) == 22.247    
     assert unit.extra["charger_type"] == "Type2"
