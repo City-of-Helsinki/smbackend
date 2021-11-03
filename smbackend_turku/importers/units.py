@@ -32,6 +32,10 @@ from smbackend_turku.importers.utils import (
     set_syncher_object_field,
     set_syncher_tku_translated_field,
 )
+from smbackend_turku.importers.stations import (
+    GasFillingStationImporter,
+    ChargingStationImporter,   
+)
 
 UTC_TIMEZONE = pytz.timezone("UTC")
 
@@ -119,6 +123,8 @@ class UnitImporter:
         for unit in units:
             self._handle_unit(unit)
 
+        self._handle_external_units(GasFillingStationImporter)
+        self._handle_external_units(ChargingStationImporter)
         self.unitsyncher.finish()
 
         update_service_node_counts()
@@ -154,6 +160,23 @@ class UnitImporter:
 
         self.unitsyncher.mark(obj)
 
+    def _handle_external_units(self, importer):
+        """
+        Mark units that has been imported from external source.
+        If not marked the unitsyncher.finish() will delete the units.
+        """
+     
+        service = None
+        try:
+            service = Service.objects.get(name=importer.SERVICE_NAME)
+        except:
+            pass        
+        if service:
+            units_qs = Unit.objects.filter(services__id=service.id) 
+            for unit in units_qs.all():
+                synch_unit = self.unitsyncher.get(unit.id)
+                self.unitsyncher.mark(synch_unit)
+                
     def _save_object(self, obj):
         if obj._changed:
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)

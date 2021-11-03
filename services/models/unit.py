@@ -212,6 +212,7 @@ class Unit(SoftDeleteModel):
 
     objects = Manager()
     search_objects = UnitSearchManager()
+    extra = models.JSONField(null=True)
 
     class Meta:
         ordering = ["-pk"]

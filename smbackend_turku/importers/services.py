@@ -14,6 +14,10 @@ from smbackend_turku.importers.utils import (
     set_syncher_object_field,
     set_syncher_tku_translated_field,
 )
+from smbackend_turku.importers.stations import (
+    GasFillingStationImporter,
+    ChargingStationImporter,   
+)
 
 UTC_TIMEZONE = pytz.timezone("UTC")
 
@@ -47,14 +51,44 @@ class ServiceImporter:
             if parent_node["koodi"] in BLACKLISTED_SERVICE_NODES:
                 continue
             self._handle_service_node(parent_node, keyword_handler)
+
+        self._handle_external_service_node(GasFillingStationImporter)
+        self._handle_external_service_node(ChargingStationImporter)
         self.nodesyncher.finish()
+
+    def _handle_external_service_node(self, importer):
+        """
+        Mark service_node that has been imported from external source.
+        If not marked the nodesyncher.finish() will delete the service node.
+        """
+        try:
+            service_node = ServiceNode.objects.get(name=importer.SERVICE_NODE_NAME)
+            service_node = self.nodesyncher.get(service_node.id)    
+            self.nodesyncher.mark(service_node)
+            
+        except ServiceNode.DoesNotExist:
+            pass
 
     def _import_services(self, keyword_handler):
         services = get_turku_resource("palvelut")
 
         for service in services:
             self._handle_service(service, keyword_handler)
+        self._handle_external_service(GasFillingStationImporter)
+        self._handle_external_service(ChargingStationImporter)
         self.servicesyncher.finish()
+
+    def _handle_external_service(self, importer):
+        """
+        Mark service that has been imported from external source.
+        If not marked the servicesyncher.finish() will delete the service.
+        """     
+        try:
+            service = Service.objects.get(name=importer.SERVICE_NAME)
+            service = self.servicesyncher.get(service.id)
+            self.servicesyncher.mark(service)
+        except Service.DoesNotExist:
+            pass
 
     def _save_object(self, obj):
         if obj._changed:
