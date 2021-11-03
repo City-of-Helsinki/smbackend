@@ -57,7 +57,7 @@ def get_first_available_id(model):
     if queryset.count() > 0:
         return model.objects.all().order_by("-id")[0].id+1
     else:
-        # This branch is evaluated only whn running tests
+        # This branch is evaluated only when running tests
         return 100000
 
 def get_or_create_service_node(name, parent_name, service_node_names):
@@ -135,7 +135,8 @@ class GasFillingStationImporter:
         self.test_data = test_data
 
     def import_gas_filling_stations(self, service_id):
-        self.logger.info("Importing gas filling stations...")       
+        self.logger.info("Importing gas filling stations...")
+        # Delete all gas filling station units before storing, to ensure stored data is up-to-date.  
         Unit.objects.filter(services__id=service_id).delete()      
         id_off = get_first_available_id(Unit)
         filtered_objects = get_filtered_gas_filling_station_objects(json_data=self.test_data)
@@ -201,6 +202,7 @@ class ChargingStationImporter():
 
     def import_charging_stations(self, service_id):
         self.logger.info("Importing charging stations...")
+        # Delete all charging station units before storing, to ensure stored data is up-to-date.  
         Unit.objects.filter(services__id=service_id).delete()
         filtered_objects = get_filtered_charging_station_objects(json_data=self.test_data)
         id_off =  get_first_available_id(Unit)
