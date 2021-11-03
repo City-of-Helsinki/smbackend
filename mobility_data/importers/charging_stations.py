@@ -65,7 +65,7 @@ def save_to_database(objects, delete_tables=True):
     if delete_tables:
         delete_mobile_units(ContentType.CHARGING_STATION)
     description = "Charging stations in province of SouthWest Finland."  
-    name="Charging Station", 
+    name="Charging Station" 
     content_type, _ = get_or_create_content_type(
         ContentType.CHARGING_STATION, name, description)
     
@@ -73,9 +73,9 @@ def save_to_database(objects, delete_tables=True):
         is_active = object.is_active 
         name = object.name
         address = object.address
-        url = object.url
         extra = {}
         extra["charger_type"] = object.charger_type  
+        extra["url"] = object.url
         extra["mobile_unit"] = MobileUnit.objects.create(
             is_active=is_active,
             name=name,
