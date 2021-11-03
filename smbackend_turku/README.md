@@ -18,3 +18,17 @@ ACCESSIBILITY_SYSTEM_ID=secret
 ./manage.py turku_services_import services accessibility units addresses
 ./manage.py rebuild_index
 ```
+
+## Importing external data sources
+
+Importing from external data sources should always be done after importing the services and units.
+
+### Gas filling stations
+```
+./manage.py turku_services_import gas_filling_stations
+```
+
+### Charging stations
+```
+./manage.py turku_services_import charging_stations
+```
