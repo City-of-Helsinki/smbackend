@@ -3,7 +3,9 @@ from datetime import datetime
 from unittest.mock import patch
 import pytest
 import pytz
+from django.conf import settings
 from services.models import Service, ServiceNode, Unit
+from smbackend.settings import GAS_FILLING_STATIONS_IDS
 from smbackend_turku.tests.utils import (
     create_municipality,  
     get_test_resource,
@@ -30,12 +32,15 @@ def test_gas_filling_stations_import():
         root_service_node_name="TestRoot",
         test_data=get_test_resource(resource_name="gas_filling_stations")
         )
-    assert Service.objects.get(name=Importer.SERVICE_NAME)
+    service = Service.objects.get(name=Importer.SERVICE_NAME)
+    assert service
+    assert service.id == settings.GAS_FILLING_STATIONS_IDS["service"]
     service_node = ServiceNode.objects.get(name=Importer.SERVICE_NODE_NAME)
     assert service_node
-    assert service_node.parent.id == root_service_node.id
-  
+    assert service_node.id == settings.GAS_FILLING_STATIONS_IDS["service_node"]
+    assert service_node.parent.id == root_service_node.id  
     assert Unit.objects.all().count() == 2
+    assert Unit.objects.all()[1].id == settings.GAS_FILLING_STATIONS_IDS["units_offset"]
     assert Unit.objects.get(name="Raisio Kuninkoja")
     unit = Unit.objects.get(name="Turku Satama")
     assert unit  

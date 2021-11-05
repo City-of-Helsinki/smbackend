@@ -56,10 +56,21 @@ class Command(BaseCommand):
             default=False,
             help="import only single entity",
         )
+        parser.add_argument(
+            "--delete-external-sources",
+            action="store_true",
+            default=False,
+            help="If parameter is set when importing, deletes the external \
+                 sources imported with the importer."
+        )
 
     @db.transaction.atomic
     def import_services(self):
-        return import_services(logger=self.logger, importer=self)
+        return import_services(
+            logger=self.logger, 
+            importer=self,
+            delete_external_sources=self.delete_external_sources
+        )
 
     @db.transaction.atomic
     def import_accessibility(self):
@@ -67,7 +78,11 @@ class Command(BaseCommand):
 
     @db.transaction.atomic
     def import_units(self):
-        return import_units(logger=self.logger, importer=self)   
+        return import_units(
+            logger=self.logger, 
+            importer=self, 
+            delete_external_sources=self.delete_external_sources
+        )   
 
     @db.transaction.atomic
     def import_addresses(self):
@@ -94,8 +109,9 @@ class Command(BaseCommand):
         self.options = options
         self.verbosity = int(options.get("verbosity", 1))
         self.logger = logging.getLogger(__name__)
-
+        self.delete_external_sources = options.get("delete_external_sources", False)
         import_count = 0
+    
         for imp in self.importer_types:
             if imp not in self.options["import_types"]:
                 continue

@@ -22,13 +22,34 @@ ACCESSIBILITY_SYSTEM_ID=secret
 ## Importing external data sources
 
 Importing from external data sources should always be done after importing the services and units.
+To delete all data imported from external sources:
+```
+manage.py turku_services_import services units --delete-external-sources
+```
+
+When importing services and units the ids are received from the source. Therefore the ids for the external sources must be manually set to avoid
+id collisions. 
+The ids are set in a dict in the .env file with following keys:
+* service_node is the id of the service_node, recommended value < 3000000
+* service is the id of the service, recommended value > 1000
+* units_offset is the offset that will be given to the imported units ids, recommended value > 10000. 
+Example:
+GAS_FILLING_STATIONS_IDS=service_node=20000,service=20000,units_offset=20000
 
 ### Gas filling stations
+Add following line to the .env file:
+GAS_FILLING_STATIONS_IDS=service_node=20000,service=20000,units_offset=20000
+
+To import type:
 ```
 ./manage.py turku_services_import gas_filling_stations
 ```
 
 ### Charging stations
+Add following line to the .env file:
+CHARGING_STATIONS_IDS=service_node=30000,service=30000,units_offset=30000
+
+To import type:
 ```
 ./manage.py turku_services_import charging_stations
 ```

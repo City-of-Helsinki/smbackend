@@ -113,18 +113,19 @@ def get_municipality(name):
 class UnitImporter:
     unitsyncher = ModelSyncher(Unit.objects.all(), lambda obj: obj.id)
 
-    def __init__(self, logger=None, importer=None):
+    def __init__(self, logger=None, importer=None, delete_external_sources=False):
         self.logger = logger
         self.importer = importer
+        self.delete_external_source = delete_external_sources
 
     def import_units(self):
         units = get_turku_resource("palvelupisteet")
 
         for unit in units:
             self._handle_unit(unit)
-
-        self._handle_external_units(GasFillingStationImporter)
-        self._handle_external_units(ChargingStationImporter)
+        if not self.delete_external_source:
+            self._handle_external_units(GasFillingStationImporter)
+            self._handle_external_units(ChargingStationImporter)
         self.unitsyncher.finish()
 
         update_service_node_counts()
