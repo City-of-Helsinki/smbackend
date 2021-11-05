@@ -60,32 +60,40 @@ def create_language_dict(value):
 #         # This branch is evaluated only when running tests
 #         return 100000
 
-def get_or_create_service_node(service_node_id, name, parent_name, service_node_names):
+def create_service_node(service_node_id, name, parent_name, service_node_names):
     """
-    If service_node with given name does not exist, creates and sets parent node.
+    Creates service_node with given name and id if it does not exist. 
+    Sets the parent service_node and name fields.
     :param service_node_id: the id of the service_node to be created.
-    :param name: name of the service_node
-    :param parent_name: name of the parent service_node
+    :param name: name of the service_node.
+    :param parent_name: name of the parent service_node, if None the service_node will be
+     topmost in the tree hierarchy.
     :param service_node_names: dict with names in all languages   
     """
     service_node = None
     try:
-        service_node = ServiceNode.objects.get(id=service_node_id,name=name)
+        service_node = ServiceNode.objects.get(id=service_node_id,name=name)       
     except ServiceNode.DoesNotExist:    
         service_node = ServiceNode(id=service_node_id)
-    try:
-        parent = ServiceNode.objects.get(name=parent_name)      
-    except ServiceNode.DoesNotExist:
-        raise ObjectDoesNotExist("Parent ServiceNode name: {} not found.".format(parent_name))
+
+    if parent_name: 
+        try:
+            parent = ServiceNode.objects.get(name=parent_name)      
+        except ServiceNode.DoesNotExist:
+            raise ObjectDoesNotExist("Parent ServiceNode name: {} not found.".format(parent_name))
     else:
-        service_node.parent = parent
-        set_tku_translated_field(service_node, "name", service_node_names)
-        service_node.last_modified_time = datetime.now(UTC_TIMEZONE)
-        service_node.save()
-                
-def get_or_create_service(service_id, service_node_id, service_name, service_names):  
+        # The service_node will be topmost in the tree structure
+        parent = None
+
+    service_node.parent = parent
+    set_tku_translated_field(service_node, "name", service_node_names)
+    service_node.last_modified_time = datetime.now(UTC_TIMEZONE)
+    service_node.save()
+            
+def create_service(service_id, service_node_id, service_name, service_names):  
     """
-    If service with given service_name does not exist, creates and sets to service_node
+    Creates service with given service_id and name if it does not exist. 
+    Adds the service to the given service_node and sets the name fields.
     :param service_id: the id of the service.
     :param service_node_id: the id of the service_node to which the service will have a relation
     :param service_name: name of the service
@@ -116,6 +124,7 @@ class GasFillingStationImporter:
         "sv": "Gas stationer",
         "en": "Gas filling stations"
     }
+    
     SERVICE_NAMES = {
         "fi": SERVICE_NAME,
         "sv": "Gas station",
@@ -240,34 +249,36 @@ class ChargingStationImporter():
         update_service_node_counts()
        
     
-def import_gas_filling_stations(**kwargs):
+def import_gas_filling_stations(**kwargs):    
     importer = GasFillingStationImporter(**kwargs) 
-    get_or_create_service_node(
+    create_service_node(
         importer.SERVICE_NODE_ID,
         importer.SERVICE_NODE_NAME,
-        importer.root_service_node_name, 
+        importer.root_service_node_name,      
         importer.SERVICE_NODE_NAMES
     )
-    get_or_create_service(
+    create_service(
         importer.SERVICE_ID, 
         importer.SERVICE_NODE_ID,
         importer.SERVICE_NAME, 
         importer.SERVICE_NAMES,          
+ 
     )
     importer.import_gas_filling_stations()
 
+
 def import_charging_stations(**kwargs):
     importer = ChargingStationImporter(**kwargs)
-    get_or_create_service_node(
+    create_service_node(
         importer.SERVICE_NODE_ID,
         importer.SERVICE_NODE_NAME,
         importer.root_service_node_name, 
         importer.SERVICE_NODE_NAMES
     )
-    get_or_create_service(
+    create_service(
         importer.SERVICE_ID,   
         importer.SERVICE_NODE_ID,
         importer.SERVICE_NAME, 
-        importer.SERVICE_NAMES      
+        importer.SERVICE_NAMES     
     )
     importer.import_charging_stations()
