@@ -47,36 +47,31 @@ def create_language_dict(value):
         lang_dict[lang] = value
     return lang_dict
 
-def get_first_available_id(model):
-    """
-    Find the highest unit id and add 1. This ensures that we get unique ids.
-    :param model: the model class
-    :return: the highest available id.
-    """
-    queryset = model.objects.all()
-    if queryset.count() > 0:
-        return model.objects.all().order_by("-id")[0].id+1
-    else:
-        # This branch is evaluated only when running tests
-        return 100000
+# def get_first_available_id(model, offset):
+#     """
+#     Find the highest unit id and add 1. This ensures that we get unique ids.
+#     :param model: the model class
+#     :return: the highest available id.
+#     """
+#     queryset = model.objects.all()
+#     if queryset.count() > 0:
+#         return model.objects.all().order_by("-id")[0].id+1
+#     else:
+#         # This branch is evaluated only when running tests
+#         return 100000
 
-def get_or_create_service_node(name, parent_name, service_node_names):
+def get_or_create_service_node(service_node_id, name, parent_name, service_node_names):
     """
     If service_node with given name does not exist, creates and sets parent node.
+    :param service_node_id: the id of the service_node to be created.
     :param name: name of the service_node
     :param parent_name: name of the parent service_node
-    :param service_node_names: dict with names in all languages
-    :return: the id of the service_node 
+    :param service_node_names: dict with names in all languages   
     """
     service_node = None
-    service_node_id = None
     try:
-        service_node = ServiceNode.objects.get(name=name)
-        service_node_id = service_node.id
-        created = True
+        service_node = ServiceNode.objects.get(id=service_node_id,name=name)
     except ServiceNode.DoesNotExist:    
-        # Find the highest unit id and add 1. This ensures that we get unique ids
-        service_node_id = get_first_available_id(ServiceNode)
         service_node = ServiceNode(id=service_node_id)
     try:
         parent = ServiceNode.objects.get(name=parent_name)      
@@ -87,34 +82,32 @@ def get_or_create_service_node(name, parent_name, service_node_names):
         set_tku_translated_field(service_node, "name", service_node_names)
         service_node.last_modified_time = datetime.now(UTC_TIMEZONE)
         service_node.save()
-    return service_node_id
                 
-def get_or_create_service(service_node_id, service_name, service_names):  
+def get_or_create_service(service_id, service_node_id, service_name, service_names):  
     """
     If service with given service_name does not exist, creates and sets to service_node
+    :param service_id: the id of the service.
     :param service_node_id: the id of the service_node to which the service will have a relation
     :param service_name: name of the service
     :param service_names: dict with names in all languages
-    :return: the id of the service
     """
     service = None
-    service_id = None
     try:
-        service = Service.objects.get(name=service_name)
-        service_id = service.id
+        service = Service.objects.get(id=service_id,name=service_name)
     except Service.DoesNotExist:    
-        # Find the highest unit id and add 1. This ensures that we get unique ids
-        service_id = get_first_available_id(Service)
         service = Service(id=service_id, clarification_enabled=False, period_enabled=False)   
         set_tku_translated_field(service, "name", service_names)     
-    service_node = ServiceNode(id=service_node_id)
-    service_node.related_services.add(service_id)
-    service.last_modified_time = datetime.now(UTC_TIMEZONE)
-    service.save()    
-    return service_id
+        service_node = ServiceNode(id=service_node_id)
+        service_node.related_services.add(service_id)
+        service.last_modified_time = datetime.now(UTC_TIMEZONE)
+        service.save()    
 
 
 class GasFillingStationImporter:
+
+    SERVICE_ID = settings.GAS_FILLING_STATIONS_IDS["service"]
+    SERVICE_NODE_ID = settings.GAS_FILLING_STATIONS_IDS["service_node"]
+    UNITS_ID_OFFSET = settings.GAS_FILLING_STATIONS_IDS["units_offset"]
 
     SERVICE_NODE_NAME = "Kaasutankkausasemat"
     SERVICE_NAME = "Kaasutankkausasema"
@@ -134,15 +127,14 @@ class GasFillingStationImporter:
         self.root_service_node_name = root_service_node_name
         self.test_data = test_data
 
-    def import_gas_filling_stations(self, service_id):
+    def import_gas_filling_stations(self):
+        service_id = self.SERVICE_ID
         self.logger.info("Importing gas filling stations...")
         # Delete all gas filling station units before storing, to ensure stored data is up-to-date.  
-        Unit.objects.filter(services__id=service_id).delete()      
-        id_off = get_first_available_id(Unit)
+        Unit.objects.filter(services__id=service_id).delete()     
         filtered_objects = get_filtered_gas_filling_station_objects(json_data=self.test_data)
-        
         for i, data_obj in enumerate(filtered_objects):
-            unit_id = i + id_off            
+            unit_id = i + self.UNITS_ID_OFFSET          
             obj = Unit(id=unit_id)            
             point = data_obj.point
             point.transform(SOURCE_DATA_SRID)
@@ -181,6 +173,10 @@ class GasFillingStationImporter:
 
 class ChargingStationImporter():
 
+    SERVICE_ID = settings.CHARGING_STATIONS_IDS["service"]
+    SERVICE_NODE_ID = settings.CHARGING_STATIONS_IDS["service_node"]
+    UNITS_ID_OFFSET = settings.CHARGING_STATIONS_IDS["units_offset"]  
+
     SERVICE_NODE_NAME = "Sähkölatausasemat"
     SERVICE_NAME = "Sähkölatausasema"
     SERVICE_NODE_NAMES = {
@@ -200,14 +196,15 @@ class ChargingStationImporter():
         self.root_service_node_name = root_service_node_name
         self.test_data = test_data
 
-    def import_charging_stations(self, service_id):
+    def import_charging_stations(self):
         self.logger.info("Importing charging stations...")
+        service_id = self.SERVICE_ID
         # Delete all charging station units before storing, to ensure stored data is up-to-date.  
         Unit.objects.filter(services__id=service_id).delete()
         filtered_objects = get_filtered_charging_station_objects(json_data=self.test_data)
-        id_off =  get_first_available_id(Unit)
+       
         for i, data_obj in enumerate(filtered_objects):
-            unit_id = i + id_off
+            unit_id = i + self.UNITS_ID_OFFSET
             obj = Unit(id=unit_id)           
             point = data_obj.point
             point.transform(SOURCE_DATA_SRID)
@@ -245,16 +242,32 @@ class ChargingStationImporter():
     
 def import_gas_filling_stations(**kwargs):
     importer = GasFillingStationImporter(**kwargs) 
-    service_node_id = get_or_create_service_node(importer.SERVICE_NODE_NAME,\
-        importer.root_service_node_name, importer.SERVICE_NODE_NAMES)
-    service_id = get_or_create_service(service_node_id,\
-        importer.SERVICE_NAME, importer.SERVICE_NAMES)
-    importer.import_gas_filling_stations(service_id)
+    get_or_create_service_node(
+        importer.SERVICE_NODE_ID,
+        importer.SERVICE_NODE_NAME,
+        importer.root_service_node_name, 
+        importer.SERVICE_NODE_NAMES
+    )
+    get_or_create_service(
+        importer.SERVICE_ID, 
+        importer.SERVICE_NODE_ID,
+        importer.SERVICE_NAME, 
+        importer.SERVICE_NAMES,          
+    )
+    importer.import_gas_filling_stations()
 
 def import_charging_stations(**kwargs):
     importer = ChargingStationImporter(**kwargs)
-    service_node_id = get_or_create_service_node(importer.SERVICE_NODE_NAME,\
-        importer.root_service_node_name, importer.SERVICE_NODE_NAMES)  
-    service_id = get_or_create_service(service_node_id,\
-        importer.SERVICE_NAME, importer.SERVICE_NAMES)
-    importer.import_charging_stations(service_id)
+    get_or_create_service_node(
+        importer.SERVICE_NODE_ID,
+        importer.SERVICE_NODE_NAME,
+        importer.root_service_node_name, 
+        importer.SERVICE_NODE_NAMES
+    )
+    get_or_create_service(
+        importer.SERVICE_ID,   
+        importer.SERVICE_NODE_ID,
+        importer.SERVICE_NAME, 
+        importer.SERVICE_NAMES      
+    )
+    importer.import_charging_stations()

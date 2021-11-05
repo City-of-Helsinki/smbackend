@@ -34,9 +34,10 @@ class ServiceImporter:
     nodesyncher = ModelSyncher(ServiceNode.objects.all(), lambda obj: obj.id)
     servicesyncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
 
-    def __init__(self, logger=None, importer=None):
+    def __init__(self, logger=None, importer=None, delete_external_sources=False):
         self.logger = logger
         self.importer = importer
+        self.delete_external_sources = delete_external_sources
 
     def import_services(self):
         keyword_handler = KeywordHandler(logger=self.logger)
@@ -51,9 +52,11 @@ class ServiceImporter:
             if parent_node["koodi"] in BLACKLISTED_SERVICE_NODES:
                 continue
             self._handle_service_node(parent_node, keyword_handler)
-
-        self._handle_external_service_node(GasFillingStationImporter)
-        self._handle_external_service_node(ChargingStationImporter)
+        
+        if not self.delete_external_sources:
+            self._handle_external_service_node(GasFillingStationImporter)
+            self._handle_external_service_node(ChargingStationImporter)
+        
         self.nodesyncher.finish()
 
     def _handle_external_service_node(self, importer):
@@ -64,8 +67,7 @@ class ServiceImporter:
         try:
             service_node = ServiceNode.objects.get(name=importer.SERVICE_NODE_NAME)
             service_node = self.nodesyncher.get(service_node.id)    
-            self.nodesyncher.mark(service_node)
-            
+            self.nodesyncher.mark(service_node)            
         except ServiceNode.DoesNotExist:
             pass
 
@@ -74,8 +76,10 @@ class ServiceImporter:
 
         for service in services:
             self._handle_service(service, keyword_handler)
-        self._handle_external_service(GasFillingStationImporter)
-        self._handle_external_service(ChargingStationImporter)
+
+        if not self.delete_external_sources:
+            self._handle_external_service(GasFillingStationImporter)
+            self._handle_external_service(ChargingStationImporter)
         self.servicesyncher.finish()
 
     def _handle_external_service(self, importer):

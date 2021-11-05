@@ -3,7 +3,7 @@ from datetime import datetime
 from unittest.mock import patch
 import pytest
 import pytz
-from django.contrib.gis.geos import GEOSGeometry, Point, Polygon
+from django.conf import settings
 from services.models import Service, ServiceNode, Unit
 from smbackend_turku.tests.utils import (
     create_municipality,  
@@ -31,12 +31,17 @@ def test_charging_stations_import():
         root_service_node_name="TestRoot",
         test_data=get_test_resource(resource_name="charging_stations")
         )
-    assert Service.objects.get(name=Importer.SERVICE_NAME)
+    service = Service.objects.get(name=Importer.SERVICE_NAME)
+    assert service
+    assert service.id == settings.CHARGING_STATIONS_IDS["service"]
     service_node = ServiceNode.objects.get(name=Importer.SERVICE_NODE_NAME)
     assert service_node
+    assert service_node.id == settings.CHARGING_STATIONS_IDS["service_node"]
     assert service_node.parent.id == root_service_node.id
     
     assert Unit.objects.all().count() == 2
+    # second element thus descending order by id.
+    assert Unit.objects.all()[1].id == settings.CHARGING_STATIONS_IDS["units_offset"]
     assert Unit.objects.get(name="Hotel Kakola")
     unit = Unit.objects.get(name="AimoPark Stockmann Turku")
     assert unit  
