@@ -48,8 +48,8 @@ def test_importer():
     1.1.2020 is used as the starting point thus it is the same 
     starting point as in the real data.
     """
-    start_time = dateutil.parser.parse("2020-01-01 00:00:00+02:00")
-    end_time = dateutil.parser.parse("2020-02-29 23:45:45+02:00")        
+    start_time = dateutil.parser.parse("2020-01-01T00:00")
+    end_time = dateutil.parser.parse("2020-02-29T23:45")        
     out = import_command(test_mode=(start_time, end_time))
 
     num_stations = Station.objects.all().count()
@@ -70,13 +70,13 @@ def test_importer():
     assert hour_data.values_jp == res 
     assert hour_data.values_jt == res_tot     
     # Test day data
-    day = Day.objects.filter(date=start_time, station__name=TEST_STATION_NAME)[0]
+    day = Day.objects.get(date=start_time, station__name=TEST_STATION_NAME)
     assert day.weekday_number == 2 # First day in 2020 in is wednesday
-    day_data = DayData.objects.filter(day__date=start_time, station__name=TEST_STATION_NAME)[0]
+    day_data = DayData.objects.get(day__date=start_time, station__name=TEST_STATION_NAME)
     assert day_data.value_jp == 96
     day_data = DayData.objects.filter(day__week__week_number=2, station__name=TEST_STATION_NAME)[0]
     assert day_data.value_jt == 96*2
-    day = Day.objects.filter(date=dateutil.parser.parse("2020-01-06 00:00:00"), station__name=TEST_STATION_NAME)[0]
+    day = Day.objects.get(date=dateutil.parser.parse("2020-01-06T00:00"), station__name=TEST_STATION_NAME)
     assert day.weekday_number == 0 # First day in week 2 in 2020 is monday
 
     # Test week data      
@@ -122,8 +122,8 @@ def test_importer():
     week = Week.objects.filter(week_number=5)[0]        
     assert week.days.all().count() == num_stations
     # test incremental importing
-    start_time = dateutil.parser.parse("2020-02-01 00:00:00+02:00")
-    end_time = dateutil.parser.parse("2020-03-31 23:45:45+02:00")                
+    start_time = dateutil.parser.parse("2020-02-01T00:00")
+    end_time = dateutil.parser.parse("2020-03-31T23:45")                
     out = import_command(test_mode=(start_time, end_time))
     # test that state is updated
     state = ImportState.load()
@@ -157,38 +157,52 @@ def test_importer():
     assert month_data.value_jp == mar_month_days*96        
     year_data = YearData.objects.filter(year__year_number=2020)[0]       
     assert year_data.value_jp == (jan_month_days*96+feb_month_days*96+mar_month_days*96)
-    # Test new year
-    start_time = dateutil.parser.parse("2021-09-01 00:00:00+03:00")
-    end_time = dateutil.parser.parse("2021-09-30 23:45:45+03:00")        
-    out = import_command(test_mode=(start_time, end_time))      
+    # Test day when clock is changed to "summer time", i.e. one hour forward 
+    day = Day.objects.get(
+        date=dateutil.parser.parse("2020-03-29T00:00"), station__name=TEST_STATION_NAME)   
+    # Test the day has 24hours stored even though in reality it has 23hours.
+    #assert len(HourData.objects.get(day_id=day.id).values_ak) == 24
+    
+    # Test new year and daylight saving change to "winter time".
+    start_time = dateutil.parser.parse("2021-10-01T00:00")
+    end_time = dateutil.parser.parse("2021-10-31T23:45")        
+    out = import_command(test_mode=(start_time, end_time)) 
+    # Test that year 2020 instance still exists.     
     assert Year.objects.get(station__name=TEST_STATION_NAME, year_number=2020) 
+    # Test new year instance is created.
     assert Year.objects.get(station__name=TEST_STATION_NAME, year_number=2021)   
-    week_data =  WeekData.objects.filter(week__week_number=35,week__years__year_number=2021)[0]
-    week = Week.objects.filter(week_number=35, years__year_number=2020)[0]        
-    assert week.days.count() == 5 #  week 35 in 2021 has only 5 days.
-    assert week_data.value_jp == 480 # 5*96
-    week_data =  WeekData.objects.filter(week__week_number=36)[0]
-    week = Week.objects.filter(week_number=36)[0]
+
+    week_data =  WeekData.objects.filter(week__week_number=39,week__years__year_number=2021)[0]
+    week = Week.objects.filter(week_number=39, years__year_number=2021)[0]        
+    assert week.days.count() == 3 #  week 39 in 2021 has only 3 days in October, the rest 4 days are in September.
+    assert week_data.value_jp == 288 # 3*96
+    week_data =  WeekData.objects.filter(week__week_number=40)[0]
+    week = Week.objects.filter(week_number=40)[0]
     assert week.days.count() == 7 # week 36 in 2021 has 7 days.
     assert week_data.value_jp == 672 # 96*7 
-    month = Month.objects.filter(month_number=9, year__year_number=2021)[0]
+    month = Month.objects.filter(month_number=10, year__year_number=2021)[0]
     num_month_days = month.days.all().count()
-    sep_month_days = calendar.monthrange(month.year.year_number, month.month_number)[1]
-    assert num_month_days == sep_month_days
+    oct_month_days = calendar.monthrange(month.year.year_number, month.month_number)[1]
+    assert num_month_days == oct_month_days
     month_data = MonthData.objects.get(month=month)
-    assert month_data.value_jp == sep_month_days*96    
+    assert month_data.value_jp == oct_month_days*96 
+    # Test day when clock is changed to "winter time", i.e. backwards 
+    day = Day.objects.get(
+        date=dateutil.parser.parse("2021-10-29T00:00"), station__name=TEST_STATION_NAME)   
+    # Test the day has 24hours stored even though in reality it hs 25hours.
+    #assert len(HourData.objects.get(day_id=day.id).values_ak) == 24
     year_data = YearData.objects.filter(year__year_number=2021)[0]
-    assert year_data.value_pp == sep_month_days*96       
+    assert year_data.value_pp == oct_month_days*96       
     # verify that previous year is intact
     year_data = YearData.objects.filter(year__year_number=2020)[0]       
     assert year_data.value_pp == (jan_month_days*96+feb_month_days*96+mar_month_days*96)
     # test that state is updated
     state = ImportState.load()
-    assert state.current_month_number == 9
+    assert state.current_month_number == 10
     assert state.current_year_number == 2021
     #test year change and week 53
-    start_time = dateutil.parser.parse("2020-12-26 00:00:00+03:00")
-    end_time = dateutil.parser.parse("2021-01-11 23:45:45+03:00")
+    start_time = dateutil.parser.parse("2020-12-26T00:00")
+    end_time = dateutil.parser.parse("2021-01-11T23:45")
     out = import_command(test_mode=(start_time, end_time))
     weeks = Week.objects.filter(week_number=53, years__year_number=2020)
     assert len(weeks) == num_stations
