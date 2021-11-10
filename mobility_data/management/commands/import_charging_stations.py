@@ -6,7 +6,7 @@ from mobility_data.models import ContentType
 from mobility_data.importers.charging_stations import(
     get_filtered_charging_station_objects,
     save_to_database,
-    CHARGING_STATIONS_URL
+    CHARGING_STATIONS_URL1
 )
 logger = logging.getLogger("mobility_data")
     
@@ -29,6 +29,6 @@ class Command(BaseCommand):
             objects = get_filtered_charging_station_objects(json_data=json_data)       
         else:
             logger.info("Fetching charging stations from: {}"\
-                .format(CHARGING_STATIONS_URL))
+                .format(CHARGING_STATIONS_URL1))
             objects = get_filtered_charging_station_objects()
         save_to_database(objects)
