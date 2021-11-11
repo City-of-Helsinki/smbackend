@@ -51,7 +51,6 @@ import pandas as pd
 import dateutil.parser
 from datetime import datetime, timedelta
 from django.conf import settings
-from django.utils.timezone import make_aware
 from django.core.management.base import BaseCommand
 from django.contrib.gis.geos import Point
 from eco_counter.models import (
@@ -79,7 +78,10 @@ class Command(BaseCommand):
     # List used to lookup name and type
     # Output of pandas dataframe, i.e. csv_data.keys()
     columns = []   
-    
+    # The name of the column in the csv, that holds the timestamp.
+    TIMESTAMP_COL_NAME = "startTime"
+    TIMEZONE = pytz.timezone("Europe/Helsinki")
+
     def delete_tables(self):
         HourData.objects.all().delete()
         DayData.objects.all().delete()
@@ -226,7 +228,7 @@ class Command(BaseCommand):
             vals.insert(0, str(cur_time))
             df.loc[c] = vals
             cur_time = cur_time + timedelta(minutes=15)
-            c += 1            
+            c += 1   
         return df       
 
     def get_station_name_and_type(self,column):
@@ -280,9 +282,9 @@ class Command(BaseCommand):
           
         for index, row in csv_data.iterrows():           
             try:
-                aika = row.get("aika", None)
-                if type(aika)==str:
-                    current_time = dateutil.parser.parse(aika) 
+                timestamp = row.get(self.TIMESTAMP_COL_NAME, None)
+                if type(timestamp)==str:
+                    current_time = dateutil.parser.parse(timestamp) 
                 # When the time is changed due to daylight savings
                 # Input data does not contain any timestamp for that hour, only data
                 # so the current_time is calculated
@@ -290,8 +292,9 @@ class Command(BaseCommand):
                     current_time = prev_time+timedelta(minutes=15)  
             except dateutil.parser._parser.ParserError:
                 # If malformed time calcultate new current_time.
-                current_time = prev_time+timedelta(minutes=15)
-
+                current_time = prev_time+timedelta(minutes=15)            
+          
+            current_time = self.TIMEZONE.localize(current_time)    
             if prev_time:
                 # Compare the utcoffset, if not equal the daylight saving has changed.
                 if current_time.tzinfo.utcoffset(current_time) != prev_time.tzinfo.utcoffset(prev_time):
@@ -299,10 +302,11 @@ class Command(BaseCommand):
                     current_time_dst_hour = dateutil.parser.parse(str(current_time.tzinfo.utcoffset(current_time)))
                     prev_time_dst_hour = dateutil.parser.parse(str(prev_time.tzinfo.utcoffset(prev_time)))                        
                     # If the prev_time_dst_hour is less than current_time_dst_hour, 
-                    # then this is the hour clocks are changed backwards, i.e. summertime
+                    # then this is the hour clocks are changed backwards, i.e. wintertime
                     if prev_time_dst_hour < current_time_dst_hour:
                         # Add an hour where the values are 0, for the nonexistent hour 3:00-4:00
                         # To keep the hour data consistent with 24 hours. 
+                        logger.info("Detected daylight savings time change to summer. DateTime: {}".format(current_time))
                         temp_hour = {}
                         for station in stations:
                             temp_hour[station] = {}                                
@@ -374,7 +378,7 @@ class Command(BaseCommand):
             current_hour keys are the station names and every value contains a dict with the type as its key
             The type is: A|P|J(Auto, Pyöräilijä, Jalankulkija) + direction P|K , e.g. "JK"
             current_hour[station][station_type] = value, e.g. current_hour["TeatteriSilta"]["PK"] = 6
-            Note the first col is the "aika" and is discarded, the rest are observations for every station
+            Note the first col is the self.TIMESTAMP_COL_NAME and is discarded, the rest are observations for every station
             """
             for column in self.columns[1:]: 
                 station_name, station_type = self.get_station_name_and_type(column)                          
@@ -435,24 +439,19 @@ class Command(BaseCommand):
         if options["test_mode"]:         
             logger.info("Retrieving observations in test mode.")
             self.save_stations()      
-            start_time = options["test_mode"][0]            
-            csv_data = self.gen_test_csv(csv_data.keys(), start_time, options["test_mode"][1]) 
+            start_time = options["test_mode"][0]
+            end_time = options["test_mode"][1]
+            csv_data = self.gen_test_csv(csv_data.keys(), start_time, end_time) 
         else:
             import_state = ImportState.load() 
-            start_time = "{year}-{month}-1 00:00:00".format(year=import_state.current_year_number, \
+            start_time = "{year}-{month}-1T00:00".format(year=import_state.current_year_number, \
                 month=import_state.current_month_number)         
-            timezone = pytz.timezone("Europe/Helsinki")
             start_time = dateutil.parser.parse(start_time)
-            start_time = make_aware(start_time, timezone)
-            # The timeformat for the input data is : 2020-01-01 00:00:00+02:00
+            start_time = self.TIMEZONE.localize(start_time)  
+            # The timeformat for the input data is : 2020-03-01T00:00
             # Convert starting time to input datas timeformat
-            start_time_string = start_time.strftime("%Y-%m-%d %H:%M:%S%z")
-            # Add a colon separator to the offset segment, +0200 -> +02:00 
-            start_time_string = "{0}:{1}".format(
-                start_time_string[:-2],
-                start_time_string[-2:]
-            )
-            start_index = csv_data.index[csv_data["aika"]==start_time_string].values[0]  
+            start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")            
+            start_index = csv_data.index[csv_data[self.TIMESTAMP_COL_NAME]==start_time_string].values[0]  
             logger.info("Starting import at index: {}".format(start_index))
             csv_data = csv_data[start_index:]
         self.save_observations(csv_data, start_time)
