@@ -49,7 +49,6 @@ def test_charging_stations_import():
     # Tranform to source data srid
     point.transform(4326)
     assert pytest.approx(unit.location.x, 0.0001) == 22.2632
-    assert unit.extra["charger_type"] == "Type2"
     assert unit.service_nodes.all().count() == 1
     assert unit.services.all().count() == 1
     assert unit.services.all()[0].name == Importer.SERVICE_NAME  
