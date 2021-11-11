@@ -225,16 +225,11 @@ class ChargingStationImporter():
             set_tku_translated_field(obj, "address_postal_full",\
                 create_language_dict(data_obj.address_postal_full))
             set_field(obj, "address_zip", data_obj.zip_code)
-            description = "Type: {} {}kW count:{} operator:{}".format(
-                data_obj.charger_type, data_obj.power, 
-                data_obj.count, data_obj.operator)  
+            description = "Charging station"  
             set_tku_translated_field(obj, "description",\
                 create_language_dict(description))
-            extra = {}
-            extra["charger_type"] = data_obj.charger_type
-            extra["power"] = data_obj.power
-            extra["count"] = data_obj.count 
-            extra["operator"] = data_obj.operator       
+            extra = {}          
+            extra["chargers"] = data_obj.chargers       
             set_field(obj, "extra", extra) 
             set_field(obj, "www", data_obj.url)
 
