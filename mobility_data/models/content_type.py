@@ -20,6 +20,7 @@ class ContentType(BaseType):
     """
     CHARGING_STATION = "CGS"
     GAS_FILLING_STATION = "GFS"
+    UNDIFINED = "UFD"
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
         (GAS_FILLING_STATION, "GasFillingStation"),
@@ -36,10 +37,10 @@ class GroupType(BaseType):
     Every MobileUnitGroup has a GroupType, it descriptes the type,
     and gives a way to identify MobileUnitGroups by their types.
     """
-    EXAMPLE_GROUP = "EGP"
+    CULTURE_ROUTE = "CRE"
 
     GROUP_TYPES = [
-        (EXAMPLE_GROUP, "ExampleGroup"),
+        (CULTURE_ROUTE, "CULTURE_ROUTE"),
     ]
     type_name = models.CharField(
         max_length=3, 

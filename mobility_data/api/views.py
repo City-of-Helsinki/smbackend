@@ -23,6 +23,23 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = MobileUnitGroupSerializer
     # TODO, when real data becames available implement custom methods as needed.
     
+    def list(self, request):
+        type_name = request.query_params.get("type_name", None)        
+        srid = request.query_params.get("srid", None)
+        queryset = None
+        serializer = None 
+
+        if not type_name:
+            queryset = MobileUnitGroup.objects.all()
+            if srid:
+                print("HERERERE")
+                for group in queryset:
+                    qs = group.mobile_units.all()
+                    success, qs = transform_queryset(srid, qs)
+                    if not success:
+                        return Response("Invalid SRID.", status=status.HTTP_400_BAD_REQUEST)
+        serializer = MobileUnitGroupSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
     
@@ -59,7 +76,7 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
                 if not success:
                     return Response("Invalid SRID.", status=status.HTTP_400_BAD_REQUEST)
 
-            page = self.paginate_queryset(queryset)
+            #page = self.paginate_queryset(queryset)
             serializer = MobileUnitSerializer(queryset, many=True)
         else:
             if not ContentType.objects.filter(type_name=type_name).exists():
@@ -70,12 +87,12 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
                 success, queryset = transform_queryset(srid, queryset)
                 if not success:
                     return Response("Invalid SRID.", status=status.HTTP_400_BAD_REQUEST)
-            page = self.paginate_queryset(queryset)
+            #page = self.paginate_queryset(queryset)
            
             serializer = MobileUnitSerializer(queryset, many=True)
         
-        response = self.get_paginated_response(serializer.data)
-        return Response(response.data, status=status.HTTP_200_OK)
+        #response = self.get_paginated_response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GroupTypeViewSet(viewsets.ReadOnlyModelViewSet):

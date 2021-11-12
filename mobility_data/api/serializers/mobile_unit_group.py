@@ -5,7 +5,7 @@ from ...models import  MobileUnitGroup
 
 
 class MobileUnitGroupSerializer(serializers.ModelSerializer):
-    units = MobileUnitSerializer(
+    mobile_units = MobileUnitSerializer(
         many=True,
         read_only=True,      
     )
@@ -22,5 +22,5 @@ class MobileUnitGroupSerializer(serializers.ModelSerializer):
             "description_fi",
             "description_sv",            
             "description_en",
-            "units"
+            "mobile_units"
         ]

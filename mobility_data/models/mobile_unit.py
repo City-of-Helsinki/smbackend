@@ -10,7 +10,7 @@ class BaseUnit(models.Model):
     created_time = models.DateTimeField(
         auto_now_add=True
     )
-    name = models.CharField(max_length=64, null=True)
+    name = models.CharField(max_length=256, null=True)
     description=models.TextField(null=True)
 
     class Meta:
@@ -50,11 +50,11 @@ class MobileUnit(BaseUnit):
         null=True, 
         verbose_name="optonal id to a unit in the servicemap")
     # TODO, think. maybe many-to-many???
-    unit_group = models.ForeignKey(
+    mobile_unit_group = models.ForeignKey(
         MobileUnitGroup, 
         on_delete=models.CASCADE,
         null=True,
-        related_name="units"
+        related_name="mobile_units"
     ) 
     extra = models.JSONField(null=True)
 
