@@ -1,6 +1,6 @@
 import json
 from django.core import serializers as django_serializers
-from django.contrib.gis.geos import Point, LineString
+from django.contrib.gis.geos import GEOSGeometry, Point, LineString
 from rest_framework import serializers
 from .content_type import ContentTypeSerializer
 from ...models import MobileUnit
@@ -19,7 +19,6 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         many=False, 
         read_only=True        
     )
-    #geometry_data = GeometrySerializer(source="geometry")
     geometry_data = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = MobileUnit
@@ -46,7 +45,12 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         ]
 
     def get_geometry_data(self, obj):
-        if isinstance(obj.geometry, Point):
+        if isinstance(obj.geometry, GEOSGeometry):
+            srid = self.context["srid"]
+            if srid:
+                obj.geometry.transform(srid)
+        
+        if isinstance(obj.geometry, Point):           
             pos = {}
             pos["x"] = obj.geometry.x
             pos["y"] = obj.geometry.y

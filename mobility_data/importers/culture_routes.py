@@ -66,14 +66,15 @@ class Placemark:
             if hasattr(placemark, "Point"):
                 x, y = placemark.Point.coordinates.text.split(",")  
                 geom = Point(float(x),float(y), srid=4326)
-                geom.transform(settings.DEFAULT_SRID)
             elif hasattr(placemark, "LineString"):
                 str_coords = placemark.LineString.coordinates.text.split("\n")
                 coords = []
                 for c in str_coords[:-1]: 
                     coord =tuple(map(float, c.split(",")))
                     coords.append(coord)
-                geom = LineString(coords, srid=DEFAULT_SRID)  
+                geom = LineString(coords, srid=4326)  
+            geom.transform(settings.DEFAULT_SRID)
+
             self.geometry = geom
 
 def get_routes():
