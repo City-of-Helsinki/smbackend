@@ -20,10 +20,14 @@ class ContentType(BaseType):
     """
     CHARGING_STATION = "CGS"
     GAS_FILLING_STATION = "GFS"
-    UNDIFINED = "UFD"
+    CULTURE_ROUTE_UNIT = "CRU"
+    CULTURE_ROUTE_GEOMETRY = "CRG"
+  
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
         (GAS_FILLING_STATION, "GasFillingStation"),
+        (CULTURE_ROUTE_UNIT, "CultureRouteUnit"),
+        (CULTURE_ROUTE_GEOMETRY, "CultureRouteGeometry"),
     ]
     type_name = models.CharField(
         max_length=3, 

@@ -12,6 +12,7 @@ from ..models import (
 )
 from .serializers import(   
     MobileUnitGroupSerializer, 
+    MobileUnitGroupBaseSerializer,
     MobileUnitSerializer,   
     GroupTypeSerializer,
     ContentTypeSerializer,    
@@ -34,6 +35,7 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request):
         type_name = request.query_params.get("type_name", None)        
         srid = request.query_params.get("srid", None)
+        show_mobile_units = request.query_params.get("show_mobile_units", False)
         queryset = None
         serializer = None 
 
@@ -42,12 +44,17 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
                 return Response("type_name does not exist.", status=status.HTTP_400_BAD_REQUEST)
             queryset = MobileUnitGroup.objects.filter(group_type__type_name=type_name)         
         else:
-            MobileUnitGroup.objects.all()
-            
+            queryset = MobileUnitGroup.objects.all()           
 
         page = self.paginate_queryset(queryset)
-    
-        serializer = MobileUnitGroupSerializer(page, many=True, context={"srid":srid})
+        serializer_class = None
+        if show_mobile_units:
+            serializer_class = MobileUnitGroupSerializer
+        else:
+            serializer_class = MobileUnitGroupBaseSerializer
+
+
+        serializer = serializer_class(page, many=True, context={"srid":srid})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
