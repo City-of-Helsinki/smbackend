@@ -12,11 +12,10 @@ from mobility_data.models import (
     ContentType,
     )
 from .utils import (
-    get_or_create_content_type,
- 
+    get_or_create_content_type, 
 )
-logger = logging.getLogger("mobility_data")
 
+logger = logging.getLogger("mobility_data")
 # URLS are from https://www.avoindata.fi/data/dataset/turun-kulttuurikuntoilureitit
 URLS = {
     "Romanttinen Turku": {
@@ -71,7 +70,7 @@ class Route:
     File. As the various versions of languages are in separate files the fields
     are stored as dictionaries where the language is the key. 
     Also contains a list of all placemarks inside the Document tag. Placemarks
-    with same geometry but with different languages are combined to one placemark
+    with same geometry but with different languages are combined into one placemark
     object.
     """
     def __init__(self, documents, languages):
@@ -166,9 +165,9 @@ def get_routes():
         # List to store only one placemark for the every geometry. As the 
         # placemarks language versions are combined to one placemark.
         pm_objs = []
-        # Iterate trough all the languages the culture route has.
+        # Iterate through all the languages the culture route has.
         for lang_index, lang in enumerate(languages):            
-            
+            # Iterate throug all placemark for the language.
             for pm_index, pm in enumerate(placemarks[lang]):
                 add_geometry = False
                 # if first language, create new object.
@@ -181,34 +180,43 @@ def get_routes():
                 else:
                     pm_obj = pm_objs[pm_index]                                        
                 pm_obj.set_data(pm, lang, add_geometry=add_geometry)
+        # Add placemark objects to the route object.
         route.placemarks += pm_objs   
 
         routes.append(route) 
     return routes
 
-def set_translated_field(obj, field_name, data):
+def set_translated_field(obj, field_name: str, data: dict[str, ]):
+    """
+    Sets the value of all languages for given field_name.   
+    :param obj: the object to which the fields will be set
+    :param field_name:  name of the field to be set.
+    :param data: dictionary where the key is the language and the value is the value 
+    to be set for the field with the given langauge. 
+    """
     for lang in LANGUAGES:
         if lang in data:
             obj_key = "{}_{}".format(field_name, lang)
-            setattr(obj,obj_key, data[lang])
+            setattr(obj, obj_key, data[lang])
 
 @db.transaction.atomic
 def save_to_database(routes, delete_tables=True):  
-    # Routes are stored as MobileUnitGroups and Placemarks as MobileUnits
     group_type, created = GroupType.objects.get_or_create(
             type_name=GroupType.CULTURE_ROUTE,
             name="Culture route",
-            description="Culture routes in Turku"
+            description="Culture Routes in Turku"
     )
-    MobileUnitGroup.objects.all().delete()
-    #GroupType.objects.all().delete()
+    if delete_tables:
+        GroupType.objects.filter(type_name=GroupType.CULTURE_ROUTE).delete()
+    
     unit_type, _ = get_or_create_content_type(
         ContentType.CULTURE_ROUTE_UNIT, "Culture Route MobileUnit",
-        "Contains information of a place in the culture route.")
+        "Contains pointdata, name and description of a place in a Culture Route.")
     geometry_type, _ = get_or_create_content_type(
         ContentType.CULTURE_ROUTE_GEOMETRY, "Culture Route Geometry",
-        "Contains the LineString geometry of the culture route.")
+        "Contains the LineString geometry of the Culture Route.")
     
+    # Routes are stored as MobileUnitGroups and Placemarks as MobileUnits
     for route in routes:
         group = MobileUnitGroup(group_type=group_type)
         set_translated_field(group,"name", route.name)
@@ -218,6 +226,7 @@ def save_to_database(routes, delete_tables=True):
         for placemark in route.placemarks:
             is_active = True
             content_type = None
+            #If the geometry is Point
             if isinstance(placemark.geometry, Point):
                 content_type = unit_type
             elif isinstance(placemark.geometry, LineString):

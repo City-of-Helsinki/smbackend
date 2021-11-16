@@ -12,7 +12,7 @@ from ..models import (
 )
 from .serializers import(   
     MobileUnitGroupSerializer, 
-    MobileUnitGroupBaseSerializer,
+    MobileUnitGroupUnitsSerializer,
     MobileUnitSerializer,   
     GroupTypeSerializer,
     ContentTypeSerializer,    
@@ -35,7 +35,7 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request):
         type_name = request.query_params.get("type_name", None)        
         srid = request.query_params.get("srid", None)
-        show_mobile_units = request.query_params.get("show_mobile_units", False)
+        mobile_units = request.query_params.get("mobile_units", False)
         queryset = None
         serializer = None 
 
@@ -48,11 +48,10 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
 
         page = self.paginate_queryset(queryset)
         serializer_class = None
-        if show_mobile_units:
-            serializer_class = MobileUnitGroupSerializer
+        if mobile_units:
+            serializer_class = MobileUnitGroupUnitsSerializer
         else:
-            serializer_class = MobileUnitGroupBaseSerializer
-
+            serializer_class = MobileUnitGroupSerializer
 
         serializer = serializer_class(page, many=True, context={"srid":srid})
         return Response(serializer.data, status=status.HTTP_200_OK)

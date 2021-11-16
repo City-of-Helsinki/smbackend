@@ -1,14 +1,12 @@
 from mobility_data.api.serializers.mobile_unit import MobileUnitSerializer
 from rest_framework import serializers
-from . import MobileUnitSerializer
+from . import MobileUnitSerializer, GroupTypeSerializer
 from ...models import  MobileUnitGroup, MobileUnit
 
-class MobileUnitGroupBaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MobileUnitGroup
-        fields = [
+FIELDS = [
             "id",
             "name",
+            "group_type",
             "name_fi",
             "name_sv",
             "name_en",            
@@ -18,16 +16,34 @@ class MobileUnitGroupBaseSerializer(serializers.ModelSerializer):
             "description_en",
         ]  
 
-class MobileUnitGroupSerializer(MobileUnitGroupBaseSerializer):
-  
+   
+class MobileUnitGroupSerializer(serializers.ModelSerializer):
+    
+    group_type = GroupTypeSerializer(
+        many=False, 
+        read_only=True        
+    )
+    
+    class Meta:        
+        model = MobileUnitGroup
+        fields = FIELDS
+     
+
+class MobileUnitGroupUnitsSerializer(serializers.ModelSerializer):
+    
+    group_type = GroupTypeSerializer(
+        many=False, 
+        read_only=True        
+    )
     mobile_units = serializers.SerializerMethodField()
     class Meta:
         model = MobileUnitGroup
-        fields = [            
-            "mobile_units"
-        ]
-
+        fields = FIELDS + ["mobile_units"] 
+        
     def get_mobile_units(self, obj):
+        """
+        Returns all the MobileUnits that are in the MobileUnitGroup.
+        """
         qs = MobileUnit.objects.filter(mobile_unit_group=obj)
         serializer = MobileUnitSerializer(qs, many=True,\
             read_only=True, context=self.context)

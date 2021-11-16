@@ -12,3 +12,6 @@ To import data type:
 To import data type:
 ./manage.py import_charging_stations
 
+### Culture Routes
+To import data type:
+./manage.py import_culture_routes
