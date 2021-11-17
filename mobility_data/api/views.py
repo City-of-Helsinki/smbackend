@@ -1,9 +1,5 @@
-import sys
-from django.conf import settings
-from django.contrib.gis.gdal.error import GDALException
 from rest_framework import status, viewsets
 from rest_framework.response import Response
-from .utils import transform_queryset
 from ..models import (
     MobileUnitGroup,
     MobileUnit,
@@ -27,18 +23,25 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
         try:
             unit = MobileUnitGroup.objects.get(pk=pk)
         except MobileUnitGroup.DoesNotExist:
-            return Response("Mobile unit group does not exist", status=status.HTTP_400_BAD_REQUEST)
+            return Response("MobileUnitGroup does not exist.", status=status.HTTP_400_BAD_REQUEST)
         srid = request.query_params.get("srid", None)
-        serializer = MobileUnitGroupSerializer(unit, many=False, context={"srid":srid})
+        mobile_units = request.query_params.get("mobile_units", False)
+        serializer_class = None
+        if mobile_units:
+            serializer_class = MobileUnitGroupUnitsSerializer
+        else:
+            serializer_class = MobileUnitGroupSerializer
+
+        serializer = serializer_class(unit, many=False, context={"srid":srid})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def list(self, request):
         type_name = request.query_params.get("type_name", None)        
         srid = request.query_params.get("srid", None)
+        # If mobile_units true, include all mobileunits that belongs to the group.
         mobile_units = request.query_params.get("mobile_units", False)
         queryset = None
         serializer = None 
-
         if type_name:
             if not GroupType.objects.filter(type_name=type_name).exists():
                 return Response("type_name does not exist.", status=status.HTTP_400_BAD_REQUEST)
@@ -65,7 +68,7 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         try:
             unit = MobileUnit.objects.get(pk=pk)
         except MobileUnit.DoesNotExist:
-            return Response("Mobile unit does not exist", status=status.HTTP_400_BAD_REQUEST)
+            return Response("MobileUnit does not exist.", status=status.HTTP_400_BAD_REQUEST)
         srid = request.query_params.get("srid", None)
         serializer = MobileUnitSerializer(unit, many=False, context={"srid":srid})
         return Response(serializer.data, status=status.HTTP_200_OK)

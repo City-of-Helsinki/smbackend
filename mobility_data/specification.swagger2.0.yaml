@@ -16,6 +16,32 @@ produces:
 - application/json
 
 definitions:
+  content_type:
+    type: object
+    title: ContentType
+    properties:
+      id:
+        type: string
+      type_name:
+        type: string
+      name: 
+        type: string
+      description:
+        type: string
+        
+  group_type:
+    type: object
+    title: GroupType
+    properties:
+      id:
+        type: string
+      group_name:
+        type: string
+      name: 
+        type: string
+      description:
+        type: string    
+      
   mobility_unit:
     type: object
     title: MobilityUnit
@@ -24,39 +50,93 @@ definitions:
         type: string
       name:
         type: string
+      name_fi:
+        type: string
+      name_sv:
+        type: string
+      name_en:
+        type: string
       description:
         type: string
-      content_type:
+      description_fi:
         type: string
+      description_sv:
+        type: string
+      description_en:
+        type: string
+      content_type:
+        $ref: "#/definitions/content_type"
+      is_active:
+        type: boolean
+      created_time:
+        type: string
+      geometry:
+        type: string
+      geometry_data:
+        type: object
+        properties:
+          x:
+            type: number
+          y:
+            type: number
       unit_id:
         type: integer
       unit_group:
         type: string
       extra:
         type: object
+        
+  mobility_unit_group:
+    type: object
+    title: MobilityUnitGroup
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      name_fi:
+        type: string
+      name_sv:
+        type: string
+      name_en:
+        type: string
+      description:
+        type: string
+      description_fi:
+        type: string
+      description_sv:
+        type: string
+      description_en:
+        type: string
+      group_type:
+        $ref: "#/definitions/group_type"
+
   
 paths:
   /mobile_units/{id}:
     get:
-      summary: "Returna a MobileUnit object."
+      summary: "Returns a MobileUnit object."
       parameters:
+        - name: "id"
+          in: path
+          type: string
+          required: true
         - $ref: "#/components/parameters/srid_param"
       responses: 
         200:
           description: "MobileUnit object"
-          results:
-            schema:
-              $ref: "#/definitions/mobility_unit"
+          schema:
+            $ref: "#/definitions/mobility_unit"
       
   /mobile_units/:
     get:
-      summary: "Returna a paginated list of Units."
+      summary: "Returns a paginated list of MobileUnits."
       parameters:
         - $ref: "#/components/parameters/srid_param"
         - $ref: "#/components/parameters/type_name_param"
       responses:
         200:
-          description: "List of units."
+          description: "List of MobileUnits."
           schema:
             type: object
             properties:
@@ -64,18 +144,105 @@ paths:
                 type: array
                 items:
                   $ref: "#/definitions/mobility_unit"
-
+                  
+  /mobile_unit_groups/{id}:
+    get:
+      summary: "Returns a MobileUnitGroup object."
+      parameters:
+        - name: "id"
+          in: path
+          type: string
+          required: true
+        - $ref: "#/components/parameters/srid_param"
+        - $ref: "#/components/parameters/mobile_units_param"
+      responses: 
+        200:
+          description: "MobileUnitGroup object"
+          schema:
+            $ref: "#/definitions/mobility_unit_group"
+            
+  /mobile_unit_groups/:
+    get:
+      summary: "Returns a paginated list of MobileUnitGroups."
+      parameters:
+        - $ref: "#/components/parameters/srid_param"
+        - $ref: "#/components/parameters/mobile_units_param"
+        - $ref: "#/components/parameters/group_name_param"
+      responses:
+        200:
+          description: "List of MobilityUnitGroups."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/mobility_unit_group"
+  /content_types/{id}:
+    get:
+      summary: "Returns ContentType object."
+      parameters:
+        - name: "id"
+          in: path
+          type: string
+          required: true
+      responses: 
+        200:
+          description: "ContentType object."
+          schema:
+            $ref: "#/definitions/content_type"  
+            
+  /content_types/:
+    get:
+      summary: "Returns a paginated list of ContentTypes."
+      responses:
+        200:
+          description: "List of ContentTypes."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/content_type"
+  /geoup_types/{id}:
+    get:
+      summary: "Returns GroupType object."
+      parameters:
+        - name: "id"
+          in: path
+          type: string
+          required: true
+      responses: 
+        200:
+          description: "GroupType object."
+          schema:
+            $ref: "#/definitions/group_type"  
+            
+  /group_types/:
+    get:
+      summary: "Returns a paginated list of GroupTypes."
+      responses:
+        200:
+          description: "List of GroupTypes."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/group_type"              
 components:
   parameters:
     srid_param:
       name: srid
       in: query
-      description: Transform to particular srid
+      description: Transform to particular srid.
       required: false
       schema:
         type: integer
-      example: 432
-
+      example: 4326
+      
     type_name_param:
       name: type_name
       in: query
@@ -84,5 +251,21 @@ components:
       schema:
         type: string
       example: GFS
+    
+    group_name_param:
+      name: group_name
+      in: query
+      description: Return only MobileUnitGroups that are of type the given group_name.
+      required: false
+      schema:
+        type: string
+      example: CRE
       
-            
+    mobile_units_param:
+      name: mobile_units
+      in: query
+      description: If true return all MobileUnit instances that are in the MobileUnitGroup.
+      required: false
+      schema:
+        type: boolean
+      example: true

@@ -1,4 +1,5 @@
 import json
+from django.contrib.gis.gdal.error import GDALException
 from django.core import serializers as django_serializers
 from django.contrib.gis.geos import GEOSGeometry, Point, LineString
 from rest_framework import serializers
@@ -48,8 +49,10 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         if isinstance(obj.geometry, GEOSGeometry):
             srid = self.context["srid"]
             if srid:
-                obj.geometry.transform(srid)
-        
+                try:
+                    obj.geometry.transform(srid)
+                except GDALException:
+                    return "Invalid SRID given as parameter for transformation." 
         if isinstance(obj.geometry, Point):           
             pos = {}
             pos["x"] = obj.geometry.x

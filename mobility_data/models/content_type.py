@@ -10,7 +10,11 @@ class BaseType(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ["id"]
 
+    def __str__(self):
+        return self.name
+   
 
 class ContentType(BaseType):
     """
@@ -34,7 +38,7 @@ class ContentType(BaseType):
         choices=CONTENT_TYPES, 
         null=True
     )
-
+  
 
 class GroupType(BaseType):
     """

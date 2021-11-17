@@ -10,10 +10,20 @@ from mobility_data.models import ContentType
 logger = logging.getLogger("mobility_data")
 
 class Command(BaseCommand):  
-    
+    def add_arguments(self, parser):
+        parser.add_argument(            
+            "--delete",
+            action="store_true",
+            default=False,           
+            help="Deletes Culture Routes before importing. ",
+        )       
     def handle(self, *args, **options):
         logger.info("Importing culture routes...")         
         routes = get_routes()
-        save_to_database(routes)
-        logger.info("Saved {} culture routes to database.".format(len(routes)))
+        delete_tables = False
+        if options["delete"]:
+            delete_tables = True
+        num_saved = save_to_database(routes, delete_tables=delete_tables)
+        logger.info("Fetched {} Culture Routes and saved {} new Culture Routes to database."
+            .format(len(routes),num_saved))
         

@@ -186,7 +186,7 @@ def get_routes():
         routes.append(route) 
     return routes
 
-def set_translated_field(obj, field_name: str, data: dict[str, ]):
+def set_translated_field(obj, field_name, data):
     """
     Sets the value of all languages for given field_name.   
     :param obj: the object to which the fields will be set
@@ -200,43 +200,52 @@ def set_translated_field(obj, field_name: str, data: dict[str, ]):
             setattr(obj, obj_key, data[lang])
 
 @db.transaction.atomic
-def save_to_database(routes, delete_tables=True):  
-    group_type, created = GroupType.objects.get_or_create(
-            type_name=GroupType.CULTURE_ROUTE,
-            name="Culture route",
-            description="Culture Routes in Turku"
-    )
+def save_to_database(routes, delete_tables=False):  
+   
     if delete_tables:
         GroupType.objects.filter(type_name=GroupType.CULTURE_ROUTE).delete()
     
+    group_type, _ = GroupType.objects.get_or_create(
+            type_name=GroupType.CULTURE_ROUTE,
+            name="Culture Route",
+            description="Culture Routes in Turku"
+    )
     unit_type, _ = get_or_create_content_type(
         ContentType.CULTURE_ROUTE_UNIT, "Culture Route MobileUnit",
         "Contains pointdata, name and description of a place in a Culture Route.")
     geometry_type, _ = get_or_create_content_type(
         ContentType.CULTURE_ROUTE_GEOMETRY, "Culture Route Geometry",
         "Contains the LineString geometry of the Culture Route.")
-    
+    # counter to store how many routes are saved as new
+    saved = 0
     # Routes are stored as MobileUnitGroups and Placemarks as MobileUnits
     for route in routes:
-        group = MobileUnitGroup(group_type=group_type)
-        set_translated_field(group,"name", route.name)
-        set_translated_field(group,"description", route.description)
-        group.save()
-      
+        group, created = MobileUnitGroup.objects.get_or_create(
+            group_type=group_type,
+            name=route.name["fi"])
+        if created:
+            set_translated_field(group,"name", route.name)
+            set_translated_field(group,"description", route.description)
+            group.save()
+            saved += 1
+
         for placemark in route.placemarks:
-            is_active = True
             content_type = None
-            #If the geometry is Point
+            # If the geometry is a Point the content_type is Culture Route MobileUnit
             if isinstance(placemark.geometry, Point):
                 content_type = unit_type
+            # If the geometry is a LineString we not the content_Type is Culture Route Geometry
             elif isinstance(placemark.geometry, LineString):
                 content_type = geometry_type
 
-            mobile_unit = MobileUnit.objects.create(
-                is_active=is_active,content_type=content_type, mobile_unit_group=group
+            mobile_unit, created = MobileUnit.objects.get_or_create(
+                content_type=content_type, 
+                mobile_unit_group=group,
+                geometry=placemark.geometry
             )
-            set_translated_field(mobile_unit,"name", placemark.name)
-            set_translated_field(mobile_unit,"description", placemark.description)
-            mobile_unit.geometry = placemark.geometry
-            mobile_unit.save()
-  
+            if created:
+                mobile_unit.is_active = True
+                set_translated_field(mobile_unit,"name", placemark.name)
+                set_translated_field(mobile_unit,"description", placemark.description)
+                mobile_unit.save()
+    return saved

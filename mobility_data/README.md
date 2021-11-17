@@ -15,3 +15,5 @@ To import data type:
 ### Culture Routes
 To import data type:
 ./manage.py import_culture_routes
+To delete Culture Routes before importing type:
+./manage.py import_culture_routes --delete

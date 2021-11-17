@@ -15,8 +15,11 @@ class BaseUnit(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ["created_time"]
- 
+        ordering = ["-created_time"]
+    
+    def __str__(self):
+        return self.name
+
 
 class MobileUnitGroup(BaseUnit): 
     """
@@ -49,7 +52,6 @@ class MobileUnit(BaseUnit):
     unit_id = models.IntegerField(
         null=True, 
         verbose_name="optonal id to a unit in the servicemap")
-    # TODO, think. maybe many-to-many???
     mobile_unit_group = models.ForeignKey(
         MobileUnitGroup, 
         on_delete=models.CASCADE,
