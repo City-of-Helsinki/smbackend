@@ -55,8 +55,6 @@ URLS = {
         "sv": "https://citynomadi.com/api/route/832b5ebe5bcef9225dfee8d202db92c0/kml&lang=sv",
         "en": "https://citynomadi.com/api/route/832b5ebe5bcef9225dfee8d202db92c0/kml&lang=en"
     },
-   
-
 }
 
 # Regexp used to remove html and & tags.
@@ -96,7 +94,6 @@ class Placemark:
         self.description = {}
         self.geometry = None
 
-
     def set_data(self,placemark, lang, add_geometry=False):
         """
         :param placemark: The placemark element
@@ -129,13 +126,11 @@ class Placemark:
             geom.transform(settings.DEFAULT_SRID)
             self.geometry = geom
 
-
 def get_routes():       
     """
     Return a list routes. The list contains objects of type route.
     """
     routes = []
-
     for key in URLS.keys():
         # dict used to store the content of all language version of the KML files document tag
         documents = {}
@@ -181,8 +176,7 @@ def get_routes():
                     pm_obj = pm_objs[pm_index]                                        
                 pm_obj.set_data(pm, lang, add_geometry=add_geometry)
         # Add placemark objects to the route object.
-        route.placemarks += pm_objs   
-
+        route.placemarks += pm_objs  
         routes.append(route) 
     return routes
 
@@ -200,8 +194,7 @@ def set_translated_field(obj, field_name, data):
             setattr(obj, obj_key, data[lang])
 
 @db.transaction.atomic
-def save_to_database(routes, delete_tables=False):  
-   
+def save_to_database(routes, delete_tables=False):     
     if delete_tables:
         GroupType.objects.filter(type_name=GroupType.CULTURE_ROUTE).delete()
     

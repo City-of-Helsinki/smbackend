@@ -36,7 +36,6 @@ def test_mobile_unit(api_client, mobile_unit, content_type):
     assert results["extra"]["test"] == "4242"
     assert results["geometry"] == Point(42.42, 21.21, srid=settings.DEFAULT_SRID)
 
-
 @pytest.mark.django_db
 def test_mobile_unit_group(api_client, mobile_unit_group, group_type):
     url = reverse("mobility_data:mobile_unit_groups-list")

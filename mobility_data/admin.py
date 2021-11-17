@@ -1,5 +1,4 @@
 from django.contrib import admin
-
 from mobility_data.models import (
     MobileUnit,
     MobileUnitGroup,
