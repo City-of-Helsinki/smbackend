@@ -57,7 +57,8 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
             serializer_class = MobileUnitGroupSerializer
 
         serializer = serializer_class(page, many=True, context={"srid":srid})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return self.get_paginated_response(serializer.data)
+
 
 class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
     
@@ -91,7 +92,7 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         
         page = self.paginate_queryset(queryset)
         serializer = MobileUnitSerializer(page, many=True, context={"srid": srid})    
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return self.get_paginated_response(serializer.data)
 
 
 class GroupTypeViewSet(viewsets.ReadOnlyModelViewSet):
