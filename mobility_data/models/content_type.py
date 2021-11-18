@@ -10,7 +10,11 @@ class BaseType(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ["id"]
 
+    def __str__(self):
+        return self.name
+   
 
 class ContentType(BaseType):
     """
@@ -20,26 +24,31 @@ class ContentType(BaseType):
     """
     CHARGING_STATION = "CGS"
     GAS_FILLING_STATION = "GFS"
+    CULTURE_ROUTE_UNIT = "CRU"
+    CULTURE_ROUTE_GEOMETRY = "CRG"
+  
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
         (GAS_FILLING_STATION, "GasFillingStation"),
+        (CULTURE_ROUTE_UNIT, "CultureRouteUnit"),
+        (CULTURE_ROUTE_GEOMETRY, "CultureRouteGeometry"),
     ]
     type_name = models.CharField(
         max_length=3, 
         choices=CONTENT_TYPES, 
         null=True
     )
-
+  
 
 class GroupType(BaseType):
     """
     Every MobileUnitGroup has a GroupType, it descriptes the type,
     and gives a way to identify MobileUnitGroups by their types.
     """
-    EXAMPLE_GROUP = "EGP"
+    CULTURE_ROUTE = "CRE"
 
     GROUP_TYPES = [
-        (EXAMPLE_GROUP, "ExampleGroup"),
+        (CULTURE_ROUTE, "CULTURE_ROUTE"),
     ]
     type_name = models.CharField(
         max_length=3, 

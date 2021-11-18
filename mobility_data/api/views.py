@@ -1,9 +1,5 @@
-import sys
-from django.conf import settings
-from django.contrib.gis.gdal.error import GDALException
 from rest_framework import status, viewsets
 from rest_framework.response import Response
-from .utils import transform_queryset
 from ..models import (
     MobileUnitGroup,
     MobileUnit,
@@ -12,6 +8,7 @@ from ..models import (
 )
 from .serializers import(   
     MobileUnitGroupSerializer, 
+    MobileUnitGroupUnitsSerializer,
     MobileUnitSerializer,   
     GroupTypeSerializer,
     ContentTypeSerializer,    
@@ -21,8 +18,46 @@ from .serializers import(
 class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = MobileUnitGroup.objects.all()
     serializer_class = MobileUnitGroupSerializer
-    # TODO, when real data becames available implement custom methods as needed.
     
+    def retrieve(self, request, pk=None):
+        try:
+            unit = MobileUnitGroup.objects.get(pk=pk)
+        except MobileUnitGroup.DoesNotExist:
+            return Response("MobileUnitGroup does not exist.", status=status.HTTP_400_BAD_REQUEST)
+        srid = request.query_params.get("srid", None)
+        mobile_units = request.query_params.get("mobile_units", False)
+        serializer_class = None
+        if mobile_units:
+            serializer_class = MobileUnitGroupUnitsSerializer
+        else:
+            serializer_class = MobileUnitGroupSerializer
+
+        serializer = serializer_class(unit, many=False, context={"srid":srid})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def list(self, request):
+        type_name = request.query_params.get("type_name", None)        
+        srid = request.query_params.get("srid", None)
+        # If mobile_units true, include all mobileunits that belongs to the group.
+        mobile_units = request.query_params.get("mobile_units", False)
+        queryset = None
+        serializer = None 
+        if type_name:
+            if not GroupType.objects.filter(type_name=type_name).exists():
+                return Response("type_name does not exist.", status=status.HTTP_400_BAD_REQUEST)
+            queryset = MobileUnitGroup.objects.filter(group_type__type_name=type_name)         
+        else:
+            queryset = MobileUnitGroup.objects.all()           
+
+        page = self.paginate_queryset(queryset)
+        serializer_class = None
+        if mobile_units:
+            serializer_class = MobileUnitGroupUnitsSerializer
+        else:
+            serializer_class = MobileUnitGroupSerializer
+
+        serializer = serializer_class(page, many=True, context={"srid":srid})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
     
@@ -33,14 +68,9 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         try:
             unit = MobileUnit.objects.get(pk=pk)
         except MobileUnit.DoesNotExist:
-            return Response("Mobile unit does not exist", status=status.HTTP_400_BAD_REQUEST)
+            return Response("MobileUnit does not exist.", status=status.HTTP_400_BAD_REQUEST)
         srid = request.query_params.get("srid", None)
-        if srid:
-            try:
-                unit.geometry.transform(srid)
-            except GDALException:
-                return Response("Invalid SRID.", status=status.HTTP_400_BAD_REQUEST)
-        serializer = MobileUnitSerializer(unit, many=False)
+        serializer = MobileUnitSerializer(unit, many=False, context={"srid":srid})
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def list(self, request):
@@ -52,30 +82,16 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         srid = request.query_params.get("srid", None)
         queryset = None
         serializer = None 
-        if not type_name:
-            queryset = MobileUnit.objects.all()
-            if srid:
-                success, queryset = transform_queryset(srid, queryset)
-                if not success:
-                    return Response("Invalid SRID.", status=status.HTTP_400_BAD_REQUEST)
-
-            page = self.paginate_queryset(queryset)
-            serializer = MobileUnitSerializer(queryset, many=True)
-        else:
+        if type_name:
             if not ContentType.objects.filter(type_name=type_name).exists():
                 return Response("type_name does not exist.", status=status.HTTP_400_BAD_REQUEST)
-
-            queryset = MobileUnit.objects.filter(content_type__type_name=type_name)
-            if srid:
-                success, queryset = transform_queryset(srid, queryset)
-                if not success:
-                    return Response("Invalid SRID.", status=status.HTTP_400_BAD_REQUEST)
-            page = self.paginate_queryset(queryset)
-           
-            serializer = MobileUnitSerializer(queryset, many=True)
+            queryset = MobileUnit.objects.filter(content_type__type_name=type_name)          
+        else:
+            queryset = MobileUnit.objects.all()       
         
-        response = self.get_paginated_response(serializer.data)
-        return Response(response.data, status=status.HTTP_200_OK)
+        page = self.paginate_queryset(queryset)
+        serializer = MobileUnitSerializer(page, many=True, context={"srid": srid})    
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GroupTypeViewSet(viewsets.ReadOnlyModelViewSet):
