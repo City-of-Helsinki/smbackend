@@ -1,10 +1,9 @@
-import json
 from django.contrib.gis.gdal.error import GDALException
-from django.core import serializers as django_serializers
+from django.core import serializers 
 from django.contrib.gis.geos import GEOSGeometry, Point, LineString
 from rest_framework import serializers
-from .content_type import ContentTypeSerializer
-from ...models import MobileUnit
+from . import  ContentTypeSerializer
+from ...models import MobileUnit, MobileUnitGroup, GroupType
 
 
 class GeometrySerializer(serializers.Serializer):
@@ -15,12 +14,36 @@ class GeometrySerializer(serializers.Serializer):
         fields = "__all__"
 
 
+class GrouptTypeBasicInfoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GroupType
+        fields = ["id", "name", "type_name"]
+
+
+class MobileUnitGroupBasicInfoSerializer(serializers.ModelSerializer):
+
+    group_type = GrouptTypeBasicInfoSerializer(
+        many=False, 
+        read_only=True        
+    )
+    class Meta:
+        model = MobileUnitGroup
+        fields = ["id", "name", "group_type"]
+
+
 class MobileUnitSerializer(serializers.ModelSerializer):
+
     content_type = ContentTypeSerializer(
         many=False, 
         read_only=True        
     )
+    mobile_unit_group = MobileUnitGroupBasicInfoSerializer(
+        many=False,
+        read_only=True
+    )
     geometry_data = serializers.SerializerMethodField(read_only=True)
+    
     class Meta:
         model = MobileUnit
         fields =  [
@@ -38,6 +61,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             "description_sv",
             "description_en",
             "content_type",
+            "mobile_unit_group",
             "is_active",
             "created_time",
             "geometry",
@@ -62,4 +86,4 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             return obj.geometry.coords          
         else:
             return ""
-   
+
