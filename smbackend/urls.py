@@ -1,4 +1,8 @@
+from django.conf.urls import url
 from django.contrib import admin
+from django.conf.urls.static import static
+from django.views.static import serve
+from django.conf import settings
 from django.urls import include, re_path
 from django.utils.translation import gettext_lazy as _
 from munigeo.api import all_views as munigeo_views
@@ -48,5 +52,4 @@ urlpatterns = [
     re_path(r"^eco-counter/", include(eco_counter.api.urls), name="eco_counter"),
     re_path(r"", include(shortcutter_urls)),
 
-]
-#breakpoint()
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

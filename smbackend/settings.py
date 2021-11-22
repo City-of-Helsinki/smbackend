@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     "observations",
     "eco_counter.apps.EcoCounterConfig",
     "mobility_data.apps.MobilityDataConfig",
+    "bicycle_network.apps.BicycleNetworkConfig",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
