@@ -271,7 +271,7 @@ LOGGING = {
         "django": {"handlers": ["console"], "level": "INFO"},
         "eco_counter": {"handlers": ["console"], "level": "INFO"},
         "mobility_data": {"handlers": ["console"], "level": "INFO"},
-
+        "bicycle_network": {"handlers": ["console"], "level": "INFO"},
     },
 }
 

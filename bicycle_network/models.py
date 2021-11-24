@@ -84,24 +84,33 @@ class SingletonModel(models.Model):
 
 
 class BicycleNetwork(models.Model):
-    name = models.CharField(max_length=256, null=True)    
+    name = models.CharField(max_length=32, null=True)    
 
 
-class BicyceNetworkPart(models.Model):
+class BicycleNetworkPart(models.Model):
 
-    # Name of the field are equal to the input datas
+    class Meta:
+        ordering = ["-id"]
+
     bicycle_network = models.ForeignKey(
         BicycleNetwork, 
         on_delete=models.CASCADE,
         related_name="network_part"
     )
-    fid = models.IntegerField(null=True)
-    pituus = models.FloatField(null=True)
-    guid = models.CharField(max_length=128, null=True)
-    oid_tunnus = models.FloatField(null=True)
-    ketju_oid = models.FloatField(null=True)
-    geometry = models.GeometryField(srid=settings.DEFAULT_SRID, null=True)
+    geometry = models.GeometryField(null=True)
+    # Property field names are the same as in the input data.
+    toiminnall = models.IntegerField(null=True, 
+        verbose_name="Functional class")
+    liikennevi = models.IntegerField(null=True, 
+        verbose_name="Direction of trafic flow")
+    teksti = models.CharField(max_length=64, null=True, 
+        verbose_name="Name of the street (in Finnish)")
+    tienim2 = models.CharField(max_length=64, null=True,
+        verbose_name="Name of the street (in Swedish)")
+    TKU_toiminnall_pp = models.IntegerField(null=True,
+        verbose_name="Functional class of cycle or pedestrian path")
  
+
 
 class BicycleNetworkSource(SingletonModel):
     UPLOAD_TO = "bicycle_network"
