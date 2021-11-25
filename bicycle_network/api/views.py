@@ -38,11 +38,23 @@ class BicycleNetworkPartViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = BicycleNetworkPart.objects.all()
         filters = self.request.query_params
         lonlat = True
+        only_coords = False        
+   
+        if "network_name" in filters:
+            queryset = queryset.filter(bicycle_network__name=filters.get("network_name", None))
+     
         if "latlon" in filters:
-            lonlat = False
+            try:
+                lonlat = bool(filters["latlon"])
+            except ValueError:
+                raise ParseError("'latlon' needs to be a boolean")
 
-        if "name" in filters:
-            queryset = queryset.filter(bicycle_network__name=filters.get("name", None))
+        if "only_coords" in filters:
+            try:
+                only_coords = bool(filters["only_coords"])
+            except ValueError:
+                raise ParseError("'only_coords' needs to be a boolean")
+
         # Return elements that are inside radius (distance) of location (lat,lon)
         if "lat" in filters and "lon" in filters:
             try:
@@ -75,7 +87,7 @@ class BicycleNetworkPartViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(Q(**bbox_filter) | Q(**bbox_geometry_filter))
         
         page = self.paginate_queryset(queryset)        
-        if "only_coords" in filters:
+        if only_coords:
             serializer = BicycleNetworkPartCoordsSerializer(page, many=True, context={"lonlat": lonlat})     
         else:
             serializer = BicycleNetworkPartSerializer(page, many=True, context={"lonlat": lonlat})        

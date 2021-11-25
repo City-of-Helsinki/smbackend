@@ -17,9 +17,10 @@ SOURCE_DATA_SRID = 3877
 CONVERT_TO_SRID = 4326 # if None, No transformations are made and SOURCE_DATA_SRID is used.
 UPLOAD_TO = BicycleNetworkSource.UPLOAD_TO
 PATH = f"{settings.MEDIA_ROOT}/{UPLOAD_TO}/"
+# path where the filtered .geojson files will be stored
 FILTERED_PATH = f"{PATH}/filtered/"
 # List of properties to include and the type for typecasting   
-INCLUD_PROPERTIES = [
+INCLUDE_PROPERTIES = [
   ("toiminnall", int),
   ("liikennevi", int),
   ("teksti", str),
@@ -28,15 +29,22 @@ INCLUD_PROPERTIES = [
 ]
 
 def delete_uploaded_files():
+    """
+    Deletes all files in PATH.
+    """
     [remove(PATH+f) for f in listdir(PATH) if isfile(join(PATH, f))]
 
 def delete_filtered_file(name):
-    remove(f"{FILTERED_PATH}{name}.geojson")
+    try:
+        remove(f"{FILTERED_PATH}{name}.geojson")
+        return True
+    except FileNotFoundError:
+        return False
 
 def filter_geojson(input_geojson):
     """
     Filters the input_geojson, preservs only properties set in the
-    INCLUD_PROPERTIES. If CONVERT_TO_SRID is set, transforms geometry
+    INCLUDE_PROPERTIES. If CONVERT_TO_SRID is set, transforms geometry
     to given srid. 
     """
     out_geojson = {}
@@ -52,8 +60,8 @@ def filter_geojson(input_geojson):
             feature["type"] = "Feature"
             properties_data = feature_data["properties"]    
             properties = {}
-            
-            for prop_name, type_class in INCLUD_PROPERTIES:
+            # Include the properties set in INCLUDE_PROPERTIES     
+            for prop_name, type_class in INCLUDE_PROPERTIES:
                 prop = properties_data.get(prop_name,None)
                 if prop:
                     properties[prop_name] = type_class(prop)
@@ -69,14 +77,15 @@ def filter_geojson(input_geojson):
                     feature_data["geometry"]["coordinates"] = ls.coords
                 except TypeError as err:                    
                     logger.warning(err)
+                    # If transformation is not possible, we execlude the feature
+                    # thus it would have errorneous data.
                     continue
-            # geom = feature_data.get("geometry", None)
-            # if geom == None:
-            #     print("HERE")
-            feature["geometry"] = feature_data["geometry"]
-            features.append(feature)
             
+            feature["geometry"] = feature_data["geometry"]
+            features.append(feature)            
     except KeyError:
+        # In case a KeyError, which is probably caused by a faulty input geojson
+        # file. We retrun False to indicate the error.
         return False, None
     out_geojson["features"] = features
     return True, out_geojson
@@ -85,24 +94,29 @@ def filter_geojson(input_geojson):
 def save_network_to_db(input_geojson, network_name):
     # BicycleNetwork.objects.all().delete()
     # return
+    # Completly delete the network and it's parts before storing it,
+    # to ensure the data stored will be up to date. By deleting the 
+    # bicycle network the parts referencing to it will also be deleted.
     BicycleNetwork.objects.filter(name=network_name).delete()
     network = BicycleNetwork.objects.create(name=network_name)
     features = input_geojson["features"]
+    # Every feature in the input_geojson will be stored as a BicycleNetworkPart.
     for feature in features:
         part = BicycleNetworkPart.objects.create(bicycle_network=network)
-        for prop_name, _ in INCLUD_PROPERTIES:
+        for prop_name, _ in INCLUDE_PROPERTIES:
             setattr(part, prop_name, feature["properties"][prop_name])
         coords = feature["geometry"]["coordinates"] 
-        try:
-            srid=CONVERT_TO_SRID if CONVERT_TO_SRID else SOURCE_DATA_SRID             
-            part.geometry = LineString(coords, srid=srid) 
-        except TypeError as err:
-            logger.warning(err)
+        srid=CONVERT_TO_SRID if CONVERT_TO_SRID else SOURCE_DATA_SRID             
+        part.geometry = LineString(coords, srid=srid)         
         part.save()
 
 
 def process_file_obj(file_obj, name):  
-    
+    """
+    This function is called when continue&save or save&quit is pressed in the
+    admin. It Opens the file, calls the filter function and finally stores
+    the filtered data to the db and file.
+    """
     with open(file_obj.path, "r") as file:
         try:
             input_geojson = json.loads(file.read())
@@ -112,13 +126,14 @@ def process_file_obj(file_obj, name):
     success, filtered_geojson = filter_geojson(input_geojson)
     if not success:
         return False
-
+    
     if not exists(FILTERED_PATH):
         mkdir(FILTERED_PATH)
+    
     save_network_to_db(filtered_geojson, name)
+    
     with open(FILTERED_PATH+name+".geojson", "w") as file:
         json.dump(filtered_geojson, file, ensure_ascii=False)
-    
     return True
 
 
@@ -135,25 +150,34 @@ class BicycleNetworkSourceAdmin(admin.ModelAdmin):
         return False
 
     def response_change(self, request, obj):
+        # Delete actions sent in request.POST
+        delete_actions = [
+            "main_network-clear",
+            "local_network-clear",
+            "quality_lanes-clear"
+        ]
         if "_save" or "_continue" in request.POST:   
             success = True
+            #If the bicycle_network name does not exist in the request and the 
+            #uploaded file exist process the file obj. 
             if "main_network" not in request.POST and isfile(obj.main_network.path):
                 success = process_file_obj(obj.main_network, BicycleNetworkSource.MAIN_NETWORK_NAME)
             if "local_network" not in request.POST and isfile(obj.local_network.path):
                 success = process_file_obj(obj.local_network, BicycleNetworkSource.LOCAL_NETWORK_NAME)
             if "quality_lanes" not in request.POST and isfile(obj.quality_lanes.path):
                 success = process_file_obj(obj.quality_lanes, BicycleNetworkSource.QUALITY_LANES_NAME)
-            # Delete actions
-            if "main_network-clear" in request.POST:
-                delete_filtered_file(BicycleNetworkSource.MAIN_NETWORK_NAME)
-                BicycleNetwork.objects.filter(name=BicycleNetworkSource.MAIN_NETWORK_NAME).delete()   
-            if "local_network-clear" in request.POST:
-                delete_filtered_file(BicycleNetworkSource.LOCAL_NETWORK_NAME)
-                BicycleNetwork.objects.filter(name=BicycleNetworkSource.LOCAL_NETWORK_NAME).delete() 
-            if "quality_lanes-clear" in request.POST:
-                delete_filtered_file(BicycleNetworkSource.QUALITY_LANES_NAME)
-                BicycleNetwork.objects.filter(name=BicycleNetworkSource.QUALITY_LANES_NAME).delete()   
-
+            
+            for action in request.POST:
+                # Check for delete actions.
+                if action in delete_actions:
+                    # get the attribute name from action.
+                    attr_name = f"{(action.upper())[:-6]}_NAME"
+                    name = getattr(BicycleNetworkSource, attr_name)
+                    result = delete_filtered_file(name)
+                    if not result:
+                        messages.error(request, "File not found.")
+                    BicycleNetwork.objects.filter(name=name).delete() 
+       
             delete_uploaded_files()
             if not success:
                 messages.error(request, "Invalid Input GEOJSON.")

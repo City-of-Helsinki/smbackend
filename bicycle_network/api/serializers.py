@@ -25,7 +25,7 @@ class BicycleNetworkPartCoordsSerializer(serializers.ModelSerializer):
             if self.context["lonlat"]:
                 return obj.geometry.coords
             else:
-                # Return linestring coordinates in (lat,lon) format
+                # Return lLineString coordinates in (lat,lon) format
                 coords = []
                 for coord in obj.geometry.coords:
                     # swap lon,lat -> lat lon
@@ -41,7 +41,7 @@ class BicycleNetworkPartSerializer(BicycleNetworkPartCoordsSerializer):
     bicycle_network_name = serializers.CharField(read_only=True, source="bicycle_network.name")
   
     class Meta:
-        model = BicycleNetworkPart
+        model = BicycleNetworkPart        
         fields = [
             "geometry",
             "toiminnall",
