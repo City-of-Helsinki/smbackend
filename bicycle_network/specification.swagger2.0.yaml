@@ -149,7 +149,7 @@ components:
     latlon_param:
       name: latlon
       in: query
-      description: If set to true, returns coordinates in (lat, lon) format, the default is (lon, lat)
+      description: If set to true, returns geometry_coords field in (lat, lon) format, the default is (lon, lat)
       schema:
         type: boolean
       example: true
