@@ -1,0 +1,171 @@
+swagger: "2.0"
+info:
+  description: "."
+  version: "0.0.0"
+  title: "Bicycle Network"
+  termsOfService: ""
+  contact:
+    email: "email@email.com"
+host: "127.0.0.1:8000"
+basePath: "/bicycle_network"
+
+
+schemes:
+- "http"
+- "https"
+
+produces:
+- application/json
+
+
+
+definitions:
+  bicycle_network:
+    type: object
+    title: BicycleNetwork
+    properties:
+      name:
+        type: string
+        
+  bicycle_networkpart:
+    type: object
+    title: BicycleNetworkPart
+    description: A part of a bicycle network, containing the LineString geometry and properties.
+    properties:
+      bicycle_network:
+        type: string
+      geometry:
+        type: string
+      tominaall:
+        type: integer
+        description: Functional class.  1 = regional main street / class I main road,  2 = regional main street / class II main road, 3 = local main street / regional road, 4 = collector road / connecting road, 5 = feeder street / class I private road,6 = class II private road,10 = cycle or pedestrian path
+      liikennevi:
+        type: integer
+        description: Direction of traffic flow. 2 = traffic is permitted in both directions, 3 = traffic is permitted against the direction of digitization, 4 = traffic is permitted in the direction of digitization, 5 = traffic is closed in both directions
+      teksti:
+        type: string
+        description: Name of the street (in Finnish)
+      tienim2:
+        type: string
+        description: Name of the street (in Swedish)
+      TKU_toiminnall_pp:
+        type: integer
+        description: Functional class of cycle or pedestrian path. 0 = a street that can be used for cycling, 11 = high quality cycle path, 12 = main cycle path, 13 = local cycle path, 14 = local cycle path, where cycling is difficult (eg. stairs), 18 = a street that can not be used for cycling but you can walk with your bike (too high car traffic volume/speed etc), 19 = a pedestrian path where cycling is not allowd (you can walk with your bike), 20 = a pedestrian path with stairs. Cycling is not allowed. Sometimes you can’t even walk with your bike but you can carry your bike), 99 = A path that can not be used either for cycling or walking (eg. motorway/tunnel/private road)
+
+paths:
+  /bicycle_networks/{id}:
+    get:
+      summary: "Returns a BicycleNetwork object."
+      parameters:
+        - name: "id"
+          in: path
+          type: string
+          required: true
+      responses: 
+        200:
+          description: "BicycleNetwork object"
+          schema:
+            $ref: "#/definitions/bicycle_network"
+            
+  /bicycle_networks/:
+    get:
+      summary: "Returns a paginated list of BicycleNetworks."
+      responses:
+        200:
+          description: "List of BicycleNetworks."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/bicycle_network"
+ 
+  /bicycle_networkparts/{id}:
+    get:
+      summary: "Returns a BicycleNetworkPart object."
+      parameters:
+        - name: "id"
+          in: path
+          type: string
+          required: true
+      responses: 
+        200:
+          description: "BicycleNetworkPart object"
+          schema:
+            $ref: "#/definitions/bicycle_networkpart"                 
+  /bicycle_networkparts/:
+    get:
+      summary: Returns a list of BicycleNetworkParts
+      parameters:
+        - $ref: "#/components/parameters/pagesize_param"
+        - $ref: "#/components/parameters/network_name_param"
+        - $ref: "#/components/parameters/latlon_param"
+        - $ref: "#/components/parameters/only_coords_param"
+        - $ref: "#/components/parameters/bbox_param"
+        - name: lat
+          in: query
+          type: string
+          description: A latitude coordinate to be used as part of a location filter
+          required: false
+        - name: lon
+          in: query
+          type: string
+          description: A longitude coordinate to be used as part of a location filter
+          required: false
+        - name: distance
+          in: query
+          type: string
+          description: A distance radius filter to be used as part of a location filter along with lat and lon
+          required: false
+      responses:
+        200:
+          description: List of BicycleNetworkparts
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/bicycle_networkpart"
+            
+
+components:
+  parameters:
+    pagesize_param:
+      name: page_size
+      in: query
+      description: Request that server delivers page_size results in response
+      required: false
+      type: integer
+    network_name_param:
+      name: network_name
+      in: query
+      description: If name given, return parts that in the given bicycle network.
+      required: false
+      schema:
+        type: string
+      example: main_network
+    latlon_param:
+      name: latlon
+      in: query
+      description: If set to true, returns geometry_coords field in (lat, lon) format, the default is (lon, lat)
+      schema:
+        type: boolean
+      example: true
+    only_coords_param:
+      name: only_coords
+      in: query
+      description: If set to true, only coordinates and the id is serialized for parts.
+      required: false
+      schema:
+        type: boolean
+      example: true
+    bbox_param:
+      name: bbox
+      in: query
+      type: string
+      description: Search for events that are within this bounding box. Decimal coordinates are given in order west, south, east, north. Period is used as decimal separator.
+      example: 22.24,60.2,22.3,60.46
+    
+
