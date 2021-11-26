@@ -66,6 +66,8 @@ definitions:
         type: string
       content_type:
         $ref: "#/definitions/content_type"
+      mobile_unit_group:
+        type: "#/definitions/mobile_unit_group"
       is_active:
         type: boolean
       created_time:
