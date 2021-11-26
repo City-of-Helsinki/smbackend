@@ -42,7 +42,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         many=False,
         read_only=True
     )
-    geometry_data = serializers.SerializerMethodField(read_only=True)
+    geometry_coords = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = MobileUnit
@@ -65,11 +65,11 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             "is_active",
             "created_time",
             "geometry",
-            "geometry_data",
+            "geometry_coords",
             "extra",          
         ]
 
-    def get_geometry_data(self, obj):
+    def get_geometry_coords(self, obj):
         if isinstance(obj.geometry, GEOSGeometry):
             srid = self.context["srid"]
             if srid:
@@ -79,11 +79,25 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                     return "Invalid SRID given as parameter for transformation." 
         if isinstance(obj.geometry, Point):           
             pos = {}
-            pos["x"] = obj.geometry.x
-            pos["y"] = obj.geometry.y
+            if self.context["latlon"] == True:            
+                pos["lat"] = obj.geometry.y
+                pos["lon"] = obj.geometry.x
+            else:
+                pos["lon"] = obj.geometry.x
+                pos["lat"] = obj.geometry.y              
             return pos
+            
         elif isinstance(obj.geometry, LineString):
-            return obj.geometry.coords          
+            if self.context["latlon"] == True:
+                # Return LineString coordinates in (lat,lon) format
+                coords = []
+                for coord in obj.geometry.coords:
+                    # swap lon,lat -> lat lon
+                    e=(coord[1],coord[0])
+                    coords.append(e)                
+                return coords
+            else:
+                return obj.geometry.coords                  
         else:
             return ""
 
