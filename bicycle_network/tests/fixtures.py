@@ -1,12 +1,12 @@
 import pytest
 from rest_framework.test import APIClient
-from django.contrib.gis.geos import LineString, linestring
+from django.contrib.gis.geos import LineString
 from .utils import generate_coords
-
 from ..models import(
     BicycleNetwork,
     BicycleNetworkPart,
 )
+
 @pytest.fixture
 def api_client():
     return APIClient()
