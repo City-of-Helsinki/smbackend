@@ -67,7 +67,7 @@ definitions:
       content_type:
         $ref: "#/definitions/content_type"
       mobile_unit_group:
-        type: "#/definitions/mobile_unit_group"
+        $ref: "#/definitions/mobile_unit_group"
       is_active:
         type: boolean
       created_time:
@@ -88,7 +88,7 @@ definitions:
       extra:
         type: object
         
-  mobility_unit_group:
+  mobile_unit_group:
     type: object
     title: MobilityUnitGroup
     properties:
@@ -135,6 +135,7 @@ paths:
       summary: "Returns a paginated list of MobileUnits."
       parameters:
         - $ref: "#/components/parameters/srid_param"
+        - $ref: "#/components/parameters/latlon_param"
         - $ref: "#/components/parameters/type_name_param"
       responses:
         200:
@@ -156,18 +157,20 @@ paths:
           type: string
           required: true
         - $ref: "#/components/parameters/srid_param"
+        - $ref: "#/components/parameters/latlon_param"
         - $ref: "#/components/parameters/mobile_units_param"
       responses: 
         200:
           description: "MobileUnitGroup object"
           schema:
-            $ref: "#/definitions/mobility_unit_group"
+            $ref: "#/definitions/mobile_unit_group"
             
   /mobile_unit_groups/:
     get:
       summary: "Returns a paginated list of MobileUnitGroups."
       parameters:
         - $ref: "#/components/parameters/srid_param"
+        - $ref: "#/components/parameters/latlon_param"
         - $ref: "#/components/parameters/mobile_units_param"
         - $ref: "#/components/parameters/group_name_param"
       responses:
@@ -179,7 +182,7 @@ paths:
               results:
                 type: array
                 items:
-                  $ref: "#/definitions/mobility_unit_group"
+                  $ref: "#/definitions/mobile_unit_group"
   /content_types/{id}:
     get:
       summary: "Returns ContentType object."
@@ -244,6 +247,13 @@ components:
       schema:
         type: integer
       example: 4326
+    latlon_param:
+      name: latlon
+      in: query
+      description: If set to true, returns geometry_coords field in (lat, lon) format, the default is (lon, lat)
+      schema:
+        type: boolean
+      example: true
       
     type_name_param:
       name: type_name
