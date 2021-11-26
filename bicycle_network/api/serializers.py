@@ -22,16 +22,17 @@ class BicycleNetworkPartCoordsSerializer(serializers.ModelSerializer):
 
     def get_geometry_coords(self, obj):
         if obj.geometry:
-            if self.context["lonlat"]:
-                return obj.geometry.coords
-            else:
-                # Return lLineString coordinates in (lat,lon) format
+            if self.context["latlon"] == True:
+                # Return LineString coordinates in (lat,lon) format
                 coords = []
                 for coord in obj.geometry.coords:
                     # swap lon,lat -> lat lon
                     e=(coord[1],coord[0])
                     coords.append(e)                
                 return coords
+            else:
+                return obj.geometry.coords
+            
         else:
             return None
 

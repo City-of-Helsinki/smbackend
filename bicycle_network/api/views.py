@@ -1,3 +1,4 @@
+from distutils.util import strtobool
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.gdal import SpatialReference
 from django.contrib.gis.geos import Point
@@ -37,7 +38,7 @@ class BicycleNetworkPartViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request):
         queryset = BicycleNetworkPart.objects.all()
         filters = self.request.query_params
-        lonlat = True
+        latlon = False
         only_coords = False        
    
         if "network_name" in filters:
@@ -45,13 +46,14 @@ class BicycleNetworkPartViewSet(viewsets.ReadOnlyModelViewSet):
      
         if "latlon" in filters:
             try:
-                lonlat = bool(filters["latlon"])
+               latlon = strtobool(filters["latlon"])
+               
             except ValueError:
                 raise ParseError("'latlon' needs to be a boolean")
 
         if "only_coords" in filters:
             try:
-                only_coords = bool(filters["only_coords"])
+                only_coords = strtobool(filters["only_coords"])
             except ValueError:
                 raise ParseError("'only_coords' needs to be a boolean")
 
@@ -88,8 +90,8 @@ class BicycleNetworkPartViewSet(viewsets.ReadOnlyModelViewSet):
         
         page = self.paginate_queryset(queryset)        
         if only_coords:
-            serializer = BicycleNetworkPartCoordsSerializer(page, many=True, context={"lonlat": lonlat})     
+            serializer = BicycleNetworkPartCoordsSerializer(page, many=True, context={"latlon": latlon})     
         else:
-            serializer = BicycleNetworkPartSerializer(page, many=True, context={"lonlat": lonlat})        
+            serializer = BicycleNetworkPartSerializer(page, many=True, context={"latlon": latlon})        
         return self.get_paginated_response(serializer.data)
         

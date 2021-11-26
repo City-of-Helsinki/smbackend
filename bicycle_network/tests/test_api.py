@@ -47,6 +47,16 @@ def test_bicycle_network_part(api_client, bicycle_network, bicycle_network_part)
     url = reverse("bicycle_network:bicycle_networkparts-list") + "?lon=22.1&lat=60.1&distance=1000"
     response = api_client.get(url)    
     assert response.json()["count"] == 0
-
-  
+    url = reverse("bicycle_network:bicycle_networkparts-list") + "?network_name=local_network&only_coords=true"
+    response = api_client.get(url)  
+    # only 'id' and 'geometry_coords' filed in results with only_coords set to true in query 
+    assert len(response.json()["results"][0]) == 2
+    # test latlon = true, e.g. linestrings coords are in lat,lon format.
+    url = reverse("bicycle_network:bicycle_networkparts-list") + "?network_name=main_network&latlon=true"
+    response = api_client.get(url)  
+    lon = bicycle_network_part[0].geometry.coords[0][0]
+    lat = bicycle_network_part[0].geometry.coords[0][1]
+    geom = response.json()["results"][0]["geometry_coords"]        
+    assert lat == geom[0][0]
+    assert lon == geom[0][1]
     

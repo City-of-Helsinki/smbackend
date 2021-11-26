@@ -92,9 +92,7 @@ def filter_geojson(input_geojson):
 
 
 def save_network_to_db(input_geojson, network_name):
-    # BicycleNetwork.objects.all().delete()
-    # return
-    # Completly delete the network and it's parts before storing it,
+    # Completly delete the network and its parts before storing it,
     # to ensure the data stored will be up to date. By deleting the 
     # bicycle network the parts referencing to it will also be deleted.
     BicycleNetwork.objects.filter(name=network_name).delete()
@@ -156,18 +154,27 @@ class BicycleNetworkSourceAdmin(admin.ModelAdmin):
             "local_network-clear",
             "quality_lanes-clear"
         ]
+        save_actions = [
+            "main_network",
+            "local_network",
+            "quality_lanes"
+        ]
         if "_save" or "_continue" in request.POST:   
-            success = True
-            #If the bicycle_network name does not exist in the request and the 
-            #uploaded file exist process the file obj. 
-            if "main_network" not in request.POST and isfile(obj.main_network.path):
-                success = process_file_obj(obj.main_network, BicycleNetworkSource.MAIN_NETWORK_NAME)
-            if "local_network" not in request.POST and isfile(obj.local_network.path):
-                success = process_file_obj(obj.local_network, BicycleNetworkSource.LOCAL_NETWORK_NAME)
-            if "quality_lanes" not in request.POST and isfile(obj.quality_lanes.path):
-                success = process_file_obj(obj.quality_lanes, BicycleNetworkSource.QUALITY_LANES_NAME)
+            # Check for save actions
+            for save_action in save_actions:
+                # django admon "fuzzy" logic, if the action is Not in the request.    
+                if save_action not in request.POST:
+                    file = getattr(obj, save_action)
+                    # Check that the uploaded file exists.
+                    if isfile(file.path):
+                        # get attr name.
+                        attr_name = f"{(save_action.upper())}_NAME"
+                        name = getattr(BicycleNetworkSource, attr_name)
+                        success = process_file_obj(file, name)
+                        if not success:
+                            messages.error(request, "Invalid Input GEOJSON.")                  
             
-            for action in request.POST:
+            for action in request.POST:             
                 # Check for delete actions.
                 if action in delete_actions:
                     # get the attribute name from action.
@@ -179,8 +186,7 @@ class BicycleNetworkSourceAdmin(admin.ModelAdmin):
                     BicycleNetwork.objects.filter(name=name).delete() 
        
             delete_uploaded_files()
-            if not success:
-                messages.error(request, "Invalid Input GEOJSON.")
+    
 
         return super().response_change(request, obj)
 
