@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   description: "."
   version: "0.0.0"
-  title: "Turku Mobility-Data"
+  title: "Bicycle Network"
   termsOfService: ""
   contact:
     email: "email@email.com"
