@@ -46,8 +46,7 @@ class BicycleNetworkPartViewSet(viewsets.ReadOnlyModelViewSet):
      
         if "latlon" in filters:
             try:
-               latlon = strtobool(filters["latlon"])
-               
+               latlon = strtobool(filters["latlon"])               
             except ValueError:
                 raise ParseError("'latlon' needs to be a boolean")
 
