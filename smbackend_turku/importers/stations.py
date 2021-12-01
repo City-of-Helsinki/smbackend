@@ -1,9 +1,5 @@
 from datetime import datetime
-from django.core.exceptions import ObjectDoesNotExist
-import pytz
-from functools import lru_cache
 from django.conf import settings
-from munigeo.models import Municipality
 from mobility_data.importers.gas_filling_station import (
     get_filtered_gas_filling_station_objects  
 )
@@ -16,6 +12,10 @@ from services.management.commands.services_import.services import (
 from smbackend_turku.importers.utils import (   
     set_field,
     set_tku_translated_field,
+    create_service,
+    create_service_node,
+    get_municipality,
+    UTC_TIMEZONE,
 )
 from services.models import (
     Service,
@@ -24,16 +24,8 @@ from services.models import (
     UnitServiceDetails,
 )
 
-UTC_TIMEZONE = pytz.timezone("UTC")
 LANGUAGES = [language[0] for language in settings.LANGUAGES]
 SOURCE_DATA_SRID = 4326
-
-@lru_cache(None)
-def get_municipality(name):
-    try:
-        return Municipality.objects.get(name=name)
-    except Municipality.DoesNotExist:
-        return None
 
 def create_language_dict(value):
     """
@@ -43,10 +35,10 @@ def create_language_dict(value):
     :return: the dict
     """
     lang_dict = {}
-    for lang in LANGUAGES:
+    languages = [language[0] for language in settings.LANGUAGES]
+    for lang in languages:
         lang_dict[lang] = value
     return lang_dict
-
 # def get_first_available_id(model, offset):
 #     """
 #     Find the highest unit id and add 1. This ensures that we get unique ids.
@@ -60,55 +52,6 @@ def create_language_dict(value):
 #         # This branch is evaluated only when running tests
 #         return 100000
 
-def create_service_node(service_node_id, name, parent_name, service_node_names):
-    """
-    Creates service_node with given name and id if it does not exist. 
-    Sets the parent service_node and name fields.
-    :param service_node_id: the id of the service_node to be created.
-    :param name: name of the service_node.
-    :param parent_name: name of the parent service_node, if None the service_node will be
-     topmost in the tree hierarchy.
-    :param service_node_names: dict with names in all languages   
-    """
-    service_node = None
-    try:
-        service_node = ServiceNode.objects.get(id=service_node_id,name=name)       
-    except ServiceNode.DoesNotExist:    
-        service_node = ServiceNode(id=service_node_id)
-
-    if parent_name: 
-        try:
-            parent = ServiceNode.objects.get(name=parent_name)      
-        except ServiceNode.DoesNotExist:
-            raise ObjectDoesNotExist("Parent ServiceNode name: {} not found.".format(parent_name))
-    else:
-        # The service_node will be topmost in the tree structure
-        parent = None
-
-    service_node.parent = parent
-    set_tku_translated_field(service_node, "name", service_node_names)
-    service_node.last_modified_time = datetime.now(UTC_TIMEZONE)
-    service_node.save()
-            
-def create_service(service_id, service_node_id, service_name, service_names):  
-    """
-    Creates service with given service_id and name if it does not exist. 
-    Adds the service to the given service_node and sets the name fields.
-    :param service_id: the id of the service.
-    :param service_node_id: the id of the service_node to which the service will have a relation
-    :param service_name: name of the service
-    :param service_names: dict with names in all languages
-    """
-    service = None
-    try:
-        service = Service.objects.get(id=service_id,name=service_name)
-    except Service.DoesNotExist:    
-        service = Service(id=service_id, clarification_enabled=False, period_enabled=False)   
-        set_tku_translated_field(service, "name", service_names)     
-        service_node = ServiceNode(id=service_node_id)
-        service_node.related_services.add(service_id)
-        service.last_modified_time = datetime.now(UTC_TIMEZONE)
-        service.save()    
 
 
 class GasFillingStationImporter:

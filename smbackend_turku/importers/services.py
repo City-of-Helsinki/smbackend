@@ -18,6 +18,9 @@ from smbackend_turku.importers.stations import (
     GasFillingStationImporter,
     ChargingStationImporter,   
 )
+from smbackend_turku.importers.bicycle_stands import (
+    BicycleStandImporter
+)
 
 UTC_TIMEZONE = pytz.timezone("UTC")
 
@@ -56,7 +59,8 @@ class ServiceImporter:
         if not self.delete_external_sources:
             self._handle_external_service_node(GasFillingStationImporter)
             self._handle_external_service_node(ChargingStationImporter)
-        
+            self._handle_external_service_node(BicycleStandImporter)
+            
         self.nodesyncher.finish()
 
     def _handle_external_service_node(self, importer):
@@ -80,6 +84,8 @@ class ServiceImporter:
         if not self.delete_external_sources:
             self._handle_external_service(GasFillingStationImporter)
             self._handle_external_service(ChargingStationImporter)
+            self._handle_external_service(BicycleStandImporter)
+
         self.servicesyncher.finish()
 
     def _handle_external_service(self, importer):

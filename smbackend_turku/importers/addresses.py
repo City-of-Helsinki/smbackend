@@ -36,9 +36,11 @@ class AddressImporter:
 
             coordinates = row["y"] + row["x"]
             if coordinates not in multi_lingual_addresses:
+                point = Point(float(row["x"]), float(row["x"]), srid=get_default_srid())
                 multi_lingual_addresses[coordinates] = {
                     "street": {"municipality": turku},
-                    "point": {"x": float(row["x"]), "y": float(row["y"])},
+                    "point": {"x": point.x, "y": point.y},
+                    #"point": {"x": float(row["x"]), "y": float(row["y"])},
                     "address": {"number": row["street_number"]},
                 }
 

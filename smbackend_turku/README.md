@@ -53,3 +53,11 @@ To import type:
 ```
 ./manage.py turku_services_import charging_stations
 ```
+### Bicycle stand
+Add following line to the .env file:
+BICYCLE_STANDS_IDS=service_node=40000,service=40000,units_offset=40000
+
+To import type:
+```
+./manage.py turku_services_import bicycle_stands
+```
