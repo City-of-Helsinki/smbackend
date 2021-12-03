@@ -100,4 +100,3 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 return obj.geometry.coords                  
         else:
             return ""
-

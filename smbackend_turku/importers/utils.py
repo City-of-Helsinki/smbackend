@@ -9,9 +9,8 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from munigeo.models import (
     Municipality,
-    AdministrativeDivisionGeometry, 
-    AdministrativeDivision,
 )
+
 from services.models import (
     Service,
     ServiceNode,
@@ -194,19 +193,6 @@ def get_municipality(name):
         return Municipality.objects.get(name=name)
     except Municipality.DoesNotExist:
         return None
-
-def get_municipality_name(point):
-    """
-    Returns the string name of the municipality in which the point
-    is located.
-    """
-    try:
-        # resolve in which division to point is.
-        division = AdministrativeDivisionGeometry.objects.get(boundary__contains=point)
-    except AdministrativeDivisionGeometry.DoesNotExist:
-        return None
-    # Get the division and return its name.
-    return AdministrativeDivision.objects.get(id=division.division_id).name
 
 def create_service_node(service_node_id, name, parent_name, service_node_names):
     """

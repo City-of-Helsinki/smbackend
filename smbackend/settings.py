@@ -41,6 +41,7 @@ env = environ.Env(
     ECO_COUNTER_OBSERVATIONS_URL=(str, None),
     GAS_FILLING_STATIONS_IDS=(dict, {}),
     CHARGING_STATIONS_IDS=(dict, {}), 
+    BICYCLE_STANDS_IDS=(dict, {}), 
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -387,3 +388,4 @@ ECO_COUNTER_STATIONS_URL=env("ECO_COUNTER_STATIONS_URL")
 # Typecast the dicts values to int with comporehension.
 GAS_FILLING_STATIONS_IDS={k: int(v) for k, v in env("GAS_FILLING_STATIONS_IDS").items()}
 CHARGING_STATIONS_IDS={k: int(v) for k, v in env("CHARGING_STATIONS_IDS").items()}
+BICYCLE_STANDS_IDS={k: int(v) for k, v in env("BICYCLE_STANDS_IDS").items()}
