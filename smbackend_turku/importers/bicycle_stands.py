@@ -50,24 +50,22 @@ class BicycleStandImporter:
         self.logger.info("Importing Bicycle Stands...")
         # Delete all Bicycle stand units before storing, to ensure stored data is up-to-date.  
         Unit.objects.filter(services__id=service_id).delete()     
-        filtered_objects = get_bicycle_stand_objects(json_data=self.test_data)
+        filtered_objects = get_bicycle_stand_objects(xml_data=self.test_data)
         for i, data_obj in enumerate(filtered_objects):
             unit_id = i + self.UNITS_ID_OFFSET          
-            obj = Unit(id=unit_id)            
-            point = data_obj.point
-            set_field(obj, "location", point)  
+            obj = Unit(id=unit_id)          
+            set_field(obj, "location", data_obj.geometry)  
             set_tku_translated_field(obj, "name", data_obj.name)
             set_tku_translated_field(obj, "street_address",data_obj.name)
-   
-            #Unit.objects.filter(location__distance_lt=(point, D(m=1000)))  
             extra = {}
             extra["model"] = data_obj.model
+            extra["maintained_by_turku"] = data_obj.maintained_by_turku
             extra["number_of_stands"] = data_obj.number_of_stands
             extra["number_of_places"] = data_obj.number_of_places
             extra["hull_lockable"] = data_obj.hull_lockable
-            extra["covered"] = data_obj.covered
-   
+            extra["covered"] = data_obj.covered   
             set_field(obj, "extra", extra) 
+
             try:
                 service = Service.objects.get(id=service_id)
             except Service.DoesNotExist:
@@ -83,10 +81,7 @@ class BicycleStandImporter:
             set_field(obj, "municipality", municipality)  
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
             obj.save()
-        update_service_node_counts()
-        
-        #breakpoint()
-
+        update_service_node_counts()   
 
 def import_bicycle_stands(**kwargs):
     importer = BicycleStandImporter(**kwargs)

@@ -17,3 +17,7 @@ To import data type:
 ./manage.py import_culture_routes  
 To delete Culture Routes before importing type:  
 ./manage.py import_culture_routes --delete  
+
+### Bicycle stands  
+To import data type:  
+./manage.py import_bicycle_stands 

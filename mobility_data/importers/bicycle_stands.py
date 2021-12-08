@@ -1,9 +1,9 @@
 import logging
-from datetime import datetime
 import xml.etree.ElementTree as ET
 import requests
 from django.contrib.gis.geos import Point
 from django import db
+from django.conf import settings
 from .utils import (
     get_municipality_name, 
     get_closest_street_name,
@@ -20,33 +20,38 @@ BICYCLE_STANDS_URL = "http://tkuikp/TeklaOGCWeb/WFS.ashx?service=WFS&request=Get
 SOURCE_DATA_SRID = 3877
 logger = logging.getLogger("mobility_data")
 
-class BicyleStand:
-    HULL_LOCKABLE_MAPPINGS = {
-        "Runkolukitusmahdollisuus": True,
-        "Ei runkolukitusmahdollisuutta" : False,
-        "Katettu, runkolukitusmahdollisuus": True,
-        "Katettu, ei runkolukitusmahdollisuutta": False
-    }
-    COVERED_IN_STR = "Katettu"
+class BicyleStand:    
+    
+    HULL_LOCKABLE_STR = "runkolukitusmahdollisuus"
+    COVERED_IN_STR = "katettu"
+    
+    geometry = None
     model = None
     name = None
     number_of_stands = None
     number_of_places = None # The total number of places for bicycles.     
     hull_lockable = None
     covered = None
-    point = None
     city = None
     street_address = None
-    
+    maintained_by_turku = None
+
     def __init__(self, bicycle_stand, namespaces):
         self.name = {}
         self.street_address = {}
+        object_id = bicycle_stand.find(f"{{{namespaces['GIS']}}}ObjectId").text
+        # If ObjectId is set to "0", the bicycle stand is not maintained by Turku
+        if object_id == "0":
+            self.maintained_by_turku = False
+        else:
+            self.maintained_by_turku = True
         
-        geometry = bicycle_stand.find(f"{{{namespaces['GIS']}}}Geometry")
-        point = geometry.find(f"{{{namespaces['gml']}}}Point")
+        geometry_field = bicycle_stand.find(f"{{{namespaces['GIS']}}}Geometry")
+        point = geometry_field.find(f"{{{namespaces['gml']}}}Point")
         pos = point.find(f"{{{namespaces['gml']}}}pos").text.split(" ")
-        self.point = Point(float(pos[0]), float(pos[1]), srid=SOURCE_DATA_SRID)
-      
+        self.geometry = Point(float(pos[0]), float(pos[1]), srid=SOURCE_DATA_SRID)
+        # Transform to DEFALT_SRID so that all mobile_units are store with the same srid
+        self.geometry.transform(settings.DEFAULT_SRID)
         model_elem = bicycle_stand.find(f"{{{namespaces['GIS']}}}Malli")
         if model_elem != None:
             self.model = model_elem.text
@@ -58,14 +63,22 @@ class BicyleStand:
         elif viher_name_elem != None:
             name = viher_name_elem.text
         else:
-            name = get_closest_street_name(self.point)
-
+            # If there is no katu_ or vihre_ name we get the closest street_name.
+            name = get_closest_street_name(self.geometry)
+    
         num_stands_elem = bicycle_stand\
             .find(f"{{{namespaces['GIS']}}}Lukumaara")
   
         if num_stands_elem != None:
-            self.number_of_stands = int(num_stands_elem.text)
-        
+            num = int(num_stands_elem.text)
+            # for bicycle stands that are Not maintained by Turku
+            # the number of stands is set to 0 in the input data
+            # but in reality there is no data so None is set. 
+            if num == 0 and not self.maintained_by_turku:
+                self.number_of_stands = None
+            else:
+                self.number_of_stands = num
+         
         num_places_elem = bicycle_stand\
             .find(f"{{{namespaces['GIS']}}}Pyorapaikkojen_lukumaara")
        
@@ -79,8 +92,12 @@ class BicyleStand:
             .find(f"{{{namespaces['GIS']}}}Pyorapaikkojen_laatutaso")
 
         if quality_elem != None: 
-            quality_text = quality_elem.text
-            self.hull_lockable = self.HULL_LOCKABLE_MAPPINGS[quality_text]        
+            quality_text = quality_elem.text.lower()
+            if self.HULL_LOCKABLE_STR in quality_text:
+                self.hull_lockable = True
+            else:
+                self.hull_lockable = False
+            
             if self.COVERED_IN_STR in quality_text:
                 self.covered = True
             else:
@@ -90,25 +107,26 @@ class BicyleStand:
         self.name["fi"] = translated_names["fi"]
         self.name["sv"] = translated_names["sv"]
         self.name["en"] = translated_names["fi"]
-  
-        self.city = get_municipality_name(self.point)
+        self.city = get_municipality_name(self.geometry)
 
-
-def get_bicycle_stand_objects(json_data=None):
-    namespaces = {"gml":"http://www.opengis.net/gml", "GIS":"http://www.tekla.com/schemas/GIS"}
-
-    response = requests.get(BICYCLE_STANDS_URL)
-    assert response.status_code == 200, "Fetching {} status code: {}".\
-        format(BICYCLE_STANDS_URL, response.status_code)
-    gml = ET.fromstring(response.content)
-    find_str = f"{{{namespaces['gml']}}}featureMember"
-    feature_members = gml.findall(find_str)
+def get_bicycle_stand_objects(xml_data=None):
+    """
+    Returns a list containg instances of BicycleStand class.
+    """
+    namespaces = {
+        "gml":"http://www.opengis.net/gml", 
+        "GIS":"http://www.tekla.com/schemas/GIS"
+        }
+    if not xml_data:
+        response = requests.get(BICYCLE_STANDS_URL)
+        assert response.status_code == 200, "Fetching {} status code: {}".\
+            format(BICYCLE_STANDS_URL, response.status_code)
+        xml_data = ET.fromstring(response.content)
+    # All bicycle stands are inside featureMember fields
+    feature_members = xml_data.findall(f"{{{namespaces['gml']}}}featureMember")
     bicycle_stands = []
     for feature_member in feature_members:
         bicycle_stand = feature_member.find(f"{{{namespaces['GIS']}}}Polkupyoraparkki")
-        #id = bicycle_stand.find(f"{{{namespaces['GIS']}}}Id").text
-        # if id == "0":            
-        #     continue
         bicycle_stands.append(BicyleStand(bicycle_stand, namespaces))
     return bicycle_stands
 
@@ -127,11 +145,12 @@ def save_to_database(objects, delete_tables=True):
         )
         extra = {}
         extra["model"] = object.model
+        extra["maintained_by_turku"] = object.maintained_by_turku
         extra["number_of_stands"] = object.number_of_stands
         extra["number_of_places"] = object.number_of_places
         extra["hull_lockable"] = object.hull_lockable
         extra["covered"] = object.covered
         mobile_unit.extra = extra
-
+        mobile_unit.geometry = object.geometry
         set_translated_field(mobile_unit, "name", object.name)
         mobile_unit.save()

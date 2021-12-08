@@ -1,6 +1,6 @@
-import os
-import json
+import xml.etree.ElementTree as ET
 import logging
+from django.conf import settings
 from django.core.management import BaseCommand
 
 from mobility_data.importers.bicycle_stands import(
@@ -25,11 +25,14 @@ class Command(BaseCommand):
         logger.info("Importing bicycle stands.")
         if options["test_mode"]:
             logger.info("Running bicycle stand importer in test mode.")
-            f = open(os.getcwd()+"/"+ContentType._meta.app_label+"/tests/data/"+options["test_mode"], "r")
-            json_data = json.load(f)
-            #objects = get_filtered_gas_filling_station_objects(json_data=json_data)       
+            path = f"{settings.BASE_DIR}/{ContentType._meta.app_label}/tests/data/" 
+            filename = options["test_mode"]
+            xml_data = None            
+            with open(path+filename, "r") as xml_file:
+                xml_data = ET.parse(xml_file)
+            objects = get_bicycle_stand_objects(xml_data=xml_data)
         else:
-            logger.info("Fetching gas filling stations from: {}"\
+            logger.info("Fetching bicycle stands from: {}"\
                 .format(BICYCLE_STANDS_URL))            
             objects = get_bicycle_stand_objects()       
         save_to_database(objects)

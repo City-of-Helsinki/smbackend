@@ -4,6 +4,7 @@ from django.contrib.gis.measure import D
 from munigeo.models import (
     Address,
     Street,
+    Municipality,
     AdministrativeDivisionGeometry, 
     AdministrativeDivision,
 )
@@ -43,10 +44,11 @@ def get_closest_street_name(point):
 
 def get_street_name_translations(name):
     """
-    Return a dict with street names of all given languages.
+    Returns a dict where the key is the language and the value is 
+    the translated name of the street.
     Note, there are no english names for streets and if translation
-    does not exist return "fi" as default name. If street is not found
-    return the name of the street for all languages.
+    does not exist return "fi" name as default name. If street is not found
+    return the input name of the street for all languages.
     """
     names = {}
     default_attr_name = "name_fi"
@@ -55,7 +57,7 @@ def get_street_name_translations(name):
         for lang in LANGUAGES:
             attr_name = "name_"+lang
             name = getattr(street, attr_name)
-            if name != None:
+            if name:
                 names[lang] = name
             else:
                 names[lang] = getattr(street, default_attr_name)

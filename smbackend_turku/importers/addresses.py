@@ -5,7 +5,8 @@ from django.conf import settings
 from django.contrib.gis.geos import Point
 from mobility_data.importers.bicycle_stands import SOURCE_DATA_SRID
 from munigeo.models import Address, get_default_srid, Municipality, Street
-# As munigeos get_default_srid gives wrong srid use this instead.
+# As munigeos get_default_srid function returns wrong srid,
+#  use srid 3877 instead which is the correct srid.
 SOURCE_DATA_SRID = 3877
 
 class AddressImporter:
@@ -23,7 +24,6 @@ class AddressImporter:
 
     def _import_address(self, entry):
         street, _ = Street.objects.get_or_create(**entry["street"])
-        #location = Point(srid=get_default_srid(), **entry["point"])
         location = Point(srid=SOURCE_DATA_SRID, **entry["point"])
 
         Address.objects.get_or_create(
