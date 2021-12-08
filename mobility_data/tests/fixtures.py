@@ -93,14 +93,14 @@ def administrative_division(administrative_division_type):
 @pytest.fixture
 def streets():
     streets = []
-    street = Street.objects.create(
+    street = Street.objects.create(        
         name="Test Street",
         name_fi="Test Street",
         name_sv="Test StreetSV",
         municipality_id="turku"
     )
     streets.append(street)   
-    street = Street.objects.create(
+    street = Street.objects.create(       
         name="Linnanpuisto",
         name_fi="Linnanpuisto",
         name_sv="LinnanpuistoSV",
@@ -114,12 +114,14 @@ def streets():
 def address(streets):
     location = Point(22.244, 60.444, srid= 3877)
     address = Address.objects.create(
+        id=100,
         location=location, 
         street=streets[0], 
         number=42
     ) 
     location = Point(22.241, 60.333, srid= 3877)
     address = Address.objects.create(
+        id=101,
         location=location, 
         street=streets[1], 
         number=24

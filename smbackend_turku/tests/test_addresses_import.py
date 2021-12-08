@@ -4,7 +4,7 @@ import math
 import pytest
 from munigeo.models import Address, get_default_srid
 
-from smbackend_turku.importers.addresses import AddressImporter
+from smbackend_turku.importers.addresses import AddressImporter, SOURCE_DATA_SRID
 from smbackend_turku.tests.utils import create_municipality, get_location
 
 
@@ -23,8 +23,8 @@ def test_address_import():
     address_1 = Address.objects.get(id=1)
     address_2 = Address.objects.get(id=2)
 
-    address_1_location = get_location(23461366, 6705247, get_default_srid())
-    address_2_location = get_location(23459033, 6702623, get_default_srid())
+    address_1_location = get_location(23461366, 6705247, SOURCE_DATA_SRID)
+    address_2_location = get_location(23459033, 6702623, SOURCE_DATA_SRID)
 
     assert addresses == 2
     assert address_1.street.name == "Kuuvuorenkatu"

@@ -24,8 +24,7 @@
         </GIS:Polkupyoraparkki>
     </gml:featureMember>
     <gml:featureMember>
-        <GIS:Polkupyoraparkki>
-            
+        <GIS:Polkupyoraparkki>            
             <GIS:ObjectId>88996599</GIS:ObjectId>
             <GIS:Katuosa_nimi>Pitkäpellonkatu</GIS:Katuosa_nimi>
             <GIS:Varustelaji>Polkupyöräkatos</GIS:Varustelaji>
