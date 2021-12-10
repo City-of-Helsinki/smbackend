@@ -1,4 +1,3 @@
-from django.contrib.gis.geos import LineString, MultiLineString
 from rest_framework import serializers
 from ..models import (
     BicycleNetwork,
@@ -24,22 +23,13 @@ class BicycleNetworkPartCoordsSerializer(serializers.ModelSerializer):
     def get_geometry_coords(self, obj):
         if obj.geometry:
             if self.context["latlon"] == True:
-                if isinstance(obj.geometry, LineString):      
-                    # Return LineString coordinates in (lat,lon) format
-                    coords = []
-                    for coord in obj.geometry.coords:
-                        # swap lon,lat -> lat lon
-                        e=(coord[1],coord[0])
-                        coords.append(e)                
-                    return coords
-                elif isinstance(obj.geometry, MultiLineString):
-                    coords = []
-                    for linestring in obj.geometry.coords:
-                        # swap lon,lat -> lat lon
-                        for coord in linestring:
-                            e=(coord[1],coord[0])
-                            coords.append(e)                
-                    return coords
+                # Return LineString coordinates in (lat,lon) format
+                coords = []
+                for coord in obj.geometry.coords:
+                    # swap lon,lat -> lat lon
+                    e=(coord[1],coord[0])
+                    coords.append(e)                
+                return coords
             else:
                 return obj.geometry.coords
             
@@ -63,5 +53,3 @@ class BicycleNetworkPartSerializer(BicycleNetworkPartCoordsSerializer):
             "bicycle_network_name",
             "geometry_coords"            
         ]
-
- 
