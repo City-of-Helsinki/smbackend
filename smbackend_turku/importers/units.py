@@ -36,7 +36,9 @@ from smbackend_turku.importers.stations import (
     GasFillingStationImporter,
     ChargingStationImporter,   
 )
-
+from smbackend_turku.importers.bicycle_stands import (
+    BicycleStandImporter
+)
 UTC_TIMEZONE = pytz.timezone("UTC")
 
 ROOT_FIELD_MAPPING = {
@@ -126,6 +128,8 @@ class UnitImporter:
         if not self.delete_external_source:
             self._handle_external_units(GasFillingStationImporter)
             self._handle_external_units(ChargingStationImporter)
+            self._handle_external_units(BicycleStandImporter)
+
         self.unitsyncher.finish()
 
         update_service_node_counts()

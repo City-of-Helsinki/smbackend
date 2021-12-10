@@ -13,9 +13,9 @@ from smbackend_turku.importers.services import import_services
 from smbackend_turku.importers.units import import_units
 from smbackend_turku.importers.stations import (
     import_gas_filling_stations,
-    import_charging_stations,
+    import_charging_stations,    
 )
-
+from smbackend_turku.importers.bicycle_stands import import_bicycle_stands
 class Command(BaseCommand):
     help = "Import services from City of Turku APIs and from external sources."
     importer_types = [
@@ -24,7 +24,8 @@ class Command(BaseCommand):
         "units", 
         "addresses", 
         "gas_filling_stations",
-        "charging_stations"
+        "charging_stations",
+        "bicycle_stands"
         ]
 
     supported_languages = [lang[0] for lang in settings.LANGUAGES]
@@ -101,7 +102,14 @@ class Command(BaseCommand):
             logger=self.logger, 
             root_service_node_name="Vapaa-aika"
             )
-    
+
+    @db.transaction.atomic
+    def import_bicycle_stands(self):
+        import_bicycle_stands(
+            logger=self.logger, 
+            root_service_node_name="Vapaa-aika"
+            )
+     
     # Activate the default language for the duration of the import
     # to make sure translated fields are populated correctly.
     @translation.override(settings.LANGUAGES[0][0])

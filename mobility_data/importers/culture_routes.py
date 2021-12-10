@@ -13,6 +13,7 @@ from mobility_data.models import (
     )
 from .utils import (
     get_or_create_content_type, 
+    set_translated_field,
 )
 
 logger = logging.getLogger("mobility_data")
@@ -179,19 +180,6 @@ def get_routes():
         route.placemarks += pm_objs  
         routes.append(route) 
     return routes
-
-def set_translated_field(obj, field_name, data):
-    """
-    Sets the value of all languages for given field_name.   
-    :param obj: the object to which the fields will be set
-    :param field_name:  name of the field to be set.
-    :param data: dictionary where the key is the language and the value is the value 
-    to be set for the field with the given langauge. 
-    """
-    for lang in LANGUAGES:
-        if lang in data:
-            obj_key = "{}_{}".format(field_name, lang)
-            setattr(obj, obj_key, data[lang])
 
 @db.transaction.atomic
 def save_to_database(routes, delete_tables=False):     

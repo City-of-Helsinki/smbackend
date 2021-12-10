@@ -1,4 +1,5 @@
 from distutils.util import strtobool
+from django.core.exceptions import ValidationError
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
@@ -58,6 +59,9 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
             unit = MobileUnitGroup.objects.get(pk=pk)
         except MobileUnitGroup.DoesNotExist:
             return Response("MobileUnitGroup does not exist.", status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError:
+            return Response("Invalid UUID.")
+   
         filters = self.request.query_params
         srid, latlon = get_srid_and_latlon(filters)
         mobile_units = get_mobile_units(filters)
@@ -107,6 +111,9 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
             unit = MobileUnit.objects.get(pk=pk)
         except MobileUnit.DoesNotExist:
             return Response("MobileUnit does not exist.", status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError:
+            return Response("Invalid UUID.")
+            
         filters = self.request.query_params   
         srid, latlon = get_srid_and_latlon(filters)
         serializer = MobileUnitSerializer(unit, many=False, context={"srid":srid, "latlon": latlon})
@@ -141,5 +148,3 @@ class GroupTypeViewSet(viewsets.ReadOnlyModelViewSet):
 class ContentTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContentType.objects.all()
     serializer_class = ContentTypeSerializer
-
-

@@ -2,12 +2,22 @@ import pytest
 from rest_framework.test import APIClient
 from django.conf import settings
 from django.contrib.gis.geos import Point
+from munigeo.models import (
+    Municipality,
+    Address,
+    Street,
+    AdministrativeDivisionGeometry, 
+    AdministrativeDivision,
+    AdministrativeDivisionType,
+)
 from ..models import (
     MobileUnitGroup,
     MobileUnit,
     ContentType,
     GroupType,   
 )
+
+
 @pytest.fixture
 def api_client():
     return APIClient()
@@ -53,3 +63,68 @@ def mobile_unit_group(group_type):
         group_type=group_type,      
     )
     return mobile_unit_group
+
+@pytest.mark.django_db
+@pytest.fixture
+def municipality():
+    muni = Municipality.objects.create(id="turku", name="Turku")
+    return muni
+
+@pytest.mark.django_db
+@pytest.fixture
+def administrative_division_type():
+    adm_div_type = AdministrativeDivisionType.objects.create(
+        type="muni", 
+        name="Municipality"
+    )
+    return adm_div_type
+
+@pytest.mark.django_db
+@pytest.fixture
+def administrative_division(administrative_division_type):
+    adm_div = AdministrativeDivision.objects.create(
+        name="Turku",    
+        origin_id=853, 
+        type_id=1
+    )
+    return adm_div
+  
+@pytest.mark.django_db
+@pytest.fixture
+def streets():
+    streets = []
+    street = Street.objects.create(        
+        name="Test Street",
+        name_fi="Test Street",
+        name_sv="Test StreetSV",
+        municipality_id="turku"
+    )
+    streets.append(street)   
+    street = Street.objects.create(       
+        name="Linnanpuisto",
+        name_fi="Linnanpuisto",
+        name_sv="LinnanpuistoSV",
+        municipality_id="turku"
+    )  
+    streets.append(street)
+    return streets
+
+@pytest.mark.django_db
+@pytest.fixture
+def address(streets):
+    location = Point(22.244, 60.444, srid= 3877)
+    address = Address.objects.create(
+        id=100,
+        location=location, 
+        street=streets[0], 
+        number=42
+    ) 
+    location = Point(22.241, 60.333, srid= 3877)
+    address = Address.objects.create(
+        id=101,
+        location=location, 
+        street=streets[1], 
+        number=24
+    )  
+    return address
+

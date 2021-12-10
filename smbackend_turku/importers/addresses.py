@@ -3,8 +3,11 @@ import os
 
 from django.conf import settings
 from django.contrib.gis.geos import Point
+from mobility_data.importers.bicycle_stands import SOURCE_DATA_SRID
 from munigeo.models import Address, get_default_srid, Municipality, Street
-
+# As munigeos get_default_srid function returns wrong srid,
+#  use srid 3877 instead which is the correct srid.
+SOURCE_DATA_SRID = 3877
 
 class AddressImporter:
     def __init__(self, logger):
@@ -21,7 +24,7 @@ class AddressImporter:
 
     def _import_address(self, entry):
         street, _ = Street.objects.get_or_create(**entry["street"])
-        location = Point(srid=get_default_srid(), **entry["point"])
+        location = Point(srid=SOURCE_DATA_SRID, **entry["point"])
 
         Address.objects.get_or_create(
             street=street, defaults={"location": location}, **entry["address"]
@@ -36,9 +39,11 @@ class AddressImporter:
 
             coordinates = row["y"] + row["x"]
             if coordinates not in multi_lingual_addresses:
+                # Create a point with a srid, so the coordinates are stored correctly.
+                point = Point(float(row["x"]), float(row["y"]), srid=SOURCE_DATA_SRID)
                 multi_lingual_addresses[coordinates] = {
                     "street": {"municipality": turku},
-                    "point": {"x": float(row["x"]), "y": float(row["y"])},
+                    "point": {"x": point.x, "y": point.y},
                     "address": {"number": row["street_number"]},
                 }
 
@@ -62,6 +67,7 @@ class AddressImporter:
 
     def import_addresses(self):
         file_path = os.path.join(self.data_path, "turku_addresses.csv")
+        print("file" ,file_path)
         entries_created = 0
 
         Street.objects.all().delete()
@@ -83,7 +89,6 @@ class AddressImporter:
                         )
                     )
         self.logger.debug("Added {} addresses".format(entries_created))
-
 
 def import_addresses(**kwargs):
     importer = AddressImporter(**kwargs)
