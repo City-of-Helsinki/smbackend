@@ -90,7 +90,7 @@ isort==5.10.1
     # via -r requirements.in
 jedi==0.18.1
     # via -r requirements.in
-lxml==4.6.4
+lxml==4.6.5
     # via -r requirements.in
 mccabe==0.6.1
     # via flake8
