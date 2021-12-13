@@ -92,3 +92,16 @@ def set_translated_field(obj, field_name, data):
         if lang in data:
             obj_key = "{}_{}".format(field_name, lang)
             setattr(obj, obj_key, data[lang])
+
+def get_street_name_and_number(address):
+    """
+    Parses and returns the street name and number from address.
+    """
+    street_name = "".join([i for i in address if not i.isdigit()]).rstrip()
+    # Last element should be the street number    
+    street_number = address.split(" ")[-1]       
+    # But if not digit set to None
+    if  not street_number.isdigit():        
+        street_number = None 
+    return street_name, street_number
+    

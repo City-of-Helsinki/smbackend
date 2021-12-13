@@ -94,9 +94,9 @@ class GasFillingStationImporter:
             set_tku_translated_field(obj, "name",\
                 create_language_dict(data_obj.name))
             set_tku_translated_field(obj, "street_address",\
-                create_language_dict(data_obj.street_address))
+                data_obj.street_address)
             set_tku_translated_field(obj, "address_postal_full",\
-                create_language_dict(data_obj.address_postal_full))
+                data_obj.address)
             set_field(obj, "address_zip", data_obj.zip_code)           
             description = "{} {}".format(data_obj.operator, data_obj.lng_cng)            
             set_tku_translated_field(obj, "description",\
@@ -164,9 +164,9 @@ class ChargingStationImporter():
             set_tku_translated_field(obj, "name",\
                 create_language_dict(data_obj.name))
             set_tku_translated_field(obj, "street_address",\
-                create_language_dict(data_obj.street_address))
+               data_obj.street_address)
             set_tku_translated_field(obj, "address_postal_full",\
-                create_language_dict(data_obj.address_postal_full))
+                data_obj.address)
             set_field(obj, "address_zip", data_obj.zip_code)
             description = "Charging station"  
             set_tku_translated_field(obj, "description",\

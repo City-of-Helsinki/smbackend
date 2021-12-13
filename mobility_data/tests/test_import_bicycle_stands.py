@@ -2,14 +2,6 @@ from io import StringIO
 import pytest
 from django.core.management import call_command
 from django.contrib.gis.geos import Point
-from munigeo.models import (
-    Address,
-    Street,
-    Municipality,
-    AdministrativeDivisionGeometry, 
-    AdministrativeDivision,
-    AdministrativeDivisionType,
-)
 from .fixtures import *
 from mobility_data.models import (
     MobileUnit,
