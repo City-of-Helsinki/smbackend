@@ -2,13 +2,12 @@ Django
 djangorestframework
 djangorestframework-jsonp
 elasticsearch>=1.0.0,<2.0.0
-Markdown
 django-filter
 django-modeltranslation
 flake8
 requests
 requests_cache
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.60#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.62#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions
