@@ -34,3 +34,4 @@ parso
 whitenoise
 pandas
 pykml
+shapely
