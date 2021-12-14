@@ -25,6 +25,7 @@ def test_importer():
     assert MobileUnit.objects.get(name="Raisio Kuninkoja")
     unit = MobileUnit.objects.get(name="Turku Satama")
     assert unit
+    assert unit.address == "Tuontiväylä 42 abc 1-2, 20200 Turku"
     # Transform to source data srid
     unit.geometry.transform(3857)
     assert pytest.approx(unit.geometry.x, 0.0000000001) ==  2472735.3962113541

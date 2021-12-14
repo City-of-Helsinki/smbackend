@@ -33,8 +33,8 @@ class GasFillingStation:
         y = attributes.get("LAT",0)
         self.point = Point(x, y, srid=srid)              
         self.name = attributes.get("STATION_NAME", "")
-        address_field = attributes.get("ADDRESS", "").lstrip().split(" ")        
-        street_name, street_number = get_street_name_and_number(address_field[0])
+        address_field = attributes.get("ADDRESS", "")    
+        street_name, street_number = get_street_name_and_number(address_field)
         self.zip_code = attributes.get("ZIP_CODE", "")
         self.city = attributes.get("CITY", "")      
         translated_street_names = get_street_name_translations(

@@ -1,4 +1,5 @@
 import requests
+import re
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from munigeo.models import (
@@ -97,11 +98,8 @@ def get_street_name_and_number(address):
     """
     Parses and returns the street name and number from address.
     """
-    street_name = "".join([i for i in address if not i.isdigit()]).rstrip()
-    # Last element should be the street number    
-    street_number = address.split(" ")[-1]       
-    # But if not digit set to None
-    if  not street_number.isdigit():        
-        street_number = None 
+    tmp = re.split(r"(^[^\d]+)", address)
+    street_name = tmp[1].rstrip()
+    street_number = tmp[2]
     return street_name, street_number
     
