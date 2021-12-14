@@ -43,13 +43,13 @@ class ChargingStation:
         address_field = attributes.get("ADDRESS", "").lstrip().split(",")
         street_name, street_number = get_street_name_and_number(address_field[0])
         # if len is >1 address contains zip and city
-        if (len(address_field)>1):
+        if len(address_field)>1:
             zip_and_city = address_field[1].lstrip().split(" ")            
-            if (len(zip_and_city)>0 and zip_and_city[0].isdigit()):
+            if len(zip_and_city)>0 and zip_and_city[0].isdigit():
                 self.zip_code = zip_and_city[0]
             else:
                 self.zip_code = ""
-            if (len(zip_and_city)>1):
+            if len(zip_and_city)>1:
                 self.city = zip_and_city[1]
             else:
                 self.city = ""
