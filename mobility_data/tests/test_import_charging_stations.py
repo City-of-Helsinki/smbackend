@@ -1,6 +1,7 @@
 from io import StringIO
 import pytest
 from django.core.management import call_command
+from .fixtures import *
 from mobility_data.models import (
     MobileUnit,
     ContentType,
@@ -18,12 +19,19 @@ def import_command(*args, **kwargs):
         return out.getvalue()
 
 @pytest.mark.django_db
-def test_importer():
-
+def test_importer(
+    municipality,
+    administrative_division_type,
+    administrative_division,
+    streets,
+    address
+    ):
     out = import_command(test_mode="charging_stations.json")
     assert ContentType.objects.filter(type_name=ContentType.CHARGING_STATION).count() == 1
     assert MobileUnit.objects.filter(content_type__type_name=ContentType.CHARGING_STATION).count() == 2
-    assert MobileUnit.objects.get(name="AimoPark Stockmann Turku")
+    unit = MobileUnit.objects.get(name="AimoPark Stockmann Turku")
+    assert unit.address_fi == "Kristiinankatu 11, 20100 Turku"
+    assert unit.address_sv == "Kristinegatan 11, 20100 Turku"
     unit = MobileUnit.objects.get(name="Hotel Kakola")
     assert unit
     # Transform to source data srid

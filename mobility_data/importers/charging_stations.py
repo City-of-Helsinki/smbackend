@@ -5,12 +5,17 @@ from django.conf import settings
 from .utils import (
     get_or_create_content_type,
     delete_mobile_units, 
+    get_street_name_translations,
     fetch_json, 
-    GEOMETRY_URL
+    set_translated_field,
+    get_street_name_and_number,
+    GEOMETRY_URL,
+    LANGUAGES
 )
 from mobility_data.models import (
     MobileUnit,
     ContentType,
+    mobile_unit,
     )
 logger = logging.getLogger("mobility_data")
 # The data comes from 2 different sources, the first contains basic info as position, address and type
@@ -20,9 +25,13 @@ CHARGING_STATIONS_URL2 = "https://services1.arcgis.com/rhs5fjYxdOG1Et61/ArcGIS/r
 
 
 class ChargingStation:
-
+    
+    
     def __init__(self, elem, srid=settings.DEFAULT_SRID):
         self.is_active = True
+        self.address = {}
+        #Contains Only steet_name and number
+        self.street_address = {}
         geometry = elem.get("geometry", None)
         attributes = elem.get("attributes", None) 
         # Location id is used as reference to chargers in second data source.  
@@ -31,16 +40,32 @@ class ChargingStation:
         y = geometry.get("y",0) 
         self.point = Point(x, y, srid=srid)
         self.name = attributes.get("NAME", "")
-        self.address = attributes.get("ADDRESS", "")
-        temp_str = self.address.split(",")[1].strip()        
-        self.zip_code = temp_str.split(" ")[0]
-        self.city = temp_str.split(" ")[1]
+        address_field = attributes.get("ADDRESS", "").lstrip().split(",")
+        street_name, street_number = get_street_name_and_number(address_field[0])
+        # if len is >1 address contains zip and city
+        if len(address_field)>1:
+            zip_and_city = address_field[1].lstrip().split(" ")            
+            if len(zip_and_city)>0 and zip_and_city[0].isdigit():
+                self.zip_code = zip_and_city[0]
+            else:
+                self.zip_code = ""
+            if len(zip_and_city)>1:
+                self.city = zip_and_city[1]
+            else:
+                self.city = ""
+               
         self.url = attributes.get("URL", "")
-        # address fields for service unit model
-        self.street_address = self.address.split(",")[0]            
-        self.address_postal_full = "{}{}".\
-            format(self.address.split(",")[0], self.address.split(",")[1])
-        # Initialize chargers as empty list
+        translated_street_names = get_street_name_translations(
+            street_name)               
+        for lang in LANGUAGES:            
+            if street_number:
+                self.address[lang] = f"{translated_street_names[lang]} {street_number}, " 
+                self.address[lang] += f"{self.zip_code} {self.city}"
+                self.street_address[lang] = f"{translated_street_names[lang]} {street_number}"
+            else:
+                self.address[lang] = f"{translated_street_names[lang]}, {self.zip_code} {self.city}"
+                self.street_address[lang] = f"{translated_street_names[lang]}"
+                 
         self.chargers = []      
 
     
@@ -103,16 +128,17 @@ def save_to_database(objects, delete_tables=True):
     for object in objects:
         is_active = object.is_active 
         name = object.name
-        address = object.address
         extra = {}       
         extra["url"] = object.url
         extra["chargers"] = object.chargers
-        extra["mobile_unit"] = MobileUnit.objects.create(
+        mobile_unit = MobileUnit.objects.create(
             is_active=is_active,
             name=name,
-            address=address,
             geometry=object.point,
             extra=extra,
             content_type=content_type
         )
+        set_translated_field(mobile_unit, "address", object.address)  
+        mobile_unit.save()
+  
     logger.info("Saved charging stations to database.")

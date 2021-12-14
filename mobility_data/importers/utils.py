@@ -1,4 +1,5 @@
 import requests
+import re
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from munigeo.models import (
@@ -92,3 +93,13 @@ def set_translated_field(obj, field_name, data):
         if lang in data:
             obj_key = "{}_{}".format(field_name, lang)
             setattr(obj, obj_key, data[lang])
+
+def get_street_name_and_number(address):
+    """
+    Parses and returns the street name and number from address.
+    """
+    tmp = re.split(r"(^[^\d]+)", address)
+    street_name = tmp[1].rstrip()
+    street_number = tmp[2]
+    return street_name, street_number
+    

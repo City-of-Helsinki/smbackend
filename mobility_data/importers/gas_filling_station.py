@@ -10,7 +10,11 @@ from .utils import (
     get_or_create_content_type,
     fetch_json, 
     delete_mobile_units, 
-    GEOMETRY_URL
+    get_street_name_translations,
+    set_translated_field,
+    get_street_name_and_number,
+    GEOMETRY_URL,
+    LANGUAGES
 )
 logger = logging.getLogger("mobility_data")
 GAS_FILLING_STATIONS_URL = "https://services1.arcgis.com/rhs5fjYxdOG1Et61/ArcGIS/rest/services/GasFillingStations/FeatureServer/0/query?f=json&where=1%3D1&outFields=OPERATOR%2CLAT%2CLON%2CSTATION_NAME%2CADDRESS%2CCITY%2CZIP_CODE%2CLNG_CNG%2CObjectId"
@@ -19,22 +23,35 @@ GAS_FILLING_STATIONS_URL = "https://services1.arcgis.com/rhs5fjYxdOG1Et61/ArcGIS
 class GasFillingStation:
 
     def __init__(self, elem, srid=settings.DEFAULT_SRID):
+        #Contains the complete address with zip_code and city
+        self.address = {}
+        #Contains Only steet_name and number
+        self.street_address = {}
         self.is_active = True
         attributes = elem.get("attributes")        
         x = attributes.get("LON",0)
         y = attributes.get("LAT",0)
         self.point = Point(x, y, srid=srid)              
         self.name = attributes.get("STATION_NAME", "")
-        self.address = attributes.get("ADDRESS", "")        
+        address_field = attributes.get("ADDRESS", "")    
+        street_name, street_number = get_street_name_and_number(address_field)
         self.zip_code = attributes.get("ZIP_CODE", "")
         self.city = attributes.get("CITY", "")      
-        self.operator = attributes.get("OPERATOR", "")
+        translated_street_names = get_street_name_translations(
+            street_name)               
+        for lang in LANGUAGES:
+            if street_number:
+                self.address[lang] = f"{translated_street_names[lang]} {street_number}, "
+                self.address[lang] += f"{self.zip_code} {self.city}"
+                self.street_address[lang] = f"{translated_street_names[lang]} {street_number}"
+            else:
+                self.address[lang] = f"{translated_street_names[lang]}, "
+                self.address[lang] += f"{self.zip_code} {self.city}"
+                self.street_address[lang] = f"{translated_street_names[lang]}"
+                
+            self.operator = attributes.get("OPERATOR", "")
         self.lng_cng = attributes.get("LNG_CNG", "") 
-        # address fields for service unit model
-        self.street_address = self.address.split(",")[0]        
-        self.address_postal_full = "{} {} {}"\
-            .format(self.address, self.zip_code, self.city)
-
+      
 def get_filtered_gas_filling_station_objects(json_data=None): 
     """
     Returns a list of GasFillingStation objects that are filtered by location.
@@ -70,8 +87,6 @@ def save_to_database(objects, delete_tables=True):
     for object in objects:
         is_active = object.is_active    
         name = object.name
-        address = object.address       
-        address += ", " + object.zip_code + " " + object.city
         extra = {}
         extra["operator"] = object.operator
         extra["lng_cng"] = object.lng_cng 
@@ -79,10 +94,10 @@ def save_to_database(objects, delete_tables=True):
         mobile_unit = MobileUnit.objects.create(
             is_active=is_active,
             name=name,
-            address=address,
             geometry=object.point,
             extra=extra,
             content_type=content_type
-        )      
-
+        )    
+        set_translated_field(mobile_unit, "address", object.address)  
+        mobile_unit.save()
     logger.info("Saved gas filling stations to database.")
