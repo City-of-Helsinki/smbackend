@@ -1,6 +1,8 @@
 from django.apps import apps
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import HStoreField
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex # add the Postgres recommended GIN index
 from django.db.models import JSONField, Manager
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -214,8 +216,10 @@ class Unit(SoftDeleteModel):
     search_objects = UnitSearchManager()
     extra = models.JSONField(null=True)
     related_units = models.ManyToManyField("self", blank=True)
+    vector_column = SearchVectorField(null=True)
     class Meta:
         ordering = ["-pk"]
+        indexes = (GinIndex(fields=["vector_column"]),) # add index
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
@@ -255,3 +259,4 @@ class Unit(SoftDeleteModel):
     def soft_delete(self):
         self.public = False
         super().soft_delete()
+

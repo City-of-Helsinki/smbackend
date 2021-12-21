@@ -1,4 +1,7 @@
 from django.db import models
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex # add the Postgres recommended GIN index
+
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -27,6 +30,7 @@ class ServiceNode(MPTTModel):
 
     objects = CustomTreeManager()
     tree_objects = TreeManager()
+    vector_column = SearchVectorField(null=True)
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
@@ -55,3 +59,5 @@ class ServiceNode(MPTTModel):
 
     class Meta:
         ordering = ["name"]
+        indexes = (GinIndex(fields=["vector_column"]),) # add index
+

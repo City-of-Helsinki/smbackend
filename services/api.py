@@ -24,6 +24,7 @@ from munigeo.models import Address, AdministrativeDivision, Municipality
 from rest_framework import generics, renderers, serializers, viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
+from pprint import pprint as pp
 
 from observations.models import Observation
 from services.accessibility import RULES
@@ -1250,6 +1251,8 @@ class SearchViewSet(
 
     def list(self, request, *args, **kwargs):
         # If the incoming language is not specified, go with the default.
+        from django.db import connection, reset_queries
+
         self.lang_code = request.query_params.get("language", LANGUAGES[0])
         if self.lang_code not in LANGUAGES:
             raise ParseError(
@@ -1298,6 +1301,8 @@ class SearchViewSet(
         resp = self.get_paginated_response(serializer.data)
 
         translation.activate(old_language)
+        pp(connection.queries)
+        reset_queries()
 
         return resp
 
