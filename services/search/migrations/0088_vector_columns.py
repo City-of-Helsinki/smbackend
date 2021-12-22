@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0087_auto_20211221_1248'),
+        ('services', '0087_auto_20211221_1451'),
     ]
     operations = [
         migrations.RunSQL(
@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 setweight(to_tsvector('swedish', coalesce(description_sv,'')), 'B') ||
                 setweight(to_tsvector('english', coalesce(name_en, '')), 'A') ||
                 setweight(to_tsvector('english', coalesce(description_en,'')), 'B')
-              ) STORED;
+              ) STORED set default null;
 
             ALTER TABLE services_service ADD COLUMN vector_column tsvector GENERATED ALWAYS AS (
                 setweight(to_tsvector('finnish', coalesce(name_fi, '')), 'A') ||

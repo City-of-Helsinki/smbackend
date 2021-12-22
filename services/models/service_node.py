@@ -56,7 +56,7 @@ class ServiceNode(MPTTModel):
             (o.period_enabled for o in self.related_services.all() if o.period_enabled),
             False,
         )
-
+  
     class Meta:
         ordering = ["name"]
         indexes = (GinIndex(fields=["vector_column"]),) # add index

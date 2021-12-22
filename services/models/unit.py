@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.contrib.gis.db import models
+from django.contrib.postgres import fields
 from django.contrib.postgres.fields import HStoreField
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex # add the Postgres recommended GIN index
@@ -217,6 +218,7 @@ class Unit(SoftDeleteModel):
     extra = models.JSONField(null=True)
     related_units = models.ManyToManyField("self", blank=True)
     vector_column = SearchVectorField(null=True)
+    
     class Meta:
         ordering = ["-pk"]
         indexes = (GinIndex(fields=["vector_column"]),) # add index
@@ -255,6 +257,15 @@ class Unit(SoftDeleteModel):
                 )
             )
         )
+
+    # def save(self, *args, **kwargs):
+    #     fields_to_exclude = {"vector_column", "services", "service_nodes", "keywords", "id", "related_units"}
+    #     fields_to_update = [f.name for f in Unit._meta.get_fields() if f.name not in fields_to_exclude and not f.auto_created]
+
+    #     kwargs["update_fields"] = fields_to_update
+    #     breakpoint()
+    #     super(Unit, self).save(*args, **kwargs)
+   
 
     def soft_delete(self):
         self.public = False
