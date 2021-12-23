@@ -9,6 +9,8 @@ from django.db import connection
 from django.db import connection, reset_queries
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import serializers
+
 from services.api import LANGUAGES
 from services.models import ( 
     Service,
@@ -28,50 +30,40 @@ LANGUAGES={
     "sv": "swedish"
 }
 
+class SuggestionSerializer(serializers.Serializer):
 
+    id = serializers.IntegerField()
+    type = serializers.CharField()
+    name = serializers.CharField()
+        
 
-def dictfetchall(cursor):
+def dictfetchall2(cursor):
     "Return all rows from a cursor as a dict"
     columns = [col[0] for col in cursor.description]
     return [
         dict(zip(columns, row))
         for row in cursor.fetchall()
     ]
-def namedtuplefetchall(cursor):
-    "Return all rows from a cursor as a namedtuple"
-    desc = cursor.description
-    nt_result = namedtuple('Result', [col[0] for col in desc])
-    return [nt_result(*row) for row in cursor.fetchall()]
 
-"""
+def build_dict(cursor):
+    results = []
+    for row in cursor.fetchall():
+        elem = {}
+        elem["id"] = row[0].split("_")[1]
+        elem["type"] = row[1]
+        elem["name"] = row[2] 
+        results.append(elem)
+    return results
 
-create view search_view as
-select concat('unit_', services_unit.id) as id, vector_column, 'Unit' as type_name from services_unit
-union
-select concat('service_', id) as id, vector_column, 'Service' as type_name from services_service
-union
-select concat('servicenode_', id) as id,  vector_column, 'ServiceNode' as type_name from services_servicenode
-
-
-create view search_view as
-select concat('unit_', services_unit.id) as id, name_fi, name_sv, name_en, 'Unit' as type_name from services_unit
-union
-select concat('service_', id) as id, name_fi, name_sv, name_en, 'Service' as type_name from services_service
-union
-select concat('servicenode_', id) as id,  name_fi, name_sv, name_en, 'ServiceNode' as type_name from services_servicenode
-union
-select concat('munigeo_street_', id) as id,  name_fi, name_sv, name_en, 'MunigeoStreet' as type_name from munigeo_street;
-"""
 
 class SearchViewSet(APIView):
 
     def get(self, request):
-        #populate_units()
-        input_val = self.request.query_params.get("input_val", "").strip()
+        input_val = self.request.query_params.get("input", "").strip()
         q_val = self.request.query_params.get("q", "").strip()
 
-        input_lang = self.request.query_params.get("lang", "fi").strip()
-        language = LANGUAGES[input_lang]
+        language_short = self.request.query_params.get("lang", "fi").strip()
+        language = LANGUAGES[language_short]
         """
         If search_type is 'plain', which is the default, the terms are treated as 
         separate keywords. If search_type is 'phrase', the terms are treated as a 
@@ -82,7 +74,7 @@ class SearchViewSet(APIView):
         search_type = "raw"
         print(language)
         ## Find stop words
-       
+        print(input_val)
         
         ## SQL query for suggestions
         # Note select * from services_unit where name @@ (to_tsquery('tur:*')) = true;
@@ -91,7 +83,6 @@ class SearchViewSet(APIView):
         #res = Unit.objects.raw("select * from services_unit")
         #res = Service.objects.raw("select * from services_unit where name @@ (to_tsquery('tur:*')) = true")
         units_qs = None
-
         if input_val:       
             # Suggestions
             cursor = connection.cursor()
@@ -101,34 +92,43 @@ class SearchViewSet(APIView):
              WHERE to_tsvector('finnish',services_unit.name || services_unit.description ||
               services_service.name) @@  (to_tsquery('finnish','{input_val}:*'));
              """
- # queryset = SearchView.objects.annotate(rank=SearchRank(search_vector,query)).\
+             # queryset = SearchView.objects.annotate(rank=SearchRank(search_vector,query)).\
             #     filter(rank__gte=0.1).distinct().order_by("-rank")
            
             sql = f"""
-            SELECT id, type_name, ts_rank_cd(vector_column, query)  AS rank FROM search_view
-             , to_tsquery('finnish','{input_val}:*') query
+            SELECT id, type_name, name_{language_short}, ts_rank_cd(vector_column, query)  AS rank
+             FROM search_view, to_tsquery('{language}','^{input_val}:*') query
              WHERE query @@ vector_column ORDER BY rank DESC LIMIT 10;
-             """
+             """           
        
-            cursor.execute(sql)         
-            dict_all = dictfetchall(cursor)
-            unit_ids = []
-            service_ids = []
-            for e in dict_all:
-                if e["type_name"] == "Unit":
-                    unit_ids.append(e["id"].replace("unit_","")) 
-                elif e["type_name"] == "Service":
-                    service_ids.append(e["id"].replace("service_","")) 
-            #breakpoint()
-            services = Service.objects.filter(id__in=service_ids)
-            units_qs = Unit.objects.filter(id__in=unit_ids)
-            units_qs = units_qs.union(Unit.objects.filter(services__in=service_ids))
 
-            print(services)
+            cursor.execute(sql)         
+            results = build_dict(cursor)
+            # NOTE, commented, now uses the SuggestionSerializer
+            # unit_ids = []
+            # service_ids = []
+            # for e in results:
+            #     if e["type"] == "Unit":
+            #         unit_ids.append(e["id"].replace("unit_","")) 
+            #     elif e["type"] == "Service":
+            #         service_ids.append(e["id"].replace("service_","")) 
+            #     elif e["type"] == "ServiceNode":
+            #         service_ids.append(e["id"].replace("servicenode_","")) 
+
+ 
+
+            # services = Service.objects.filter(id__in=service_ids)
+            # units_qs = Unit.objects.filter(id__in=unit_ids)
+            # units_qs = units_qs.union(Unit.objects.filter(services__in=service_ids))
+
             pp(connection.queries)
-            print(dict_all)
-            print("Len dict: ", len(dict_all))
-            print("Num services:", len(services))
+            print(results)
+            print("Len dict: ", len(results))
+            serializer = SuggestionSerializer(results, many=True)
+            queries_time = sum([float(s["time"]) for s in connection.queries])
+            print(f"Queries execution time: {queries_time} Num queries: {len(connection.queries)}")
+      
+            return Response(serializer.data)
          
             
         else:
@@ -138,7 +138,7 @@ class SearchViewSet(APIView):
             # search_vector = SearchVector("vector_column", weight="A", config=language)  
             # # Search for columns thar not in the Gindex    
             # search_vector += SearchVector("extra", weight="B", config=language)
-            # search_vector += SearchVector(f"services__name_"+input_lang, weight="A", config=language)      
+            # search_vector += SearchVector(f"services__name_"+language_short, weight="A", config=language)      
            
             # queryset = Unit.objects.annotate(rank=SearchRank(search_vector,query)).\
             #     filter(rank__gte=0.1).distinct().order_by("-rank")
@@ -173,14 +173,14 @@ class SearchViewSet(APIView):
             pp(connection.queries)
            
             print("QS Len;",len(queryset)) 
-        #print(units_qs)
-        print("Units Len;",len(units_qs))
-        ser = UnitSerializer(units_qs, many=True)
-        ## Bencmark output
-        queries_time = sum([float(s["time"]) for s in connection.queries])
-        print(f"Queries execution time: {queries_time} Num queries: {len(connection.queries)}")
-        reset_queries()
-        return Response(ser.data)
+            #print(units_qs)
+            print("Units Len;",len(units_qs))
+            ser = UnitSerializer(units_qs, many=True)
+            ## Bencmark output
+            queries_time = sum([float(s["time"]) for s in connection.queries])
+            print(f"Queries execution time: {queries_time} Num queries: {len(connection.queries)}")
+            reset_queries()
+            return Response(ser.data)
             
 """
 NOTES
@@ -220,6 +220,10 @@ order by nentry desc, ndoc desc;
 # To get supported languages:
 SELECT cfgname FROM pg_ts_config;
 tokens of normalized lexems. and the index
+
+
+
+Synonmy list?
 
 
 """
