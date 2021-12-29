@@ -1,16 +1,13 @@
 from itertools import chain
-
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank, SearchHeadline
+from collections import namedtuple
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models.query_utils import Q
 from django.conf import settings
-from django.db import connection
 from django.db import connection, reset_queries
-from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
-from rest_framework.response import Response
+from rest_framework.exceptions import ParseError
 from rest_framework import serializers
-from services.api_pagination import Pagination
 
 from services.api import ServiceSerializer, UnitSerializer,  ServiceNodeSerializer
 from services.models import ( 
@@ -21,14 +18,8 @@ from services.models import (
     
 )
 from pprint import pprint as pp
-from collections import namedtuple
 
-
-LANGUAGES={
-    "en": "english",
-    "fi": "finnish",
-    "sv": "swedish"
-}
+LANGUAGES = {k:v.lower() for k,v in settings.LANGUAGES}
 
 class SearchSerializer(serializers.Serializer):
     units = UnitSerializer(many=True)
@@ -73,6 +64,7 @@ def build_dict(all_results):
 
 
 def get_ids_from_sql_results(all_results, type="Unit"):
+
     ids = []
     for row in all_results:
         if row[1] == type:
@@ -89,61 +81,79 @@ class SearchViewSet(GenericAPIView):
     def get(self, request):
 
         SearchResult = namedtuple("SearchResult",("services", "units", "service_nodes"))
+        
         input_val = self.request.query_params.get("input", "").strip()
         q_val = self.request.query_params.get("q", "").strip()
-        types = self.request.query_params.get("type", "unit,service,service_node").split(",")
 
+        if not input_val and not q_val:
+            raise ParseError(
+                "Supply search terms with 'q=' or autocomplete entry with 'input='"
+            )
+        if input_val and q_val:
+            raise ParseError("Supply either 'q' or 'input', not both")
+
+
+        types = self.request.query_params.get("type", "unit,service,service_node").split(",")
+        # Limit number os "suggestions"
+        limit = self.request.query_params.get("limit", 10)
         language_short = self.request.query_params.get("lang", "fi").strip()
         language = LANGUAGES[language_short]
+        print(language*10)
         """
+
         If search_type is 'plain', which is the default, the terms are treated as 
         separate keywords. If search_type is 'phrase', the terms are treated as a 
         single phrase. If search_type is 'raw', then you can provide a formatted search
-         query with terms and operators. If search_type is 'websearch', then you can 
-         provide a formatted search query, similar to the one used by web search engines. 'websearch' requires PostgreSQL ≥ 11. Read PostgreSQL’s Full Text Search docs to learn about differences and syntax. Examples:
+         search_query with terms and operators. If search_type is 'websearch', then you can 
+         provide a formatted search search_query, similar to the one used by web search engines. 'websearch' requires PostgreSQL ≥ 11. Read PostgreSQL’s Full Text Search docs to learn about differences and syntax. Examples:
         """
-        search_type = "raw"             
+        search_type = "phrase"             
           
         if input_val:       
-            # Suggestions
+            # "Suggestions"
             cursor = connection.cursor()
-            sql = f"""
-            SELECT services_unit.name, services_unit.id, services_unit.description, services_service.name
-             FROM services_unit INNER JOIN services_service ON services_unit.id = services_service.id
-             WHERE to_tsvector('finnish',services_unit.name || services_unit.description ||
-              services_service.name) @@  (to_tsquery('finnish','{input_val}:*'));
-             """
-             # queryset = SearchView.objects.annotate(rank=SearchRank(search_vector,query)).\
+           # queryset = SearchView.objects.annotate(rank=SearchRank(search_vector,search_query)).\
             #     filter(rank__gte=0.1).distinct().order_by("-rank")
            
             sql = f"""
-            SELECT id, type_name, name_{language_short}, ts_rank_cd(vector_column, query) AS rank
-             FROM search_view, to_tsquery('{language}','^{input_val}:*') query
-             WHERE query @@ vector_column ORDER BY rank DESC LIMIT 10;
+            SELECT id, type_name, name_{language_short}, ts_rank_cd(vector_column, search_query) AS rank
+             FROM search_view, to_tsquery('{language}','^{input_val}:*') search_query
+             WHERE search_query @@ vector_column ORDER BY rank DESC LIMIT {limit};
              """           
        
             cursor.execute(sql)
-            # Note fetchall 
+            # Note fetchall() consumes the results and once called returns None. 
             all_results = cursor.fetchall()        
             # results = build_dict(all_results)
        
             #serializer = SuggestionSerializer(results, many=True)
-            # units_qs = Unit.objects.filter(id__in=get_ids_from_cursor(all_results, type="Unit"), public=True)
-            # services_qs = Service.objects.filter(id__in=get_ids_from_cursor(all_results, type="Service"))
-            # service_nodes_qs = ServiceNode.objects.filter(id__in=get_ids_from_cursor(all_results, type="ServiceNode"))
+        
             unit_ids = get_ids_from_sql_results(all_results, type="Unit")
             service_ids = get_ids_from_sql_results(all_results, type="Service")
             service_node_ids = get_ids_from_sql_results(all_results, "ServiceNode")
         else:
-            query = SearchQuery(q_val, config=language, search_type=search_type)             
-            ## Search using VIEW!
-            search_vector = SearchVector("vector_column", weight="A", config=language)   
-            # NOTE, annotating with SearchRank slows(~100 times) the query, but results are the same.
-            # queryset = SearchView.objects.annotate(rank=SearchRank(search_vector,query)).\
-            #     filter(rank__gte=0.1).distinct().order_by("-rank")           
-
-            queryset = SearchView.objects.filter(vector_column=query)
+            #search_query = SearchQuery(q_val, config=language, search_type=search_type)             
+        
+            q_vals = q_val.split(",")            
+            search_query = SearchQuery(q_vals[0], config=language, search_type=search_type)             
+            # Add conditional searchquerys. 
+            if len(q_vals)>1:
+                for i in range(1, len(q_vals)):  
+                    q = q_vals[i] 
+                    #If word end whit "."  make it a and, i.e. must be included.
+                    if q[-1] == ".":
+                        search_query &= SearchQuery(q, config=language, search_type=search_type) 
+                    else:
+                        search_query |= SearchQuery(q, config=language, search_type=search_type) 
             
+            ## Search using VIEW!
+            #search_vector = SearchVector("vector_column", weight="A", config=language)   
+            # NOTE, annotating with SearchRank slows(~100 times) the search_query, but results are the same.
+            # queryset = SearchView.objects.annotate(rank=SearchRank(search_vector,search_query)).\
+            #     filter(rank__gte=0.1).distinct().order_by("-rank")           
+            queryset = SearchView.objects.filter(vector_column=search_query)
+            #queryset = SearchView.objects.annotate(similarity=TrigramSimilarity("vector_column", "turku"),).filter(similarity__gt=0.3).order_by('-similarity')
+
             # Services needs to be filtered even thou they are not serialized
             # Thus units that are in Services found in search need to be filtered.
             services = queryset.filter(type_name="Service")
@@ -159,8 +169,20 @@ class SearchViewSet(GenericAPIView):
             services_qs = Service.objects.none()
 
         if "unit" in types:
+            #municipalities = ["kaarina", "salo", "raisio"]
             units_qs = Unit.objects.filter(id__in=unit_ids, public=True)
-            units_qs = units_qs.union(Unit.objects.filter(services__in=service_ids, public=True))
+            # Add Units that are in services found in search.
+            units_from_services = Unit.objects.filter(services__in=service_ids, public=True)
+            units_qs = units_qs | units_from_services
+
+            if "municipality" in self.request.query_params:
+                municipalities = self.request.query_params["municipality"].lower().strip().split(",")
+                if municipalities[0] != "":                    
+                    units_qs = units_qs.filter(municipality_id__in=municipalities)
+            if "service" in self.request.query_params:
+                services = self.request.query_params["service"].strip().split(",")
+                if services[0] != "":
+                    units_qs = units_qs.filter(services__in=services)                
         else:
             units_qs = Unit.objects.none()
 
@@ -181,7 +203,7 @@ class SearchViewSet(GenericAPIView):
         #print("Units Len;",len(units_qs))
         
         queries_time = sum([float(s["time"]) for s in connection.queries])
-        print(f"Queries execution time: {queries_time} Num queries: {len(connection.queries)}")
+        print(f"Queries total execution time: {queries_time} Num queries: {len(connection.queries)}")
         reset_queries()
         
         queryset = list(chain(units_qs, services_qs, service_nodes_qs))
@@ -190,21 +212,16 @@ class SearchViewSet(GenericAPIView):
             
 """
 NOTES
-Issues to solve:
+# Issues to solve:
 *  ":*"  to SearchQuery, django equalent for the sql statement: 
 i.e. Unit.objects.filter(name__search="mus:*") does not work
-
-select * from services_unit where name @@ (to_tsquery('tur:*')) = true;
-Which could be used to provide suggestions.
-
-*  How the service of the Unit is added to the db.
-*  Possible to inner join service_name to alter table sql state with generated columns
-
-*  Possible to add the extra field to the vector_column as it is a json field
 *  Find closest unit
 *  Create good benchmarkin system.
+* munigeo and street search
 
-* Aliases 
+
+
+# SearchVector
 The SearchVector class constructs a stemmed, 
 stopword-removed representation of the body column 
 ready to be searched. The resulting queryset contains 
@@ -213,21 +230,30 @@ weights:
 0.1, 0.2, 0.4, and 1.0,
 D, C,B and A 
 
-# Gind
-Is added to the Unit model and then custom migration is migrated.
-The custom migration uses generated columns that are supported on psql >=12.
-No need to use trigger. But the migration needs to drop the column before altering.
+# Gindexes
+Is added as column called vector_column (as their content is generated by to_tsvector function)
+to Unit, Serivce and ServiceNode models.
+View
+A view called SearchView that Unions searchable fields is then created and used when searching.
+Currently a management script generates to content of the vector_columns, to be done with signals
 
-# Query to find common words
-select * from ts_stat('SELECT vector_column FROM services_unit', 'ab') 
+# Query to find most common words
+
+select * from ts_stat('SELECT vector_column FROM search_view', 'ab') 
 order by nentry desc, ndoc desc;
 
-# Suggestions: SearchRank, SearchHeadline ???
 # To get supported languages:
 SELECT cfgname FROM pg_ts_config;
 tokens of normalized lexems. and the index
 
-   ## SQL query for suggestions
+ 
+
+# Debug search_query:
+SELECT * FROM ts_debug('english', 'iso kissa istui ja söi rotan joka oli jo poissa');
+Depending on the settings the lexems are different.
+
+
+  ## SQL search_query for suggestions
         # Note select * from services_unit where name @@ (to_tsquery('tur:*')) = true;
         #Manager.raw() Crashes if model has GIS fields see https://code.djangoproject.com/ticket/28632
         # Bug should be fixed, but seems to crash....
@@ -235,7 +261,6 @@ tokens of normalized lexems. and the index
         #res = Service.objects.raw("select * from services_unit where name @@ (to_tsquery('tur:*')) = true")
 
 
-Synonmy list?
 
 
 """

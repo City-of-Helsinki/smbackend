@@ -21,7 +21,7 @@ from smbackend_turku.importers.utils import (
 from services.management.commands.services_import.services import (
     update_service_node_counts,  
 )  
-def create_language_dict(value):
+def create_language_dict(value, target_langs=["fi", "sv", "en"]):
     """
     Helper function that generates a dict with elements for every language with
     the value given as parameter.
@@ -31,7 +31,11 @@ def create_language_dict(value):
     lang_dict = {}
     languages = [language[0] for language in settings.LANGUAGES]
     for lang in languages:
-        lang_dict[lang] = value
+        if lang in target_langs:
+            lang_dict[lang] = value
+        else:
+            lang_dict[lang] = ""
+            
     return lang_dict
 
 def create_units(num_units, id_offs=50000):
@@ -50,8 +54,8 @@ def create_units(num_units, id_offs=50000):
         obj = Unit(id=id_offs+i)
         obj.last_modified_time = datetime.now(UTC_TIMEZONE)
 
-        set_tku_translated_field(obj, "name", create_language_dict(name))
-        set_tku_translated_field(obj, "description", create_language_dict(description))
+        set_tku_translated_field(obj, "name", create_language_dict(name, target_langs=["en"]))
+        set_tku_translated_field(obj, "description", create_language_dict(description, target_langs=["en"] ))
 
         obj.save()
         try:
@@ -67,4 +71,4 @@ def create_units(num_units, id_offs=50000):
     update_service_node_counts
 
 if __name__ == "__main__":
-    create_units(10000, id_offs=6000)
+    create_units(30000, id_offs=60000)

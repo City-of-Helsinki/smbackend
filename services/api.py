@@ -120,7 +120,7 @@ class TranslatedModelSerializer(object):
         }
         Transforms this:
         {
-            "name": "musiikkiklubit",
+            "name": "musiikkiklubit",f
             "name_fi": "musiikkiklubit",
             "name_sv": "musikklubbar",
             "name_en": "music clubs"
@@ -724,6 +724,7 @@ class UnitSerializer(
             "accessibility_property_hash",
             "identifier_hash",
             "public",
+            "vector_column",
         ]
 
 
@@ -1251,7 +1252,6 @@ class SearchViewSet(
 
     def list(self, request, *args, **kwargs):
         # If the incoming language is not specified, go with the default.
-        from django.db import connection, reset_queries
 
         self.lang_code = request.query_params.get("language", LANGUAGES[0])
         if self.lang_code not in LANGUAGES:
@@ -1301,8 +1301,7 @@ class SearchViewSet(
         resp = self.get_paginated_response(serializer.data)
 
         translation.activate(old_language)
-        pp(connection.queries)
-        reset_queries()
+        
 
         return resp
 
