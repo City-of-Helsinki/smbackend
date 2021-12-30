@@ -21,10 +21,11 @@ unit_vector_column = (
     SearchVector("name_fi", config="finnish", weight="A") +
     SearchVector("name_sv", config="swedish", weight="A") +
     SearchVector("name_en", config="english", weight="A") +
-    SearchVector("extra",  weight="B") + 
-    SearchVector("description_fi", config="finnish", weight="C") +
-    SearchVector("description_sv", config="swedish", weight="C") +
-    SearchVector("description_en", config="english", weight="C") 
+    SearchVector("extra",  weight="B")
+     +     
+    SearchVector("description_fi", config="finnish", weight="D") +
+    SearchVector("description_sv", config="swedish", weight="D") +
+    SearchVector("description_en", config="english", weight="D") 
 )
 
 service_vector_column = (
