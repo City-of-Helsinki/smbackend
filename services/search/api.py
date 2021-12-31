@@ -22,7 +22,7 @@ from services.models import (
     
 )
 from pprint import pprint as pp
-BENCHMARK = False
+BENCHMARK = True
 LANGUAGES = {k:v.lower() for k,v in settings.LANGUAGES}
 DEFAULT_SRS = SpatialReference(settings.DEFAULT_SRID)
 
@@ -190,22 +190,19 @@ class SearchViewSet(GenericAPIView):
          provide a formatted search search_query, similar to the one used by web search engines. 'websearch' requires PostgreSQL ≥ 11. Read PostgreSQL’s Full Text Search docs to learn about differences and syntax. Examples:
         """
         search_type = "plain"             
+        cursor = connection.cursor()
           
         if input_val:       
             # "Suggestions"
-            cursor = connection.cursor()
             sql = f"""
-            SELECT id, type_name, name_{language_short}, ts_rank_cd(vector_column, search_query) AS rank
+            SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column, search_query) AS rank
              FROM search_view, to_tsquery('{config_language}','^{input_val}:*') search_query
-             WHERE search_query @@ vector_column ORDER BY rank DESC LIMIT {limit};
+             WHERE search_query @@ search_column ORDER BY rank DESC LIMIT {limit};
              """           
        
             cursor.execute(sql)
             # Note fetchall() consumes the results and once called returns None. 
-            all_results = cursor.fetchall()        
-            # results = build_dict(all_results)       
-            #serializer = SuggestionSerializer(results, many=True)
-        
+            all_results = cursor.fetchall()                 
             unit_ids = get_ids_from_sql_results(all_results, type="Unit")
             service_ids = get_ids_from_sql_results(all_results, type="Service")
             service_node_ids = get_ids_from_sql_results(all_results, "ServiceNode")
@@ -226,12 +223,12 @@ class SearchViewSet(GenericAPIView):
             
             ## Search using VIEW!
             # NOTE, annotating with SearchRank slows(~100 times) the search_query, but results are the same.
-            # search_vector = SearchVector("vector_column", weight="A", config=config_language)   
+            # search_vector = SearchVector("search_column", weight="A", config=config_language)   
            
             # queryset = SearchView.objects.annotate(rank=SearchRank(search_vector,search_query)).\
             #       filter(rank__gte=0.3).distinct().order_by("-rank")   
-            queryset = SearchView.objects.filter(vector_column=search_query) # [:limit]
-            #queryset = SearchView.objects.annotate(similarity=TrigramSimilarity("vector_column", "turku"),).filter(similarity__gt=0.3).order_by('-similarity')
+            queryset = SearchView.objects.filter(search_column=search_query) # [:limit]
+            #queryset = SearchView.objects.annotate(similarity=TrigramSimilarity("search_column", "turku"),).filter(similarity__gt=0.3).order_by('-similarity')
 
             # Services needs to be filtered even thou they are not serialized
             # Thus units that are in Services found in search need to be filtered.
@@ -244,6 +241,22 @@ class SearchViewSet(GenericAPIView):
             service_node_ids = [sn.id.replace("servicenode_","") for sn in service_nodes]
             #uid = units.values_list("id", flat=True)
             print(unit_ids)
+            ##  TEST of new method of searching.
+            #  TODO figure out howto set units service names to search_column
+        
+            sql = f"""
+            SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column, search_query) AS rank
+             FROM search_view, to_tsquery('{config_language}','^{q_val}') search_query
+             WHERE search_query @@ search_column ORDER BY rank DESC LIMIT {limit};
+             """    
+            cursor.execute(sql)
+            #Note fetchall() consumes the results and once called returns None. 
+            all_results = cursor.fetchall()         
+            unit_ids = get_ids_from_sql_results(all_results, type="Unit")
+            service_ids = get_ids_from_sql_results(all_results, type="Service")
+            service_node_ids = get_ids_from_sql_results(all_results, "ServiceNode")
+            
+            ### END TEST ###
             #breakpoint()
         if "service" in types:
             services_qs = Service.objects.filter(id__in=service_ids)
@@ -257,8 +270,8 @@ class SearchViewSet(GenericAPIView):
             units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
             units_from_services = Unit.objects.filter(services__in=service_ids, public=True).distinct()
             # Only when searching add units from services.
-            if q_val:
-                units_qs = units_qs.union(units_from_services)
+            # if q_val:
+            #     units_qs = units_qs.union(units_from_services)
            
             if "municipality" in self.request.query_params:
                 municipalities = self.request.query_params["municipality"].lower().strip().split(",")
@@ -313,7 +326,7 @@ NOTES!!!
 i.e. Unit.objects.filter(name__search="mus:*") does not work
 
 * munigeo and street search
-* Description in vector_column causes problem in search.
+* Description in search_column causes problem in search.
 * If service found, include units that has it as service???
 
 # SearchVector
@@ -326,7 +339,7 @@ weights:
 D, C,B and A 
 
 # Gindexes
-Is added as column called vector_column (as their content is generated by to_tsvector function)
+Is added as column called search_column (as their content is generated by to_tsvector function)
 to Unit, Serivce and ServiceNode models.
 View
 A view called SearchView that Unions searchable fields is then created and used when searching.
@@ -334,7 +347,7 @@ Currently a management script generates to content of the vector_columns, to be 
 
 # Query to find most common words
 
-select * from ts_stat('SELECT vector_column FROM search_view', 'ab') 
+select * from ts_stat('SELECT search_column FROM search_view', 'ab') 
 order by nentry desc, ndoc desc;
 
 # To get supported languages:

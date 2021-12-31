@@ -30,7 +30,7 @@ class ServiceNode(MPTTModel):
 
     objects = CustomTreeManager()
     tree_objects = TreeManager()
-    vector_column = SearchVectorField(null=True)
+    search_column = SearchVectorField(null=True)
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
@@ -56,10 +56,10 @@ class ServiceNode(MPTTModel):
             (o.period_enabled for o in self.related_services.all() if o.period_enabled),
             False,
         )
-    
-    def get_vector_column_indexing(self):
+    @classmethod    
+    def get_search_column_indexing(self):
         """
-        Defines the columns to be indexed to the vector_column 
+        Defines the columns to be indexed to the search_column 
         ,config language and weight.
         """
         return [
@@ -71,5 +71,5 @@ class ServiceNode(MPTTModel):
     
     class Meta:
         ordering = ["name"]
-        indexes = (GinIndex(fields=["vector_column"]),) # add index
+        indexes = (GinIndex(fields=["search_column"]),) # add index
 

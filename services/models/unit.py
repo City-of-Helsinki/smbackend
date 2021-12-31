@@ -217,11 +217,11 @@ class Unit(SoftDeleteModel):
     search_objects = UnitSearchManager()
     extra = models.JSONField(null=True)
     related_units = models.ManyToManyField("self", blank=True)
-    vector_column = SearchVectorField(null=True)
+    search_column = SearchVectorField(null=True)
     
     class Meta:
         ordering = ["-pk"]
-        indexes = (GinIndex(fields=["vector_column"]),) # add index
+        indexes = (GinIndex(fields=["search_column"]),) # add index
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
@@ -257,10 +257,11 @@ class Unit(SoftDeleteModel):
                 )
             )
         )
- 
-    def get_vector_column_indexing(self):
+
+    @classmethod
+    def get_search_column_indexing(self):
         """
-        Defines the columns to be indexed to the vector_column 
+        Defines the columns to be indexed to the search_column 
         ,config language and weight.
         """
         return [
@@ -268,9 +269,9 @@ class Unit(SoftDeleteModel):
             ("name_sv", "swedish", "A"),
             ("name_en", "english", "A"),
             ("extra", None, "B"),
-            ("description_fi", "finnish", "A"),
-            ("description_sv", "swedish", "A"),
-            ("description_en", "english", "A"),            
+            ("description_fi", "finnish", "D"),
+            ("description_sv", "swedish", "D"),
+            ("description_en", "english", "D"),            
         ]
 
     def soft_delete(self):
