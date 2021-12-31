@@ -710,12 +710,10 @@ class UnitSerializer(
                 ()
                 ret["geometry"] = munigeo_api.geom_to_json(geom, self.srs)
         elif "geometry" in ret:
-            breakpoint()
             del ret["geometry"]
 
         if qparams.get("accessibility_description", "").lower() in ("true", "1"):
             ret["accessibility_description"] = shortcomings.accessibility_description
-        print(self.srs)
         return ret
 
     class Meta:

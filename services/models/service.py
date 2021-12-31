@@ -29,7 +29,20 @@ class Service(models.Model):
     class Meta:
         ordering = ["-pk"]
         indexes = (GinIndex(fields=["vector_column"]),) # add index
+    
 
+    def get_vector_column_indexing(self):
+        """
+        Defines the columns to be indexed to the vector_column 
+        ,config language and weight.
+        """
+        return [
+            ("name_fi", "finnish", "A"),
+            ("name_sv", "swedish", "A"),
+            ("name_en", "english", "A"),
+        ]
+
+   
 
 
 class UnitServiceDetails(models.Model):

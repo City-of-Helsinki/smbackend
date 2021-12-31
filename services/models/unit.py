@@ -257,15 +257,21 @@ class Unit(SoftDeleteModel):
                 )
             )
         )
-
-    # def save(self, *args, **kwargs):
-    #     fields_to_exclude = {"vector_column", "services", "service_nodes", "keywords", "id", "related_units"}
-    #     fields_to_update = [f.name for f in Unit._meta.get_fields() if f.name not in fields_to_exclude and not f.auto_created]
-
-    #     kwargs["update_fields"] = fields_to_update
-    #     breakpoint()
-    #     super(Unit, self).save(*args, **kwargs)
-   
+ 
+    def get_vector_column_indexing(self):
+        """
+        Defines the columns to be indexed to the vector_column 
+        ,config language and weight.
+        """
+        return [
+            ("name_fi", "finnish", "A"),
+            ("name_sv", "swedish", "A"),
+            ("name_en", "english", "A"),
+            ("extra", None, "B"),
+            ("description_fi", "finnish", "A"),
+            ("description_sv", "swedish", "A"),
+            ("description_en", "english", "A"),            
+        ]
 
     def soft_delete(self):
         self.public = False

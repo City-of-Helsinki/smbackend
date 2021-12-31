@@ -56,7 +56,19 @@ class ServiceNode(MPTTModel):
             (o.period_enabled for o in self.related_services.all() if o.period_enabled),
             False,
         )
-  
+    
+    def get_vector_column_indexing(self):
+        """
+        Defines the columns to be indexed to the vector_column 
+        ,config language and weight.
+        """
+        return [
+            ("name_fi", "finnish", "A"),
+            ("name_sv", "swedish", "A"),
+            ("name_en", "english", "A"),
+        ]
+   
+    
     class Meta:
         ordering = ["name"]
         indexes = (GinIndex(fields=["vector_column"]),) # add index

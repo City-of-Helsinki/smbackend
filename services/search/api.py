@@ -267,7 +267,7 @@ class SearchViewSet(GenericAPIView):
             if "service" in self.request.query_params:
                 services = self.request.query_params["service"].strip().split(",")
                 if services[0] != "":
-                    units_qs = units_qs.filter(services__in=services)                
+                    units_qs = units_qs.filter(services__in=services)               
         else:
             units_qs = Unit.objects.none()
 
@@ -275,7 +275,7 @@ class SearchViewSet(GenericAPIView):
             service_nodes_qs = ServiceNode.objects.filter(id__in=service_node_ids)
         else:
             service_nodes_qs = ServiceNode.objects.none()
-
+        #choose serializer depending on if we want search results or suggestion results
         if q_val:
             search_results = SearchResult(units=units_qs,
                 services=services_qs, service_nodes=service_nodes_qs)
@@ -290,16 +290,12 @@ class SearchViewSet(GenericAPIView):
             ids["ServiceNode"] = service_node_ids
             results = build_serializable_data(all_results, ids) 
             serializer = SuggestionSerializer(results, many=True)
-            
-        #breakpoint()
-        ## Bencmark and print results
-        #pp(queryset.explain(verbose=True, analyze=True))
-          
-        #print("QS Len;",len(queryset)) 
-        print(units_qs)
-        #print("Units Len;",len(units_qs))
-
+           
+        #print(units_qs)
+    
         if BENCHMARK:
+            #print("QS Len;",len(queryset)) 
+            #pp(queryset.explain(verbose=True, analyze=True))      
             pp(connection.queries)      
             queries_time = sum([float(s["time"]) for s in connection.queries])
             print(f"Queries total execution time: {queries_time} Num queries: {len(connection.queries)}")
