@@ -8,7 +8,7 @@ appdirs==1.4.4
     # via requests-cache
 asgiref==3.4.1
     # via django
-attrs==21.2.0
+attrs==21.4.0
     # via
     #   cattrs
     #   pytest
@@ -58,11 +58,11 @@ django-mptt==0.13.4
     # via
     #   -r requirements.in
     #   django-munigeo
-django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.63
+django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.64
     # via -r requirements.in
 django-polymorphic==3.1.0
     # via -r requirements.in
-djangorestframework==3.13.0
+djangorestframework==3.13.1
     # via -r requirements.in
 djangorestframework-jsonp==1.0.2
     # via -r requirements.in
@@ -90,7 +90,7 @@ isort==5.10.1
     # via -r requirements.in
 jedi==0.18.1
     # via -r requirements.in
-lxml==4.6.5
+lxml==4.7.1
     # via -r requirements.in
 mccabe==0.6.1
     # via flake8
@@ -110,7 +110,7 @@ pep8-naming==0.12.1
     # via -r requirements.in
 pip-tools==6.4.0
     # via -r requirements.in
-platformdirs==2.4.0
+platformdirs==2.4.1
     # via black
 pluggy==1.0.0
     # via pytest
@@ -149,7 +149,7 @@ requests==2.26.0
     #   django-munigeo
     #   requests-cache
     #   requests-mock
-requests-cache==0.8.1
+requests-cache==0.9.0
     # via
     #   -r requirements.in
     #   django-munigeo
@@ -166,7 +166,7 @@ sqlparse==0.4.2
     # via django
 toml==0.10.2
     # via pytest
-tomli==1.2.2
+tomli==1.2.3
     # via
     #   black
     #   coverage
@@ -188,11 +188,11 @@ urllib3==1.26.7
     #   elasticsearch
     #   requests
     #   requests-cache
-wheel==0.37.0
+wheel==0.37.1
     # via pip-tools
 whitenoise==5.3.0
     # via -r requirements.in
-zipp==3.6.0
+zipp==3.7.0
     # via
     #   importlib-metadata
     #   pep517

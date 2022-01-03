@@ -7,7 +7,7 @@ django-modeltranslation
 flake8
 requests
 requests_cache
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.63#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.64#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions
