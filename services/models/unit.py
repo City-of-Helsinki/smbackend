@@ -166,6 +166,8 @@ class Unit(SoftDeleteModel):
     accessibility_email = models.EmailField(max_length=100, null=True)
     accessibility_www = models.URLField(max_length=400, null=True)
 
+    extra = models.JSONField(default=dict, null=True)
+
     created_time = models.DateTimeField(
         null=True
     )  # ASK API: are these UTC? no Z in output
