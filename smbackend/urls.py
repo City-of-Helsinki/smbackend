@@ -48,7 +48,7 @@ urlpatterns = [
     re_path(r"^api/v2/", include(router.urls)),
     re_path(r"^api/v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
     re_path(r"^api/v2/redirect/unit/", UnitRedirectViewSet.as_view({"get": "list"})),
-    re_path(r"^v2/suggestion/", views.suggestion, name="suggestion"),
+    re_path(r"^api/v2/suggestion/", views.suggestion, name="suggestion"),
     re_path(r"^mobility_data/", include(mobility_data.api.urls), name="mobility_data"),
     re_path(r"^eco-counter/", include(eco_counter.api.urls), name="eco_counter"),
     re_path(r"^bicycle_network/", include(bicycle_network.api.urls), name="bicycle_network"),
