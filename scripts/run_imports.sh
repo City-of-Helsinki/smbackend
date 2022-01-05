@@ -20,6 +20,8 @@ function stage_1 {
 function stage_2 {
     # Once a day?
     ./manage.py geo_import helsinki --addresses
+    ./manage.py services_import_v4 --traceback unit_properties
+    ./manage.py lipas_import --muni-id=92 --muni-id=91 --muni-id=49 --muni-id=235 --muni-id=257
 }
 
 function stage_3 {
