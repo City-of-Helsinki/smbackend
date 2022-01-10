@@ -1,6 +1,11 @@
 from django.apps import apps
 from django.contrib.gis.db import models
+from django.contrib.postgres import fields
 from django.contrib.postgres.fields import HStoreField
+from django.contrib.postgres.indexes import (
+    GinIndex,  # add the Postgres recommended GIN index
+)
+from django.contrib.postgres.search import SearchVectorField
 from django.db.models import JSONField, Manager
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -167,6 +172,7 @@ class Unit(SoftDeleteModel):
     accessibility_www = models.URLField(max_length=400, null=True)
 
     extra = models.JSONField(default=dict, null=True)
+    search_column = SearchVectorField(null=True)
 
     created_time = models.DateTimeField(
         null=True
@@ -217,6 +223,7 @@ class Unit(SoftDeleteModel):
 
     class Meta:
         ordering = ["-pk"]
+        indexes = (GinIndex(fields=["search_column"]),)
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
@@ -252,6 +259,22 @@ class Unit(SoftDeleteModel):
                 )
             )
         )
+
+    @classmethod
+    def get_search_column_indexing(self):
+        """
+        Defines the columns to be indexed to the search_column
+        ,config language and weight.
+        """
+        return [
+            ("name_fi", "finnish", "A"),
+            ("name_sv", "swedish", "A"),
+            ("name_en", "english", "A"),
+            ("extra", None, "B"),
+            ("description_fi", "finnish", "D"),
+            ("description_sv", "swedish", "D"),
+            ("description_en", "english", "D"),
+        ]
 
     def soft_delete(self):
         self.public = False
