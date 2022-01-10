@@ -16,6 +16,8 @@ from django.db import connection, reset_queries
 from django.db.models import Case, When
 from django.db.models.query_utils import Q
 from munigeo import api as munigeo_api
+from munigeo.api import AdministrativeDivisionSerializer
+from munigeo.models import AdministrativeDivision
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 from rest_framework.generics import GenericAPIView
@@ -89,6 +91,7 @@ class SearchResultServiceNodeSerializer(
 
 
 class SearchSerializer(serializers.Serializer):
+    administrative_divisions = AdministrativeDivisionSerializer(many=True)
     units = SearchResultUnitSerializer(many=True)
     # units = UnitSerializer(many=True)
     services = SearchResultServiceSerializer(many=True)
@@ -96,7 +99,6 @@ class SearchSerializer(serializers.Serializer):
 
 
 class SuggestionSerializer(serializers.Serializer):
-
     id = serializers.IntegerField()
     type = serializers.CharField()
     name = serializers.CharField()
@@ -164,7 +166,8 @@ class SearchViewSet(GenericAPIView):
     def get(self, request):
         sql_search = False
         SearchResult = namedtuple(
-            "SearchResult", ("services", "units", "service_nodes")
+            "SearchResult",
+            ("services", "units", "service_nodes", "administrative_divisions"),
         )
         params = self.request.query_params
         q_val = params.get("q", "").strip()
@@ -176,7 +179,9 @@ class SearchViewSet(GenericAPIView):
 
         if not q_val:
             raise ParseError("Supply search terms with 'q=' '")
-        types = params.get("type", "unit,service,service_node").split(",")
+        types = params.get(
+            "type", "unit,service,service_node,administrative_division"
+        ).split(",")
 
         # Limit number of "suggestions"
         if "limit" in params:
@@ -240,8 +245,10 @@ class SearchViewSet(GenericAPIView):
             all_results = cursor.fetchall()
             unit_ids = get_ids_from_sql_results(all_results, type="Unit")
             service_ids = get_ids_from_sql_results(all_results, type="Service")
-            service_node_ids = get_ids_from_sql_results(all_results, "ServiceNode")
-
+            service_node_ids = get_ids_from_sql_results(all_results, type="ServiceNode")
+            administrative_division_ids = get_ids_from_sql_results(
+                all_results, type="AdministrativeDivision"
+            )
         else:
             # NOTE, Using dangos search is ~100 times slower than raw sql
             queryset = (
@@ -305,9 +312,19 @@ class SearchViewSet(GenericAPIView):
         else:
             service_nodes_qs = ServiceNode.objects.none()
 
+        if "administrative_division" in types:
+            administrative_division_qs = AdministrativeDivision.objects.filter(
+                id__in=administrative_division_ids
+            )
+        else:
+            administrative_division_qs = AdministrativeDivision.objects.none()
+
         if q_val:
             search_results = SearchResult(
-                units=units_qs, services=services_qs, service_nodes=service_nodes_qs
+                units=units_qs,
+                services=services_qs,
+                service_nodes=service_nodes_qs,
+                administrative_divisions=administrative_division_qs,
             )
             serializer = SearchSerializer(search_results)
             # results = list()
