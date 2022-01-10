@@ -361,12 +361,13 @@ class JSONAPIViewSetMixin:
     def initial(self, request, *args, **kwargs):
         ret = super(JSONAPIViewSetMixin, self).initial(request, *args, **kwargs)
 
-        include = self.request.query_params.get("include", "")
+        query_params = self.request.query_params
+        include = query_params.get("include", "")
         self.include_fields = [x.strip() for x in include.split(",") if x]
 
         self.only_fields = None
-        only = self.request.query_params.get("only", "")
-        include_geometry = self.request.query_params.get("geometry", "").lower() in (
+        only = query_params.get("only", "")
+        include_geometry = query_params.get("geometry", "").lower() in (
             "true",
             "1",
         )
@@ -515,12 +516,12 @@ class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
                 "keywords", "related_services", "unit_counts", "unit_counts__division"
             )
         )
-        args = self.request.query_params
-        if "id" in args:
-            id_list = args["id"].split(",")
+        query_params = self.request.query_params
+        if "id" in query_params:
+            id_list = query_params["id"].split(",")
             queryset = queryset.filter(id__in=id_list)
-        if "ancestor" in args:
-            val = args["ancestor"]
+        if "ancestor" in query_params:
+            val = query_params["ancestor"]
             queryset = queryset.by_ancestor(val)
         return queryset
 
@@ -538,9 +539,9 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
             .get_queryset()
             .prefetch_related("keywords", "unit_counts", "unit_counts__division")
         )
-        args = self.request.query_params
-        if "id" in args:
-            id_list = args["id"].split(",")
+        query_params = self.request.query_params
+        if "id" in query_params:
+            id_list = query_params["id"].split(",")
             queryset = queryset.filter(id__in=id_list)
         return queryset
 
@@ -804,6 +805,12 @@ class UnitViewSet(
             id_list = filters["id"].split(",")
             queryset = queryset.filter(id__in=id_list)
 
+        for f in filters:
+            if f.startswith("extra__"):
+                queryset = queryset.filter(
+                    **{f: int(filters[f]) if filters[f].isnumeric() else filters[f]}
+                )
+
         if "municipality" in filters:
             val = filters["municipality"].lower().strip()
             if len(val) > 0:
@@ -859,9 +866,8 @@ class UnitViewSet(
 
         level = filters.get("level", None)
         level_specs = None
-        if level:
-            if level != "all":
-                level_specs = settings.LEVELS.get(level)
+        if level and level != "all":
+            level_specs = settings.LEVELS.get(level)
 
         def service_nodes_by_ancestors(service_node_ids):
             srv_list = set()
@@ -1140,8 +1146,10 @@ class SearchViewSet(
             queryset = queryset.models(Unit)
             self.only_fields["unit"].extend(["street_address", "www"])
 
-        input_val = self.request.query_params.get("input", "").strip()
-        q_val = self.request.query_params.get("q", "").strip()
+        query_params = self.request.query_params
+
+        input_val = query_params.get("input", "").strip()
+        q_val = query_params.get("q", "").strip()
         exact_query = self.use_exact_query(q_val)
 
         if not input_val and not q_val:
@@ -1180,8 +1188,8 @@ class SearchViewSet(
             | SQ(django_ct="munigeo.address")
         )
 
-        if "municipality" in self.request.query_params:
-            val = self.request.query_params["municipality"].lower().strip()
+        if "municipality" in query_params:
+            val = query_params["municipality"].lower().strip()
             if len(val) > 0:
                 municipalities = val.split(",")
 
@@ -1191,8 +1199,8 @@ class SearchViewSet(
 
                 queryset = queryset.filter(SQ(muni_sq | is_not_unit_sq))
 
-        if "city_as_department" in self.request.query_params:
-            val = self.request.query_params["city_as_department"].lower().strip()
+        if "city_as_department" in query_params:
+            val = query_params["city_as_department"].lower().strip()
 
             if len(val) > 0:
                 deps_uuid = val.split(",")
@@ -1215,7 +1223,7 @@ class SearchViewSet(
                 # updating queryset
                 queryset = queryset.filter(SQ(muni_sq | dep_sq | is_not_unit_sq))
 
-        service = self.request.query_params.get("service")
+        service = query_params.get("service")
         if service:
             services = service.split(",")
             queryset = queryset.filter(django_ct="services.unit").filter(
@@ -1227,7 +1235,7 @@ class SearchViewSet(
         queryset = queryset.filter(public="true")
 
         models = set()
-        types = self.request.query_params.get("type", "").split(",")
+        types = query_params.get("type", "").split(",")
         for t in types:
             if t == "service_node":
                 models.add(ServiceNode)
