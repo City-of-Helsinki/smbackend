@@ -9,6 +9,7 @@ from observations.api import views as observations_views
 from observations.views import obtain_auth_token
 from services import views
 from services.api import all_views as services_views
+from services.search.api import SearchViewSet
 from services.unit_redirect_viewset import UnitRedirectViewSet
 from shortcutter import urls as shortcutter_urls
 
@@ -58,6 +59,7 @@ urlpatterns = [
     re_path(r"^readiness/", readiness),
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^open311/", views.post_service_request, name="services"),
+    re_path(r"^search", SearchViewSet.as_view(), name="search"),
     re_path(r"^v2/", include(router.urls)),
     re_path(r"^v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
     re_path(r"^v2/redirect/unit/", UnitRedirectViewSet.as_view({"get": "list"})),
