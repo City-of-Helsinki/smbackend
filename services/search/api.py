@@ -307,13 +307,15 @@ class SearchViewSet(GenericAPIView):
             # units_qs = Unit.objects.filter(id__in=unit_ids, public=True)
             # preserve the order in the unit_ids list.
             preserved = get_preserved_order(unit_ids)
-            units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
-            units_from_services = Unit.objects.filter(
-                services__in=service_ids, public=True
-            )
-            # Add units which are associated with the services found.
-            units_qs = units_from_services | units_qs
-
+            if preserved:
+                units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
+                units_from_services = Unit.objects.filter(
+                    services__in=service_ids, public=True
+                )
+                # Add units which are associated with the services found.
+                units_qs = units_from_services | units_qs
+            else:
+                units_qs = Unit.objects.none()
             # Trigram search, TODO should it be used?
             if trigram_search:  # or not units_qs:
                 units_trigm = (
@@ -328,7 +330,6 @@ class SearchViewSet(GenericAPIView):
                 if ids:
                     preserved = get_preserved_order(ids)
                     # print(preserved)
-                    # breakpoint()
                     units_trigm = Unit.objects.filter(id__in=ids).order_by(preserved)
                     if units_qs:
                         units_qs = units_trigm | units_qs
