@@ -15,9 +15,6 @@ env = environ.Env(
     DATABASE_URL=(str, "postgis:///servicemap"),
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
-    ELASTICSEARCH_URL=(str, None),
-    ELASTICSEARCH_INDEX_PREFIX=(str, "servicemap"),
-    DISABLE_HAYSTACK_SIGNAL_PROCESSOR=(bool, False),
     ALLOWED_HOSTS=(list, []),
     SENTRY_DSN=(str, None),
     SENTRY_ENVIRONMENT=(str, "development"),
@@ -77,7 +74,6 @@ INSTALLED_APPS = [
     "django_filters",
     "modeltranslation",
     "django.contrib.admin",
-    "haystack",
     "munigeo",
     "services.apps.ServicesConfig",
     "observations",
@@ -275,61 +271,6 @@ LOGGING = {
         "bicycle_network": {"handlers": ["console"], "level": "INFO"},
     },
 }
-
-
-def read_config(name):
-    return json.load(
-        open(
-            os.path.join(BASE_DIR, "smbackend", "elasticsearch/{}.json".format(name)),
-            encoding="utf-8",
-        )
-    )
-
-
-ELASTICSEARCH_URL = env("ELASTICSEARCH_URL")
-ELASTICSEARCH_INDEX_PREFIX = env("ELASTICSEARCH_INDEX_PREFIX")
-
-if ELASTICSEARCH_URL:
-    HAYSTACK_CONNECTIONS = {
-        "default": {
-            "ENGINE": "multilingual_haystack.backends.MultilingualSearchEngine",
-        },
-        "default-fi": {
-            "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
-            "BASE_ENGINE": "multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine",
-            "URL": ELASTICSEARCH_URL,
-            "INDEX_NAME": "{}-fi".format(ELASTICSEARCH_INDEX_PREFIX),
-            "MAPPINGS": read_config("mappings_finnish")["modelresult"]["properties"],
-            "SETTINGS": read_config("settings_finnish"),
-        },
-        "default-sv": {
-            "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
-            "BASE_ENGINE": "multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine",
-            "URL": ELASTICSEARCH_URL,
-            "INDEX_NAME": "{}-sv".format(ELASTICSEARCH_INDEX_PREFIX),
-            "MAPPINGS": read_config("mappings_swedish")["modelresult"]["properties"],
-            "SETTINGS": read_config("settings_swedish"),
-        },
-        "default-en": {
-            "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
-            "BASE_ENGINE": "multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine",
-            "URL": ELASTICSEARCH_URL,
-            "INDEX_NAME": "{}-en".format(ELASTICSEARCH_INDEX_PREFIX),
-            "MAPPINGS": read_config("mappings_english")["modelresult"]["properties"],
-            "SETTINGS": read_config("settings_english"),
-        },
-    }
-else:
-    # Default fallback, when real search capabilities are not needed
-    HAYSTACK_CONNECTIONS = {
-        "default": {
-            "ENGINE": "multilingual_haystack.backends.SimpleEngine",
-        }
-    }
-
-HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
-HAYSTACK_SIGNAL_PROCESSOR = "services.search_indexes.DeleteOnlySignalProcessor"
-DISABLE_HAYSTACK_SIGNAL_PROCESSOR = env("DISABLE_HAYSTACK_SIGNAL_PROCESSOR")
 
 KML_TRANSLATABLE_FIELDS = ["name", "street_address", "www"]
 KML_REGEXP = r"application/vnd.google-earth\.kml"

@@ -1,8 +1,6 @@
-Django
+Django==4.0
 djangorestframework
 djangorestframework-jsonp
-#elasticsearch>=1.0.0,<2.0.0
-elasticsearch<=5.0.0
 Markdown
 django-filter
 django-modeltranslation
@@ -15,14 +13,13 @@ django-cors-headers
 django-extensions
 psycopg2-binary<2.9
 django-mptt
-django-haystack
 lxml
 raven~=6.10.0
 pip-tools
 python-dateutil
 pytest-django
 pytest-cov
-django-polymorphic
+django-polymorphic>=3.1
 requests-mock
 tqdm
 django-environ

@@ -12,23 +12,18 @@ from services.models import (
 
 @receiver(post_save, sender=Unit)
 def unit_on_save(sender, **kwargs):
-    obj = kwargs["instance"]
-    print("Unit on save obj: ", obj)
+    obj = kwargs["instance"]    
     # Do transaction after successfull commit.
     transaction.on_commit(populate_search_column(obj))
 
 @receiver(post_save, sender=Service)
 def service_on_save(sender, **kwargs):
-    obj = kwargs["instance"]
-    #print("Service on save obj: ", obj)
-    # Do transaction after successfull commit.
+    obj = kwargs["instance"]    
     transaction.on_commit(populate_search_column(obj))
 
 @receiver(post_save, sender=ServiceNode)
 def service_node_on_save(sender, **kwargs):
-    obj = kwargs["instance"]
-    print("ServiceNode On save obj: ", obj)
-    # Do transaction after successfull commit.
+    obj = kwargs["instance"]    
     transaction.on_commit(populate_search_column(obj))
 
 def populate_search_column(obj):
