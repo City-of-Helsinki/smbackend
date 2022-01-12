@@ -25,6 +25,7 @@ from services.models import (
     ServiceNode,
     SearchView,
     Unit,
+    TrigramWords
 )
 from pprint import pprint as pp
 
@@ -179,7 +180,21 @@ def get_preserved_order(ids):
     if ids:
         return Case(*[When(id=id, then=pos) for pos, id in enumerate(ids)])
     else:
-        return None
+        return Case()
+
+
+def get_trigram_results(model, field, q_val, threshold=0.1):
+    trigm = (
+        model.objects.annotate(
+            similarity=TrigramSimilarity(field, q_val),
+        )
+        .filter(similarity__gt=threshold)
+        .order_by("-similarity")
+    )
+    ids = trigm.values_list("id", flat=True)
+    preserved = get_preserved_order(ids)
+    return model.objects.filter(id__in=ids).order_by(preserved)
+   
 
 
 class SearchViewSet(GenericAPIView):
@@ -187,7 +202,7 @@ class SearchViewSet(GenericAPIView):
 
     def get(self, request):
         sql_search = True
-        trigram_search = True
+        trigram_search = False
 
         SearchResult = namedtuple(
             "SearchResult", ("services", "units", "service_nodes")
@@ -299,7 +314,11 @@ class SearchViewSet(GenericAPIView):
                     service_node_ids.append(elem.id.replace("servicenode_", ""))
 
         if "service" in types:
-            services_qs = Service.objects.filter(id__in=service_ids)
+            preserved = get_preserved_order(service_ids)
+            services_qs = Service.objects.filter(id__in=service_ids).order_by(preserved)
+            if trigram_search:  # or not units_qs:               
+                services_trigm = get_trigram_results(Service, "name_" + language_short, q_val)
+                services_qs = services_trigm | services_qs
         else:
             services_qs = Service.objects.none()
 
@@ -307,34 +326,22 @@ class SearchViewSet(GenericAPIView):
             # units_qs = Unit.objects.filter(id__in=unit_ids, public=True)
             # preserve the order in the unit_ids list.
             preserved = get_preserved_order(unit_ids)
-            if preserved:
-                units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
-                units_from_services = Unit.objects.filter(
-                    services__in=service_ids, public=True
-                )
-                # Add units which are associated with the services found.
-                units_qs = units_from_services | units_qs
-            else:
-                units_qs = Unit.objects.none()
-            # Trigram search, TODO should it be used?
-            if trigram_search:  # or not units_qs:
-                units_trigm = (
-                    Unit.objects.annotate(
-                        similarity=TrigramSimilarity("name_" + language_short, q_val),
-                    )
-                    .filter(similarity__gt=0.1)
-                    .order_by("-similarity")
-                )
-                ids = units_trigm.values_list("id", flat=True)
-                # units_trigm = Unit.objects.filter(id__in=ids)
-                if ids:
-                    preserved = get_preserved_order(ids)
-                    # print(preserved)
-                    units_trigm = Unit.objects.filter(id__in=ids).order_by(preserved)
-                    if units_qs:
-                        units_qs = units_trigm | units_qs
-                    else:
-                        units_qs = units_trigm
+            # if preserved:
+            units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
+            units_from_services = Unit.objects.filter(
+                services__in=service_ids, public=True
+            )
+            # Add units which are associated with the services found.
+            units_qs = units_from_services | units_qs           
+            # # Trigram search, TODO should it be used?
+            if trigram_search:  # or not units_qs:               
+                units_trigm = get_trigram_results(Unit, "name_" + language_short, q_val)
+                #breakpoint()
+             
+                if units_qs:
+                    units_qs = units_trigm | units_qs
+                else:
+                    units_qs = units_trigm
 
             units_qs = units_qs.all().distinct()
 
