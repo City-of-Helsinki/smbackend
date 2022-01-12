@@ -192,6 +192,7 @@ def get_trigram_results(model, field, q_val, threshold=0.1):
     )
     ids = trigm.values_list("id", flat=True)
     preserved = get_preserved_order(ids)
+
     return model.objects.filter(id__in=ids).order_by(preserved)
    
 
@@ -317,7 +318,11 @@ class SearchViewSet(GenericAPIView):
             services_qs = Service.objects.filter(id__in=service_ids).order_by(preserved)
             if trigram_search:  # or not units_qs:               
                 services_trigm = get_trigram_results(Service, "name_" + language_short, q_val)
-                services_qs = services_trigm | services_qs
+                if services_qs:
+                    services_qs = services_trigm | services_qs
+                else:
+                    services_qs = services_trigm
+            services_qs = services_qs.all().distinct()
         else:
             services_qs = Service.objects.none()
 
