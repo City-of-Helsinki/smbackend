@@ -25,7 +25,6 @@ from services.models import (
     ServiceNode,
     SearchView,
     Unit,
-    TrigramWords
 )
 from pprint import pprint as pp
 
