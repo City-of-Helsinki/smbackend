@@ -1,6 +1,6 @@
 from django.contrib.postgres.search import SearchVector
 from django.core.management.base import BaseCommand
-from munigeo.models import AdministrativeDivision
+from munigeo.models import Address, AdministrativeDivision
 
 from services.models import Service, ServiceNode, Unit
 
@@ -40,4 +40,8 @@ class Command(BaseCommand):
             AdministrativeDivision.objects.update(
                 search_column=get_search_column(AdministrativeDivision)
             ),
+        )
+        print(
+            "Addresses indexed:",
+            Address.objects.update(search_column=get_search_column(Address)),
         )

@@ -15,11 +15,11 @@ attrs==21.4.0
     #   requests-cache
 black==21.12b0
     # via -r requirements.in
-cattrs==1.9.0
+cattrs==1.10.0
     # via requests-cache
 certifi==2021.10.8
     # via requests
-charset-normalizer==2.0.9
+charset-normalizer==2.0.10
     # via requests
 click==8.0.3
     # via
@@ -27,7 +27,7 @@ click==8.0.3
     #   pip-tools
 coverage[toml]==6.2
     # via pytest-cov
-django==3.2.10
+django==3.2.11
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -38,7 +38,7 @@ django==3.2.10
     #   django-munigeo
     #   django-polymorphic
     #   djangorestframework
-django-cors-headers==3.10.1
+django-cors-headers==3.11.0
     # via -r requirements.in
 django-environ==0.8.1
     # via -r requirements.in
@@ -58,7 +58,7 @@ django-mptt==0.13.4
     # via
     #   -r requirements.in
     #   django-munigeo
-django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.64
+django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.65
     # via -r requirements.in
 django-polymorphic==3.1.0
     # via -r requirements.in
@@ -143,7 +143,7 @@ pyyaml==6.0
     # via django-munigeo
 raven==6.10.0
     # via -r requirements.in
-requests==2.26.0
+requests==2.27.1
     # via
     #   -r requirements.in
     #   django-munigeo
@@ -183,7 +183,7 @@ typing-extensions==4.0.1
     #   importlib-metadata
 url-normalize==1.4.3
     # via requests-cache
-urllib3==1.26.7
+urllib3==1.26.8
     # via
     #   elasticsearch
     #   requests

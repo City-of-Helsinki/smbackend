@@ -1,6 +1,5 @@
 from django.apps import apps
 from django.contrib.gis.db import models
-from django.contrib.postgres import fields
 from django.contrib.postgres.fields import HStoreField
 from django.contrib.postgres.indexes import (
     GinIndex,  # add the Postgres recommended GIN index
@@ -261,7 +260,7 @@ class Unit(SoftDeleteModel):
         )
 
     @classmethod
-    def get_search_column_indexing(self):
+    def get_search_column_indexing(cls):
         """
         Defines the columns to be indexed to the search_column
         ,config language and weight.

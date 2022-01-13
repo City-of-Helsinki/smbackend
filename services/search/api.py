@@ -6,29 +6,17 @@ from pprint import pprint as pp
 
 from django.conf import settings
 from django.contrib.gis.gdal import SpatialReference
-from django.contrib.postgres.search import (
-    SearchQuery,
-    SearchRank,
-    SearchVector,
-    TrigramSimilarity,
-)
+from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.db import connection, reset_queries
 from django.db.models import Case, When
-from django.db.models.query_utils import Q
 from munigeo import api as munigeo_api
-from munigeo.api import AdministrativeDivisionSerializer
-from munigeo.models import AdministrativeDivision
+from munigeo.api import AddressSerializer, AdministrativeDivisionSerializer
+from munigeo.models import Address, AdministrativeDivision
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 from rest_framework.generics import GenericAPIView
 
-from services.api import (
-    SearchSerializer,
-    ServiceNodeSerializer,
-    ServiceSerializer,
-    TranslatedModelSerializer,
-    UnitSerializer,
-)
+from services.api import TranslatedModelSerializer
 from services.models import SearchView, Service, ServiceNode, Unit
 
 BENCHMARK = True
@@ -91,6 +79,7 @@ class SearchResultServiceNodeSerializer(
 
 
 class SearchSerializer(serializers.Serializer):
+    addresses = AddressSerializer(many=True)
     administrative_divisions = AdministrativeDivisionSerializer(many=True)
     units = SearchResultUnitSerializer(many=True)
     # units = UnitSerializer(many=True)
@@ -167,7 +156,13 @@ class SearchViewSet(GenericAPIView):
         sql_search = False
         SearchResult = namedtuple(
             "SearchResult",
-            ("services", "units", "service_nodes", "administrative_divisions"),
+            (
+                "services",
+                "units",
+                "service_nodes",
+                "administrative_divisions",
+                "addresses",
+            ),
         )
         params = self.request.query_params
         q_val = params.get("q", "").strip()
@@ -180,7 +175,7 @@ class SearchViewSet(GenericAPIView):
         if not q_val:
             raise ParseError("Supply search terms with 'q=' '")
         types = params.get(
-            "type", "unit,service,service_node,administrative_division"
+            "type", "unit,service,service_node,administrative_division,address"
         ).split(",")
 
         # Limit number of "suggestions"
@@ -204,7 +199,7 @@ class SearchViewSet(GenericAPIView):
         search_query_str = None  # Used in the raw sql
         search_query = None  # Used with djangos filter
         # Build conditional searchquery.
-        q_vals = re.split(",|\s+", q_val)
+        q_vals = re.split(",|\s+", q_val)  # noqa:W605
         for q in q_vals:
 
             if sql_search:
@@ -231,6 +226,7 @@ class SearchViewSet(GenericAPIView):
                         q, config=config_language, search_type=search_type
                     )
 
+        administrative_division_ids = []
         if sql_search:
             # This is ~100 times faster than using Djangos SearchRank
             # and by rankig gives better results, e.g. description fields weight is counted
@@ -249,6 +245,7 @@ class SearchViewSet(GenericAPIView):
             administrative_division_ids = get_ids_from_sql_results(
                 all_results, type="AdministrativeDivision"
             )
+            address_ids = get_ids_from_sql_results(all_results, type="Address")
         else:
             # NOTE, Using dangos search is ~100 times slower than raw sql
             queryset = (
@@ -319,12 +316,18 @@ class SearchViewSet(GenericAPIView):
         else:
             administrative_division_qs = AdministrativeDivision.objects.none()
 
+        if "address" in types:
+            address_qs = Address.objects.filter(id__in=address_ids)
+        else:
+            address_qs = Address.objects.none()
+
         if q_val:
             search_results = SearchResult(
                 units=units_qs,
                 services=services_qs,
                 service_nodes=service_nodes_qs,
                 administrative_divisions=administrative_division_qs,
+                addresses=address_qs,
             )
             serializer = SearchSerializer(search_results)
             # results = list()
@@ -348,7 +351,7 @@ class SearchViewSet(GenericAPIView):
             reset_queries()
 
         queryset = list(chain(units_qs, services_qs, service_nodes_qs))
-        page = self.paginate_queryset(queryset)
+        page = self.paginate_queryset(queryset)  # noqa:F841
         return self.get_paginated_response(serializer.data)
 
 
@@ -356,7 +359,7 @@ class SearchViewSet(GenericAPIView):
 NOTES!!!
 
 # Issues, questions to solve:
-*  ":*"  to SearchQuery, django equalent for the sql statement: 
+*  ":*"  to SearchQuery, django equalent for the sql statement:
 i.e. Unit.objects.filter(name__search="mus:*") does not work
 One option, override SearchQuery class and it as_sql function?
 site-packages/django/contrib/postgres/search.py
@@ -365,13 +368,13 @@ site-packages/django/contrib/postgres/search.py
 * If service found, include units that has it as service???
 * Order of services and howto include to queryset
 # SearchVector
-The SearchVector class constructs a stemmed, 
-stopword-removed representation of the body column 
-ready to be searched. The resulting queryset contains 
+The SearchVector class constructs a stemmed,
+stopword-removed representation of the body column
+ready to be searched. The resulting queryset contains
 entries that are a match for “django”.
 weights:
 0.1, 0.2, 0.4, and 1.0,
-D, C,B and A 
+D, C,B and A
 
 # Gindexes
 Is added as column called search_column (as their content is generated by to_tsvector function)
@@ -381,12 +384,12 @@ A view called SearchView that Unions searchable fields is then created and used 
 Currently a management script generates to content of the vector_columns, to be done with signals
 
 # Query to find most common words
-select * from ts_stat('SELECT search_column FROM search_view', 'ab') 
+select * from ts_stat('SELECT search_column FROM search_view', 'ab')
 order by nentry desc, ndoc desc;
 
 # To get supported languages:
 SELECT cfgname FROM pg_ts_config;
-tokens of normalized lexems. and the index 
+tokens of normalized lexems. and the index
 
 # Debug search_query:
 SELECT * FROM ts_debug('finnish', 'iso kissa istui ja söi rotan joka oli jo poissa');
