@@ -31,7 +31,7 @@ class Service(models.Model):
         indexes = (GinIndex(fields=["search_column"]),) # add index
     
     @classmethod
-    def get_search_column_indexing(self):
+    def get_search_column_indexing(cls):
         """
         Defines the columns to be indexed to the search_column 
         ,config language and weight.

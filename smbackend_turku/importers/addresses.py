@@ -45,12 +45,15 @@ class AddressImporter:
                     "street": {"municipality": turku},
                     "point": {"x": point.x, "y": point.y},
                     "address": {"number": row["street_number"]},
-                }
 
+                }
+            full_name = f"{row['street']} {row['street_number']}"
             if row["municipality"].lower() == "turku":
                 multi_lingual_addresses[coordinates]["street"]["name_fi"] = row[
                     "street"
                 ]
+                multi_lingual_addresses[coordinates]["address"]["full_name_fi"] = full_name
+
             elif row["municipality"].lower() == "åbo":
                 # If we don't have a Finnish name for the street, use the Swedish name
                 # for the Finnish street name as well since that is most likely an
@@ -63,6 +66,8 @@ class AddressImporter:
                 multi_lingual_addresses[coordinates]["street"]["name_sv"] = row[
                     "street"
                 ]
+                multi_lingual_addresses[coordinates]["address"]["full_name_sv"] = full_name
+
         return multi_lingual_addresses
 
     def import_addresses(self):
@@ -81,6 +86,7 @@ class AddressImporter:
 
             for entry in multi_lingual_addresses.values():
                 self._import_address(entry)
+
                 entries_created += 1
                 if entries_created % 1000 == 0:
                     self.logger.debug(
@@ -88,6 +94,7 @@ class AddressImporter:
                             entries_created, len(multi_lingual_addresses.values())
                         )
                     )
+                
         self.logger.debug("Added {} addresses".format(entries_created))
 
 def import_addresses(**kwargs):

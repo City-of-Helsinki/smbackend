@@ -3,7 +3,7 @@ import re
 from collections import namedtuple
 from distutils.util import strtobool
 from django.contrib.postgres.search import SearchQuery, SearchRank
-from django.contrib.postgres.search import TrigramSimilarity, TrigramDistance
+from django.contrib.postgres.search import TrigramSimilarity
 from django.contrib.gis.gdal import SpatialReference
 from django.db.models import Case, When
 from django.db.models.query_utils import Q
@@ -13,8 +13,9 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.exceptions import ParseError
 from rest_framework import serializers
 from munigeo import api as munigeo_api
+from munigeo.api import AddressSerializer, AdministrativeDivisionSerializer
+from munigeo.models import Address, AdministrativeDivision
 from services.api import (
-    SearchSerializer,
     ServiceSerializer,
     UnitSerializer,
     ServiceNodeSerializer,
@@ -88,9 +89,12 @@ class SearchResultServiceNodeSerializer(
 
 
 class SearchSerializer(serializers.Serializer):
+    addresses = AddressSerializer(many=True)
+    administrative_divisions = AdministrativeDivisionSerializer(many=True)
     units = UnitSerializer(many=True)
     services = ServiceSerializer(many=True)
     service_nodes = ServiceNodeSerializer(many=True)
+
     # units = SearchResultUnitSerializer(many=True)
     # services = SearchResultServiceSerializer(many=True)
     # service_nodes = SearchResultServiceNodeSerializer(many=True)
@@ -192,9 +196,10 @@ def get_trigram_results(model, field, q_val, threshold=0.1):
     )
     ids = trigm.values_list("id", flat=True)
     preserved = get_preserved_order(ids)
-
-    return model.objects.filter(id__in=ids).order_by(preserved)
-   
+    if ids:
+        return model.objects.filter(id__in=ids).order_by(preserved)
+    else:
+        return model.objects.none()
 
 
 class SearchViewSet(GenericAPIView):
@@ -203,10 +208,17 @@ class SearchViewSet(GenericAPIView):
     def get(self, request):
         sql_search = True
         trigram_search = False
-
         SearchResult = namedtuple(
-            "SearchResult", ("services", "units", "service_nodes")
+            "SearchResult",
+            (
+                "services",
+                "units",
+                "service_nodes",
+                "administrative_divisions",
+                "addresses",
+            ),
         )
+
         params = self.request.query_params
         q_val = params.get("q", "").strip()
         if "sql" in params:
@@ -222,7 +234,9 @@ class SearchViewSet(GenericAPIView):
 
         if not q_val:
             raise ParseError("Supply search terms with 'q=' '")
-        types = params.get("type", "unit,service,service_node").split(",")
+        types = params.get(
+            "type", "unit,service,service_node,administrative_division,address"
+        ).split(",")
 
         # Limit number of "suggestions"
         if "limit" in params:
@@ -245,7 +259,7 @@ class SearchViewSet(GenericAPIView):
         search_query_str = None  # Used in the raw sql
         search_query = None  # Used with djangos filter
         # Build conditional searchquery.
-        q_vals = re.split(",|\s+", q_val)
+        q_vals = re.split(",\s+|\s+", q_val)
         for q in q_vals:
 
             if sql_search:
@@ -287,7 +301,11 @@ class SearchViewSet(GenericAPIView):
             all_results = cursor.fetchall()
             unit_ids = get_ids_from_sql_results(all_results, type="Unit")
             service_ids = get_ids_from_sql_results(all_results, type="Service")
-            service_node_ids = get_ids_from_sql_results(all_results, "ServiceNode")
+            service_node_ids = get_ids_from_sql_results(all_results, "ServiceNode")            
+            administrative_division_ids = get_ids_from_sql_results(
+                all_results, type="AdministrativeDivision"
+            )
+            address_ids = get_ids_from_sql_results(all_results, type="Address")
 
         else:
             # NOTE, Using dangos search is ~100 times slower than raw sql
@@ -312,16 +330,23 @@ class SearchViewSet(GenericAPIView):
                     unit_ids.append(elem.id.replace("unit_", ""))
                 elif elem.type_name == "ServiceNode":
                     service_node_ids.append(elem.id.replace("servicenode_", ""))
+                elif elem.type_name == "Address":
+                    service_node_ids.append(elem.id.replace("address_", ""))
+                elif elem.type_name == "AdministrativeDivision":
+                    service_node_ids.append(elem.id.replace("administrativedivision_", ""))
 
         if "service" in types:
             preserved = get_preserved_order(service_ids)
             services_qs = Service.objects.filter(id__in=service_ids).order_by(preserved)
-            if trigram_search:  # or not units_qs:               
-                services_trigm = get_trigram_results(Service, "name_" + language_short, q_val)
-                if services_qs:
-                    services_qs = services_trigm | services_qs
-                else:
-                    services_qs = services_trigm
+            #if trigram_search:  # or not units_qs:
+            if not services_qs:
+                services_qs = get_trigram_results(
+                    Service, "name_" + language_short, q_val
+                )
+                # if services_qs:
+                #     services_qs = services_trigm | services_qs
+                # else:
+                #     services_qs = services_trigm
             services_qs = services_qs.all().distinct()
         else:
             services_qs = Service.objects.none()
@@ -336,16 +361,16 @@ class SearchViewSet(GenericAPIView):
                 services__in=service_ids, public=True
             )
             # Add units which are associated with the services found.
-            units_qs = units_from_services | units_qs           
+            units_qs = units_from_services | units_qs
             # # Trigram search, TODO should it be used?
-            if trigram_search:  # or not units_qs:               
-                units_trigm = get_trigram_results(Unit, "name_" + language_short, q_val)
-                #breakpoint()
-             
-                if units_qs:
-                    units_qs = units_trigm | units_qs
-                else:
-                    units_qs = units_trigm
+            #if trigram_search:  # or not units_qs:
+            if not units_qs:
+                units_qs = get_trigram_results(Unit, "name_" + language_short, q_val)
+                
+                # if units_qs:
+                #     units_qs = units_trigm | units_qs
+                # else:
+                #     units_qs = units_trigm
 
             units_qs = units_qs.all().distinct()
 
@@ -367,23 +392,34 @@ class SearchViewSet(GenericAPIView):
             service_nodes_qs = ServiceNode.objects.filter(id__in=service_node_ids)
         else:
             service_nodes_qs = ServiceNode.objects.none()
+        if "administrative_division" in types:
+            administrative_division_qs = AdministrativeDivision.objects.filter(
+                id__in=administrative_division_ids
+            )
+            if not administrative_division_qs:
+                administrative_division_qs = get_trigram_results(AdministrativeDivision, "name_" + language_short, q_val)
+        
+        else:
+            administrative_division_qs = AdministrativeDivision.objects.none()
+
+        if "address" in types:
+            address_qs = Address.objects.filter(id__in=address_ids)
+            if not address_qs:
+                address_qs = get_trigram_results(Address, "full_name_" + language_short, q_val)
+        
+        else:
+            address_qs = Address.objects.none()
 
         if q_val:
             search_results = SearchResult(
-                units=units_qs, services=services_qs, service_nodes=service_nodes_qs
+                units=units_qs,
+                services=services_qs,
+                service_nodes=service_nodes_qs,
+                administrative_divisions=administrative_division_qs,
+                addresses=address_qs,
             )
             serializer = SearchSerializer(search_results)
-            # results = list()
-            # for entry in search_results:
-
-            #         item_type = entry.__class__.__name__.lower()
-            #         if isinstance(entry, Unit):
-            #             serializer = UnitSerializer(entry)
-            #         if isinstance(entry, Service):
-            #             serializer = ServiceSerializer(entry)
-            #         if isinstance(entry, ServiceNode):
-            #             serializer = ServiceNodeSerializer(entry)
-            #         results.append({'item_type': item_type, 'data': serializer.data})
+            
         if BENCHMARK:
             # pp(queryset.explain(verbose=True, analyze=True))
             pp(connection.queries)
@@ -393,7 +429,15 @@ class SearchViewSet(GenericAPIView):
             )
             reset_queries()
 
-        queryset = list(chain(units_qs, services_qs, service_nodes_qs))
+        queryset = list(
+            chain(
+                units_qs,
+                services_qs,
+                service_nodes_qs,
+                administrative_division_qs,
+                address_qs,
+            )
+        )
         # breakpoint()
         # serializer = SearchSerializer(queryset)
 
