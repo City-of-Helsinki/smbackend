@@ -33,6 +33,12 @@ BENCHMARK = True
 LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
 DEFAULT_SRS = SpatialReference(settings.DEFAULT_SRID)
 
+# Todo refactor if possible 
+class SearchResultBaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ["id", "name"]
+        absstract = True
+
 
 class SearchResultUnitSerializer(
     TranslatedModelSerializer, serializers.ModelSerializer
@@ -63,6 +69,11 @@ class SearchResultServiceSerializer(
         representation["unit_count"] = Unit.objects.filter(services=obj.id).count()
         return representation
 
+class SearchResultAdministrativeDivisionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+    class Meta:
+        model = AdministrativeDivision
+        fields = ["id", "name"]
+
 
 class SearchResultServiceNodeSerializer(
     TranslatedModelSerializer, serializers.ModelSerializer
@@ -88,16 +99,35 @@ class SearchResultServiceNodeSerializer(
         return representation
 
 
-class SearchSerializer(serializers.Serializer):
-    addresses = AddressSerializer(many=True)
-    administrative_divisions = AdministrativeDivisionSerializer(many=True)
-    units = UnitSerializer(many=True)
-    services = ServiceSerializer(many=True)
-    service_nodes = ServiceNodeSerializer(many=True)
+class SearchResultAddressSerializer(
+    TranslatedModelSerializer, serializers.ModelSerializer
+):
+    class Meta:
+        model = Address
+        fields = ["id", "full_name"]
 
-    # units = SearchResultUnitSerializer(many=True)
-    # services = SearchResultServiceSerializer(many=True)
-    # service_nodes = SearchResultServiceNodeSerializer(many=True)
+    def to_representation(self, obj):
+        representation = super().to_representation(obj)
+        if obj.location:
+            representation["location"] = munigeo_api.geom_to_json(
+                obj.location, DEFAULT_SRS
+            )
+        return representation
+
+
+
+class SearchSerializer(serializers.Serializer):
+    # addresses = AddressSerializer(many=True)
+    #administrative_divisions = AdministrativeDivisionSerializer(many=True)
+    # # units = UnitSerializer(many=True)
+    # services = ServiceSerializer(many=True)
+    # service_nodes = ServiceNodeSerializer(many=True)
+    addresses = SearchResultAddressSerializer(many=True)
+    administrative_divisions = SearchResultAdministrativeDivisionSerializer(many=True)
+    units = SearchResultUnitSerializer(many=True)
+    services = SearchResultServiceSerializer(many=True)
+    service_nodes = SearchResultServiceNodeSerializer(many=True)
+
 
 
 class SearchSerializerChain(serializers.Serializer):
@@ -238,14 +268,14 @@ class SearchViewSet(GenericAPIView):
             "type", "unit,service,service_node,administrative_division,address"
         ).split(",")
 
-        # Limit number of "suggestions"
+        # Limit number of results
         if "limit" in params:
             try:
                 limit = int(params.get("limit"))
             except ValueError:
                 raise ParseError("'limit' need to be of type integer.")
         else:
-            limit = 100
+            limit = 5
 
         language_short = params.get("language", "fi").strip()
         if language_short not in LANGUAGES:
@@ -258,7 +288,7 @@ class SearchViewSet(GenericAPIView):
         search_type = "plain"
         search_query_str = None  # Used in the raw sql
         search_query = None  # Used with djangos filter
-        # Build conditional searchquery.
+        # Build conditional searchquery.    
         q_vals = re.split(",\s+|\s+", q_val)
         for q in q_vals:
 
@@ -293,7 +323,7 @@ class SearchViewSet(GenericAPIView):
             sql = f"""
             SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column, search_query) AS rank
             FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
-            WHERE search_query @@ search_column ORDER BY rank DESC LIMIT {limit};
+            WHERE search_query @@ search_column ORDER BY rank DESC LIMIT {limit*5};
             """
             cursor = connection.cursor()
             cursor.execute(sql)
@@ -308,7 +338,7 @@ class SearchViewSet(GenericAPIView):
             address_ids = get_ids_from_sql_results(all_results, type="Address")
 
         else:
-            # NOTE, Using dangos search is ~100 times slower than raw sql
+            # NOTE, Using djangos search is ~100 times slower than raw sql
             queryset = (
                 SearchView.objects.annotate(
                     rank=SearchRank("search_column", search_query)
@@ -338,22 +368,16 @@ class SearchViewSet(GenericAPIView):
         if "service" in types:
             preserved = get_preserved_order(service_ids)
             services_qs = Service.objects.filter(id__in=service_ids).order_by(preserved)
-            #if trigram_search:  # or not units_qs:
             if not services_qs:
                 services_qs = get_trigram_results(
                     Service, "name_" + language_short, q_val
                 )
-                # if services_qs:
-                #     services_qs = services_trigm | services_qs
-                # else:
-                #     services_qs = services_trigm
+             
             services_qs = services_qs.all().distinct()
         else:
             services_qs = Service.objects.none()
 
-        if "unit" in types:
-            # units_qs = Unit.objects.filter(id__in=unit_ids, public=True)
-            # preserve the order in the unit_ids list.
+        if "unit" in types:            
             preserved = get_preserved_order(unit_ids)
             # if preserved:
             units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
@@ -365,12 +389,7 @@ class SearchViewSet(GenericAPIView):
             # # Trigram search, TODO should it be used?
             #if trigram_search:  # or not units_qs:
             if not units_qs:
-                units_qs = get_trigram_results(Unit, "name_" + language_short, q_val)
-                
-                # if units_qs:
-                #     units_qs = units_trigm | units_qs
-                # else:
-                #     units_qs = units_trigm
+                units_qs = get_trigram_results(Unit, "name_" + language_short, q_val)               
 
             units_qs = units_qs.all().distinct()
 
@@ -385,11 +404,13 @@ class SearchViewSet(GenericAPIView):
                 if services[0]:
                     units_qs = units_qs.filter(services__in=services)
 
+            units_qs = units_qs[:limit]
+            
         else:
             units_qs = Unit.objects.none()
 
         if "service_node" in types:
-            service_nodes_qs = ServiceNode.objects.filter(id__in=service_node_ids)
+            service_nodes_qs = ServiceNode.objects.filter(id__in=service_node_ids)[:limit]
         else:
             service_nodes_qs = ServiceNode.objects.none()
         if "administrative_division" in types:
@@ -399,6 +420,7 @@ class SearchViewSet(GenericAPIView):
             if not administrative_division_qs:
                 administrative_division_qs = get_trigram_results(AdministrativeDivision, "name_" + language_short, q_val)
         
+            administrative_division_qs = administrative_division_qs[:limit]
         else:
             administrative_division_qs = AdministrativeDivision.objects.none()
 
@@ -406,7 +428,7 @@ class SearchViewSet(GenericAPIView):
             address_qs = Address.objects.filter(id__in=address_ids)
             if not address_qs:
                 address_qs = get_trigram_results(Address, "full_name_" + language_short, q_val)
-        
+            address_qs = address_qs[:limit]
         else:
             address_qs = Address.objects.none()
 
@@ -438,8 +460,7 @@ class SearchViewSet(GenericAPIView):
                 address_qs,
             )
         )
-        # breakpoint()
-        # serializer = SearchSerializer(queryset)
+   
 
         page = self.paginate_queryset(queryset)
         return self.get_paginated_response(serializer.data)

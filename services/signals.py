@@ -4,11 +4,13 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.postgres.search import SearchVector
 from django.db import transaction
+from munigeo.models import Address, AdministrativeDivision
 from services.models import (
     Unit,
     Service,
-    ServiceNode
+    ServiceNode,    
 )
+
 
 @receiver(post_save, sender=Unit)
 def unit_on_save(sender, **kwargs):
@@ -24,6 +26,16 @@ def service_on_save(sender, **kwargs):
 @receiver(post_save, sender=ServiceNode)
 def service_node_on_save(sender, **kwargs):
     obj = kwargs["instance"]    
+    transaction.on_commit(populate_search_column(obj))
+
+@receiver(post_save, sender=Address)
+def address_on_save(sender, **kwargs):
+    obj = kwargs["instance"]
+    transaction.on_commit(populate_search_column(obj))
+
+@receiver(post_save, sender=AdministrativeDivision)
+def administrative_division_on_save(sender, **kwargs):
+    obj = kwargs["instance"]
     transaction.on_commit(populate_search_column(obj))
 
 def populate_search_column(obj):
