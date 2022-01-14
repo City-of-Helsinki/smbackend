@@ -719,7 +719,7 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
 
         for i, conn in enumerate(info["connections"]):
             c = UnitConnection(unit=obj)
-            save_translated_field(c, "name", conn, "name", max_length=600)
+            save_translated_field(c, "name", conn, "name", max_length=2100)
             save_translated_field(c, "www", conn, "www")
             section_type = [
                 val
