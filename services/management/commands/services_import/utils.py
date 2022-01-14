@@ -29,8 +29,6 @@ def save_translated_field(obj, obj_field_name, info, info_field_name, max_length
         else:
             val = None
         if max_length and val and len(val) > max_length:
-            # if self.verbosity:
-            #     self.logger.warning("%s: field '%s' too long" % (obj, obj_field_name))
             val = None
         obj_key = "%s_%s" % (obj_field_name, lang)
         obj_val = getattr(obj, obj_key)
