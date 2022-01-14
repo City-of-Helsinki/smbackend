@@ -32,12 +32,12 @@ from pprint import pprint as pp
 BENCHMARK = True
 LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
 DEFAULT_SRS = SpatialReference(settings.DEFAULT_SRID)
-
+SEARCHABLE_MODEL_TYPE_NAMES = ("Unit", "Service", "ServiceNode", "AdministrativeDivision", "Address")
 # Todo refactor if possible 
 class SearchResultBaseSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ["id", "name"]
-        absstract = True
+        abstract = True
 
 
 class SearchResultUnitSerializer(
@@ -115,11 +115,10 @@ class SearchResultAddressSerializer(
         return representation
 
 
-
 class SearchSerializer(serializers.Serializer):
     # addresses = AddressSerializer(many=True)
-    #administrative_divisions = AdministrativeDivisionSerializer(many=True)
-    # # units = UnitSerializer(many=True)
+    # administrative_divisions = AdministrativeDivisionSerializer(many=True)
+    # units = UnitSerializer(many=True)
     # services = ServiceSerializer(many=True)
     # service_nodes = ServiceNodeSerializer(many=True)
     addresses = SearchResultAddressSerializer(many=True)
@@ -208,13 +207,19 @@ def get_ids_from_sql_results(all_results, type="Unit"):
             ids.append(row[0].split("_")[1])
     return ids
 
+def get_all_ids_from_sql_results(all_results):
+    ids = {}
+    for t in SEARCHABLE_MODEL_TYPE_NAMES:
+        ids[t] = []
+    for row in all_results:
+        ids[row[1]].append(row[0].split("_")[1])      
+    return ids
 
-def get_preserved_order(ids):
+def get_preserved_order(ids):    
     if ids:
         return Case(*[When(id=id, then=pos) for pos, id in enumerate(ids)])
     else:
         return Case()
-
 
 def get_trigram_results(model, field, q_val, threshold=0.1):
     trigm = (
@@ -329,13 +334,12 @@ class SearchViewSet(GenericAPIView):
             cursor.execute(sql)
             # Note fetchall() consumes the results and once called returns None.
             all_results = cursor.fetchall()
-            unit_ids = get_ids_from_sql_results(all_results, type="Unit")
-            service_ids = get_ids_from_sql_results(all_results, type="Service")
-            service_node_ids = get_ids_from_sql_results(all_results, "ServiceNode")            
-            administrative_division_ids = get_ids_from_sql_results(
-                all_results, type="AdministrativeDivision"
-            )
-            address_ids = get_ids_from_sql_results(all_results, type="Address")
+            all_ids = get_all_ids_from_sql_results(all_results)            
+            unit_ids = all_ids["Unit"]
+            service_ids = all_ids["Service"]
+            service_node_ids = all_ids["ServiceNode"]            
+            administrative_division_ids = all_ids["AdministrativeDivision"]           
+            address_ids = all_ids["Address"]
 
         else:
             # NOTE, Using djangos search is ~100 times slower than raw sql
@@ -371,8 +375,7 @@ class SearchViewSet(GenericAPIView):
             if not services_qs:
                 services_qs = get_trigram_results(
                     Service, "name_" + language_short, q_val
-                )
-             
+                )             
             services_qs = services_qs.all().distinct()
         else:
             services_qs = Service.objects.none()
@@ -431,16 +434,15 @@ class SearchViewSet(GenericAPIView):
             address_qs = address_qs[:limit]
         else:
             address_qs = Address.objects.none()
-
-        if q_val:
-            search_results = SearchResult(
-                units=units_qs,
-                services=services_qs,
-                service_nodes=service_nodes_qs,
-                administrative_divisions=administrative_division_qs,
-                addresses=address_qs,
-            )
-            serializer = SearchSerializer(search_results)
+      
+        search_results = SearchResult(
+            units=units_qs,
+            services=services_qs,
+            service_nodes=service_nodes_qs,
+            administrative_divisions=administrative_division_qs,
+            addresses=address_qs,
+        )
+        serializer = SearchSerializer(search_results)
             
         if BENCHMARK:
             # pp(queryset.explain(verbose=True, analyze=True))
@@ -459,8 +461,7 @@ class SearchViewSet(GenericAPIView):
                 administrative_division_qs,
                 address_qs,
             )
-        )
-   
+        )  
 
         page = self.paginate_queryset(queryset)
         return self.get_paginated_response(serializer.data)
