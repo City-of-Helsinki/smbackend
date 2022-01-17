@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("services", "0086_create_search_columns"),
+        ("services", "0087_create_search_columns"),
     ]
     operations = [
         migrations.RunSQL(
