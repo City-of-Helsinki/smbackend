@@ -9,6 +9,7 @@ from django.db.models import Case, When
 from django.db.models.query_utils import Q
 from django.conf import settings
 from django.db import connection, reset_queries
+from django.db.models import Count
 from rest_framework.generics import GenericAPIView
 from rest_framework.exceptions import ParseError
 from rest_framework import serializers
@@ -33,6 +34,8 @@ BENCHMARK = True
 LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
 DEFAULT_SRS = SpatialReference(settings.DEFAULT_SRID)
 SEARCHABLE_MODEL_TYPE_NAMES = ("Unit", "Service", "ServiceNode", "AdministrativeDivision", "Address")
+QUERY_PARAM_TYPE_NAMES = [m.lower() for m in SEARCHABLE_MODEL_TYPE_NAMES]
+DEFAULT_LIMIT_VALUE = 5
 # Todo refactor if possible 
 class SearchResultBaseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -53,6 +56,7 @@ class SearchResultUnitSerializer(
             representation["location"] = munigeo_api.geom_to_json(
                 obj.location, DEFAULT_SRS
             )
+        representation["services_count"] = obj.services__count
         return representation
 
 
@@ -65,8 +69,7 @@ class SearchResultServiceSerializer(
 
     def to_representation(self, obj):
         representation = super().to_representation(obj)
-        # Todo, maybe? unit_count per municipality. Does not work with turku data.
-        representation["unit_count"] = Unit.objects.filter(services=obj.id).count()
+        representation["units_count"] = obj.units__count
         return representation
 
 class SearchResultAdministrativeDivisionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
@@ -126,7 +129,6 @@ class SearchSerializer(serializers.Serializer):
     units = SearchResultUnitSerializer(many=True)
     services = SearchResultServiceSerializer(many=True)
     service_nodes = SearchResultServiceNodeSerializer(many=True)
-
 
 
 class SearchSerializerChain(serializers.Serializer):
@@ -243,9 +245,12 @@ class SearchViewSet(GenericAPIView):
     def get(self, request):
         sql_search = True
         trigram_search = False
+        model_limits = {}
+        for model in list(QUERY_PARAM_TYPE_NAMES):
+            model_limits[model] = DEFAULT_LIMIT_VALUE     
         SearchResult = namedtuple(
             "SearchResult",
-            (
+            (               
                 "services",
                 "units",
                 "service_nodes",
@@ -269,10 +274,12 @@ class SearchViewSet(GenericAPIView):
 
         if not q_val:
             raise ParseError("Supply search terms with 'q=' '")
-        types = params.get(
-            "type", "unit,service,service_node,administrative_division,address"
-        ).split(",")
 
+        types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])
+        types = params.get(
+            "type", types_str
+        ).split(",")
+        
         # Limit number of results
         if "limit" in params:
             try:
@@ -280,7 +287,17 @@ class SearchViewSet(GenericAPIView):
             except ValueError:
                 raise ParseError("'limit' need to be of type integer.")
         else:
-            limit = 5
+            limit = DEFAULT_LIMIT_VALUE
+
+        for type_name in QUERY_PARAM_TYPE_NAMES:
+            param_name = f"{type_name}_limit"
+            if param_name in params:
+                try:
+                    model_limits[type_name] = int(params.get(param_name))
+                except ValueError:
+                    raise ParseError(f"{param_name} need to be of type integer.")
+            else:
+                model_limits[type_name] = DEFAULT_LIMIT_VALUE
 
         language_short = params.get("language", "fi").strip()
         if language_short not in LANGUAGES:
@@ -328,7 +345,8 @@ class SearchViewSet(GenericAPIView):
             sql = f"""
             SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column, search_query) AS rank
             FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
-            WHERE search_query @@ search_column ORDER BY rank DESC LIMIT {limit*5};
+            WHERE search_query @@ search_column 
+            ORDER BY rank DESC LIMIT {limit * len(QUERY_PARAM_TYPE_NAMES)};
             """
             cursor = connection.cursor()
             cursor.execute(sql)
@@ -377,6 +395,9 @@ class SearchViewSet(GenericAPIView):
                     Service, "name_" + language_short, q_val
                 )             
             services_qs = services_qs.all().distinct()
+            services_qs = services_qs.annotate(Count("units")).order_by("-units__count")
+            services_qs = services_qs[:model_limits["service"]]
+
         else:
             services_qs = Service.objects.none()
 
@@ -395,7 +416,6 @@ class SearchViewSet(GenericAPIView):
                 units_qs = get_trigram_results(Unit, "name_" + language_short, q_val)               
 
             units_qs = units_qs.all().distinct()
-
             if "municipality" in self.request.query_params:
                 municipalities = (
                     self.request.query_params["municipality"].lower().strip().split(",")
@@ -407,13 +427,14 @@ class SearchViewSet(GenericAPIView):
                 if services[0]:
                     units_qs = units_qs.filter(services__in=services)
 
-            units_qs = units_qs[:limit]
+            units_qs = units_qs.annotate(Count("services")).order_by("-services__count")
+            units_qs = units_qs[:model_limits["unit"]]
             
         else:
             units_qs = Unit.objects.none()
 
         if "service_node" in types:
-            service_nodes_qs = ServiceNode.objects.filter(id__in=service_node_ids)[:limit]
+            service_nodes_qs = ServiceNode.objects.filter(id__in=service_node_ids)[:model_limits["servicenode"]]
         else:
             service_nodes_qs = ServiceNode.objects.none()
         if "administrative_division" in types:
@@ -423,7 +444,7 @@ class SearchViewSet(GenericAPIView):
             if not administrative_division_qs:
                 administrative_division_qs = get_trigram_results(AdministrativeDivision, "name_" + language_short, q_val)
         
-            administrative_division_qs = administrative_division_qs[:limit]
+            administrative_division_qs = administrative_division_qs[:model_limits["administrativedivision"]]
         else:
             administrative_division_qs = AdministrativeDivision.objects.none()
 
@@ -431,7 +452,7 @@ class SearchViewSet(GenericAPIView):
             address_qs = Address.objects.filter(id__in=address_ids)
             if not address_qs:
                 address_qs = get_trigram_results(Address, "full_name_" + language_short, q_val)
-            address_qs = address_qs[:limit]
+            address_qs = address_qs[:model_limits["address"]]
         else:
             address_qs = Address.objects.none()
       
