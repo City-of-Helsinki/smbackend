@@ -16,49 +16,103 @@ First configure development environment settings as stated in `config_dev.env.ex
 
 Run application with `docker-compose up`
 
-This will startup and bind local postgres, elasticsearch, servicemap backend and servicemap frontend containers.
+This will startup and bind local postgres, servicemap backend and servicemap frontend containers.
 
 ### Importing data
 
 To import data for development usage and automatically index it, run command:
 `docker-compose run servicemap maintenance_tasks all`
 
-Installation without Docker
+## Installation without Docker
 ------------
 
+1. 
 First, install the necessary Debian packages.
 
-    libpython3.7-dev virtualenvwrapper libyaml-dev libxml2-dev libxslt1-dev
+* libpython3.10-dev 
+* python3.10-distutils
+* virtualenvwrapper 
+* libyaml-dev 
+* libxml2-dev 
+* libxslt1-dev
 
 You might need to start a new shell for the virtualenvwrapper commands to activate.
 
-1. Make a Python virtual environment.
+
+2. 
+Clone the repository.
+
+Optionally you can use pyenv to manage pyhton versions.
+pyenv install -v 3.10.1
+pyenv virtualenv 3.10.1 smbackend
+pyenv local smbackend
+pyenv virtualenvwrapper
+Detailed info can be found:
+https://github.com/pyenv/pyenv-virtualenv
+https://github.com/pyenv/pyenv-virtualenvwrapper
+
+
+Make a Python virtual environment.
+Be sure the python points to python version 3.10
 
 ```
 mkvirtualenv -p /usr/bin/python3 servicemap
 ```
 
-2. Install pip requirements.
+3. Install pip requirements.
 
     ```pip install -r requirements.txt```
- 
-3. Setup the PostGIS database.
 
-Please note we require PostgreSQL version 9.4 or higher
+ If this error occurs:
+```
+   
+ ImportError: cannot import name 'html5lib' from 'pip._vendor' (/home/juuso/.virtualenvs/servicemap/lib/python3.10/site-packages/pip/_vendor/__init__.py)
+```
+
+Try installing latest pip. 
+```
+curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
+```
+
+4. Setup the PostGIS database.
+
+Please note, we reqummend PostgreSQL version 13 or higher.
 
 Local setup:
-
+First, ensure that the collation fi_FI.UTF-8 exists by entering the
+postgresql shell with the psql command.
 ```
 sudo su postgres
+psql
+SELECT * FROM pg_collation where collname like '%fi%';
+```
+There should be a collname fi_FI.UTF-8 if not you must create the collation.
 
+```
+ALTER database template1 is_template=false;
+DROP database template1;
+CREATE DATABASE template1 WITH OWNER = postgres ENCODING = 'UTF8' TABLESPACE = pg_default LC_COLLATE = 'fi_FI.UTF-8' LC_CTYPE = 'fi_FI.UTF-8' CONNECTION LIMIT = -1 TEMPLATE template0;
+ALTER database template1 is_template=true;
+\q  
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS postgis;'
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
+psql template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
 
 createuser -RSPd servicemap
 
 createdb -O servicemap -T template1 -l fi_FI.UTF-8 -E utf8 servicemap
 
 ```
+
+
+```
+ERROR:  could not open extension control file "/usr/share/postgresql/14/extension/postgis.control": No such file or directory
+```
+Solution for ubuntu and Postgresql14:
+```
+sudo apt install postgis postgresql-14-postgis-3
+```
+
 
 Docker setup (modify as needed, starts the database on local port 8765):
 ```
@@ -67,19 +121,6 @@ docker run --name servicemap-psql -e POSTGRES_USER=servicemap -e POSTGRES_PASSWO
 echo "CREATE EXTENSION hstore;" | docker exec -i servicemap-psql psql -U servicemap
 ```
 
-4. Modify `local_settings.py` to contain the local database info.
-
-```
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'HOST': '127.0.0.1',
-        'NAME': 'servicemap',
-        'USER': 'servicemap',
-        'PASSWORD': 'servicemap',
-    }
-}
-```
 
 5. Create database tables.
 
@@ -98,53 +139,9 @@ brew install geos
 ```
 ./manage.py geo_import finland --municipalities
 ./manage.py geo_import helsinki --divisions
+./manage.py index_search_columns
 ```
 
-Search
-------
-
-You can configure multilingual Elasticsearch-based search by including
-something like the following in your `local_settings.py`:
-
-```python
-import json
-def read_config(name):
-    return json.load(open(
-        os.path.join(
-            BASE_DIR,
-            'smbackend',
-            'elasticsearch/{}.json'.format(name))))
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'multilingual_haystack.backends.MultilingualSearchEngine',
-    },
-    'default-fi': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': 'http://localhost:9200/',
-        'INDEX_NAME': 'servicemap-fi',
-        'MAPPINGS': read_config('mappings_finnish')['modelresult']['properties'],
-        'SETTINGS': read_config('settings_finnish')
-    },
-    'default-sv': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': 'http://localhost:9200/',
-        'INDEX_NAME': 'servicemap-sv',
-        'MAPPINGS': read_config('mappings_swedish')['modelresult']['properties'],
-        'SETTINGS': read_config('settings_swedish')
-    },
-    'default-en': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': 'http://localhost:9200/',
-        'INDEX_NAME': 'servicemap-en',
-        'MAPPINGS': read_config('mappings_english')['modelresult']['properties'],
-        'SETTINGS': read_config('settings_english')
-    },
-}
-```
 
 Observations
 ------------

@@ -5,7 +5,7 @@ from distutils.util import strtobool
 from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.contrib.postgres.search import TrigramSimilarity
 from django.contrib.gis.gdal import SpatialReference
-from django.db.models import Case, When
+from django.db.models import Case, When, Subquery
 from django.db.models.query_utils import Q
 from django.conf import settings
 from django.db import connection, reset_queries
@@ -35,7 +35,10 @@ LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
 DEFAULT_SRS = SpatialReference(settings.DEFAULT_SRID)
 SEARCHABLE_MODEL_TYPE_NAMES = ("Unit", "Service", "ServiceNode", "AdministrativeDivision", "Address")
 QUERY_PARAM_TYPE_NAMES = [m.lower() for m in SEARCHABLE_MODEL_TYPE_NAMES]
-DEFAULT_LIMIT_VALUE = 5
+#Note, default limit should be big enough, otherwise quality of results will drop..
+DEFAULT_MODEL_LIMIT_VALUE = 20
+# The limit value for the search query that search the search_view.
+DEFAULT_SEARCH_SQL_LIMIT_VALUE = DEFAULT_MODEL_LIMIT_VALUE*5
 # Todo refactor if possible 
 class SearchResultBaseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,7 +51,7 @@ class SearchResultUnitSerializer(
 ):
     class Meta:
         model = Unit
-        fields = ["id", "name"]
+        fields = ["id", "name", "provider_type"]
 
     def to_representation(self, obj):
         representation = super().to_representation(obj)
@@ -56,7 +59,7 @@ class SearchResultUnitSerializer(
             representation["location"] = munigeo_api.geom_to_json(
                 obj.location, DEFAULT_SRS
             )
-        representation["services_count"] = obj.services__count
+        representation["num_services"] = obj.num_services
         return representation
 
 
@@ -124,12 +127,12 @@ class SearchSerializer(serializers.Serializer):
     # units = UnitSerializer(many=True)
     # services = ServiceSerializer(many=True)
     # service_nodes = ServiceNodeSerializer(many=True)
-    addresses = SearchResultAddressSerializer(many=True)
-    administrative_divisions = SearchResultAdministrativeDivisionSerializer(many=True)
     units = SearchResultUnitSerializer(many=True)
     services = SearchResultServiceSerializer(many=True)
+    addresses = SearchResultAddressSerializer(many=True)
+    administrative_divisions = SearchResultAdministrativeDivisionSerializer(many=True)
     service_nodes = SearchResultServiceNodeSerializer(many=True)
-
+ 
 
 class SearchSerializerChain(serializers.Serializer):
     @classmethod
@@ -244,10 +247,9 @@ class SearchViewSet(GenericAPIView):
 
     def get(self, request):
         sql_search = True
-        trigram_search = False
         model_limits = {}
         for model in list(QUERY_PARAM_TYPE_NAMES):
-            model_limits[model] = DEFAULT_LIMIT_VALUE     
+            model_limits[model] = DEFAULT_MODEL_LIMIT_VALUE     
         SearchResult = namedtuple(
             "SearchResult",
             (               
@@ -266,11 +268,11 @@ class SearchViewSet(GenericAPIView):
                 sql_search = strtobool(params["sql"])
             except ValueError:
                 raise ParseError("'sql' needs to be a boolean")
-        if "trigram" in params:
-            try:
-                trigram_search = strtobool(params["trigram"])
-            except ValueError:
-                raise ParseError("'trigram' needs to be a boolean")
+        # if "trigram" in params:
+        #     try:
+        #         trigram_search = strtobool(params["trigram"])
+        #     except ValueError:
+        #         raise ParseError("'trigram' needs to be a boolean")
 
         if not q_val:
             raise ParseError("Supply search terms with 'q=' '")
@@ -283,12 +285,12 @@ class SearchViewSet(GenericAPIView):
         # Limit number of results
         if "limit" in params:
             try:
-                limit = int(params.get("limit"))
+                search_sql_limit = int(params.get("limit"))
             except ValueError:
                 raise ParseError("'limit' need to be of type integer.")
         else:
-            limit = DEFAULT_LIMIT_VALUE
-
+            search_sql_limit = DEFAULT_SEARCH_SQL_LIMIT_VALUE
+        # read values for limits for each model
         for type_name in QUERY_PARAM_TYPE_NAMES:
             param_name = f"{type_name}_limit"
             if param_name in params:
@@ -297,7 +299,7 @@ class SearchViewSet(GenericAPIView):
                 except ValueError:
                     raise ParseError(f"{param_name} need to be of type integer.")
             else:
-                model_limits[type_name] = DEFAULT_LIMIT_VALUE
+                model_limits[type_name] = DEFAULT_MODEL_LIMIT_VALUE
 
         language_short = params.get("language", "fi").strip()
         if language_short not in LANGUAGES:
@@ -346,7 +348,7 @@ class SearchViewSet(GenericAPIView):
             SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column, search_query) AS rank
             FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
             WHERE search_query @@ search_column 
-            ORDER BY rank DESC LIMIT {limit * len(QUERY_PARAM_TYPE_NAMES)};
+            ORDER BY rank DESC LIMIT {search_sql_limit * len(QUERY_PARAM_TYPE_NAMES)};
             """
             cursor = connection.cursor()
             cursor.execute(sql)
@@ -375,7 +377,7 @@ class SearchViewSet(GenericAPIView):
             # Get the IDs from the queryset in one loop.
             # Filtering by types causes the queryset to be evaluated for every filter call
             # and is slower.
-            for elem in queryset.all()[:limit]:
+            for elem in queryset.all()[:search_sql_limit]:
                 if elem.type_name == "Service":
                     service_ids.append(elem.id.replace("service_", ""))
                 elif elem.type_name == "Unit":
@@ -410,7 +412,12 @@ class SearchViewSet(GenericAPIView):
             )
             # Add units which are associated with the services found.
             units_qs = units_from_services | units_qs
-            # # Trigram search, TODO should it be used?
+            ids1 = list(units_from_services.values_list("id", flat=True))
+            ids2 = list(units_qs.values_list("id", flat=True))
+            ids1 = []
+            ids = ids1 + ids2
+            units_qs = Unit.objects.filter(id__in=ids)
+
             #if trigram_search:  # or not units_qs:
             if not units_qs:
                 units_qs = get_trigram_results(Unit, "name_" + language_short, q_val)               
@@ -427,17 +434,17 @@ class SearchViewSet(GenericAPIView):
                 if services[0]:
                     units_qs = units_qs.filter(services__in=services)
 
-            units_qs = units_qs.annotate(Count("services")).order_by("-services__count")
+            units_qs = units_qs.annotate(num_services=Count("services")).order_by("provider_type","-num_services")
             units_qs = units_qs[:model_limits["unit"]]
-            
         else:
             units_qs = Unit.objects.none()
 
-        if "service_node" in types:
-            service_nodes_qs = ServiceNode.objects.filter(id__in=service_node_ids)[:model_limits["servicenode"]]
-        else:
-            service_nodes_qs = ServiceNode.objects.none()
-        if "administrative_division" in types:
+        # if "servicenode" in types:
+        #     service_nodes_qs = ServiceNode.objects.filter(id__in=service_node_ids)[:model_limits["servicenode"]]
+        # else:
+        #TODO ? remove all service_node related stuff from migrations, models etc...
+        service_nodes_qs = ServiceNode.objects.none()
+        if "administrativedivision" in types:
             administrative_division_qs = AdministrativeDivision.objects.filter(
                 id__in=administrative_division_ids
             )

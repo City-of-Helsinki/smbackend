@@ -13,11 +13,17 @@ ACCESSIBILITY_SYSTEM_ID=secret
 ```
 
 ## Importing data
+Before importing addresses make sure you have the turku_addresses.cvs file located in the projects data/ directory.  
 ```
 ./manage.py geo_import finland --municipalities
 ./manage.py turku_services_import services accessibility units addresses
-./manage.py rebuild_index
 ```
+After the first time data is imported run:
+```
+./manage.py index_search_column
+```
+This populates the search_columns that are used in full text search.
+After this is rows are modified the search_column is updated using signals.
 
 ## Importing external data sources
 
