@@ -348,7 +348,7 @@ class SearchViewSet(GenericAPIView):
             SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column, search_query) AS rank
             FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
             WHERE search_query @@ search_column 
-            ORDER BY rank DESC LIMIT {search_sql_limit * len(QUERY_PARAM_TYPE_NAMES)};
+            ORDER BY rank DESC LIMIT {search_sql_limit};
             """
             cursor = connection.cursor()
             cursor.execute(sql)
