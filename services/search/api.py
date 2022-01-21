@@ -39,6 +39,7 @@ QUERY_PARAM_TYPE_NAMES = [m.lower() for m in SEARCHABLE_MODEL_TYPE_NAMES]
 DEFAULT_MODEL_LIMIT_VALUE = 20
 # The limit value for the search query that search the search_view.
 DEFAULT_SEARCH_SQL_LIMIT_VALUE = DEFAULT_MODEL_LIMIT_VALUE*5
+
 # Todo refactor if possible 
 class SearchResultBaseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -59,6 +60,7 @@ class SearchResultUnitSerializer(
             representation["location"] = munigeo_api.geom_to_json(
                 obj.location, DEFAULT_SRS
             )
+       
         representation["num_services"] = obj.num_services
         return representation
 
@@ -71,8 +73,8 @@ class SearchResultServiceSerializer(
         fields = ["id", "name"]
 
     def to_representation(self, obj):
-        representation = super().to_representation(obj)
-        representation["units_count"] = obj.units__count
+        representation = super().to_representation(obj)        
+        representation["num_units"] = obj.num_units
         return representation
 
 class SearchResultAdministrativeDivisionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
@@ -247,6 +249,8 @@ class SearchViewSet(GenericAPIView):
 
     def get(self, request):
         sql_search = True
+        ordering_in_search = True
+
         model_limits = {}
         for model in list(QUERY_PARAM_TYPE_NAMES):
             model_limits[model] = DEFAULT_MODEL_LIMIT_VALUE     
@@ -268,12 +272,13 @@ class SearchViewSet(GenericAPIView):
                 sql_search = strtobool(params["sql"])
             except ValueError:
                 raise ParseError("'sql' needs to be a boolean")
-        # if "trigram" in params:
-        #     try:
-        #         trigram_search = strtobool(params["trigram"])
-        #     except ValueError:
-        #         raise ParseError("'trigram' needs to be a boolean")
-
+        
+        if "ordering" in params:
+            try:
+                ordering_in_search = strtobool(params["ordering"])
+            except ValueError:
+                raise ParseError("'sql' needs to be a boolean")    
+       
         if not q_val:
             raise ParseError("Supply search terms with 'q=' '")
 
@@ -397,7 +402,11 @@ class SearchViewSet(GenericAPIView):
                     Service, "name_" + language_short, q_val
                 )             
             services_qs = services_qs.all().distinct()
-            services_qs = services_qs.annotate(Count("units")).order_by("-units__count")
+            if ordering_in_search:
+                services_qs = services_qs.annotate(num_units=Count("units")).order_by("-units__count")
+            else:
+                services_qs = services_qs.annotate(num_units=Count("units"))
+
             services_qs = services_qs[:model_limits["service"]]
 
         else:
@@ -433,8 +442,10 @@ class SearchViewSet(GenericAPIView):
                 services = self.request.query_params["service"].strip().split(",")
                 if services[0]:
                     units_qs = units_qs.filter(services__in=services)
-
-            units_qs = units_qs.annotate(num_services=Count("services")).order_by("provider_type","-num_services")
+            if ordering_in_search:
+                units_qs = units_qs.annotate(num_services=Count("services")).order_by("provider_type","-num_services")
+            else:
+                units_qs = units_qs.annotate(num_services=Count("services"))
             units_qs = units_qs[:model_limits["unit"]]
         else:
             units_qs = Unit.objects.none()

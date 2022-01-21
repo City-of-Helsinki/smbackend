@@ -1,3 +1,4 @@
+
 [![Build status](https://api.travis-ci.com/City-of-Helsinki/smbackend.svg?branch=master)](https://travis-ci.org/github/City-of-Helsinki/smbackend)
 [![Codecov](https://codecov.io/gh/City-of-Helsinki/smbackend/branch/master/graph/badge.svg)](https://codecov.io/gh/City-of-Helsinki/smbackend)
 [![Requirements](https://requires.io/github/City-of-Helsinki/smbackend/requirements.svg?branch=master)](https://requires.io/github/City-of-Helsinki/smbackend/requirements/?branch=master)
@@ -36,39 +37,37 @@ First, install the necessary Debian packages.
 * libxml2-dev 
 * libxslt1-dev
 
-You might need to start a new shell for the virtualenvwrapper commands to activate.
-
 
 2. 
 Clone the repository.
-
-Optionally you can use pyenv to manage pyhton versions.
+Use pyenv to manage python version and create a virtualenv with virtualenvwrapper.  
+The virtualenv that will be created and used here is named "servicemap"
+```
 pyenv install -v 3.10.1
 pyenv virtualenv 3.10.1 smbackend
 pyenv local smbackend
 pyenv virtualenvwrapper
-Detailed info can be found:
+mkvirtualenv servicemap
+```
+
+Installation and usage info for pyenv, pyenv-virtualenvwrapper and  
+ virtualenvwrapper can be found here:
 https://github.com/pyenv/pyenv-virtualenv
 https://github.com/pyenv/pyenv-virtualenvwrapper
+https://virtualenvwrapper.readthedocs.io/en/latest/install.html
 
-
-Make a Python virtual environment.
-Be sure the python points to python version 3.10
-
-```
-mkvirtualenv -p /usr/bin/python3 servicemap
-```
 
 3. Install pip requirements.
-
-    ```pip install -r requirements.txt```
+Be sure to load the virtualenv before installing the requirements:
+Example with virtualenv named servicemap as created in example above.
+```workon servicemap```
+Install the requirements:
+```pip install -r requirements.txt```
 
  If this error occurs:
+```   
+ ImportError: cannot import name 'html5lib' from 'pip._vendor' (/home/johndoe/.virtualenvs/servicemap/lib/python3.10/site-packages/pip/_vendor/__init__.py)
 ```
-   
- ImportError: cannot import name 'html5lib' from 'pip._vendor' (/home/juuso/.virtualenvs/servicemap/lib/python3.10/site-packages/pip/_vendor/__init__.py)
-```
-
 Try installing latest pip. 
 ```
 curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
@@ -76,7 +75,7 @@ curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
 
 4. Setup the PostGIS database.
 
-Please note, we reqummend PostgreSQL version 13 or higher.
+Please note, we reqommend PostgreSQL version 13 or higher.
 
 Local setup:
 First, ensure that the collation fi_FI.UTF-8 exists by entering the
@@ -88,7 +87,10 @@ SELECT * FROM pg_collation where collname like '%fi%';
 ```
 There should be a collname fi_FI.UTF-8 if not you must create the collation.
 
+
 ```
+sudo su postgres
+psql
 ALTER database template1 is_template=false;
 DROP database template1;
 CREATE DATABASE template1 WITH OWNER = postgres ENCODING = 'UTF8' TABLESPACE = pg_default LC_COLLATE = 'fi_FI.UTF-8' LC_CTYPE = 'fi_FI.UTF-8' CONNECTION LIMIT = -1 TEMPLATE template0;
@@ -97,13 +99,9 @@ ALTER database template1 is_template=true;
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS postgis;'
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
-
 createuser -RSPd servicemap
-
 createdb -O servicemap -T template1 -l fi_FI.UTF-8 -E utf8 servicemap
-
 ```
-
 
 ```
 ERROR:  could not open extension control file "/usr/share/postgresql/14/extension/postgis.control": No such file or directory
@@ -112,7 +110,6 @@ Solution for ubuntu and Postgresql14:
 ```
 sudo apt install postgis postgresql-14-postgis-3
 ```
-
 
 Docker setup (modify as needed, starts the database on local port 8765):
 ```
@@ -134,8 +131,10 @@ then install the GEOS library. On a Mac this can be achieved with HomeBrew:
 brew install geos
 ```
 
+
 6. Import geo data.
 
+For Turku specific imports see smbackend_turku/README.md.
 ```
 ./manage.py geo_import finland --municipalities
 ./manage.py geo_import helsinki --divisions
@@ -145,6 +144,7 @@ brew install geos
 
 Observations
 ------------
+Not used in the Turku servicemap.
 
 Load the initial observation data with the command:
 ```
