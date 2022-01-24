@@ -10,7 +10,7 @@ backcall==0.2.0
     # via ipython
 decorator==5.1.1
     # via ipython
-ipython==7.31.0
+ipython==7.31.1
     # via -r requirements-dev.in
 jedi==0.18.1
     # via ipython
