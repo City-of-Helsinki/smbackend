@@ -8,7 +8,6 @@ from munigeo.models import Address, AdministrativeDivision
 from services.models import (
     Unit,
     Service,
-    ServiceNode,    
 )
 
 
@@ -20,11 +19,6 @@ def unit_on_save(sender, **kwargs):
 
 @receiver(post_save, sender=Service)
 def service_on_save(sender, **kwargs):
-    obj = kwargs["instance"]    
-    transaction.on_commit(populate_search_column(obj))
-
-@receiver(post_save, sender=ServiceNode)
-def service_node_on_save(sender, **kwargs):
     obj = kwargs["instance"]    
     transaction.on_commit(populate_search_column(obj))
 

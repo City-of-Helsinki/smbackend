@@ -3,7 +3,6 @@ from django.contrib.postgres.search import SearchVector
 from munigeo.models import Address, AdministrativeDivision
 from services.models import (
     Service,
-    ServiceNode,
     Unit,
 )
 
@@ -34,10 +33,6 @@ class Command(BaseCommand):
         print(
             "Services indexed:",
             Service.objects.update(search_column=get_search_column(Service)),
-        )
-        print(
-            "ServiceNodes indexed:",
-            ServiceNode.objects.update(search_column=get_search_column(ServiceNode)),
         )
         print(
             "AdministrativeDivisions indexed:",

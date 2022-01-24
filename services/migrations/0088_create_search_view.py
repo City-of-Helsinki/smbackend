@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("services", "0087_create_search_columns"),
+        ("services", "0087_create_searchview_model_and_search_columns"),
     ]
     operations = [
         migrations.RunSQL(
@@ -13,8 +13,6 @@ class Migration(migrations.Migration):
             SELECT concat('unit_', services_unit.id) AS id, name_fi, name_sv, name_en, search_column, 'Unit' AS type_name from services_unit
             UNION
             SELECT concat('service_', id) AS id, name_fi, name_sv, name_en, search_column, 'Service' AS type_name from services_service
-            UNION
-            SELECT concat('servicenode_', id) AS id, name_fi, name_sv, name_en, search_column, 'ServiceNode' AS type_name from services_servicenode
             UNION
             SELECT concat('administrativedivision_', id) AS id,  name_fi, name_sv, name_en, search_column, 'AdministrativeDivision' AS type_name from munigeo_administrativedivision
             UNION
