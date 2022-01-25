@@ -2,7 +2,7 @@ from itertools import chain
 import re
 from collections import namedtuple
 from distutils.util import strtobool
-from django.contrib.postgres.search import SearchQuery, SearchRank
+from django.contrib.postgres.search import SearchQuery
 from django.contrib.postgres.search import TrigramSimilarity
 from django.contrib.gis.gdal import SpatialReference
 from django.db.models import Case, When
@@ -17,7 +17,6 @@ from munigeo.models import Address, AdministrativeDivision
 from services.api import TranslatedModelSerializer
 from services.models import (
     Service,
-    SearchView,
     Unit,
 )
 from pprint import pprint as pp
@@ -27,16 +26,10 @@ LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
 DEFAULT_SRS = SpatialReference(settings.DEFAULT_SRID)
 SEARCHABLE_MODEL_TYPE_NAMES = ("Unit", "Service", "AdministrativeDivision", "Address")
 QUERY_PARAM_TYPE_NAMES = [m.lower() for m in SEARCHABLE_MODEL_TYPE_NAMES]
-#Note, default limit should be big enough, otherwise quality of results will drop..
+# Note, default limit should be big enough, otherwise quality of results will drop..
 DEFAULT_MODEL_LIMIT_VALUE = 20
 # The limit value for the search query that search the search_view.
-DEFAULT_SEARCH_SQL_LIMIT_VALUE = DEFAULT_MODEL_LIMIT_VALUE*5
-
-# Todo refactor if possible 
-class SearchResultBaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ["id", "name"]
-        abstract = True
+DEFAULT_SEARCH_SQL_LIMIT_VALUE = 100
 
 
 class SearchResultUnitSerializer(
@@ -52,7 +45,7 @@ class SearchResultUnitSerializer(
             representation["location"] = munigeo_api.geom_to_json(
                 obj.location, DEFAULT_SRS
             )
-       
+
         representation["num_services"] = obj.num_services
         return representation
 
@@ -64,12 +57,10 @@ class SearchResultServiceSerializer(
         model = Service
         fields = ["id", "name"]
 
-    def to_representation(self, obj):
-        representation = super().to_representation(obj)        
-        representation["num_units"] = obj.num_units
-        return representation
 
-class SearchResultAdministrativeDivisionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+class SearchResultAdministrativeDivisionSerializer(
+    TranslatedModelSerializer, serializers.ModelSerializer
+):
     class Meta:
         model = AdministrativeDivision
         fields = ["id", "name"]
@@ -92,15 +83,11 @@ class SearchResultAddressSerializer(
 
 
 class SearchSerializer(serializers.Serializer):
-    # addresses = AddressSerializer(many=True)
-    # administrative_divisions = AdministrativeDivisionSerializer(many=True)
-    # units = UnitSerializer(many=True)
-    # services = ServiceSerializer(many=True)
     units = SearchResultUnitSerializer(many=True)
     services = SearchResultServiceSerializer(many=True)
     addresses = SearchResultAddressSerializer(many=True)
     administrative_divisions = SearchResultAdministrativeDivisionSerializer(many=True)
- 
+
 
 def get_ids_from_sql_results(all_results, type="Unit"):
     """
@@ -113,23 +100,26 @@ def get_ids_from_sql_results(all_results, type="Unit"):
             ids.append(row[0].split("_")[1])
     return ids
 
+
 def get_all_ids_from_sql_results(all_results):
     """
     Returns a dict with the model names as keys and the
-    object ids of the model as values. 
+    object ids of the model as values.
     """
     ids = {}
     for t in SEARCHABLE_MODEL_TYPE_NAMES:
         ids[t] = []
     for row in all_results:
-        ids[row[1]].append(row[0].split("_")[1])      
+        ids[row[1]].append(row[0].split("_")[1])
     return ids
 
-def get_preserved_order(ids):    
+
+def get_preserved_order(ids):
     if ids:
         return Case(*[When(id=id, then=pos) for pos, id in enumerate(ids)])
     else:
         return Case()
+
 
 def get_trigram_results(model, field, q_val, threshold=0.1):
     trigm = (
@@ -151,15 +141,12 @@ class SearchViewSet(GenericAPIView):
     queryset = Unit.objects.all()
 
     def get(self, request):
-        sql_search = True
-        ordering_in_search = True
-
         model_limits = {}
         for model in list(QUERY_PARAM_TYPE_NAMES):
-            model_limits[model] = DEFAULT_MODEL_LIMIT_VALUE     
+            model_limits[model] = DEFAULT_MODEL_LIMIT_VALUE
         SearchResult = namedtuple(
             "SearchResult",
-            (               
+            (
                 "services",
                 "units",
                 "administrative_divisions",
@@ -167,30 +154,21 @@ class SearchViewSet(GenericAPIView):
             ),
         )
         params = self.request.query_params
-        q_val = params.get("q", "").strip()     
+        q_val = params.get("q", "").strip()
         if not q_val:
             raise ParseError("Supply search terms with 'q=' '")
-    
-        if "ordering" in params:
-            try:
-                ordering_in_search = strtobool(params["ordering"])
-            except ValueError:
-                raise ParseError("'sql' needs to be a boolean")    
-       
-    
+
         types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])
-        types = params.get(
-            "type", types_str
-        ).split(",")
-        
+        types = params.get("type", types_str).split(",")
+
         # Limit number of results in searchquery.
-        if "limit" in params:
+        if "sql_query_limit" in params:
             try:
-                search_sql_limit = int(params.get("limit"))
+                sql_query_limit = int(params.get("sql_query_limit"))
             except ValueError:
-                raise ParseError("'limit' need to be of type integer.")
+                raise ParseError("'sql_query_limit' need to be of type integer.")
         else:
-            search_sql_limit = DEFAULT_SEARCH_SQL_LIMIT_VALUE
+            sql_query_limit = DEFAULT_SEARCH_SQL_LIMIT_VALUE
         # Read values for limit values for each model
         for type_name in QUERY_PARAM_TYPE_NAMES:
             param_name = f"{type_name}_limit"
@@ -210,56 +188,36 @@ class SearchViewSet(GenericAPIView):
             )
 
         config_language = LANGUAGES[language_short]
-        search_type = "plain"
         search_query_str = None  # Used in the raw sql
-        search_query = None  # Used with djangos filter
-        # Build conditional searchquery.    
+        # Build conditional searchquery.
         q_vals = re.split(",\s+|\s+", q_val)
-        for q in q_vals:
-
-            if sql_search:
-                if search_query_str:
-                    # If word ends with "+"  make it or(|),
-                    if q[-1] == "|":
-                        search_query_str += f"| {q[:-1]}:*"
-                    else:
-
-                        search_query_str += f"& {q}:*"
+        for q in q_vals:         
+            if search_query_str:
+                # If word ends with "+"  make it or(|),
+                if q[-1] == "|":
+                    search_query_str += f"| {q[:-1]}:*"
                 else:
-                    search_query_str = f"{q}:*"
+                    search_query_str += f"& {q}:*"
             else:
-                if search_query:
-                    if q[-1] == "+":
-                        search_query |= SearchQuery(
-                            q, config=config_language, search_type=search_type
-                        )
-                    else:
-                        search_query &= SearchQuery(
-                            q, config=config_language, search_type=search_type
-                        )
-                else:
-                    search_query = SearchQuery(
-                        q, config=config_language, search_type=search_type
-                    )
+                search_query_str = f"{q}:*"          
 
-       
         # This is ~100 times faster than using Djangos SearchRank and allows searching using wildard "|*"
         # and by rankig gives better results, e.g. description fields weight is counted
         sql = f"""
         SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column, search_query) AS rank
         FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
         WHERE search_query @@ search_column 
-        ORDER BY rank DESC LIMIT {search_sql_limit};
+        ORDER BY rank DESC LIMIT {sql_query_limit};
         """
         cursor = connection.cursor()
         cursor.execute(sql)
         # Note fetchall() consumes the results and once called returns None.
         all_results = cursor.fetchall()
-        all_ids = get_all_ids_from_sql_results(all_results)            
+        all_ids = get_all_ids_from_sql_results(all_results)
         unit_ids = all_ids["Unit"]
         service_ids = all_ids["Service"]
-        administrative_division_ids = all_ids["AdministrativeDivision"]           
-        address_ids = all_ids["Address"]    
+        administrative_division_ids = all_ids["AdministrativeDivision"]
+        address_ids = all_ids["Address"]
 
         if "service" in types:
             preserved = get_preserved_order(service_ids)
@@ -267,36 +225,38 @@ class SearchViewSet(GenericAPIView):
             if not services_qs:
                 services_qs = get_trigram_results(
                     Service, "name_" + language_short, q_val
-                )             
-            services_qs = services_qs.all().distinct()
-            if ordering_in_search:
-                services_qs = services_qs.annotate(num_units=Count("units")).order_by("-units__count")
-            else:
-                services_qs = services_qs.annotate(num_units=Count("units"))
-
-            services_qs = services_qs[:model_limits["service"]]
-
+                )
+            services_qs = services_qs.annotate(num_units=Count("units")).order_by(
+                "-units__count"
+            )
+            # order_by() call makes duplicate rows appear distinct. This is solved by
+            # fetching the ids and filtering a new queryset using them
+            ids = list(services_qs.values_list("id", flat=True))
+            # remove duplicates from list
+            ids = list(dict.fromkeys(ids))
+            preserved = get_preserved_order(ids)
+            services_qs = Service.objects.filter(id__in=ids).order_by(preserved)
+            services_qs = services_qs[: model_limits["service"]]
         else:
             services_qs = Service.objects.none()
 
-        if "unit" in types:            
+        if "unit" in types:
             preserved = get_preserved_order(unit_ids)
-            # if preserved:
             units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
             units_from_services = Unit.objects.filter(
                 services__in=service_ids, public=True
             )
             # Add units which are associated with the services found.
             units_qs = units_from_services | units_qs
+            # Combine units from services and the units_qs.
             ids1 = list(units_from_services.values_list("id", flat=True))
             ids2 = list(units_qs.values_list("id", flat=True))
             ids1 = []
             ids = ids1 + ids2
             units_qs = Unit.objects.filter(id__in=ids)
 
-            #if trigram_search:  # or not units_qs:
             if not units_qs:
-                units_qs = get_trigram_results(Unit, "name_" + language_short, q_val)               
+                units_qs = get_trigram_results(Unit, "name_" + language_short, q_val)
 
             units_qs = units_qs.all().distinct()
             if "municipality" in self.request.query_params:
@@ -309,33 +269,38 @@ class SearchViewSet(GenericAPIView):
                 services = self.request.query_params["service"].strip().split(",")
                 if services[0]:
                     units_qs = units_qs.filter(services__in=services)
-            if ordering_in_search:
-                units_qs = units_qs.annotate(num_services=Count("services")).order_by("provider_type","-num_services")
-            else:
-                units_qs = units_qs.annotate(num_services=Count("services"))
-            units_qs = units_qs[:model_limits["unit"]]
+
+            units_qs = units_qs.annotate(num_services=Count("services")).order_by(
+                "provider_type", "-num_services"
+            )
+            units_qs = units_qs[: model_limits["unit"]]
         else:
             units_qs = Unit.objects.none()
-       
+
         if "administrativedivision" in types:
             administrative_division_qs = AdministrativeDivision.objects.filter(
                 id__in=administrative_division_ids
             )
             if not administrative_division_qs:
-                administrative_division_qs = get_trigram_results(AdministrativeDivision, "name_" + language_short, q_val)
-        
-            administrative_division_qs = administrative_division_qs[:model_limits["administrativedivision"]]
+                administrative_division_qs = get_trigram_results(
+                    AdministrativeDivision, "name_" + language_short, q_val
+                )
+            administrative_division_qs = administrative_division_qs[
+                : model_limits["administrativedivision"]
+            ]
         else:
             administrative_division_qs = AdministrativeDivision.objects.none()
 
         if "address" in types:
             address_qs = Address.objects.filter(id__in=address_ids)
             if not address_qs:
-                address_qs = get_trigram_results(Address, "full_name_" + language_short, q_val)
-            address_qs = address_qs[:model_limits["address"]]
+                address_qs = get_trigram_results(
+                    Address, "full_name_" + language_short, q_val
+                )
+            address_qs = address_qs[: model_limits["address"]]
         else:
             address_qs = Address.objects.none()
-      
+
         search_results = SearchResult(
             units=units_qs,
             services=services_qs,
@@ -343,9 +308,8 @@ class SearchViewSet(GenericAPIView):
             addresses=address_qs,
         )
         serializer = SearchSerializer(search_results)
-            
+
         if BENCHMARK:
-            # pp(queryset.explain(verbose=True, analyze=True))
             pp(connection.queries)
             queries_time = sum([float(s["time"]) for s in connection.queries])
             print(
@@ -360,8 +324,7 @@ class SearchViewSet(GenericAPIView):
                 administrative_division_qs,
                 address_qs,
             )
-        )  
+        )
 
         page = self.paginate_queryset(queryset)
         return self.get_paginated_response(serializer.data)
-

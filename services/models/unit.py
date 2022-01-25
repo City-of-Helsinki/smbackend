@@ -269,9 +269,9 @@ class Unit(SoftDeleteModel):
             ("name_sv", "swedish", "A"),
             ("name_en", "english", "A"),
             ("extra", None, "B"),
-            ("description_fi", "finnish", "D"),
-            ("description_sv", "swedish", "D"),
-            ("description_en", "english", "D"),            
+            # ("description_fi", "finnish", "D"),
+            # ("description_sv", "swedish", "D"),
+            # ("description_en", "english", "D"),            
         ]
 
     def soft_delete(self):
