@@ -1,8 +1,24 @@
+"""
+Brief explanation how full text search is implemented in the smbacked.
+- Currenlt search are performed to following models, Unit, Service, 
+munigeo_Address, munigeo_Administrative_division.
+- For every model that is include in the search a column named
+ search_column is added. This is also defined as a Gindex. The models 
+ that are searched also implements a function called get_search_column_indexing
+  where the names, configuration and weight of the columns that will be indexed
+  are defined.
+- The search if performed by quering to a SQL view called search_view, this view
+ is created by a raw SQL migration and it contains the search_columns of all models
+ that are inlcuded in the search
+ - For models included in the search post_save signal is connected and the 
+  search_column is updated when they are saved.
+ - The search_columns that contains the created lexem can be manually updated with
+ the index_search_columns management script.
+"""
 from itertools import chain
 import re
 from collections import namedtuple
 from distutils.util import strtobool
-from django.contrib.postgres.search import SearchQuery
 from django.contrib.postgres.search import TrigramSimilarity
 from django.contrib.gis.gdal import SpatialReference
 from django.db.models import Case, When
@@ -27,7 +43,7 @@ DEFAULT_SRS = SpatialReference(settings.DEFAULT_SRID)
 SEARCHABLE_MODEL_TYPE_NAMES = ("Unit", "Service", "AdministrativeDivision", "Address")
 QUERY_PARAM_TYPE_NAMES = [m.lower() for m in SEARCHABLE_MODEL_TYPE_NAMES]
 # Note, default limit should be big enough, otherwise quality of results will drop..
-DEFAULT_MODEL_LIMIT_VALUE = 20
+DEFAULT_MODEL_LIMIT_VALUE = 5
 # The limit value for the search query that search the search_view.
 DEFAULT_SEARCH_SQL_LIMIT_VALUE = 100
 
@@ -115,6 +131,10 @@ def get_all_ids_from_sql_results(all_results):
 
 
 def get_preserved_order(ids):
+    """
+    Returns a Case exoresson that can be used in the order_by method, 
+    ordering will be equal to the order of ids in the ids list.
+    """
     if ids:
         return Case(*[When(id=id, then=pos) for pos, id in enumerate(ids)])
     else:
@@ -189,7 +209,8 @@ class SearchViewSet(GenericAPIView):
 
         config_language = LANGUAGES[language_short]
         search_query_str = None  # Used in the raw sql
-        # Build conditional searchquery.
+        # Build conditional query string that is used in the SQL query.
+        # split my "," or whitespace
         q_vals = re.split(",\s+|\s+", q_val)
         for q in q_vals:         
             if search_query_str:
