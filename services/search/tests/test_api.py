@@ -2,8 +2,11 @@ import pytest
 from rest_framework.reverse import reverse
 from services.search.tests.fixtures import *
 
+
 @pytest.mark.django_db
-def test_search(api_client, units, streets, services, addresses, administrative_division):
+def test_search(
+    api_client, units, streets, services, addresses, administrative_division
+):
     # Note for yet unkown reasons postgresql trigram extension is
     # not working under pytest, to overcome all test are made so that
     # trigram search is not used.

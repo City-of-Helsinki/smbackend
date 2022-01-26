@@ -138,8 +138,8 @@ def administrative_division(administrative_division_type):
 @pytest.fixture
 def streets(municipality):
     streets = []
-    street = Street.objects.create(id=42,name="Kurrapolku", municipality_id="turku")
+    street = Street.objects.create(id=42, name="Kurrapolku", municipality_id="turku")
     streets.append(street)
-    street = Street.objects.create(id=43,name="Markulantie", municipality_id="turku")
+    street = Street.objects.create(id=43, name="Markulantie", municipality_id="turku")
     streets.append(street)
     return streets
