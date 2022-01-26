@@ -19,10 +19,27 @@ components:
     q_param:
       name: q
       in: query
-      description: The string that will be used when searching in the search view. It search the search_columns for the given models.
+      description: The string that will be used when searching in the search view. It searches the search_columns for the given models. Whitspaces and commas between words are interpreted as or operator. Words ending with the plus(+) sign are interpreted as and and must be included in the search result. Note, if no results are found for the model trigram search is used if use_trigram=true (default).
       required: true
       schema:
         type: string 
+    language_param:  
+      name: language
+      in: query
+      description: The two-character ISO 639-1 language code to be used in the search.
+        If missing, the search will use the default language Finnish.
+      schema:
+        type: string
+      example: fi
+      default: fi
+    use_trigram_param:
+      name: use_trigram
+      in: query
+      description: Use trigram search to get search results by using trigram search, if no results are found for the model. Default is True.
+      schema:
+        type: boolean
+        example: false
+        default: true
     sql_query_limit_param:
       name: sql_query_limit
       in: query
@@ -62,6 +79,12 @@ components:
         type: integer
         example: 5
         default: 5
+    type_param:
+      name: type
+      in: query
+      description: A comma-separet list of resource types to be returned in the results Possible values are *service*, *unit*, *address* and *administrative_division*. If not present, defualts to all types.
+      schema:
+        type: string
     municipality_param:
       name: municipality
       in: query
@@ -110,10 +133,13 @@ paths:
       summary: "List of search resluts, paginated"  
       parameters:
         - $ref: "#/components/parameters/q_param"
+        - $ref: "#/components/parameters/language_param"
+        - $ref: "#/components/parameters/use_trigram_param"
         - $ref: "#/components/parameters/sql_query_limit_param"
         - $ref: "#/components/parameters/unit_limit_param"
         - $ref: "#/components/parameters/service_limit_param"
         - $ref: "#/components/parameters/address_limit_param"
+        - $ref: "#/components/parameters/type_param"
         - $ref: "#/components/parameters/municipality_param"
         - $ref: "#/components/parameters/service_param"
         - $ref: "#/components/parameters/page_param"

@@ -1,15 +1,16 @@
 """
 Brief explanation how full text search is implemented in the smbacked.
-- Currenlt search are performed to following models, Unit, Service, 
+- Currently search are performed to following models, Unit, Service, 
 munigeo_Address, munigeo_Administrative_division.
 - For every model that is include in the search a column named
  search_column is added. This is also defined as a Gindex. The models 
  that are searched also implements a function called get_search_column_indexing
   where the names, configuration and weight of the columns that will be indexed
-  are defined.
+  are defined. This function is used by the indexing script and signals when 
+  the search_column is populated.
 - The search if performed by quering to a SQL view called search_view, this view
  is created by a raw SQL migration and it contains the search_columns of all models
- that are inlcuded in the search
+ that are inlcuded in the search.
  - For models included in the search post_save signal is connected and the 
   search_column is updated when they are saved.
  - The search_columns that contains the created lexem can be manually updated with
@@ -132,7 +133,7 @@ def get_all_ids_from_sql_results(all_results):
 
 def get_preserved_order(ids):
     """
-    Returns a Case exoresson that can be used in the order_by method, 
+    Returns a Case exoresson that can be used in the order_by method,
     ordering will be equal to the order of ids in the ids list.
     """
     if ids:
@@ -150,8 +151,8 @@ def get_trigram_results(model, field, q_val, threshold=0.1):
         .order_by("-similarity")
     )
     ids = trigm.values_list("id", flat=True)
-    preserved = get_preserved_order(ids)
     if ids:
+        preserved = get_preserved_order(ids)
         return model.objects.filter(id__in=ids).order_by(preserved)
     else:
         return model.objects.none()
@@ -180,7 +181,13 @@ class SearchViewSet(GenericAPIView):
 
         types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])
         types = params.get("type", types_str).split(",")
-
+        if "use_trigram" in params:
+            try:
+                use_trigram = strtobool(params["use_trigram"])
+            except ValueError:
+                raise ParseError("'use_trigram' needs to be a boolean")
+        else:
+            use_trigram = True
         # Limit number of results in searchquery.
         if "sql_query_limit" in params:
             try:
@@ -212,7 +219,7 @@ class SearchViewSet(GenericAPIView):
         # Build conditional query string that is used in the SQL query.
         # split my "," or whitespace
         q_vals = re.split(",\s+|\s+", q_val)
-        for q in q_vals:         
+        for q in q_vals:
             if search_query_str:
                 # If word ends with "+"  make it or(|),
                 if q[-1] == "|":
@@ -220,7 +227,7 @@ class SearchViewSet(GenericAPIView):
                 else:
                     search_query_str += f"& {q}:*"
             else:
-                search_query_str = f"{q}:*"          
+                search_query_str = f"{q}:*"
 
         # This is ~100 times faster than using Djangos SearchRank and allows searching using wildard "|*"
         # and by rankig gives better results, e.g. description fields weight is counted
@@ -243,7 +250,7 @@ class SearchViewSet(GenericAPIView):
         if "service" in types:
             preserved = get_preserved_order(service_ids)
             services_qs = Service.objects.filter(id__in=service_ids).order_by(preserved)
-            if not services_qs:
+            if not services_qs and use_trigram:
                 services_qs = get_trigram_results(
                     Service, "name_" + language_short, q_val
                 )
@@ -262,8 +269,11 @@ class SearchViewSet(GenericAPIView):
             services_qs = Service.objects.none()
 
         if "unit" in types:
-            preserved = get_preserved_order(unit_ids)
-            units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
+            if unit_ids:
+                preserved = get_preserved_order(unit_ids)
+                units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
+            else:
+                units_qs = Unit.objects.none()
             units_from_services = Unit.objects.filter(
                 services__in=service_ids, public=True
             )
@@ -276,7 +286,7 @@ class SearchViewSet(GenericAPIView):
             ids = ids1 + ids2
             units_qs = Unit.objects.filter(id__in=ids)
 
-            if not units_qs:
+            if not units_qs and use_trigram:
                 units_qs = get_trigram_results(Unit, "name_" + language_short, q_val)
 
             units_qs = units_qs.all().distinct()
@@ -302,7 +312,7 @@ class SearchViewSet(GenericAPIView):
             administrative_division_qs = AdministrativeDivision.objects.filter(
                 id__in=administrative_division_ids
             )
-            if not administrative_division_qs:
+            if not administrative_division_qs and use_trigram:
                 administrative_division_qs = get_trigram_results(
                     AdministrativeDivision, "name_" + language_short, q_val
                 )
@@ -314,7 +324,7 @@ class SearchViewSet(GenericAPIView):
 
         if "address" in types:
             address_qs = Address.objects.filter(id__in=address_ids)
-            if not address_qs:
+            if not address_qs and use_trigram:
                 address_qs = get_trigram_results(
                     Address, "full_name_" + language_short, q_val
                 )

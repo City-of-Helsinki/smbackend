@@ -269,6 +269,8 @@ class Unit(SoftDeleteModel):
             ("name_sv", "swedish", "A"),
             ("name_en", "english", "A"),
             ("extra", None, "B"),
+            # Commented out "temporarly" to reduce the amount
+            # of faulty search results.
             # ("description_fi", "finnish", "D"),
             # ("description_sv", "swedish", "D"),
             # ("description_en", "english", "D"),            
