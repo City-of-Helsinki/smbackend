@@ -232,7 +232,7 @@ class SearchViewSet(GenericAPIView):
                 search_query_str = f"{q}:*"
 
         # This is ~100 times faster than using Djangos SearchRank and allows searching using wildard "|*"
-        # and by rankig gives better results, e.g. description fields weight is counted
+        # and by rankig gives better results, e.g. extra fields weight is counted.
         sql = f"""
         SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column, search_query) AS rank
         FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
