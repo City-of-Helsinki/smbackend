@@ -239,6 +239,7 @@ class SearchViewSet(GenericAPIView):
         WHERE search_query @@ search_column 
         ORDER BY rank DESC LIMIT {sql_query_limit};
         """
+        
         cursor = connection.cursor()
         cursor.execute(sql)
         # Note, fetchall() consumes the results and once called returns None.
