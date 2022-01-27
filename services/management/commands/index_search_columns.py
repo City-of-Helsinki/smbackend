@@ -1,3 +1,4 @@
+import logging
 from django.core.management.base import BaseCommand
 from django.contrib.postgres.search import SearchVector
 from munigeo.models import Address, AdministrativeDivision
@@ -5,6 +6,8 @@ from services.models import (
     Service,
     Unit,
 )
+
+logger = logging.getLogger("search")
 
 
 def get_search_column(model):
@@ -27,20 +30,15 @@ def get_search_column(model):
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
 
-        print(
-            "Units indexed:", Unit.objects.update(search_column=get_search_column(Unit))
+        logger.info(
+            f"Units indexed: {Unit.objects.update(search_column=get_search_column(Unit))}"
         )
-        print(
-            "Services indexed:",
-            Service.objects.update(search_column=get_search_column(Service)),
+        logger.info(
+            f"Services indexed: {Service.objects.update(search_column=get_search_column(Service))}"
         )
-        print(
-            "AdministrativeDivisions indexed:",
-            AdministrativeDivision.objects.update(
-                search_column=get_search_column(AdministrativeDivision)
-            ),
+        logger.info(
+            f"AdministrativeDivisions indexed: {AdministrativeDivision.objects.update(search_column=get_search_column(AdministrativeDivision))}"
         )
-        print(
-            "Addresses indexed:",
-            Address.objects.update(search_column=get_search_column(Address)),
+        logger.info(
+            f"Addresses indexed: {Address.objects.update(search_column=get_search_column(Address))}"
         )

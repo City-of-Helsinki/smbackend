@@ -216,7 +216,7 @@ class SearchViewSet(GenericAPIView):
         config_language = LANGUAGES[language_short]
         search_query_str = None  # Used in the raw sql
         # Build conditional query string that is used in the SQL query.
-        # split my "," or whitespace      
+        # split my "," or whitespace
         q_vals = re.split(",\s+|\s+", q_val)
         q_vals = [s.strip() for s in q_vals]
         print(q_vals)
@@ -341,10 +341,12 @@ class SearchViewSet(GenericAPIView):
             addresses=address_qs,
         )
         serializer = SearchSerializer(search_results)
-   
+
         logger.debug(connection.queries)
         queries_time = sum([float(s["time"]) for s in connection.queries])
-        logger.info(f"Search queries total execution time: {queries_time} Num queries: {len(connection.queries)}")
+        logger.info(
+            f"Search queries total execution time: {queries_time} Num queries: {len(connection.queries)}"
+        )
         reset_queries()
 
         queryset = list(
