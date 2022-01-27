@@ -1,23 +1,25 @@
 """
 Brief explanation how full text search is implemented in the smbacked.
-- Currently search are performed to following models, Unit, Service, 
+- Currently search is performed to following models, Unit, Service, 
 munigeo_Address, munigeo_Administrative_division.
 - For every model that is include in the search a column named
- search_column is added. This is also defined as a Gindex. The models 
- that are searched also implements a function called get_search_column_indexing
-  where the names, configuration and weight of the columns that will be indexed
+ search_column of type SeaarchVector is added. This is also defined as a Gindex. 
+ The models that are searched also implements a function called get_search_column_indexing
+  where the name, configuration(language) and weight of the columns that will be indexed
   are defined. This function is used by the indexing script and signals when 
   the search_column is populated.
-- The search if performed by quering to a SQL view called search_view, this view
- is created by a raw SQL migration and it contains the search_columns of all models
- that are inlcuded in the search.
- - For models included in the search post_save signal is connected and the 
+- A view called search_view is created and it contains the search_columns of the models
+and a couple auxilary columns: id. type_name and name. This view is created by a
+raw SQL migration 008X_create_search_view.py.
+- The search if performed by quering the views search_columns.
+- For models included in the search a post_save signal is connected and the 
   search_column is updated when they are saved.
- - The search_columns that contains the created lexem can be manually updated with
- the index_search_columns management script.
+ - The search_columns can be manually updated with  the index_search_columns 
+ management script.
 """
 from itertools import chain
 import re
+import logging
 from collections import namedtuple
 from distutils.util import strtobool
 from django.contrib.postgres.search import TrigramSimilarity
@@ -36,9 +38,8 @@ from services.models import (
     Service,
     Unit,
 )
-from pprint import pprint as pp
 
-BENCHMARK = True
+logger = logging.getLogger("search")
 LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
 DEFAULT_SRS = SpatialReference(settings.DEFAULT_SRID)
 SEARCHABLE_MODEL_TYPE_NAMES = ("Unit", "Service", "AdministrativeDivision", "Address")
@@ -62,8 +63,6 @@ class SearchResultUnitSerializer(
             representation["location"] = munigeo_api.geom_to_json(
                 obj.location, DEFAULT_SRS
             )
-
-        representation["num_services"] = obj.num_services
         return representation
 
 
@@ -133,7 +132,7 @@ def get_all_ids_from_sql_results(all_results):
 
 def get_preserved_order(ids):
     """
-    Returns a Case exoresson that can be used in the order_by method,
+    Returns a Case expression that can be used in the order_by method,
     ordering will be equal to the order of ids in the ids list.
     """
     if ids:
@@ -217,13 +216,16 @@ class SearchViewSet(GenericAPIView):
         config_language = LANGUAGES[language_short]
         search_query_str = None  # Used in the raw sql
         # Build conditional query string that is used in the SQL query.
-        # split my "," or whitespace
+        # split my "," or whitespace      
         q_vals = re.split(",\s+|\s+", q_val)
+        q_vals = [s.strip() for s in q_vals]
+        print(q_vals)
         for q in q_vals:
             if search_query_str:
-                # If word ends with "+"  make it or(|),
+                # if ends with "|"" make it a or
                 if q[-1] == "|":
                     search_query_str += f"| {q[:-1]}:*"
+                # else make it an and.
                 else:
                     search_query_str += f"& {q}:*"
             else:
@@ -239,7 +241,7 @@ class SearchViewSet(GenericAPIView):
         """
         cursor = connection.cursor()
         cursor.execute(sql)
-        # Note fetchall() consumes the results and once called returns None.
+        # Note, fetchall() consumes the results and once called returns None.
         all_results = cursor.fetchall()
         all_ids = get_all_ids_from_sql_results(all_results)
         unit_ids = all_ids["Unit"]
@@ -339,14 +341,11 @@ class SearchViewSet(GenericAPIView):
             addresses=address_qs,
         )
         serializer = SearchSerializer(search_results)
-
-        if BENCHMARK:
-            pp(connection.queries)
-            queries_time = sum([float(s["time"]) for s in connection.queries])
-            print(
-                f"Queries total execution time: {queries_time} Num queries: {len(connection.queries)}"
-            )
-            reset_queries()
+   
+        logger.debug(connection.queries)
+        queries_time = sum([float(s["time"]) for s in connection.queries])
+        logger.info(f"Search queries total execution time: {queries_time} Num queries: {len(connection.queries)}")
+        reset_queries()
 
         queryset = list(
             chain(

@@ -18,7 +18,7 @@ Before importing addresses make sure you have the turku_addresses.cvs file locat
 ./manage.py geo_import finland --municipalities
 ./manage.py turku_services_import services accessibility units addresses
 ```
-After the first time data is imported run:
+NOTE, After the first time data is imported run:
 ```
 ./manage.py index_search_column
 ```

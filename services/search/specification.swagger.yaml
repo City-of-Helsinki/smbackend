@@ -19,7 +19,11 @@ components:
     q_param:
       name: q
       in: query
-      description: The string that will be used when searching in the search view. It searches the search_columns for the given models. Whitspaces and commas between words are interpreted as or operator. Words ending with the plus(+) sign are interpreted as and and must be included in the search result. Note, if no results are found for the model trigram search is used if use_trigram=true (default).
+      description: The string that will be used when searching in the search view. 
+      It searches the search_columns for the given models. Whitspaces and commas 
+      between words are interpreted as and operator. Words ending with the "|" sign
+       are interpreted as or operator. Note, if no results are found for the model,
+        trigram search is used if use_trigram=true (default).
       required: true
       schema:
         type: string 
@@ -35,7 +39,8 @@ components:
     use_trigram_param:
       name: use_trigram
       in: query
-      description: Use trigram search to get search results by using trigram search, if no results are found for the model. Default is True.
+      description: Use trigram search to get search results by using trigram search, 
+      if no results are found for the model. Default is True. 
       schema:
         type: boolean
         example: false
@@ -43,14 +48,20 @@ components:
     sql_query_limit_param:
       name: sql_query_limit
       in: query
-      description: Limit value used in the SQL query that searches from the search view. The view contains the searchable data(the content in the search_column) from all models. Note, this limits the number of total results from which the model specific results are dervied. Making the number too small or big may affect the results in a unvanted way.
+      description: Limit value used in the SQL query that searches from the search view. 
+      The view contains the searchable data(the content in the search_column) from all models. 
+      Note, this limits the number of total results from which the model specific results are dervied. 
+      Making the number too small or big may affect the results in a unvanted way.
       schema:
         type: integer
         default: 100
     unit_limit_param:
       name: unit_limit
       in: query
-      description: Limit the number of Units in results. Units from services that are found in the search are added to the results and finally Units are ordered by their provider(self produced first) and in ascending order by number of services. This is good to keep in mind when deciding the limit value.   
+      description: Limit the number of Units in results. Units from services that are found 
+      in the search are added to the results and finally Units are ordered by their 
+      provider(self produced first) and in ascending order by number of services. 
+      This is good to keep in mind when deciding the limit value.   
       schema:
         type: integer
         example: 5
@@ -58,7 +69,9 @@ components:
     service_limit_param:
       name: serivce_limit
       in: query
-      description: Limit the number of Services in results. Services are order by their provider(self produced first) and in ascending order by number of units are connected to the services. 
+      description: Limit the number of Services in results. Services are order by their 
+      provider(self produced first) and in ascending order by number of units are connected
+       to the services. 
       schema:
         type: integer
         example: 5
@@ -82,7 +95,9 @@ components:
     type_param:
       name: type
       in: query
-      description: A comma-separet list of resource types to be returned in the results Possible values are *service*, *unit*, *address* and *administrative_division*. If not present, defualts to all types.
+      description: A comma-separet list of resource types to be returned 
+      in the results Possible values are *service*, *unit*, *address* and 
+      *administrative_division*. If not present, defualts to all types.
       schema:
         type: string
     municipality_param:
