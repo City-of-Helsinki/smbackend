@@ -75,7 +75,7 @@ curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
 
 4. Setup the PostGIS database.
 
-Please note, we reqommend PostgreSQL version 13 or higher.
+Please note, we recommend PostgreSQL version 13 or higher.
 
 Local setup:
 First, ensure that the collation fi_FI.UTF-8 exists by entering the
