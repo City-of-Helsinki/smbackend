@@ -27,7 +27,7 @@ class ServiceNode(MPTTModel):
 
     objects = CustomTreeManager()
     tree_objects = TreeManager()
-   
+
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
 
@@ -51,9 +51,7 @@ class ServiceNode(MPTTModel):
         return next(
             (o.period_enabled for o in self.related_services.all() if o.period_enabled),
             False,
-        ) 
-   
-    
+        )
+
     class Meta:
         ordering = ["name"]
-
