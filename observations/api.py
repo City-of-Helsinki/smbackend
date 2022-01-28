@@ -1,3 +1,5 @@
+import logging
+
 from django.utils.translation import gettext_lazy as _
 from rest_framework import viewsets
 from rest_framework.exceptions import AuthenticationFailed
@@ -14,11 +16,25 @@ from services.api import (
 from . import models
 from .serializers import ObservablePropertySerializer, ObservationSerializer
 
+logger = logging.getLogger(__name__)
+
 
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Observation.objects.all()
     serializer_class = ObservationSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = super(ObservationViewSet, self).get_queryset()
+        filters = self.request.query_params
+        unit = filters.get("unit")
+        if unit:
+            try:
+                queryset = queryset.filter(unit=int(unit))
+            except ValueError:
+                logger.error("Invalid Unit id : '{}' used in filtering".format(unit))
+                queryset = queryset.none()
+        return queryset
 
     def create(self, request, *args, **kwargs):
         if request.auth is None:
