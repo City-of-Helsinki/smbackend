@@ -219,7 +219,6 @@ class SearchViewSet(GenericAPIView):
         # split my "," or whitespace
         q_vals = re.split(",\s+|\s+", q_val)
         q_vals = [s.strip() for s in q_vals]
-        print(q_vals)
         for q in q_vals:
             if search_query_str:
                 # if ends with "|"" make it a or
@@ -341,14 +340,15 @@ class SearchViewSet(GenericAPIView):
             administrative_divisions=administrative_division_qs,
             addresses=address_qs,
         )
-        serializer = SearchSerializer(search_results)
-
-        logger.debug(connection.queries)
-        queries_time = sum([float(s["time"]) for s in connection.queries])
-        logger.info(
-            f"Search queries total execution time: {queries_time} Num queries: {len(connection.queries)}"
-        )
-        reset_queries()
+        serializer = SearchSerializer(search_results)      
+        if logger.level <= logging.DEBUG:
+            print("here")
+            logger.debug(connection.queries)
+            queries_time = sum([float(s["time"]) for s in connection.queries])
+            logger.debug(
+                f"Search queries total execution time: {queries_time} Num queries: {len(connection.queries)}"
+            )
+            reset_queries()
 
         queryset = list(
             chain(
