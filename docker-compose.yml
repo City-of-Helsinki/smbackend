@@ -9,13 +9,7 @@ services:
         ports:
             - "5432:5432"
         volumes:
-            - postgres-data:/var/lib/postgres/data
-    elasticsearch:
-        image: helsinki/elasticsearch:1.7-ubuntu
-        volumes:
-            - elastic-data:/var/lib/elasticsearch/elasticsearch
-        ports:
-            - "9200:9200"
+            - postgres-data:/var/lib/postgres/data 
     servicemap:
         build:
             context: ./
@@ -30,7 +24,6 @@ services:
         restart: on-failure
         depends_on:
             - postgres
-            - elasticsearch
     servicemap-ui:
         image: helsinki/servicemap-ui:staging
         ports:
@@ -42,4 +35,3 @@ services:
 volumes:
     postgres-data:
     django-media:
-    elastic-data:

@@ -15,8 +15,6 @@ from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.utils.module_loading import import_string
 from django_filters.rest_framework import DjangoFilterBackend
-from haystack.inputs import Clean, Exact
-from haystack.query import SearchQuerySet, SQ
 from modeltranslation.translator import NotRegistered, translator
 from mptt.utils import drilldown_tree_for_node
 from munigeo import api as munigeo_api
@@ -24,6 +22,7 @@ from munigeo.models import Address, AdministrativeDivision, Municipality
 from rest_framework import generics, renderers, serializers, viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
+from pprint import pprint as pp
 
 from observations.models import Observation
 from services.accessibility import RULES
@@ -705,14 +704,13 @@ class UnitSerializer(
         qparams = self.context["request"].query_params
         if qparams.get("geometry", "").lower() in ("true", "1"):
             geom = obj.geometry  # TODO: different geom types
-            if geom and obj.geometry != obj.location:
+            if geom and obj.geometry != obj.location:              
                 ret["geometry"] = munigeo_api.geom_to_json(geom, self.srs)
         elif "geometry" in ret:
             del ret["geometry"]
 
         if qparams.get("accessibility_description", "").lower() in ("true", "1"):
             ret["accessibility_description"] = shortcomings.accessibility_description
-
         return ret
 
     class Meta:
@@ -723,6 +721,7 @@ class UnitSerializer(
             "accessibility_property_hash",
             "identifier_hash",
             "public",
+            "search_column",
         ]
 
 
@@ -1116,233 +1115,6 @@ class SearchSerializer(serializers.Serializer):
         data["object_type"] = model._meta.model_name
         data["score"] = search_result.score
         return data
-
-
-KML_REGEXP = re.compile(settings.KML_REGEXP)
-
-
-class SearchViewSet(
-    munigeo_api.GeoModelAPIView, viewsets.ViewSetMixin, generics.ListAPIView
-):
-    serializer_class = SearchSerializer
-    renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
-
-    def use_exact_query(self, input):
-        """Define extra rules when to use exact search"""
-        return bool(re.search(r"\d-\d", input)) or bool(re.search(r"\d\.", input))
-
-    def get_queryset(self):
-        queryset = SearchQuerySet()
-
-        if hasattr(self.request, "accepted_media_type") and re.match(
-            KML_REGEXP, self.request.accepted_media_type
-        ):
-            queryset = queryset.models(Unit)
-            self.only_fields["unit"].extend(["street_address", "www"])
-
-        input_val = self.request.query_params.get("input", "").strip()
-        q_val = self.request.query_params.get("q", "").strip()
-        exact_query = self.use_exact_query(q_val)
-
-        if not input_val and not q_val:
-            raise ParseError(
-                "Supply search terms with 'q=' or autocomplete entry with 'input='"
-            )
-        if input_val and q_val:
-            raise ParseError("Supply either 'q' or 'input', not both")
-
-        if input_val:
-            queryset = queryset.filter(
-                SQ(autosuggest=input_val)
-                | SQ(autosuggest_extra_searchwords=input_val)
-                | SQ(autosuggest_exact__exact=input_val)
-                | SQ(SQ(number=input_val) & SQ(autosuggest=input_val))
-            )
-        else:
-            if not exact_query:
-                queryset = (
-                    queryset.filter(name=Clean(q_val))
-                    .filter_or(text=Clean(q_val))
-                    .filter_or(extra_searchwords=Clean(q_val))
-                    .filter_or(address=Clean(q_val))
-                )
-            else:
-                queryset = (
-                    queryset.filter(name=Exact(q_val))
-                    .filter_or(text=Exact(q_val))
-                    .filter_or(extra_searchwords=Exact(q_val))
-                    .filter_or(address=Exact(q_val))
-                )
-
-        is_not_unit_sq = (
-            SQ(django_ct="services.service")
-            | SQ(django_ct="services.servicenode")
-            | SQ(django_ct="munigeo.address")
-        )
-
-        if "municipality" in self.request.query_params:
-            val = self.request.query_params["municipality"].lower().strip()
-            if len(val) > 0:
-                municipalities = val.split(",")
-
-                muni_sq = SQ(municipality=municipalities.pop().strip())
-                for m in municipalities:
-                    muni_sq |= SQ(municipality=m)
-
-                queryset = queryset.filter(SQ(muni_sq | is_not_unit_sq))
-
-        if "city_as_department" in self.request.query_params:
-            val = self.request.query_params["city_as_department"].lower().strip()
-
-            if len(val) > 0:
-                deps_uuid = val.split(",")
-
-                # forming municipality search query
-                deps = Department.objects.filter(uuid__in=deps_uuid).select_related(
-                    "municipality"
-                )
-                munis = [d.municipality.name for d in deps]
-
-                muni_sq = SQ(municipality=munis.pop())
-                for m in munis:
-                    muni_sq |= SQ(municipality=m)
-
-                # forming root_deparment search query
-                dep_sq = SQ(root_department=deps_uuid.pop().strip())
-                for d in deps_uuid:
-                    dep_sq |= SQ(root_department=d)
-
-                # updating queryset
-                queryset = queryset.filter(SQ(muni_sq | dep_sq | is_not_unit_sq))
-
-        service = self.request.query_params.get("service")
-        if service:
-            services = service.split(",")
-            queryset = queryset.filter(django_ct="services.unit").filter(
-                services__in=services
-            )
-
-        # Only units marked public should be returned. For other types,
-        # public is always True.
-        queryset = queryset.filter(public="true")
-
-        models = set()
-        types = self.request.query_params.get("type", "").split(",")
-        for t in types:
-            if t == "service_node":
-                models.add(ServiceNode)
-            elif t == "service":
-                models.add(Service)
-            elif t == "unit":
-                models.add(Unit)
-            elif t == "address":
-                models.add(Address)
-            elif t == "administrative_division":
-                models.add(AdministrativeDivision)
-        if self._is_kml_media_type_request():
-            queryset = queryset.models(Unit)
-        elif len(models) > 0:
-            queryset = queryset.models(*list(models))
-        else:
-            # Hide the to-be-deprecated servicenode from default types
-            queryset = queryset.models(Service, Unit, Address, AdministrativeDivision)
-        return queryset
-
-    def list(self, request, *args, **kwargs):
-        # If the incoming language is not specified, go with the default.
-        self.lang_code = request.query_params.get("language", LANGUAGES[0])
-        if self.lang_code not in LANGUAGES:
-            raise ParseError(
-                "Invalid language supplied. Supported languages: %s"
-                % ",".join(LANGUAGES)
-            )
-
-        specs = {
-            "only_fields": self.request.query_params.get("only", None),
-            "include_fields": self.request.query_params.get("include", None),
-        }
-        for key in specs.keys():
-            if specs[key]:
-                setattr(self, key, {})
-                fields = [x.strip().split(".") for x in specs[key].split(",") if x]
-                for f in fields:
-                    try:
-                        getattr(self, key).setdefault(f[0], []).append(f[1])
-                    except IndexError:
-                        logger.warning(
-                            "Field '%s' given in unsupported non-dot-format: '%s'"
-                            % (key, specs[key])
-                        )
-            else:
-                setattr(self, key, None)
-
-        old_language = translation.get_language()[:2]
-        translation.activate(self.lang_code)
-
-        queryset = self.get_queryset()
-
-        self.object_list = queryset.order_by("-_score", "name_sort").load_all()
-
-        only = getattr(self, "only_fields") or {}
-        include = getattr(self, "include_fields") or {}
-
-        if self._is_kml_media_type_request():
-            only.setdefault("unit", []).extend(["street_address", "www"])
-
-        Unit.search_objects.only_fields = only.get("unit")
-        Unit.search_objects.include_fields = include.get("unit")
-
-        page = self.paginate_queryset(self.object_list)
-        self._add_sort_indices_to_paginated_results(page, request)
-        serializer = self.get_serializer(page, many=True)
-        resp = self.get_paginated_response(serializer.data)
-
-        translation.activate(old_language)
-
-        return resp
-
-    def _is_kml_media_type_request(self):
-        return hasattr(self.request, "accepted_media_type") and re.match(
-            KML_REGEXP, self.request.accepted_media_type
-        )
-
-    def _add_sort_indices_to_paginated_results(self, page, request):
-        """This is a hackish solution to store the original ordering of the
-        search results for UIs which sort the results in-place and
-        want to eventually restore the original ordering. The score
-        value cannot be used for sorting there, because our ordering
-        depends on both score and name.
-
-        This method is aware of the pagination context to avoid
-        iterating unused search results in the SearchQuerySet.
-
-        """
-        if (
-            not hasattr(self, "paginator")
-            or not hasattr(self.paginator, "page")
-            or not hasattr(self.paginator.page, "number")
-        ):
-            return
-
-        page_size = self.paginator.get_page_size(request)
-        page_number = self.paginator.page.number
-        if page_size is None or page_number is None or page_size < 1 or page_number < 1:
-            return
-
-        index_offset = (page_number - 1) * page_size
-        for i, x in enumerate(page):
-            x._sort_index = i + index_offset
-
-    def get_serializer_context(self):
-        context = super(SearchViewSet, self).get_serializer_context()
-        if self.only_fields:
-            context["only"] = self.only_fields
-        if self.include_fields:
-            context["include"] = self.include_fields
-        return context
-
-
-register_view(SearchViewSet, "search", basename="search")
 
 
 class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):

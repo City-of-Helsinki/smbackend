@@ -155,6 +155,8 @@ class UnitImporter:
         self._handle_extra_info(obj, unit_data)
         self._handle_ptv_id(obj, unit_data)
         self._handle_service_descriptions(obj, unit_data)
+        self._handle_provider_type(obj)
+
         self._save_object(obj)
 
         self._handle_opening_hours(obj, unit_data)
@@ -337,6 +339,14 @@ class UnitImporter:
             lang: description_data.get(lang, "") for lang in ("fi", "sv", "en")
         }
         set_syncher_tku_translated_field(obj, "description", descriptions, clean=False)
+
+    def _handle_provider_type(self, obj):
+        # NOTE, this is a temp solution when the provider_type is not available.
+        # This improves the search results and makes it possible to set
+        # external imported units with different provider_type and will get less 
+        # importance in search results. Value 1 = "SELF_PRODUCED"
+        if obj.provider_type == None:
+            set_syncher_object_field(obj, "provider_type", 1)
 
     def _handle_opening_hours(self, obj, unit_data):
         obj.connections.filter(section_type=OPENING_HOURS_SECTION_TYPE).delete()

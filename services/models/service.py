@@ -1,6 +1,9 @@
 from django.db import models
-
 from services.utils import get_translated
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import (
+    GinIndex,
+)  # add the Postgres recommended GIN index
 
 from .keyword import Keyword
 
@@ -20,12 +23,26 @@ class Service(models.Model):
     root_service_node = models.ForeignKey(
         "ServiceNode", null=True, on_delete=models.CASCADE
     )
+    search_column = SearchVectorField(null=True)
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
 
     class Meta:
         ordering = ["-pk"]
+        indexes = (GinIndex(fields=["search_column"]),)  # add index
+
+    @classmethod
+    def get_search_column_indexing(cls):
+        """
+        Defines the columns to be indexed to the search_column
+        ,config language and weight.
+        """
+        return [
+            ("name_fi", "finnish", "A"),
+            ("name_sv", "swedish", "A"),
+            ("name_en", "english", "A"),
+        ]
 
 
 class UnitServiceDetails(models.Model):
