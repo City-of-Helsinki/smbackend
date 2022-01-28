@@ -118,7 +118,7 @@ class TranslatedModelSerializer(object):
         }
         Transforms this:
         {
-            "name": "musiikkiklubit",f
+            "name": "musiikkiklubit",
             "name_fi": "musiikkiklubit",
             "name_sv": "musikklubbar",
             "name_en": "music clubs"
@@ -704,8 +704,7 @@ class UnitSerializer(
         qparams = self.context["request"].query_params
         if qparams.get("geometry", "").lower() in ("true", "1"):
             geom = obj.geometry  # TODO: different geom types
-            if geom and obj.geometry != obj.location:
-                ()
+            if geom and obj.geometry != obj.location:              
                 ret["geometry"] = munigeo_api.geom_to_json(geom, self.srs)
         elif "geometry" in ret:
             del ret["geometry"]
