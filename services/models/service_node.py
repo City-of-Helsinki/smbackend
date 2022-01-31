@@ -1,7 +1,3 @@
-from django.contrib.postgres.indexes import (
-    GinIndex,  # add the Postgres recommended GIN index
-)
-from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
@@ -29,25 +25,11 @@ class ServiceNode(MPTTModel):
         db_index=True, help_text="Time of last modification"
     )
 
-    search_column = SearchVectorField(null=True)
-
     objects = CustomTreeManager()
     tree_objects = TreeManager()
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
-
-    @classmethod
-    def get_search_column_indexing(cls):
-        """
-        Defines the columns to be indexed to the search_column
-        ,config language and weight.
-        """
-        return [
-            ("name_fi", "finnish", "A"),
-            ("name_sv", "swedish", "A"),
-            ("name_en", "english", "A"),
-        ]
 
     def get_unit_count(self):
         srv_list = set(
@@ -73,4 +55,3 @@ class ServiceNode(MPTTModel):
 
     class Meta:
         ordering = ["name"]
-        indexes = (GinIndex(fields=["search_column"]),)
