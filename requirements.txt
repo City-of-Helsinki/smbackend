@@ -18,7 +18,9 @@ black==21.9b0
 cattrs==1.8.0
     # via requests-cache
 certifi==2021.5.30
-    # via requests
+    # via
+    #   pyproj
+    #   requests
 charset-normalizer==2.0.6
     # via requests
 click==8.0.1
@@ -122,6 +124,8 @@ pykml==0.2.0
     # via -r requirements.in
 pyparsing==2.4.7
     # via packaging
+pyproj==3.3.0
+    # via -r requirements.in
 pytest==6.2.5
     # via
     #   pytest-cov
