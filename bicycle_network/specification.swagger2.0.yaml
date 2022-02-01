@@ -99,7 +99,7 @@ paths:
       summary: Returns a list of BicycleNetworkParts
       parameters:
         - $ref: "#/components/parameters/pagesize_param"
-        - $ref: "#/components/parameters/network_name_param"
+        - $ref: "#/components/parameters/name_param"
         - $ref: "#/components/parameters/latlon_param"
         - $ref: "#/components/parameters/only_coords_param"
         - $ref: "#/components/parameters/bbox_param"
@@ -138,10 +138,10 @@ components:
       description: Request that server delivers page_size results in response
       required: false
       type: integer
-    network_name_param:
-      name: network_name
+    name_param:
+      name: name
       in: query
-      description: If name given, return parts that in the given bicycle network.
+      description: If name given, return parts in the given bicycle network.
       required: false
       schema:
         type: string
