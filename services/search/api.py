@@ -162,6 +162,8 @@ class SearchViewSet(GenericAPIView):
 
     def get(self, request):
         model_limits = {}
+        units_order_list = ["provider_type"]
+        
         for model in list(QUERY_PARAM_TYPE_NAMES):
             model_limits[model] = DEFAULT_MODEL_LIMIT_VALUE
         SearchResult = namedtuple(
@@ -187,6 +189,18 @@ class SearchViewSet(GenericAPIView):
                 raise ParseError("'use_trigram' needs to be a boolean")
         else:
             use_trigram = True
+
+        if "order_units_by_num_services" in params:
+            try:
+                order_units_by_num_serivces = strtobool(params["order_units_by_num_services"])
+            except ValueError:
+                raise ParseError("'order_units_by_num_services' needs to be a boolean")
+        else:
+            order_units_by_num_serivces = True
+
+        if order_units_by_num_serivces:
+            units_order_list.append("-num_services")
+                       
         # Limit number of results in searchquery.
         if "sql_query_limit" in params:
             try:
@@ -302,9 +316,8 @@ class SearchViewSet(GenericAPIView):
                 services = self.request.query_params["service"].strip().split(",")
                 if services[0]:
                     units_qs = units_qs.filter(services__in=services)
-
             units_qs = units_qs.annotate(num_services=Count("services")).order_by(
-                "provider_type", "-num_services"
+               *units_order_list
             )
             units_qs = units_qs[: model_limits["unit"]]
         else:
@@ -342,7 +355,6 @@ class SearchViewSet(GenericAPIView):
         )
         serializer = SearchSerializer(search_results)      
         if logger.level <= logging.DEBUG:
-            print("here")
             logger.debug(connection.queries)
             queries_time = sum([float(s["time"]) for s in connection.queries])
             logger.debug(

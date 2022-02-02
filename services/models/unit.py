@@ -271,11 +271,9 @@ class Unit(SoftDeleteModel):
             ("name_sv", "swedish", "A"),
             ("name_en", "english", "A"),
             ("extra", None, "B"),
-            # Commented out "temporarly" to reduce the amount
-            # of faulty search results.
-            # ("description_fi", "finnish", "D"),
-            # ("description_sv", "swedish", "D"),
-            # ("description_en", "english", "D"),
+            ("street_address_fi", "finnish", "D"),
+            ("street_address_sv", "swedish", "D"),
+            ("street_address_en", "english", "D"),     
         ]
 
     def soft_delete(self):
