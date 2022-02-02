@@ -1,5 +1,5 @@
-from os import mkdir, listdir, remove
-from os.path import isfile, join, exists
+from os import listdir, remove
+from os.path import isfile, join
 import json
 import logging
 from shapely import geometry, ops
@@ -7,7 +7,7 @@ from shapely.geometry import mapping
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.gis.geos import LineString, MultiLineString
-from django.contrib.gis.gdal import  SpatialReference, CoordTransform
+from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.contrib import messages
 from .models import BicycleNetwork, BicycleNetworkPart
 
@@ -17,10 +17,10 @@ SRID_MAPPINGS = {
     "urn:ogc:def:crs:EPSG::3877": 3877,
 }
 # if None, No transformations are made and source datas srid is used.
-# Note, calculating length works only with SRID 4326.
 CONVERT_TO_SRID = 4326
-# Used to transform linestrings to calculate the length, as the Unit is metre, 
-# as in 4326 the Unit is degrees.
+
+# GK25_SRID is used to transform linestrings to, to calculate the length, 
+# as the Unit for 3879 is metre, in 4326 the Unit is degrees.
 GK25_SRID = 3879
 GK25_SRS = SpatialReference(GK25_SRID)
 SOURCE_SRS = SpatialReference(CONVERT_TO_SRID)
@@ -83,6 +83,8 @@ def merge_linestrings(input_geojson):
     # Create geojson features with LineString geometrys from MultiLineString.
     num_coords = 0
     for coords in geometry_data["coordinates"]:
+        # If the len of coords is equal or less than 2 we know
+        # that the merge of linestrings has failed and we break out.
         if len(coords) <= 2:
             success = False
             features = input_geojson["features"]
@@ -147,7 +149,7 @@ def filter_geojson(input_geojson):
             features.append(feature)
     except KeyError:
         # In case a KeyError, which is probably caused by a faulty input geojson
-        # file. We retrun False to indicate the error.
+        # file. We return False to indicate the error.
         return False, None
     out_geojson["features"] = features
     return True, out_geojson, merged_multilinestring
@@ -172,9 +174,9 @@ def save_network_to_db(input_geojson, obj_id):
         )
         geom_type = feature["geometry"]["type"]
 
-        if geom_type == "LineString":         
+        if geom_type == "LineString":
             part.geometry = LineString(coords, srid=srid)
-            
+
         elif geom_type == "MultiLineString":
             part.geometry = create_multilinestring(coords, srid)
         part.save()
@@ -186,9 +188,8 @@ def save_network_to_db(input_geojson, obj_id):
 
 def process_file_obj(obj, request):
     """
-    This function is called when continue&save or save&quit is pressed in the
-    admin. It Opens the file, calls the filter function and finally stores
-    the filtered data to the db and file.
+    This function Opens the uploaded file, calls the filter function 
+    and finally stores the filtered data to the db and file.
     """
     with open(obj.file.path, "r") as file:
         try:
@@ -202,9 +203,9 @@ def process_file_obj(obj, request):
         merge_successs, merged_geojson = merge_linestrings(filtered_geojson)
 
     if merge_successs:
-        save_network_to_db(merged_geojson, obj.id) 
+        save_network_to_db(merged_geojson, obj.id)
     else:
-        save_network_to_db(filtered_geojson, obj.id)     
+        save_network_to_db(filtered_geojson, obj.id)
         messages.warning(
             request, "Merging of linestrings failed, saved without merging."
         )
@@ -215,7 +216,7 @@ def process_file_obj(obj, request):
 
 class BicycleNetworkAdmin(admin.ModelAdmin):
     list_display = ("name",)
-    readonly_fileds = "length"
+    readonly_fields = ("length",)
 
     def name(self, obj):
         if obj.name is None:
@@ -223,13 +224,15 @@ class BicycleNetworkAdmin(admin.ModelAdmin):
         else:
             return obj.name
 
-    def save_model(self, request, obj, form, change):      
+    def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         if obj.file:
             if isfile(obj.file.path):
-                success = process_file_obj(obj, request)                
+                success = process_file_obj(obj, request)
                 if not success:
-                    messages.error(request, "Invalid Input GEOJSON or format not supported.")
+                    messages.error(
+                        request, "Invalid Input GEOJSON or format not supported."
+                    )
 
 
 admin.site.register(BicycleNetwork, BicycleNetworkAdmin)

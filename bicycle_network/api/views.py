@@ -43,9 +43,7 @@ class BicycleNetworkPartViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(bicycle_network__id=filters.get("id", None))
 
         if "name" in filters:
-            queryset = queryset.filter(
-                bicycle_network__name=filters.get("name", None)
-            )
+            queryset = queryset.filter(bicycle_network__name=filters.get("name", None))
         if "latlon" in filters:
             try:
                 latlon = strtobool(filters["latlon"])

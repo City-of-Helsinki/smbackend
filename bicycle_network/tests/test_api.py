@@ -20,10 +20,7 @@ def test_bicycle_network_part(api_client, bicycle_network, bicycle_network_part)
     response = api_client.get(url)
     assert response.status_code == 200
     assert response.json()["count"] == 2
-    url = (
-        reverse("bicycle_network:bicycle_networkparts-list")
-        + "?name=main_network"
-    )
+    url = reverse("bicycle_network:bicycle_networkparts-list") + "?name=main_network"
     response = api_client.get(url)
     # One part in main_network
     assert response.json()["count"] == 1
