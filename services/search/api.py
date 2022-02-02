@@ -192,13 +192,13 @@ class SearchViewSet(GenericAPIView):
 
         if "order_units_by_num_services" in params:
             try:
-                order_units_by_num_serivces = strtobool(params["order_units_by_num_services"])
+                order_units_by_num_services = strtobool(params["order_units_by_num_services"])
             except ValueError:
                 raise ParseError("'order_units_by_num_services' needs to be a boolean")
         else:
-            order_units_by_num_serivces = True
+            order_units_by_num_services = True
 
-        if order_units_by_num_serivces:
+        if order_units_by_num_services:
             units_order_list.append("-num_services")
                        
         # Limit number of results in searchquery.
