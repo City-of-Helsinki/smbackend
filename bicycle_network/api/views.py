@@ -5,48 +5,48 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.db.models import Q
 from rest_framework.exceptions import ParseError
-from rest_framework import  viewsets
+from rest_framework import viewsets
 from munigeo import api as munigeo_api
 from services.api_pagination import Pagination
-from ..models import (
-    BicycleNetwork,
-    BicycleNetworkPart
-)
+from ..models import BicycleNetwork, BicycleNetworkPart
 from .serializers import (
     BicycleNetworkSerializer,
     BicycleNetworkPartSerializer,
     BicycleNetworkPartCoordsSerializer,
 )
 
+
 class LargeResultsSetPagination(Pagination):
     """
     Custom pagination class to allow all results in one page.
     """
+
     max_page_size = 15_000
 
 
 class BicycleNetworkViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = BicycleNetwork.objects.all()
     serializer_class = BicycleNetworkSerializer
-    
+
 
 class BicycleNetworkPartViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = BicycleNetworkPart.objects.all()
-    serializer_class  = BicycleNetworkPartSerializer
+    serializer_class = BicycleNetworkPartSerializer
     pagination_class = LargeResultsSetPagination
 
     def list(self, request):
         queryset = BicycleNetworkPart.objects.all()
         filters = self.request.query_params
         latlon = False
-        only_coords = False        
-   
-        if "network_name" in filters:
-            queryset = queryset.filter(bicycle_network__name=filters.get("network_name", None))
-     
+        only_coords = False
+        if "id" in filters:
+            queryset = queryset.filter(bicycle_network__id=filters.get("id", None))
+
+        if "name" in filters:
+            queryset = queryset.filter(bicycle_network__name=filters.get("name", None))
         if "latlon" in filters:
             try:
-               latlon = strtobool(filters["latlon"])               
+                latlon = strtobool(filters["latlon"])
             except ValueError:
                 raise ParseError("'latlon' needs to be a boolean")
 
@@ -76,21 +76,22 @@ class BicycleNetworkPartViewSet(viewsets.ReadOnlyModelViewSet):
                 )
             queryset = queryset.annotate(distance=Distance("geometry", point)).order_by(
                 "distance"
-            )     
+            )
         # Return elements that are inside bbox
         if "bbox" in filters:
             ref = SpatialReference(4326)
             val = self.request.query_params.get("bbox", None)
             bbox_filter = munigeo_api.build_bbox_filter(ref, val, "geometry")
-            bbox_geometry_filter = munigeo_api.build_bbox_filter(
-                ref, val, "geometry"
-            )
+            bbox_geometry_filter = munigeo_api.build_bbox_filter(ref, val, "geometry")
             queryset = queryset.filter(Q(**bbox_filter) | Q(**bbox_geometry_filter))
-        
-        page = self.paginate_queryset(queryset)        
+
+        page = self.paginate_queryset(queryset)
         if only_coords:
-            serializer = BicycleNetworkPartCoordsSerializer(page, many=True, context={"latlon": latlon})     
+            serializer = BicycleNetworkPartCoordsSerializer(
+                page, many=True, context={"latlon": latlon}
+            )
         else:
-            serializer = BicycleNetworkPartSerializer(page, many=True, context={"latlon": latlon})        
+            serializer = BicycleNetworkPartSerializer(
+                page, many=True, context={"latlon": latlon}
+            )
         return self.get_paginated_response(serializer.data)
-        

@@ -1,7 +1,8 @@
-def lerp(a,b,w):
+def lerp(a, b, w):
     "Linear interpolate between a and b. w is the weight, value between 0-1"
     "i.e. w=.25 returns .25*a + .75*b"
-    return (w * a) + ((1-w) * b)
+    return (w * a) + ((1 - w) * b)
+
 
 def generate_coords(start_lon, start_lat, end_lon, end_lat, num_coords):
     """
@@ -14,5 +15,5 @@ def generate_coords(start_lon, start_lat, end_lon, end_lat, num_coords):
         l = i / num_coords
         lon = lerp(start_lon, end_lon, l)
         lat = lerp(start_lat, end_lat, l)
-        coords.append((lon,lat))
+        coords.append((lon, lat))
     return coords

@@ -26,6 +26,9 @@ definitions:
     properties:
       name:
         type: string
+      length:
+        type: number
+        description: Length of the network in meters.
         
   bicycle_networkpart:
     type: object
@@ -36,22 +39,7 @@ definitions:
         type: string
       geometry:
         type: string
-      tominaall:
-        type: integer
-        description: Functional class.  1 = regional main street / class I main road,  2 = regional main street / class II main road, 3 = local main street / regional road, 4 = collector road / connecting road, 5 = feeder street / class I private road,6 = class II private road,10 = cycle or pedestrian path
-      liikennevi:
-        type: integer
-        description: Direction of traffic flow. 2 = traffic is permitted in both directions, 3 = traffic is permitted against the direction of digitization, 4 = traffic is permitted in the direction of digitization, 5 = traffic is closed in both directions
-      teksti:
-        type: string
-        description: Name of the street (in Finnish)
-      tienim2:
-        type: string
-        description: Name of the street (in Swedish)
-      TKU_toiminnall_pp:
-        type: integer
-        description: Functional class of cycle or pedestrian path. 0 = a street that can be used for cycling, 11 = high quality cycle path, 12 = main cycle path, 13 = local cycle path, 14 = local cycle path, where cycling is difficult (eg. stairs), 18 = a street that can not be used for cycling but you can walk with your bike (too high car traffic volume/speed etc), 19 = a pedestrian path where cycling is not allowd (you can walk with your bike), 20 = a pedestrian path with stairs. Cycling is not allowed. Sometimes you can’t even walk with your bike but you can carry your bike), 99 = A path that can not be used either for cycling or walking (eg. motorway/tunnel/private road)
-
+     
 paths:
   /bicycle_networks/{id}:
     get:
@@ -98,8 +86,8 @@ paths:
     get:
       summary: Returns a list of BicycleNetworkParts
       parameters:
-        - $ref: "#/components/parameters/pagesize_param"
-        - $ref: "#/components/parameters/network_name_param"
+        - $ref: "#/components/parameters/name_param"
+        - $ref: "#/components/parameters/id_param"
         - $ref: "#/components/parameters/latlon_param"
         - $ref: "#/components/parameters/only_coords_param"
         - $ref: "#/components/parameters/bbox_param"
@@ -118,6 +106,9 @@ paths:
           type: string
           description: A distance radius filter to be used as part of a location filter along with lat and lon
           required: false
+        - $ref: "#/components/parameters/pagesize_param"
+        - $ref: "#/components/parameters/page_param"
+
       responses:
         200:
           description: List of BicycleNetworkparts
@@ -135,13 +126,29 @@ components:
     pagesize_param:
       name: page_size
       in: query
-      description: Request that server delivers page_size results in response
+      description: Request that server delivers page_size results in response.
       required: false
       type: integer
-    network_name_param:
-      name: network_name
+    page_param:
+      name: page
       in: query
-      description: If name given, return parts that in the given bicycle network.
+      description: Request particular page in paginated results.
+      required: false
+      schema:
+        type: integer
+      example: 1
+    id_param:
+      name: id
+      in: query
+      description: Request particular BicycleNetwork part by id.
+      required: false
+      schema:
+        type: integer
+      example: 1
+    name_param:
+      name: name
+      in: query
+      description: If name given, return parts in the given bicycle network.
       required: false
       schema:
         type: string
