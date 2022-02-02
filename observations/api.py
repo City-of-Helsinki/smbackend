@@ -34,6 +34,11 @@ class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
             except ValueError:
                 logger.error("Invalid Unit id : '{}' used in filtering".format(unit))
                 queryset = queryset.none()
+
+        prop = filters.get("property")
+        if prop:
+            queryset = queryset.filter(property_id=prop)
+
         return queryset
 
     def create(self, request, *args, **kwargs):
