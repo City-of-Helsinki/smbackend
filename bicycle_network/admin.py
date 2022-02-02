@@ -56,7 +56,7 @@ def create_multilinestring(coords, srid):
     return MultiLineString(lss, srid=srid)
 
 
-def merge_linestrings(input_geojson):
+def merge_linestrings(input_geojson, request):
     """
     Combnes linestrings who are connected using shapely.
     """
@@ -99,9 +99,10 @@ def merge_linestrings(input_geojson):
         features.append(feature)
         num_coords += 1
     input_geojson["features"] = features
-    logger.info(
-        f"Merged {len(multi_line.geoms)} LineStrings to {num_coords} LineStrings."
-    )
+    msg = f"Merged {len(multi_line.geoms)} LineStrings to {num_coords} LineStrings."
+    logger.info(msg)
+    if success:
+        messages.info(request, msg)
     return success, input_geojson
 
 
@@ -200,7 +201,7 @@ def process_file_obj(obj, request):
     merge_success, filtered_geojson, merged_linestring = filter_geojson(input_geojson)
     # If not merged_multilinestring we can try to merge the linestring that overlaps.
     if not merged_linestring:
-        merge_successs, merged_geojson = merge_linestrings(filtered_geojson)
+        merge_successs, merged_geojson = merge_linestrings(filtered_geojson, request)
 
     if merge_successs:
         save_network_to_db(merged_geojson, obj.id)
