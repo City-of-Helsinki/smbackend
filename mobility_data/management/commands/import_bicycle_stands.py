@@ -1,8 +1,7 @@
 import xml.etree.ElementTree as ET
 import logging
-from django.conf import settings
 from django.core.management import BaseCommand
-
+from django.conf import settings
 from mobility_data.importers.bicycle_stands import(
     get_bicycle_stand_objects,
     save_to_database,

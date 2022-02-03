@@ -76,14 +76,23 @@ def get_filtered_gas_filling_station_objects(json_data=None):
     return filtered_objects
 
 @db.transaction.atomic  
-def save_to_database(objects, delete_tables=True):
-    if delete_tables:
-        delete_mobile_units(ContentType.GAS_FILLING_STATION)        
+def delete_gas_filling_stations():
+    delete_mobile_units(ContentType.GAS_FILLING_STATION)
+
+@db.transaction.atomic  
+def create_gas_filling_station_content_type():
     description = "Gas filling stations in province of SouthWest Finland."   
     name="Gas Filling Stations"
     content_type, _ = get_or_create_content_type(
         ContentType.GAS_FILLING_STATION, name, description)
-    
+    return content_type
+
+@db.transaction.atomic  
+def save_to_database(objects, delete_tables=True):
+    if delete_tables:
+        delete_gas_filling_stations()        
+  
+    content_type = create_gas_filling_station_content_type()
     for object in objects:
         is_active = object.is_active    
         name = object.name

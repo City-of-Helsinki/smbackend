@@ -4,6 +4,8 @@ import requests
 from django.contrib.gis.geos import Point
 from django import db
 from django.conf import settings
+
+from mobility_data.api.serializers import content_type
 from .utils import (
     get_municipality_name, 
     get_closest_street_name,
@@ -130,15 +132,25 @@ def get_bicycle_stand_objects(xml_data=None):
         bicycle_stands.append(BicyleStand(bicycle_stand, namespaces))
     return bicycle_stands
 
+
 @db.transaction.atomic 
-def save_to_database(objects, delete_tables=True):
-    if delete_tables:
-        delete_mobile_units(ContentType.BICYCLE_STAND)        
+def delete_bicycle_stands():
+    delete_mobile_units(ContentType.BICYCLE_STAND)        
+    
+@db.transaction.atomic 
+def create_bicycle_stand_content_type():
     description = "Bicycle stands in The Turku Region."
     name = "Bicycle Stands"
     content_type, _ = get_or_create_content_type(
         ContentType.BICYCLE_STAND, name, description
     )
+    return content_type
+
+@db.transaction.atomic 
+def save_to_database(objects, delete_tables=True):
+    if delete_tables:
+        delete_bicycle_stands()        
+    content_type = create_bicycle_stand_content_type()
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
             content_type=content_type,             

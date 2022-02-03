@@ -3,6 +3,10 @@
 Django app for importing and serving data from external sources.  
 
 ## importers
+To import all data sources:
+./manage.py import_mobility_data
+
+The data sources can be imported separetely as explained below:
 
 ### Gas filling stations  
 To import data type:  

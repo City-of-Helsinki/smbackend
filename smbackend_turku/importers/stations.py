@@ -1,11 +1,5 @@
 from datetime import datetime
 from django.conf import settings
-from mobility_data.importers.gas_filling_station import (
-    get_filtered_gas_filling_station_objects  
-)
-from mobility_data.importers.charging_stations import(
-   get_filtered_charging_station_objects
-)
 from services.management.commands.services_import.services import (
     update_service_node_counts,  
 )   
@@ -23,6 +17,18 @@ from services.models import (
     Unit,   
     UnitServiceDetails,
 )
+from mobility_data.importers.gas_filling_station import (
+    get_filtered_gas_filling_station_objects,
+    delete_gas_filling_stations,
+    create_gas_filling_station_content_type
+)
+from mobility_data.importers.charging_stations import(
+   get_filtered_charging_station_objects,
+   delete_charging_stations,
+   create_charging_station_content_type
+)
+from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
+
 
 LANGUAGES = [language[0] for language in settings.LANGUAGES]
 SOURCE_DATA_SRID = 4326
@@ -84,6 +90,9 @@ class GasFillingStationImporter:
         self.logger.info("Importing gas filling stations...")
         # Delete all gas filling station units before storing, to ensure stored data is up-to-date.  
         Unit.objects.filter(services__id=service_id).delete()     
+        # Delete from mobility_data
+        delete_gas_filling_stations()
+        content_type = create_gas_filling_station_content_type()
         filtered_objects = get_filtered_gas_filling_station_objects(json_data=self.test_data)
         for i, data_obj in enumerate(filtered_objects):
             unit_id = i + self.UNITS_ID_OFFSET          
@@ -120,6 +129,7 @@ class GasFillingStationImporter:
             set_field(obj, "municipality", municipality)  
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
             obj.save()
+            create_mobile_unit_as_unit_reference(unit_id, content_type)
         update_service_node_counts()
   
 
@@ -153,8 +163,11 @@ class ChargingStationImporter():
         service_id = self.SERVICE_ID
         # Delete all charging station units before storing, to ensure stored data is up-to-date.  
         Unit.objects.filter(services__id=service_id).delete()
+        # Delete from mobility_data
+        delete_charging_stations()
         filtered_objects = get_filtered_charging_station_objects(json_data=self.test_data)
-       
+         # create mobility_data content type
+        content_type = create_charging_station_content_type()
         for i, data_obj in enumerate(filtered_objects):
             unit_id = i + self.UNITS_ID_OFFSET
             obj = Unit(id=unit_id)           
@@ -191,6 +204,7 @@ class ChargingStationImporter():
             set_field(obj, "municipality", municipality)            
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
             obj.save()
+            create_mobile_unit_as_unit_reference(unit_id, content_type)
         update_service_node_counts()
        
     

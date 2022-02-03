@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.conf import settings
-
+from mobility_data.models import content_type
 from services.models import (
     Service,
     ServiceNode,
@@ -10,19 +10,24 @@ from services.models import (
 from services.management.commands.services_import.services import (
     update_service_node_counts,  
 )
-from smbackend_turku.importers.stations import create_language_dict   
 from smbackend_turku.importers.utils import (   
     set_field,
     set_tku_translated_field,
+    set_syncher_object_field,
     create_service,
     create_service_node,
     get_municipality,
     UTC_TIMEZONE,
 )
-from mobility_data.importers.bicycle_stands import get_bicycle_stand_objects
-
+from mobility_data.importers.bicycle_stands import (
+    get_bicycle_stand_objects,
+    delete_bicycle_stands,
+    create_bicycle_stand_content_type
+)
+from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
 
 class BicycleStandImporter:
+
 
     SERVICE_ID = settings.BICYCLE_STANDS_IDS["service"]
     SERVICE_NODE_ID = settings.BICYCLE_STANDS_IDS["service_node"]
@@ -49,7 +54,12 @@ class BicycleStandImporter:
         service_id = self.SERVICE_ID
         self.logger.info("Importing Bicycle Stands...")
         # Delete all Bicycle stand units before storing, to ensure stored data is up-to-date.  
-        Unit.objects.filter(services__id=service_id).delete()     
+        Unit.objects.filter(services__id=service_id).delete() 
+        # Delete from mobility_data
+        delete_bicycle_stands()    
+        # create mobility_data content type
+        content_type = create_bicycle_stand_content_type()
+        saved_bicycle_stands = 0
         filtered_objects = get_bicycle_stand_objects(xml_data=self.test_data)
         for i, data_obj in enumerate(filtered_objects):
             unit_id = i + self.UNITS_ID_OFFSET          
@@ -65,6 +75,12 @@ class BicycleStandImporter:
             extra["hull_lockable"] = data_obj.hull_lockable
             extra["covered"] = data_obj.covered   
             set_field(obj, "extra", extra) 
+            if data_obj.maintained_by_turku:
+                # 1 = self produced
+                set_syncher_object_field(obj, "provider_type", 1)
+            else:
+                # 7 = Unknown production method
+                set_syncher_object_field(obj, "provider_type", 7)
 
             try:
                 service = Service.objects.get(id=service_id)
@@ -81,7 +97,9 @@ class BicycleStandImporter:
             set_field(obj, "municipality", municipality)  
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
             obj.save()
-        update_service_node_counts()   
+            create_mobile_unit_as_unit_reference(unit_id, content_type)
+            saved_bicycle_stands += 1
+        update_service_node_counts()  
 
 def import_bicycle_stands(**kwargs):
     importer = BicycleStandImporter(**kwargs)

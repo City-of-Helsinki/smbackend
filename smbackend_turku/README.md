@@ -40,11 +40,11 @@ The ids are set in a dict in the .env file with following keys:
 * service is the id of the service, recommended value > 1000
 * units_offset is the offset that will be given to the imported units ids, recommended value > 10000. 
 Example:
-GAS_FILLING_STATIONS_IDS=service_node=20000,service=20000,units_offset=20000
+GAS_FILLING_STATIONS_IDS=service_node=200000,service=200000,units_offset=200000
 
 ### Gas filling stations
 Add following line to the .env file:
-GAS_FILLING_STATIONS_IDS=service_node=20000,service=20000,units_offset=20000
+GAS_FILLING_STATIONS_IDS=service_node=200000,service=200000,units_offset=200000
 
 To import type:
 ```
@@ -53,7 +53,7 @@ To import type:
 
 ### Charging stations
 Add following line to the .env file:
-CHARGING_STATIONS_IDS=service_node=30000,service=30000,units_offset=30000
+CHARGING_STATIONS_IDS=service_node=300000,service=300000,units_offset=300000
 
 To import type:
 ```
@@ -61,7 +61,7 @@ To import type:
 ```
 ### Bicycle stands
 Add following line to the .env file:
-BICYCLE_STANDS_IDS=service_node=40000,service=40000,units_offset=40000
+BICYCLE_STANDS_IDS=service_node=400000,service=400000,units_offset=400000
 
 To import type:
 ```

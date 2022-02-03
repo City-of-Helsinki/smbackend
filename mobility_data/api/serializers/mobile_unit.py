@@ -4,7 +4,7 @@ from django.contrib.gis.geos import GEOSGeometry, Point, LineString
 from rest_framework import serializers
 from . import  ContentTypeSerializer
 from ...models import MobileUnit, MobileUnitGroup, GroupType
-
+from services.models import Unit
 
 class GeometrySerializer(serializers.Serializer):
     
@@ -68,6 +68,18 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             "geometry_coords",
             "extra",          
         ]
+
+    def to_representation(self, obj):
+        representation = super().to_representation(obj)
+        # If mobile_unit has a unit_id we serialize the data from the services_unit table.
+        unit_id = obj.unit_id
+        if unit_id:
+            unit = Unit.objects.get(id=unit_id)  
+            for field in self.fields:
+                if hasattr(unit, field):
+                    representation[field] = getattr(unit, field)            
+        return representation
+
 
     def get_geometry_coords(self, obj):
         if isinstance(obj.geometry, GEOSGeometry):

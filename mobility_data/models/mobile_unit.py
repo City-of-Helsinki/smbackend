@@ -51,7 +51,7 @@ class MobileUnit(BaseUnit):
     )
     unit_id = models.IntegerField(
         null=True, 
-        verbose_name="optonal id to a unit in the servicemap")
+        verbose_name="optional id to a unit in the servicemap, if id exist use data from services_unit")
     mobile_unit_group = models.ForeignKey(
         MobileUnitGroup, 
         on_delete=models.CASCADE,
