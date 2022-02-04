@@ -18,7 +18,7 @@ from mobility_data.models import (
     MobileUnit, 
     ContentType, 
 )
-BICYCLE_STANDS_URL = "http://tkuikp/TeklaOGCWeb/WFS.ashx?service=WFS&request=GetFeature&typeName=GIS:Polkupyoraparkki&outputFormat=GML3"
+BICYCLE_STANDS_URL = f"{settings.TURKU_WFS_URL}?service=WFS&request=GetFeature&typeName=GIS:Polkupyoraparkki&outputFormat=GML3"
 SOURCE_DATA_SRID = 3877
 logger = logging.getLogger("mobility_data")
 

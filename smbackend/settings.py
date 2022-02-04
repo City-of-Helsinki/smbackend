@@ -20,6 +20,7 @@ env = environ.Env(
     SENTRY_ENVIRONMENT=(str, "development"),
     COOKIE_PREFIX=(str, "servicemap"),
     INTERNAL_IPS=(list, []),
+    CELERY_BROKER_URL = (str, "amqp://guest:guest@localhost:5672"),  
     MEDIA_ROOT=(environ.Path(), root("media")),
     STATIC_ROOT=(environ.Path(), root("static")),
     MEDIA_URL=(str, "/media/"),
@@ -34,11 +35,13 @@ env = environ.Env(
     ACCESSIBILITY_SYSTEM_ID=(str, None),
     ADDITIONAL_INSTALLED_APPS=(list, None),
     ADDITIONAL_MIDDLEWARE=(list, None),
+    TURKU_WFS_URL=(str, None),
     ECO_COUNTER_STATIONS_URL=(str, None),
     ECO_COUNTER_OBSERVATIONS_URL=(str, None),
     GAS_FILLING_STATIONS_IDS=(dict, {}),
     CHARGING_STATIONS_IDS=(dict, {}), 
     BICYCLE_STANDS_IDS=(dict, {}), 
+    
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -74,6 +77,8 @@ INSTALLED_APPS = [
     "django_filters",
     "modeltranslation",
     "django.contrib.admin",
+    "django_celery_beat",
+    "django_celery_results",
     "munigeo",
     "services.apps.ServicesConfig",
     "observations",
@@ -274,6 +279,16 @@ SENTRY_ENVIRONMENT = env("SENTRY_ENVIRONMENT")
 
 import raven  # noqa
 
+# Celery
+
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND="django-db"
+CELERY_CACHE_BACKEND="default"
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_CACHE_BACKEND = 'django-cache'
+
+
 if SENTRY_DSN:
     RAVEN_CONFIG = {
         "dsn": SENTRY_DSN,
@@ -314,7 +329,7 @@ if "SECRET_KEY" not in locals():
                 "Please create a %s file with random characters to generate your secret key!"
                 % secret_file
             )
-
+TURKU_WFS_URL=env("TURKU_WFS_URL")
 ECO_COUNTER_OBSERVATIONS_URL=env("ECO_COUNTER_OBSERVATIONS_URL")
 ECO_COUNTER_STATIONS_URL=env("ECO_COUNTER_STATIONS_URL")
 

@@ -141,6 +141,20 @@ For Turku specific imports see smbackend_turku/README.md.
 ./manage.py index_search_columns
 ```
 
+7. Celery
+
+Install and run a message broker such as RabbitMQ or Redis.
+Configure the message broker in the environment variable "CELERY_BROKER_URL"
+Start a Celery worker to handle asynchronous tasks locally with command:
+```
+celery -A smbackend worker -l INFO
+```
+Note, in production environment the celery worker can be run as a daemon.
+https://docs.celeryproject.org/en/stable/userguide/daemonizing.html#daemonizing
+Start Celery beat to handle scheduled periodic tasks with command:
+```
+celery -A smbackend beat -l INFO
+```
 
 Observations
 ------------
