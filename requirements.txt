@@ -27,7 +27,9 @@ celery==5.2.3
     #   django-celery-beat
     #   django-celery-results
 certifi==2021.5.30
-    # via requests
+    # via
+    #   pyproj
+    #   requests
 charset-normalizer==2.0.6
     # via requests
 click==8.0.3
@@ -119,6 +121,8 @@ mypy-extensions==0.4.3
     # via black
 numpy==1.21.2
     # via pandas
+owslib==0.25.0
+    # via -r requirements.in
 packaging==21.0
     # via pytest
 pandas==1.3.3
@@ -153,6 +157,8 @@ pykml==0.2.0
     # via -r requirements.in
 pyparsing==2.4.7
     # via packaging
+pyproj==3.3.0
+    # via owslib
 pytest==6.2.5
     # via
     #   pytest-cov
@@ -166,6 +172,7 @@ python-crontab==2.6.0
 python-dateutil==2.8.2
     # via
     #   -r requirements.in
+    #   owslib
     #   pandas
     #   python-crontab
 pytz==2021.3
@@ -173,9 +180,12 @@ pytz==2021.3
     #   -r requirements.in
     #   celery
     #   django-timezone-field
+    #   owslib
     #   pandas
 pyyaml==5.4.1
-    # via django-munigeo
+    # via
+    #   django-munigeo
+    #   owslib
 raven==6.10.0
     # via -r requirements.in
 regex==2021.9.24
@@ -184,6 +194,7 @@ requests==2.26.0
     # via
     #   -r requirements.in
     #   django-munigeo
+    #   owslib
     #   requests-cache
     #   requests-mock
 requests-cache==0.8.1

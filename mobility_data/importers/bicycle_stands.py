@@ -4,8 +4,7 @@ import requests
 from django.contrib.gis.geos import Point
 from django import db
 from django.conf import settings
-
-from mobility_data.api.serializers import content_type
+from owslib.wfs import WebFeatureService
 from .utils import (
     get_municipality_name, 
     get_closest_street_name,
@@ -115,6 +114,11 @@ def get_bicycle_stand_objects(xml_data=None):
     """
     Returns a list containg instances of BicycleStand class.
     """
+    wfs10 = WebFeatureService(url=settings.TURKU_WFS_URL, version="1.0.0")
+    print(wfs10.identification.title)
+    print(list(wfs10.contents))
+    res = wfs10.getfeature(typename="GIS:Kuntopolut")
+    breakpoint()
     namespaces = {
         "gml":"http://www.opengis.net/gml", 
         "GIS":"http://www.tekla.com/schemas/GIS"
