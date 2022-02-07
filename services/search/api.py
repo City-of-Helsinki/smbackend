@@ -32,11 +32,13 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.exceptions import ParseError
 from rest_framework import serializers
 from munigeo import api as munigeo_api
-from munigeo.models import Address, AdministrativeDivision
-from services.api import TranslatedModelSerializer
+from munigeo.models import Address, AdministrativeDivision, Street
+from services.api import TranslatedModelSerializer, UnitSerializer
 from services.models import (
     Service,
     Unit,
+    Department,
+    UnitAccessibilityShortcomings,
 )
 
 logger = logging.getLogger("search")
@@ -50,12 +52,23 @@ DEFAULT_MODEL_LIMIT_VALUE = 5
 DEFAULT_SEARCH_SQL_LIMIT_VALUE = 100
 
 
-class SearchResultUnitSerializer(
+class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["id", "name", "street_address", "municipality"]
+
+
+class ExtendedSearchResultUnitSerializer(
     TranslatedModelSerializer, serializers.ModelSerializer
 ):
     class Meta:
         model = Unit
-        fields = ["id", "name", "provider_type"]
+        fields = [
+            "id",
+            "name",
+            "street_address",
+            "municipality",
+        ]
 
     def to_representation(self, obj):
         representation = super().to_representation(obj)
@@ -63,7 +76,25 @@ class SearchResultUnitSerializer(
             representation["location"] = munigeo_api.geom_to_json(
                 obj.location, DEFAULT_SRS
             )
+
+        try:
+            shortcomings = obj.accessibility_shortcomings
+        except UnitAccessibilityShortcomings.DoesNotExist:
+            shortcomings = UnitAccessibilityShortcomings()
+        representation[
+            "accessibility_shortcoming_count"
+        ] = shortcomings.accessibility_shortcoming_count
+        representation["contract_type"] = UnitSerializer.get_contract_type(self, obj)
+        representation["department"] = DepartmentSerializer(obj.department).data
         return representation
+
+
+class SearchResultUnitSerializer(
+    TranslatedModelSerializer, serializers.ModelSerializer
+):
+    class Meta:
+        model = Unit
+        fields = ["id", "name"]
 
 
 class SearchResultServiceSerializer(
@@ -98,10 +129,35 @@ class SearchResultAddressSerializer(
         return representation
 
 
+class ExtendedSearchResultAddressSerializer(
+    TranslatedModelSerializer, serializers.ModelSerializer
+):
+    class Meta:
+        model = Address
+        fields = ["id", "full_name"]
+
+    def to_representation(self, obj):
+        representation = super().to_representation(obj)
+        if obj.location:
+            representation["location"] = munigeo_api.geom_to_json(
+                obj.location, DEFAULT_SRS
+            )
+        return representation
+
+
 class SearchSerializer(serializers.Serializer):
+
     units = SearchResultUnitSerializer(many=True)
     services = SearchResultServiceSerializer(many=True)
     addresses = SearchResultAddressSerializer(many=True)
+    administrative_divisions = SearchResultAdministrativeDivisionSerializer(many=True)
+
+
+class ExtendedSearchSerializer(serializers.Serializer):
+
+    units = ExtendedSearchResultUnitSerializer(many=True)
+    services = SearchResultServiceSerializer(many=True)
+    addresses = ExtendedSearchResultAddressSerializer(many=True)
     administrative_divisions = SearchResultAdministrativeDivisionSerializer(many=True)
 
 
@@ -163,7 +219,7 @@ class SearchViewSet(GenericAPIView):
     def get(self, request):
         model_limits = {}
         units_order_list = ["provider_type"]
-        
+        extended_serializer = True
         for model in list(QUERY_PARAM_TYPE_NAMES):
             model_limits[model] = DEFAULT_MODEL_LIMIT_VALUE
         SearchResult = namedtuple(
@@ -190,9 +246,17 @@ class SearchViewSet(GenericAPIView):
         else:
             use_trigram = True
 
+        if "extended_serializers" in params:
+            try:
+                extended_serializer = strtobool(params["extended_serializers"])
+            except ValueError:
+                raise ParseError("'extended_serializers' needs to be a boolean")
+
         if "order_units_by_num_services" in params:
             try:
-                order_units_by_num_services = strtobool(params["order_units_by_num_services"])
+                order_units_by_num_services = strtobool(
+                    params["order_units_by_num_services"]
+                )
             except ValueError:
                 raise ParseError("'order_units_by_num_services' needs to be a boolean")
         else:
@@ -200,7 +264,7 @@ class SearchViewSet(GenericAPIView):
 
         if order_units_by_num_services:
             units_order_list.append("-num_services")
-                       
+
         # Limit number of results in searchquery.
         if "sql_query_limit" in params:
             try:
@@ -252,7 +316,7 @@ class SearchViewSet(GenericAPIView):
         WHERE search_query @@ search_column 
         ORDER BY rank DESC LIMIT {sql_query_limit};
         """
-        
+
         cursor = connection.cursor()
         cursor.execute(sql)
         # Note, fetchall() consumes the results and once called returns None.
@@ -317,7 +381,7 @@ class SearchViewSet(GenericAPIView):
                 if services[0]:
                     units_qs = units_qs.filter(services__in=services)
             units_qs = units_qs.annotate(num_services=Count("services")).order_by(
-               *units_order_list
+                *units_order_list
             )
             units_qs = units_qs[: model_limits["unit"]]
         else:
@@ -353,7 +417,12 @@ class SearchViewSet(GenericAPIView):
             administrative_divisions=administrative_division_qs,
             addresses=address_qs,
         )
-        serializer = SearchSerializer(search_results)      
+
+        if extended_serializer:
+            serializer = ExtendedSearchSerializer(search_results)
+        else:
+            serializer = SearchSerializer(search_results)
+
         if logger.level <= logging.DEBUG:
             logger.debug(connection.queries)
             queries_time = sum([float(s["time"]) for s in connection.queries])
