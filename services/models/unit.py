@@ -219,6 +219,7 @@ class Unit(SoftDeleteModel):
     search_objects = UnitSearchManager()
     extra = models.JSONField(null=True)
     related_units = models.ManyToManyField("self", blank=True)
+    # Note, TranslatedModel do not support ArrayField.
     service_names_fi = ArrayField(models.CharField(max_length=200), default=list)
     service_names_sv = ArrayField(models.CharField(max_length=200), default=list)
     service_names_en = ArrayField(models.CharField(max_length=200), default=list)
