@@ -33,6 +33,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework import serializers
 from munigeo import api as munigeo_api
 from munigeo.models import Address, AdministrativeDivision
+from munigeo.utils import get_default_srid
 from services.api import TranslatedModelSerializer, UnitSerializer
 from services.models import (
     Service,
@@ -43,7 +44,7 @@ from services.models import (
 
 logger = logging.getLogger("search")
 LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
-DEFAULT_SRS = SpatialReference(settings.DEFAULT_SRID)
+DEFAULT_SRS = SpatialReference(4326)
 SEARCHABLE_MODEL_TYPE_NAMES = ("Unit", "Service", "AdministrativeDivision", "Address")
 QUERY_PARAM_TYPE_NAMES = [m.lower() for m in SEARCHABLE_MODEL_TYPE_NAMES]
 # Note, default limit should be big enough, otherwise quality of results will drop..
@@ -95,6 +96,14 @@ class SearchResultUnitSerializer(
     class Meta:
         model = Unit
         fields = ["id", "name"]
+    
+    def to_representation(self, obj):
+        representation = super().to_representation(obj)
+        if obj.location:
+            representation["location"] = munigeo_api.geom_to_json(
+                obj.location, DEFAULT_SRS
+            )
+        return representation
 
 
 class SearchResultServiceSerializer(
@@ -129,22 +138,6 @@ class SearchResultAddressSerializer(
         return representation
 
 
-class ExtendedSearchResultAddressSerializer(
-    TranslatedModelSerializer, serializers.ModelSerializer
-):
-    class Meta:
-        model = Address
-        fields = ["id", "full_name"]
-
-    def to_representation(self, obj):
-        representation = super().to_representation(obj)
-        if obj.location:
-            representation["location"] = munigeo_api.geom_to_json(
-                obj.location, DEFAULT_SRS
-            )
-        return representation
-
-
 class SearchSerializer(serializers.Serializer):
 
     units = SearchResultUnitSerializer(many=True)
@@ -157,8 +150,7 @@ class ExtendedSearchSerializer(serializers.Serializer):
 
     units = ExtendedSearchResultUnitSerializer(many=True)
     services = SearchResultServiceSerializer(many=True)
-    # TODO WHAT EXTENDED?
-    addresses = ExtendedSearchResultAddressSerializer(many=True)
+    addresses = SearchResultAddressSerializer(many=True)
     administrative_divisions = SearchResultAdministrativeDivisionSerializer(many=True)
 
 
