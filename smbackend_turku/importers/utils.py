@@ -141,6 +141,32 @@ def set_field(obj, obj_field_name, entry_value):
     return True
 
 
+def set_service_names_field(obj):
+    service_names_fi = []
+    service_names_sv = []
+    service_names_en = []
+    for service in obj.services.all():
+        service_names_fi.append(service.name_fi)
+        service_names_sv.append(service.name_sv)
+        service_names_en.append(service.name_en)
+
+    if (
+        obj.service_names_fi == service_names_fi
+        and obj.service_names_sv == service_names_sv
+        and obj.service_names_en == service_names_en
+    ):
+        return False
+
+    setattr(obj, "service_names_fi", service_names_fi)
+    setattr(obj, "service_names_sv", service_names_sv)
+    setattr(obj, "service_names_en", service_names_en)
+    return True
+
+
+def set_syncher_service_names_field(obj):
+    obj.changed |= set_service_names_field(obj)
+
+
 def set_syncher_object_field(obj, obj_field_name, value):
     obj._changed |= set_field(obj, obj_field_name, value)
 
@@ -187,6 +213,7 @@ def convert_code_to_int(code):
         return int.from_bytes(code.encode(), "big")
     return None
 
+
 @lru_cache(None)
 def get_municipality(name):
     try:
@@ -194,27 +221,30 @@ def get_municipality(name):
     except Municipality.DoesNotExist:
         return None
 
+
 def create_service_node(service_node_id, name, parent_name, service_node_names):
     """
-    Creates service_node with given name and id if it does not exist. 
+    Creates service_node with given name and id if it does not exist.
     Sets the parent service_node and name fields.
     :param service_node_id: the id of the service_node to be created.
     :param name: name of the service_node.
     :param parent_name: name of the parent service_node, if None the service_node will be
      topmost in the tree hierarchy.
-    :param service_node_names: dict with names in all languages   
+    :param service_node_names: dict with names in all languages
     """
     service_node = None
     try:
-        service_node = ServiceNode.objects.get(id=service_node_id,name=name)       
-    except ServiceNode.DoesNotExist:    
+        service_node = ServiceNode.objects.get(id=service_node_id, name=name)
+    except ServiceNode.DoesNotExist:
         service_node = ServiceNode(id=service_node_id)
 
-    if parent_name: 
+    if parent_name:
         try:
-            parent = ServiceNode.objects.get(name=parent_name)      
+            parent = ServiceNode.objects.get(name=parent_name)
         except ServiceNode.DoesNotExist:
-            raise ObjectDoesNotExist("Parent ServiceNode name: {} not found.".format(parent_name))
+            raise ObjectDoesNotExist(
+                "Parent ServiceNode name: {} not found.".format(parent_name)
+            )
     else:
         # The service_node will be topmost in the tree structure
         parent = None
@@ -223,10 +253,11 @@ def create_service_node(service_node_id, name, parent_name, service_node_names):
     set_tku_translated_field(service_node, "name", service_node_names)
     service_node.last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
     service_node.save()
-            
-def create_service(service_id, service_node_id, service_name, service_names):  
+
+
+def create_service(service_id, service_node_id, service_name, service_names):
     """
-    Creates service with given service_id and name if it does not exist. 
+    Creates service with given service_id and name if it does not exist.
     Adds the service to the given service_node and sets the name fields.
     :param service_id: the id of the service.
     :param service_node_id: the id of the service_node to which the service will have a relation
@@ -235,11 +266,13 @@ def create_service(service_id, service_node_id, service_name, service_names):
     """
     service = None
     try:
-        service = Service.objects.get(id=service_id,name=service_name)
-    except Service.DoesNotExist:    
-        service = Service(id=service_id, clarification_enabled=False, period_enabled=False)   
-        set_tku_translated_field(service, "name", service_names)     
+        service = Service.objects.get(id=service_id, name=service_name)
+    except Service.DoesNotExist:
+        service = Service(
+            id=service_id, clarification_enabled=False, period_enabled=False
+        )
+        set_tku_translated_field(service, "name", service_names)
         service_node = ServiceNode(id=service_node_id)
         service_node.related_services.add(service_id)
         service.last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
-        service.save()    
+        service.save()

@@ -32,7 +32,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.exceptions import ParseError
 from rest_framework import serializers
 from munigeo import api as munigeo_api
-from munigeo.models import Address, AdministrativeDivision, Street
+from munigeo.models import Address, AdministrativeDivision
 from services.api import TranslatedModelSerializer, UnitSerializer
 from services.models import (
     Service,
@@ -157,6 +157,7 @@ class ExtendedSearchSerializer(serializers.Serializer):
 
     units = ExtendedSearchResultUnitSerializer(many=True)
     services = SearchResultServiceSerializer(many=True)
+    # TODO WHAT EXTENDED?
     addresses = ExtendedSearchResultAddressSerializer(many=True)
     administrative_divisions = SearchResultAdministrativeDivisionSerializer(many=True)
 
@@ -353,18 +354,7 @@ class SearchViewSet(GenericAPIView):
                 preserved = get_preserved_order(unit_ids)
                 units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
             else:
-                units_qs = Unit.objects.none()
-            units_from_services = Unit.objects.filter(
-                services__in=service_ids, public=True
-            )
-            # Add units which are associated with the services found.
-            units_qs = units_from_services | units_qs
-            # Combine units from services and the units_qs.
-            ids1 = list(units_from_services.values_list("id", flat=True))
-            ids2 = list(units_qs.values_list("id", flat=True))
-            ids1 = []
-            ids = ids1 + ids2
-            units_qs = Unit.objects.filter(id__in=ids)
+                units_qs = Unit.objects.none()       
 
             if not units_qs and use_trigram:
                 units_qs = get_trigram_results(Unit, "name_" + language_short, q_val)
