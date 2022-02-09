@@ -48,9 +48,11 @@ def units(services):
     unit.services.add(2)
     unit.save()
     units.append(unit)
+    service = services[2]
     unit = Unit.objects.create(
         id=4,
         name="Impivaara",
+        service_names_fi=[service.name_fi],
         last_modified_time=now(),
     )
     unit.services.add(3)

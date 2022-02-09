@@ -12,6 +12,7 @@ from services.management.commands.services_import.services import (
 from smbackend_turku.importers.utils import (   
     set_field,
     set_tku_translated_field,
+    set_service_names_field,
     create_service,
     create_service_node,
     get_municipality,
@@ -119,6 +120,7 @@ class GasFillingStationImporter:
             municipality = get_municipality(data_obj.city)
             set_field(obj, "municipality", municipality)  
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
+            set_service_names_field(obj)
             obj.save()
         update_service_node_counts()
   
@@ -190,6 +192,7 @@ class ChargingStationImporter():
             municipality = get_municipality(data_obj.city)
             set_field(obj, "municipality", municipality)            
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
+            set_service_names_field(obj)
             obj.save()
         update_service_node_counts()
        

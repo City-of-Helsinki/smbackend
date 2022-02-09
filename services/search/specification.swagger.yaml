@@ -65,8 +65,7 @@ components:
     unit_limit_param:
       name: unit_limit
       in: query
-      description: Limit the number of Units in results. Units from services that are found 
-      in the search are added to the results and finally Units are ordered by their 
+      description: Limit the number of Units in results. Units are ordered by their 
       provider(self produced first) and in ascending order by number of services. 
       This is good to keep in mind when deciding the limit value.   
       schema:
@@ -99,6 +98,13 @@ components:
         type: integer
         example: 5
         default: 5
+    extended_serializers_param:
+      name: extended_serializers
+      in: query:
+      description: If set to true extends the number of fields to be serialized.
+      schema:
+        type: boolean
+        default: false
     type_param:
       name: type
       in: query
@@ -158,6 +164,7 @@ paths:
         - $ref: "#/components/parameters/language_param"
         - $ref: "#/components/parameters/use_trigram_param"
         - $ref: "#/components/parameters/order_units_by_num_services_param"
+        - $ref: "#/components/parameters/extended_serializers_param"
         - $ref: "#/components/parameters/sql_query_limit_param"
         - $ref: "#/components/parameters/unit_limit_param"
         - $ref: "#/components/parameters/service_limit_param"
