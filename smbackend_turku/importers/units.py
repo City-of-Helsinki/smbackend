@@ -112,12 +112,12 @@ def get_municipality(name):
 
 
 class UnitImporter:
-    unitsyncher = ModelSyncher(Unit.objects.all(), lambda obj: obj.id)
 
     def __init__(self, logger=None, importer=None, delete_external_sources=False):
         self.logger = logger
         self.importer = importer
         self.delete_external_source = delete_external_sources
+        self.unitsyncher = ModelSyncher(Unit.objects.all(), lambda obj: obj.id)
 
     def import_units(self):
         units = get_turku_resource("palvelupisteet")

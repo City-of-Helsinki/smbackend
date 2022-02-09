@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import logging
 from django.core.management import BaseCommand
+from django.contrib.gis.gdal import DataSource
 from django.conf import settings
 from mobility_data.importers.bicycle_stands import (
     get_bicycle_stand_objects,
@@ -27,10 +28,8 @@ class Command(BaseCommand):
             logger.info("Running bicycle stand importer in test mode.")
             path = f"{settings.BASE_DIR}/{ContentType._meta.app_label}/tests/data/"
             filename = options["test_mode"]
-            xml_data = None
-            with open(path + filename, "r") as xml_file:
-                xml_data = ET.parse(xml_file)
-            objects = get_bicycle_stand_objects(xml_data=xml_data)
+            ds = DataSource(path+filename)
+            objects = get_bicycle_stand_objects(ds=ds)           
         else:
             logger.info("Fetching bicycle stands from: {}".format(BICYCLE_STANDS_URL))
             objects = get_bicycle_stand_objects()

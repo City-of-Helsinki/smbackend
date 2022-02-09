@@ -1,8 +1,6 @@
 from django.core import management
 from celery import shared_task
 
-
-
 @shared_task
 def import_mds_data(name="import_mds_data"):
     management.call_command("turku_services_import", "services", "accessibility", "units", "addresses")

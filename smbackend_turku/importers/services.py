@@ -32,14 +32,14 @@ BLACKLISTED_SERVICE_NODES = [
 
 
 class ServiceImporter:
-    nodesyncher = ModelSyncher(ServiceNode.objects.all(), lambda obj: obj.id)
-    servicesyncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
-
+  
     def __init__(self, logger=None, importer=None, delete_external_sources=False):
         self.logger = logger
         self.importer = importer
         self.delete_external_sources = delete_external_sources
-
+        self.nodesyncher = ModelSyncher(ServiceNode.objects.all(), lambda obj: obj.id)
+        self.servicesyncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
+        
     def import_services(self):
         keyword_handler = KeywordHandler(logger=self.logger)
         self._import_services(keyword_handler)

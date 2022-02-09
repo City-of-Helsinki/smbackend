@@ -17,9 +17,9 @@ class BaseUnit(models.Model):
         abstract = True
         ordering = ["-created_time"]
     
-    def __str__(self):
-        return self.name
-
+    def __str__(self):      
+        return self.name    
+        
 
 class MobileUnitGroup(BaseUnit): 
     """
@@ -60,6 +60,6 @@ class MobileUnit(BaseUnit):
     ) 
     extra = models.JSONField(null=True)
 
-   
+ 
        
  

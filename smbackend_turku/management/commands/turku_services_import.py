@@ -6,7 +6,6 @@ from django import db
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import translation
-from mobility_data.models import content_type
 
 from smbackend_turku.importers.accessibility import import_accessibility
 from smbackend_turku.importers.addresses import import_addresses

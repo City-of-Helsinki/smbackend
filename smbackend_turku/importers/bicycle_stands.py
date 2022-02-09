@@ -57,7 +57,7 @@ class BicycleStandImporter:
         # create mobility_data content type
         content_type = create_bicycle_stand_content_type()
         saved_bicycle_stands = 0
-        filtered_objects = get_bicycle_stand_objects(xml_data=self.test_data)
+        filtered_objects = get_bicycle_stand_objects()
         for i, data_obj in enumerate(filtered_objects):
             unit_id = i + self.UNITS_ID_OFFSET
             obj = Unit(id=unit_id)
