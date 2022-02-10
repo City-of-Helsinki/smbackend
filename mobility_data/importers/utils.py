@@ -26,6 +26,12 @@ def delete_mobile_units(type_name):
 
 
 def create_mobile_unit_as_unit_reference(unit_id, content_type):
+    """
+    This function is called by turku_services_importers target that imports both
+    to the services list and mobile view. The created MobileUnit is used to
+    serialize the data from the services_unit table in the mobile_unit endpoint.
+    """
+   
     MobileUnit.objects.create(
             unit_id=unit_id,
             content_type=content_type,             
