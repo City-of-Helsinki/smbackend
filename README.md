@@ -144,7 +144,7 @@ For Turku specific imports see smbackend_turku/README.md.
 7. Celery
 
 Install and run a message broker such as RabbitMQ or Redis.
-Configure the message broker in the environment variable "CELERY_BROKER_URL"
+Configure the message broker in the environment variable "CELERY_BROKER_URL".
 Start a Celery worker to handle asynchronous tasks locally with command:
 ```
 celery -A smbackend worker -l INFO

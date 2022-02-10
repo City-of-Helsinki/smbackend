@@ -29,6 +29,7 @@ from smbackend_turku.importers.utils import (
     get_localized_value,
     get_turku_resource,
     get_weekday_str,
+    set_service_names_field,
     set_syncher_object_field,
     set_syncher_tku_translated_field,
 )
@@ -155,15 +156,13 @@ class UnitImporter:
         self._handle_ptv_id(obj, unit_data)
         self._handle_service_descriptions(obj, unit_data)
         self._handle_provider_type(obj)
-
         self._save_object(obj)
-
         self._handle_opening_hours(obj, unit_data)
         self._handle_email_and_phone_numbers(obj, unit_data)
         self._handle_services_and_service_nodes(obj, unit_data)
         self._handle_accessibility_shortcomings(obj)
+        self._handle_service_names(obj)
         self._save_object(obj)
-
         self.unitsyncher.mark(obj)
 
     def _handle_external_units(self, importer):
@@ -171,7 +170,7 @@ class UnitImporter:
         Mark units that has been imported from external source.
         If not marked the unitsyncher.finish() will delete the units.
         """
-
+     
         service = None
         try:
             service = Service.objects.get(name=importer.SERVICE_NAME)
@@ -315,6 +314,7 @@ class UnitImporter:
             or old_service_node_ids != new_service_node_ids
         ):
             obj._changed = True
+        
 
         set_syncher_object_field(
             obj,
@@ -504,6 +504,9 @@ class UnitImporter:
                 **names
             )
             index += 1
+
+    def _handle_service_names(self, obj):
+      set_service_names_field(obj)
 
     def _generate_phone_number(self, phone_number_datum):
         if not phone_number_datum:

@@ -6,8 +6,12 @@ from django.core import management
 from django.core.management import BaseCommand
 
 # Names of the mobility_data importers to be include when importing data.
-# Note, Do not include importers that also imports to the Serivces list.
-importers = ["culture_routes"]
+importers = [
+    "culture_routes",
+    "gas_filling_stations",
+    "charging_stations",
+    "bicycle_stands",
+]
 logger = logging.getLogger("mobility_data")
 
 

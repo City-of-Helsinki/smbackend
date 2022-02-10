@@ -51,7 +51,7 @@ class MobileUnit(BaseUnit):
     )
     unit_id = models.IntegerField(
         null=True, 
-        verbose_name="optional id to a unit in the servicemap, if id exist use data from services_unit")
+        verbose_name="optional id to a unit in the servicemap, if id exist data is serialized from services_unit table")
     mobile_unit_group = models.ForeignKey(
         MobileUnitGroup, 
         on_delete=models.CASCADE,

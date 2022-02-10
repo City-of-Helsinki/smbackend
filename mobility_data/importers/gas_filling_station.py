@@ -109,4 +109,4 @@ def save_to_database(objects, delete_tables=True):
         )    
         set_translated_field(mobile_unit, "address", object.address)  
         mobile_unit.save()
-    logger.info("Saved gas filling stations to database.")
+    logger.info(f"Saved gas filling stations to database.")

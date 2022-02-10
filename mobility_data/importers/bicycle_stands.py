@@ -110,6 +110,7 @@ def get_bicycle_stand_objects(ds=None):
     bicycle_stands = []
     for feature in layer:
         bicycle_stands.append(BicyleStand(feature))
+    logger.info(f"Retrieved {len(bicycle_stands)} bicycle stands.")
     return bicycle_stands
 
 
@@ -130,11 +131,9 @@ def create_bicycle_stand_content_type():
 
 @db.transaction.atomic
 def save_to_database(objects, delete_tables=True):
-
     if delete_tables:
-        print("Delete")
         delete_bicycle_stands()
-        # return
+
     content_type = create_bicycle_stand_content_type()
     for object in objects:
         mobile_unit = MobileUnit.objects.create(

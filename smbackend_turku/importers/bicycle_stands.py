@@ -14,6 +14,7 @@ from smbackend_turku.importers.utils import (
     set_field,
     set_tku_translated_field,
     set_syncher_object_field,
+    set_service_names_field,
     create_service,
     create_service_node,
     get_municipality,
@@ -91,6 +92,7 @@ class BicycleStandImporter:
             municipality = get_municipality(data_obj.city)
             set_field(obj, "municipality", municipality)
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
+            set_service_names_field(obj)
             obj.save()
             create_mobile_unit_as_unit_reference(unit_id, content_type)
             saved_bicycle_stands += 1

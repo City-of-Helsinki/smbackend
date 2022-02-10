@@ -28,8 +28,8 @@ class Command(BaseCommand):
             logger.info("Running bicycle stand importer in test mode.")
             path = f"{settings.BASE_DIR}/{ContentType._meta.app_label}/tests/data/"
             filename = options["test_mode"]
-            ds = DataSource(path+filename)
-            objects = get_bicycle_stand_objects(ds=ds)           
+            ds = DataSource(path + filename)
+            objects = get_bicycle_stand_objects(ds=ds)
         else:
             logger.info("Fetching bicycle stands from: {}".format(BICYCLE_STANDS_URL))
             objects = get_bicycle_stand_objects()

@@ -1,6 +1,6 @@
 from django.apps import apps
 from django.contrib.gis.db import models
-from django.contrib.postgres import fields
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import HStoreField
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import (
@@ -219,6 +219,10 @@ class Unit(SoftDeleteModel):
     search_objects = UnitSearchManager()
     extra = models.JSONField(null=True)
     related_units = models.ManyToManyField("self", blank=True)
+    # Note, TranslatedModel do not support ArrayField.
+    service_names_fi = ArrayField(models.CharField(max_length=200), default=list)
+    service_names_sv = ArrayField(models.CharField(max_length=200), default=list)
+    service_names_en = ArrayField(models.CharField(max_length=200), default=list)
     search_column = SearchVectorField(null=True)
 
     class Meta:
@@ -235,6 +239,8 @@ class Unit(SoftDeleteModel):
         qs = ServiceNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         service_node_list = qs.values_list("id", flat=True).distinct()
         return sorted(service_node_list)
+
+  
 
     def service_names(self):
         return "\n".join((service.name for service in self.services.all()))
@@ -270,7 +276,11 @@ class Unit(SoftDeleteModel):
             ("name_fi", "finnish", "A"),
             ("name_sv", "swedish", "A"),
             ("name_en", "english", "A"),
-            ("extra", None, "B"),
+            ("service_names_fi", "finnish", "B"),
+            ("service_names_sv", "swedish", "B"),
+            ("service_names_en", "english", "B"),
+            ("extra", None, "C"),
+            ("address_zip", None, "D"),            
             ("street_address_fi", "finnish", "D"),
             ("street_address_sv", "swedish", "D"),
             ("street_address_en", "english", "D"),     
