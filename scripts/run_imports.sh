@@ -3,29 +3,31 @@
 export PYTHONIOENCODING=utf-8
 
 function stage_0 {
-    # Very seldomly executed imports (once a year max)
+    # Very seldomly executed imports (once a year)
     # Finnish municipalities in munigeo
     ./manage.py geo_import finland --municipalities
 }
 
 function stage_1 {
-    # Somewhat rarely executed imports (once a month max)
-    # Helsinki, Espoo and HSY administrative division munigeo data
-    ./manage.py geo_import helsinki --divisions
-    ./manage.py geo_import espoo --divisions
-    ./manage.py geo_import hsy --divisions
+    # Somewhat rarely executed imports (once a month)
+    # Parking areas update
     ./manage.py update_parking_areas
 }
 
 function stage_2 {
-    # Once a day?
+    # Once a day
+    # Helsinki, Espoo and HSY administrative division munigeo data
+    ./manage.py geo_import helsinki --divisions
+    ./manage.py geo_import espoo --divisions
+    ./manage.py geo_import hsy --divisions
     ./manage.py geo_import helsinki --addresses
+    # Services and LIPAS-geometries imports
     ./manage.py services_import_v4 --traceback unit_properties
     ./manage.py lipas_import --muni-id=92 --muni-id=91 --muni-id=49 --muni-id=235 --muni-id=257
 }
 
 function stage_3 {
-    # Frequently executed imports (once an hour at the least)
+    # Frequently executed imports (every 30m)
     # Toimipisterekisteri imports
     ./scripts/update.sh
 }
