@@ -1,23 +1,39 @@
 # MobilityData
 
 Django app for importing and serving data from external sources.  
+Add the TURKU_WFS_URL for the WFS server to the env, e.g.
+```
+TURKU_WFS_URL=http://tkuikp.adturku.fi/TeklaOGCWeb/WFS.ashx
+```
 
 ## importers
+To import all data sources:
+```
+./manage.py import_mobility_data
+```
+The data sources can be imported separetely as explained below:
 
 ### Gas filling stations  
 To import data type:  
+```
 ./manage.py import_gas_filling_stations  
-
+```
 ### Charging stations  
 To import data type:  
+```
 ./manage.py import_charging_stations  
-
+```
 ### Culture Routes
 To import data type:  
+```
 ./manage.py import_culture_routes  
-To delete Culture Routes before importing type:  
+```
+Culture routes are not deleted before importing. To explicity delete Culture Routes before importing type:  
+```
 ./manage.py import_culture_routes --delete  
-
+```
 ### Bicycle stands  
 To import data type:  
+```
 ./manage.py import_bicycle_stands 
+```

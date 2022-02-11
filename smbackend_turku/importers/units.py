@@ -35,11 +35,10 @@ from smbackend_turku.importers.utils import (
 )
 from smbackend_turku.importers.stations import (
     GasFillingStationImporter,
-    ChargingStationImporter,   
+    ChargingStationImporter,
 )
-from smbackend_turku.importers.bicycle_stands import (
-    BicycleStandImporter
-)
+from smbackend_turku.importers.bicycle_stands import BicycleStandImporter
+
 UTC_TIMEZONE = pytz.timezone("UTC")
 
 ROOT_FIELD_MAPPING = {
@@ -114,12 +113,12 @@ def get_municipality(name):
 
 
 class UnitImporter:
-    unitsyncher = ModelSyncher(Unit.objects.all(), lambda obj: obj.id)
 
     def __init__(self, logger=None, importer=None, delete_external_sources=False):
         self.logger = logger
         self.importer = importer
         self.delete_external_source = delete_external_sources
+        self.unitsyncher = ModelSyncher(Unit.objects.all(), lambda obj: obj.id)
 
     def import_units(self):
         units = get_turku_resource("palvelupisteet")
@@ -170,19 +169,19 @@ class UnitImporter:
         """
         Mark units that has been imported from external source.
         If not marked the unitsyncher.finish() will delete the units.
-      .  """
+        """
      
         service = None
         try:
             service = Service.objects.get(name=importer.SERVICE_NAME)
         except:
-            pass        
+            pass
         if service:
-            units_qs = Unit.objects.filter(services__id=service.id) 
+            units_qs = Unit.objects.filter(services__id=service.id)
             for unit in units_qs.all():
                 synch_unit = self.unitsyncher.get(unit.id)
                 self.unitsyncher.mark(synch_unit)
-                
+
     def _save_object(self, obj):
         if obj._changed:
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
@@ -343,7 +342,7 @@ class UnitImporter:
     def _handle_provider_type(self, obj):
         # NOTE, this is a temp solution when the provider_type is not available.
         # This improves the search results and makes it possible to set
-        # external imported units with different provider_type and will get less 
+        # external imported units with different provider_type and will get less
         # importance in search results. Value 1 = "SELF_PRODUCED"
         if obj.provider_type == None:
             set_syncher_object_field(obj, "provider_type", 1)

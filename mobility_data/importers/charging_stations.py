@@ -112,18 +112,25 @@ def get_filtered_charging_station_objects(json_data=None):
             for object in filtered_objects:
                 if object.location_id == location_id:
                     object.add_charger(attributes)
-                    #break             
     return filtered_objects
 
+@db.transaction.atomic    
+def delete_charging_stations():
+    delete_mobile_units(ContentType.CHARGING_STATION)
 
 @db.transaction.atomic    
-def save_to_database(objects, delete_tables=True):
-    if delete_tables:
-        delete_mobile_units(ContentType.CHARGING_STATION)
+def create_charging_station_content_type():
     description = "Charging stations in province of SouthWest Finland."  
     name="Charging Station" 
     content_type, _ = get_or_create_content_type(
         ContentType.CHARGING_STATION, name, description)
+    return content_type
+
+@db.transaction.atomic    
+def save_to_database(objects, delete_tables=True):
+    if delete_tables:
+       delete_charging_stations()
+    content_type = create_charging_station_content_type()
     
     for object in objects:
         is_active = object.is_active 

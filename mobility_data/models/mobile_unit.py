@@ -17,9 +17,9 @@ class BaseUnit(models.Model):
         abstract = True
         ordering = ["-created_time"]
     
-    def __str__(self):
-        return self.name
-
+    def __str__(self):      
+        return self.name    
+        
 
 class MobileUnitGroup(BaseUnit): 
     """
@@ -51,7 +51,7 @@ class MobileUnit(BaseUnit):
     )
     unit_id = models.IntegerField(
         null=True, 
-        verbose_name="optonal id to a unit in the servicemap")
+        verbose_name="optional id to a unit in the servicemap, if id exist data is serialized from services_unit table")
     mobile_unit_group = models.ForeignKey(
         MobileUnitGroup, 
         on_delete=models.CASCADE,
@@ -60,6 +60,6 @@ class MobileUnit(BaseUnit):
     ) 
     extra = models.JSONField(null=True)
 
-   
+ 
        
  

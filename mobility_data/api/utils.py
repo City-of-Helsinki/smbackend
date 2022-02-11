@@ -1,5 +1,6 @@
 from django.contrib.gis.gdal.error import GDALException
 
+
 def transform_queryset(srid, queryset):
     """
     Transforms all elements in queryset to given srid.
@@ -9,6 +10,5 @@ def transform_queryset(srid, queryset):
             elem.geometry.transform(srid)
     except GDALException:
         return False, queryset
-    else:   
+    else:
         return True, queryset
-

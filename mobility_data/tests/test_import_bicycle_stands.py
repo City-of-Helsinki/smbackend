@@ -2,20 +2,20 @@ from io import StringIO
 import pytest
 from django.core.management import call_command
 from .fixtures import *
-from mobility_data.models import (
-    MobileUnit,
-)
+from mobility_data.models import MobileUnit
+
 
 def import_command(*args, **kwargs):
-        out = StringIO()
-        call_command(
-            "import_bicycle_stands",
-            *args,
-            stdout=out,
-            stderr=StringIO(),
-            **kwargs,
-        )
-        return out.getvalue()
+    out = StringIO()
+    call_command(
+        "import_bicycle_stands",
+        *args,
+        stdout=out,
+        stderr=StringIO(),
+        **kwargs,
+    )
+    return out.getvalue()
+
 
 @pytest.mark.django_db
 def test_importer(
@@ -23,20 +23,20 @@ def test_importer(
     administrative_division_type,
     administrative_division,
     streets,
-    address
-):    
-    out = import_command(test_mode="bicycle_stands.xml")  
+    address,
+):
+    out = import_command(test_mode="bicycle_stands.xml")
     assert MobileUnit.objects.all().count() == 3
     # <GIS:Id>0</GIS:Id> in fixture xml.
     stand_normal = MobileUnit.objects.all()[0]
     # <GIS:Id>182213917</GIS:Id> in fixture xml.
-    stand_covered_hull_lockable = MobileUnit.objects.all()[1]  
+    stand_covered_hull_lockable = MobileUnit.objects.all()[1]
     # <GIS:Id>319490982</GIS:Id> in fixture xml
     stand_external = MobileUnit.objects.all()[2]
 
     assert stand_normal.name_fi == "Linnanpuisto"
     assert stand_normal.name_sv == "LinnanpuistoSV"
-    assert stand_normal.name_en == "Linnanpuisto"  
+    assert stand_normal.name_en == "Linnanpuisto"
     extra = stand_normal.extra
     assert extra["model"] == "Normaali"
     assert extra["maintained_by_turku"] == True
@@ -45,7 +45,7 @@ def test_importer(
     assert extra["number_of_places"] == 24
     assert extra["number_of_stands"] == 2
     assert extra["number_of_stands"] == 2
-    
+
     assert stand_covered_hull_lockable.name == "Pitkäpellonkatu"
     extra = stand_covered_hull_lockable.extra
     assert extra["maintained_by_turku"] == True
@@ -53,10 +53,10 @@ def test_importer(
     assert extra["hull_lockable"] == True
     assert extra["number_of_places"] == 18
     assert extra["number_of_stands"] == 1
-    # external stand has no street name, so the closes street name 
+    # external stand has no street name, so the closes street name
     # is "Test Street".
     assert stand_external.name == "Test Street"
-    extra = stand_external.extra    
+    extra = stand_external.extra
     assert extra["maintained_by_turku"] == False
     # As there are no info for stand that are not maintained by turku
     # field are set to None.

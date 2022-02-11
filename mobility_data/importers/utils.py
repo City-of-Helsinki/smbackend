@@ -9,7 +9,7 @@ from munigeo.models import (
     AdministrativeDivisionGeometry, 
     AdministrativeDivision,
 )
-from mobility_data.models import ContentType
+from mobility_data.models import ContentType, MobileUnit
 
 GEOMETRY_ID = 11 #  11 Varsinaissuomi 
 GEOMETRY_URL = "https://tie.digitraffic.fi/api/v3/data/traffic-messages/area-geometries?id={id}&lastUpdated=false".format(id=GEOMETRY_ID)
@@ -23,6 +23,19 @@ def fetch_json(url):
 
 def delete_mobile_units(type_name):
     ContentType.objects.filter(type_name=type_name).delete()
+
+
+def create_mobile_unit_as_unit_reference(unit_id, content_type):
+    """
+    This function is called by turku_services_importers target that imports both
+    to the services list and mobile view. The created MobileUnit is used to
+    serialize the data from the services_unit table in the mobile_unit endpoint.
+    """
+   
+    MobileUnit.objects.create(
+            unit_id=unit_id,
+            content_type=content_type,             
+    )
 
 def get_or_create_content_type(type_name, name, description):
     content_type, created = ContentType.objects.get_or_create(

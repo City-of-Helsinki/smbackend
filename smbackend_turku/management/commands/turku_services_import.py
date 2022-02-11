@@ -25,7 +25,8 @@ class Command(BaseCommand):
         "addresses", 
         "gas_filling_stations",
         "charging_stations",
-        "bicycle_stands"
+        "bicycle_stands",
+        "mobility_data"
         ]
 
     supported_languages = [lang[0] for lang in settings.LANGUAGES]
@@ -107,9 +108,14 @@ class Command(BaseCommand):
     def import_bicycle_stands(self):
         import_bicycle_stands(
             logger=self.logger, 
-            root_service_node_name="Vapaa-aika"
+            root_service_node_name="Vapaa-aika",
             )
-     
+
+    def import_mobility_data(self):
+        self.import_bicycle_stands()
+        self.import_charging_stations()
+        self.import_gas_filling_stations()
+
     # Activate the default language for the duration of the import
     # to make sure translated fields are populated correctly.
     @translation.override(settings.LANGUAGES[0][0])
