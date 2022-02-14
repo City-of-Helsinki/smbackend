@@ -73,13 +73,13 @@ class GasFillingStationImporter:
     SERVICE_NAME = "Kaasutankkausasema"
     SERVICE_NODE_NAMES = {
         "fi": SERVICE_NODE_NAME,
-        "sv": "Gas stationer",
+        "sv": "Tankstationer med gas",
         "en": "Gas filling stations",
     }
 
     SERVICE_NAMES = {
         "fi": SERVICE_NAME,
-        "sv": "Gas station",
+        "sv": "Tankstation med gas",
         "en": "Gas filling station",
     }
 
@@ -142,14 +142,18 @@ class ChargingStationImporter:
     SERVICE_NODE_ID = settings.CHARGING_STATIONS_IDS["service_node"]
     UNITS_ID_OFFSET = settings.CHARGING_STATIONS_IDS["units_offset"]
 
-    SERVICE_NODE_NAME = "Sähkölatausasemat"
-    SERVICE_NAME = "Sähkölatausasema"
+    SERVICE_NODE_NAME = "Autojen sähkölatauspisteet"
+    SERVICE_NAME = "Autojen sähkölatauspiste"
     SERVICE_NODE_NAMES = {
         "fi": SERVICE_NODE_NAME,
-        "sv": "Laddplatser",
-        "en": "Charging stations",
+        "sv": "Elladdningsstationer för bilar",
+        "en": "Car e-charging points",
     }
-    SERVICE_NAMES = {"fi": SERVICE_NAME, "sv": "Laddplats", "en": "Charging station"}
+    SERVICE_NAMES = {
+        "fi": SERVICE_NAME,
+        "sv": "Elladdningsstation för bilar",
+        "en": "Car e-charging point",
+    }
 
     def __init__(
         self, logger=None, importer=None, root_service_node_name=None, test_data=None

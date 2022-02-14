@@ -33,15 +33,19 @@ class BicycleStandImporter:
     SERVICE_ID = settings.BICYCLE_STANDS_IDS["service"]
     SERVICE_NODE_ID = settings.BICYCLE_STANDS_IDS["service_node"]
     UNITS_ID_OFFSET = settings.BICYCLE_STANDS_IDS["units_offset"]
-    SERVICE_NODE_NAME = "Polkupyöräparkit"
-    SERVICE_NAME = "Polkupyöräparkki"
+    SERVICE_NODE_NAME = "Pyöräpysäköinti"
+    SERVICE_NAME = "Pyöräpysäköinti"
 
     SERVICE_NODE_NAMES = {
         "fi": SERVICE_NODE_NAME,
-        "sv": "Cykelställningar",
-        "en": "Bicycle stands",
+        "sv": "Cykelparkering",
+        "en": "Bicycle parking",
     }
-    SERVICE_NAMES = {"fi": SERVICE_NAME, "sv": "Cykelställning", "en": "Bicycle stand"}
+    SERVICE_NAMES = {
+        "fi": SERVICE_NAME,
+        "sv": "Cykelparkering",
+        "en": "Bicycle parking",
+    }
 
     def __init__(self, logger=None, root_service_node_name=None, test_data=None):
         self.logger = logger
