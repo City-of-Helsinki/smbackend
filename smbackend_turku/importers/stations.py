@@ -30,10 +30,8 @@ from mobility_data.importers.charging_stations import (
 )
 from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
 
-
 LANGUAGES = [language[0] for language in settings.LANGUAGES]
 SOURCE_DATA_SRID = 4326
-
 
 def create_language_dict(value):
     """
