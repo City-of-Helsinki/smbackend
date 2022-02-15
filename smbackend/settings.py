@@ -246,6 +246,7 @@ LOGGING = {
     },
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO"},
+        "search": {"handlers": ["console"], "level": "DEBUG"},
     },
 }
 
