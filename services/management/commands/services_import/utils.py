@@ -89,9 +89,10 @@ def convert_to_list(text):
 
 def get_extra_searchwords(info, language):
     field_name = "extra_searchwords_%s" % language
-    val = info.get(field_name, None)
+    val = info.get(field_name, [])
     if val:
-        return convert_to_list(val)
+        val = convert_to_list(val)
+    return val
 
 
 def update_extra_searchwords(obj, info, obj_changed, update_fields):
