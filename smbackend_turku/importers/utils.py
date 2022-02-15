@@ -146,9 +146,12 @@ def set_service_names_field(obj):
     service_names_sv = []
     service_names_en = []
     for service in obj.services.all():
-        service_names_fi.append(service.name_fi)
-        service_names_sv.append(service.name_sv)
-        service_names_en.append(service.name_en)
+        if service.name_fi:
+            service_names_fi.append(service.name_fi)
+        if service.name_sv:
+            service_names_sv.append(service.name_sv)
+        if service.name_en:
+            service_names_en.append(service.name_en)
 
     if (
         obj.service_names_fi == service_names_fi
@@ -164,7 +167,7 @@ def set_service_names_field(obj):
 
 
 def set_syncher_service_names_field(obj):
-    obj.changed |= set_service_names_field(obj)
+    obj._changed |= set_service_names_field(obj)
 
 
 def set_syncher_object_field(obj, obj_field_name, value):

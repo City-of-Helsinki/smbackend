@@ -2,7 +2,6 @@ import pytest
 from rest_framework.reverse import reverse
 from django.conf import settings
 from django.contrib.gis.geos import Point
-from mobility_data.tests.fixtures import *
 
 @pytest.mark.django_db
 def test_content_type(api_client, content_type):

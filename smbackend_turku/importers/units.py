@@ -29,7 +29,7 @@ from smbackend_turku.importers.utils import (
     get_localized_value,
     get_turku_resource,
     get_weekday_str,
-    set_service_names_field,
+    set_syncher_service_names_field,
     set_syncher_object_field,
     set_syncher_tku_translated_field,
 )
@@ -506,7 +506,7 @@ class UnitImporter:
             index += 1
 
     def _handle_service_names(self, obj):
-      set_service_names_field(obj)
+      set_syncher_service_names_field(obj)
 
     def _generate_phone_number(self, phone_number_datum):
         if not phone_number_datum:
