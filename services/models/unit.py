@@ -1,6 +1,6 @@
 from django.apps import apps
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import HStoreField
+from django.contrib.postgres.fields import ArrayField, HStoreField
 from django.contrib.postgres.indexes import (
     GinIndex,  # add the Postgres recommended GIN index
 )
@@ -171,6 +171,13 @@ class Unit(SoftDeleteModel):
     accessibility_www = models.URLField(max_length=400, null=True)
 
     extra = models.JSONField(default=dict, null=True)
+    # Note, TranslatedModel does not support ArrayField
+    service_names_fi = ArrayField(models.CharField(max_length=200), default=list)
+    service_names_sv = ArrayField(models.CharField(max_length=200), default=list)
+    service_names_en = ArrayField(models.CharField(max_length=200), default=list)
+    extra_searchwords_fi = ArrayField(models.CharField(max_length=200), default=list)
+    extra_searchwords_sv = ArrayField(models.CharField(max_length=200), default=list)
+    extra_searchwords_en = ArrayField(models.CharField(max_length=200), default=list)
     search_column = SearchVectorField(null=True)
 
     created_time = models.DateTimeField(
@@ -269,7 +276,14 @@ class Unit(SoftDeleteModel):
             ("name_fi", "finnish", "A"),
             ("name_sv", "swedish", "A"),
             ("name_en", "english", "A"),
-            ("extra", None, "B"),
+            ("service_names_fi", "finnish", "B"),
+            ("service_names_sv", "swedish", "B"),
+            ("service_names_en", "english", "B"),
+            ("extra_searchwords_fi", "finnish", "B"),
+            ("extra_searchwords_sv", "swedish", "B"),
+            ("extra_searchwords_en", "english", "B"),
+            ("extra", None, "C"),
+            ("address_zip", None, "D"),
             ("street_address_fi", "finnish", "D"),
             ("street_address_sv", "swedish", "D"),
             ("street_address_en", "english", "D"),

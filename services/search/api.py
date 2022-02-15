@@ -39,7 +39,7 @@ from services.models import Department, Service, Unit, UnitAccessibilityShortcom
 
 logger = logging.getLogger("search")
 LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
-DEFAULT_SRS = SpatialReference(settings.DEFAULT_SRID)
+DEFAULT_SRS = SpatialReference(4326)
 SEARCHABLE_MODEL_TYPE_NAMES = ("Unit", "Service", "AdministrativeDivision", "Address")
 QUERY_PARAM_TYPE_NAMES = [m.lower() for m in SEARCHABLE_MODEL_TYPE_NAMES]
 # Note, default limit should be big enough, otherwise quality of results will drop..
@@ -92,6 +92,14 @@ class SearchResultUnitSerializer(
         model = Unit
         fields = ["id", "name"]
 
+    def to_representation(self, obj):
+        representation = super().to_representation(obj)
+        if obj.location:
+            representation["location"] = munigeo_api.geom_to_json(
+                obj.location, DEFAULT_SRS
+            )
+        return representation
+
 
 class SearchResultServiceSerializer(
     TranslatedModelSerializer, serializers.ModelSerializer
@@ -125,24 +133,7 @@ class SearchResultAddressSerializer(
         return representation
 
 
-class ExtendedSearchResultAddressSerializer(
-    TranslatedModelSerializer, serializers.ModelSerializer
-):
-    class Meta:
-        model = Address
-        fields = ["id", "full_name"]
-
-    def to_representation(self, obj):
-        representation = super().to_representation(obj)
-        if obj.location:
-            representation["location"] = munigeo_api.geom_to_json(
-                obj.location, DEFAULT_SRS
-            )
-        return representation
-
-
 class SearchSerializer(serializers.Serializer):
-
     units = SearchResultUnitSerializer(many=True)
     services = SearchResultServiceSerializer(many=True)
     addresses = SearchResultAddressSerializer(many=True)
@@ -150,10 +141,9 @@ class SearchSerializer(serializers.Serializer):
 
 
 class ExtendedSearchSerializer(serializers.Serializer):
-
     units = ExtendedSearchResultUnitSerializer(many=True)
     services = SearchResultServiceSerializer(many=True)
-    addresses = ExtendedSearchResultAddressSerializer(many=True)
+    addresses = SearchResultAddressSerializer(many=True)
     administrative_divisions = SearchResultAdministrativeDivisionSerializer(many=True)
 
 
@@ -292,7 +282,7 @@ class SearchViewSet(GenericAPIView):
         # Build conditional query string that is used in the SQL query.
         # split my "," or whitespace
         q_vals = re.split(",\s+|\s+", q_val)  # noqa: W605
-        q_vals = [s.strip() for s in q_vals]  # noqa: W605
+        q_vals = [s.strip() for s in q_vals]
         for q in q_vals:
             if search_query_str:
                 # if ends with "|"" make it a or
@@ -350,17 +340,6 @@ class SearchViewSet(GenericAPIView):
                 units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
             else:
                 units_qs = Unit.objects.none()
-            units_from_services = Unit.objects.filter(
-                services__in=service_ids, public=True
-            )
-            # Add units which are associated with the services found.
-            units_qs = units_from_services | units_qs
-            # Combine units from services and the units_qs.
-            ids1 = list(units_from_services.values_list("id", flat=True))
-            ids2 = list(units_qs.values_list("id", flat=True))
-            ids1 = []
-            ids = ids1 + ids2
-            units_qs = Unit.objects.filter(id__in=ids)
 
             if not units_qs and use_trigram:
                 units_qs = get_trigram_results(Unit, "name_" + language_short, q_val)

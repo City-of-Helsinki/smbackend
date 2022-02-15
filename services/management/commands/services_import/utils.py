@@ -60,6 +60,63 @@ def clean_text(text):
     return text
 
 
+def update_service_names_fields(obj, info, obj_changed, update_fields):
+    service_names_fi = []
+    service_names_sv = []
+    service_names_en = []
+    for service in obj.services.all():
+        service_names_fi.append(service.name_fi)
+        service_names_sv.append(service.name_sv)
+        service_names_en.append(service.name_en)
+
+    if (
+        obj.service_names_fi == service_names_fi
+        and obj.service_names_sv == service_names_sv
+        and obj.service_names_en == service_names_en
+    ):
+        return False, update_fields
+
+    setattr(obj, "service_names_fi", service_names_fi)
+    setattr(obj, "service_names_sv", service_names_sv)
+    setattr(obj, "service_names_en", service_names_en)
+    update_fields.extend(["service_names_fi", "service_names_sv", "service_names_en"])
+    return True, update_fields
+
+
+def convert_to_list(text):
+    return [e.strip() for e in text.split(",")]
+
+
+def get_extra_searchwords(info, language):
+    field_name = "extra_searchwords_%s" % language
+    val = info.get(field_name, None)
+    if val:
+        return convert_to_list(val)
+
+
+def update_extra_searchwords(obj, info, obj_changed, update_fields):
+    extra_searchwords_fi = get_extra_searchwords(info, "fi")
+    extra_searchwords_sv = get_extra_searchwords(info, "sv")
+    extra_searchwords_en = get_extra_searchwords(info, "en")
+    if (
+        obj.extra_searchwords_fi == extra_searchwords_fi
+        and obj.extra_searchwords_sv == extra_searchwords_sv
+        and obj.extra_searchwords_en == extra_searchwords_en
+    ):
+        return False, update_fields
+
+    if extra_searchwords_fi:
+        setattr(obj, "extra_searchwords_fi", extra_searchwords_fi)
+        update_fields.append("extra_searchwords_fi")
+    if extra_searchwords_sv:
+        setattr(obj, "extra_searchwords_sv", extra_searchwords_sv)
+        update_fields.append("extra_searchwords_sv")
+    if extra_searchwords_en:
+        setattr(obj, "extra_searchwords_en", extra_searchwords_en)
+        update_fields.append("extra_searchwords_en")
+    return True, update_fields
+
+
 def postcodes():
     path = os.path.join(settings.BASE_DIR, "data", "fi", "postcodes.txt")
     postcodes = {}
