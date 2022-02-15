@@ -1,6 +1,5 @@
 import pytest
 from rest_framework.reverse import reverse
-from bicycle_network.tests.fixtures import *
 
 
 @pytest.mark.django_db

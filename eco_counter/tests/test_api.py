@@ -1,5 +1,4 @@
 from datetime import timedelta
-from eco_counter.tests.fixtures import *
 import pytest
 from rest_framework.reverse import reverse
 

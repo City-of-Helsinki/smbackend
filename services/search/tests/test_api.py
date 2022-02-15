@@ -1,7 +1,5 @@
 import pytest
 from rest_framework.reverse import reverse
-from services.search.tests.fixtures import *
-
 
 @pytest.mark.django_db
 def test_search(
