@@ -141,9 +141,14 @@ For Turku specific imports see smbackend_turku/README.md.
 ./manage.py index_search_columns
 ```
 
-7. Celery
+7. Redis
+Redis is used for caching and as a message broker for Celery.
+Install Redis. Ubuntu: `sudo apt-get install redis-server`
 
-Install and run a message broker such as RabbitMQ or Redis.
+8. Celery
+
+Install and run a message broker such as Redis or RabbitMQ.
+Redis is recommended as it is also used for caching.
 Configure the message broker in the environment variable "CELERY_BROKER_URL".
 Start a Celery worker to handle asynchronous tasks locally with command:
 ```

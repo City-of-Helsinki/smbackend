@@ -17,6 +17,7 @@ from services.search.api import SearchViewSet
 import eco_counter.api.urls
 import mobility_data.api.urls
 import bicycle_network.api.urls
+from iot.api import IoTViewSet 
 
 admin.site.site_header = _("Servicemap administration")
 admin.site.index_title = _("Application management")
@@ -44,6 +45,7 @@ urlpatterns = [
     # url(r'^', include(v1_api.urls)),
     # url(r'^admin/', include(admin.site.urls)),
     re_path("^search", SearchViewSet.as_view(), name="search"),
+    re_path("^iot", IoTViewSet.as_view(), name="iot"),
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^open311/", views.post_service_request, name="services"),
     re_path(r"^api/v2/", include(router.urls)),

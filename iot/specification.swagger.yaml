@@ -1,0 +1,83 @@
+swagger: '2.0'
+
+info:
+  title: IoT
+  description: 
+      Endpoint for retrieving intermediately stored IoT-Data.
+  version: "2.0"
+host: 127.0.0.1:8000
+basePath: /
+
+schemes:
+  - http
+  - https
+
+produces:
+  - application/json
+components:
+  parameters:
+    source_name_param:
+      name: source_name
+      in: query
+      description: The three letter uppercase name of the source_name. R24 = rent 24 cars, ISP = Infraroad snow plow.
+      required: true
+      schema:
+        type: string 
+    page_param:
+      name: page
+      in: query
+      description: Request particular page in paginated results.
+      required: false
+      schema:
+        type: integer
+      example: 1
+    pagesize_param:
+      name: page_size
+      in: query
+      description: Request that server delivers page_size results in response.
+      required: false
+      schema:
+        type: integer
+      example: 10 
+
+
+paths:
+  /iot:
+    get:
+      summary: "List of IotData results, paginated"  
+      parameters:
+        - $ref: "#/components/parameters/source_name_param"
+        - $ref: "#/components/parameters/page_param"
+        - $ref: "#/components/parameters/pagesize_param"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+            properties:
+              resuts:
+                type: array
+                items:
+                      $ref: "#/definitions/iotdata"
+              
+definitions:
+  iotdata:
+    type: object
+    title: IoTData
+    properties:
+      id: 
+        type: integer
+      created:
+        description: Timestamp when the data is created.
+        type: string
+      source_name:
+        description: The three letter uppercase name of the source_name.
+        type: string
+      data:
+        description: The IoTData as it is fetched from the source in json format.
+        type: object
+        
+              
+ 
