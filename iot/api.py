@@ -1,20 +1,13 @@
-from curses.ascii import HT
 import logging
-import redis
 from django.db import connection, reset_queries
-from django.conf import settings
 from django.core.cache import cache
 from rest_framework.generics import GenericAPIView
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
-from iot.models import IoTData
-from iot.utils import get_cache_keys
+from iot.models import IoTData, IoTDataSource
+from iot.utils import get_cache_keys, get_source_names
 
 logger = logging.getLogger("iot")
-
-redis_instance = redis.StrictRedis(
-    host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB
-)
 
 
 class IotDataSerializer(serializers.ModelSerializer):
@@ -29,7 +22,7 @@ class IoTViewSet(GenericAPIView):
     def get(self, request):
         params = self.request.query_params
         source_name = params.get("source_name", "R24")
-        source_names = IoTData.get_source_names()
+        source_names = get_source_names()
 
         if source_name not in source_names:
             raise NotFound(f"'source_name' {source_name} not found. Choices are: {source_names}")

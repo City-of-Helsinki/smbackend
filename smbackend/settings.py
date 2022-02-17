@@ -293,14 +293,14 @@ CELERY_CACHE_BACKEND = 'django-cache'
 
 
 # Redis
-REDIS_HOST=env("REDIS_HOST")
-REDIS_PORT=env("REDIS_PORT")
-REDIS_DB=env("REDIS_DB")
-
+# REDIS_HOST=env("REDIS_HOST")
+# REDIS_PORT=env("REDIS_PORT")
+# REDIS_DB=env("REDIS_DB")
+# TODO add port and url to location
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379',
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
     }
 }
 
