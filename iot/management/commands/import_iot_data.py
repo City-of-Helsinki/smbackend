@@ -7,19 +7,10 @@ from iot.models import IoTData, IoTDataSource
 from iot.utils import get_cache_keys, get_source_names, clear_source_names_from_cache
 
 logger = logging.getLogger("iot")
-RENT24_CARS_URL = "https://api.24rent.fi/v2/car/search?carId=0&discount=&distance=30000&endDate=09.03.2022&endTime=11:00&key=OWMwZTU0MjIxMDgzOTRmYTAxMTgzOTg5&km=100&lat=60.4518126&lon=22.2666302&originurl=www.24rent.fi&showEnd=10000&showStart=0&startDate=09.03.2022&startTime=09:00"
-INFRAROAD_SNOW_PLOW_URL = (
-    "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/"
-)
-
-url_mappings = {
-    IoTData.RENT24_CARS: RENT24_CARS_URL,
-    IoTData.INFRAROAD_SNOW_PLOWS: INFRAROAD_SNOW_PLOW_URL,
-}
 
 
 def save_data_to_db(source):
-    IoTData.objects.filter(source_name=source.source_name).delete()
+    IoTData.objects.filter(data_source=source).delete()
 
     try:
         response = requests.get(source.url)
@@ -32,13 +23,14 @@ def save_data_to_db(source):
         logger.error(f"Could not decode data to json from: {source.url}")
         return
     for row in json_data:
-        IoTData.objects.create(source_name=source.source_name, data=row)
+        IoTData.objects.create(data_source=source, data=row)
 
 
 def clear_cache(source_name):
     key_queryset, key_serializer = get_cache_keys(source_name)
     cache.delete_many([key_queryset, key_serializer])
     clear_source_names_from_cache()
+
 
 class Command(BaseCommand):
     help = "Import IoT-Data for intermediate storage."

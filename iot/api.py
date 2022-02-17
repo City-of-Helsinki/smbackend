@@ -4,7 +4,7 @@ from django.core.cache import cache
 from rest_framework.generics import GenericAPIView
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
-from iot.models import IoTData, IoTDataSource
+from iot.models import IoTData
 from iot.utils import get_cache_keys, get_source_names
 
 logger = logging.getLogger("iot")
@@ -21,16 +21,22 @@ class IoTViewSet(GenericAPIView):
 
     def get(self, request):
         params = self.request.query_params
-        source_name = params.get("source_name", "R24")
+        source_name = params.get("source_name", None)
         source_names = get_source_names()
 
+        if not source_name:
+            raise NotFound(
+                f"'source_name' param not found, source_name arguments are: {source_names}"
+            )
         if source_name not in source_names:
-            raise NotFound(f"'source_name' {source_name} not found. Choices are: {source_names}")
+            raise NotFound(
+                f"'source_name' {source_name} not found. Choices are: {source_names}"
+            )
 
         key_queryset, key_serializer = get_cache_keys(source_name)
         cached_data = cache.get_many([key_queryset, key_serializer])
         if not cached_data:
-            queryset = IoTData.objects.filter(source_name=source_name)
+            queryset = IoTData.objects.filter(data_source__source_name=source_name)
             serializer = IotDataSerializer(queryset, many=True)
             # Set timeout to None(never expire), cache is cleared during import.
             cache.set_many(
