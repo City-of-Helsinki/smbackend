@@ -33,7 +33,6 @@ from rest_framework.exceptions import ParseError
 from rest_framework import serializers
 from munigeo import api as munigeo_api
 from munigeo.models import Address, AdministrativeDivision
-from munigeo.utils import get_default_srid
 from services.api import TranslatedModelSerializer, UnitSerializer
 from services.models import (
     Service,
@@ -96,7 +95,7 @@ class SearchResultUnitSerializer(
     class Meta:
         model = Unit
         fields = ["id", "name"]
-    
+
     def to_representation(self, obj):
         representation = super().to_representation(obj)
         if obj.location:
@@ -190,20 +189,34 @@ def get_preserved_order(ids):
         return Case()
 
 
-def get_trigram_results(model, field, q_val, threshold=0.1):
-    trigm = (
-        model.objects.annotate(
-            similarity=TrigramSimilarity(field, q_val),
-        )
-        .filter(similarity__gt=threshold)
-        .order_by("-similarity")
-    )
-    ids = trigm.values_list("id", flat=True)
-    if ids:
-        preserved = get_preserved_order(ids)
-        return model.objects.filter(id__in=ids).order_by(preserved)
-    else:
-        return model.objects.none()
+# def get_trigram_results(model, field, q_val, threshold=0.1):
+#     trigm = (
+#         model.objects.annotate(
+#             similarity=TrigramSimilarity(field, q_val),
+#         )
+#         .filter(similarity__gt=threshold)
+#         .order_by("-similarity")
+#     )
+#     ids = trigm.values_list("id", flat=True)
+#     if ids:
+#         preserved = get_preserved_order(ids)
+#         return model.objects.filter(id__in=ids).order_by(preserved)
+#     else:
+#         return model.objects.none()
+
+
+def get_trigram_results(model, model_name, field, q_val, threshold=0.1):
+    sql = f"""SELECT id, similarity({field}, '{q_val}') AS sml
+        FROM {model_name}
+        WHERE  similarity({field}, '{q_val}') > {threshold}
+        ORDER BY sml DESC;
+    """
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    all_results = cursor.fetchall()
+    ids = [row[0] for row in all_results]
+    objs = model.objects.filter(id__in=ids)
+    return objs
 
 
 class SearchViewSet(GenericAPIView):
@@ -231,13 +244,12 @@ class SearchViewSet(GenericAPIView):
 
         types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])
         types = params.get("type", types_str).split(",")
-        if "use_trigram" in params:
-            try:
-                use_trigram = strtobool(params["use_trigram"])
-            except ValueError:
-                raise ParseError("'use_trigram' needs to be a boolean")
+        if "use_trigram" in self.request.query_params:
+            use_trigram = (
+                self.request.query_params["use_trigram"].lower().strip().split(",")
+            )
         else:
-            use_trigram = True
+            use_trigram = "service,unit"
 
         if "extended_serializers" in params:
             try:
@@ -323,10 +335,11 @@ class SearchViewSet(GenericAPIView):
         if "service" in types:
             preserved = get_preserved_order(service_ids)
             services_qs = Service.objects.filter(id__in=service_ids).order_by(preserved)
-            if not services_qs and use_trigram:
+            if not services_qs and "service" in use_trigram:
                 services_qs = get_trigram_results(
-                    Service, "name_" + language_short, q_val
+                    Service, "services_service", "name_" + language_short, q_val
                 )
+
             services_qs = services_qs.annotate(num_units=Count("units")).order_by(
                 "-units__count"
             )
@@ -346,10 +359,12 @@ class SearchViewSet(GenericAPIView):
                 preserved = get_preserved_order(unit_ids)
                 units_qs = Unit.objects.filter(id__in=unit_ids).order_by(preserved)
             else:
-                units_qs = Unit.objects.none()       
+                units_qs = Unit.objects.none()
 
-            if not units_qs and use_trigram:
-                units_qs = get_trigram_results(Unit, "name_" + language_short, q_val)
+            if not units_qs and "unit" in use_trigram:
+                units_qs = get_trigram_results(
+                    Unit, "services_unit", "name_" + language_short, q_val
+                )
 
             units_qs = units_qs.all().distinct()
             if "municipality" in self.request.query_params:
@@ -373,9 +388,15 @@ class SearchViewSet(GenericAPIView):
             administrative_division_qs = AdministrativeDivision.objects.filter(
                 id__in=administrative_division_ids
             )
-            if not administrative_division_qs and use_trigram:
+            if (
+                not administrative_division_qs
+                and "administrativedivision" in use_trigram
+            ):
                 administrative_division_qs = get_trigram_results(
-                    AdministrativeDivision, "name_" + language_short, q_val
+                    AdministrativeDivision,
+                    "munigeo_administrativedivision",
+                    "name_" + language_short,
+                    q_val,
                 )
             administrative_division_qs = administrative_division_qs[
                 : model_limits["administrativedivision"]
@@ -385,9 +406,9 @@ class SearchViewSet(GenericAPIView):
 
         if "address" in types:
             address_qs = Address.objects.filter(id__in=address_ids)
-            if not address_qs and use_trigram:
+            if not address_qs and "address" in use_trigram:
                 address_qs = get_trigram_results(
-                    Address, "full_name_" + language_short, q_val
+                    Address, "munigeo_address", "full_name_" + language_short, q_val
                 )
             address_qs = address_qs[: model_limits["address"]]
         else:
