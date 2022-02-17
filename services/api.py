@@ -1389,6 +1389,19 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
                 ser = UnitSerializer(unit, context={"only": unit_include.split(",")})
                 ret["unit"] = ser.data
 
+        unit_ids = ret["units"]
+        if unit_ids and unit_include:
+            units = Unit.objects.filter(id__in=unit_ids)
+            if units:
+                units_data = []
+                for unit in units:
+                    units_data.append(
+                        UnitSerializer(
+                            unit, context={"only": unit_include.split(",")}
+                        ).data
+                    )
+                ret["units"] = units_data
+
         include_fields = query_params.get("include", [])
         if "centroid" in include_fields and obj.geometry:
             centroid = obj.geometry.boundary.centroid
