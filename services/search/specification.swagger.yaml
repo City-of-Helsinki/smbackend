@@ -46,12 +46,15 @@ components:
     use_trigram_param:
       name: use_trigram
       in: query
-      description: Use trigram search to get search results by using trigram search, 
-      if no results are found for the model. Default is True. 
+      description: A comma-separeted list of resource types that will include
+      trigram results in search if no results are found. Possible values are
+       *service*, *unit*, *address* and *administrative_division*. 
+      If not present, defualts to unit and service. If list is empty trigram
+      will not be used.
       schema:
-        type: boolean
-        example: false
-        default: true
+        type: string
+        example: unit,address
+        default: unit,service
     sql_query_limit_param:
       name: sql_query_limit
       in: query
@@ -108,9 +111,9 @@ components:
     type_param:
       name: type
       in: query
-      description: A comma-separet list of resource types to be returned 
+      description: A comma-separeted list of resource types to be returned 
       in the results Possible values are *service*, *unit*, *address* and 
-      *administrative_division*. If not present, defualts to all types.
+      *administrativedivision*. If not present, defualts to all types.
       schema:
         type: string
     municipality_param:
