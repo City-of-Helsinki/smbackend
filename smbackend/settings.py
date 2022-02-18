@@ -35,9 +35,7 @@ env = environ.Env(
     ACCESSIBILITY_SYSTEM_ID=(str, None),
     ADDITIONAL_INSTALLED_APPS=(list, None),
     ADDITIONAL_MIDDLEWARE=(list, None),
-    REDIS_HOST=(str, None),
-    REDIST_PORT=(int, None),
-    REDIS_DB=(int, None),
+    CACHE_LOCATION=(str, None),   
     TURKU_WFS_URL=(str, None),
     ECO_COUNTER_STATIONS_URL=(str, None),
     ECO_COUNTER_OBSERVATIONS_URL=(str, None),
@@ -267,7 +265,7 @@ LOGGING = {
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO"},
         "search": {"handlers": ["console"], "level": "INFO"},
-        "iot": {"handlers": ["console"], "level": "DEBUG"},
+        "iot": {"handlers": ["console"], "level": "INFO"},
         "eco_counter": {"handlers": ["console"], "level": "INFO"},
         "mobility_data": {"handlers": ["console"], "level": "INFO"},
         "bicycle_network": {"handlers": ["console"], "level": "INFO"},
@@ -291,18 +289,20 @@ CELERY_CACHE_BACKEND="default"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_CACHE_BACKEND = 'django-cache'
 
-
-# Redis
-# REDIS_HOST=env("REDIS_HOST")
-# REDIS_PORT=env("REDIS_PORT")
-# REDIS_DB=env("REDIS_DB")
-# TODO add port and url to location
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
+        "LOCATION": env("CACHE_LOCATION"),
     }
 }
+
+# Use in tests with override_settings CACHES = settings.TEST_CACHES
+TEST_CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+    }
+}
+
 
 if SENTRY_DSN:
     RAVEN_CONFIG = {

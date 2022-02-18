@@ -184,3 +184,12 @@ GDAL_LIBRARY_PATH = "/usr/local/lib/libgdal.dylib"
 import ctypes
 ctypes.CDLL(GDAL_LIBRARY_PATH)
 ```
+
+The error:
+ ```
+  psycopg2.errors.UndefinedObject: operator class "gin_trgm_ops" does not exist for access method "gin"
+```
+Can be fixed by adding the pg_trgm extension to the database:
+```
+psql template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
+```

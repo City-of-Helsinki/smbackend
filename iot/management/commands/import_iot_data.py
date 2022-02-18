@@ -22,8 +22,8 @@ def save_data_to_db(source):
     except json.decoder.JSONDecodeError:
         logger.error(f"Could not decode data to json from: {source.url}")
         return
-    for row in json_data:
-        IoTData.objects.create(data_source=source, data=row)
+
+    IoTData.objects.create(data_source=source, data=json_data)
 
 
 def clear_cache(source_name):

@@ -19,7 +19,7 @@ components:
     source_name_param:
       name: source_name
       in: query
-      description: The three letter name of the source_name. R24 = rent 24 cars, ISP = Infraroad snow plow.
+      description: The three letter name of the source_name. 
       required: true
       schema:
         type: string 
