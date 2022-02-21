@@ -141,9 +141,14 @@ For Turku specific imports see smbackend_turku/README.md.
 ./manage.py index_search_columns
 ```
 
-7. Celery
+7. Redis
+Redis is used for caching and as a message broker for Celery.
+Install Redis. Ubuntu: `sudo apt-get install redis-server`
 
-Install and run a message broker such as RabbitMQ or Redis.
+8. Celery
+
+Install and run a message broker such as Redis or RabbitMQ.
+Redis is recommended as it is also used for caching.
 Configure the message broker in the environment variable "CELERY_BROKER_URL".
 Start a Celery worker to handle asynchronous tasks locally with command:
 ```
@@ -178,4 +183,13 @@ Can be fixed by adding this to local_settings.py:
 GDAL_LIBRARY_PATH = "/usr/local/lib/libgdal.dylib"
 import ctypes
 ctypes.CDLL(GDAL_LIBRARY_PATH)
+```
+
+The error:
+ ```
+  psycopg2.errors.UndefinedObject: operator class "gin_trgm_ops" does not exist for access method "gin"
+```
+Can be fixed by adding the pg_trgm extension to the database:
+```
+psql template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
 ```

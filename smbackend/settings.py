@@ -35,6 +35,7 @@ env = environ.Env(
     ACCESSIBILITY_SYSTEM_ID=(str, None),
     ADDITIONAL_INSTALLED_APPS=(list, None),
     ADDITIONAL_MIDDLEWARE=(list, None),
+    CACHE_LOCATION=(str, None),   
     TURKU_WFS_URL=(str, None),
     ECO_COUNTER_STATIONS_URL=(str, None),
     ECO_COUNTER_OBSERVATIONS_URL=(str, None),
@@ -85,6 +86,7 @@ INSTALLED_APPS = [
     "eco_counter.apps.EcoCounterConfig",
     "mobility_data.apps.MobilityDataConfig",
     "bicycle_network.apps.BicycleNetworkConfig",
+    "iot.apps.IotConfig",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
@@ -263,6 +265,7 @@ LOGGING = {
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO"},
         "search": {"handlers": ["console"], "level": "INFO"},
+        "iot": {"handlers": ["console"], "level": "INFO"},
         "eco_counter": {"handlers": ["console"], "level": "INFO"},
         "mobility_data": {"handlers": ["console"], "level": "INFO"},
         "bicycle_network": {"handlers": ["console"], "level": "INFO"},
@@ -280,13 +283,25 @@ SENTRY_ENVIRONMENT = env("SENTRY_ENVIRONMENT")
 import raven  # noqa
 
 # Celery
-
-
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND="django-db"
 CELERY_CACHE_BACKEND="default"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_CACHE_BACKEND = 'django-cache'
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": env("CACHE_LOCATION"),
+    }
+}
+
+# Use in tests with override_settings CACHES = settings.TEST_CACHES
+TEST_CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+    }
+}
 
 
 if SENTRY_DSN:
