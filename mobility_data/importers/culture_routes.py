@@ -1,6 +1,7 @@
 import requests
 import re
 import logging
+import lxml
 from pykml import parser
 from django import db
 from django.conf import settings
@@ -146,8 +147,13 @@ def get_routes():
                     kml_data = requests.get(url)
                 except requests.ConnectionError:
                     logger.error("URL: {} not found for route: {} and language: {}".format(url, key, lang))
+                    continue              
+                try:
+                    doc = parser.fromstring(kml_data.content)            
+                except lxml.etree.XMLSyntaxError:
+                    logger.error("Could not parse the data from {}".format(url))
                     continue
-                doc = parser.fromstring(kml_data.content)
+
                 languages.append(lang)
                 documents[lang] = doc.Document
                 # store placemarks for later processing.
