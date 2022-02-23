@@ -20,7 +20,6 @@ raw SQL migration 008X_create_search_view.py.
 from itertools import chain
 import re
 import logging
-from collections import namedtuple
 from distutils.util import strtobool
 from django.contrib.postgres.search import TrigramSimilarity
 from django.contrib.gis.gdal import SpatialReference
@@ -46,10 +45,9 @@ LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
 DEFAULT_SRS = SpatialReference(4326)
 SEARCHABLE_MODEL_TYPE_NAMES = ("Unit", "Service", "AdministrativeDivision", "Address")
 QUERY_PARAM_TYPE_NAMES = [m.lower() for m in SEARCHABLE_MODEL_TYPE_NAMES]
-# Note, default limit should be big enough, otherwise quality of results will drop..
-DEFAULT_MODEL_LIMIT_VALUE = 5
-# The limit value for the search query that search the search_view.
-DEFAULT_SEARCH_SQL_LIMIT_VALUE = 100
+DEFAULT_MODEL_LIMIT_VALUE = None  # None will slice to the end of list
+# The limit value for the search query that search the search_view. "NULL" = no limit
+DEFAULT_SEARCH_SQL_LIMIT_VALUE = "NULL"
 
 
 class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
@@ -58,99 +56,58 @@ class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerialize
         fields = ["id", "name", "street_address", "municipality"]
 
 
-class ExtendedSearchResultUnitSerializer(
-    TranslatedModelSerializer, serializers.ModelSerializer
-):
-    class Meta:
-        model = Unit
-        fields = [
-            "id",
-            "name",
-            "street_address",
-            "municipality",
-        ]
-
-    def to_representation(self, obj):
-        representation = super().to_representation(obj)
-        if obj.location:
-            representation["location"] = munigeo_api.geom_to_json(
-                obj.location, DEFAULT_SRS
-            )
-
-        try:
-            shortcomings = obj.accessibility_shortcomings
-        except UnitAccessibilityShortcomings.DoesNotExist:
-            shortcomings = UnitAccessibilityShortcomings()
-        representation[
-            "accessibility_shortcoming_count"
-        ] = shortcomings.accessibility_shortcoming_count
-        representation["contract_type"] = UnitSerializer.get_contract_type(self, obj)
-        representation["department"] = DepartmentSerializer(obj.department).data
-        return representation
-
-
-class SearchResultUnitSerializer(
-    TranslatedModelSerializer, serializers.ModelSerializer
-):
-    class Meta:
-        model = Unit
-        fields = ["id", "name"]
-
-    def to_representation(self, obj):
-        representation = super().to_representation(obj)
-        if obj.location:
-            representation["location"] = munigeo_api.geom_to_json(
-                obj.location, DEFAULT_SRS
-            )
-        return representation
-
-
-class SearchResultServiceSerializer(
-    TranslatedModelSerializer, serializers.ModelSerializer
-):
-    class Meta:
-        model = Service
-        fields = ["id", "name"]
-
-
-class SearchResultAdministrativeDivisionSerializer(
-    TranslatedModelSerializer, serializers.ModelSerializer
-):
-    class Meta:
-        model = AdministrativeDivision
-        fields = ["id", "name"]
-
-
-class SearchResultAddressSerializer(
-    TranslatedModelSerializer, serializers.ModelSerializer
-):
-    class Meta:
-        model = Address
-        fields = ["id", "full_name"]
-
-    def to_representation(self, obj):
-        representation = super().to_representation(obj)
-        if obj.location:
-            representation["location"] = munigeo_api.geom_to_json(
-                obj.location, DEFAULT_SRS
-            )
-        return representation
-
-
 class SearchSerializer(serializers.Serializer):
+    def to_representation(self, obj):
+        representation = super().to_representation(obj)
+        object_type = None
+        if isinstance(obj, Unit):
+            object_type = "unit"
+        elif isinstance(obj, Service):
+            object_type = "service"
+        elif isinstance(obj, Address):
+            object_type = "address"
+        elif isinstance(obj, AdministrativeDivision):
+            object_type = "administrativedivision"
+        else:
+            return representation
 
-    units = SearchResultUnitSerializer(many=True)
-    services = SearchResultServiceSerializer(many=True)
-    addresses = SearchResultAddressSerializer(many=True)
-    administrative_divisions = SearchResultAdministrativeDivisionSerializer(many=True)
+        representation["id"] = getattr(obj, "id")
+        representation["object_type"] = object_type
+        names = {}
+        if object_type == "address":
+            names["fi"] = getattr(obj, "full_name_fi")
+            names["sv"] = getattr(obj, "full_name_sv")
+            names["en"] = getattr(obj, "full_name_en")
+            representation["full_name"] = names
+        else:
+            names["fi"] = getattr(obj, "name_fi")
+            names["sv"] = getattr(obj, "name_sv")
+            names["en"] = getattr(obj, "name_en")
+            representation["name"] = names
 
+        if self.context["extended_serializer"]:
+            if object_type == "unit":
+                representation["street_address"] = getattr(obj, "street_address")
+                if hasattr(obj.municipality, "id"):
+                    representation["municipality"] = getattr(obj.municipality, "id")
+                try:
+                    shortcomings = obj.accessibility_shortcomings
+                except UnitAccessibilityShortcomings.DoesNotExist:
+                    shortcomings = UnitAccessibilityShortcomings()
+                representation[
+                    "accessibility_shortcoming_count"
+                ] = shortcomings.accessibility_shortcoming_count
+                representation["contract_type"] = UnitSerializer.get_contract_type(
+                    self, obj
+                )
+                representation["department"] = DepartmentSerializer(obj.department).data
+            if object_type == "address" or object_type == "unit":
+                if obj.location:
+                    representation["location"] = munigeo_api.geom_to_json(
+                        obj.location, DEFAULT_SRS
+                    )
 
-class ExtendedSearchSerializer(serializers.Serializer):
-
-    units = ExtendedSearchResultUnitSerializer(many=True)
-    services = SearchResultServiceSerializer(many=True)
-    addresses = SearchResultAddressSerializer(many=True)
-    administrative_divisions = SearchResultAdministrativeDivisionSerializer(many=True)
+        return representation
 
 
 def get_ids_from_sql_results(all_results, type="Unit"):
@@ -228,15 +185,7 @@ class SearchViewSet(GenericAPIView):
         extended_serializer = True
         for model in list(QUERY_PARAM_TYPE_NAMES):
             model_limits[model] = DEFAULT_MODEL_LIMIT_VALUE
-        SearchResult = namedtuple(
-            "SearchResult",
-            (
-                "services",
-                "units",
-                "administrative_divisions",
-                "addresses",
-            ),
-        )
+
         params = self.request.query_params
         q_val = params.get("q", "").strip()
         if not q_val:
@@ -251,11 +200,11 @@ class SearchViewSet(GenericAPIView):
         else:
             use_trigram = "service,unit"
 
-        if "extended_serializers" in params:
+        if "extended_serializer" in params:
             try:
-                extended_serializer = strtobool(params["extended_serializers"])
+                extended_serializer = strtobool(params["extended_serializer"])
             except ValueError:
-                raise ParseError("'extended_serializers' needs to be a boolean")
+                raise ParseError("'extended_serializer' needs to be a boolean")
 
         if "order_units_by_num_services" in params:
             try:
@@ -414,18 +363,6 @@ class SearchViewSet(GenericAPIView):
         else:
             address_qs = Address.objects.none()
 
-        search_results = SearchResult(
-            units=units_qs,
-            services=services_qs,
-            administrative_divisions=administrative_division_qs,
-            addresses=address_qs,
-        )
-
-        if extended_serializer:
-            serializer = ExtendedSearchSerializer(search_results)
-        else:
-            serializer = SearchSerializer(search_results)
-
         if logger.level <= logging.DEBUG:
             logger.debug(connection.queries)
             queries_time = sum([float(s["time"]) for s in connection.queries])
@@ -442,6 +379,8 @@ class SearchViewSet(GenericAPIView):
                 address_qs,
             )
         )
-
         page = self.paginate_queryset(queryset)
+        serializer = SearchSerializer(
+            page, many=True, context={"extended_serializer": extended_serializer}
+        )
         return self.get_paginated_response(serializer.data)
