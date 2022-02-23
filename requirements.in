@@ -1,4 +1,4 @@
-Django==4.0
+Django>=4.0.2
 djangorestframework
 djangorestframework-jsonp
 Markdown
@@ -13,7 +13,7 @@ django-cors-headers
 django-extensions
 psycopg2-binary<2.9
 django-mptt
-lxml
+lxml>=4.6.5
 raven~=6.10.0
 pip-tools
 python-dateutil

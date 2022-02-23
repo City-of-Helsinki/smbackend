@@ -1,2 +1,2 @@
 -c requirements.txt
-ipython
+ipython>=7.31.1
