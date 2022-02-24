@@ -1,4 +1,4 @@
-swagger: '2.0'
+swagger: "2.0"
 
 info:
   title: Servicemap Search
@@ -19,9 +19,7 @@ components:
     q_param:
       name: q
       in: query
-      description: The string that will be used when searching in the search view.
-      It searches the search_columns for the given models. Whitspaces and commas 
-      between words are interpreted as and operator. Words ending with the "|" sign
+      description: The string that will be used when searching in the search view. It searches the search_columns for the given models. Whitspaces and commas between words are interpreted as and operator. Words ending with the "|" sign
        are interpreted as or operator. Note, if no results are found for the model,
         trigram search is used if use_trigram=true (default).
       required: true
@@ -46,11 +44,7 @@ components:
     use_trigram_param:
       name: use_trigram
       in: query
-      description: A comma-separeted list of resource types that will include
-      trigram results in search if no results are found. Possible values are
-       *service*, *unit*, *address* and *administrative_division*. 
-      If not present, defualts to unit and service. If list is empty trigram
-      will not be used.
+      description: A comma-separeted list of resource types that will include trigram results in search if no results are found. Possible values are *service*, *unit*, *address* and *administrative_division*. If not present, defualts to unit and service. If list is empty trigram  will not be used.
       schema:
         type: string
         example: unit,address
@@ -58,33 +52,27 @@ components:
     sql_query_limit_param:
       name: sql_query_limit
       in: query
-      description: Limit value used in the SQL query that searches from the search view.
-      The view contains the searchable data(the content in the search_column) from all models. 
-      Note, this limits the number of total results from which the model specific results are dervied. 
-      Making the number too small or big may affect the results in a unvanted way.
+      description: Limit value used in the SQL query that searches from the search view. The view contains the searchable data(the content in the search_column) from all models. Note, this limits the number of total results from which the model specific results are dervied. Making the number too small may affect the results in a unvanted way. The value also affects the performance, the smaller the value is the better the performance is.
       schema:
         type: integer
-        default: 100
+        example: 100
+        default: No limit.
     unit_limit_param:
       name: unit_limit
       in: query
-      description: Limit the number of Units in results. Units are ordered by their
-      provider(self produced first) and in ascending order by number of services. 
-      This is good to keep in mind when deciding the limit value.
+      description: Limit the number of Units in results. Units are ordered by their provider(self produced first) and in ascending order by number of services. This is good to keep in mind when deciding the limit value.
       schema:
         type: integer
         example: 5
-        default: 5
+        default: No limit
     service_limit_param:
       name: serivce_limit
       in: query
-      description: Limit the number of Services in results. Services are order by their
-      provider(self produced first) and in ascending order by number of units are connected
-       to the services.
+      description: Limit the number of Services in results. Services are order by their provider(self produced first) and in ascending order by number of units are connected to the services.
       schema:
         type: integer
         example: 5
-        default: 5
+        default: No limit
     address_limit_param:
       name: address_limit
       in: query
@@ -92,7 +80,7 @@ components:
       schema:
         type: integer
         example: 5
-        default: 5
+        default: No limit
     administrativedivision_limit_param:
       name: administrativedivision_limit
       in: query
@@ -100,10 +88,10 @@ components:
       schema:
         type: integer
         example: 5
-        default: 5
+        default: No limit
     extended_serializer_param:
       name: extended_serializer
-      in: query:
+      in: query
       description: If set to true extends the number of fields to be serialized for units.
       schema:
         type: boolean
@@ -111,9 +99,7 @@ components:
     type_param:
       name: type
       in: query
-      description: A comma-separeted list of resource types to be returned
-      in the results Possible values are *service*, *unit*, *address* and
-      *administrativedivision*. If not present, defualts to all types.
+      description: A comma-separeted list of resource types to be returned in the results Possible values are *service*, *unit*, *address* and       *administrativedivision*. If not present, defualts to all types.
       schema:
         type: string
     municipality_param:
@@ -186,24 +172,11 @@ paths:
             type: object
             properties:
               resuts:
-                type: object
-                properties:
-                  units:
-                    type: array
-                    items:
-                      $ref: "#/definitions/unit"
-                  services:
-                    type: array
-                    items:
-                      $ref: "#/definitions/service"
-                  addresses:
-                    type: array
-                    items:
-                      $ref: "#/definitions/address"
-                  administrative_division:
-                    type: array
-                    items:
-                      $ref: "#/definitions/administrative_division"
+                  type: array
+                  items:
+                    type: object
+                    description: Depending on the results and query parameters the object contains units, services, addresses, and administrativedivision.
+
 definitions:
 
   unit:
@@ -212,6 +185,8 @@ definitions:
     properties:
       id:
         type: integer
+      object_type:
+        type: string
       name:
         description: The name of the unit (multilingual)
         type: object
@@ -240,6 +215,8 @@ definitions:
     properties:
       id:
         type: integer
+      object_type:
+        type: string
       name:
         description: The name of the service (multilingual)
         type: object
@@ -257,6 +234,8 @@ definitions:
     properties:
       id:
         type: integer
+      object_type:
+        type: string
       full_name:
         description: The full name of the address, includes the number and letter.
         type: object
@@ -285,6 +264,8 @@ definitions:
     properties:
       id:
         type: integer
+      object_type:
+        type: string
       name:
         description: The name of the Administrative division (multilingual)
         type: object
