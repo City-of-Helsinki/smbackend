@@ -1,44 +1,40 @@
 """
 Brief explanation how full text search is implemented in the smbacked.
-- Currently search is performed to following models, Unit, Service, 
-munigeo_Address, munigeo_Administrative_division.
+- Currently search is performed to following models, Unit, Service,
+unigeo_Address, munigeo_Administrative_division.
 - For every model that is include in the search a column named
- search_column of type SeaarchVector is added. This is also defined as a Gindex. 
+ search_column of type SeaarchVector is added. This is also defined as a Gindex.
  The models that are searched also implements a function called get_search_column_indexing
   where the name, configuration(language) and weight of the columns that will be indexed
-  are defined. This function is used by the indexing script and signals when 
+  are defined. This function is used by the indexing script and signals when
   the search_column is populated.
 - A view called search_view is created and it contains the search_columns of the models
 and a couple auxilary columns: id. type_name and name. This view is created by a
 raw SQL migration 008X_create_search_view.py.
 - The search if performed by quering the views search_columns.
-- For models included in the search a post_save signal is connected and the 
+- For models included in the search a post_save signal is connected and the
   search_column is updated when they are saved.
- - The search_columns can be manually updated with  the index_search_columns 
+ - The search_columns can be manually updated with  the index_search_columns
  management script.
 """
-from itertools import chain
-import re
 import logging
+import re
 from distutils.util import strtobool
-from django.contrib.postgres.search import TrigramSimilarity
-from django.contrib.gis.gdal import SpatialReference
-from django.db.models import Case, When
+from itertools import chain
+
 from django.conf import settings
+from django.contrib.gis.gdal import SpatialReference
+# from django.contrib.postgres.search import TrigramSimilarity
 from django.db import connection, reset_queries
-from django.db.models import Count
-from rest_framework.generics import GenericAPIView
-from rest_framework.exceptions import ParseError
-from rest_framework import serializers
+from django.db.models import Case, Count, When
 from munigeo import api as munigeo_api
 from munigeo.models import Address, AdministrativeDivision
+from rest_framework import serializers
+from rest_framework.exceptions import ParseError
+from rest_framework.generics import GenericAPIView
+
 from services.api import TranslatedModelSerializer, UnitSerializer
-from services.models import (
-    Service,
-    Unit,
-    Department,
-    UnitAccessibilityShortcomings,
-)
+from services.models import Department, Service, Unit, UnitAccessibilityShortcomings
 
 logger = logging.getLogger("search")
 LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
@@ -249,7 +245,7 @@ class SearchViewSet(GenericAPIView):
         search_query_str = None  # Used in the raw sql
         # Build conditional query string that is used in the SQL query.
         # split my "," or whitespace
-        q_vals = re.split(",\s+|\s+", q_val)
+        q_vals = re.split(r",\s+|\s+", q_val)
         q_vals = [s.strip() for s in q_vals]
         for q in q_vals:
             if search_query_str:
@@ -267,7 +263,7 @@ class SearchViewSet(GenericAPIView):
         sql = f"""
         SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column, search_query) AS rank
         FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
-        WHERE search_query @@ search_column 
+        WHERE search_query @@ search_column
         ORDER BY rank DESC LIMIT {sql_query_limit};
         """
 
