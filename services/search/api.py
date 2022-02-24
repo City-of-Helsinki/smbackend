@@ -3,7 +3,7 @@ Brief explanation how full text search is implemented in the smbacked.
 - Currently search is performed to following models, Unit, Service,
 munigeo_Address, munigeo_Administrative_division.
 - For every model that is include in the search a column named
- search_column of type SeaarchVector is added. This is also defined as a Gindex.
+ search_column of type SearchVector is added. This is also defined as a Gindex.
  The models that are searched also implements a function called get_search_column_indexing
   where the name, configuration(language) and weight of the columns that will be indexed
   are defined. This function is used by the indexing script and signals when
