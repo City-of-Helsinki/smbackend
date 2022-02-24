@@ -94,12 +94,12 @@ def services():
 @pytest.fixture
 def addresses(streets):
     addresses = []
-    location = Point(60.479032, 22.25417)
+    location = Point(60.479032, 22.25417, srid=4326)
     addr = Address.objects.create(
         id=1, street_id=42, location=location, full_name="Kurrapolku 1A"
     )
     addresses.append(addr)
-    location = Point(60.379032, 22.15417)
+    location = Point(60.379032, 22.15417, srid=4326)
     addr = Address.objects.create(
         id=2, street_id=43, location=location, full_name="Markulantie 2B"
     )
