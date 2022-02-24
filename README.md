@@ -54,6 +54,7 @@ sudo su postgres
 
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS postgis;'
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
+psql template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
 
 createuser -RSPd servicemap
 
