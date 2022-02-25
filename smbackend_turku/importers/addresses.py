@@ -3,15 +3,156 @@ import os
 
 from django.conf import settings
 from django.contrib.gis.geos import Point
-from mobility_data.importers.bicycle_stands import SOURCE_DATA_SRID
+
+import logging
+import re
+from datetime import datetime
+from django.db.utils import IntegrityError
+from django.contrib.gis.gdal import DataSource
 from munigeo.models import Address, get_default_srid, Municipality, Street
 
 # As munigeos get_default_srid function returns wrong srid,
 #  use srid 3877 instead which is the correct srid.
 SOURCE_DATA_SRID = 3877
+URL="https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=WFS&request=GetFeature&typeName=GIS:Osoitteet&outputFormat=GML3&maxFeatures=80000"
+MUNICIPALITIES = {  
+    # VARISNAIS-SUOMI
+    19: ("Aura", "Aura"),
+    202: ("Kaarina", "S:t Karins"),
+    322: ("Kemiö", "Kimito"),
+    284: ("Koski Tl", "Koskis"),
+    304: ("Kustaavi", "Gustavs"),
+    400: ("Laitila", "Letala"),
+    423: ("Lieto", "Lundo"),
+    430: ("Loimaa", "Loimaa"),
+    445: ("Parainen", "Pargas"),
+    480: ("Marttila", "S:t Mårtens"),
+    481: ("Masku", "Masko"),
+    503: ("Mynämäki", "Virmo"),
+    529: ("Naantali", "Nådendal"),
+    538: ("Nousiainen", "Nousis"),
+    561: ("Oripää", "Oripää"),
+    573: ("Parainen", "Pargas"),
+    577: ("Paimio", "Pemar"),
+    631: ("Pyhäranta", "Pyhäranta"),
+    636: ("Pöytyä", "Pöytis"),
+    680: ("Raisio", "Reso"),
+    704: ("Rusko", "Rusko"),
+    734: ("Salo", "Salo"), 
+    738: ("Sauvo", "Sagu"),
+    761: ("Somero", "Somero"),
+    833: ("Taivassalo", "Tövsala"),
+    853: ("Turku", "Åbo"),
+    895: ("Uusikaupunki", "Nystad"),
+    918: ("Vehmaa", "Vemo"),
+}
 
 
 class AddressImporter:
+    
+    def __init__(self, logger):
+        self.logger = logging.getLogger("search")
+        #self.logger.setLevel(logging.INFO)
+
+    def get_number_and_letter(self, number_letter):
+        number = re.split(r"[a-zA-Z]+", number_letter)[0]
+        letter = re.split(r"[0-9]+", number_letter)[-1]                        
+        return number, letter       
+  
+    def import_addresses(self):
+        start_time = datetime.now()
+        self.logger.info("Importing addresses.")
+        Street.objects.all().delete()
+        Address.objects.all().delete()
+        ds = DataSource(URL)
+        layer = ds[0]
+       
+        num_incomplete = 0
+        num_duplicates = 0
+        entries_created = 0
+        for feature in layer:
+            name_fi = feature["Osoite_suomeksi"].as_string()
+            name_sv = feature["Osoite_ruotsiksi"].as_string()
+            municipality_num = feature["Kuntanumero"].as_int() 
+            geometry = feature.geom
+            point = Point(geometry.x, geometry.y, srid=SOURCE_DATA_SRID)
+            number_letter = feature["Osoitenumero"].as_string()
+            if not name_fi or not municipality_num or not geometry:
+                num_incomplete += 1                
+                continue
+           
+            number = None
+            number_end = None
+            letter = None
+            if number_letter:
+                if re.search("-", number_letter):
+                    tmp = number_letter.split("-")
+                    number = tmp[0]
+                    if re.search(r"[a-zA-Z]+", tmp[1]):
+                        number_end, letter = self.get_number_and_letter(tmp[1])                 
+                    else:
+                        number_end = tmp[1]                        
+                elif re.search(r"[a-zA-Z]+", number_letter):
+                    number, letter = self.get_number_and_letter(number_letter)                 
+                else:
+                    number = number_letter
+          #      print("name_fi: ", name_fi, " number: ", number, " end: ", number_end, " letter:", letter)
+            
+            municipality = Municipality.objects.get(id=MUNICIPALITIES[municipality_num][0].lower())
+            
+            entry = {}
+            entry["street"] = {}
+            entry["street"]["name_fi"]=name_fi
+            #entry["street"]["name_sv"]=name_sv
+            entry["street"]["municipality"]=municipality            
+            if Street.objects.filter(**entry["street"]).exists():
+                street = Street.objects.get(**entry["street"])
+                # There are cases where the name_sv is wrong in the input data.
+                if street.name_sv != name_sv:
+                    print("Street exists: ", entry["street"])
+                    print("different names")
+            else:
+                entry["street"]["name_sv"]=name_sv
+                street = Street.objects.create(**entry["street"])          
+            
+            # Create full name that will be used when creating search_columns
+            full_name_fi = f"{name_fi} {number_letter}"
+            full_name_sv = f"{name_sv} {number_letter}"
+            entry["address"] = {}
+            entry["address"]["street"] = street
+            entry["address"]["location"] = point
+            entry["address"]["full_name_fi"] = full_name_fi
+            entry["address"]["full_name_sv"] = full_name_sv
+            entry["address"]["full_name_en"] = full_name_fi
+            if number:
+                entry["address"]["number"] = number
+            if number_end:
+                entry["address"]["number_end"] = number_end
+            if letter:
+                entry["address"]["letter"] = letter
+           
+            try:
+                Address.objects.get_or_create(**entry["address"])
+            except IntegrityError as e:
+                # Duplicate address causes Integrity error as the unique constraints fails
+                num_duplicates += 1
+              
+            entries_created += 1
+            if entries_created % 1000 == 0:
+                self.logger.info("{}/{}".format(entries_created, len(layer)))
+
+        end_time = datetime.now()
+        duration = end_time - start_time
+        self.logger.info("Imported {} streets and {} anddresses in {}".format(
+            Street.objects.all().count(), Address.objects.all().count(), duration
+        ))
+        self.logger.info("Discarder {} duplicates.".format(num_duplicates))
+        self.logger.info("Discarder {} incomplete.".format(num_incomplete))
+
+        
+        
+
+class AddressImporterOLD:
     def __init__(self, logger):
         self.logger = logger
 
@@ -104,5 +245,7 @@ class AddressImporter:
 
 
 def import_addresses(**kwargs):
+   
     importer = AddressImporter(**kwargs)
+   
     return importer.import_addresses()
