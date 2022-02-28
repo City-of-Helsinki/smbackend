@@ -50,8 +50,14 @@ MUNICIPALITIES = {
 
 class AddressImporter:
     
-    def __init__(self, logger):
+    def __init__(self, logger, layer=None):
         self.logger = logging.getLogger("search")
+
+        if not layer:
+            ds = DataSource(URL)
+            self.layer = ds[0]
+        else:
+            self.layer = layer
         #self.logger.setLevel(logging.INFO)
 
     def get_number_and_letter(self, number_letter):
@@ -63,16 +69,18 @@ class AddressImporter:
         start_time = datetime.now()
         self.logger.info("Importing addresses.")
         Street.objects.all().delete()
-        Address.objects.all().delete()
-        ds = DataSource(URL)
-        layer = ds[0]
-       
+        Address.objects.all().delete()      
+        
         num_incomplete = 0
         num_duplicates = 0
         entries_created = 0
-        for feature in layer:
+        for feature in self.layer:
             name_fi = feature["Osoite_suomeksi"].as_string()
             name_sv = feature["Osoite_ruotsiksi"].as_string()
+            # Add to entry when munigeo supports zip_code
+            # zip_code = feature["Postinumero"].as_string()
+            if not name_sv:
+                name_sv = name_fi
             municipality_num = feature["Kuntanumero"].as_int() 
             geometry = feature.geom
             point = Point(geometry.x, geometry.y, srid=SOURCE_DATA_SRID)
@@ -85,7 +93,7 @@ class AddressImporter:
             number_end = None
             letter = None
             if number_letter:
-                if re.search("-", number_letter):
+                if re.search(r"-", number_letter):
                     tmp = number_letter.split("-")
                     number = tmp[0]
                     if re.search(r"[a-zA-Z]+", tmp[1]):
@@ -96,16 +104,15 @@ class AddressImporter:
                     number, letter = self.get_number_and_letter(number_letter)                 
                 else:
                     number = number_letter
-          #      print("name_fi: ", name_fi, " number: ", number, " end: ", number_end, " letter:", letter)
-            
             municipality = Municipality.objects.get(id=MUNICIPALITIES[municipality_num][0].lower())
             
             entry = {}
             entry["street"] = {}
             entry["street"]["name_fi"]=name_fi
             #entry["street"]["name_sv"]=name_sv
-            entry["street"]["municipality"]=municipality            
-            if Street.objects.filter(**entry["street"]).exists():
+            entry["street"]["municipality"]=municipality 
+            # TODO explain...why. unique constraint causes problem if wrong translation..           
+            if Street.objects.filter(**entry["street"]).exists():                
                 street = Street.objects.get(**entry["street"])
                 # There are cases where the name_sv is wrong in the input data.
                 if street.name_sv != name_sv:
@@ -139,15 +146,15 @@ class AddressImporter:
               
             entries_created += 1
             if entries_created % 1000 == 0:
-                self.logger.info("{}/{}".format(entries_created, len(layer)))
+                self.logger.info("{}/{}".format(entries_created, len(self.layer)))
 
         end_time = datetime.now()
         duration = end_time - start_time
         self.logger.info("Imported {} streets and {} anddresses in {}".format(
             Street.objects.all().count(), Address.objects.all().count(), duration
         ))
-        self.logger.info("Discarder {} duplicates.".format(num_duplicates))
-        self.logger.info("Discarder {} incomplete.".format(num_incomplete))
+        self.logger.info("Discarded {} duplicates.".format(num_duplicates))
+        self.logger.info("Discarded {} incomplete.".format(num_incomplete))
 
         
         

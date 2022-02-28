@@ -6,7 +6,7 @@ import pytz
 from django.conf import settings
 from services.models import Service, ServiceNode, Unit
 from smbackend_turku.tests.utils import (
-    create_municipality,  
+    create_municipalities,  
     get_test_resource,
 )
 from smbackend_turku.importers.stations import import_charging_stations
@@ -24,7 +24,7 @@ def test_charging_stations_import():
         )
     # Municipality must be created in order to update_service_node_count() 
     # to execute without errors 
-    create_municipality()
+    create_municipalities()
     #Import using fixture data
     import_charging_stations(
         logger=logger, 

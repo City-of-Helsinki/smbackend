@@ -7,7 +7,7 @@ from django.conf import settings
 from services.models import Service, ServiceNode, Unit
 from smbackend.settings import GAS_FILLING_STATIONS_IDS
 from smbackend_turku.tests.utils import (
-    create_municipality,  
+    create_municipalities,  
     get_test_resource,
 )
 from smbackend_turku.importers.stations import import_gas_filling_stations
@@ -25,7 +25,7 @@ def test_gas_filling_stations_import():
         )
     # Municipality must be created in order to update_service_node_count() 
     # to execute without errors 
-    create_municipality()
+    create_municipalities()
     #Import using fixture data
     import_gas_filling_stations(
         logger=logger, 
