@@ -16,11 +16,7 @@ echo ---------------------------------
 
 cd $ROOT_PATH
 
-timeout 20m nice python manage.py services_import_v4 --traceback departments services units entrances 2>&1
-
-timeout 20m nice python manage.py update_index -a 2 --remove 2>&1
-
-timeout 20m nice python manage.py verify_search_index_integrity 2>&1
+timeout 20m nice python manage.py services_import_v4 departments services units entrances 2>&1
 
 if [[ -n "${IMPORT_HEALTHCHECK_URL}" ]]; then
   curl --retry 3 "${IMPORT_HEALTHCHECK_URL}"

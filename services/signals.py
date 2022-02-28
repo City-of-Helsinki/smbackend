@@ -12,8 +12,8 @@ from services.models import Service, Unit
 @receiver(post_save, sender=Unit)
 def unit_on_save(sender, **kwargs):
     obj = kwargs["instance"]
-    print("Unit on save obj: ", obj)
-    # Do transaction after successfull commit.
+    # print("Unit on save obj: ", obj)
+    # Do transaction after successful commit.
     transaction.on_commit(populate_search_column(obj))
 
 
@@ -21,7 +21,7 @@ def unit_on_save(sender, **kwargs):
 def service_on_save(sender, **kwargs):
     obj = kwargs["instance"]
     # print("Service on save obj: ", obj)
-    # Do transaction after successfull commit.
+    # Do transaction after successful commit.
     transaction.on_commit(populate_search_column(obj))
 
 

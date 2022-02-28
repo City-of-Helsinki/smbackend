@@ -22,7 +22,7 @@ function stage_2 {
     ./manage.py geo_import hsy --divisions
     ./manage.py geo_import helsinki --addresses
     # Services and LIPAS-geometries imports
-    ./manage.py services_import_v4 --traceback unit_properties
+    ./manage.py services_import_v4 unit_properties
     ./manage.py lipas_import --muni-id=92 --muni-id=91 --muni-id=49 --muni-id=235 --muni-id=257
 }
 
