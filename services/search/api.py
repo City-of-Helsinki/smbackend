@@ -101,6 +101,13 @@ class SearchSerializer(serializers.Serializer):
                     self, obj
                 )
                 representation["department"] = DepartmentSerializer(obj.department).data
+                if obj.geometry:
+                    representation["geometry"] = munigeo_api.geom_to_json(
+                            obj.geometry, DEFAULT_SRS
+                        )
+                else:
+                    representation["geometry"] = None
+                    
             if object_type == "address" or object_type == "unit":
                 if obj.location:
                     representation["location"] = munigeo_api.geom_to_json(
