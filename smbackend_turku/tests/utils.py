@@ -25,9 +25,14 @@ def create_municipalities():
         type=division_type, id=2, name_fi="Kaarina"
     )
     Municipality.objects.create(
-        id="kaarina", name="Kaarina", name_fi="Kaarina", name_sv="S:t Karins", division=division
+        id="kaarina",
+        name="Kaarina",
+        name_fi="Kaarina",
+        name_sv="S:t Karins",
+        division=division,
     )
-    
+
+
 def get_test_resource(resource_name):
     """
     Mock calling the API by fetching dummy data from files.
@@ -47,20 +52,22 @@ def get_test_resource(resource_name):
     elif resource_name == "gas_filling_stations":
         file = os.path.join(data_path, "gas_filling_stations.json")
     elif resource_name == "charging_stations":
-        file = os.path.join(data_path, "charging_stations.json")   
+        file = os.path.join(data_path, "charging_stations.json")
     else:
         file = os.path.join(data_path, "units.json")
- 
+
     with open(file) as f:
         data = json.load(f)
     return data
+
 
 def get_test_addresses_layer():
     data_path = os.path.join(os.path.dirname(__file__), "data")
     file = os.path.join(data_path, "turku_addresses.gml")
     ds = DataSource(file)
     layer = ds[0]
-    return layer 
+    return layer
+
 
 def format_time(time_str):
     if not time_str:
