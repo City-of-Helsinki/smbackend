@@ -4,7 +4,12 @@ import pytest
 from munigeo.models import Address, Street
 
 from smbackend_turku.importers.addresses import AddressImporter, SOURCE_DATA_SRID
-from smbackend_turku.tests.utils import create_municipalities, get_location, get_test_addresses_layer
+from smbackend_turku.tests.utils import (
+    create_municipalities,
+    get_location,
+    get_test_addresses_layer,
+)
+
 
 @pytest.mark.django_db
 def test_address_import():
@@ -17,7 +22,7 @@ def test_address_import():
     assert Address.objects.count() == 3
     assert Street.objects.count() == 3
     streets = Street.objects.all()
-    # Test street without swedish name, should get the finnis name
+    # Test street without swedish name, should get the finnish name
     assert streets[0].name_fi == "Rauhalankalliontie"
     assert streets[0].name_sv == "Rauhalankalliontie"
 
