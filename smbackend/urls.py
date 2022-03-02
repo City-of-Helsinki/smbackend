@@ -55,7 +55,7 @@ def readiness(*args, **kwargs):
 
 
 urlpatterns = [
-    re_path(r"^search", SearchViewSet.as_view(), name="search"),
+    re_path(r"^v2/search", SearchViewSet.as_view(), name="search"),
     re_path(r"^healthz/", healthz),
     re_path(r"^readiness/", readiness),
     re_path(r"^admin/", admin.site.urls),
