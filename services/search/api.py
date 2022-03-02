@@ -3,7 +3,7 @@ Brief explanation how full text search is implemented in the smbacked.
 - Currently search is performed to following models, Unit, Service,
 munigeo_Address, munigeo_Administrative_division.
 - For every model that is include in the search a column named
- search_column of type SeaarchVector is added. This is also defined as a Gindex.
+ search_column of type SearchVector is added. This is also defined as a Gindex.
  The models that are searched also implements a function called get_search_column_indexing
   where the name, configuration(language) and weight of the columns that will be indexed
   are defined. This function is used by the indexing script and signals when
@@ -23,8 +23,8 @@ from distutils.util import strtobool
 from itertools import chain
 
 from django.conf import settings
-# from django.contrib.postgres.search import TrigramSimilarity
 from django.contrib.gis.gdal import SpatialReference
+# from django.contrib.postgres.search import TrigramSimilarity
 from django.db import connection, reset_queries
 from django.db.models import Case, Count, When
 from munigeo import api as munigeo_api
@@ -51,7 +51,7 @@ class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerialize
         model = Department
         fields = ["id", "name", "street_address", "municipality"]
 
-
+        
 class SearchSerializer(serializers.Serializer):
     def to_representation(self, obj):
         representation = super().to_representation(obj)
