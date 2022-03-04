@@ -1,107 +1,181 @@
-import csv
-import os
+import re
+from datetime import datetime
 
 from django.conf import settings
+from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import Point
-from mobility_data.importers.bicycle_stands import SOURCE_DATA_SRID
-from munigeo.models import Address, get_default_srid, Municipality, Street
+from django.db.utils import IntegrityError
+from munigeo.models import Address, Municipality, Street
 
-# As munigeos get_default_srid function returns wrong srid,
-#  use srid 3877 instead which is the correct srid.
 SOURCE_DATA_SRID = 3877
+SOURCE_DATA_URL = f"{settings.TURKU_WFS_URL}"\
+    "?service=WFS&request=GetFeature&typeName=GIS:Osoitteet&outputFormat=GML3&maxFeatures=80000"
+# NOTE "django.contrib.gis ERROR: GDAL_ERROR 1: b"Value 'UNKNOWN FIELD 'AddAddress.AddressNumberInt''
+# of field Osoitteet.Osoitenumero_luku parsed incompletely to integer 0." Is caused by faulty source data.
+
+MUNICIPALITIES = {
+    # VARISNAIS-SUOMI
+    19: ("Aura", "Aura"),
+    202: ("Kaarina", "S:t Karins"),
+    322: ("Kemiö", "Kimito"),
+    284: ("Koski Tl", "Koskis"),
+    304: ("Kustaavi", "Gustavs"),
+    400: ("Laitila", "Letala"),
+    423: ("Lieto", "Lundo"),
+    430: ("Loimaa", "Loimaa"),
+    445: ("Parainen", "Pargas"),
+    480: ("Marttila", "S:t Mårtens"),
+    481: ("Masku", "Masko"),
+    503: ("Mynämäki", "Virmo"),
+    529: ("Naantali", "Nådendal"),
+    538: ("Nousiainen", "Nousis"),
+    561: ("Oripää", "Oripää"),
+    573: ("Parainen", "Pargas"),
+    577: ("Paimio", "Pemar"),
+    631: ("Pyhäranta", "Pyhäranta"),
+    636: ("Pöytyä", "Pöytis"),
+    680: ("Raisio", "Reso"),
+    704: ("Rusko", "Rusko"),
+    734: ("Salo", "Salo"),
+    738: ("Sauvo", "Sagu"),
+    761: ("Somero", "Somero"),
+    833: ("Taivassalo", "Tövsala"),
+    853: ("Turku", "Åbo"),
+    895: ("Uusikaupunki", "Nystad"),
+    918: ("Vehmaa", "Vemo"),
+}
 
 
 class AddressImporter:
-    def __init__(self, logger):
+    def __init__(self, logger=None, layer=None):
         self.logger = logger
-
-        if hasattr(settings, "PROJECT_ROOT"):
-            root_dir = settings.PROJECT_ROOT
+        if not layer:
+            ds = DataSource(SOURCE_DATA_URL)
+            self.layer = ds[0]
         else:
-            root_dir = settings.BASE_DIR
-        self.data_path = os.path.join(root_dir, "data")
+            self.layer = layer
 
-        self.csv_field_names = ("municipality", "street", "street_number", "y", "x")
-        self.valid_municipalities = ["turku", "åbo"]
-
-    def _import_address(self, entry):
-        street, _ = Street.objects.get_or_create(**entry["street"])
-        location = Point(srid=SOURCE_DATA_SRID, **entry["point"])
-
-        Address.objects.get_or_create(
-            street=street, defaults={"location": location}, **entry["address"]
-        )
-
-    def _create_address_mapping(self, address_reader):
-        turku = Municipality.objects.get(id="turku")
-        multi_lingual_addresses = {}
-        for row in address_reader:
-            if row["municipality"].lower() not in self.valid_municipalities:
-                continue
-
-            coordinates = row["y"] + row["x"]
-            if coordinates not in multi_lingual_addresses:
-                # Create a point with a srid, so the coordinates are stored correctly.
-                point = Point(float(row["x"]), float(row["y"]), srid=SOURCE_DATA_SRID)
-                multi_lingual_addresses[coordinates] = {
-                    "street": {"municipality": turku},
-                    "point": {"x": point.x, "y": point.y},
-                    "address": {"number": row["street_number"]},
-                }
-            full_name = f"{row['street']} {row['street_number']}"
-            if row["municipality"].lower() == "turku":
-                multi_lingual_addresses[coordinates]["street"]["name_fi"] = row[
-                    "street"
-                ]
-                multi_lingual_addresses[coordinates]["address"][
-                    "full_name_fi"
-                ] = full_name
-
-            elif row["municipality"].lower() == "åbo":
-                # If we don't have a Finnish name for the street, use the Swedish name
-                # for the Finnish street name as well since that is most likely an
-                # expected value. If there is a Finnish name for the coordinates lower
-                # down in the coordinate list then the Finnish name will be overridden.
-                if "name_fi" not in multi_lingual_addresses[coordinates]["street"]:
-                    multi_lingual_addresses[coordinates]["street"]["name_fi"] = row[
-                        "street"
-                    ]
-                multi_lingual_addresses[coordinates]["street"]["name_sv"] = row[
-                    "street"
-                ]
-                multi_lingual_addresses[coordinates]["address"][
-                    "full_name_sv"
-                ] = full_name
-
-        return multi_lingual_addresses
+    def get_number_and_letter(self, number_letter):
+        number = re.split(r"[a-zA-Z]+", number_letter)[0]
+        letter = re.split(r"[0-9]+", number_letter)[-1]
+        return number, letter
 
     def import_addresses(self):
-        file_path = os.path.join(self.data_path, "turku_addresses.csv")
-        print("file", file_path)
-        entries_created = 0
+        start_time = datetime.now()
 
         Street.objects.all().delete()
         Address.objects.all().delete()
 
-        with open(file_path, encoding="latin-1") as csvfile:
-            address_reader = csv.DictReader(
-                csvfile, delimiter=";", fieldnames=self.csv_field_names
-            )
-            multi_lingual_addresses = self._create_address_mapping(address_reader)
+        num_incomplete = 0
+        num_duplicates = 0
+        entries_created = 0
+        for feature in self.layer:
+            name_fi = feature["Osoite_suomeksi"].as_string()
+            name_sv = feature["Osoite_ruotsiksi"].as_string()
+            # Add to entry when munigeo supports zip_code
+            # zip_code = feature["Postinumero"].as_string()
+            if not name_sv:
+                name_sv = name_fi
+            municipality_num = feature["Kuntanumero"].as_int()
+            geometry = feature.geom
+            point = Point(geometry.x, geometry.y, srid=SOURCE_DATA_SRID)
+            number_letter = feature["Osoitenumero"].as_string()
+            # The source data may contain empty entries and they are discarded.
+            if not name_fi or not municipality_num or not geometry:
+                num_incomplete += 1
+                continue
 
-            for entry in multi_lingual_addresses.values():
-                self._import_address(entry)
+            number = None
+            number_end = None
+            letter = None
+            if number_letter:
+                # for number_letter of type "1-4" or "1-4b"
+                if re.search(r"-", number_letter):
+                    tmp = number_letter.split("-")
+                    number = tmp[0]
+                    # If number_end contains a letter. e.g. "1-4b"
+                    if re.search(r"[a-zA-Z]+", tmp[1]):
+                        number_end, letter = self.get_number_and_letter(tmp[1])
+                    else:
+                        number_end = tmp[1]
+                # number_letter of type "1b" or "123b"
+                elif re.search(r"[a-zA-Z]+", number_letter):
+                    number, letter = self.get_number_and_letter(number_letter)
+                # Only a number e.g. "42"
+                else:
+                    number = number_letter
+            try:
+                municipality = Municipality.objects.get(
+                    id=MUNICIPALITIES[municipality_num][0].lower()
+                )
+            except KeyError:
+                self.logger.warning(
+                    f"Municipality number {municipality_num} not found, discarding."
+                )
+                num_incomplete += 1
+                continue
 
-                entries_created += 1
-                if entries_created % 1000 == 0:
-                    self.logger.debug(
-                        "row {} / {}".format(
-                            entries_created, len(multi_lingual_addresses.values())
-                        )
+            entry = {}
+            entry["street"] = {}
+            entry["street"]["name_fi"] = name_fi
+            entry["street"]["name_en"] = name_fi
+            entry["street"]["municipality"] = municipality
+
+            # The source data may have street names with wrong/conflicting swedish translations
+            # to avoid setting these to the db we must check the existens before getting and
+            # if not exists we set the swedish name to the entry before creating.
+            if Street.objects.filter(**entry["street"]).exists():
+                street = Street.objects.get(**entry["street"])
+                if street.name_sv != name_sv:
+                    self.logger.warning(
+                        f"Found street name with wrong/conflicting swedish translation fi: {name_fi} sv: {name_sv}"
                     )
 
-        self.logger.debug("Added {} addresses".format(entries_created))
+            else:
+                entry["street"]["name_sv"] = name_sv
+                street = Street.objects.create(**entry["street"])
 
+            # Create full_name that will be used when populating search_column.
+            full_name_fi = f"{name_fi} {number_letter}"
+            full_name_sv = f"{name_sv} {number_letter}"
+            entry["address"] = {}
+            entry["address"]["street"] = street
+            entry["address"]["location"] = point
+            entry["address"]["full_name_fi"] = full_name_fi
+            entry["address"]["full_name_sv"] = full_name_sv
+            entry["address"]["full_name_en"] = full_name_fi
+
+            if number:
+                entry["address"]["number"] = number
+            if number_end:
+                entry["address"]["number_end"] = number_end
+            if letter:
+                entry["address"]["letter"] = letter
+
+            try:
+                Address.objects.get_or_create(**entry["address"])
+            except IntegrityError:
+                # Duplicate address causes Integrity error as the unique constraints fails.
+                # and they are discarded thus they would confuse when e.g. searching for
+                # addresses.
+                num_duplicates += 1
+
+            entries_created += 1
+            if entries_created % 1000 == 0:
+                self.logger.info(
+                    "Imported: {}/{}".format(entries_created, len(self.layer))
+                )
+
+        end_time = datetime.now()
+        duration = end_time - start_time
+        self.logger.info(
+            "Imported {} streets and {} anddresses in {}".format(
+                Street.objects.all().count(), Address.objects.all().count(), duration
+            )
+        )
+        self.logger.info("Discarded {} duplicates.".format(num_duplicates))
+        self.logger.info("Discarded {} incomplete.".format(num_incomplete))
+        self.logger.info("Saving addresses and streets to database, this might take a while...")
 
 def import_addresses(**kwargs):
     importer = AddressImporter(**kwargs)
