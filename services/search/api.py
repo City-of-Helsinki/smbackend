@@ -23,7 +23,6 @@ from distutils.util import strtobool
 from itertools import chain
 
 from django.conf import settings
-# from django.contrib.postgres.search import TrigramSimilarity
 from django.contrib.gis.gdal import SpatialReference
 from django.db import connection, reset_queries
 from django.db.models import Case, Count, When
@@ -110,9 +109,7 @@ class SearchSerializer(serializers.Serializer):
                 representation["number_end"] = getattr(obj, "number_end", "")
                 representation["letter"] = getattr(obj, "letter", "")
                 representation["modified_at"] = getattr(obj, "modified_at", "")
-                municipality = {}
-                municipality["id"] = getattr(obj.street, "municipality_id", "")
-                municipality["name"] = {}
+                municipality = {"id": getattr(obj.street, "municipality_id", ""), "name": {}}
                 municipality["name"]["fi"] = getattr(
                     obj.street.municipality, "name_fi", ""
                 )
@@ -120,8 +117,7 @@ class SearchSerializer(serializers.Serializer):
                     obj.street.municipality, "name_sv", ""
                 )
                 representation["municipality"] = municipality
-                street = {}
-                street["name"] = {}
+                street = {"name": {}}
                 street["name"]["fi"] = getattr(obj.street, "name_fi", "")
                 street["name"]["sv"] = getattr(obj.street, "name_sv", "")
                 representation["street"] = street
