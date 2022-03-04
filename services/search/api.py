@@ -51,7 +51,7 @@ class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerialize
         model = Department
         fields = ["id", "name", "street_address", "municipality"]
 
-        
+
 class SearchSerializer(serializers.Serializer):
     def to_representation(self, obj):
         representation = super().to_representation(obj)
