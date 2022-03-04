@@ -1,8 +1,6 @@
-from re import M
 import pytest
-from django.utils.timezone import now
 from django.contrib.gis.geos import Point
-from rest_framework.test import APIClient
+from django.utils.timezone import now
 from munigeo.models import (
     Address,
     AdministrativeDivision,
@@ -10,8 +8,10 @@ from munigeo.models import (
     Municipality,
     Street,
 )
-from services.models import Unit, Service
+from rest_framework.test import APIClient
+
 from services.management.commands.index_search_columns import get_search_column
+from services.models import Service, Unit
 
 
 @pytest.fixture
