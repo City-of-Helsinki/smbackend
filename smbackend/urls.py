@@ -44,7 +44,7 @@ urlpatterns = [
     # url(r'^blog/', include('blog.urls')),
     # url(r'^', include(v1_api.urls)),
     # url(r'^admin/', include(admin.site.urls)),
-    re_path("^search", SearchViewSet.as_view(), name="search"),
+    re_path("^api/v2/search", SearchViewSet.as_view(), name="search"),
     re_path("^iot", IoTViewSet.as_view(), name="iot"),
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^open311/", views.post_service_request, name="services"),

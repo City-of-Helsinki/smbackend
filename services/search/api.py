@@ -66,15 +66,16 @@ class SearchSerializer(serializers.Serializer):
             object_type = "administrativedivision"
         else:
             return representation
-
-        representation["id"] = getattr(obj, "id")
+        # Address IDs are not serialized thus they changes after every import.
+        if object_type != "address":
+            representation["id"] = getattr(obj, "id")
         representation["object_type"] = object_type
         names = {}
         if object_type == "address":
             names["fi"] = getattr(obj, "full_name_fi")
             names["sv"] = getattr(obj, "full_name_sv")
             names["en"] = getattr(obj, "full_name_en")
-            representation["full_name"] = names
+            representation["name"] = names
         else:
             names["fi"] = getattr(obj, "name_fi")
             names["sv"] = getattr(obj, "name_sv")
@@ -99,12 +100,30 @@ class SearchSerializer(serializers.Serializer):
                 representation["department"] = DepartmentSerializer(obj.department).data
                 if obj.geometry:
                     representation["geometry"] = munigeo_api.geom_to_json(
-                            obj.geometry, DEFAULT_SRS
-                        )
+                        obj.geometry, DEFAULT_SRS
+                    )
                 else:
                     representation["geometry"] = None
-                    
-            if object_type == "address" or object_type == "unit":
+
+            if object_type == "address":
+                representation["number"] = getattr(obj, "number", "")
+                representation["number_end"] = getattr(obj, "number_end", "")
+                representation["letter"] = getattr(obj, "letter", "")
+                representation["modified_at"] = getattr(obj, "modified_at", "")
+                municipality = {"id": getattr(obj.street, "municipality_id", ""), "name": {}}
+                municipality["name"]["fi"] = getattr(
+                    obj.street.municipality, "name_fi", ""
+                )
+                municipality["name"]["sv"] = getattr(
+                    obj.street.municipality, "name_sv", ""
+                )
+                representation["municipality"] = municipality
+                street = {"name": {}}
+                street["name"]["fi"] = getattr(obj.street, "name_fi", "")
+                street["name"]["sv"] = getattr(obj.street, "name_sv", "")
+                representation["street"] = street
+
+            if object_type == "unit" or object_type == "address":
                 if obj.location:
                     representation["location"] = munigeo_api.geom_to_json(
                         obj.location, DEFAULT_SRS
