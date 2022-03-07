@@ -721,7 +721,9 @@ class UnitSerializer(
             "accessibility_property_hash",
             "identifier_hash",
             "public",
-            "search_column",
+            "search_column_fi",
+            "search_column_sv",
+            "search_column_en",
         ]
 
 
