@@ -131,7 +131,7 @@ def administrative_division(administrative_division_type):
         name="Turku", origin_id=853, type_id=1
     )
     AdministrativeDivision.objects.update(
-        search_column=get_search_column(AdministrativeDivision)
+        search_column=get_search_column(AdministrativeDivision, "fi")
     )
     return adm_div
 
