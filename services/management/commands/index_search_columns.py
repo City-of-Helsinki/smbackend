@@ -36,10 +36,10 @@ class Command(BaseCommand):
             )
             logger.info(
                 f"{lang} Services indexed: {Service.objects.update(**{key: get_search_column(Service, lang)})}"
-            )   
-            adm_str = f"{lang} AdministrativeDivisions indexed: " 
+            )
             logger.info(
-                f"{adm_str}{AdministrativeDivision.objects.update(**{key: get_search_column(AdministrativeDivision, lang)})}"
+                f"{lang} AdministrativeDivisions indexed: "
+                f"{AdministrativeDivision.objects.update(**{key: get_search_column(AdministrativeDivision, lang)})}"
             )
             logger.info(
                 f"{lang} Addresses indexed: {Address.objects.update(**{key: get_search_column(Address, lang)})}"
