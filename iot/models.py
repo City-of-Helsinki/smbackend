@@ -1,7 +1,8 @@
-import requests
 import json
-from django.db import models
+
+import requests
 from django.core.exceptions import ValidationError
+from django.db import models
 
 
 class IoTDataSource(models.Model):
@@ -33,3 +34,6 @@ class IoTData(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     data_source = models.ForeignKey(IoTDataSource, on_delete=models.CASCADE)
     data = models.JSONField(null=True)
+
+    class Meta:
+        ordering = ["-created"]
