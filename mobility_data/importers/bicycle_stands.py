@@ -1,19 +1,19 @@
 import logging
-from django.contrib.gis.geos import Point
+
 from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
+from django.contrib.gis.geos import Point
+
+from mobility_data.models import ContentType, MobileUnit
+
 from .utils import (
-    get_municipality_name,
-    get_closest_street_name,
     delete_mobile_units,
+    get_closest_street_name,
+    get_municipality_name,
     get_or_create_content_type,
     get_street_name_translations,
     set_translated_field,
-)
-from mobility_data.models import (
-    MobileUnit,
-    ContentType,
 )
 
 BICYCLE_STANDS_URL = f"{settings.TURKU_WFS_URL}?service=WFS&request=GetFeature&typeName=GIS:Polkupyoraparkki&outputFormat=GML3"
@@ -50,7 +50,7 @@ class BicyleStand:
         self.geometry = Point(feature.geom.x, feature.geom.y, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
         model_elem = feature["Malli"]
-        if model_elem != None:
+        if model_elem is not None:
             self.model = model_elem.as_string()
         katu_name_elem = feature["Katuosa_nimi"].as_string()
         viher_name_elem = feature["Viherosa_nimi"].as_string()
@@ -62,7 +62,7 @@ class BicyleStand:
             # If there is no katu_ or vihre_ name we get the closest street_name.
             name = get_closest_street_name(self.geometry)
         num_stands_elem = feature["Lukumaara"]
-        if num_stands_elem != None:
+        if num_stands_elem is not None:
             num = num_stands_elem.as_int()
             # for bicycle stands that are Not maintained by Turku
             # the number of stands is set to 0 in the input data
@@ -93,11 +93,11 @@ class BicyleStand:
                 self.covered = True
             else:
                 self.covered = False
-        translated_names = get_street_name_translations(name)
+        self.city = get_municipality_name(self.geometry)
+        translated_names = get_street_name_translations(name, self.city)
         self.name["fi"] = translated_names["fi"]
         self.name["sv"] = translated_names["sv"]
         self.name["en"] = translated_names["fi"]
-        self.city = get_municipality_name(self.geometry)
 
 
 def get_bicycle_stand_objects(ds=None):
