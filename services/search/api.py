@@ -2,8 +2,8 @@
 Brief explanation how full text search is implemented in the smbacked.
 - Currently search is performed to following models, Unit, Service,
 munigeo_Address, munigeo_Administrative_division.
-- For every model that is include in the search a column named
- search_column of type SearchVector is added. This is also defined as a Gindex.
+- For every model that is include in the search a search column is added
+for every language of type SearchVector. These are also defined as a Gindex.
  The models that are searched also implements a function called get_search_column_indexing
   where the name, configuration(language) and weight of the columns that will be indexed
   are defined. This function is used by the indexing script and signals when
@@ -110,7 +110,10 @@ class SearchSerializer(serializers.Serializer):
                 representation["number_end"] = getattr(obj, "number_end", "")
                 representation["letter"] = getattr(obj, "letter", "")
                 representation["modified_at"] = getattr(obj, "modified_at", "")
-                municipality = {"id": getattr(obj.street, "municipality_id", ""), "name": {}}
+                municipality = {
+                    "id": getattr(obj.street, "municipality_id", ""),
+                    "name": {},
+                }
                 municipality["name"]["fi"] = getattr(
                     obj.street.municipality, "name_fi", ""
                 )
@@ -287,9 +290,9 @@ class SearchViewSet(GenericAPIView):
         # This is ~100 times faster than using Djangos SearchRank and allows searching using wildard "|*"
         # and by rankig gives better results, e.g. extra fields weight is counted.
         sql = f"""
-        SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column, search_query) AS rank
-        FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
-        WHERE search_query @@ search_column
+        SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
+        AS rank FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
+        WHERE search_query @@ search_column_{language_short}
         ORDER BY rank DESC LIMIT {sql_query_limit};
         """
 

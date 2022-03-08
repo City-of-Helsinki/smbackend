@@ -1,11 +1,10 @@
 from django.apps import apps
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import ArrayField
-from django.contrib.postgres.fields import HStoreField
-from django.contrib.postgres.search import SearchVectorField
-from django.contrib.postgres.indexes import (
+from django.contrib.postgres.fields import ArrayField, HStoreField
+from django.contrib.postgres.indexes import (  # add the Postgres recommended GIN index
     GinIndex,
-)  # add the Postgres recommended GIN index
+)
+from django.contrib.postgres.search import SearchVectorField
 from django.db.models import JSONField, Manager
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -223,11 +222,17 @@ class Unit(SoftDeleteModel):
     service_names_fi = ArrayField(models.CharField(max_length=200), default=list)
     service_names_sv = ArrayField(models.CharField(max_length=200), default=list)
     service_names_en = ArrayField(models.CharField(max_length=200), default=list)
-    search_column = SearchVectorField(null=True)
+    search_column_fi = SearchVectorField(null=True)
+    search_column_sv = SearchVectorField(null=True)
+    search_column_en = SearchVectorField(null=True)
 
     class Meta:
         ordering = ["-pk"]
-        indexes = (GinIndex(fields=["search_column"]),)  # add index
+        indexes = (
+            GinIndex(fields=["search_column_fi"]),
+            GinIndex(fields=["search_column_sv"]),
+            GinIndex(fields=["search_column_en"]),
+        )
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
@@ -239,8 +244,6 @@ class Unit(SoftDeleteModel):
         qs = ServiceNode.objects.filter(level=0).filter(tree_id__in=list(tree_ids))
         service_node_list = qs.values_list("id", flat=True).distinct()
         return sorted(service_node_list)
-
-  
 
     def service_names(self):
         return "\n".join((service.name for service in self.services.all()))
@@ -267,24 +270,37 @@ class Unit(SoftDeleteModel):
         )
 
     @classmethod
-    def get_search_column_indexing(cls):
+    def get_search_column_indexing(cls, lang):
         """
         Defines the columns to be indexed to the search_column
         ,config language and weight.
         """
-        return [
-            ("name_fi", "finnish", "A"),
-            ("name_sv", "swedish", "A"),
-            ("name_en", "english", "A"),
-            ("service_names_fi", "finnish", "B"),
-            ("service_names_sv", "swedish", "B"),
-            ("service_names_en", "english", "B"),
-            ("extra", None, "C"),
-            ("address_zip", None, "D"),            
-            ("street_address_fi", "finnish", "D"),
-            ("street_address_sv", "swedish", "D"),
-            ("street_address_en", "english", "D"),     
-        ]
+        if lang == "fi":
+            return [
+                ("name_fi", "finnish", "A"),
+                ("service_names_fi", "finnish", "B"),
+                ("extra", None, "C"),
+                ("address_zip", None, "D"),
+                ("street_address_fi", "finnish", "D"),
+            ]
+        elif lang == "sv":
+            return [
+                ("name_sv", "swedish", "A"),
+                ("service_names_sv", "swedish", "B"),
+                ("extra", None, "C"),
+                ("address_zip", None, "D"),
+                ("street_address_sv", "swedish", "D"),
+            ]
+        elif lang == "en":
+            return [
+                ("name_en", "english", "A"),
+                ("service_names_en", "english", "B"),
+                ("extra", None, "C"),
+                ("address_zip", None, "D"),
+                ("street_address_en", "english", "D"),
+            ]
+        else:
+            return []
 
     def soft_delete(self):
         self.public = False

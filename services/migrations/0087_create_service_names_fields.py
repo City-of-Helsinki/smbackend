@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0088_create_search_view'),
+        ('services', '0086_unit_related_units'),
     ]
 
     operations = [
