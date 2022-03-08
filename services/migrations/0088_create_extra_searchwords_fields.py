@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("services", "0089_create_service_names_fields"),
+        ("services", "0087_create_service_names_fields"),
     ]
 
     operations = [

@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("services", "0090_create_extra_searchwords_fields"),
+        ("services", "0091_create_search_view"),
     ]
     operations = [
         migrations.RunSQL(

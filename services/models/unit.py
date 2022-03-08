@@ -1,8 +1,8 @@
 from django.apps import apps
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField, HStoreField
-from django.contrib.postgres.indexes import (
-    GinIndex,  # add the Postgres recommended GIN index
+from django.contrib.postgres.indexes import (  # add the Postgres recommended GIN index
+    GinIndex,
 )
 from django.contrib.postgres.search import SearchVectorField
 from django.db.models import JSONField, Manager
@@ -170,16 +170,6 @@ class Unit(SoftDeleteModel):
     accessibility_email = models.EmailField(max_length=100, null=True)
     accessibility_www = models.URLField(max_length=400, null=True)
 
-    extra = models.JSONField(default=dict, null=True)
-    # Note, TranslatedModel does not support ArrayField
-    service_names_fi = ArrayField(models.CharField(max_length=200), default=list)
-    service_names_sv = ArrayField(models.CharField(max_length=200), default=list)
-    service_names_en = ArrayField(models.CharField(max_length=200), default=list)
-    extra_searchwords_fi = ArrayField(models.CharField(max_length=200), default=list)
-    extra_searchwords_sv = ArrayField(models.CharField(max_length=200), default=list)
-    extra_searchwords_en = ArrayField(models.CharField(max_length=200), default=list)
-    search_column = SearchVectorField(null=True)
-
     created_time = models.DateTimeField(
         null=True
     )  # ASK API: are these UTC? no Z in output
@@ -226,10 +216,26 @@ class Unit(SoftDeleteModel):
 
     objects = Manager()
     search_objects = UnitSearchManager()
+    extra = models.JSONField(default=dict, null=True)
+    related_units = models.ManyToManyField("self", blank=True)
+    # Note, TranslatedModel do not support ArrayField.
+    service_names_fi = ArrayField(models.CharField(max_length=200), default=list)
+    service_names_sv = ArrayField(models.CharField(max_length=200), default=list)
+    service_names_en = ArrayField(models.CharField(max_length=200), default=list)
+    extra_searchwords_fi = ArrayField(models.CharField(max_length=200), default=list)
+    extra_searchwords_sv = ArrayField(models.CharField(max_length=200), default=list)
+    extra_searchwords_en = ArrayField(models.CharField(max_length=200), default=list)
+    search_column_fi = SearchVectorField(null=True)
+    search_column_sv = SearchVectorField(null=True)
+    search_column_en = SearchVectorField(null=True)
 
     class Meta:
         ordering = ["-pk"]
-        indexes = (GinIndex(fields=["search_column"]),)
+        indexes = (
+            GinIndex(fields=["search_column_fi"]),
+            GinIndex(fields=["search_column_sv"]),
+            GinIndex(fields=["search_column_en"]),
+        )
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
@@ -267,27 +273,37 @@ class Unit(SoftDeleteModel):
         )
 
     @classmethod
-    def get_search_column_indexing(cls):
+    def get_search_column_indexing(cls, lang):
         """
         Defines the columns to be indexed to the search_column
         ,config language and weight.
         """
-        return [
-            ("name_fi", "finnish", "A"),
-            ("name_sv", "swedish", "A"),
-            ("name_en", "english", "A"),
-            ("service_names_fi", "finnish", "B"),
-            ("service_names_sv", "swedish", "B"),
-            ("service_names_en", "english", "B"),
-            ("extra_searchwords_fi", "finnish", "B"),
-            ("extra_searchwords_sv", "swedish", "B"),
-            ("extra_searchwords_en", "english", "B"),
-            ("extra", None, "C"),
-            ("address_zip", None, "D"),
-            ("street_address_fi", "finnish", "D"),
-            ("street_address_sv", "swedish", "D"),
-            ("street_address_en", "english", "D"),
-        ]
+        if lang == "fi":
+            return [
+                ("name_fi", "finnish", "A"),
+                ("service_names_fi", "finnish", "B"),
+                ("extra_searchwords_fi", "finnish", "B"),
+                ("extra", None, "C"),
+                ("address_zip", None, "D"),
+            ]
+        elif lang == "sv":
+            return [
+                ("name_sv", "swedish", "A"),
+                ("service_names_sv", "swedish", "B"),
+                ("extra_searchwords_sv", "swedish", "B"),
+                ("extra", None, "C"),
+                ("address_zip", None, "D"),
+            ]
+        elif lang == "en":
+            return [
+                ("name_en", "english", "A"),
+                ("service_names_en", "english", "B"),
+                ("extra_searchwords_en", "english", "B"),
+                ("extra", None, "C"),
+                ("address_zip", None, "D"),
+            ]
+        else:
+            return []
 
     def soft_delete(self):
         self.public = False

@@ -1,5 +1,5 @@
-from django.contrib.postgres.indexes import (
-    GinIndex,  # add the Postgres recommended GIN index
+from django.contrib.postgres.indexes import (  # add the Postgres recommended GIN index
+    GinIndex,
 )
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
@@ -24,26 +24,42 @@ class Service(models.Model):
     root_service_node = models.ForeignKey(
         "ServiceNode", null=True, on_delete=models.CASCADE
     )
-    search_column = SearchVectorField(null=True)
+
+    search_column_fi = SearchVectorField(null=True)
+    search_column_sv = SearchVectorField(null=True)
+    search_column_en = SearchVectorField(null=True)
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
 
     class Meta:
         ordering = ["-pk"]
-        indexes = (GinIndex(fields=["search_column"]),)
+        indexes = (
+            GinIndex(fields=["search_column_fi"]),
+            GinIndex(fields=["search_column_sv"]),
+            GinIndex(fields=["search_column_en"]),
+        )
 
     @classmethod
-    def get_search_column_indexing(cls):
+    def get_search_column_indexing(cls, lang):
         """
         Defines the columns to be indexed to the search_column
         ,config language and weight.
         """
-        return [
-            ("name_fi", "finnish", "A"),
-            ("name_sv", "swedish", "A"),
-            ("name_en", "english", "A"),
-        ]
+        if lang == "fi":
+            return [
+                ("name_fi", "finnish", "A"),
+            ]
+        elif lang == "sv":
+            return [
+                ("name_sv", "swedish", "A"),
+            ]
+        elif lang == "en":
+            return [
+                ("name_en", "english", "A"),
+            ]
+        else:
+            return []
 
 
 class UnitServiceDetails(models.Model):
