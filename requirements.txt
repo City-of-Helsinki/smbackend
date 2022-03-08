@@ -56,7 +56,7 @@ django-mptt==0.13.4
     # via
     #   -r requirements.in
     #   django-munigeo
-django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.66
+django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.67
     # via -r requirements.in
 django-polymorphic==3.1.0
     # via -r requirements.in
@@ -158,7 +158,7 @@ tomli==2.0.1
     #   coverage
     #   pep517
     #   pytest
-tqdm==4.62.3
+tqdm==4.63.0
     # via -r requirements.in
 typing-extensions==4.1.1
     # via black
