@@ -58,7 +58,7 @@ def units(services):
     unit.services.add(3)
     unit.save()
     units.append(unit)
-    Unit.objects.update(search_column=get_search_column(Unit))
+    Unit.objects.update(search_column_fi=get_search_column(Unit, "fi"))
     return units
 
 
@@ -86,7 +86,7 @@ def services():
         last_modified_time=now(),
     )
     services.append(service)
-    Service.objects.update(search_column=get_search_column(Service))
+    Service.objects.update(search_column_fi=get_search_column(Service, "fi"))
     return services
 
 
@@ -104,7 +104,7 @@ def addresses(streets):
         id=2, street_id=43, location=location, full_name="Markulantie 2B"
     )
     addresses.append(addr)
-    Address.objects.update(search_column=get_search_column(Address))
+    Address.objects.update(search_column_fi=get_search_column(Address, "fi"))
     return addresses
 
 
@@ -131,7 +131,7 @@ def administrative_division(administrative_division_type):
         name="Turku", origin_id=853, type_id=1
     )
     AdministrativeDivision.objects.update(
-        search_column=get_search_column(AdministrativeDivision, "fi")
+        search_column_fi=get_search_column(AdministrativeDivision, "fi")
     )
     return adm_div
 
