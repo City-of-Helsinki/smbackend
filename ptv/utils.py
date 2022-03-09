@@ -28,7 +28,7 @@ def create_available_id(model, increment=0):
     """
     new_id = (model.objects.aggregate(Max("id"))["id__max"] or 0) + increment
     if "smbackend_turku" in settings.INSTALLED_APPS:
-        buffer = settings.TURKU_ID_BUFFER
+        buffer = settings.PTV_ID_OFFSET
         if new_id < buffer:
             new_id += buffer
     return new_id
