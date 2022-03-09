@@ -50,7 +50,7 @@ components:
         example: unit,address
         default: unit
     trigram_threshold_param:
-      name: trigram_treshold
+      name: trigram_threshold
       in: query
       desription: The threshold value, if trigram similarity is greater-than or equal to this value return the result.
       type: number 
