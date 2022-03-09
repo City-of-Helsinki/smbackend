@@ -250,7 +250,7 @@ class UnitPTVImporter:
 
         numbers = unit_data.get("phoneNumbers", [])
         for number in numbers:
-            phone_number = number.get("prefixNumber", "") + number.get("number")
+            phone_number = number.get("prefixNumber", "") + number.get("number", "")
             contact_info = number.get("additionalInformation")
             name = {}
             if contact_info:
