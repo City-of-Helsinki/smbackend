@@ -223,7 +223,7 @@ class SearchViewSet(GenericAPIView):
                 self.request.query_params["use_trigram"].lower().strip().split(",")
             )
         else:
-            use_trigram = "service,unit"
+            use_trigram = "unit"
 
         if "extended_serializer" in params:
             try:
