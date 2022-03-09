@@ -1,6 +1,8 @@
 from io import StringIO
+
 import pytest
 from django.core.management import call_command
+
 from mobility_data.models import MobileUnit
 
 
@@ -21,6 +23,7 @@ def test_importer(
     municipality,
     administrative_division_type,
     administrative_division,
+    administrative_division_geometry,
     streets,
     address,
 ):
@@ -38,28 +41,28 @@ def test_importer(
     assert stand_normal.name_en == "Linnanpuisto"
     extra = stand_normal.extra
     assert extra["model"] == "Normaali"
-    assert extra["maintained_by_turku"] == True
-    assert extra["covered"] == False
-    assert extra["hull_lockable"] == False
+    assert extra["maintained_by_turku"] is True
+    assert extra["covered"] is False
+    assert extra["hull_lockable"] is False
     assert extra["number_of_places"] == 24
     assert extra["number_of_stands"] == 2
     assert extra["number_of_stands"] == 2
 
     assert stand_covered_hull_lockable.name == "Pitkäpellonkatu"
     extra = stand_covered_hull_lockable.extra
-    assert extra["maintained_by_turku"] == True
-    assert extra["covered"] == True
-    assert extra["hull_lockable"] == True
+    assert extra["maintained_by_turku"] is True
+    assert extra["covered"] is True
+    assert extra["hull_lockable"] is True
     assert extra["number_of_places"] == 18
     assert extra["number_of_stands"] == 1
     # external stand has no street name, so the closes street name
     # is "Test Street".
     assert stand_external.name == "Test Street"
     extra = stand_external.extra
-    assert extra["maintained_by_turku"] == False
+    assert extra["maintained_by_turku"] is False
     # As there are no info for stand that are not maintained by turku
     # field are set to None.
-    assert extra["covered"] == None
-    assert extra["hull_lockable"] == None
-    assert extra["number_of_places"] == None
-    assert extra["number_of_stands"] == None
+    assert extra["covered"] is None
+    assert extra["hull_lockable"] is None
+    assert extra["number_of_places"] is None
+    assert extra["number_of_stands"] is None
