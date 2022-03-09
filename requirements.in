@@ -1,4 +1,4 @@
-Django==4.0
+Django==4.0.2
 djangorestframework
 djangorestframework-jsonp
 django-filter

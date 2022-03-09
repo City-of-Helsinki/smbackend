@@ -27,7 +27,7 @@ click==8.0.4
     #   pip-tools
 coverage[toml]==6.3.2
     # via pytest-cov
-django==4.0
+django==4.0.2
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -160,8 +160,6 @@ tomli==2.0.1
     #   pytest
 tqdm==4.63.0
     # via -r requirements.in
-typing-extensions==4.1.1
-    # via black
 url-normalize==1.4.3
     # via requests-cache
 urllib3==1.26.8
