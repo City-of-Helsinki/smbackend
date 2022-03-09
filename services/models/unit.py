@@ -281,7 +281,6 @@ class Unit(SoftDeleteModel):
                 ("service_names_fi", "finnish", "B"),
                 ("extra", None, "C"),
                 ("address_zip", None, "D"),
-                ("street_address_fi", "finnish", "D"),
             ]
         elif lang == "sv":
             return [
@@ -289,7 +288,6 @@ class Unit(SoftDeleteModel):
                 ("service_names_sv", "swedish", "B"),
                 ("extra", None, "C"),
                 ("address_zip", None, "D"),
-                ("street_address_sv", "swedish", "D"),
             ]
         elif lang == "en":
             return [
@@ -297,7 +295,6 @@ class Unit(SoftDeleteModel):
                 ("service_names_en", "english", "B"),
                 ("extra", None, "C"),
                 ("address_zip", None, "D"),
-                ("street_address_en", "english", "D"),
             ]
         else:
             return []
