@@ -11,9 +11,9 @@ ADDITIONAL_INSTALLED_APPS=smbackend_turku
 TURKU_API_KEY=secret
 ACCESSIBILITY_SYSTEM_ID=secret
 ```
+And the Mobile view specific settings, see: config_dev.env.example
 
 ## Importing data
-Before importing addresses make sure you have the turku_addresses.cvs file located in the projects data/ directory.  
 ```
 ./manage.py geo_import finland --municipalities
 ./manage.py turku_services_import services accessibility units addresses
