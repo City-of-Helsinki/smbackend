@@ -24,6 +24,7 @@ from itertools import chain
 
 from django.conf import settings
 from django.contrib.gis.gdal import SpatialReference
+
 # from django.contrib.postgres.search import TrigramSimilarity
 from django.db import connection, reset_queries
 from django.db.models import Case, Count, When
@@ -44,6 +45,7 @@ QUERY_PARAM_TYPE_NAMES = [m.lower() for m in SEARCHABLE_MODEL_TYPE_NAMES]
 DEFAULT_MODEL_LIMIT_VALUE = None  # None will slice to the end of list
 # The limit value for the search query that search the search_view. "NULL" = no limit
 DEFAULT_SEARCH_SQL_LIMIT_VALUE = "NULL"
+DEFAULT_TRIGRAM_THRESHOLD = 0.15
 
 
 class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
@@ -187,15 +189,18 @@ def get_preserved_order(ids):
 #         return model.objects.none()
 
 
-def get_trigram_results(model, model_name, field, q_val, threshold=0.1):
+def get_trigram_results(
+    model, model_name, field, q_val, threshold=DEFAULT_TRIGRAM_THRESHOLD
+):
     sql = f"""SELECT id, similarity({field}, '{q_val}') AS sml
         FROM {model_name}
-        WHERE  similarity({field}, '{q_val}') > {threshold}
+        WHERE  similarity({field}, '{q_val}') >= {threshold}
         ORDER BY sml DESC;
     """
     cursor = connection.cursor()
     cursor.execute(sql)
     all_results = cursor.fetchall()
+
     ids = [row[0] for row in all_results]
     objs = model.objects.filter(id__in=ids)
     return objs
@@ -224,6 +229,14 @@ class SearchViewSet(GenericAPIView):
             )
         else:
             use_trigram = "unit"
+
+        if "trigram_threshold" in params:
+            try:
+                trigram_threshold = float(params.get("trigram_threshold"))
+            except ValueError:
+                raise ParseError("'trigram_threshold' need to be of type float.")
+        else:
+            trigram_threshold = DEFAULT_TRIGRAM_THRESHOLD
 
         if "extended_serializer" in params:
             try:
@@ -311,7 +324,11 @@ class SearchViewSet(GenericAPIView):
             services_qs = Service.objects.filter(id__in=service_ids).order_by(preserved)
             if not services_qs and "service" in use_trigram:
                 services_qs = get_trigram_results(
-                    Service, "services_service", "name_" + language_short, q_val
+                    Service,
+                    "services_service",
+                    "name_" + language_short,
+                    q_val,
+                    threshold=trigram_threshold,
                 )
 
             services_qs = services_qs.annotate(num_units=Count("units")).order_by(
@@ -337,7 +354,11 @@ class SearchViewSet(GenericAPIView):
 
             if not units_qs and "unit" in use_trigram:
                 units_qs = get_trigram_results(
-                    Unit, "services_unit", "name_" + language_short, q_val
+                    Unit,
+                    "services_unit",
+                    "name_" + language_short,
+                    q_val,
+                    threshold=trigram_threshold,
                 )
 
             units_qs = units_qs.all().distinct()
@@ -371,6 +392,7 @@ class SearchViewSet(GenericAPIView):
                     "munigeo_administrativedivision",
                     "name_" + language_short,
                     q_val,
+                    threshold=trigram_threshold,
                 )
             administrative_division_qs = administrative_division_qs[
                 : model_limits["administrativedivision"]
@@ -382,7 +404,11 @@ class SearchViewSet(GenericAPIView):
             address_qs = Address.objects.filter(id__in=address_ids)
             if not address_qs and "address" in use_trigram:
                 address_qs = get_trigram_results(
-                    Address, "munigeo_address", "full_name_" + language_short, q_val
+                    Address,
+                    "munigeo_address",
+                    "full_name_" + language_short,
+                    q_val,
+                    threshold=trigram_threshold,
                 )
             address_qs = address_qs[: model_limits["address"]]
         else:

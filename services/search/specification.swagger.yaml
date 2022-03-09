@@ -48,7 +48,13 @@ components:
       schema:
         type: string
         example: unit,address
-        default: unit,service
+        default: unit
+    trigram_threshold_param:
+      name: trigram_threshold
+      in: query
+      desription: The threshold value, if trigram similarity is greater-than or equal to this value return the result.
+      type: number
+      default: 0.15
     sql_query_limit_param:
       name: sql_query_limit
       in: query
@@ -152,6 +158,7 @@ paths:
         - $ref: "#/components/parameters/q_param"
         - $ref: "#/components/parameters/language_param"
         - $ref: "#/components/parameters/use_trigram_param"
+        - $ref: "#/components/parameters/trigram_threshold_param"
         - $ref: "#/components/parameters/order_units_by_num_services_param"
         - $ref: "#/components/parameters/extended_serializer_param"
         - $ref: "#/components/parameters/sql_query_limit_param"
