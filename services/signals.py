@@ -26,7 +26,7 @@ def service_on_save(sender, **kwargs):
 @receiver(post_save, sender=ServiceNode)
 def servicenode_on_save(sender, **kwargs):
     obj = kwargs["instance"]
-    # To avoid conlicts with Service names onlu index if service_reference is None
+    # To avoid conflicts with Service names, only index if service_reference is None
     if not obj.service_reference:
         transaction.on_commit(populate_search_column(obj))
 
