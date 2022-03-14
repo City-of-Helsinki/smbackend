@@ -44,7 +44,7 @@ components:
     use_trigram_param:
       name: use_trigram
       in: query
-      description: A comma-separeted list of resource types that will include trigram results in search if no results are found. Possible values are *service*, *unit*, *address* and *administrative_division*. If not present, defualts to unit and service. If list is empty trigram  will not be used.
+      description: A comma-separeted list of resource types that will include trigram results in search if no results are found. Possible values are *service*, *unit*, *servicenode*, *address* and *administrative_division*. If not present, defualts to unit and service. If list is empty trigram  will not be used.
       schema:
         type: string
         example: unit,address
@@ -79,6 +79,14 @@ components:
         type: integer
         example: 5
         default: No limit
+    servicenode_limit_param:
+      name: serivcenode_limit
+      in: query
+      description: Limit the number of ServicesNodes in results.
+      schema:
+        type: integer
+        example: 5
+        default: No limit
     address_limit_param:
       name: address_limit
       in: query
@@ -105,7 +113,7 @@ components:
     type_param:
       name: type
       in: query
-      description: A comma-separeted list of resource types to be returned in the results Possible values are *service*, *unit*, *address* and       *administrativedivision*. If not present, defualts to all types.
+      description: A comma-separeted list of resource types to be returned in the results Possible values are *service*, *servicenode*, *unit*, *address* and *administrativedivision*. If not present, defualts to all types.
       schema:
         type: string
     municipality_param:
@@ -164,6 +172,7 @@ paths:
         - $ref: "#/components/parameters/sql_query_limit_param"
         - $ref: "#/components/parameters/unit_limit_param"
         - $ref: "#/components/parameters/service_limit_param"
+        - $ref: "#/components/parameters/servicenode_limit_param"
         - $ref: "#/components/parameters/address_limit_param"
         - $ref: "#/components/parameters/type_param"
         - $ref: "#/components/parameters/municipality_param"

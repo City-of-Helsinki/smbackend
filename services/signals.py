@@ -7,7 +7,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from munigeo.models import Address, AdministrativeDivision
 
-from services.models import Service, Unit
+from services.models import Service, ServiceNode, Unit
 
 
 @receiver(post_save, sender=Unit)
@@ -21,6 +21,14 @@ def unit_on_save(sender, **kwargs):
 def service_on_save(sender, **kwargs):
     obj = kwargs["instance"]
     transaction.on_commit(populate_search_column(obj))
+
+
+@receiver(post_save, sender=ServiceNode)
+def servicenode_on_save(sender, **kwargs):
+    obj = kwargs["instance"]
+    # To avoid conflicts with Service names, only index if service_reference is None
+    if not obj.service_reference:
+        transaction.on_commit(populate_search_column(obj))
 
 
 @receiver(post_save, sender=Address)
