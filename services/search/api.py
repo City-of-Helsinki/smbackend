@@ -380,7 +380,7 @@ class SearchViewSet(GenericAPIView):
                 municipalities = (
                     self.request.query_params["municipality"].lower().strip().split(",")
                 )
-                if municipalities[0]:
+                if len(municipalities) > 0:
                     units_qs = units_qs.filter(municipality_id__in=municipalities)
             if "service" in self.request.query_params:
                 services = self.request.query_params["service"].strip().split(",")
@@ -437,6 +437,14 @@ class SearchViewSet(GenericAPIView):
                     q_val,
                     threshold=trigram_threshold,
                 )
+            if "municipality" in self.request.query_params:
+                municipalities = (
+                    self.request.query_params["municipality"].lower().strip().split(",")
+                )
+                if len(municipalities) > 0:
+                    addresses_qs = addresses_qs.filter(
+                        street__municipality_id__in=municipalities
+                    )
             addresses_qs = addresses_qs[: model_limits["address"]]
         else:
             addresses_qs = Address.objects.none()
