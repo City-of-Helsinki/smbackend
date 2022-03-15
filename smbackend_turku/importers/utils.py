@@ -22,6 +22,8 @@ ACCESSIBILITY_BASE_URL = "https://asiointi.hel.fi/kapaesteettomyys/api/v1/"
 UTC_TIMEZONE = pytz.timezone("UTC")
 
 
+
+
 def clean_text(text, default=None):
     if not isinstance(text, str):
         return text

@@ -9,6 +9,7 @@ from django.utils import translation
 
 from smbackend_turku.importers.accessibility import import_accessibility
 from smbackend_turku.importers.addresses import import_addresses
+from smbackend_turku.importers.geo_search import import_geo_search_addresses
 from smbackend_turku.importers.services import import_services
 from smbackend_turku.importers.units import import_units
 from smbackend_turku.importers.stations import (
@@ -22,7 +23,8 @@ class Command(BaseCommand):
         "services", 
         "accessibility", 
         "units", 
-        "addresses", 
+        "addresses",
+        "geo_search_addresses", 
         "gas_filling_stations",
         "charging_stations",
         "bicycle_stands",
@@ -89,6 +91,9 @@ class Command(BaseCommand):
     @db.transaction.atomic
     def import_addresses(self):
         return import_addresses(logger=self.logger)
+
+    def import_geo_search_addresses(self):
+        return import_geo_search_addresses(logger=self.logger)
 
     @db.transaction.atomic
     def import_gas_filling_stations(self):
