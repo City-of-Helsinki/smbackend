@@ -15,6 +15,11 @@ def import_geo_search_addresses(name="import_geo_search_addresses"):
 
 
 @shared_task
+def import_enriched_addresses(name="import_enriched_addresses"):
+    management.call_command("turku_services_import", "enriched_addresses")
+
+
+@shared_task
 def import_bicycle_stands(name="import_bicycle_stands"):
     management.call_command("turku_services_import", "bicycle_stands")
 
