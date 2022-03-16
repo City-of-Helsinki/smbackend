@@ -8,6 +8,9 @@ def import_mds_data(name="import_mds_data"):
         "turku_services_import", "services", "accessibility", "units", "addresses"
     )
 
+@shared_task
+def index_search_columns(name="ndex_search_columns"):
+    management.call_command("index_search_columns")
 
 @shared_task
 def import_geo_search_addresses(name="import_geo_search_addresses"):
