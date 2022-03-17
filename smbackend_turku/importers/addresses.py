@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import Point
 from django.db.utils import IntegrityError
-from munigeo.models import Address, Municipality, Street
+from munigeo.models import Address, Municipality, PostalCodeArea, Street
 
 from smbackend_turku.importers.utils import get_municipality
 
@@ -40,7 +40,7 @@ class AddressImporter:
 
     def import_addresses(self):
         start_time = datetime.now()
-
+        postal_code_areas = {}
         for muni in MUNICIPALITIES.items():
             municipality = get_municipality(muni[1][0])
             Street.objects.filter(municipality_id=municipality).delete()
@@ -52,7 +52,16 @@ class AddressImporter:
             name_fi = feature["Osoite_suomeksi"].as_string()
             name_sv = feature["Osoite_ruotsiksi"].as_string()
             # Add to entry when munigeo supports zip_code
-            # zip_code = feature["Postinumero"].as_string()
+            postal_code = feature["Postinumero"].as_string()
+            if postal_code and postal_code not in postal_code_areas:
+                # The source data contains postal_codes with errorneous length. skip them.
+                if len(postal_code) != 5:
+                    postal_code = None
+                    break
+                postal_code_area, _ = PostalCodeArea.objects.get_or_create(
+                    postal_code=postal_code
+                )
+                postal_code_areas[postal_code] = postal_code_area
             if not name_sv:
                 name_sv = name_fi
             municipality_num = feature["Kuntanumero"].as_int()
@@ -123,7 +132,8 @@ class AddressImporter:
             entry["address"]["full_name_fi"] = full_name_fi
             entry["address"]["full_name_sv"] = full_name_sv
             entry["address"]["full_name_en"] = full_name_fi
-
+            if postal_code:
+                entry["address"]["postal_code_area"] = postal_code_areas[postal_code]
             if number:
                 entry["address"]["number"] = number
             if number_end:
