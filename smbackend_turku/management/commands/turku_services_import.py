@@ -48,7 +48,6 @@ class Command(BaseCommand):
         self.services = {}
         self.options = None
         self.verbosity = 1
-        self.logger = None
 
     def add_arguments(self, parser):
         parser.add_argument("import_types", nargs="*", choices=self.importer_types)
@@ -134,7 +133,7 @@ class Command(BaseCommand):
     def handle(self, **options):
         self.options = options
         self.verbosity = int(options.get("verbosity", 1))
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("turku_services_import")
         self.delete_external_sources = options.get("delete_external_sources", False)
         import_count = 0
 
