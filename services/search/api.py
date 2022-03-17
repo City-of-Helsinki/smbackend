@@ -81,8 +81,10 @@ class SearchSerializer(serializers.Serializer):
             object_type = "administrativedivision"
         else:
             return representation
+        if object_type == "servicenode":
+            representation["ids"] = self.context["service_node_ids"][str(obj.id)]
         # Address IDs are not serialized thus they changes after every import.
-        if object_type != "address":
+        if object_type not in ["address", "servicenode"]:
             representation["id"] = getattr(obj, "id")
         representation["object_type"] = object_type
         names = {}
@@ -148,6 +150,20 @@ class SearchSerializer(serializers.Serializer):
                     )
 
         return representation
+
+
+def get_service_node_results(all_results):
+    """
+    Returns a dict with the aggregated ids. Key is the first id in the results.
+    This dict is also sent as context to the serializer to output the ids list.
+    """
+    ids = {}
+    for row in all_results:
+        if row[1] == "ServiceNode":
+            # Id is the first col and in format type_42_43_44.
+            tmp = row[0].split("_")[1:]
+            ids[tmp[0]] = tmp[0:]
+    return ids
 
 
 def get_ids_from_sql_results(all_results, type="Unit"):
@@ -329,7 +345,8 @@ class SearchViewSet(GenericAPIView):
         all_ids = get_all_ids_from_sql_results(all_results)
         unit_ids = all_ids["Unit"]
         service_ids = all_ids["Service"]
-        service_node_ids = all_ids["ServiceNode"]
+        service_node_ids = get_service_node_results(all_results)
+
         administrative_division_ids = all_ids["AdministrativeDivision"]
         address_ids = all_ids["Address"]
 
@@ -414,7 +431,8 @@ class SearchViewSet(GenericAPIView):
         else:
             administrative_divisions_qs = AdministrativeDivision.objects.none()
         if "servicenode" in types:
-            service_nodes_qs = ServiceNode.objects.filter(id__in=service_node_ids)
+            query_ids = [id[0] for id in service_node_ids.values()]
+            service_nodes_qs = ServiceNode.objects.filter(id__in=query_ids)
             if not service_nodes_qs and "servicenode" in use_trigram:
                 service_nodes_qs = get_trigram_results(
                     ServiceNode,
@@ -468,6 +486,11 @@ class SearchViewSet(GenericAPIView):
         )
         page = self.paginate_queryset(queryset)
         serializer = SearchSerializer(
-            page, many=True, context={"extended_serializer": extended_serializer}
+            page,
+            many=True,
+            context={
+                "extended_serializer": extended_serializer,
+                "service_node_ids": service_node_ids,
+            },
         )
         return self.get_paginated_response(serializer.data)
