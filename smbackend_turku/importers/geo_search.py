@@ -153,11 +153,8 @@ class GeoSearchImporter:
         postal_code_area, _ = PostalCodeArea.objects.get_or_create(
             postal_code=postal_code
         )
-        name_added = False
-        # breakpoint()
-        if not postal_code_area.name_fi:
-            print("here")
-            # breakpoint()
+        name_added = False        
+        if not postal_code_area.name_fi:           
             postal_code_area.name_fi = result["postal_code_area"]["name"]["fi"]
             name_added = True
         if not postal_code_area.name_fi:
