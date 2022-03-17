@@ -5,7 +5,7 @@ from threading import Thread
 import requests
 from django.conf import settings
 from django.contrib.gis.geos import Point
-from munigeo.models import Address, Street
+from munigeo.models import Address, PostalCodeArea, Street
 
 from smbackend_turku.importers.utils import get_municipality
 
@@ -13,7 +13,7 @@ SOURCE_DATA_SRID = 4326
 TARGET_DATA_SRID = 3067
 PAGE_SIZE = 20000  # TODO set to 20000
 # Determines how many threads are run simultaneously when importing addresses
-THREAD_POOL_SIZE = 4
+THREAD_POOL_SIZE = 2
 BASE_URL = settings.GEO_SEARCH_LOCATION
 
 # Contains the municipalities to import
@@ -58,12 +58,15 @@ class GeoSearchImporter:
     addresses_imported = 0
     streets_imported = 0
     streets_enriched_with_swedish_translation = 0
+    postal_code_areas_enriched = 0
+    postal_code_areas_added = 0
     duplicate_addresses = 0
     # Contains the streets of the current municipality, used for caching
     streets_cache = {}
     # Contains the addresses of the current municipality, as the source contains
     # duplicates, the address_cache is used to lookup if the address is already saved.
     address_cache = {}
+    postal_code_areas_cache = {}
 
     def __init__(self, logger=None):
         self.logger = logger
@@ -81,7 +84,9 @@ class GeoSearchImporter:
             page, url
         )
         results = response.json()["results"]
-        print(f"Fetched page {page} from {request_url} with {len(results)} items.")
+        self.logger.info(
+            f"Fetched page {page} from {request_url} with {len(results)} items."
+        )
         return results
 
     def worker(self, page_queue, results_queue, url):
@@ -143,6 +148,25 @@ class GeoSearchImporter:
         location = Point(lat, lon, srid=SOURCE_DATA_SRID)
         location.transform(TARGET_DATA_SRID)
         return location
+
+    def get_or_create_postal_code_area(self, postal_code, result):
+        postal_code_area, _ = PostalCodeArea.objects.get_or_create(
+            postal_code=postal_code
+        )
+        name_added = False
+        # breakpoint()
+        if not postal_code_area.name_fi:
+            print("here")
+            # breakpoint()
+            postal_code_area.name_fi = result["postal_code_area"]["name"]["fi"]
+            name_added = True
+        if not postal_code_area.name_fi:
+            postal_code_area.name_sv = result["postal_code_area"]["name"]["sv"]
+            name_added = True
+        if name_added:
+            self.postal_code_areas_enriched + 1
+            postal_code_area.save()
+        return postal_code_area
 
     def save_page(self, results, municipality):
         cache_misses = 0
@@ -210,8 +234,10 @@ class GeoSearchImporter:
             Street.objects.bulk_create(streets)
         Address.objects.bulk_create(addresses)
 
-        print(f"Page saved with {len_addresses} addresses and {len_streets} street.")
-        print(
+        self.logger.info(
+            f"Page saved with {len_addresses} addresses and {len_streets} street."
+        )
+        self.logger.info(
             f"Page processed with {cache_hits} caches hits and {cache_misses} misses."
         )
         self.addresses_imported += len_addresses
@@ -228,14 +254,13 @@ class GeoSearchImporter:
 
         count = self.get_count(url)
         max_page = int(count / PAGE_SIZE) + 1
-        print(f"Fetching municipality: {municipality}")
-        print(
+        self.logger.info(f"Fetching municipality: {municipality}")
+        self.logger.info(
             f"Source data for municipality contains {count} items and {max_page} pages(page_size={PAGE_SIZE})."
         )
 
         url = f"{BASE_URL}?municipalitycode={municipality_code}&page_size={PAGE_SIZE}"
         for pool in range(0, max_page, THREAD_POOL_SIZE):
-            start_time = datetime.now()
             threads = []
             # Create threads to the pool
             for page in range(1, THREAD_POOL_SIZE + 1):
@@ -262,14 +287,16 @@ class GeoSearchImporter:
                     raise results
 
             end_time = datetime.now()
-            duration = end_time - start_time
+            duration = end_time - self.start_time
             output_rate = (
                 self.streets_imported + self.addresses_imported
             ) / duration.total_seconds()
-            print(
-                f"Duration {duration}, Current (fetching+processing+storing) rate (addresses&streets/s): {output_rate}"
+            self.logger.info
+            (
+                f"Duration {duration}, Current (fetching+processing+storing)\
+                    average rate (addresses&streets/s): {output_rate}"
             )
-            print(
+            self.logger.info(
                 f"Addresses imported: {self.addresses_imported}, Streets imported: {self.streets_imported}"
             )
 
@@ -283,6 +310,11 @@ class GeoSearchImporter:
                 street_name_en,
             ) = self.get_multilingual_street_names(result)
             # name_sv is not added as there might be a swedish translation
+            postal_code = result["postal_code_area"]["postal_code"]
+            if postal_code not in self.postal_code_areas_cache:
+                self.postal_code_areas_cache[
+                    postal_code
+                ] = self.get_or_create_postal_code_area(postal_code, result)
             street_entry = {
                 "name": street_name_fi,
                 "name_en": street_name_en,
@@ -298,7 +330,9 @@ class GeoSearchImporter:
                         and street_name_sv != street.name_sv
                     ):
                         # update the swedish name
-                        print("Update translation", street_name_fi)
+                        self.logger.info(
+                            f"Updated translation for {street_name_fi} to {street_name_sv}"
+                        )
                         Street.objects.filter(**street_entry).update(
                             name_sv=street_name_sv
                         )
@@ -322,6 +356,10 @@ class GeoSearchImporter:
             address = None
             try:
                 address = Address.objects.get(**address_entry)
+                if not address.postal_code_area:
+                    address.postal_code_area = self.postal_code_areas_cache[postal_code]
+                    self.postal_code_areas_added += 1
+                    address.save()
             except Address.DoesNotExist:
                 location = self.get_location(result)
                 if location:
@@ -341,7 +379,9 @@ class GeoSearchImporter:
                     address_entry["full_name_sv"] = full_name_sv
                     address_entry["full_name_en"] = full_name_en
                     address_entry["location"] = location
-
+                    address_entry["postal_code_area"] = self.postal_code_areas_cache[
+                        postal_code
+                    ]
                     address = Address(**address_entry)
                     # Ensures that no duplicates goes to DB, as there are some in the source data
                     if full_name_fi not in self.address_cache:
@@ -355,7 +395,7 @@ class GeoSearchImporter:
         if addresses:
             Address.objects.bulk_create(addresses)
 
-        print(
+        self.logger.info(
             f"Processed page, added {len(streets)} streets and {len(addresses)} addresses."
         )
         self.addresses_imported += len(addresses)
@@ -367,8 +407,8 @@ class GeoSearchImporter:
         self.address_cache = {}
         count = self.get_count(url)
         max_page = int(count / PAGE_SIZE) + 1
-        print(f"Enriching municipality {municipality}.")
-        print(
+        self.logger.info(f"Enriching municipality {municipality}.")
+        self.logger.info(
             f"Source data for municipality contains {count} items and {max_page} pages(page_size={PAGE_SIZE})."
         )
         url = f"{BASE_URL}?municipalitycode={municipality_code}&page_size={PAGE_SIZE}"
@@ -378,8 +418,9 @@ class GeoSearchImporter:
             self.enrich_page(results, municipality)
 
     def enrich_addresses(self):
-        print("Enriching existing addresses with geo_search addresses.")
+        self.logger.info("Enriching existing addresses with geo_search addresses.")
         self.start_time = datetime.now()
+        self.postal_code_areas_cache = {}
         self.streets_imported = 0
         self.addresses_imported = 0
         self.duplicate_addresses = 0
@@ -393,22 +434,32 @@ class GeoSearchImporter:
 
         end_time = datetime.now()
         duration = end_time - self.start_time
-        print(f"Finnished enriching addresses in:{duration}")
-        print(
+        self.logger.info(f"Finnished enriching addresses in:{duration}")
+        self.logger.info(
             f"Imported {self.streets_imported} streets and {self.addresses_imported} addresses."
         )
-        print(
+        self.logger.info(
             f"Enriched {self.streets_enriched_with_swedish_translation} streets with swedish translaitons."
         )
-        print(f"Found and ignored {self.duplicate_addresses} duplicate adresses.")
+        self.logger.info(
+            f"Enriched {self.postal_code_areas_enriched} postal_code_areas."
+        )
+        self.logger.info(
+            f"Added {self.postal_code_areas_added} postal_code_areas to addresses."
+        )
+        self.logger.info(
+            f"Found and ignored {self.duplicate_addresses} duplicate adresses."
+        )
 
     def import_addresses(self):
-        print("Importing addresses from geo-search.")
+        self.logger.info("Importing addresses from geo-search.")
         for muni in MUNICIPALITIES.items():
             municipality = get_municipality(muni[1][0])
             Street.objects.filter(municipality_id=municipality).delete()
 
         self.start_time = datetime.now()
+        self.postal_code_areas_cache = {}
+
         for muni in MUNICIPALITIES.items():
             code = muni[0]
             municipality = get_municipality(muni[1][0])
@@ -423,16 +474,20 @@ class GeoSearchImporter:
         tot_output_rate = (
             self.streets_imported + self.addresses_imported
         ) / duration.total_seconds()
-        print(f"Importing of addresses from geo_search finnished in: {duration}")
-        print(
+        self.logger.info(
+            f"Importing of addresses from geo_search finnished in: {duration}"
+        )
+        self.logger.info(
             "Streets and Addresses where (fetched+processed+stored) at a rate of"
             + f"(addresses&streets/s) {tot_output_rate}"
         )
-        print(f"Found and ignored {self.duplicate_addresses} duplicate adresses.")
-        print(
+        self.logger.info(
+            f"Found and ignored {self.duplicate_addresses} duplicate adresses."
+        )
+        self.logger.info(
             f"Addresses where fetched and stored at a average rate of (addresses/s): {output_rate}"
         )
-        print(
+        self.logger.info(
             f"THREAD_POOL_SIZE: {THREAD_POOL_SIZE} PAGE_ SIZE:{PAGE_SIZE}"
             + f" Fetched {self.addresses_imported} addresses and {self.streets_imported} streets."
         )
@@ -469,6 +524,10 @@ THREAD_POOL_SIZE: 2 Page size:8000 Fetched 54727 in 0:18:31.251561, output_rate(
 THREAD_POOL_SIZE: 4 Page size:2000 Fetched 1661225 in 8:49:30.547232, output_rate(addrs/s): 52.28820856843087
 THREAD_POOL_SIZE: 2 Page size:8000 Fetched 1661225 in 8:17:29.409040, output_rate(addrs/s): 55.65353062011576
 THREAD_POOL_SIZE: 2 Page size:20000 Fetched 1661225 in 8:08:49.436471, output_rate(addrs/s): 56.640194967351846
+Importing of addresses from geo_search finnished in: 9:36:15.753371
+Streets and Addresses where (fetched+processed+stored) at a rate of(addresses&streets/s) 43.30630149785493
+Found and ignored 84747 duplicate adresses.
+Addresses where fetched and stored at a average rate of (addresses/s): 42.8544530642904
 
 Enriching:
 Finnished enriching addresses in:0:32:45.429627
