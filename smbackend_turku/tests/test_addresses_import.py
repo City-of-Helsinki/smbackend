@@ -1,7 +1,7 @@
 import logging
 
 import pytest
-from munigeo.models import Address, Street
+from munigeo.models import Address, PostalCodeArea, Street
 
 from smbackend_turku.importers.addresses import AddressImporter, SOURCE_DATA_SRID
 from smbackend_turku.tests.utils import (
@@ -21,6 +21,10 @@ def test_address_import():
     address_importer.import_addresses()
     assert Address.objects.count() == 3
     assert Street.objects.count() == 3
+    assert PostalCodeArea.objects.count() == 2
+    postal_code_areas = PostalCodeArea.objects.all()
+    postal_code_areas[0].postal_code == "20320"
+    postal_code_areas[1].postal_code == "21620"
     streets = Street.objects.all()
     # Test street without swedish name, should get the finnish name
     assert streets[0].name_fi == "Rauhalankalliontie"
@@ -33,10 +37,12 @@ def test_address_import():
     assert addr_rauhalankalliontie.number == "3"
     assert addr_rauhalankalliontie.number_end == ""
     assert addr_rauhalankalliontie.letter == ""
+    assert addr_rauhalankalliontie.postal_code_area.postal_code == "21620"
     # test 1-4 number
     addr_unikkopolku = addresses[1]
     assert addr_unikkopolku.number == "1"
     assert addr_unikkopolku.number_end == "4"
+    assert addr_unikkopolku.postal_code_area.postal_code == "20320"
     # test letter after number
     addr_koppelonkatu = addresses[2]
     addr_koppelonkatu.number == "13"
