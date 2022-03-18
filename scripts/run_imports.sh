@@ -4,7 +4,7 @@ export PYTHONIOENCODING=utf-8
 
 function stage_0 {
     # Very seldomly executed imports (once a year)
-    # Finnish municipalities in munigeo
+    # Finnish municipalities
     ./manage.py geo_import finland --municipalities
 }
 
@@ -16,14 +16,13 @@ function stage_1 {
 
 function stage_2 {
     # Once a day
-    # Helsinki, Espoo and HSY administrative division munigeo data
+    # Helsinki, Espoo and HSY administrative division and address data
     ./manage.py geo_import helsinki --divisions
     ./manage.py geo_import espoo --divisions
     ./manage.py geo_import hsy --divisions
     ./manage.py geo_import helsinki --addresses
-    # Services and LIPAS-geometries imports
+    # Unit properties import
     ./manage.py services_import_v4 unit_properties
-    ./manage.py lipas_import --muni-id=92 --muni-id=91 --muni-id=49 --muni-id=235 --muni-id=257
 }
 
 function stage_3 {

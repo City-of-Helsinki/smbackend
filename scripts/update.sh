@@ -17,6 +17,7 @@ echo ---------------------------------
 cd $ROOT_PATH
 
 timeout 20m nice python manage.py services_import_v4 departments services units entrances 2>&1
+timeout 20m nice python manage.py lipas_import --muni-id=92 --muni-id=91 --muni-id=49 --muni-id=235 --muni-id=257 2>&1
 
 if [[ -n "${IMPORT_HEALTHCHECK_URL}" ]]; then
   curl --retry 3 "${IMPORT_HEALTHCHECK_URL}"
