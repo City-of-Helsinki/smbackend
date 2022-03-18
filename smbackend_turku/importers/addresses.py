@@ -25,6 +25,9 @@ MUNICIPALITIES = {
 
 
 class AddressImporter:
+    streets_imported = 0
+    addresses_imported = 0
+
     def __init__(self, logger=None, layer=None):
         self.logger = logger
         if not layer:
@@ -51,7 +54,6 @@ class AddressImporter:
         for feature in self.layer:
             name_fi = feature["Osoite_suomeksi"].as_string()
             name_sv = feature["Osoite_ruotsiksi"].as_string()
-            # Add to entry when munigeo supports zip_code
             postal_code = feature["Postinumero"].as_string()
             if postal_code and postal_code not in postal_code_areas:
                 # The source data contains postal_codes with errorneous length. skip them.
@@ -122,6 +124,7 @@ class AddressImporter:
             else:
                 entry["street"]["name_sv"] = name_sv
                 street = Street.objects.create(**entry["street"])
+                self.streets_imported += 1
 
             # Create full_name that will be used when populating search_column.
             full_name_fi = f"{name_fi} {number_letter}"
@@ -143,6 +146,7 @@ class AddressImporter:
 
             try:
                 Address.objects.get_or_create(**entry["address"])
+                self.addresses_imported += 1
             except IntegrityError:
                 # Duplicate address causes Integrity error as the unique constraints fails.
                 # and they are discarded thus they would confuse when e.g. searching for
@@ -159,7 +163,7 @@ class AddressImporter:
         duration = end_time - start_time
         self.logger.info(
             "Imported {} streets and {} anddresses in {}".format(
-                Street.objects.all().count(), Address.objects.all().count(), duration
+                self.streets_imported, self.addresses_imported, duration
             )
         )
         self.logger.info("Discarded {} duplicates.".format(num_duplicates))
