@@ -18,17 +18,18 @@ And the Mobile view specific settings, see: config_dev.env.example
 ./manage.py geo_import finland --municipalities
 ./manage.py turku_services_import services accessibility units addresses
 ```
-## Importing addresses from geo-search
-```
-./manage.py turku_services_import geo_search_addresses
-```
-Note, this imports all the addresses from Southwest Finland and might take ~9 hours.
 
 ## Enricing addresses with geo-search-data
 This enriches addresses imported with the address importer(from the WFS server)
 ```
 ./manage.py turku_services_import enriched_addresses
 ```
+
+## Importing addresses from geo-search
+```
+./manage.py turku_services_import geo_search_addresses
+```
+Note, this imports all the addresses from Southwest Finland and might take ~9 hours.
 
 ##  Indexing search columns
 The search columns must be indexed after the first time data is imported or geo-search addesses are imported or addesses are enriched with geo-search data.
