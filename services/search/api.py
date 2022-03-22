@@ -34,12 +34,24 @@ from rest_framework.exceptions import ParseError
 from rest_framework.generics import GenericAPIView
 
 from services.api import TranslatedModelSerializer, UnitSerializer
-from services.models import Department, Service, Unit, UnitAccessibilityShortcomings
+from services.models import (
+    Department,
+    Service,
+    ServiceNode,
+    Unit,
+    UnitAccessibilityShortcomings,
+)
 
 logger = logging.getLogger("search")
 LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
 DEFAULT_SRS = SpatialReference(4326)
-SEARCHABLE_MODEL_TYPE_NAMES = ("Unit", "Service", "AdministrativeDivision", "Address")
+SEARCHABLE_MODEL_TYPE_NAMES = (
+    "Unit",
+    "Service",
+    "ServiceNode",
+    "AdministrativeDivision",
+    "Address",
+)
 QUERY_PARAM_TYPE_NAMES = [m.lower() for m in SEARCHABLE_MODEL_TYPE_NAMES]
 DEFAULT_MODEL_LIMIT_VALUE = None  # None will slice to the end of list
 # The limit value for the search query that search the search_view. "NULL" = no limit
@@ -61,14 +73,18 @@ class SearchSerializer(serializers.Serializer):
             object_type = "unit"
         elif isinstance(obj, Service):
             object_type = "service"
+        elif isinstance(obj, ServiceNode):
+            object_type = "servicenode"
         elif isinstance(obj, Address):
             object_type = "address"
         elif isinstance(obj, AdministrativeDivision):
             object_type = "administrativedivision"
         else:
             return representation
+        if object_type == "servicenode":
+            representation["ids"] = self.context["service_node_ids"][str(obj.id)]
         # Address IDs are not serialized thus they changes after every import.
-        if object_type != "address":
+        if object_type not in ["address", "servicenode"]:
             representation["id"] = getattr(obj, "id")
         representation["object_type"] = object_type
         names = {}
@@ -134,6 +150,20 @@ class SearchSerializer(serializers.Serializer):
                     )
 
         return representation
+
+
+def get_service_node_results(all_results):
+    """
+    Returns a dict with the aggregated ids. Key is the first id in the results.
+    This dict is also sent as context to the serializer to output the ids list.
+    """
+    ids = {}
+    for row in all_results:
+        if row[1] == "ServiceNode":
+            # Id is the first col and in format type_42_43_44.
+            tmp = row[0].split("_")[1:]
+            ids[tmp[0]] = tmp[0:]
+    return ids
 
 
 def get_ids_from_sql_results(all_results, type="Unit"):
@@ -315,6 +345,8 @@ class SearchViewSet(GenericAPIView):
         all_ids = get_all_ids_from_sql_results(all_results)
         unit_ids = all_ids["Unit"]
         service_ids = all_ids["Service"]
+        service_node_ids = get_service_node_results(all_results)
+
         administrative_division_ids = all_ids["AdministrativeDivision"]
         address_ids = all_ids["Address"]
 
@@ -365,7 +397,7 @@ class SearchViewSet(GenericAPIView):
                 municipalities = (
                     self.request.query_params["municipality"].lower().strip().split(",")
                 )
-                if municipalities[0]:
+                if len(municipalities) > 0:
                     units_qs = units_qs.filter(municipality_id__in=municipalities)
             if "service" in self.request.query_params:
                 services = self.request.query_params["service"].strip().split(",")
@@ -379,39 +411,61 @@ class SearchViewSet(GenericAPIView):
             units_qs = Unit.objects.none()
 
         if "administrativedivision" in types:
-            administrative_division_qs = AdministrativeDivision.objects.filter(
+            administrative_divisions_qs = AdministrativeDivision.objects.filter(
                 id__in=administrative_division_ids
             )
             if (
-                not administrative_division_qs
+                not administrative_divisions_qs
                 and "administrativedivision" in use_trigram
             ):
-                administrative_division_qs = get_trigram_results(
+                administrative_divisions_qs = get_trigram_results(
                     AdministrativeDivision,
                     "munigeo_administrativedivision",
                     "name_" + language_short,
                     q_val,
                     threshold=trigram_threshold,
                 )
-            administrative_division_qs = administrative_division_qs[
+            administrative_divisions_qs = administrative_divisions_qs[
                 : model_limits["administrativedivision"]
             ]
         else:
-            administrative_division_qs = AdministrativeDivision.objects.none()
+            administrative_divisions_qs = AdministrativeDivision.objects.none()
+        if "servicenode" in types:
+            query_ids = [id[0] for id in service_node_ids.values()]
+            service_nodes_qs = ServiceNode.objects.filter(id__in=query_ids)
+            if not service_nodes_qs and "servicenode" in use_trigram:
+                service_nodes_qs = get_trigram_results(
+                    ServiceNode,
+                    "services_servicenode",
+                    "name_" + language_short,
+                    q_val,
+                    threshold=trigram_threshold,
+                )
+                service_nodes_qs = service_nodes_qs[: model_limits["servicenode"]]
+        else:
+            service_nodes_qs = ServiceNode.objects.none()
 
         if "address" in types:
-            address_qs = Address.objects.filter(id__in=address_ids)
-            if not address_qs and "address" in use_trigram:
-                address_qs = get_trigram_results(
+            addresses_qs = Address.objects.filter(id__in=address_ids)
+            if not addresses_qs and "address" in use_trigram:
+                addresses_qs = get_trigram_results(
                     Address,
                     "munigeo_address",
                     "full_name_" + language_short,
                     q_val,
                     threshold=trigram_threshold,
                 )
-            address_qs = address_qs[: model_limits["address"]]
+            if "municipality" in self.request.query_params:
+                municipalities = (
+                    self.request.query_params["municipality"].lower().strip().split(",")
+                )
+                if len(municipalities) > 0:
+                    addresses_qs = addresses_qs.filter(
+                        street__municipality_id__in=municipalities
+                    )
+            addresses_qs = addresses_qs[: model_limits["address"]]
         else:
-            address_qs = Address.objects.none()
+            addresses_qs = Address.objects.none()
 
         if logger.level <= logging.DEBUG:
             logger.debug(connection.queries)
@@ -425,12 +479,18 @@ class SearchViewSet(GenericAPIView):
             chain(
                 units_qs,
                 services_qs,
-                administrative_division_qs,
-                address_qs,
+                service_nodes_qs,
+                administrative_divisions_qs,
+                addresses_qs,
             )
         )
         page = self.paginate_queryset(queryset)
         serializer = SearchSerializer(
-            page, many=True, context={"extended_serializer": extended_serializer}
+            page,
+            many=True,
+            context={
+                "extended_serializer": extended_serializer,
+                "service_node_ids": service_node_ids,
+            },
         )
         return self.get_paginated_response(serializer.data)

@@ -38,6 +38,7 @@ env = environ.Env(
     TURKU_WFS_URL=(str, None),
     GEO_SEARCH_LOCATION=(str, None),
     GEO_SEARCH_API_KEY=(str, None),
+    PTV_ID_OFFSET=(int,None),
     ECO_COUNTER_STATIONS_URL=(str, None),
     ECO_COUNTER_OBSERVATIONS_URL=(str, None),
     GAS_FILLING_STATIONS_IDS=(dict, {}),
@@ -346,6 +347,7 @@ if "SECRET_KEY" not in locals():
                 % secret_file
             )
 TURKU_WFS_URL = env("TURKU_WFS_URL")
+PTV_ID_OFFSET=env("PTV_ID_OFFSET")
 GEO_SEARCH_LOCATION = env("GEO_SEARCH_LOCATION")
 GEO_SEARCH_API_KEY = env("GEO_SEARCH_API_KEY")
 ECO_COUNTER_OBSERVATIONS_URL = env("ECO_COUNTER_OBSERVATIONS_URL")
