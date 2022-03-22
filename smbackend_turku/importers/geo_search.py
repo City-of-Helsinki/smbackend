@@ -3,15 +3,18 @@ from queue import Empty, Queue
 from threading import Thread
 
 import requests
+import urllib3
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from munigeo.models import Address, PostalCodeArea, Street
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 from smbackend_turku.importers.utils import get_municipality
 
 SOURCE_DATA_SRID = 4326
 TARGET_DATA_SRID = 3067
-PAGE_SIZE = 20000
+PAGE_SIZE = 1000
 # Determines how many threads are run simultaneously when importing addresses
 THREAD_POOL_SIZE = 2
 BASE_URL = settings.GEO_SEARCH_LOCATION
@@ -68,24 +71,41 @@ class GeoSearchImporter:
     # duplicates, the address_cache is used to lookup if the address is already saved.
     address_cache = {}
     postal_code_areas_cache = {}
+    # The import source may fail, create import_strategy
+    retry_strategy = Retry(
+        total=10,
+        status_forcelist=[400, 408, 429, 500, 502, 503, 504],
+        method_whitelist=[
+            "GET",
+        ],
+        backoff_factor=40,  # 20, 40, 80 , 160, 320, 640, 1280...seconds
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
 
     def __init__(self, logger=None):
         self.logger = logger
 
     def get_count(self, url):
         headers = {"Authorization": f"Api-Key:{settings.GEO_SEARCH_API_KEY}"}
-        response = requests.get(url, headers=headers)
-        assert response.status_code == 200, "Fetching count from {} failed.".format(url)
+        try:
+            response = self.http.get(url, headers=headers)
+        except urllib3.exceptions.MaxRetryError as ex:
+            self.logger.error(ex)
+
         count = response.json()["count"]
         return count
 
     def fetch_page(self, url, page):
         request_url = f"{url}&page={page}"
         headers = {"Authorization": f"Api-Key:{settings.GEO_SEARCH_API_KEY}"}
-        response = requests.get(request_url, headers=headers)
-        assert response.status_code == 200, "Fetching page {} from {} failed.".format(
-            page, url
-        )
+        try:
+            response = self.http.get(request_url, headers=headers)
+        except urllib3.exceptions.MaxRetryError as ex:
+            self.logger.error(ex)
+
         results = response.json()["results"]
         self.logger.info(
             f"Fetched page {page} from {request_url} with {len(results)} items."
@@ -162,7 +182,7 @@ class GeoSearchImporter:
         if not postal_code_area.name_fi:
             postal_code_area.name_fi = result["postal_code_area"]["name"]["fi"]
             name_added = True
-        if not postal_code_area.name_fi:
+        if not postal_code_area.name_sv:
             postal_code_area.name_sv = result["postal_code_area"]["name"]["sv"]
             name_added = True
         if name_added:
