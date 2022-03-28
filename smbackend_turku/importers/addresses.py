@@ -5,48 +5,29 @@ from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import Point
 from django.db.utils import IntegrityError
-from munigeo.models import Address, Municipality, Street
+from munigeo.models import Address, Municipality, PostalCodeArea, Street
+
+from smbackend_turku.importers.utils import get_municipality
 
 SOURCE_DATA_SRID = 3877
-SOURCE_DATA_URL = f"{settings.TURKU_WFS_URL}"\
+SOURCE_DATA_URL = (
+    f"{settings.TURKU_WFS_URL}"
     "?service=WFS&request=GetFeature&typeName=GIS:Osoitteet&outputFormat=GML3&maxFeatures=80000"
+)
 # NOTE "django.contrib.gis ERROR: GDAL_ERROR 1: b"Value 'UNKNOWN FIELD 'AddAddress.AddressNumberInt''
 # of field Osoitteet.Osoitenumero_luku parsed incompletely to integer 0." Is caused by faulty source data.
 
+# Municipalities in Turku WFS server
 MUNICIPALITIES = {
-    # VARISNAIS-SUOMI
-    19: ("Aura", "Aura"),
     202: ("Kaarina", "S:t Karins"),
-    322: ("Kemiö", "Kimito"),
-    284: ("Koski Tl", "Koskis"),
-    304: ("Kustaavi", "Gustavs"),
-    400: ("Laitila", "Letala"),
-    423: ("Lieto", "Lundo"),
-    430: ("Loimaa", "Loimaa"),
-    445: ("Parainen", "Pargas"),
-    480: ("Marttila", "S:t Mårtens"),
-    481: ("Masku", "Masko"),
-    503: ("Mynämäki", "Virmo"),
-    529: ("Naantali", "Nådendal"),
-    538: ("Nousiainen", "Nousis"),
-    561: ("Oripää", "Oripää"),
-    573: ("Parainen", "Pargas"),
-    577: ("Paimio", "Pemar"),
-    631: ("Pyhäranta", "Pyhäranta"),
-    636: ("Pöytyä", "Pöytis"),
-    680: ("Raisio", "Reso"),
-    704: ("Rusko", "Rusko"),
-    734: ("Salo", "Salo"),
-    738: ("Sauvo", "Sagu"),
-    761: ("Somero", "Somero"),
-    833: ("Taivassalo", "Tövsala"),
     853: ("Turku", "Åbo"),
-    895: ("Uusikaupunki", "Nystad"),
-    918: ("Vehmaa", "Vemo"),
 }
 
 
 class AddressImporter:
+    streets_imported = 0
+    addresses_imported = 0
+
     def __init__(self, logger=None, layer=None):
         self.logger = logger
         if not layer:
@@ -62,9 +43,10 @@ class AddressImporter:
 
     def import_addresses(self):
         start_time = datetime.now()
-
-        Street.objects.all().delete()
-        Address.objects.all().delete()
+        postal_code_areas = {}
+        for muni in MUNICIPALITIES.items():
+            municipality = get_municipality(muni[1][0])
+            Street.objects.filter(municipality_id=municipality).delete()
 
         num_incomplete = 0
         num_duplicates = 0
@@ -72,8 +54,16 @@ class AddressImporter:
         for feature in self.layer:
             name_fi = feature["Osoite_suomeksi"].as_string()
             name_sv = feature["Osoite_ruotsiksi"].as_string()
-            # Add to entry when munigeo supports zip_code
-            # zip_code = feature["Postinumero"].as_string()
+            postal_code = feature["Postinumero"].as_string()
+            if postal_code and postal_code not in postal_code_areas:
+                # The source data contains postal_codes with errorneous length. skip them.
+                if len(postal_code) != 5:
+                    postal_code = None
+                    break
+                postal_code_area, _ = PostalCodeArea.objects.get_or_create(
+                    postal_code=postal_code
+                )
+                postal_code_areas[postal_code] = postal_code_area
             if not name_sv:
                 name_sv = name_fi
             municipality_num = feature["Kuntanumero"].as_int()
@@ -134,6 +124,7 @@ class AddressImporter:
             else:
                 entry["street"]["name_sv"] = name_sv
                 street = Street.objects.create(**entry["street"])
+                self.streets_imported += 1
 
             # Create full_name that will be used when populating search_column.
             full_name_fi = f"{name_fi} {number_letter}"
@@ -144,7 +135,8 @@ class AddressImporter:
             entry["address"]["full_name_fi"] = full_name_fi
             entry["address"]["full_name_sv"] = full_name_sv
             entry["address"]["full_name_en"] = full_name_fi
-
+            if postal_code:
+                entry["address"]["postal_code_area"] = postal_code_areas[postal_code]
             if number:
                 entry["address"]["number"] = number
             if number_end:
@@ -154,6 +146,7 @@ class AddressImporter:
 
             try:
                 Address.objects.get_or_create(**entry["address"])
+                self.addresses_imported += 1
             except IntegrityError:
                 # Duplicate address causes Integrity error as the unique constraints fails.
                 # and they are discarded thus they would confuse when e.g. searching for
@@ -170,12 +163,15 @@ class AddressImporter:
         duration = end_time - start_time
         self.logger.info(
             "Imported {} streets and {} anddresses in {}".format(
-                Street.objects.all().count(), Address.objects.all().count(), duration
+                self.streets_imported, self.addresses_imported, duration
             )
         )
         self.logger.info("Discarded {} duplicates.".format(num_duplicates))
         self.logger.info("Discarded {} incomplete.".format(num_incomplete))
-        self.logger.info("Saving addresses and streets to database, this might take a while...")
+        self.logger.info(
+            "Saving addresses and streets to database, this might take a while..."
+        )
+
 
 def import_addresses(**kwargs):
     importer = AddressImporter(**kwargs)

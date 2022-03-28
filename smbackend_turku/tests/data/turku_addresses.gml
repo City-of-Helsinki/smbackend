@@ -41,7 +41,7 @@
     <GIS:Osoite_ruotsiksi>Tjädergatan</GIS:Osoite_ruotsiksi>
     <GIS:Osoitenumero>13b</GIS:Osoitenumero>
     <GIS:Osoitenumero_luku>13</GIS:Osoitenumero_luku>
-    <GIS:Postinumero>20610</GIS:Postinumero>
+    <GIS:Postinumero>20320</GIS:Postinumero>
     <GIS:Kuntanumero>853</GIS:Kuntanumero>
     <GIS:Tekstin_suunta_gon>306.7084</GIS:Tekstin_suunta_gon>
     <GIS:Geometry>

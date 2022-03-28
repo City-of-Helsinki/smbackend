@@ -9,25 +9,33 @@ from django.utils import translation
 
 from smbackend_turku.importers.accessibility import import_accessibility
 from smbackend_turku.importers.addresses import import_addresses
-from smbackend_turku.importers.services import import_services
-from smbackend_turku.importers.units import import_units
-from smbackend_turku.importers.stations import (
-    import_gas_filling_stations,
-    import_charging_stations,    
-)
 from smbackend_turku.importers.bicycle_stands import import_bicycle_stands
+from smbackend_turku.importers.geo_search import (
+    import_enriched_addresses,
+    import_geo_search_addresses,
+)
+from smbackend_turku.importers.services import import_services
+from smbackend_turku.importers.stations import (
+    import_charging_stations,
+    import_gas_filling_stations,
+)
+from smbackend_turku.importers.units import import_units
+
+
 class Command(BaseCommand):
     help = "Import services from City of Turku APIs and from external sources."
     importer_types = [
-        "services", 
-        "accessibility", 
-        "units", 
-        "addresses", 
+        "services",
+        "accessibility",
+        "units",
+        "addresses",
+        "geo_search_addresses",
+        "enriched_addresses",
         "gas_filling_stations",
         "charging_stations",
         "bicycle_stands",
-        "mobility_data"
-        ]
+        "mobility_data",
+    ]
 
     supported_languages = [lang[0] for lang in settings.LANGUAGES]
 
@@ -40,7 +48,6 @@ class Command(BaseCommand):
         self.services = {}
         self.options = None
         self.verbosity = 1
-        self.logger = None
 
     def add_arguments(self, parser):
         parser.add_argument("import_types", nargs="*", choices=self.importer_types)
@@ -63,15 +70,15 @@ class Command(BaseCommand):
             action="store_true",
             default=False,
             help="If parameter is set when importing, deletes the external \
-                 sources imported with the importer."
+                 sources imported with the importer.",
         )
 
     @db.transaction.atomic
     def import_services(self):
         return import_services(
-            logger=self.logger, 
+            logger=self.logger,
             importer=self,
-            delete_external_sources=self.delete_external_sources
+            delete_external_sources=self.delete_external_sources,
         )
 
     @db.transaction.atomic
@@ -81,35 +88,39 @@ class Command(BaseCommand):
     @db.transaction.atomic
     def import_units(self):
         return import_units(
-            logger=self.logger, 
-            importer=self, 
-            delete_external_sources=self.delete_external_sources
-        )   
+            logger=self.logger,
+            importer=self,
+            delete_external_sources=self.delete_external_sources,
+        )
 
     @db.transaction.atomic
     def import_addresses(self):
         return import_addresses(logger=self.logger)
 
+    def import_geo_search_addresses(self):
+        return import_geo_search_addresses(logger=self.logger)
+
+    def import_enriched_addresses(self):
+        return import_enriched_addresses(logger=self.logger)
+
     @db.transaction.atomic
     def import_gas_filling_stations(self):
         import_gas_filling_stations(
-            logger=self.logger, 
-            root_service_node_name="Vapaa-aika"
-            )
-        
+            logger=self.logger, root_service_node_name="Vapaa-aika"
+        )
+
     @db.transaction.atomic
     def import_charging_stations(self):
         import_charging_stations(
-            logger=self.logger, 
-            root_service_node_name="Vapaa-aika"
-            )
+            logger=self.logger, root_service_node_name="Vapaa-aika"
+        )
 
     @db.transaction.atomic
     def import_bicycle_stands(self):
         import_bicycle_stands(
-            logger=self.logger, 
+            logger=self.logger,
             root_service_node_name="Vapaa-aika",
-            )
+        )
 
     def import_mobility_data(self):
         self.import_bicycle_stands()
@@ -122,19 +133,18 @@ class Command(BaseCommand):
     def handle(self, **options):
         self.options = options
         self.verbosity = int(options.get("verbosity", 1))
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("turku_services_import")
         self.delete_external_sources = options.get("delete_external_sources", False)
         import_count = 0
-    
+
         for imp in self.importer_types:
             if imp not in self.options["import_types"]:
                 continue
             method = getattr(self, "import_%s" % imp)
             if self.verbosity:
-                print("Importing %s..." % imp)            
+                print("Importing %s..." % imp)
             method()
             import_count += 1
 
         if not import_count:
             sys.stderr.write("Nothing to import.\n")
-
