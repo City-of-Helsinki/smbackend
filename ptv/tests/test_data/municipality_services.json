@@ -1,0 +1,170 @@
+{
+  "pageNumber": 1,
+  "pageSize": 100,
+  "pageCount": 1,
+  "itemList": [
+    {
+      "id": "0008afc0-182c-4580-ba73-7472287f4d63",
+      "sourceId": null,
+      "subType": null,
+      "type": "Service",
+      "fundingType": "PubliclyFunded",
+      "serviceNames": [
+        {
+          "language": "fi",
+          "value": "Hammaslääkäri",
+          "type": "Name"
+        }
+      ],
+      "serviceChargeType": null,
+      "areaType": "LimitedType",
+      "areas": [
+        {
+          "type": "Municipality",
+          "code": null,
+          "name": null,
+          "municipalities": [
+            {
+              "code": "1",
+              "name": [
+                {
+                  "value": "Testikunta",
+                  "language": "sv"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "en"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "fi"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "serviceDescriptions": [
+        {
+          "language": "fi",
+          "value": "Suun ja hampaiden terveydenhuolto.",
+          "type": "Summary"
+        }
+      ],
+      "languages": [
+        "fi",
+        "sv"
+      ],
+      "serviceClasses": [
+        {
+          "name": [
+            {
+              "value": "Suun ja hampaiden terveydenhuolto",
+              "language": "fi"
+            }
+          ],
+          "description": [
+            {
+              "value": "Paveluluokkaan kuuluvat suun ja hampaiden terveydenhuollon palvelut.",
+              "language": "fi"
+            }
+          ]
+        }
+      ],
+      "serviceChannels": [
+        {
+          "serviceChannel": {
+            "id": "0001a1c4-6273-424f-8d17-2ac62be89741",
+            "name": "Terveysasema"
+          },
+          "serviceChargeType": null,
+          "description": [],
+          "extraTypes": [],
+          "serviceHours": [],
+          "contactDetails": null,
+          "digitalAuthorizations": [],
+          "modified": "2020-03-25T08:44:09.547364"
+        }
+      ]
+    },
+    {
+      "id": "00094685-ccc8-44a7-8345-07e36afde1b6",
+      "sourceId": null,
+      "subType": null,
+      "type": "Service",
+      "fundingType": "PubliclyFunded",
+      "serviceNames": [
+        {
+          "language": "fi",
+          "value": "Perusopetus",
+          "type": "Name"
+        }
+      ],
+      "serviceChargeType": null,
+      "areaType": "LimitedType",
+      "areas": [
+        {
+          "type": "Municipality",
+          "code": null,
+          "name": null,
+          "municipalities": [
+            {
+              "code": "1",
+              "name": [
+                {
+                  "value": "Testikunta",
+                  "language": "sv"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "en"
+                },
+                {
+                  "value": "Testikunta",
+                  "language": "fi"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "serviceDescriptions": [
+        {
+          "language": "fi",
+          "value": "Perusopetus",
+          "type": "Summary"
+        }
+      ],
+      "languages": [
+        "fi",
+        "sv"
+      ],
+      "serviceClasses": [
+        {
+          "name": [
+            {
+              "value": "Koulutus",
+              "language": "fi"
+            }
+          ],
+          "description": []
+        }
+      ],
+      "serviceChannels": [
+        {
+          "serviceChannel": {
+            "id": "00006fe3-7df2-409e-9cd6-cce4bf4338b1",
+            "name": "Peruskoulu"
+          },
+          "serviceChargeType": null,
+          "description": [],
+          "extraTypes": [],
+          "serviceHours": [],
+          "contactDetails": null,
+          "digitalAuthorizations": [],
+          "modified": "2020-03-25T08:44:09.537564"
+        }
+      ]
+    }
+  ]
+}
