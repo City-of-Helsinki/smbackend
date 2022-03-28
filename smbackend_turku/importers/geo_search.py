@@ -5,7 +5,9 @@ from threading import Thread
 import requests
 import urllib3
 from django.conf import settings
+from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point
+from django.db import transaction
 from munigeo.models import Address, PostalCodeArea, Street
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -14,6 +16,8 @@ from smbackend_turku.importers.utils import get_municipality
 
 SOURCE_DATA_SRID = 4326
 TARGET_DATA_SRID = 3067
+SOURCE_SRS = SpatialReference(SOURCE_DATA_SRID)
+TARGET_SRS = SpatialReference(TARGET_DATA_SRID)
 PAGE_SIZE = 1000
 # Determines how many threads are run simultaneously when importing addresses
 THREAD_POOL_SIZE = 2
@@ -65,6 +69,8 @@ class GeoSearchImporter:
     postal_code_areas_added_to_addresses = 0
     postal_code_areas_created = 0
     duplicate_addresses = 0
+    coord_transform = CoordTransform(SOURCE_SRS, TARGET_SRS)
+
     # Contains the streets of the current municipality, used for caching
     streets_cache = {}
     # Contains the addresses of the current municipality, as the source contains
@@ -169,7 +175,7 @@ class GeoSearchImporter:
         except KeyError:
             return None
         location = Point(lat, lon, srid=SOURCE_DATA_SRID)
-        location.transform(TARGET_DATA_SRID)
+        location.transform(self.coord_transform)
         return location
 
     def get_or_create_postal_code_area(self, postal_code, result):
@@ -190,6 +196,7 @@ class GeoSearchImporter:
             postal_code_area.save()
         return postal_code_area
 
+    @transaction.atomic
     def save_page(self, results, municipality):
         cache_misses = 0
         cache_hits = 0
@@ -328,6 +335,7 @@ class GeoSearchImporter:
                 f"Addresses imported: {self.addresses_imported}, Streets imported: {self.streets_imported}"
             )
 
+    @transaction.atomic
     def enrich_page(self, results, municipality):
         streets = []
         addresses = []
@@ -490,9 +498,6 @@ class GeoSearchImporter:
 
     def import_addresses(self):
         self.logger.info("Importing addresses from geo-search.")
-        for muni in MUNICIPALITIES.items():
-            municipality = get_municipality(muni[1][0])
-            Street.objects.filter(municipality_id=municipality).delete()
 
         self.start_time = datetime.now()
         self.postal_code_areas_cache = {}
@@ -504,6 +509,9 @@ class GeoSearchImporter:
             if not municipality:
                 self.logger.warning(f"Municipality {muni[1][0]} not found.")
                 continue
+            # Delete all addresses of the municipality, ensures data is up to date.
+            Street.objects.filter(municipality_id=municipality).delete()
+
             self.import_municipality(municipality, code)
 
         end_time = datetime.now()
