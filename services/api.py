@@ -18,11 +18,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from modeltranslation.translator import NotRegistered, translator
 from mptt.utils import drilldown_tree_for_node
 from munigeo import api as munigeo_api
-from munigeo.models import Address, AdministrativeDivision, Municipality
+from munigeo.models import AdministrativeDivision, Municipality
 from rest_framework import generics, renderers, serializers, viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
-from pprint import pprint as pp
 
 from observations.models import Observation
 from services.accessibility import RULES
@@ -704,7 +703,7 @@ class UnitSerializer(
         qparams = self.context["request"].query_params
         if qparams.get("geometry", "").lower() in ("true", "1"):
             geom = obj.geometry  # TODO: different geom types
-            if geom and obj.geometry != obj.location:              
+            if geom and obj.geometry != obj.location:
                 ret["geometry"] = munigeo_api.geom_to_json(geom, self.srs)
         elif "geometry" in ret:
             del ret["geometry"]
@@ -1175,6 +1174,13 @@ class AddressViewSet(munigeo_api.AddressViewSet):
 
 
 register_view(AddressViewSet, "address")
+
+
+class PostalCodeAreaViewSet(munigeo_api.PostalCodeAreaViewSet):
+    serializers_class = munigeo_api.PostalCodeSerializer
+
+
+register_view(PostalCodeAreaViewSet, "postalcodearea")
 
 
 class AnnouncementSerializer(TranslatedModelSerializer, JSONAPISerializer):
