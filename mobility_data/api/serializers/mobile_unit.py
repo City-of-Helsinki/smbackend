@@ -1,10 +1,11 @@
 from django.contrib.gis.gdal.error import GDALException
-from django.core import serializers
-from django.contrib.gis.geos import GEOSGeometry, Point, LineString
+from django.contrib.gis.geos import GEOSGeometry, LineString, Point
 from rest_framework import serializers
-from . import ContentTypeSerializer
-from ...models import MobileUnit, MobileUnitGroup, GroupType
+
 from services.models import Unit
+
+from ...models import GroupType, MobileUnit, MobileUnitGroup
+from . import ContentTypeSerializer
 
 
 class GeometrySerializer(serializers.Serializer):
@@ -71,36 +72,43 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             for field in self.fields:
                 if hasattr(unit, field):
                     representation[field] = getattr(unit, field)
+            if unit.location:
+                representation["geometry"] = unit.location.wkt
         return representation
 
     def get_geometry_coords(self, obj):
-        if isinstance(obj.geometry, GEOSGeometry):
+        # If stored to Unit table, retrieve geometry from there.
+        if obj.unit_id:
+            geometry = Unit.objects.get(id=obj.unit_id).location
+        else:
+            geometry = obj.geometry
+        if isinstance(geometry, GEOSGeometry):
             srid = self.context["srid"]
             if srid:
                 try:
-                    obj.geometry.transform(srid)
+                    geometry.transform(srid)
                 except GDALException:
                     return "Invalid SRID given as parameter for transformation."
-        if isinstance(obj.geometry, Point):
+        if isinstance(geometry, Point):
             pos = {}
-            if self.context["latlon"] == True:
-                pos["lat"] = obj.geometry.y
-                pos["lon"] = obj.geometry.x
+            if self.context["latlon"] is True:
+                pos["lat"] = geometry.y
+                pos["lon"] = geometry.x
             else:
-                pos["lon"] = obj.geometry.x
-                pos["lat"] = obj.geometry.y
+                pos["lon"] = geometry.x
+                pos["lat"] = geometry.y
             return pos
 
-        elif isinstance(obj.geometry, LineString):
-            if self.context["latlon"] == True:
+        elif isinstance(geometry, LineString):
+            if self.context["latlon"] is True:
                 # Return LineString coordinates in (lat,lon) format
                 coords = []
-                for coord in obj.geometry.coords:
+                for coord in geometry.coords:
                     # swap lon,lat -> lat lon
                     e = (coord[1], coord[0])
                     coords.append(e)
                 return coords
             else:
-                return obj.geometry.coords
+                return geometry.coords
         else:
             return ""
