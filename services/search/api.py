@@ -81,6 +81,7 @@ class SearchSerializer(serializers.Serializer):
             object_type = "administrativedivision"
         else:
             return representation
+
         if object_type == "servicenode":
             representation["ids"] = self.context["service_node_ids"][str(obj.id)]
         # Address IDs are not serialized thus they changes after every import.
@@ -142,6 +143,25 @@ class SearchSerializer(serializers.Serializer):
                 street["name"]["fi"] = getattr(obj.street, "name_fi", "")
                 street["name"]["sv"] = getattr(obj.street, "name_sv", "")
                 representation["street"] = street
+
+            if object_type == "service":
+                representation["unit_count"] = dict(
+                    municipality=dict(
+                        (
+                            (
+                                x.division.name_fi.lower()
+                                if x.division
+                                else "_unknown",
+                                x.count,
+                            )
+                            for x in obj.unit_counts.all()
+                        )
+                    )
+                )
+                total = 0
+                for _, part in representation["unit_count"]["municipality"].items():
+                    total += part
+                representation["unit_count"]["total"] = total
 
             if object_type == "unit" or object_type == "address":
                 if obj.location:
