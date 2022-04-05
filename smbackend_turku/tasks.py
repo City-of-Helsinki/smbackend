@@ -9,7 +9,7 @@ def import_mds_data(name="import_mds_data"):
     )
 
 @shared_task
-def index_search_columns(name="ndex_search_columns"):
+def index_search_columns(name="index_search_columns"):
     management.call_command("index_search_columns")
 
 @shared_task
