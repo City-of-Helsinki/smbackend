@@ -3,6 +3,11 @@ from django.core import management
 
 
 @shared_task
+def turku_services_import(args, name="turku_services_import"):
+    management.call_command("turku_services_import", args)
+
+
+@shared_task
 def import_mds_data(name="import_mds_data"):
     management.call_command(
         "turku_services_import", "services", "accessibility", "units"
