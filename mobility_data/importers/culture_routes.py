@@ -61,10 +61,7 @@ URLS = {
     },
     "Kaupunkitarinoita Turusta": {
         "fi": "https://citynomadi.com/api/route/84252a5f01ecc706901452c41896905e/kml?lang=fi",
-    },
-    "Synnin ja oikeuden paikat 1600-luvulla": {
-        "fi": "https://citynomadi.com/api/route/925704471104a600a14de4463cddedc8/kml?lang=fi",
-    },
+    },  
 }
 
 
