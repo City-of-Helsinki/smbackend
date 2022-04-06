@@ -43,14 +43,12 @@ class ServiceNode(MPTTModel):
         srv_list.add(self.id)
         return list(srv_list)
 
-    def get_units(self):
+    def get_units_qs(self):
         srv_list = self._get_srv_list()
-        units_qs = (
-            Unit.objects.filter(public=True, is_active=True, service_nodes__in=srv_list)
-            .distinct()
-            .values_list("id", flat=True)
-        )
-        return units_qs
+        unit_qs = Unit.objects.filter(
+            public=True, is_active=True, service_nodes__in=srv_list
+        ).distinct()
+        return unit_qs
 
     def get_unit_count(self):
         srv_list = self._get_srv_list()
