@@ -21,6 +21,7 @@ import logging
 import re
 from distutils.util import strtobool
 from itertools import chain
+
 from django.db import connection, reset_queries
 from django.db.models import Count
 from munigeo import api as munigeo_api
@@ -59,6 +60,12 @@ from .utils import (
 logger = logging.getLogger("search")
 
 
+class RootSerivceNodeSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+    class Meta:
+        model = ServiceNode
+        fields = ["id", "name"]
+
+
 class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = Department
@@ -86,6 +93,10 @@ class SearchSerializer(serializers.Serializer):
             ids = self.context["service_node_ids"][str(obj.id)]
             representation["ids"] = ids
             set_service_node_unit_count(ids, representation)
+            root_service_node = ServiceNode.get_root_service_node(obj)
+            representation["root_service_node"] = RootSerivceNodeSerializer(
+                root_service_node
+            ).data
 
         # Address IDs are not serialized thus they changes after every import.
         if object_type not in ["address", "servicenode"]:
@@ -131,6 +142,9 @@ class SearchSerializer(serializers.Serializer):
 
             if object_type == "service":
                 set_service_unit_count(obj, representation)
+                representation["root_service_node"] = RootSerivceNodeSerializer(
+                    obj.root_service_node
+                ).data
 
             if object_type == "unit" or object_type == "address":
                 if obj.location:
