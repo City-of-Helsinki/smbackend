@@ -13,7 +13,9 @@ ACCESSIBILITY_SYSTEM_ID=secret
 ```
 And the Mobile view specific settings, see: config_dev.env.example
 
-## Importing data
+## Manually Importing data
+Note, All imports can be run from the Admin using Celery Tasks.
+
 ```
 ./manage.py geo_import finland --municipalities
 ./manage.py turku_services_import services accessibility units addresses
