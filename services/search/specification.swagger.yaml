@@ -72,7 +72,7 @@ components:
         example: 5
         default: No limit
     service_limit_param:
-      name: serivce_limit
+      name: service_limit
       in: query
       description: Limit the number of Services in results. Services are order by their provider(self produced first) and in ascending order by number of units are connected to the services. 
       schema:
@@ -80,7 +80,7 @@ components:
         example: 5
         default: No limit
     servicenode_limit_param:
-      name: serivcenode_limit
+      name: servicenode_limit
       in: query
       description: Limit the number of ServicesNodes in results.
       schema:
