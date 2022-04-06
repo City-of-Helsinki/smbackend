@@ -38,6 +38,7 @@ from services.models import (
     Department,
     Service,
     ServiceNode,
+    ServiceNodeUnitCount,
     Unit,
     UnitAccessibilityShortcomings,
 )
@@ -83,7 +84,45 @@ class SearchSerializer(serializers.Serializer):
             return representation
 
         if object_type == "servicenode":
-            representation["ids"] = self.context["service_node_ids"][str(obj.id)]
+            ids = self.context["service_node_ids"][str(obj.id)]
+            representation["ids"] = ids
+            unit_counts = {}
+            print(ids)
+            if len(ids) == 1:
+                service_node_count_qs = ServiceNodeUnitCount.objects.filter(
+                    service_node_id=ids[0]
+                )
+                for service_node_count in service_node_count_qs:
+                    if hasattr(service_node_count.division, "name"):
+                        division = service_node_count.division.name_fi.lower()
+                    else:
+                        continue
+
+                    count = service_node_count.count
+                    print(division, " ", count)
+                    if division in unit_counts:
+                        unit_counts[division] += count
+                    else:
+                        unit_counts[division] = count
+            else:
+                units = []
+                for id in ids:
+                    service_node = ServiceNode.objects.get(id=id)
+                    units += service_node.get_units()
+                unit_qs = Unit.objects.filter(id__in=units).distinct()
+                for unit in unit_qs:
+                    division = unit.municipality_id
+                    if not division:
+                        continue
+                    if division in unit_counts:
+                        unit_counts[division] += 1
+                    else:
+                        unit_counts[division] = 1
+                # breakpoint()
+
+            representation["unit_count"] = {"municipality": unit_counts}
+            representation["unit_count"]["total"] = sum(unit_counts.values())
+
         # Address IDs are not serialized thus they changes after every import.
         if object_type not in ["address", "servicenode"]:
             representation["id"] = getattr(obj, "id")
