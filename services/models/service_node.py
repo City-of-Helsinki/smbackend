@@ -59,6 +59,15 @@ class ServiceNode(MPTTModel):
         )
         return count
 
+    @classmethod
+    def get_root_service_node(cls, service_node):
+        if service_node.parent_id is None:
+            return service_node
+        else:
+            return cls.get_root_service_node(
+                ServiceNode.objects.get(id=service_node.parent_id)
+            )
+
     def period_enabled(self):
         """Iterates through related services to find out
         if the tree node has periods enabled via services"""
