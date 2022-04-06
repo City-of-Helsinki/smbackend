@@ -1,12 +1,8 @@
-import os
-import json
 import logging
+
 from django.core.management import BaseCommand
-from mobility_data.importers.culture_routes import (
-    get_routes,
-    save_to_database,
-)
-from mobility_data.models import ContentType
+
+from mobility_data.importers.culture_routes import get_routes, save_to_database
 
 logger = logging.getLogger("mobility_data")
 
