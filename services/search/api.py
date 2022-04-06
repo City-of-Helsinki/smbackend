@@ -21,12 +21,8 @@ import logging
 import re
 from distutils.util import strtobool
 from itertools import chain
-
-from django.conf import settings
-from django.contrib.gis.gdal import SpatialReference
-# from django.contrib.postgres.search import TrigramSimilarity
 from django.db import connection, reset_queries
-from django.db.models import Case, Count, When
+from django.db.models import Count
 from munigeo import api as munigeo_api
 from munigeo.models import Address, AdministrativeDivision
 from rest_framework import serializers
@@ -38,26 +34,29 @@ from services.models import (
     Department,
     Service,
     ServiceNode,
-    ServiceNodeUnitCount,
     Unit,
     UnitAccessibilityShortcomings,
 )
 
-logger = logging.getLogger("search")
-LANGUAGES = {k: v.lower() for k, v in settings.LANGUAGES}
-DEFAULT_SRS = SpatialReference(4326)
-SEARCHABLE_MODEL_TYPE_NAMES = (
-    "Unit",
-    "Service",
-    "ServiceNode",
-    "AdministrativeDivision",
-    "Address",
+from .constants import (
+    DEFAULT_MODEL_LIMIT_VALUE,
+    DEFAULT_SEARCH_SQL_LIMIT_VALUE,
+    DEFAULT_SRS,
+    DEFAULT_TRIGRAM_THRESHOLD,
+    LANGUAGES,
+    QUERY_PARAM_TYPE_NAMES,
 )
-QUERY_PARAM_TYPE_NAMES = [m.lower() for m in SEARCHABLE_MODEL_TYPE_NAMES]
-DEFAULT_MODEL_LIMIT_VALUE = None  # None will slice to the end of list
-# The limit value for the search query that search the search_view. "NULL" = no limit
-DEFAULT_SEARCH_SQL_LIMIT_VALUE = "NULL"
-DEFAULT_TRIGRAM_THRESHOLD = 0.15
+from .utils import (
+    get_all_ids_from_sql_results,
+    get_preserved_order,
+    get_service_node_results,
+    get_trigram_results,
+    set_address_fields,
+    set_service_node_unit_count,
+    set_service_unit_count,
+)
+
+logger = logging.getLogger("search")
 
 
 class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
@@ -86,42 +85,7 @@ class SearchSerializer(serializers.Serializer):
         if object_type == "servicenode":
             ids = self.context["service_node_ids"][str(obj.id)]
             representation["ids"] = ids
-            unit_counts = {}
-            print(ids)
-            if len(ids) == 1:
-                service_node_count_qs = ServiceNodeUnitCount.objects.filter(
-                    service_node_id=ids[0]
-                )
-                for service_node_count in service_node_count_qs:
-                    if hasattr(service_node_count.division, "name"):
-                        division = service_node_count.division.name_fi.lower()
-                    else:
-                        continue
-
-                    count = service_node_count.count
-                    print(division, " ", count)
-                    if division in unit_counts:
-                        unit_counts[division] += count
-                    else:
-                        unit_counts[division] = count
-            else:
-                units = []
-                for id in ids:
-                    service_node = ServiceNode.objects.get(id=id)
-                    units += service_node.get_units()
-                unit_qs = Unit.objects.filter(id__in=units).distinct()
-                for unit in unit_qs:
-                    division = unit.municipality_id
-                    if not division:
-                        continue
-                    if division in unit_counts:
-                        unit_counts[division] += 1
-                    else:
-                        unit_counts[division] = 1
-                # breakpoint()
-
-            representation["unit_count"] = {"municipality": unit_counts}
-            representation["unit_count"]["total"] = sum(unit_counts.values())
+            set_service_node_unit_count(ids, representation)
 
         # Address IDs are not serialized thus they changes after every import.
         if object_type not in ["address", "servicenode"]:
@@ -163,135 +127,17 @@ class SearchSerializer(serializers.Serializer):
                     representation["geometry"] = None
 
             if object_type == "address":
-                representation["number"] = getattr(obj, "number", "")
-                representation["number_end"] = getattr(obj, "number_end", "")
-                representation["letter"] = getattr(obj, "letter", "")
-                representation["modified_at"] = getattr(obj, "modified_at", "")
-                municipality = {
-                    "id": getattr(obj.street, "municipality_id", ""),
-                    "name": {},
-                }
-                municipality["name"]["fi"] = getattr(
-                    obj.street.municipality, "name_fi", ""
-                )
-                municipality["name"]["sv"] = getattr(
-                    obj.street.municipality, "name_sv", ""
-                )
-                representation["municipality"] = municipality
-                street = {"name": {}}
-                street["name"]["fi"] = getattr(obj.street, "name_fi", "")
-                street["name"]["sv"] = getattr(obj.street, "name_sv", "")
-                representation["street"] = street
+                set_address_fields(obj, representation)
 
             if object_type == "service":
-                representation["unit_count"] = dict(
-                    municipality=dict(
-                        (
-                            (
-                                x.division.name_fi.lower()
-                                if x.division
-                                else "_unknown",
-                                x.count,
-                            )
-                            for x in obj.unit_counts.all()
-                        )
-                    )
-                )
-                total = 0
-                for _, part in representation["unit_count"]["municipality"].items():
-                    total += part
-                representation["unit_count"]["total"] = total
+                set_service_unit_count(obj, representation)
 
             if object_type == "unit" or object_type == "address":
                 if obj.location:
                     representation["location"] = munigeo_api.geom_to_json(
                         obj.location, DEFAULT_SRS
                     )
-
         return representation
-
-
-def get_service_node_results(all_results):
-    """
-    Returns a dict with the aggregated ids. Key is the first id in the results.
-    This dict is also sent as context to the serializer to output the ids list.
-    """
-    ids = {}
-    for row in all_results:
-        if row[1] == "ServiceNode":
-            # Id is the first col and in format type_42_43_44.
-            tmp = row[0].split("_")[1:]
-            ids[tmp[0]] = tmp[0:]
-    return ids
-
-
-def get_ids_from_sql_results(all_results, type="Unit"):
-    """
-    Returns a list of ids by the give type.
-    """
-    ids = []
-    for row in all_results:
-        if row[1] == type:
-            # Id is the first col and in format 42_type.
-            ids.append(row[0].split("_")[1])
-    return ids
-
-
-def get_all_ids_from_sql_results(all_results):
-    """
-    Returns a dict with the model names as keys and the
-    object ids of the model as values.
-    """
-    ids = {}
-    for t in SEARCHABLE_MODEL_TYPE_NAMES:
-        ids[t] = []
-    for row in all_results:
-        ids[row[1]].append(row[0].split("_")[1])
-    return ids
-
-
-def get_preserved_order(ids):
-    """
-    Returns a Case expression that can be used in the order_by method,
-    ordering will be equal to the order of ids in the ids list.
-    """
-    if ids:
-        return Case(*[When(id=id, then=pos) for pos, id in enumerate(ids)])
-    else:
-        return Case()
-
-
-# def get_trigram_results(model, field, q_val, threshold=0.1):
-#     trigm = (
-#         model.objects.annotate(
-#             similarity=TrigramSimilarity(field, q_val),
-#         )
-#         .filter(similarity__gt=threshold)
-#         .order_by("-similarity")
-#     )
-#     ids = trigm.values_list("id", flat=True)
-#     if ids:
-#         preserved = get_preserved_order(ids)
-#         return model.objects.filter(id__in=ids).order_by(preserved)
-#     else:
-#         return model.objects.none()
-
-
-def get_trigram_results(
-    model, model_name, field, q_val, threshold=DEFAULT_TRIGRAM_THRESHOLD
-):
-    sql = f"""SELECT id, similarity({field}, '{q_val}') AS sml
-        FROM {model_name}
-        WHERE  similarity({field}, '{q_val}') >= {threshold}
-        ORDER BY sml DESC;
-    """
-    cursor = connection.cursor()
-    cursor.execute(sql)
-    all_results = cursor.fetchall()
-
-    ids = [row[0] for row in all_results]
-    objs = model.objects.filter(id__in=ids)
-    return objs
 
 
 class SearchViewSet(GenericAPIView):
