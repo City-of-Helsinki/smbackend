@@ -29,6 +29,7 @@ def set_service_node_unit_count(ids, representation):
             else:
                 unit_counts[division] = count
     else:
+        # Handle grouped service_nodes
         units = []
         for id in ids:
             service_node = ServiceNode.objects.get(id=id)
