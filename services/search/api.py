@@ -60,7 +60,7 @@ from .utils import (
 logger = logging.getLogger("search")
 
 
-class RootSerivceNodeSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+class RootServiceNodeSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
     class Meta:
         model = ServiceNode
         fields = ["id", "name"]
@@ -94,7 +94,7 @@ class SearchSerializer(serializers.Serializer):
             representation["ids"] = ids
             set_service_node_unit_count(ids, representation)
             root_service_node = ServiceNode.get_root_service_node(obj)
-            representation["root_service_node"] = RootSerivceNodeSerializer(
+            representation["root_service_node"] = RootServiceNodeSerializer(
                 root_service_node
             ).data
 
@@ -142,7 +142,7 @@ class SearchSerializer(serializers.Serializer):
 
             if object_type == "service":
                 set_service_unit_count(obj, representation)
-                representation["root_service_node"] = RootSerivceNodeSerializer(
+                representation["root_service_node"] = RootServiceNodeSerializer(
                     obj.root_service_node
                 ).data
 
