@@ -21,6 +21,7 @@ import logging
 import re
 from distutils.util import strtobool
 from itertools import chain
+
 from django.db import connection, reset_queries
 from django.db.models import Count
 from munigeo import api as munigeo_api
