@@ -30,12 +30,13 @@ def set_service_node_unit_count(ids, representation):
                 unit_counts[division] = count
     else:
         # Handle grouped service_nodes
-        units = []
+        units_qs = Unit.objects.none()
         for id in ids:
             service_node = ServiceNode.objects.get(id=id)
-            units += service_node.get_units()
-        unit_qs = Unit.objects.filter(id__in=units).distinct()
-        for unit in unit_qs:
+            units_qs = units_qs | service_node.get_units_qs()
+        units_qs = units_qs.distinct()
+        
+        for unit in units_qs:
             division = unit.municipality_id
             if not division:
                 continue
