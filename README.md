@@ -36,7 +36,8 @@ First, install the necessary Debian packages.
 * libyaml-dev 
 * libxml2-dev 
 * libxslt1-dev
-
+* voikko-fi
+* libvoikko-dev
 
 2. 
 Clone the repository.
