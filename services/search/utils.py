@@ -57,7 +57,6 @@ def set_service_node_unit_count(ids, representation):
             service_node = ServiceNode.objects.get(id=id)
             units_qs = units_qs | service_node.get_units_qs()
         units_qs = units_qs.distinct()
-
         for unit in units_qs:
             division = unit.municipality_id
             if not division:
