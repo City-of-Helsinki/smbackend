@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
@@ -32,6 +33,8 @@ class ServiceNode(MPTTModel):
     search_column_fi = SearchVectorField(null=True)
     search_column_sv = SearchVectorField(null=True)
     search_column_en = SearchVectorField(null=True)
+
+    syllables_fi = ArrayField(models.CharField(max_length=16), default=list)
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
@@ -85,6 +88,18 @@ class ServiceNode(MPTTModel):
         )
 
     @classmethod
+    def get_syllable_fi_columns(cls):
+        """
+        Defines the columns that will be used when populating
+        finnish syllables to syllables_fi column. The content
+        will be tokenized to lexems(to_tsvector) and added to
+        the the search_column.
+        """
+        return [
+            "name_fi",
+        ]
+
+    @classmethod
     def get_search_column_indexing(cls, lang):
         """
         Defines the columns to be indexed to the search_column
@@ -93,6 +108,7 @@ class ServiceNode(MPTTModel):
         if lang == "fi":
             return [
                 ("name_fi", "finnish", "A"),
+                ("syllables_fi", "finnish", "A"),
             ]
         elif lang == "sv":
             return [
