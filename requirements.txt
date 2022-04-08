@@ -109,6 +109,8 @@ jedi==0.18.0
     # via -r requirements.in
 kombu==5.2.3
     # via celery
+libvoikko==4.3
+    # via -r requirements.in
 lxml==4.8.0
     # via
     #   -r requirements.in
@@ -193,9 +195,7 @@ requests==2.26.0
     #   requests-cache
     #   requests-mock
 requests-cache==0.8.1
-    # via
-    #   -r requirements.in
-    #   django-munigeo
+    # via -r requirements.in
 requests-mock==1.9.3
     # via -r requirements.in
 shapely==1.8.0
