@@ -48,7 +48,8 @@ class BicyleStand:
     @classmethod
     def locates_in_turku(cls, feature):
         """
-        Returns True if geometry inside Turku boundarys.
+        Returns True if the geometry of the feature is inside the boundaries
+        of Turku.
         """
         point = Point(feature.geom.x, feature.geom.y, srid=SOURCE_DATA_SRID)
         point.transform(settings.DEFAULT_SRID)
