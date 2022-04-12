@@ -4,6 +4,7 @@ from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import Point
+from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry
 
 from mobility_data.models import ContentType, MobileUnit
 
@@ -16,9 +17,16 @@ from .utils import (
     set_translated_field,
 )
 
-BICYCLE_STANDS_URL = f"{settings.TURKU_WFS_URL}?service=WFS&request=GetFeature&typeName=GIS:Polkupyoraparkki&outputFormat=GML3"
+BICYCLE_STANDS_URL = "{}{}".format(
+    settings.TURKU_WFS_URL,
+    "?service=WFS&request=GetFeature&typeName=GIS:Polkupyoraparkki&outputFormat=GML3",
+)
 SOURCE_DATA_SRID = 3877
 logger = logging.getLogger("mobility_data")
+division_turku = AdministrativeDivision.objects.get(name="Turku")
+turku_boundary = AdministrativeDivisionGeometry.objects.get(
+    division=division_turku
+).boundary
 
 
 class BicyleStand:
@@ -37,6 +45,15 @@ class BicyleStand:
     street_address = None
     maintained_by_turku = None
 
+    @classmethod
+    def locates_in_turku(cls, feature):
+        """
+        Returns True if geometry inside Turku boundarys.
+        """
+        point = Point(feature.geom.x, feature.geom.y, srid=SOURCE_DATA_SRID)
+        point.transform(settings.DEFAULT_SRID)
+        return turku_boundary.contains(point)
+
     def __init__(self, feature):
         self.name = {}
         self.street_address = {}
@@ -49,6 +66,7 @@ class BicyleStand:
 
         self.geometry = Point(feature.geom.x, feature.geom.y, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
+
         model_elem = feature["Malli"]
         if model_elem is not None:
             self.model = model_elem.as_string()
@@ -109,7 +127,8 @@ def get_bicycle_stand_objects(ds=None):
     layer = ds[0]
     bicycle_stands = []
     for feature in layer:
-        bicycle_stands.append(BicyleStand(feature))
+        if BicyleStand.locates_in_turku(feature):
+            bicycle_stands.append(BicyleStand(feature))
     logger.info(f"Retrieved {len(bicycle_stands)} bicycle stands.")
     return bicycle_stands
 
