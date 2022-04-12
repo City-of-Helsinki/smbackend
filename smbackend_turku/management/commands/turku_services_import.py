@@ -24,6 +24,13 @@ from smbackend_turku.importers.units import import_units
 
 class Command(BaseCommand):
     help = "Import services from City of Turku APIs and from external sources."
+    external_sources = [
+        "gas_filling_stations",
+        "charging_stations",
+        "bicycle_stands",
+        "mobility_data",
+    ]
+
     importer_types = [
         "services",
         "accessibility",
@@ -31,11 +38,7 @@ class Command(BaseCommand):
         "addresses",
         "geo_search_addresses",
         "enriched_addresses",
-        "gas_filling_stations",
-        "charging_stations",
-        "bicycle_stands",
-        "mobility_data",
-    ]
+    ] + external_sources
 
     supported_languages = [lang[0] for lang in settings.LANGUAGES]
 
@@ -136,7 +139,6 @@ class Command(BaseCommand):
         self.logger = logging.getLogger("turku_services_import")
         self.delete_external_sources = options.get("delete_external_sources", False)
         import_count = 0
-
         for imp in self.importer_types:
             if imp not in self.options["import_types"]:
                 continue
