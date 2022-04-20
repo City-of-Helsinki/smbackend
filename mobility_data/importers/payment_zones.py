@@ -18,7 +18,7 @@ SOURCE_DATA_SRID = 3877
 
 
 class PaymentZone:
-    # This are the names of the data fields in the source data.
+    # These are the names of the data fields in the source data.
     FIELDS = [
         "Lisatieto",
         "maksullisuus_arki",
