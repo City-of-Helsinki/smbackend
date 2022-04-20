@@ -121,8 +121,6 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                     coords.append(e)
                 return coords
             else:
-
                 return geometry.coords
-
         else:
             return ""
