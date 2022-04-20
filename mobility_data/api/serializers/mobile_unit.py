@@ -1,5 +1,5 @@
 from django.contrib.gis.gdal.error import GDALException
-from django.contrib.gis.geos import GEOSGeometry, LineString, Point
+from django.contrib.gis.geos import GEOSGeometry, LineString, Point, Polygon
 from rest_framework import serializers
 
 from services.models import Unit
@@ -110,5 +110,19 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 return coords
             else:
                 return geometry.coords
+
+        elif isinstance(geometry, Polygon):
+            if self.context["latlon"] is True:
+                # Return Polygon coordinates in (lat,lon) format
+                coords = []
+                for coord in list(*geometry.coords):
+                    # swap lon,lat -> lat lon
+                    e = (coord[1], coord[0])
+                    coords.append(e)
+                return coords
+            else:
+
+                return geometry.coords
+
         else:
             return ""
