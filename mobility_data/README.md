@@ -3,7 +3,7 @@
 Django app for importing and serving data from external sources.  
 Add the TURKU_WFS_URL for the WFS server to the env, e.g.
 ```
-TURKU_WFS_URL=http://tkuikp.adturku.fi/TeklaOGCWeb/WFS.ashx
+TURKU_WFS_URL=https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx
 ```
 
 ## importers
@@ -36,4 +36,10 @@ Culture routes are not deleted before importing. To explicity delete Culture Rou
 To import data type:  
 ```
 ./manage.py import_bicycle_stands 
+```
+
+### Payment Zones
+To import data type:
+```
+./manage.py import_payment_zones
 ```
