@@ -10,9 +10,9 @@ from mobility_data.models import ContentType, MobileUnit
 from .utils import delete_mobile_units, get_or_create_content_type
 
 logger = logging.getLogger("mobility_data")
-PAYMENT_ZONES_URL = "".format(
+PAYMENT_ZONES_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
-    "service=WFS&request=GetFeature&typeName=GIS:Pysakoinnin_maksuvyohykkeet&outputFormat=GML3",
+    "?service=WFS&request=GetFeature&typeName=GIS:Pysakoinnin_maksuvyohykkeet&outputFormat=GML3",
 )
 SOURCE_DATA_SRID = 3877
 
