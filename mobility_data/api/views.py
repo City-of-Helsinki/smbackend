@@ -1,20 +1,17 @@
 from distutils.util import strtobool
+
 from django.core.exceptions import ValidationError
 from rest_framework import status, viewsets
-from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
-from ..models import (
-    MobileUnitGroup,
-    MobileUnit,
-    ContentType,
-    GroupType,
-)
+from rest_framework.response import Response
+
+from ..models import ContentType, GroupType, MobileUnit, MobileUnitGroup
 from .serializers import (
+    ContentTypeSerializer,
+    GroupTypeSerializer,
     MobileUnitGroupSerializer,
     MobileUnitGroupUnitsSerializer,
     MobileUnitSerializer,
-    GroupTypeSerializer,
-    ContentTypeSerializer,
 )
 
 
@@ -32,7 +29,7 @@ def get_srid_and_latlon(filters):
 
     if "latlon" in filters:
         try:
-            latlon = strtobool(filters["latlon"])
+            latlon = bool(strtobool(filters["latlon"]))
         except ValueError:
             raise ParseError("'latlon' needs to be a boolean")
     return srid, latlon
@@ -74,7 +71,6 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
             serializer_class = MobileUnitGroupUnitsSerializer
         else:
             serializer_class = MobileUnitGroupSerializer
-
         serializer = serializer_class(
             unit, many=False, context={"srid": srid, "latlon": latlon}
         )
@@ -103,7 +99,6 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
             serializer_class = MobileUnitGroupUnitsSerializer
         else:
             serializer_class = MobileUnitGroupSerializer
-
         serializer = serializer_class(
             page, many=True, context={"srid": srid, "latlon": latlon}
         )
