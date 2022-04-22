@@ -1,31 +1,27 @@
 from datetime import datetime
+
 from django.conf import settings
-from mobility_data.models import content_type
-from services.models import (
-    Service,
-    ServiceNode,
-    Unit,
-    UnitServiceDetails,
+
+from mobility_data.importers.bicycle_stands import (
+    create_bicycle_stand_content_type,
+    delete_bicycle_stands,
+    get_bicycle_stand_objects,
 )
+from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
 from services.management.commands.services_import.services import (
     update_service_node_counts,
 )
+from services.models import Service, ServiceNode, Unit, UnitServiceDetails
 from smbackend_turku.importers.utils import (
-    set_field,
-    set_tku_translated_field,
-    set_syncher_object_field,
-    set_service_names_field,
     create_service,
     create_service_node,
     get_municipality,
+    set_field,
+    set_service_names_field,
+    set_syncher_object_field,
+    set_tku_translated_field,
     UTC_TIMEZONE,
 )
-from mobility_data.importers.bicycle_stands import (
-    get_bicycle_stand_objects,
-    delete_bicycle_stands,
-    create_bicycle_stand_content_type,
-)
-from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
 
 
 class BicycleStandImporter:
@@ -67,7 +63,7 @@ class BicycleStandImporter:
             unit_id = i + self.UNITS_ID_OFFSET
             obj = Unit(id=unit_id)
             set_field(obj, "location", data_obj.geometry)
-            set_tku_translated_field(obj, "name", data_obj.name)
+            set_tku_translated_field(obj, "name", data_obj.prefix_name)
             set_tku_translated_field(obj, "street_address", data_obj.name)
             extra = {}
             extra["model"] = data_obj.model
