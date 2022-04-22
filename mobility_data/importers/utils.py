@@ -11,9 +11,11 @@ from munigeo.models import (
 
 from mobility_data.models import ContentType, MobileUnit
 
-GEOMETRY_ID = 11  #  11 Varsinaissuomi
-GEOMETRY_URL = "https://tie.digitraffic.fi/api/v3/data/traffic-messages/area-geometries?id={id}&lastUpdated=false".format(
-    id=GEOMETRY_ID
+# 11 = Southwest Finland
+GEOMETRY_ID = 11
+GEOMETRY_URL = (
+    "https://tie.digitraffic.fi/api/v3/data/traffic-messages/area-geometries?"
+    + f"id={GEOMETRY_ID}&lastUpdated=false"
 )
 LANGUAGES = ["fi", "sv", "en"]
 
@@ -54,16 +56,40 @@ def get_closest_street_name(point):
     """
     Returns the name of the street that is closest to point.
     """
-    address = (
-        Address.objects.annotate(distance=Distance("location", point))
-        .order_by("distance")
-        .first()
-    )
+    address = get_closest_address(point)
     try:
         street = Street.objects.get(id=address.street_id)
         return street.name
     except Street.DoesNotExist:
         return None
+
+
+def get_closest_address_full_name(point):
+    """
+    Returns multilingual dict full_name,
+    e.g. {"fi": Linnakatu 10,"sv": Slottsgata 10, "en": Linnakatu 10}
+     of the closest address to the point.
+    """
+    address = get_closest_address(point)
+
+    full_name = {
+        "fi": address.full_name_fi,
+        "sv": address.full_name_sv,
+        "en": address.full_name_en,
+    }
+    return full_name
+
+
+def get_closest_address(point):
+    """
+    Return the closest address to the point.
+    """
+    address = (
+        Address.objects.annotate(distance=Distance("location", point))
+        .order_by("distance")
+        .first()
+    )
+    return address
 
 
 def get_street_name_translations(name, municipality):
