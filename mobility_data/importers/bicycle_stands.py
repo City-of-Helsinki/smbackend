@@ -10,13 +10,17 @@ from mobility_data.models import ContentType, MobileUnit
 
 from .utils import (
     delete_mobile_units,
-    get_closest_street_name,
+    get_closest_address_full_name,
     get_municipality_name,
     get_or_create_content_type,
-    get_street_name_translations,
     set_translated_field,
 )
 
+NAME_PREFIX = {
+    "fi": "Pyöräpysäköinti",
+    "sv": "Cykelparkering",
+    "en": "Bicycle parking",
+}
 BICYCLE_STANDS_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
     "?service=WFS&request=GetFeature&typeName=GIS:Polkupyoraparkki&outputFormat=GML3",
@@ -57,6 +61,7 @@ class BicyleStand:
 
     def __init__(self, feature):
         self.name = {}
+        self.prefix_name = {}
         self.street_address = {}
         object_id = feature["id"].as_string()
         # If ObjectId is set to "0", the bicycle stand is not maintained by Turku
@@ -78,8 +83,7 @@ class BicyleStand:
         elif viher_name_elem:
             name = viher_name_elem
         else:
-            # If there is no katu_ or vihre_ name we get the closest street_name.
-            name = get_closest_street_name(self.geometry)
+            name = None
         num_stands_elem = feature["Lukumaara"]
         if num_stands_elem is not None:
             num = num_stands_elem.as_int()
@@ -113,10 +117,16 @@ class BicyleStand:
             else:
                 self.covered = False
         self.city = get_municipality_name(self.geometry)
-        translated_names = get_street_name_translations(name, self.city)
-        self.name["fi"] = translated_names["fi"]
-        self.name["sv"] = translated_names["sv"]
-        self.name["en"] = translated_names["fi"]
+        full_names = get_closest_address_full_name(self.geometry)
+        # Finnish name not found, assing closest address full names to all languages.
+        if not name:
+            self.name = full_names
+        # Finnish name in source data, assign closest address full names to "sv" and "en" names.
+        else:
+            self.name["fi"] = name
+            self.name["sv"] = full_names["sv"]
+            self.name["en"] = full_names["en"]
+        self.prefix_name = {k: f"{NAME_PREFIX[k]} {v}" for k, v in self.name.items()}
 
 
 def get_bicycle_stand_objects(ds=None):
