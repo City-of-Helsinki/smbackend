@@ -16,10 +16,13 @@ from .utils import (
     set_translated_field,
 )
 
+FI_KEY = "fi"
+SV_KEY = "sv"
+EN_KEY = "en"
 NAME_PREFIX = {
-    "fi": "Pyöräpysäköinti",
-    "sv": "Cykelparkering",
-    "en": "Bicycle parking",
+    FI_KEY: "Pyöräpysäköinti",
+    SV_KEY: "Cykelparkering",
+    EN_KEY: "Bicycle parking",
 }
 BICYCLE_STANDS_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
@@ -123,9 +126,9 @@ class BicyleStand:
             self.name = full_names
         # Finnish name in source data, assign closest address full names to "sv" and "en" names.
         else:
-            self.name["fi"] = name
-            self.name["sv"] = full_names["sv"]
-            self.name["en"] = full_names["en"]
+            self.name[FI_KEY] = name
+            self.name[SV_KEY] = full_names[SV_KEY]
+            self.name[EN_KEY] = full_names[EN_KEY]
         self.prefix_name = {k: f"{NAME_PREFIX[k]} {v}" for k, v in self.name.items()}
 
 
