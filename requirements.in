@@ -1,4 +1,4 @@
-Django>=4.0.2
+Django>=4.0.4
 djangorestframework
 djangorestframework-jsonp
 Markdown
@@ -37,3 +37,4 @@ celery
 git+https://github.com/celery/django-celery-beat.git#fa73034be892052893e4ef17926ef3a5d4a21ea2
 django-celery-results
 redis
+libvoikko
