@@ -45,7 +45,7 @@ def test_importer(
     assert extra["number_of_places"] == 24
     assert extra["number_of_stands"] == 2
     assert extra["number_of_stands"] == 2
-    assert stand_covered_hull_lockable.name == "Pitkäpellonkatu"
+    assert stand_covered_hull_lockable.name == "Pitkäpellonkatu 7"
     assert stand_covered_hull_lockable.name_sv == "Långåkersgatan 7"
     extra = stand_covered_hull_lockable.extra
     assert extra["maintained_by_turku"] is True
