@@ -4,7 +4,10 @@ from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import Point
-from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry
+from munigeo.models import (
+    AdministrativeDivision,
+    AdministrativeDivisionGeometry,
+)
 
 from mobility_data.models import ContentType, MobileUnit
 
@@ -41,17 +44,6 @@ class BicyleStand:
     HULL_LOCKABLE_STR = "runkolukitusmahdollisuus"
     COVERED_IN_STR = "katettu"
 
-    geometry = None
-    model = None
-    name = None
-    number_of_stands = None
-    number_of_places = None  # The total number of places for bicycles.
-    hull_lockable = None
-    covered = None
-    city = None
-    street_address = None
-    maintained_by_turku = None
-
     @classmethod
     def locates_in_turku(cls, feature):
         """
@@ -63,6 +55,15 @@ class BicyleStand:
         return turku_boundary.contains(point)
 
     def __init__(self, feature):
+        self.geometry = None
+        self.model = None
+        self.number_of_stands = None
+        self.number_of_places = None  # The total number of places for bicycles.
+        self.hull_lockable = None
+        self.covered = None
+        self.city = None
+        self.street_address = None
+        self.maintained_by_turku = None
         self.name = {}
         self.prefix_name = {}
         self.street_address = {}
@@ -79,14 +80,6 @@ class BicyleStand:
         model_elem = feature["Malli"]
         if model_elem is not None:
             self.model = model_elem.as_string()
-        katu_name_elem = feature["Katuosa_nimi"].as_string()
-        viher_name_elem = feature["Viherosa_nimi"].as_string()
-        if katu_name_elem:
-            name = katu_name_elem
-        elif viher_name_elem:
-            name = viher_name_elem
-        else:
-            name = None
         num_stands_elem = feature["Lukumaara"]
         if num_stands_elem is not None:
             num = num_stands_elem.as_int()
@@ -121,14 +114,9 @@ class BicyleStand:
                 self.covered = False
         self.city = get_municipality_name(self.geometry)
         full_names = get_closest_address_full_name(self.geometry)
-        # Finnish name not found, assing closest address full names to all languages.
-        if not name:
-            self.name = full_names
-        # Finnish name in source data, assign closest address full names to "sv" and "en" names.
-        else:
-            self.name[FI_KEY] = name
-            self.name[SV_KEY] = full_names[SV_KEY]
-            self.name[EN_KEY] = full_names[EN_KEY]
+        self.name[FI_KEY] = full_names[FI_KEY]
+        self.name[SV_KEY] = full_names[SV_KEY]
+        self.name[EN_KEY] = full_names[EN_KEY]
         self.prefix_name = {k: f"{NAME_PREFIX[k]} {v}" for k, v in self.name.items()}
 
 
@@ -140,9 +128,24 @@ def get_bicycle_stand_objects(ds=None):
         ds = DataSource(BICYCLE_STANDS_URL)
     layer = ds[0]
     bicycle_stands = []
+    """
+    external_stands dict is used to keep track of the names of imported external stands
+    (i.e. not maintained by Turku.)The name is the key and the value is Bool.
+    i.e. Only one bicycle stand which point data points to same address is added.
+    """
+    external_stands = {}
     for feature in layer:
         if BicyleStand.locates_in_turku(feature):
-            bicycle_stands.append(BicyleStand(feature))
+            bicycle_stand = BicyleStand(feature)
+            # Add only 1 external stand with the same name
+            if (
+                bicycle_stand.name[FI_KEY] not in external_stands
+                and not bicycle_stand.maintained_by_turku
+            ):
+                external_stands[bicycle_stand.name[FI_KEY]] = True
+                bicycle_stands.append(bicycle_stand)
+            elif bicycle_stand.maintained_by_turku:
+                bicycle_stands.append(bicycle_stand)
     logger.info(f"Retrieved {len(bicycle_stands)} bicycle stands.")
     return bicycle_stands
 
