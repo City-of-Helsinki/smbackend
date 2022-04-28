@@ -236,7 +236,7 @@ class SearchViewSet(GenericAPIView):
         # Build conditional query string that is used in the SQL query.
         # split my "," or whitespace
         q_vals = re.split(r",\s+|\s+", q_val)
-        q_vals = [s.strip() for s in q_vals]
+        q_vals = [s.strip().replace("'", "") for s in q_vals]
         for q in q_vals:
             if search_query_str:
                 # if ends with "|"" make it a or
