@@ -2,6 +2,7 @@
 Main importer for mobility data sources.
 """
 import logging
+
 from django.core import management
 from django.core.management import BaseCommand
 
@@ -9,8 +10,8 @@ from django.core.management import BaseCommand
 importers = [
     "culture_routes",
     "gas_filling_stations",
-    "charging_stations",
     "bicycle_stands",
+    "payment_zones",
 ]
 logger = logging.getLogger("mobility_data")
 
