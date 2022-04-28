@@ -72,6 +72,11 @@ class BicycleStandImporter:
             extra["number_of_places"] = data_obj.number_of_places
             extra["hull_lockable"] = data_obj.hull_lockable
             extra["covered"] = data_obj.covered
+            # Add non prefixed names to extra, so that the front end does not need
+            # to remove the prefix.
+            extra["name_fi"] = data_obj.name["fi"]
+            extra["name_sv"] = data_obj.name["sv"]
+            extra["name_en"] = data_obj.name["en"]
             set_field(obj, "extra", extra)
             if data_obj.maintained_by_turku:
                 # 1 = self produced

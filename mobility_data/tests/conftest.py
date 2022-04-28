@@ -121,7 +121,7 @@ def streets():
     street = Street.objects.create(
         name="Linnanpuisto",
         name_fi="Linnanpuisto",
-        name_sv="LinnanpuistoSV",
+        name_sv="Slottsparken",
         municipality_id="turku",
     )
     streets.append(street)
@@ -132,22 +132,56 @@ def streets():
         municipality_id="turku",
     )
     streets.append(street)
+    street = Street.objects.create(
+        name="Pitkäpellonkatu",
+        name_fi="Pitkäpellonkatu",
+        name_sv="Långåkersgatan",
+        municipality_id="turku",
+    )
+    streets.append(street)
     return streets
 
 
 @pytest.mark.django_db
 @pytest.fixture
 def address(streets):
-    location = Point(22.244, 60.444, srid=3877)
+    addresses = []
+    location = Point(22.244, 60.4, srid=4326)
     address = Address.objects.create(
-        id=100, location=location, street=streets[0], number=42
+        id=100,
+        location=location,
+        street=streets[0],
+        number=42,
+        full_name_fi="Test Street 42",
+        full_name_sv="Test StreetSV 42",
     )
-    location = Point(22.241, 60.333, srid=3877)
+    addresses.append(address)
+    location = Point(22.2265, 60.43504, srid=4326)
     address = Address.objects.create(
-        id=101, location=location, street=streets[1], number=24
+        id=101,
+        location=location,
+        street=streets[1],
+        full_name_fi="Linnanpuisto",
+        full_name_sv="Slottsparken",
     )
-    location = Point(22.241, 60.333, srid=3877)
+    addresses.append(address)
+    location = Point(22.264457, 60.448905, srid=4326)
     address = Address.objects.create(
-        id=102, location=location, street=streets[2], number=24
+        id=102,
+        location=location,
+        street=streets[2],
+        number=4,
+        full_name_fi="Kristiinankatu 4",
+        full_name_sv="Kristinegata 4",
     )
-    return address
+    addresses.append(address)
+    location = Point(22.2383, 60.411726, srid=4326)
+    address = Address.objects.create(
+        id=103,
+        location=location,
+        street=streets[3],
+        number=7,
+        full_name_fi="Pitkäpellonkatu 7",
+        full_name_sv="Långåkersgatan 7",
+    )
+    return addresses

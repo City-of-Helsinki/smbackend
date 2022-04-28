@@ -27,7 +27,7 @@ def test_importer(
     streets,
     address,
 ):
-    out = import_command(test_mode="bicycle_stands.xml")
+    import_command(test_mode="bicycle_stands.xml")
     assert MobileUnit.objects.all().count() == 3
     # <GIS:Id>0</GIS:Id> in fixture xml.
     stand_normal = MobileUnit.objects.all()[0]
@@ -35,10 +35,8 @@ def test_importer(
     stand_covered_hull_lockable = MobileUnit.objects.all()[1]
     # <GIS:Id>319490982</GIS:Id> in fixture xml
     stand_external = MobileUnit.objects.all()[2]
-
     assert stand_normal.name_fi == "Linnanpuisto"
-    assert stand_normal.name_sv == "LinnanpuistoSV"
-    assert stand_normal.name_en == "Linnanpuisto"
+    assert stand_normal.name_sv == "Slottsparken"
     extra = stand_normal.extra
     assert extra["model"] == "Normaali"
     assert extra["maintained_by_turku"] is True
@@ -47,17 +45,18 @@ def test_importer(
     assert extra["number_of_places"] == 24
     assert extra["number_of_stands"] == 2
     assert extra["number_of_stands"] == 2
-
-    assert stand_covered_hull_lockable.name == "Pitkäpellonkatu"
+    assert stand_covered_hull_lockable.name == "Pitkäpellonkatu 7"
+    assert stand_covered_hull_lockable.name_sv == "Långåkersgatan 7"
     extra = stand_covered_hull_lockable.extra
     assert extra["maintained_by_turku"] is True
     assert extra["covered"] is True
     assert extra["hull_lockable"] is True
     assert extra["number_of_places"] == 18
     assert extra["number_of_stands"] == 1
-    # external stand has no street name, so the closes street name
-    # is "Test Street".
-    assert stand_external.name == "Test Street"
+    # external stand has no street name, so the closest street name
+    # and address number is assigned as name and that is "Test Street 42".
+    assert stand_external.name == "Test Street 42"
+    assert stand_external.name_sv == "Test StreetSV 42"
     extra = stand_external.extra
     assert extra["maintained_by_turku"] is False
     # As there are no info for stand that are not maintained by turku
