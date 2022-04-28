@@ -15,6 +15,15 @@ def import_mds_data(name="import_mds_data"):
 
 
 @shared_task
+def import_all_addresses(name="import_all_addresses"):
+    # Task that imports all the addresses and indexes search columns
+    management.call_command("turku_services_import", "addresses")
+    management.call_command("turku_services_import", "enriched_addresses")
+    management.call_command("turku_services_import", "geo_search_addresses")
+    management.call_command("index_search_columns")
+
+
+@shared_task
 def import_addresses(name="import_addresses"):
     # Imports addresses for Turku and Karina from the WFS server hosted by Turku
     management.call_command("turku_services_import", "addresses")
@@ -50,8 +59,3 @@ def import_bicycle_stands(name="import_bicycle_stands"):
 @shared_task
 def import_gas_filling_stations(name="import_gas_filling_stations"):
     management.call_command("turku_services_import", "gas_filling_stations")
-
-
-@shared_task
-def import_charging_stations(name="import_charging_stations"):
-    management.call_command("turku_services_import", "charging_stations")

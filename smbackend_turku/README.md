@@ -13,8 +13,13 @@ ACCESSIBILITY_SYSTEM_ID=secret
 ```
 And the Mobile view specific settings, see: config_dev.env.example
 
+Configure the data imports in the admin.
+For detailed information about setting up the import tasks see:
+https://github.com/City-of-Turku/smbackend/wiki/Celery-Tasks
+
+
 ## Manually Importing data
-Note, All imports can be run from the Admin using Celery Tasks.
+Note, All imports can and is recommended to be run from the Admin using Celery Tasks.
 
 ```
 ./manage.py geo_import finland --municipalities
