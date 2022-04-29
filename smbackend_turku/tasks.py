@@ -8,6 +8,11 @@ def turku_services_import(args, name="turku_services_import"):
 
 
 @shared_task
+def delete_external_source(source, name="delete_external_source"):
+    management.call_command("turku_services_import", source, "--delete-external-source")
+
+
+@shared_task
 def import_mds_data(name="import_mds_data"):
     management.call_command(
         "turku_services_import", "services", "accessibility", "units"
