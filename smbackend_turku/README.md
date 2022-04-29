@@ -58,9 +58,15 @@ To delete all data imported from external sources:
 ```
 ./manage.py turku_services_import services units --delete-external-sources
 ```
+
+To delete a specific imported external data source:
+e.g. remove bicycle_stands
+```
+./manage.py turku_services_import bicycle_stands --delete-external-source
+```
 Currently following importers import to the mobility view by setting
 a id, which is used to retrieve the data from the service_unit table:
-gas_filling_stations, charging_stations and bicycle_stands. e.g. These
+gas_filling_stations and bicycle_stands. e.g. These
 importers import data to both the services list and mobility view.
 
 When importing services and units the ids are received from the source. Therefore the ids for the external sources must be manually set to avoid id collisions. 
@@ -80,14 +86,6 @@ To import type:
 ./manage.py turku_services_import gas_filling_stations
 ```
 
-### Charging stations
-Add following line to the .env file:
-CHARGING_STATIONS_IDS=service_node=300000,service=300000,units_offset=300000
-
-To import type:
-```
-./manage.py turku_services_import charging_stations
-```
 ### Bicycle stands
 Add following line to the .env file:
 BICYCLE_STANDS_IDS=service_node=400000,service=400000,units_offset=400000
