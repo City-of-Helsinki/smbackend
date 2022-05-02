@@ -1,37 +1,36 @@
 from datetime import datetime
+
 from django.conf import settings
+
+from mobility_data.importers.charging_stations import (
+    create_charging_station_content_type,
+    delete_charging_stations,
+    get_filtered_charging_station_objects,
+)
+from mobility_data.importers.gas_filling_station import (
+    create_gas_filling_station_content_type,
+    delete_gas_filling_stations as mobility_data_delete_as_filling_stations,
+    get_filtered_gas_filling_station_objects,
+)
+from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
 from services.management.commands.services_import.services import (
     update_service_node_counts,
 )
+from services.models import Service, ServiceNode, Unit, UnitServiceDetails
 from smbackend_turku.importers.utils import (
-    set_field,
-    set_tku_translated_field,
-    set_service_names_field,
     create_service,
     create_service_node,
+    delete_external_source,
     get_municipality,
+    set_field,
+    set_service_names_field,
+    set_tku_translated_field,
     UTC_TIMEZONE,
 )
-from services.models import (
-    Service,
-    ServiceNode,
-    Unit,
-    UnitServiceDetails,
-)
-from mobility_data.importers.gas_filling_station import (
-    get_filtered_gas_filling_station_objects,
-    delete_gas_filling_stations,
-    create_gas_filling_station_content_type,
-)
-from mobility_data.importers.charging_stations import (
-    get_filtered_charging_station_objects,
-    delete_charging_stations,
-    create_charging_station_content_type,
-)
-from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
 
 LANGUAGES = [language[0] for language in settings.LANGUAGES]
 SOURCE_DATA_SRID = 4326
+
 
 def create_language_dict(value):
     """
@@ -89,10 +88,6 @@ class GasFillingStationImporter:
     def import_gas_filling_stations(self):
         service_id = self.SERVICE_ID
         self.logger.info("Importing gas filling stations...")
-        # Delete all gas filling station units before storing, to ensure stored data is up-to-date.
-        Unit.objects.filter(services__id=service_id).delete()
-        # Delete from mobility_data
-        delete_gas_filling_stations()
         content_type = create_gas_filling_station_content_type()
         filtered_objects = get_filtered_gas_filling_station_objects(
             json_data=self.test_data
@@ -191,7 +186,6 @@ class ChargingStationImporter:
             extra["chargers"] = data_obj.chargers
             set_field(obj, "extra", extra)
             set_field(obj, "www", data_obj.url)
-
             try:
                 service = Service.objects.get(id=service_id)
             except Service.DoesNotExist:
@@ -211,8 +205,24 @@ class ChargingStationImporter:
         update_service_node_counts()
 
 
+def delete_gas_filling_stations(**kwargs):
+    importer = GasFillingStationImporter(**kwargs)
+    # Delete all gas filling station units before storing, to ensure stored data is up-to-date.
+    delete_external_source(
+        importer.SERVICE_ID,
+        importer.SERVICE_NODE_ID,
+        mobility_data_delete_as_filling_stations,
+    )
+
+
 def import_gas_filling_stations(**kwargs):
     importer = GasFillingStationImporter(**kwargs)
+    delete_external_source(
+        importer.SERVICE_ID,
+        importer.SERVICE_NODE_ID,
+        mobility_data_delete_as_filling_stations,
+    )
+
     create_service_node(
         importer.SERVICE_NODE_ID,
         importer.SERVICE_NODE_NAME,

@@ -4,7 +4,7 @@ from django.conf import settings
 
 from mobility_data.importers.bicycle_stands import (
     create_bicycle_stand_content_type,
-    delete_bicycle_stands,
+    delete_bicycle_stands as mobility_data_delete_bicycle_stands,
     get_bicycle_stand_objects,
 )
 from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
@@ -15,6 +15,7 @@ from services.models import Service, ServiceNode, Unit, UnitServiceDetails
 from smbackend_turku.importers.utils import (
     create_service,
     create_service_node,
+    delete_external_source,
     get_municipality,
     set_field,
     set_service_names_field,
@@ -51,11 +52,6 @@ class BicycleStandImporter:
     def import_bicycle_stands(self):
         service_id = self.SERVICE_ID
         self.logger.info("Importing Bicycle Stands...")
-        # Delete all Bicycle stand units before storing, to ensure stored data is up-to-date.
-        Unit.objects.filter(services__id=service_id).delete()
-        # Delete from mobility_data
-        delete_bicycle_stands()
-        # create mobility_data content type
         content_type = create_bicycle_stand_content_type()
         saved_bicycle_stands = 0
         filtered_objects = get_bicycle_stand_objects()
@@ -104,8 +100,24 @@ class BicycleStandImporter:
         update_service_node_counts()
 
 
+def delete_bicycle_stands(**kwargs):
+    importer = BicycleStandImporter(**kwargs)
+    delete_external_source(
+        importer.SERVICE_ID,
+        importer.SERVICE_NODE_ID,
+        mobility_data_delete_bicycle_stands,
+    )
+
+
 def import_bicycle_stands(**kwargs):
     importer = BicycleStandImporter(**kwargs)
+    # Delete all Bicycle stand units before storing, to ensure stored data is up to date.
+    delete_external_source(
+        importer.SERVICE_ID,
+        importer.SERVICE_NODE_ID,
+        mobility_data_delete_bicycle_stands,
+    )
+
     create_service_node(
         importer.SERVICE_NODE_ID,
         importer.SERVICE_NODE_NAME,

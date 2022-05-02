@@ -2,26 +2,20 @@ import datetime
 import hashlib
 import os
 import re
-import requests
-import pytz
 from functools import lru_cache
+
+import pytz
+import requests
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from munigeo.models import (
-    Municipality,
-)
+from munigeo.models import Municipality
 
-from services.models import (
-    Service,
-    ServiceNode,
-)
+from services.models import Service, ServiceNode, Unit
 
 # TODO: Change to production endpoint when available
 TURKU_BASE_URL = "https://digiaurajoki.turku.fi:9443/kuntapalvelut/api/v1/"
 ACCESSIBILITY_BASE_URL = "https://asiointi.hel.fi/kapaesteettomyys/api/v1/"
 UTC_TIMEZONE = pytz.timezone("UTC")
-
-
 
 
 def clean_text(text, default=None):
@@ -281,3 +275,16 @@ def create_service(service_id, service_node_id, service_name, service_names):
         service_node.related_services.add(service_id)
         service.last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
         service.save()
+
+
+def delete_external_source(
+    service_id, service_node_id, mobility_data_delete_func=False
+):
+    """
+    Deletes the data source from services list and optionally from mobility_data.
+    """
+    Unit.objects.filter(services__id=service_id).delete()
+    Service.objects.filter(id=service_id).delete()
+    ServiceNode.objects.filter(id=service_node_id).delete()
+    if mobility_data_delete_func:
+        mobility_data_delete_func()
