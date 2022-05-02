@@ -6,7 +6,7 @@ django-modeltranslation
 flake8
 requests
 requests_cache
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.68#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.69#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions
@@ -28,3 +28,4 @@ pep8-naming
 jedi
 parso
 whitenoise
+libvoikko

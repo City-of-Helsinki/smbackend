@@ -56,7 +56,7 @@ django-mptt==0.13.4
     # via
     #   -r requirements.in
     #   django-munigeo
-django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.68
+django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.69
     # via -r requirements.in
 django-polymorphic==3.1.0
     # via -r requirements.in
@@ -78,6 +78,8 @@ iniconfig==1.1.1
 isort==5.10.1
     # via -r requirements.in
 jedi==0.18.1
+    # via -r requirements.in
+libvoikko==4.3
     # via -r requirements.in
 lxml==4.8.0
     # via -r requirements.in
@@ -138,9 +140,7 @@ requests==2.27.1
     #   requests-cache
     #   requests-mock
 requests-cache==0.9.4
-    # via
-    #   -r requirements.in
-    #   django-munigeo
+    # via -r requirements.in
 requests-mock==1.9.3
     # via -r requirements.in
 six==1.16.0

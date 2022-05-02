@@ -1,11 +1,33 @@
+import libvoikko
 from django.db import connection
 from django.db.models import Case, When
 
 from services.models import ServiceNode, ServiceNodeUnitCount, Unit
 from services.search.constants import (
     DEFAULT_TRIGRAM_THRESHOLD,
+    LENGTH_OF_HYPHENATED_WORDS,
     SEARCHABLE_MODEL_TYPE_NAMES,
 )
+
+voikko = libvoikko.Voikko("fi")
+voikko.setNoUglyHyphenation(True)
+
+
+def hyphenate(word):
+    """
+    Returns a list of syllables of the word if word length
+    is >= LENGTH_OF_HYPHENATE_WORDS
+    """
+    word_length = len(word)
+    if word_length >= LENGTH_OF_HYPHENATED_WORDS:
+        # By Setting the value to word_length, voikko returns
+        # the words that are in the compound word, if the word is
+        # not a compound word it returns the syllables as normal.
+        voikko.setMinHyphenatedWordLength(word_length)
+        syllables = voikko.hyphenate(word)
+        return syllables.split("-")
+    else:
+        return [word]
 
 
 def set_service_node_unit_count(ids, representation):
@@ -35,7 +57,6 @@ def set_service_node_unit_count(ids, representation):
             service_node = ServiceNode.objects.get(id=id)
             units_qs = units_qs | service_node.get_units_qs()
         units_qs = units_qs.distinct()
-
         for unit in units_qs:
             division = unit.municipality_id
             if not division:

@@ -229,6 +229,8 @@ class Unit(SoftDeleteModel):
     search_column_sv = SearchVectorField(null=True)
     search_column_en = SearchVectorField(null=True)
 
+    syllables_fi = ArrayField(models.CharField(max_length=16), default=list)
+
     class Meta:
         ordering = ["-pk"]
         indexes = (
@@ -273,6 +275,16 @@ class Unit(SoftDeleteModel):
         )
 
     @classmethod
+    def get_syllable_fi_columns(cls):
+        """
+        Defines the columns that will be used when populating
+        finnish syllables to syllables_fi column. The content
+        will be tokenized to lexems(to_tsvector) and added to
+        the search_column.
+        """
+        return ["name_fi", "service_names_fi"]
+
+    @classmethod
     def get_search_column_indexing(cls, lang):
         """
         Defines the columns to be indexed to the search_column
@@ -281,6 +293,7 @@ class Unit(SoftDeleteModel):
         if lang == "fi":
             return [
                 ("name_fi", "finnish", "A"),
+                ("syllables_fi", "finnish", "A"),
                 ("service_names_fi", "finnish", "B"),
                 ("extra_searchwords_fi", "finnish", "B"),
                 ("extra", None, "C"),
