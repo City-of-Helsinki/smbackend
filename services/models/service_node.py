@@ -36,19 +36,37 @@ class ServiceNode(MPTTModel):
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
 
-    def get_unit_count(self):
+    def _get_srv_list(self):
         srv_list = set(
             ServiceNode.objects.all().by_ancestor(self).values_list("id", flat=True)
         )
         srv_list.add(self.id)
+        return list(srv_list)
+
+    def get_units_qs(self):
+        srv_list = self._get_srv_list()
+        unit_qs = Unit.objects.filter(
+            public=True, is_active=True, service_nodes__in=srv_list
+        ).distinct()
+        return unit_qs
+
+    def get_unit_count(self):
+        srv_list = self._get_srv_list()
         count = (
-            Unit.objects.filter(
-                public=True, is_active=True, service_nodes__in=list(srv_list)
-            )
+            Unit.objects.filter(public=True, is_active=True, service_nodes__in=srv_list)
             .distinct()
             .count()
         )
         return count
+
+    @classmethod
+    def get_root_service_node(cls, service_node):
+        if service_node.parent_id is None:
+            return service_node
+        else:
+            return cls.get_root_service_node(
+                ServiceNode.objects.get(id=service_node.parent_id)
+            )
 
     def period_enabled(self):
         """Iterates through related services to find out
