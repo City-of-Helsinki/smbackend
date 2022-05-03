@@ -40,7 +40,7 @@ def generate_syllables(model):
             row_content = getattr(row, column, None)
             if row_content:
                 # Rows migth be of type str or Array, if str
-                # cast to array by spliting.
+                # cast to array by splitting.
                 if isinstance(row_content, str):
                     row_content = row_content.split()
                 for word in row_content:
@@ -96,7 +96,7 @@ class Command(BaseCommand):
                     f"Syllables generated for {generate_syllables(Service)} Services"
                 )
                 logger.info(
-                    f"Syllables generated for {generate_syllables(ServiceNode)} ServoceNodes"
+                    f"Syllables generated for {generate_syllables(ServiceNode)} ServiceNodes"
                 )
 
             logger.info(
