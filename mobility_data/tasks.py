@@ -19,4 +19,4 @@ def import_scooter_restrictions(name="import_scooter_restrictions"):
 
 @shared_task
 def import_mobility_data(name="import_mobility_data"):
-    management.call_command("import_mobilitiy_data")
+    management.call_command("import_mobility_data")
