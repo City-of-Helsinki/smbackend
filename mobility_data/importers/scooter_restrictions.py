@@ -17,7 +17,7 @@ SPEED_LIMIT_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
     "?service=WFS&request=GetFeature&typeName=GIS:Sahkopotkulauta_nopeusrajoitus&outputFormat=GML3",
 )
-NO_PARKING_ZONE = "{}{}".format(
+NO_PARKING_ZONE_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
     "?service=WFS&request=GetFeature&typeName=GIS:Sahkopotkulauta_pysakointikielto&outputFormat=GML3",
 )
@@ -100,7 +100,7 @@ def get_scooter_restriction_elements():
             "content_type_create_func": create_scooter_speed_limit_content_type,
         },
         "No Parking": {
-            "url": NO_PARKING_ZONE,
+            "url": NO_PARKING_ZONE_URL,
             "content_type": ContentType.SCOOTER_NO_PARKING,
             "content_type_create_func": create_scooter_speed_no_parking_content_type,
         },
