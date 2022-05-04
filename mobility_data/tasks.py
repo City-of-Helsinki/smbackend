@@ -10,3 +10,8 @@ def import_culture_routes(args, name="import_culture_routes"):
 @shared_task
 def import_payments_zones(name="import_payment_zones"):
     management.call_command("import_payment_zones")
+
+
+@shared_task
+def import_speed_limit_zones(name="import_speed_limit_zones"):
+    management.call_command("import_speed_limit_zones")
