@@ -46,8 +46,16 @@ To import data type:
 ```
 ./manage.py import_payment_zones
 ```
+
 ### Speed limit Zones
 To import type:
 ```
 ./manage.py import_speed_limit_zones
+```
+
+### Scooter Restriction
+Imports parking, no parking and speed limit zones.
+To import data type:
+```
+./manage.py import_scooter_restrictions
 ```

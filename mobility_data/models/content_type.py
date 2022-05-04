@@ -32,6 +32,9 @@ class ContentType(BaseType):
     BICYCLE_STAND = "BIS"
     PAYMENT_ZONE = "PAZ"
     SPEED_LIMIT_ZONE = "SLZ"
+    SCOOTER_PARKING = "SPG"
+    SCOOTER_SPEED_LIMIT = "SSL"
+    SCOOTER_NO_PARKING = "SNP"
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
         (GAS_FILLING_STATION, "GasFillingStation"),
@@ -40,6 +43,9 @@ class ContentType(BaseType):
         (BICYCLE_STAND, "BicycleStand"),
         (PAYMENT_ZONE, "PaymentZone"),
         (SPEED_LIMIT_ZONE, "SpeedLimitZone"),
+        (SCOOTER_PARKING, "ScooterParking"),
+        (SCOOTER_SPEED_LIMIT, "ScooterSpeedLimit"),
+        (SCOOTER_NO_PARKING, "ScooterNoParking"),
     ]
     type_name = models.CharField(max_length=3, choices=CONTENT_TYPES, null=True)
 
