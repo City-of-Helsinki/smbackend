@@ -31,6 +31,7 @@ class ContentType(BaseType):
     CULTURE_ROUTE_GEOMETRY = "CRG"
     BICYCLE_STAND = "BIS"
     PAYMENT_ZONE = "PAZ"
+    SPEED_LIMIT_ZONE = "SLZ"
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
         (GAS_FILLING_STATION, "GasFillingStation"),
@@ -38,6 +39,7 @@ class ContentType(BaseType):
         (CULTURE_ROUTE_GEOMETRY, "CultureRouteGeometry"),
         (BICYCLE_STAND, "BicycleStand"),
         (PAYMENT_ZONE, "PaymentZone"),
+        (SPEED_LIMIT_ZONE, "SpeedLimitZone"),
     ]
     type_name = models.CharField(max_length=3, choices=CONTENT_TYPES, null=True)
 
