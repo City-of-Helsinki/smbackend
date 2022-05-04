@@ -12,6 +12,7 @@ importers = [
     "gas_filling_stations",
     "bicycle_stands",
     "payment_zones",
+    "speed_limit_zones",
 ]
 logger = logging.getLogger("mobility_data")
 
