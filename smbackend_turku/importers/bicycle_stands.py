@@ -10,6 +10,7 @@ from mobility_data.importers.bicycle_stands import (
 from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
 from services.management.commands.services_import.services import (
     update_service_node_counts,
+    update_service_counts,
 )
 from services.models import Service, ServiceNode, Unit, UnitServiceDetails
 from smbackend_turku.importers.utils import (
@@ -98,6 +99,7 @@ class BicycleStandImporter:
             create_mobile_unit_as_unit_reference(unit_id, content_type)
             saved_bicycle_stands += 1
         update_service_node_counts()
+        update_service_counts()
 
 
 def delete_bicycle_stands(**kwargs):

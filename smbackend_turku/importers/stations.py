@@ -14,6 +14,7 @@ from mobility_data.importers.gas_filling_station import (
 )
 from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
 from services.management.commands.services_import.services import (
+    update_service_counts,
     update_service_node_counts,
 )
 from services.models import Service, ServiceNode, Unit, UnitServiceDetails
@@ -127,6 +128,7 @@ class GasFillingStationImporter:
             # Save to mobile_units tables as reference to services_unit table.
             create_mobile_unit_as_unit_reference(unit_id, content_type)
         update_service_node_counts()
+        update_service_counts()
 
 
 class ChargingStationImporter:
