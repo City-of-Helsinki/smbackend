@@ -31,6 +31,7 @@ class ContentType(BaseType):
     CULTURE_ROUTE_GEOMETRY = "CRG"
     BICYCLE_STAND = "BIS"
     PAYMENT_ZONE = "PAZ"
+    SPEED_LIMIT_ZONE = "SLZ"
     SCOOTER_PARKING = "SPG"
     SCOOTER_SPEED_LIMIT = "SSL"
     SCOOTER_NO_PARKING = "SNP"
@@ -41,6 +42,7 @@ class ContentType(BaseType):
         (CULTURE_ROUTE_GEOMETRY, "CultureRouteGeometry"),
         (BICYCLE_STAND, "BicycleStand"),
         (PAYMENT_ZONE, "PaymentZone"),
+        (SPEED_LIMIT_ZONE, "SpeedLimitZone"),
         (SCOOTER_PARKING, "ScooterParking"),
         (SCOOTER_SPEED_LIMIT, "ScooterSpeedLimit"),
         (SCOOTER_NO_PARKING, "ScooterNoParking"),

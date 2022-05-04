@@ -13,6 +13,11 @@ def import_payments_zones(name="import_payment_zones"):
 
 
 @shared_task
+def import_speed_limit_zones(name="import_speed_limit_zones"):
+    management.call_command("import_speed_limit_zones")
+
+    
+@shared_task
 def import_scooter_restrictions(name="import_scooter_restrictions"):
     management.call_command("import_scooter_restrictions")
 
