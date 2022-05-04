@@ -7,6 +7,9 @@ TURKU_WFS_URL=https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx
 ```
 
 ## importers
+It is recommended to use Celery tasks to import the mobility data,
+see: https://github.com/City-of-Turku/smbackend/wiki/Celery-Tasks
+
 To import all data sources:
 ```
 ./manage.py import_mobility_data
@@ -42,4 +45,9 @@ To import data type:
 To import data type:
 ```
 ./manage.py import_payment_zones
+```
+### Speed limit Zones
+To import type:
+```
+./manage.py import_speed_limit_zones
 ```
