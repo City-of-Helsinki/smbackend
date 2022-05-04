@@ -13,6 +13,7 @@ from munigeo.models import Municipality
 
 from services.management.commands.services_import.services import (
     remove_empty_service_nodes,
+    update_service_counts,
     update_service_node_counts,
 )
 from services.models import (
@@ -25,19 +26,19 @@ from services.models import (
     UnitServiceDetails,
 )
 from services.utils import AccessibilityShortcomingCalculator
+from smbackend_turku.importers.bicycle_stands import BicycleStandImporter
+from smbackend_turku.importers.stations import (
+    ChargingStationImporter,
+    GasFillingStationImporter,
+)
 from smbackend_turku.importers.utils import (
     get_localized_value,
     get_turku_resource,
     get_weekday_str,
-    set_syncher_service_names_field,
     set_syncher_object_field,
+    set_syncher_service_names_field,
     set_syncher_tku_translated_field,
 )
-from smbackend_turku.importers.stations import (
-    GasFillingStationImporter,
-    ChargingStationImporter,
-)
-from smbackend_turku.importers.bicycle_stands import BicycleStandImporter
 
 UTC_TIMEZONE = pytz.timezone("UTC")
 
@@ -113,7 +114,6 @@ def get_municipality(name):
 
 
 class UnitImporter:
-
     def __init__(self, logger=None, importer=None, delete_external_sources=False):
         self.logger = logger
         self.importer = importer
@@ -133,6 +133,7 @@ class UnitImporter:
         self.unitsyncher.finish()
 
         update_service_node_counts()
+        update_service_counts()
         remove_empty_service_nodes(self.logger)
 
     def _handle_unit(self, unit_data):
@@ -170,11 +171,11 @@ class UnitImporter:
         Mark units that has been imported from external source.
         If not marked the unitsyncher.finish() will delete the units.
         """
-     
+
         service = None
         try:
             service = Service.objects.get(name=importer.SERVICE_NAME)
-        except:
+        except Service.DoesNotExist:
             pass
         if service:
             units_qs = Unit.objects.filter(services__id=service.id)
@@ -314,7 +315,6 @@ class UnitImporter:
             or old_service_node_ids != new_service_node_ids
         ):
             obj._changed = True
-        
 
         set_syncher_object_field(
             obj,
@@ -344,7 +344,7 @@ class UnitImporter:
         # This improves the search results and makes it possible to set
         # external imported units with different provider_type and will get less
         # importance in search results. Value 1 = "SELF_PRODUCED"
-        if obj.provider_type == None:
+        if obj.provider_type is None:
             set_syncher_object_field(obj, "provider_type", 1)
 
     def _handle_opening_hours(self, obj, unit_data):
@@ -506,7 +506,7 @@ class UnitImporter:
             index += 1
 
     def _handle_service_names(self, obj):
-      set_syncher_service_names_field(obj)
+        set_syncher_service_names_field(obj)
 
     def _generate_phone_number(self, phone_number_datum):
         if not phone_number_datum:
