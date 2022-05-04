@@ -1,5 +1,11 @@
 from django.contrib.gis.gdal.error import GDALException
-from django.contrib.gis.geos import GEOSGeometry, LineString, Point, Polygon
+from django.contrib.gis.geos import (
+    GEOSGeometry,
+    LineString,
+    MultiPolygon,
+    Point,
+    Polygon,
+)
 from rest_framework import serializers
 
 from services.models import Unit
@@ -119,6 +125,21 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                     # swap lon,lat -> lat lon
                     e = (coord[1], coord[0])
                     coords.append(e)
+                return coords
+            else:
+                return geometry.coords
+        elif isinstance(geometry, MultiPolygon):
+            if self.context["latlon"] is True:
+                coords = []
+                # Iterate through all the polygons in the multipolygon
+                # Create a list of swapped coords for every polygon
+                for polygon in geometry.coords:
+                    polygon_coords = []
+                    for p_c in list(*polygon):
+                        # swap lon,lat -> lat lon
+                        e = (p_c[1], p_c[0])
+                        polygon_coords.append(e)
+                    coords.append(polygon_coords)
                 return coords
             else:
                 return geometry.coords
