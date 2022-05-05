@@ -213,7 +213,7 @@ def get_bicycle_stand_objects(data_source=None):
             root_dir = settings.PROJECT_ROOT
         else:
             root_dir = settings.BASE_DIR
-        data_path = os.path.join(root_dir, "data")
+        data_path = os.path.join(root_dir, "mobility_data/data")
         file_path = os.path.join(data_path, GEOJSON_FILENAME)
         ds = DataSource(file_path)
         data_sources.append(("geojson", ds))
