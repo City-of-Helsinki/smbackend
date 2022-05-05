@@ -9,8 +9,8 @@ from mobility_data.importers.bicycle_stands import (
 )
 from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
 from services.management.commands.services_import.services import (
-    update_service_node_counts,
     update_service_counts,
+    update_service_node_counts,
 )
 from services.models import Service, ServiceNode, Unit, UnitServiceDetails
 from smbackend_turku.importers.utils import (
@@ -61,7 +61,10 @@ class BicycleStandImporter:
             obj = Unit(id=unit_id)
             set_field(obj, "location", data_obj.geometry)
             set_tku_translated_field(obj, "name", data_obj.prefix_name)
-            set_tku_translated_field(obj, "street_address", data_obj.name)
+            if data_obj.street_address:
+                set_tku_translated_field(obj, "street_address", data_obj.street_address)
+            else:
+                set_tku_translated_field(obj, "street_address", data_obj.name)
             extra = {}
             extra["model"] = data_obj.model
             extra["maintained_by_turku"] = data_obj.maintained_by_turku
@@ -95,6 +98,9 @@ class BicycleStandImporter:
             set_field(obj, "municipality", municipality)
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
             set_service_names_field(obj)
+            if data_obj.related_unit:
+                data_obj.related_unit.related_units.add(obj)
+                data_obj.related_unit.save()
             obj.save()
             create_mobile_unit_as_unit_reference(unit_id, content_type)
             saved_bicycle_stands += 1
