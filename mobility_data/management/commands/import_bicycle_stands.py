@@ -1,12 +1,13 @@
-import xml.etree.ElementTree as ET
 import logging
-from django.core.management import BaseCommand
-from django.contrib.gis.gdal import DataSource
+
 from django.conf import settings
+from django.contrib.gis.gdal import DataSource
+from django.core.management import BaseCommand
+
 from mobility_data.importers.bicycle_stands import (
+    BICYCLE_STANDS_URL,
     get_bicycle_stand_objects,
     save_to_database,
-    BICYCLE_STANDS_URL,
 )
 from mobility_data.models import ContentType
 
@@ -28,8 +29,15 @@ class Command(BaseCommand):
             logger.info("Running bicycle stand importer in test mode.")
             path = f"{settings.BASE_DIR}/{ContentType._meta.app_label}/tests/data/"
             filename = options["test_mode"]
+            data_source = None
             ds = DataSource(path + filename)
-            objects = get_bicycle_stand_objects(ds=ds)
+
+            if filename.endswith("gml"):
+                data_source = ("gml", ds)
+            elif filename.endswith("geojson"):
+                data_source = ("geojson", ds)
+
+            objects = get_bicycle_stand_objects(data_source=data_source)
         else:
             logger.info("Fetching bicycle stands from: {}".format(BICYCLE_STANDS_URL))
             objects = get_bicycle_stand_objects()
