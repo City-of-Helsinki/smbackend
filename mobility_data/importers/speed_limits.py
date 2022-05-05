@@ -18,7 +18,7 @@ SOURCE_DATA_SRID = 3877
 
 SPEED_LIMITS_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
-    "?service=WFS&request=GetFeature&typeName=GIS:Nopeusrajoitusalueet&outputFormat=GML3",
+    "?service=WFS&request=GetFeature&typeName=GIS:Nopeusrajoitusalueet&outputFormat=GML3&maxFeatures=10000",
 )
 
 
