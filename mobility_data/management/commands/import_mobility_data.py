@@ -14,6 +14,7 @@ importers = [
     "payment_zones",
     "speed_limit_zones",
     "scooter_restrictions",
+    "accessories",
 ]
 logger = logging.getLogger("mobility_data")
 
