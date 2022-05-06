@@ -59,3 +59,10 @@ To import data type:
 ```
 ./manage.py import_scooter_restrictions
 ```
+
+### Accessories
+Imports benches, public toilets, tables and furniture groups.
+To import data type:
+```
+./manage.py import_accessories
+```

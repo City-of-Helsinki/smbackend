@@ -1,7 +1,9 @@
 import re
 
 import requests
+from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.geos import GEOSGeometry
 from munigeo.models import (
     Address,
     AdministrativeDivision,
@@ -154,3 +156,18 @@ def get_street_name_and_number(address):
     street_name = tmp[1].rstrip()
     street_number = tmp[2]
     return street_name, street_number
+
+
+def locates_in_turku(feature, source_data_srid):
+    """
+    Returns True if the geometry of the feature is inside the boundaries
+    of Turku.
+    """
+
+    division_turku = AdministrativeDivision.objects.get(name="Turku")
+    turku_boundary = AdministrativeDivisionGeometry.objects.get(
+        division=division_turku
+    ).boundary
+    geometry = GEOSGeometry(feature.geom.wkt, srid=source_data_srid)
+    geometry.transform(settings.DEFAULT_SRID)
+    return turku_boundary.contains(geometry)

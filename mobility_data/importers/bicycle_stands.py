@@ -16,6 +16,7 @@ from .utils import (
     get_municipality_name,
     get_or_create_content_type,
     get_street_name_translations,
+    locates_in_turku,
     set_translated_field,
 )
 
@@ -47,23 +48,6 @@ class BicyleStand:
     WFS_HULL_LOCKABLE_STR = "runkolukitusmahdollisuus"
     GEOJSON_HULL_LOCKABLE_STR = "runkolukittava"
     COVERED_IN_STR = "katettu"
-
-    @classmethod
-    def locates_in_turku(cls, feature, feature_type):
-        """
-        Returns True if the geometry of the feature is inside the boundaries
-        of Turku.
-        """
-        srid = None
-        if feature_type == "gml":
-            srid = WFS_SOURCE_DATA_SRID
-        elif feature_type == "geojson":
-            srid = GEOJSON_SOURCE_DATA_SRID
-        else:
-            return False
-        geom = GEOSGeometry(feature.geom.wkt, srid=srid)
-        geom.transform(settings.DEFAULT_SRID)
-        return turku_boundary.contains(geom)
 
     def __init__(self):
         self.geometry = None
@@ -227,7 +211,12 @@ def get_bicycle_stand_objects(data_source=None):
     external_stands = {}
     for data_source in data_sources:
         for feature in data_source[1][0]:
-            if BicyleStand.locates_in_turku(feature, data_source[0]):
+            source_data_srid = (
+                WFS_SOURCE_DATA_SRID
+                if data_source[0] == "gml"
+                else GEOJSON_SOURCE_DATA_SRID
+            )
+            if locates_in_turku(feature, source_data_srid):
                 bicycle_stand = BicyleStand()
                 if data_source[0] == "gml":
                     bicycle_stand.set_gml_feature(feature)
