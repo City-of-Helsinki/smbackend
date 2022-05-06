@@ -49,7 +49,7 @@ class Service(models.Model):
         Defines the columns that will be used when populating
         finnish syllables to syllables_fi column. The content 
         will be tokenized to lexems(to_tsvector) and added to 
-        the the search_column.
+        the search_column.
         """
         return [
             "name_fi",     
