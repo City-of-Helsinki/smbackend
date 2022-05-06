@@ -35,6 +35,10 @@ class ContentType(BaseType):
     SCOOTER_PARKING = "SPG"
     SCOOTER_SPEED_LIMIT = "SSL"
     SCOOTER_NO_PARKING = "SNP"
+    ACCESSORY_PUBLIC_TOILET = "APT"
+    ACCESSORY_BENCH = "ABH"
+    ACCESSORY_TABLE = "ATE"
+    ACCESSORY_FURNITURE_GROUP = "AFG"
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
         (GAS_FILLING_STATION, "GasFillingStation"),
@@ -46,6 +50,10 @@ class ContentType(BaseType):
         (SCOOTER_PARKING, "ScooterParking"),
         (SCOOTER_SPEED_LIMIT, "ScooterSpeedLimit"),
         (SCOOTER_NO_PARKING, "ScooterNoParking"),
+        (ACCESSORY_PUBLIC_TOILET, "AccessoryPublicToilet"),
+        (ACCESSORY_BENCH, "AccessoryBench"),
+        (ACCESSORY_TABLE, "AccessoryTable"),
+        (ACCESSORY_FURNITURE_GROUP, "AccessoryFurnitureGroup"),
     ]
     type_name = models.CharField(max_length=3, choices=CONTENT_TYPES, null=True)
 
