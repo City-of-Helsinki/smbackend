@@ -3,7 +3,7 @@ import logging
 from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
-from django.contrib.gis.geos import Polygon
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon
 
 from mobility_data.models import ContentType, MobileUnit
 
@@ -34,14 +34,21 @@ class PaymentZone:
     def __init__(self, feature):
         for field in self.FIELDS:
             setattr(self, field, feature[field].as_string())
-        polygon = Polygon(feature.geom.coords[0], srid=SOURCE_DATA_SRID)
-        polygon.transform(settings.DEFAULT_SRID)
-        self.geometry = polygon
+        if len(feature.geom.coords) > 1:
+            polygons = []
+            for coords in feature.geom.coords:
+                polygons.append(Polygon(coords, srid=SOURCE_DATA_SRID))
+            self.geometry = MultiPolygon(polygons, srid=SOURCE_DATA_SRID)
+        else:
+            self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
+
+        self.geometry.transform(settings.DEFAULT_SRID)
 
 
-def get_payment_zone_objects():
-    ds = DataSource(PAYMENT_ZONES_URL)
-    layer = ds[0]
+def get_payment_zone_objects(data_source=None):
+    if not data_source:
+        data_source = DataSource(PAYMENT_ZONES_URL)
+    layer = data_source[0]
     payment_zones = []
     for feature in layer:
         payment_zones.append(PaymentZone(feature))
