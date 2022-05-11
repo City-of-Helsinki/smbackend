@@ -42,9 +42,10 @@ class SpeedLimit:
         self.speed_limit = feature["Nopeus"].as_int()
 
 
-def get_speed_limit_objects():
-    ds = DataSource(SPEED_LIMITS_URL)
-    layer = ds[0]
+def get_speed_limit_objects(data_source=None):
+    if not data_source:
+        data_source = DataSource(SPEED_LIMITS_URL)
+    layer = data_source[0]
     objects = []
     for feature in layer:
         objects.append(SpeedLimit(feature))
