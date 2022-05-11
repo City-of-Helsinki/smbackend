@@ -18,23 +18,10 @@
             <GIS:Malli_koodi>0</GIS:Malli_koodi>
             <GIS:Geometry>
                 <gml:Point>
-                    <gml:pos>23465137.461 6699745.292</gml:pos>
+                    <gml:pos>23460755.89 6704068.09</gml:pos>
                 </gml:Point>
             </GIS:Geometry>
-        </GIS:Polkupyoraparkki>
-        <GIS:Polkupyoraparkki>
-            <GIS:Id>0</GIS:Id>
-            <GIS:ObjectId>0</GIS:ObjectId>
-            <GIS:Hankintavuosi>0</GIS:Hankintavuosi>
-            <GIS:Lukumaara>0</GIS:Lukumaara>
-            <GIS:Malli> Ei tietoa</GIS:Malli>
-            <GIS:Malli_koodi>0</GIS:Malli_koodi>
-            <GIS:Geometry>
-                <gml:Point>
-                    <gml:pos>23465137.451 6699745.282</gml:pos>
-                </gml:Point>
-            </GIS:Geometry>
-        </GIS:Polkupyoraparkki>
+        </GIS:Polkupyoraparkki>      
     </gml:featureMember>
     <gml:featureMember>
         <GIS:Polkupyoraparkki>            
