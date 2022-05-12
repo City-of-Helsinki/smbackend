@@ -5,7 +5,7 @@ FROM $BASE_IMAGE
 # Change back to root for installing stuff
 USER root
 
-RUN pip install --no-cache-dir elastic-apm
+# RUN pip install --no-cache-dir elastic-apm
 
 # Change back Openshift-like user
 USER nobody:0

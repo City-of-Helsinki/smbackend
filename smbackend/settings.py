@@ -1,4 +1,3 @@
-import json
 import os
 
 import environ
@@ -15,14 +14,12 @@ env = environ.Env(
     DATABASE_URL=(str, "postgis:///servicemap"),
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
-    ELASTICSEARCH_URL=(str, None),
-    ELASTICSEARCH_INDEX_PREFIX=(str, "servicemap"),
-    DISABLE_HAYSTACK_SIGNAL_PROCESSOR=(bool, False),
     ALLOWED_HOSTS=(list, []),
     SENTRY_DSN=(str, None),
     SENTRY_ENVIRONMENT=(str, "development"),
     COOKIE_PREFIX=(str, "servicemap"),
     INTERNAL_IPS=(list, []),
+    CELERY_BROKER_URL=(str, "amqp://guest:guest@localhost:5672"),
     MEDIA_ROOT=(environ.Path(), root("media")),
     STATIC_ROOT=(environ.Path(), root("static")),
     MEDIA_URL=(str, "/media/"),
@@ -37,8 +34,17 @@ env = environ.Env(
     ACCESSIBILITY_SYSTEM_ID=(str, None),
     ADDITIONAL_INSTALLED_APPS=(list, None),
     ADDITIONAL_MIDDLEWARE=(list, None),
+    CACHE_LOCATION=(str, None),
+    TURKU_WFS_URL=(str, None),
+    GEO_SEARCH_LOCATION=(str, None),
+    GEO_SEARCH_API_KEY=(str, None),
+    PTV_ID_OFFSET=(int,None),
+    ECO_COUNTER_STATIONS_URL=(str, None),
+    ECO_COUNTER_OBSERVATIONS_URL=(str, None),
+    GAS_FILLING_STATIONS_IDS=(dict, {}),
+    CHARGING_STATIONS_IDS=(dict, {}),
+    BICYCLE_STANDS_IDS=(dict, {}),
 )
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = root()
@@ -73,10 +79,15 @@ INSTALLED_APPS = [
     "django_filters",
     "modeltranslation",
     "django.contrib.admin",
-    "haystack",
+    "django_celery_beat",
+    "django_celery_results",
     "munigeo",
     "services.apps.ServicesConfig",
     "observations",
+    "eco_counter.apps.EcoCounterConfig",
+    "mobility_data.apps.MobilityDataConfig",
+    "bicycle_network.apps.BicycleNetworkConfig",
+    "iot.apps.IotConfig",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
@@ -254,63 +265,14 @@ LOGGING = {
     },
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO"},
+        "turku_services_import": {"handlers": ["console"], "level": "DEBUG"},
+        "search": {"handlers": ["console"], "level": "INFO"},
+        "iot": {"handlers": ["console"], "level": "INFO"},
+        "eco_counter": {"handlers": ["console"], "level": "INFO"},
+        "mobility_data": {"handlers": ["console"], "level": "INFO"},
+        "bicycle_network": {"handlers": ["console"], "level": "INFO"},
     },
 }
-
-
-def read_config(name):
-    return json.load(
-        open(
-            os.path.join(BASE_DIR, "smbackend", "elasticsearch/{}.json".format(name)),
-            encoding="utf-8",
-        )
-    )
-
-
-ELASTICSEARCH_URL = env("ELASTICSEARCH_URL")
-ELASTICSEARCH_INDEX_PREFIX = env("ELASTICSEARCH_INDEX_PREFIX")
-
-if ELASTICSEARCH_URL:
-    HAYSTACK_CONNECTIONS = {
-        "default": {
-            "ENGINE": "multilingual_haystack.backends.MultilingualSearchEngine",
-        },
-        "default-fi": {
-            "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
-            "BASE_ENGINE": "multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine",
-            "URL": ELASTICSEARCH_URL,
-            "INDEX_NAME": "{}-fi".format(ELASTICSEARCH_INDEX_PREFIX),
-            "MAPPINGS": read_config("mappings_finnish")["modelresult"]["properties"],
-            "SETTINGS": read_config("settings_finnish"),
-        },
-        "default-sv": {
-            "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
-            "BASE_ENGINE": "multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine",
-            "URL": ELASTICSEARCH_URL,
-            "INDEX_NAME": "{}-sv".format(ELASTICSEARCH_INDEX_PREFIX),
-            "MAPPINGS": read_config("mappings_swedish")["modelresult"]["properties"],
-            "SETTINGS": read_config("settings_swedish"),
-        },
-        "default-en": {
-            "ENGINE": "multilingual_haystack.backends.LanguageSearchEngine",
-            "BASE_ENGINE": "multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine",
-            "URL": ELASTICSEARCH_URL,
-            "INDEX_NAME": "{}-en".format(ELASTICSEARCH_INDEX_PREFIX),
-            "MAPPINGS": read_config("mappings_english")["modelresult"]["properties"],
-            "SETTINGS": read_config("settings_english"),
-        },
-    }
-else:
-    # Default fallback, when real search capabilities are not needed
-    HAYSTACK_CONNECTIONS = {
-        "default": {
-            "ENGINE": "multilingual_haystack.backends.SimpleEngine",
-        }
-    }
-
-HAYSTACK_LIMIT_TO_REGISTERED_MODELS = False
-HAYSTACK_SIGNAL_PROCESSOR = "services.search_indexes.DeleteOnlySignalProcessor"
-DISABLE_HAYSTACK_SIGNAL_PROCESSOR = env("DISABLE_HAYSTACK_SIGNAL_PROCESSOR")
 
 KML_TRANSLATABLE_FIELDS = ["name", "street_address", "www"]
 KML_REGEXP = r"application/vnd.google-earth\.kml"
@@ -321,6 +283,28 @@ SENTRY_DSN = env("SENTRY_DSN")
 SENTRY_ENVIRONMENT = env("SENTRY_ENVIRONMENT")
 
 import raven  # noqa
+
+# Celery
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_CACHE_BACKEND = "default"
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_CACHE_BACKEND = "django-cache"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": env("CACHE_LOCATION"),
+    }
+}
+
+# Use in tests with override_settings CACHES = settings.TEST_CACHES
+TEST_CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+    }
+}
+
 
 if SENTRY_DSN:
     RAVEN_CONFIG = {
@@ -362,3 +346,16 @@ if "SECRET_KEY" not in locals():
                 "Please create a %s file with random characters to generate your secret key!"
                 % secret_file
             )
+TURKU_WFS_URL = env("TURKU_WFS_URL")
+PTV_ID_OFFSET=env("PTV_ID_OFFSET")
+GEO_SEARCH_LOCATION = env("GEO_SEARCH_LOCATION")
+GEO_SEARCH_API_KEY = env("GEO_SEARCH_API_KEY")
+ECO_COUNTER_OBSERVATIONS_URL = env("ECO_COUNTER_OBSERVATIONS_URL")
+ECO_COUNTER_STATIONS_URL = env("ECO_COUNTER_STATIONS_URL")
+
+# Typecast the dicts values to int with comporehension.
+GAS_FILLING_STATIONS_IDS = {
+    k: int(v) for k, v in env("GAS_FILLING_STATIONS_IDS").items()
+}
+CHARGING_STATIONS_IDS = {k: int(v) for k, v in env("CHARGING_STATIONS_IDS").items()}
+BICYCLE_STANDS_IDS = {k: int(v) for k, v in env("BICYCLE_STANDS_IDS").items()}

@@ -1,0 +1,178 @@
+swagger: "2.0"
+info:
+  description: "."
+  version: "0.0.0"
+  title: "Bicycle Network"
+  termsOfService: ""
+  contact:
+    email: "email@email.com"
+host: "127.0.0.1:8000"
+basePath: "/bicycle_network"
+
+
+schemes:
+- "http"
+- "https"
+
+produces:
+- application/json
+
+
+
+definitions:
+  bicycle_network:
+    type: object
+    title: BicycleNetwork
+    properties:
+      name:
+        type: string
+      length:
+        type: number
+        description: Length of the network in meters.
+        
+  bicycle_networkpart:
+    type: object
+    title: BicycleNetworkPart
+    description: A part of a bicycle network, containing the LineString geometry and properties.
+    properties:
+      bicycle_network:
+        type: string
+      geometry:
+        type: string
+     
+paths:
+  /bicycle_networks/{id}:
+    get:
+      summary: "Returns a BicycleNetwork object."
+      parameters:
+        - name: "id"
+          in: path
+          type: string
+          required: true
+      responses: 
+        200:
+          description: "BicycleNetwork object"
+          schema:
+            $ref: "#/definitions/bicycle_network"
+            
+  /bicycle_networks/:
+    get:
+      summary: "Returns a paginated list of BicycleNetworks."
+      responses:
+        200:
+          description: "List of BicycleNetworks."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/bicycle_network"
+ 
+  /bicycle_networkparts/{id}:
+    get:
+      summary: "Returns a BicycleNetworkPart object."
+      parameters:
+        - name: "id"
+          in: path
+          type: string
+          required: true
+      responses: 
+        200:
+          description: "BicycleNetworkPart object"
+          schema:
+            $ref: "#/definitions/bicycle_networkpart"                 
+  /bicycle_networkparts/:
+    get:
+      summary: Returns a list of BicycleNetworkParts
+      parameters:
+        - $ref: "#/components/parameters/name_param"
+        - $ref: "#/components/parameters/id_param"
+        - $ref: "#/components/parameters/latlon_param"
+        - $ref: "#/components/parameters/only_coords_param"
+        - $ref: "#/components/parameters/bbox_param"
+        - name: lat
+          in: query
+          type: string
+          description: A latitude coordinate to be used as part of a location filter
+          required: false
+        - name: lon
+          in: query
+          type: string
+          description: A longitude coordinate to be used as part of a location filter
+          required: false
+        - name: distance
+          in: query
+          type: string
+          description: A distance radius filter to be used as part of a location filter along with lat and lon
+          required: false
+        - $ref: "#/components/parameters/pagesize_param"
+        - $ref: "#/components/parameters/page_param"
+
+      responses:
+        200:
+          description: List of BicycleNetworkparts
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/bicycle_networkpart"
+            
+
+components:
+  parameters:
+    pagesize_param:
+      name: page_size
+      in: query
+      description: Request that server delivers page_size results in response.
+      required: false
+      type: integer
+    page_param:
+      name: page
+      in: query
+      description: Request particular page in paginated results.
+      required: false
+      schema:
+        type: integer
+      example: 1
+    id_param:
+      name: id
+      in: query
+      description: Request particular BicycleNetwork part by id.
+      required: false
+      schema:
+        type: integer
+      example: 1
+    name_param:
+      name: name
+      in: query
+      description: If name given, return parts in the given bicycle network.
+      required: false
+      schema:
+        type: string
+      example: main_network
+    latlon_param:
+      name: latlon
+      in: query
+      description: If set to true, returns geometry_coords field in (lat, lon) format, the default is (lon, lat)
+      schema:
+        type: boolean
+      example: true
+    only_coords_param:
+      name: only_coords
+      in: query
+      description: If set to true, only coordinates and the id is serialized for parts.
+      required: false
+      schema:
+        type: boolean
+      example: true
+    bbox_param:
+      name: bbox
+      in: query
+      type: string
+      description: Search for events that are within this bounding box. Decimal coordinates are given in order west, south, east, north. Period is used as decimal separator.
+      example: 22.24,60.2,22.3,60.46
+    
+

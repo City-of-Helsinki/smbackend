@@ -1,0 +1,10 @@
+{
+    "type": "FeatureCollection",
+    "name": "Turun kaupungin julkisten toimipisteiden pyöräparkit",
+    "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+    "features": [
+    { "type": "Feature", "properties": { "fid": 4, "id": null, "kohde": "Kupittaan maauimala", "osoite": "Pyhän Henrikin aukio, Kupittaankatu 8, 20520 Turku", "varustelaj": "polkupyöräteline", "pys.malli": null, "laatutaso": "3 ei runkolukitusta", "telineitä": 35, "paikkoja": 140, "x-koordin": 22.290193159499999, "y-koordin": 60.445363945300002, "päiväys": "2021\/06\/03", "lisätietoa": null, "id2": 3 }, "geometry": { "type": "Point", "coordinates": [ 22.290004552224545, 60.445345506010177 ] } },
+    { "type": "Feature", "properties": { "fid": 11, "id": null, "kohde": "Kupittaan palloiluhalli", "osoite": "Lemminkäisenkatu 32a, 20520 Turku", "varustelaj": "polkupyöräkatos", "pys.malli": null, "laatutaso": "1 katettu ja runkolukittava", "telineitä": 60, "paikkoja": 120, "x-koordin": 22.3003937326, "y-koordin": 60.446264933899997, "päiväys": "2021\/06\/07", "lisätietoa": null, "id2": 10 }, "geometry": { "type": "Point", "coordinates": [ 22.300393732620304, 60.446264933940917 ] } },
+    { "type": "Feature", "properties": { "fid": 14, "id": null, "kohde": "Turun AMK", "osoite": "Lemminkäisenkatu 30, 20520 Turku", "varustelaj": "polkupyöräteline", "pys.malli": null, "laatutaso": "2 runkolukittava", "telineitä": 35, "paikkoja": 70, "x-koordin": 22.2992554864, "y-koordin": 60.446657904699997, "päiväys": "2021\/06\/07", "lisätietoa": null, "id2": 13 }, "geometry": { "type": "Point", "coordinates": [ 22.299255486447247, 60.446657904702477 ] } }
+    ]
+    }

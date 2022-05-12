@@ -1,6 +1,10 @@
 from django.apps import apps
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import HStoreField
+from django.contrib.postgres.fields import ArrayField, HStoreField
+from django.contrib.postgres.indexes import (  # add the Postgres recommended GIN index
+    GinIndex,
+)
+from django.contrib.postgres.search import SearchVectorField
 from django.db.models import JSONField, Manager
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -212,9 +216,26 @@ class Unit(SoftDeleteModel):
 
     objects = Manager()
     search_objects = UnitSearchManager()
+    extra = models.JSONField(null=True)
+    related_units = models.ManyToManyField("self", blank=True)
+    # Note, TranslatedModel do not support ArrayField.
+    service_names_fi = ArrayField(models.CharField(max_length=200), default=list)
+    service_names_sv = ArrayField(models.CharField(max_length=200), default=list)
+    service_names_en = ArrayField(models.CharField(max_length=200), default=list)
+
+    search_column_fi = SearchVectorField(null=True)
+    search_column_sv = SearchVectorField(null=True)
+    search_column_en = SearchVectorField(null=True)
+
+    syllables_fi = ArrayField(models.CharField(max_length=16), default=list)
 
     class Meta:
         ordering = ["-pk"]
+        indexes = (
+            GinIndex(fields=["search_column_fi"]),
+            GinIndex(fields=["search_column_sv"]),
+            GinIndex(fields=["search_column_en"]),
+        )
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
@@ -250,6 +271,47 @@ class Unit(SoftDeleteModel):
                 )
             )
         )
+
+    @classmethod
+    def get_syllable_fi_columns(cls):
+        """
+        Defines the columns that will be used when populating
+        finnish syllables to syllables_fi column. The content
+        will be tokenized to lexems(to_tsvector) and added to
+        the search_column.
+        """
+        return ["name_fi", "service_names_fi"]
+
+    @classmethod
+    def get_search_column_indexing(cls, lang):
+        """
+        Defines the columns to be to_tsvector to the search_column
+        ,config language and weight.
+        """
+        if lang == "fi":
+            return [
+                ("name_fi", "finnish", "A"),
+                ("syllables_fi", "finnish", "A"),
+                ("service_names_fi", "finnish", "B"),
+                ("extra", None, "C"),
+                ("address_zip", None, "D"),
+            ]
+        elif lang == "sv":
+            return [
+                ("name_sv", "swedish", "A"),
+                ("service_names_sv", "swedish", "B"),
+                ("extra", None, "C"),
+                ("address_zip", None, "D"),
+            ]
+        elif lang == "en":
+            return [
+                ("name_en", "english", "A"),
+                ("service_names_en", "english", "B"),
+                ("extra", None, "C"),
+                ("address_zip", None, "D"),
+            ]
+        else:
+            return []
 
     def soft_delete(self):
         self.public = False

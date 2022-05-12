@@ -1,0 +1,173 @@
+import re
+
+import requests
+from django.conf import settings
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.geos import GEOSGeometry
+from munigeo.models import (
+    Address,
+    AdministrativeDivision,
+    AdministrativeDivisionGeometry,
+    Street,
+)
+
+from mobility_data.models import ContentType, MobileUnit
+
+# 11 = Southwest Finland
+GEOMETRY_ID = 11
+GEOMETRY_URL = (
+    "https://tie.digitraffic.fi/api/v3/data/traffic-messages/area-geometries?"
+    + f"id={GEOMETRY_ID}&lastUpdated=false"
+)
+LANGUAGES = ["fi", "sv", "en"]
+
+
+def fetch_json(url):
+    response = requests.get(url)
+    assert response.status_code == 200, "Fetching {} status code: {}".format(
+        url, response.status_code
+    )
+    return response.json()
+
+
+def delete_mobile_units(type_name):
+    ContentType.objects.filter(type_name=type_name).delete()
+
+
+def create_mobile_unit_as_unit_reference(unit_id, content_type):
+    """
+    This function is called by turku_services_importers target that imports both
+    to the services list and mobile view. The created MobileUnit is used to
+    serialize the data from the services_unit table in the mobile_unit endpoint.
+    """
+
+    MobileUnit.objects.create(
+        unit_id=unit_id,
+        content_type=content_type,
+    )
+
+
+def get_or_create_content_type(type_name, name, description):
+    content_type, created = ContentType.objects.get_or_create(
+        type_name=type_name, name=name, description=description
+    )
+    return content_type, created
+
+
+def get_closest_street_name(point):
+    """
+    Returns the name of the street that is closest to point.
+    """
+    address = get_closest_address(point)
+    try:
+        street = Street.objects.get(id=address.street_id)
+        return street.name
+    except Street.DoesNotExist:
+        return None
+
+
+def get_closest_address_full_name(point):
+    """
+    Returns multilingual dict full_name,
+    e.g. {"fi": Linnakatu 10,"sv": Slottsgata 10, "en": Linnakatu 10}
+     of the closest address to the point.
+    """
+    address = get_closest_address(point)
+
+    full_name = {
+        "fi": address.full_name_fi,
+        "sv": address.full_name_sv,
+        "en": address.full_name_en,
+    }
+    return full_name
+
+
+def get_closest_address(point):
+    """
+    Return the closest address to the point.
+    """
+    address = (
+        Address.objects.annotate(distance=Distance("location", point))
+        .order_by("distance")
+        .first()
+    )
+    return address
+
+
+def get_street_name_translations(name, municipality):
+    """
+    Returns a dict where the key is the language and the value is
+    the translated name of the street.
+    Note, there are no english names for streets and if translation
+    does not exist return "fi" name as default name. If street is not found
+    return the input name of the street for all languages.
+    """
+    names = {}
+    default_attr_name = "name_fi"
+    try:
+        street = Street.objects.get(name=name, municipality=municipality.lower())
+        for lang in LANGUAGES:
+            attr_name = "name_" + lang
+            name = getattr(street, attr_name)
+            if name:
+                names[lang] = name
+            else:
+                names[lang] = getattr(street, default_attr_name)
+        return names
+    except Street.DoesNotExist:
+        for lang in LANGUAGES:
+            names[lang] = name
+        return names
+
+
+def get_municipality_name(point):
+    """
+    Returns the string name of the municipality in which the point
+    is located.
+    """
+    try:
+        # resolve in which division to point is.
+        division = AdministrativeDivisionGeometry.objects.get(boundary__contains=point)
+    except AdministrativeDivisionGeometry.DoesNotExist:
+        return None
+    # Get the division and return its name.
+    return AdministrativeDivision.objects.get(id=division.division_id).name
+
+
+def set_translated_field(obj, field_name, data):
+    """
+    Sets the value of all languages for given field_name.
+    :param obj: the object to which the fields will be set
+    :param field_name:  name of the field to be set.
+    :param data: dictionary where the key is the language and the value is the value
+    to be set for the field with the given langauge.
+    """
+    for lang in LANGUAGES:
+        if lang in data:
+            obj_key = "{}_{}".format(field_name, lang)
+            setattr(obj, obj_key, data[lang])
+
+
+def get_street_name_and_number(address):
+    """
+    Parses and returns the street name and number from address.
+    """
+    tmp = re.split(r"(^[^\d]+)", address)
+    street_name = tmp[1].rstrip()
+    street_number = tmp[2]
+    return street_name, street_number
+
+
+def locates_in_turku(feature, source_data_srid):
+    """
+    Returns True if the geometry of the feature is inside the boundaries
+    of Turku.
+    """
+
+    division_turku = AdministrativeDivision.objects.get(name="Turku")
+    turku_boundary = AdministrativeDivisionGeometry.objects.get(
+        division=division_turku
+    ).boundary
+    geometry = GEOSGeometry(feature.geom.wkt, srid=source_data_srid)
+    geometry.transform(settings.DEFAULT_SRID)
+    return turku_boundary.contains(geometry)

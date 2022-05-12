@@ -13,6 +13,7 @@ from munigeo.models import Municipality
 
 from services.management.commands.services_import.services import (
     remove_empty_service_nodes,
+    update_service_counts,
     update_service_node_counts,
 )
 from services.models import (
@@ -25,11 +26,17 @@ from services.models import (
     UnitServiceDetails,
 )
 from services.utils import AccessibilityShortcomingCalculator
+from smbackend_turku.importers.bicycle_stands import BicycleStandImporter
+from smbackend_turku.importers.stations import (
+    ChargingStationImporter,
+    GasFillingStationImporter,
+)
 from smbackend_turku.importers.utils import (
     get_localized_value,
     get_turku_resource,
     get_weekday_str,
     set_syncher_object_field,
+    set_syncher_service_names_field,
     set_syncher_tku_translated_field,
 )
 
@@ -107,21 +114,26 @@ def get_municipality(name):
 
 
 class UnitImporter:
-    unitsyncher = ModelSyncher(Unit.objects.all(), lambda obj: obj.id)
-
-    def __init__(self, logger=None, importer=None):
+    def __init__(self, logger=None, importer=None, delete_external_sources=False):
         self.logger = logger
         self.importer = importer
+        self.delete_external_source = delete_external_sources
+        self.unitsyncher = ModelSyncher(Unit.objects.all(), lambda obj: obj.id)
 
     def import_units(self):
         units = get_turku_resource("palvelupisteet")
 
         for unit in units:
             self._handle_unit(unit)
+        if not self.delete_external_source:
+            self._handle_external_units(GasFillingStationImporter)
+            self._handle_external_units(ChargingStationImporter)
+            self._handle_external_units(BicycleStandImporter)
 
         self.unitsyncher.finish()
 
         update_service_node_counts()
+        update_service_counts()
         remove_empty_service_nodes(self.logger)
 
     def _handle_unit(self, unit_data):
@@ -144,15 +156,32 @@ class UnitImporter:
         self._handle_extra_info(obj, unit_data)
         self._handle_ptv_id(obj, unit_data)
         self._handle_service_descriptions(obj, unit_data)
+        self._handle_provider_type(obj)
         self._save_object(obj)
-
         self._handle_opening_hours(obj, unit_data)
         self._handle_email_and_phone_numbers(obj, unit_data)
         self._handle_services_and_service_nodes(obj, unit_data)
         self._handle_accessibility_shortcomings(obj)
+        self._handle_service_names(obj)
         self._save_object(obj)
-
         self.unitsyncher.mark(obj)
+
+    def _handle_external_units(self, importer):
+        """
+        Mark units that has been imported from external source.
+        If not marked the unitsyncher.finish() will delete the units.
+        """
+
+        service = None
+        try:
+            service = Service.objects.get(name=importer.SERVICE_NAME)
+        except Service.DoesNotExist:
+            pass
+        if service:
+            units_qs = Unit.objects.filter(services__id=service.id)
+            for unit in units_qs.all():
+                synch_unit = self.unitsyncher.get(unit.id)
+                self.unitsyncher.mark(synch_unit)
 
     def _save_object(self, obj):
         if obj._changed:
@@ -309,6 +338,14 @@ class UnitImporter:
             lang: description_data.get(lang, "") for lang in ("fi", "sv", "en")
         }
         set_syncher_tku_translated_field(obj, "description", descriptions, clean=False)
+
+    def _handle_provider_type(self, obj):
+        # NOTE, this is a temp solution when the provider_type is not available.
+        # This improves the search results and makes it possible to set
+        # external imported units with different provider_type and will get less
+        # importance in search results. Value 1 = "SELF_PRODUCED"
+        if obj.provider_type is None:
+            set_syncher_object_field(obj, "provider_type", 1)
 
     def _handle_opening_hours(self, obj, unit_data):
         obj.connections.filter(section_type=OPENING_HOURS_SECTION_TYPE).delete()
@@ -467,6 +504,9 @@ class UnitImporter:
                 **names
             )
             index += 1
+
+    def _handle_service_names(self, obj):
+        set_syncher_service_names_field(obj)
 
     def _generate_phone_number(self, phone_number_datum):
         if not phone_number_datum:

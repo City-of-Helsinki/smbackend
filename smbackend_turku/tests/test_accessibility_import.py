@@ -12,7 +12,7 @@ from services.models import (
     UnitIdentifier,
 )
 from smbackend_turku.tests.test_units_import import (
-    create_municipality,
+    create_municipalities,
     get_test_resource,
 )
 
@@ -48,7 +48,7 @@ def test_accessibility_variables_import(
     )
 
     # Create Municipality needed for Units creation
-    create_municipality()
+    create_municipalities()
 
     # Create Units needed for Accessibility Import
     create_units()

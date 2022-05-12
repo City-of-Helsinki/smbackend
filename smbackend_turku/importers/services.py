@@ -14,6 +14,11 @@ from smbackend_turku.importers.utils import (
     set_syncher_object_field,
     set_syncher_tku_translated_field,
 )
+from smbackend_turku.importers.stations import (
+    GasFillingStationImporter,
+    ChargingStationImporter,
+)
+from smbackend_turku.importers.bicycle_stands import BicycleStandImporter
 
 UTC_TIMEZONE = pytz.timezone("UTC")
 
@@ -27,13 +32,14 @@ BLACKLISTED_SERVICE_NODES = [
 
 
 class ServiceImporter:
-    nodesyncher = ModelSyncher(ServiceNode.objects.all(), lambda obj: obj.id)
-    servicesyncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
-
-    def __init__(self, logger=None, importer=None):
+  
+    def __init__(self, logger=None, importer=None, delete_external_sources=False):
         self.logger = logger
         self.importer = importer
-
+        self.delete_external_sources = delete_external_sources
+        self.nodesyncher = ModelSyncher(ServiceNode.objects.all(), lambda obj: obj.id)
+        self.servicesyncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
+        
     def import_services(self):
         keyword_handler = KeywordHandler(logger=self.logger)
         self._import_services(keyword_handler)
@@ -47,14 +53,50 @@ class ServiceImporter:
             if parent_node["koodi"] in BLACKLISTED_SERVICE_NODES:
                 continue
             self._handle_service_node(parent_node, keyword_handler)
+
+        if not self.delete_external_sources:
+            self._handle_external_service_node(GasFillingStationImporter)
+            self._handle_external_service_node(ChargingStationImporter)
+            self._handle_external_service_node(BicycleStandImporter)
+
         self.nodesyncher.finish()
+
+    def _handle_external_service_node(self, importer):
+        """
+        Mark service_node that has been imported from external source.
+        If not marked the nodesyncher.finish() will delete the service node.
+        """
+        try:
+            service_node = ServiceNode.objects.get(name=importer.SERVICE_NODE_NAME)
+            service_node = self.nodesyncher.get(service_node.id)
+            self.nodesyncher.mark(service_node)
+        except ServiceNode.DoesNotExist:
+            pass
 
     def _import_services(self, keyword_handler):
         services = get_turku_resource("palvelut")
 
         for service in services:
             self._handle_service(service, keyword_handler)
+
+        if not self.delete_external_sources:
+            self._handle_external_service(GasFillingStationImporter)
+            self._handle_external_service(ChargingStationImporter)
+            self._handle_external_service(BicycleStandImporter)
+
         self.servicesyncher.finish()
+
+    def _handle_external_service(self, importer):
+        """
+        Mark service that has been imported from external source.
+        If not marked the servicesyncher.finish() will delete the service.
+        """
+        try:
+            service = Service.objects.get(name=importer.SERVICE_NAME)
+            service = self.servicesyncher.get(service.id)
+            self.servicesyncher.mark(service)
+        except Service.DoesNotExist:
+            pass
 
     def _save_object(self, obj):
         if obj._changed:

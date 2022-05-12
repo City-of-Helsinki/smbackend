@@ -10,7 +10,7 @@ from services.management.commands.services_import.services import (
 )
 from services.models import Service, ServiceNode, Unit, UnitConnection
 from smbackend_turku.tests.utils import (
-    create_municipality,
+    create_municipalities,
     get_location,
     get_opening_hours,
     get_test_resource,
@@ -26,7 +26,7 @@ def test_unit_import(resource):
     unit_importer = UnitImporter(logger=logger)
 
     # Create Turku municipality
-    create_municipality()
+    create_municipalities()
 
     ServiceNode.objects.create(id=333, name="Tontit", last_modified_time=timezone.now())
     service = Service.objects.create(

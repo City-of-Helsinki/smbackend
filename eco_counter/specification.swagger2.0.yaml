@@ -1,0 +1,614 @@
+swagger: "2.0"
+info:
+  description: "The Eco-counter API provides hourly, daily, weekly, monthly
+   and yearly traffic data from observation station."
+  version: "1.0.0"
+  title: "Turku Eco-Counter"
+  termsOfService: ""
+  contact:
+    email: ""
+  license:
+    name: ""
+    url: ""
+host: "127.0.0.1:8000"
+basePath: "/eco-counter"
+
+schemes:
+- "https"
+- "http"
+produces:
+- application/json
+
+definitions:
+  station:
+    type: object
+    title: Station
+    description: "Contains information about the observation stations."
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      geom:
+        type: string
+      lat:
+        type: number
+      lon:
+        type: number
+
+  hour_data:
+    type: object
+    title: HourData
+    description: "HourData contains hourly data for a station."
+    properties:
+      id:
+        type: integer
+      station:
+        type: integer
+      day_info:
+        properties:
+          station_name:
+            type: string
+          date:
+            type: string
+          weekday_number:
+            type: integer
+      values_ak:
+        type: array
+        items: 
+          type: integer
+      values_ap:
+        type: array
+        items: 
+          type: integer
+      values_at:
+        type: array
+        items: 
+          type: integer
+      values_pk:
+        type: array
+        items: 
+          type: integer
+      values_pp:
+        type: array
+        items: 
+          type: integer
+      values_pt:
+        type: array
+        items: 
+          type: integer
+      values_jk:
+        type: array
+        items: 
+          type: integer
+      values_jp:
+        type: array
+        items: 
+          type: integer
+      values_jt:
+        type: array
+        items: 
+          type: integer   
+
+  day_data:
+    type: object
+    title: DayData
+    description: "DayData contains daily data for a station."
+    properties:
+      id:
+        type: integer
+      station:
+        type: integer
+      day_info:
+        properties:
+          station_name:
+            type: string
+          date:
+            type: string
+          weekday_number:
+            type: integer
+      value_ak:
+        type: integer
+      value_ap:
+        type: integer
+      value_at:
+        type: integer
+      value_pk:
+        type: integer
+      value_pp:
+        type: integer
+      value_pt:
+        type: integer
+      value_jk:
+        type: integer
+      value_jp:
+        type: integer
+      value_jt:
+        type: integer 
+        
+  week_data:
+    type: object
+    title: WeekData
+    description: "WeekData contains weekly data for a station."
+    properties:
+      id:
+        type: integer
+      station:
+        type: integer
+      week_info:
+        properties:
+          station_name:
+            type: string
+          week_number:
+            type: integer
+          years:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                year_number:
+                  type: integer
+      value_ak:
+        type: integer
+      value_ap:
+        type: integer
+      value_at:
+        type: integer
+      value_pk:
+        type: integer
+      value_pp:
+        type: integer
+      value_pt:
+        type: integer
+      value_jk:
+        type: integer
+      value_jp:
+        type: integer
+      value_jt:
+        type: integer 
+      
+  month_data:
+    type: object
+    title: MonthData
+    description: "MonthData contains monthly data for a station."
+    properties:
+      id:
+        type: integer
+      station:
+        type: integer
+      month_info:
+        properties:
+          station_name:
+            type: string
+          month_number:
+            type: integer
+          year_number:
+            type: integer
+      value_ak:
+        type: integer
+      value_ap:
+        type: integer
+      value_at:
+        type: integer
+      value_pk:
+        type: integer
+      value_pp:
+        type: integer
+      value_pt:
+        type: integer
+      value_jk:
+        type: integer
+      value_jp:
+        type: integer
+      value_jt:
+        type: integer 
+
+  year_data:
+    type: object
+    title: YearData
+    description: "YearData contains yearly data for a station."
+    properties:
+      id:
+        type: integer
+      station:
+        type: integer
+      year_info:
+        properties:
+          station_name:
+            type: string
+          year_number:
+            type: integer
+      value_ak:
+        type: integer
+      value_ap:
+        type: integer
+      value_at:
+        type: integer
+      value_pk:
+        type: integer
+      value_pp:
+        type: integer
+      value_pt:
+        type: integer
+      value_jk:
+        type: integer
+      value_jp:
+        type: integer
+      value_jt:
+        type: integer 
+
+paths:
+  /stations/:
+    get:
+      summary: "Returns a list of stations."
+      responses:
+        200:
+          description: "List of stations."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/station"
+
+  /stations/{id}:
+    get:
+      summary: "Returns a station by id."
+      parameters:
+      - name: "id"
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "Station object."
+          schema:
+            $ref: "#/definitions/station"
+
+  /hour_data/:
+    get:
+      summary: "Return a list of hour_data."
+      responses:
+        200:
+          description: "List of hour_data, paginated."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/hour_data"
+
+  /hour_data/{id}:
+    get:
+      summary: "Returns a hour_data by id."
+      parameters:
+      - name: "id"
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "hour_data object."
+          schema:
+            $ref: "#/definitions/hour_data"
+  /hour_data/get_hour_data:
+    get:
+      summary: "Returns hour_data for given date and station_id"
+      parameters:
+      - in: query
+        description: "YYYY-MM-DD"
+        name: date
+        type: string
+        required: true
+      - in: query
+        name: station_id
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "hour_data object."
+          schema:
+            $ref: "#/definitions/hour_data"
+        400:
+          description: "Invalid date or station_id."
+  /day_data/:
+    get:
+      summary: "Return a list of day_datas."
+      responses:
+        200:
+          description: "List of day_datas, paginated."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/day_data"
+
+              
+  /day_data/{id}:
+    get:
+      summary: "Returns a day_data by id."
+      parameters:
+      - name: "id"
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "day_data object."
+          schema:
+            $ref: "#/definitions/day_data"
+  /day_data/get_day_data:
+    get:
+      summary: "Returns day_data for given date and station_id"
+      parameters:
+      - in: query
+        description: "YYYY-MM-DD"
+        name: date
+        type: string
+        required: true
+      - in: query
+        name: station_id
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "day_data object."
+          schema:
+            $ref: "#/definitions/day_data"
+        400:
+          description: "Invalid date or station_id."
+          
+  /day_data/get_day_datas:
+    get:
+      summary: "Returns day_datas for given timespan and station_id"
+      parameters:
+      - in: query
+        description: "YYYY-MM-DD"
+        name: start_date
+        type: string
+        required: true
+      - in: query
+        description: "YYYY-MM-DD"
+        name: end_date
+        type: string
+        required: true
+      - in: query
+        name: station_id
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "List of day_datas for the given timespan."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/day_data"
+        400:
+          description: "Invalid start_date, end_date or station_id."
+  /week_data/:
+    get:
+      summary: "Return a list of week_datas."
+      responses:
+        200:
+          description: "List of week_datas, paginated."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/week_data"
+          
+  /week_data/{id}:
+    get:
+      summary: "Returns a week_data by id."
+      parameters:
+      - name: "id"
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "week_data object."
+          schema:
+            $ref: "#/definitions/week_data"
+  /week_data/get_week_data:
+    get:
+      summary: "Returns week_data for given week_number, year_number and station_id."
+      parameters:
+      - in: query
+        description: "Number of the year."
+        name: year_number
+        type: integer
+        required: true
+      - in: query
+        description: "Number of the week, 1-53."
+        name: week_number
+        type: integer
+        required: true
+      - in: query
+        name: station_id
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "week_data object."
+          schema:
+            $ref: "#/definitions/week_data"
+        400:
+          description: "Invalid week number, year number or station_id."
+  /week_data/get_week_datas:
+    get:
+      summary: "Returns week_datas for given year, span of week numbers and station_id"
+      parameters:
+      - in: query
+        description: "Number of the year."
+        name: year_number
+        type: integer
+        required: true
+      - in: query
+        name: start_week_number
+        type: integer
+        required: true
+      - in: query
+        name: end_week_number
+        type: integer
+        required: true
+      - in: query
+        name: station_id
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "List of week_datas for the given span."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/week_data"
+        400:
+          description: "Invalid start_week_number, end_week_number or station_id."
+  /month_data/:
+    get:
+      summary: "Return a list of month_datas."
+      responses:
+        200:
+          description: "List of month_datas, paginated."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/month_data"
+          
+  /month_data/{id}:
+    get:
+      summary: "Returns a month_data by id."
+      parameters:
+      - name: "id"
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "month_data object."
+          schema:
+            $ref: "#/definitions/month_data"   
+  /month_data/get_month_data:
+    get:
+      summary: "Returns month_data for given month_number, year_number and station_id."
+      parameters:
+      - in: query
+        description: "Number of the year."
+        name: year_number
+        type: integer
+        required: true
+      - in: query
+        description: "Number of the month."
+        name: month_number
+        type: integer
+        required: true
+      - in: query
+        name: station_id
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "month_data object."
+          schema:
+            $ref: "#/definitions/month_data"
+        400:
+          description: "Invalid month number, year number or station_id." 
+  /month_data/get_month_datas:
+    get:
+      summary: "Returns month_datas for given year, span of month numbers and station_id"
+      parameters:
+      - in: query
+        description: "Number of the year."
+        name: year_number
+        type: integer
+        required: true
+      - in: query
+        name: start_month_number
+        type: integer
+        required: true
+      - in: query
+        name: end_month_number
+        type: integer
+        required: true
+      - in: query
+        name: station_id
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "List of month_datas for the given span."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/month_data"
+        400:
+          description: "Invalid start_month_number, end_month_number, year_number or station_id."        
+  /year_data/:
+    get:
+      summary: "Return a list of year_datas."
+      responses:
+        200:
+          description: "List of year_datas, paginated."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/year_data"
+  /year_data/{id}:
+    get:
+      summary: "Returns a year_data by id."
+      parameters:
+      - name: "id"
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "year_data object."
+          schema:
+            $ref: "#/definitions/year_data"
+  /year_data/get_year_data:
+    get:
+      summary: "Returns year_data for given year_number and station_id."
+      parameters:
+      - in: query
+        description: "Number of the year."
+        name: year_number
+        type: integer
+        required: true
+      - in: query
+        name: station_id
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "year_data object."
+          schema:
+            $ref: "#/definitions/year_data"
+        400:
+          description: "Invalid year number or station_id." 
+        
+  

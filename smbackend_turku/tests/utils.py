@@ -2,6 +2,7 @@ import json
 import os
 
 from django.conf import settings
+from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import Point
 from munigeo.models import (
     AdministrativeDivision,
@@ -12,7 +13,7 @@ from munigeo.models import (
 from smbackend_turku.importers.utils import get_weekday_str
 
 
-def create_municipality():
+def create_municipalities():
     division_type = AdministrativeDivisionType.objects.create(id=1, type="muni")
     division = AdministrativeDivision.objects.create(
         type=division_type, id=1, name_fi="Turku"
@@ -20,11 +21,22 @@ def create_municipality():
     Municipality.objects.create(
         id="turku", name="Turku", name_fi="Turku", name_sv="Åbo", division=division
     )
+    division = AdministrativeDivision.objects.create(
+        type=division_type, id=2, name_fi="Kaarina"
+    )
+    Municipality.objects.create(
+        id="kaarina",
+        name="Kaarina",
+        name_fi="Kaarina",
+        name_sv="S:t Karins",
+        division=division,
+    )
 
 
 def get_test_resource(resource_name):
     """
     Mock calling the API by fetching dummy data from files.
+
     """
     data_path = os.path.join(os.path.dirname(__file__), "data")
     if resource_name == "palvelut":
@@ -37,12 +49,24 @@ def get_test_resource(resource_name):
         file = os.path.join(data_path, "accessibility_unit_properties.json")
     elif resource_name == "info":
         file = os.path.join(data_path, "accessibility_unit_info.json")
+    elif resource_name == "gas_filling_stations":
+        file = os.path.join(data_path, "gas_filling_stations.json")
+    elif resource_name == "charging_stations":
+        file = os.path.join(data_path, "charging_stations.json")
     else:
         file = os.path.join(data_path, "units.json")
 
     with open(file) as f:
         data = json.load(f)
     return data
+
+
+def get_test_addresses_layer():
+    data_path = os.path.join(os.path.dirname(__file__), "data")
+    file = os.path.join(data_path, "turku_addresses.gml")
+    ds = DataSource(file)
+    layer = ds[0]
+    return layer
 
 
 def format_time(time_str):
@@ -65,4 +89,5 @@ def get_opening_hours(opening_time, closing_time, weekday):
 def get_location(latitude, longitude, srid):
     point = Point(x=float(latitude), y=float(longitude), srid=srid)
     point.transform(settings.DEFAULT_SRID)
+
     return point

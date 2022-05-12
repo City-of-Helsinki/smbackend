@@ -1,0 +1,68 @@
+<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs"
+    xmlns:gml="http://www.opengis.net/gml"
+    xmlns:ogc="http://www.opengis.net/ogc"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:GIS="http://www.tekla.com/schemas/GIS">
+    <gml:boundedBy>
+        <gml:Box srsName="http://www.opengis.net/gml/srs/epsg.xml#3877">
+            <gml:coordinates>23456774.263,6697454.142 23473447.939,6713767.217</gml:coordinates>
+        </gml:Box>
+    </gml:boundedBy>
+    <gml:featureMember>
+        <GIS:Polkupyoraparkki>
+            <GIS:Id>0</GIS:Id>
+            <GIS:ObjectId>0</GIS:ObjectId>
+            <GIS:Hankintavuosi>0</GIS:Hankintavuosi>
+            <GIS:Lukumaara>0</GIS:Lukumaara>
+            <GIS:Malli> Ei tietoa</GIS:Malli>
+            <GIS:Malli_koodi>0</GIS:Malli_koodi>
+            <GIS:Geometry>
+                <gml:Point>
+                    <gml:pos>23465137.461 6699745.292</gml:pos>
+                </gml:Point>
+            </GIS:Geometry>
+        </GIS:Polkupyoraparkki>
+    </gml:featureMember>
+    <gml:featureMember>
+        <GIS:Polkupyoraparkki>            
+            <GIS:ObjectId>88996599</GIS:ObjectId>
+            <GIS:Katuosa_nimi>Pitkäpellonkatu</GIS:Katuosa_nimi>
+            <GIS:Varustelaji>Polkupyöräkatos</GIS:Varustelaji>
+            <GIS:Varustelaji_koodi>03003</GIS:Varustelaji_koodi>
+            <GIS:Hankintavuosi>0</GIS:Hankintavuosi>
+            <GIS:Lukumaara>1</GIS:Lukumaara>
+            <GIS:Malli> Ei tietoa</GIS:Malli>
+            <GIS:Malli_koodi>0</GIS:Malli_koodi>
+            <GIS:Pyorapaikkojen_lukumaara>8 runkolukittavaa ja 10 ei runkolukittavaa paikkaa</GIS:Pyorapaikkojen_lukumaara>
+            <GIS:Pyorapaikkojen_laatutaso>Katettu, runkolukitusmahdollisuus</GIS:Pyorapaikkojen_laatutaso>
+            <GIS:Geometry>
+                <gml:Point>
+                    <gml:name>1</gml:name>
+                    <gml:pos>23457875.083 6700177.401</gml:pos>
+                </gml:Point>
+            </GIS:Geometry>
+        </GIS:Polkupyoraparkki>
+    </gml:featureMember>
+    <gml:featureMember>
+        <GIS:Polkupyoraparkki>
+            <GIS:Id>319490982</GIS:Id>
+            <GIS:ObjectId>281516683</GIS:ObjectId>
+            <GIS:Viherosa_nimi>Linnanpuisto</GIS:Viherosa_nimi>
+            <GIS:Varustelaji>Pyöräteline</GIS:Varustelaji>
+            <GIS:Varustelaji_koodi>04036</GIS:Varustelaji_koodi>
+            <GIS:Hankintavuosi>0</GIS:Hankintavuosi>
+            <GIS:Lukumaara>2</GIS:Lukumaara>
+            <GIS:Malli>Normaali</GIS:Malli>
+            <GIS:Malli_koodi>0</GIS:Malli_koodi>
+            <GIS:Pyorapaikkojen_lukumaara>24</GIS:Pyorapaikkojen_lukumaara>
+            <GIS:Pyorapaikkojen_laatutaso>Ei runkolukitusmahdollisuutta</GIS:Pyorapaikkojen_laatutaso>
+            <GIS:Geometry>
+                <gml:Point>
+                    <gml:name>22</gml:name>
+                    <gml:pos>23457630.542 6702853.046</gml:pos>
+                </gml:Point>
+            </GIS:Geometry>
+        </GIS:Polkupyoraparkki>
+    </gml:featureMember>
+
+</wfs:FeatureCollection>
