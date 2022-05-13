@@ -21,7 +21,9 @@ NO_PARKING_ZONE_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
     "?service=WFS&request=GetFeature&typeName=GIS:Sahkopotkulauta_pysakointikielto&outputFormat=GML3",
 )
-
+PARKING_ZONE_TEST_DATA = "scooter_parkings.gml"
+SPEED_LIMIT_TEST_DATA = "scooter_speed_limits.gml"
+NO_PARKING_ZONE_TEST_DATA = "scooter_no_parking_zones.gml"
 
 SOURCE_DATA_SRID = 3877
 logger = logging.getLogger("mobility_data")
@@ -93,15 +95,18 @@ def get_scooter_restriction_elements():
             "url": PARKING_ZONE_URL,
             "content_type": ContentType.SCOOTER_PARKING,
             "content_type_create_func": create_scooter_parking_content_type,
+            "test_data": PARKING_ZONE_TEST_DATA,
         },
         "Speed Limit": {
             "url": SPEED_LIMIT_URL,
             "content_type": ContentType.SCOOTER_SPEED_LIMIT,
             "content_type_create_func": create_scooter_speed_limit_content_type,
+            "test_data": SPEED_LIMIT_TEST_DATA,
         },
         "No Parking": {
             "url": NO_PARKING_ZONE_URL,
             "content_type": ContentType.SCOOTER_NO_PARKING,
             "content_type_create_func": create_scooter_speed_no_parking_content_type,
+            "test_data": NO_PARKING_ZONE_TEST_DATA,
         },
     }
