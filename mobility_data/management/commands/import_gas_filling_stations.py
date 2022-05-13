@@ -1,27 +1,20 @@
-import os
 import json
 import logging
-from django.core.management import BaseCommand
+import os
 
 from mobility_data.importers.gas_filling_station import (
+    GAS_FILLING_STATIONS_URL,
     get_filtered_gas_filling_station_objects,
     save_to_database,
-    GAS_FILLING_STATIONS_URL,
 )
 from mobility_data.models import ContentType
+
+from ._base_import_command import BaseImportCommand
 
 logger = logging.getLogger("mobility_data")
 
 
-class Command(BaseCommand):
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--test-mode",
-            nargs="+",
-            default=False,
-            help="Run script in test mode.",
-        )
-
+class Command(BaseImportCommand):
     def handle(self, *args, **options):
         logger.info("Importing gas filling stations.")
         if options["test_mode"]:

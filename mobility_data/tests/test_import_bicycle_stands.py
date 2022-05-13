@@ -1,21 +1,8 @@
-from io import StringIO
-
 import pytest
-from django.core.management import call_command
 
 from mobility_data.models import MobileUnit
 
-
-def import_command(*args, **kwargs):
-    out = StringIO()
-    call_command(
-        "import_bicycle_stands",
-        *args,
-        stdout=out,
-        stderr=StringIO(),
-        **kwargs,
-    )
-    return out.getvalue()
+from .utils import import_command
 
 
 @pytest.mark.django_db
@@ -27,7 +14,9 @@ def test_geojson_import(
     streets,
     address,
 ):
-    import_command(test_mode="bicycle_stands_for_units.geojson")
+    import_command(
+        "import_bicycle_stands", test_mode="bicycle_stands_for_units.geojson"
+    )
     assert MobileUnit.objects.all().count() == 3
     kupittaan_maauimala = MobileUnit.objects.get(name="Kupittaan maauimala")
     assert kupittaan_maauimala
@@ -56,7 +45,7 @@ def test_wfs_importer(
     streets,
     address,
 ):
-    import_command(test_mode="bicycle_stands.gml")
+    import_command("import_bicycle_stands", test_mode="bicycle_stands.gml")
     assert MobileUnit.objects.all().count() == 3
     # <GIS:Id>0</GIS:Id> in fixture xml.
     stand_normal = MobileUnit.objects.all()[0]

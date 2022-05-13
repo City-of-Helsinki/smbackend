@@ -33,28 +33,36 @@ TABLE = "Poyta"
 FURNITURE_GROUP = "Kalusteryhma"
 
 
+FIELDS = {
+    "Varustelaji_koodi": "as_int",
+    "Varustelaji": "as_string",
+    "Valmistaja": "as_string",
+    "Valmistaja_koodi": "as_int",
+    "Malli": "as_string",
+    "Malli_koodi": "as_int",
+    "Hankintavuosi": "as_int",
+    "Kunto": "as_string",
+    "Kunto_koodi": "as_int",
+    "Pinta-ala": "as_string",
+    "Pituus": "as_double",
+    "Asennus": "as_string",
+    "Asennus_koodi": "as_int",
+}
+
+
 class Accessory:
     def __init__(self, feature):
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
         self.extra = {}
-        self.extra["type_code"] = feature["Varustelaji_koodi"].as_int()
-        self.extra["manufacturer"] = feature["Valmistaja"].as_string()
-        self.extra["manufacturer_code"] = feature["Valmistaja_koodi"].as_int()
-        self.extra["model"] = feature["Malli"].as_string()
-        self.extra["model_code"] = feature["Malli_koodi"].as_int()
-        self.extra["year_of_acquisition"] = feature["Hankintavuosi"].as_int()
-        self.extra["condition"] = feature["Kunto"].as_string()
-        self.extra["condition_code"] = feature["Kunto_koodi"].as_string()
-        self.extra["surface_area"] = feature["Pinta-ala"].as_string()
-        self.extra["length"] = feature["Pituus"].as_double()
-        self.extra["installation"] = feature["Asennus"].as_string()
-        self.extra["installation_code"] = feature["Asennus_koodi"].as_string()
+        for key, value in FIELDS.items():
+            self.extra[key] = getattr(feature[key], value)()
 
 
-def get_accessory_objects():
-    ds = DataSource(ACCESSORIES_URL)
-    layer = ds[0]
+def get_accessory_objects(data_source=None):
+    if not data_source:
+        data_source = DataSource(ACCESSORIES_URL)
+    layer = data_source[0]
     public_toilets = []
     tables = []
     benches = []
