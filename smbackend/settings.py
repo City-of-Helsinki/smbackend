@@ -1,15 +1,25 @@
 import os
-
-import environ
+from django.utils.log import DEFAULT_LOGGING
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
 
-root = environ.Path(__file__) - 2  # two levels back in hierarchy
-env = environ.Env(
+from environ import Env
+from pathlib import Path
+
+# Enable logging to console from our modules by configuring the root logger
+DEFAULT_LOGGING["loggers"][""] = {
+    "handlers": ["console"],
+    "level": "INFO",
+    "propagate": True,
+}
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = Env(
     DEBUG=(bool, False),
     LANGUAGES=(list, ["fi", "sv", "en"]),
     DATABASE_URL=(str, "postgis:///servicemap"),
-    SECRET_KEY=(str, ""),
+    SECRET_KEY=(str, "temp_key"),
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
     ALLOWED_HOSTS=(list, []),
@@ -17,10 +27,10 @@ env = environ.Env(
     SENTRY_ENVIRONMENT=(str, "development"),
     COOKIE_PREFIX=(str, "servicemap"),
     INTERNAL_IPS=(list, []),
-    MEDIA_ROOT=(environ.Path(), root("media")),
-    STATIC_ROOT=(environ.Path(), root("static")),
-    MEDIA_URL=(str, "/media/"),
+    STATIC_ROOT=(str, str(BASE_DIR / "static")),
+    MEDIA_ROOT=(str, str(BASE_DIR / "media")),
     STATIC_URL=(str, "/static/"),
+    MEDIA_URL=(str, "/media/"),
     OPEN311_URL_BASE=(str, None),
     OPEN311_API_KEY=(str, None),
     OPEN311_INTERNAL_API_KEY=(str, None),
@@ -31,17 +41,21 @@ env = environ.Env(
     ACCESSIBILITY_SYSTEM_ID=(str, None),
     ADDITIONAL_INSTALLED_APPS=(list, None),
     ADDITIONAL_MIDDLEWARE=(list, None),
+    DJANGO_LOG_LEVEL=(str, "INFO"),
+    GEO_SEARCH_LOCATION=(str, None),
+    GEO_SEARCH_API_KEY=(str, None),
 )
 
-BASE_DIR = root()
-
-if os.path.exists(".env"):
-    environ.Env().read_env(".env")
+env_path = BASE_DIR / ".env"
+if env_path.exists():
+    Env.read_env(env_path)
 
 DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
 TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+GEO_SEARCH_LOCATION = env("GEO_SEARCH_LOCATION")
+GEO_SEARCH_API_KEY = env("GEO_SEARCH_API_KEY")
 
 # Application definition
 INSTALLED_APPS = [
@@ -248,7 +262,7 @@ LOGGING = {
 KML_TRANSLATABLE_FIELDS = ["name", "street_address", "www"]
 KML_REGEXP = r"application/vnd.google-earth\.kml"
 
-LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
+LOCALE_PATHS = (str(BASE_DIR / "locale"),)
 
 SENTRY_DSN = env("SENTRY_DSN")
 SENTRY_ENVIRONMENT = env("SENTRY_ENVIRONMENT")
