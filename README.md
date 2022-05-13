@@ -136,8 +136,23 @@ brew install geos
 ```
 ./manage.py geo_import finland --municipalities
 ./manage.py geo_import helsinki --divisions
+./manage.py geo_import helsinki --addresses
+```
+
+### Importing addresses from geo-search
+```
+./manage.py geo_import uusimaa --addresses
+./manage.py update_postal_code_areas
+```
+Note, this imports all the addresses from Uusimaa-region and might take ~6 hours.
+Postal code area datas can be enriched from geo-search using `update_postal_code_areas` -management-command.
+
+###  Indexing search columns
+The search columns must be indexed after the first time data is imported or geo-search addresses are imported or addresses are enriched with geo-search data.
+```
 ./manage.py index_search_columns
 ```
+
 
 7. Redis
 Redis is used for caching and as a message broker for Celery.
