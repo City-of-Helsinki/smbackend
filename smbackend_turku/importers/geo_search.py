@@ -95,7 +95,7 @@ class GeoSearchImporter:
         self.logger = logger
 
     def get_count(self, url):
-        headers = {"Authorization": f"Api-Key:{settings.GEO_SEARCH_API_KEY}"}
+        headers = {"Authorization": f"Bearer Api-Key {settings.GEO_SEARCH_API_KEY}"}
         try:
             response = self.http.get(url, headers=headers)
         except urllib3.exceptions.MaxRetryError as ex:
@@ -106,7 +106,7 @@ class GeoSearchImporter:
 
     def fetch_page(self, url, page):
         request_url = f"{url}&page={page}"
-        headers = {"Authorization": f"Api-Key:{settings.GEO_SEARCH_API_KEY}"}
+        headers = {"Authorization": f"Bearer Api-Key {settings.GEO_SEARCH_API_KEY}"}
         try:
             response = self.http.get(request_url, headers=headers)
         except urllib3.exceptions.MaxRetryError as ex:
@@ -345,12 +345,17 @@ class GeoSearchImporter:
                 street_name_sv,
                 street_name_en,
             ) = self.get_multilingual_street_names(result)
-            # name_sv is not added as there might be a swedish translation
+
+            if result["postal_code_area"] is None:
+                self.postal_code_not_found += 1
+                continue
+
             postal_code = result["postal_code_area"]["postal_code"]
             if postal_code not in self.postal_code_areas_cache:
                 self.postal_code_areas_cache[
                     postal_code
                 ] = self.get_or_create_postal_code_area(postal_code, result)
+            # name_sv is not added as there might be a swedish translation
             street_entry = {
                 "name": street_name_fi,
                 "name_en": street_name_en,
@@ -466,6 +471,7 @@ class GeoSearchImporter:
         self.streets_imported = 0
         self.addresses_imported = 0
         self.duplicate_addresses = 0
+        self.postal_code_not_found = 0
         self.postal_code_areas_added_to_addresses = 0
         self.postal_code_areas_created = 0
         for muni in ENRICH_MUNICIPALITIES.items():
@@ -494,6 +500,9 @@ class GeoSearchImporter:
         )
         self.logger.info(
             f"Found and ignored {self.duplicate_addresses} duplicate adresses."
+        )
+        self.logger.info(
+            f"Skipped {self.postal_code_not_found} addresses, reason: no postal code."
         )
 
     def import_addresses(self):
