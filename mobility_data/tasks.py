@@ -3,8 +3,11 @@ from django.core import management
 
 
 @shared_task
-def import_culture_routes(args, name="import_culture_routes"):
-    management.call_command("import_culture_routes", args)
+def import_culture_routes(args=None, name="import_culture_routes"):
+    if args:
+        management.call_command("import_culture_routes", args)
+    else:
+        management.call_command("import_culture_routes")
 
 
 @shared_task
