@@ -33,8 +33,8 @@ def test_search(
     assert results[0]["name"]["fi"] == "Kurrapolku 1A"
     assert results[0]["object_type"] == "address"
     # Test administrative division search
-    url = reverse("search") + "?q=tur&use_trigram=false&extended_serializer=false"
+    url = reverse("search") + "?q=hel&use_trigram=false&extended_serializer=false"
     response = api_client.get(url)
     results = response.json()["results"]
     assert results[0]["object_type"] == "administrativedivision"
-    assert results[0]["name"]["fi"] == "Turku"
+    assert results[0]["name"]["fi"] == "Helsinki"

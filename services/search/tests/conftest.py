@@ -92,16 +92,24 @@ def services():
 
 @pytest.mark.django_db
 @pytest.fixture
-def addresses(streets):
+def addresses(streets, municipality):
     addresses = []
     location = Point(60.479032, 22.25417, srid=4326)
     addr = Address.objects.create(
-        id=1, street_id=42, location=location, full_name="Kurrapolku 1A"
+        id=1,
+        street_id=42,
+        location=location,
+        full_name="Kurrapolku 1A",
+        municipality=municipality,
     )
     addresses.append(addr)
     location = Point(60.379032, 22.15417)
     addr = Address.objects.create(
-        id=2, street_id=43, location=location, full_name="Markulantie 2B"
+        id=2,
+        street_id=43,
+        location=location,
+        full_name="Markulantie 2B",
+        municipality=municipality,
     )
     addresses.append(addr)
     Address.objects.update(search_column_fi=get_search_column(Address, "fi"))
@@ -111,7 +119,7 @@ def addresses(streets):
 @pytest.mark.django_db
 @pytest.fixture
 def municipality():
-    muni = Municipality.objects.create(id="turku", name="Turku")
+    muni = Municipality.objects.create(id="helsinki", name="Helsinki")
     return muni
 
 
@@ -128,7 +136,7 @@ def administrative_division_type():
 @pytest.fixture
 def administrative_division(administrative_division_type):
     adm_div = AdministrativeDivision.objects.get_or_create(
-        name="Turku", origin_id=853, type_id=1
+        name="Helsinki", origin_id=91, type_id=1
     )
     AdministrativeDivision.objects.update(
         search_column_fi=get_search_column(AdministrativeDivision, "fi")
@@ -140,8 +148,10 @@ def administrative_division(administrative_division_type):
 @pytest.fixture
 def streets(municipality):
     streets = []
-    street = Street.objects.create(id=42, name="Kurrapolku", municipality_id="turku")
+    street = Street.objects.create(id=42, name="Kurrapolku", municipality_id="helsinki")
     streets.append(street)
-    street = Street.objects.create(id=43, name="Markulantie", municipality_id="turku")
+    street = Street.objects.create(
+        id=43, name="Markulantie", municipality_id="helsinki"
+    )
     streets.append(street)
     return streets

@@ -1,10 +1,10 @@
 import os
-from django.utils.log import DEFAULT_LOGGING
+from pathlib import Path
+
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
-
+from django.utils.log import DEFAULT_LOGGING
 from environ import Env
-from pathlib import Path
 
 # Enable logging to console from our modules by configuring the root logger
 DEFAULT_LOGGING["loggers"][""] = {
