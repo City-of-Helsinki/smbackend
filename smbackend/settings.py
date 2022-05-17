@@ -42,8 +42,10 @@ env = Env(
     ADDITIONAL_INSTALLED_APPS=(list, None),
     ADDITIONAL_MIDDLEWARE=(list, None),
     DJANGO_LOG_LEVEL=(str, "INFO"),
-    GEO_SEARCH_LOCATION=(str, None),
-    GEO_SEARCH_API_KEY=(str, None),
+    IMPORT_LOG_LEVEL=(str, "INFO"),
+    SEARCH_LOG_LEVEL=(str, "INFO"),
+    GEO_SEARCH_LOCATION=(str, ""),
+    GEO_SEARCH_API_KEY=(str, ""),
 )
 
 env_path = BASE_DIR / ".env"
@@ -56,6 +58,9 @@ TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 GEO_SEARCH_LOCATION = env("GEO_SEARCH_LOCATION")
 GEO_SEARCH_API_KEY = env("GEO_SEARCH_API_KEY")
+DJANGO_LOG_LEVEL = env("DJANGO_LOG_LEVEL")
+IMPORT_LOG_LEVEL = env("IMPORT_LOG_LEVEL")
+SEARCH_LOG_LEVEL = env("SEARCH_LOG_LEVEL")
 
 # Application definition
 INSTALLED_APPS = [
@@ -254,8 +259,9 @@ LOGGING = {
         "blackhole": {"class": "logging.NullHandler"},
     },
     "loggers": {
-        "django": {"handlers": ["console"], "level": "INFO"},
-        "search": {"handlers": ["console"], "level": "INFO"},
+        "django": {"handlers": ["console"], "level": DJANGO_LOG_LEVEL},
+        "search": {"handlers": ["console"], "level": SEARCH_LOG_LEVEL},
+        "import": {"handlers": ["console"], "level": IMPORT_LOG_LEVEL},
     },
 }
 
