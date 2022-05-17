@@ -10,6 +10,7 @@ from django.core.management import BaseCommand
 importers = [
     "culture_routes",
     "gas_filling_stations",
+    "charging_stations",
     "bicycle_stands",
     "payment_zones",
     "speed_limit_zones",
