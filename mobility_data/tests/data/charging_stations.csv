@@ -1,0 +1,6 @@
+Teho (kW);Määrä;Pistoke;Latauspiste nro;Osoite;X;Y;Hallinnoija_fi;Hallinnoija_sv;Hallinnoija_en;Latauskohde;Maksu;Sähköhinta (€/kWh);Tuntihinta (€/h);Käyttötapa;Tieto hankittu;Tiedot päivitetty ;Muuta
+22;2;Type 2;13;Yliopistonkatu 29;23459269;6704538;Aimopark;Aimopark;Aimopark;Julkinen;Sisältyy hintaan;;;P-paikan hintaan;;12.5.2022;
+22;1;Type 2;13;Yliopistonkatu 29;23459349;6704540;Aimopark;Aimopark;Aimopark;Julkinen;Sisältyy hintaan;;;;;12.5.2022;
+43;1;Type 2;36;Aninkaistenkatu 20;23459724;6705152;Turku Energia;Åbo Energi;Turku Energia;Julkinen;Maksullinen;;;Virta app;;12.5.2022;
+22;4;Type 2;9;Ratapihankatu 53;23458575;6704625;;;;Julkinen;;;;;;12.5.2022;
+total,6
