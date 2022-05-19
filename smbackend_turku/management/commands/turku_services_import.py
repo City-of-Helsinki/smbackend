@@ -19,7 +19,9 @@ from smbackend_turku.importers.geo_search import (
 )
 from smbackend_turku.importers.services import import_services
 from smbackend_turku.importers.stations import (
+    delete_charging_stations,
     delete_gas_filling_stations,
+    import_charging_stations,
     import_gas_filling_stations,
 )
 from smbackend_turku.importers.units import import_units
@@ -29,6 +31,7 @@ class Command(BaseCommand):
     help = "Import services from City of Turku APIs and from external sources."
     external_sources = [
         "gas_filling_stations",
+        "charging_stations",
         "bicycle_stands",
     ]
 
@@ -125,6 +128,16 @@ class Command(BaseCommand):
     @db.transaction.atomic
     def delete_gas_filling_stations(self):
         delete_gas_filling_stations(logger=self.logger)
+
+    @db.transaction.atomic
+    def import_charging_stations(self):
+        import_charging_stations(
+            logger=self.logger, root_service_node_name="Vapaa-aika"
+        )
+
+    @db.transaction.atomic
+    def delete_charging_stations(self):
+        delete_charging_stations(logger=self.logger)
 
     @db.transaction.atomic
     def import_bicycle_stands(self):
