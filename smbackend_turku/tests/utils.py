@@ -51,11 +51,8 @@ def get_test_resource(resource_name):
         file = os.path.join(data_path, "accessibility_unit_info.json")
     elif resource_name == "gas_filling_stations":
         file = os.path.join(data_path, "gas_filling_stations.json")
-    elif resource_name == "charging_stations":
-        file = os.path.join(data_path, "charging_stations.json")
     else:
         file = os.path.join(data_path, "units.json")
-
     with open(file) as f:
         data = json.load(f)
     return data

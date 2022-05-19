@@ -4,12 +4,12 @@ from django.conf import settings
 
 from mobility_data.importers.charging_stations import (
     create_charging_station_content_type,
-    delete_charging_stations,
-    get_filtered_charging_station_objects,
+    delete_charging_stations as mobility_data_delete_charging_stations,
+    get_charging_station_objects,
 )
 from mobility_data.importers.gas_filling_station import (
     create_gas_filling_station_content_type,
-    delete_gas_filling_stations as mobility_data_delete_as_filling_stations,
+    delete_gas_filling_stations as mobility_data_delete_gas_filling_stations,
     get_filtered_gas_filling_station_objects,
 )
 from mobility_data.importers.utils import create_mobile_unit_as_unit_reference
@@ -27,6 +27,17 @@ from smbackend_turku.importers.utils import (
     set_service_names_field,
     set_tku_translated_field,
     UTC_TIMEZONE,
+)
+
+from .constants import (
+    CHARGING_STATION_SERVICE_NAME,
+    CHARGING_STATION_SERVICE_NAMES,
+    CHARGING_STATION_SERVICE_NODE_NAME,
+    CHARGING_STATION_SERVICE_NODE_NAMES,
+    GAS_FILLING_STATION_SERVICE_NAME,
+    GAS_FILLING_STATION_SERVICE_NAMES,
+    GAS_FILLING_STATION_SERVICE_NODE_NAME,
+    GAS_FILLING_STATION_SERVICE_NODE_NAMES,
 )
 
 LANGUAGES = [language[0] for language in settings.LANGUAGES]
@@ -67,19 +78,10 @@ class GasFillingStationImporter:
     SERVICE_NODE_ID = settings.GAS_FILLING_STATIONS_IDS["service_node"]
     UNITS_ID_OFFSET = settings.GAS_FILLING_STATIONS_IDS["units_offset"]
 
-    SERVICE_NODE_NAME = "Kaasutankkausasemat"
-    SERVICE_NAME = "Kaasutankkausasema"
-    SERVICE_NODE_NAMES = {
-        "fi": SERVICE_NODE_NAME,
-        "sv": "Tankstationer med gas",
-        "en": "Gas filling stations",
-    }
-
-    SERVICE_NAMES = {
-        "fi": SERVICE_NAME,
-        "sv": "Tankstation med gas",
-        "en": "Gas filling station",
-    }
+    SERVICE_NODE_NAME = GAS_FILLING_STATION_SERVICE_NODE_NAME
+    SERVICE_NAME = GAS_FILLING_STATION_SERVICE_NAME
+    SERVICE_NODE_NAMES = GAS_FILLING_STATION_SERVICE_NODE_NAMES
+    SERVICE_NAMES = GAS_FILLING_STATION_SERVICE_NAMES
 
     def __init__(self, logger=None, root_service_node_name=None, test_data=None):
         self.logger = logger
@@ -136,19 +138,10 @@ class ChargingStationImporter:
     SERVICE_ID = settings.CHARGING_STATIONS_IDS["service"]
     SERVICE_NODE_ID = settings.CHARGING_STATIONS_IDS["service_node"]
     UNITS_ID_OFFSET = settings.CHARGING_STATIONS_IDS["units_offset"]
-
-    SERVICE_NODE_NAME = "Autojen sähkölatauspisteet"
-    SERVICE_NAME = "Autojen sähkölatauspiste"
-    SERVICE_NODE_NAMES = {
-        "fi": SERVICE_NODE_NAME,
-        "sv": "Elladdningsstationer för bilar",
-        "en": "Car e-charging points",
-    }
-    SERVICE_NAMES = {
-        "fi": SERVICE_NAME,
-        "sv": "Elladdningsstation för bilar",
-        "en": "Car e-charging point",
-    }
+    SERVICE_NODE_NAME = CHARGING_STATION_SERVICE_NODE_NAME
+    SERVICE_NAME = CHARGING_STATION_SERVICE_NAME
+    SERVICE_NODE_NAMES = CHARGING_STATION_SERVICE_NODE_NAMES
+    SERVICE_NAMES = CHARGING_STATION_SERVICE_NAMES
 
     def __init__(
         self, logger=None, importer=None, root_service_node_name=None, test_data=None
@@ -161,33 +154,20 @@ class ChargingStationImporter:
     def import_charging_stations(self):
         self.logger.info("Importing charging stations...")
         service_id = self.SERVICE_ID
-        # Delete all charging station units before storing, to ensure stored data is up-to-date.
-        Unit.objects.filter(services__id=service_id).delete()
-        # Delete from mobility_data
-        delete_charging_stations()
-        filtered_objects = get_filtered_charging_station_objects(
-            json_data=self.test_data
-        )
+        filtered_objects = get_charging_station_objects(csv_file=self.test_data)
         # create mobility_data content type
         content_type = create_charging_station_content_type()
         for i, data_obj in enumerate(filtered_objects):
             unit_id = i + self.UNITS_ID_OFFSET
             obj = Unit(id=unit_id)
-            point = data_obj.point
-            point.transform(SOURCE_DATA_SRID)
-            set_field(obj, "location", point)
-            set_tku_translated_field(obj, "name", create_language_dict(data_obj.name))
-            set_tku_translated_field(obj, "street_address", data_obj.street_address)
-            set_tku_translated_field(obj, "address_postal_full", data_obj.address)
+            geometry = data_obj.geometry
+            geometry.transform(SOURCE_DATA_SRID)
+            set_field(obj, "location", data_obj.geometry)
             set_field(obj, "address_zip", data_obj.zip_code)
-            description = "Charging station"
-            set_tku_translated_field(
-                obj, "description", create_language_dict(description)
-            )
-            extra = {}
-            extra["chargers"] = data_obj.chargers
-            set_field(obj, "extra", extra)
-            set_field(obj, "www", data_obj.url)
+            set_tku_translated_field(obj, "name", data_obj.name)
+            set_tku_translated_field(obj, "street_address", data_obj.address)
+            set_tku_translated_field(obj, "description", CHARGING_STATION_SERVICE_NAMES)
+            set_field(obj, "extra", data_obj.extra)
             try:
                 service = Service.objects.get(id=service_id)
             except Service.DoesNotExist:
@@ -197,7 +177,7 @@ class ChargingStationImporter:
             service_nodes = ServiceNode.objects.filter(related_services=service)
             obj.service_nodes.add(*service_nodes)
             set_field(obj, "root_service_nodes", obj.get_root_service_nodes()[0])
-            municipality = get_municipality(data_obj.city)
+            municipality = get_municipality(data_obj.municipality)
             set_field(obj, "municipality", municipality)
             obj.last_modified_time = datetime.now(UTC_TIMEZONE)
             set_service_names_field(obj)
@@ -205,6 +185,7 @@ class ChargingStationImporter:
             # Save to mobile_units tables as reference to services_unit table.
             create_mobile_unit_as_unit_reference(unit_id, content_type)
         update_service_node_counts()
+        update_service_counts()
 
 
 def delete_gas_filling_stations(**kwargs):
@@ -213,7 +194,7 @@ def delete_gas_filling_stations(**kwargs):
     delete_external_source(
         importer.SERVICE_ID,
         importer.SERVICE_NODE_ID,
-        mobility_data_delete_as_filling_stations,
+        mobility_data_delete_gas_filling_stations,
     )
 
 
@@ -222,7 +203,7 @@ def import_gas_filling_stations(**kwargs):
     delete_external_source(
         importer.SERVICE_ID,
         importer.SERVICE_NODE_ID,
-        mobility_data_delete_as_filling_stations,
+        mobility_data_delete_gas_filling_stations,
     )
 
     create_service_node(
@@ -240,8 +221,23 @@ def import_gas_filling_stations(**kwargs):
     importer.import_gas_filling_stations()
 
 
+def delete_charging_stations(**kwargs):
+    importer = ChargingStationImporter(**kwargs)
+    # Delete all charging station units before storing, to ensure stored data is up-to-date.
+    delete_external_source(
+        importer.SERVICE_ID,
+        importer.SERVICE_NODE_ID,
+        mobility_data_delete_charging_stations,
+    )
+
+
 def import_charging_stations(**kwargs):
     importer = ChargingStationImporter(**kwargs)
+    delete_external_source(
+        importer.SERVICE_ID,
+        importer.SERVICE_NODE_ID,
+        mobility_data_delete_charging_stations,
+    )
     create_service_node(
         importer.SERVICE_NODE_ID,
         importer.SERVICE_NODE_NAME,

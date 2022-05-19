@@ -1,17 +1,18 @@
 import logging
 from datetime import datetime
-from unittest.mock import patch
+
 import pytest
 import pytz
 from django.conf import settings
+
 from services.models import Service, ServiceNode, Unit
-from smbackend.settings import GAS_FILLING_STATIONS_IDS
-from smbackend_turku.tests.utils import (
-    create_municipalities,  
-    get_test_resource,
+
+from smbackend_turku.importers.stations import (
+    GasFillingStationImporter as Importer,
+    import_gas_filling_stations,
 )
-from smbackend_turku.importers.stations import import_gas_filling_stations
-from smbackend_turku.importers.stations import GasFillingStationImporter as Importer
+from smbackend_turku.tests.utils import create_municipalities, get_test_resource
+
 
 @pytest.mark.django_db
 def test_gas_filling_stations_import():
@@ -19,35 +20,32 @@ def test_gas_filling_stations_import():
     utc_timezone = pytz.timezone("UTC")
     # create root servicenode to which the imported service_node will connect
     root_service_node = ServiceNode.objects.create(
-        id=42, 
-        name="TestRoot", 
-        last_modified_time=datetime.now(utc_timezone)
-        )
-    # Municipality must be created in order to update_service_node_count() 
-    # to execute without errors 
+        id=42, name="TestRoot", last_modified_time=datetime.now(utc_timezone)
+    )
+    # Municipality must be created in order to update_service_node_count()
+    # to execute without errors
     create_municipalities()
-    #Import using fixture data
+    # Import using fixture data
     import_gas_filling_stations(
-        logger=logger, 
+        logger=logger,
         root_service_node_name="TestRoot",
-        test_data=get_test_resource(resource_name="gas_filling_stations")
-        )
+        test_data=get_test_resource(resource_name="gas_filling_stations"),
+    )
     service = Service.objects.get(name=Importer.SERVICE_NAME)
     assert service
     assert service.id == settings.GAS_FILLING_STATIONS_IDS["service"]
     service_node = ServiceNode.objects.get(name=Importer.SERVICE_NODE_NAME)
     assert service_node
     assert service_node.id == settings.GAS_FILLING_STATIONS_IDS["service_node"]
-    assert service_node.parent.id == root_service_node.id  
+    assert service_node.parent.id == root_service_node.id
     assert Unit.objects.all().count() == 2
     assert Unit.objects.all()[1].id == settings.GAS_FILLING_STATIONS_IDS["units_offset"]
     assert Unit.objects.get(name="Raisio Kuninkoja")
     unit = Unit.objects.get(name="Turku Satama")
-    assert unit  
+    assert unit
     assert pytest.approx(unit.location.x, 0.0000000001) == 236760.1062021295
     assert unit.extra["operator"] == "Gasum"
     assert unit.service_nodes.all().count() == 1
     assert unit.services.all().count() == 1
-    assert unit.services.all()[0].name == Importer.SERVICE_NAME  
-    assert unit.service_nodes.all()[0].name == Importer.SERVICE_NODE_NAME  
-    
+    assert unit.services.all()[0].name == Importer.SERVICE_NAME
+    assert unit.service_nodes.all()[0].name == Importer.SERVICE_NODE_NAME
