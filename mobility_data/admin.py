@@ -1,6 +1,21 @@
-from django.contrib import admin
+from contextlib import suppress
+from os import listdir, remove
 
-from mobility_data.models import ContentType, GroupType, MobileUnit, MobileUnitGroup
+from django.conf import settings
+from django.contrib import admin, messages
+
+from mobility_data.constants import DATA_SOURCE_IMPORTERS
+from mobility_data.forms import CustomDataSourceForm
+from mobility_data.models import (
+    ContentType,
+    DataSource,
+    GroupType,
+    MobileUnit,
+    MobileUnitGroup,
+)
+from mobility_data.models.data_source import UPLOAD_TO
+
+PATH = f"{settings.MEDIA_ROOT}/{UPLOAD_TO}/"
 
 
 def custom_titled_filter(title):
@@ -86,6 +101,78 @@ class GroupTypeAdmin(admin.ModelAdmin):
     readonly_fields = ("id", "type_name", "name", "description")
 
 
+class DataSourceAdmin(admin.ModelAdmin):
+    form = CustomDataSourceForm
+    list_display = (
+        "name",
+        "importer_name",
+        "data_file",
+    )
+
+    def importer_name(self, obj):
+        return DATA_SOURCE_IMPORTERS[obj.type_name]["importer_name"]
+
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            # Delete all files that are in the Deleted instances
+            with suppress(OSError):
+                remove(str(obj.data_file.file))
+        super().delete_queryset(request, queryset)
+
+    def error_message(self, request, message):
+        # Set level to ERROR, otherwise a message will be displayed that informs of created instance
+        messages.set_level(request, messages.ERROR)
+        messages.error(request, message)
+
+    def file_clean_up(self):
+        """
+        Delete files that are not connected to DataSource instance.
+        """
+        data_files = [
+            str(data_source.data_file.file) for data_source in DataSource.objects.all()
+        ]
+        for file in listdir(PATH):
+            file_name = PATH + file
+            if file_name not in data_files:
+                with suppress(OSError):
+                    remove(file_name)
+
+    def save_model(self, request, obj, form, change):
+        data_source = None
+        data_source_qs = DataSource.objects.filter(type_name=obj.type_name).exclude(
+            id=obj.id
+        )
+        if data_source_qs.exists():
+            self.error_message(request, "DataSource of given Type name exists.")
+            return False
+
+        if not obj.data_file:
+            self.error_message(request, "No Data File given, data source not saved.")
+            return False
+
+        if "data_file" in form.changed_data:
+            file_name = PATH + str(obj.data_file.file)
+            # Check if file with same name exists.
+            for data_source in DataSource.objects.all():
+                if file_name == str(data_source.data_file.file):
+                    self.error_message(
+                        request,
+                        "File with the same name exist with different Content Type, aborting.",
+                    )
+                    return False
+
+            data_source_qs = DataSource.objects.filter(id=obj.id)
+            # if data source exists, delete the old file.
+            if data_source_qs.exists():
+                data_source = data_source_qs[0]
+                with suppress(OSError):
+                    remove(str(data_source.data_file.file))
+
+        super().save_model(request, obj, form, change)
+        self.file_clean_up()
+
+
+admin.site.register(DataSource, DataSourceAdmin)
 admin.site.register(MobileUnit, MobileUnitAdmin)
 admin.site.register(MobileUnitGroup, MobileUnitGroupAdmin)
 admin.site.register(ContentType, ContentTypeAdmin)
