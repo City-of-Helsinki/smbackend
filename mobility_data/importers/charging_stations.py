@@ -5,10 +5,9 @@ from django import db
 from django.conf import settings
 from django.contrib.gis.geos import Point
 
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import ContentType, DataSource, MobileUnit
 from smbackend_turku.importers.constants import CHARGING_STATION_SERVICE_NAMES
 
-# from smbackend_turku.importers.stations import ChargingStationImporter
 from .utils import (
     delete_mobile_units,
     get_municipality_name,
@@ -118,11 +117,20 @@ def get_charging_station_objects(csv_file=None):
         root_dir = settings.BASE_DIR
     column_mappings = {}
     if not csv_file:
-        file_name = f"{root_dir}/mobility_data/data/{SOURCE_DATA_FILE_NAME}"
-    else:
-        file_name = f"{root_dir}/mobility_data/tests/data/{csv_file}"
-    number_of_rows = get_number_of_rows(file_name)
+        data_source_qs = DataSource.objects.filter(
+            type_name=ContentType.CHARGING_STATION
+        )
+        # If data source found, use the uploaded data file.
+        if data_source_qs.exists():
+            file_name = str(data_source_qs.first().data_file.file)
+        else:
+            file_name = f"{root_dir}/mobility_data/data/{SOURCE_DATA_FILE_NAME}"
 
+    else:
+        # Use the test data file
+        file_name = f"{root_dir}/mobility_data/tests/data/{csv_file}"
+
+    number_of_rows = get_number_of_rows(file_name)
     with open(file_name, encoding="utf-8-sig") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=";")
         line_count = 0
