@@ -202,7 +202,7 @@ def process_file_obj(obj, request):
     merge_success, filtered_geojson, merged_linestring = filter_geojson(input_geojson)
     # If not merged_multilinestring we can try to merge the linestring that overlaps.
     if not merged_linestring:
-        merge_successs, merged_geojson = merge_linestrings(filtered_geojson, request)
+        merge_success, merged_geojson = merge_linestrings(filtered_geojson, request)
 
     save_network_to_db(merged_geojson, obj.id)
     if not merge_success:
