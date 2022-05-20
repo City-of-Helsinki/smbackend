@@ -1,14 +1,15 @@
-from os import listdir, remove
-from os.path import isfile, join
 import json
 import logging
+from os import listdir, remove
+from os.path import isfile, join
+
+from django.conf import settings
+from django.contrib import admin, messages
+from django.contrib.gis.gdal import CoordTransform, SpatialReference
+from django.contrib.gis.geos import LineString, MultiLineString
 from shapely import geometry, ops
 from shapely.geometry import mapping
-from django.conf import settings
-from django.contrib import admin
-from django.contrib.gis.geos import LineString, MultiLineString
-from django.contrib.gis.gdal import SpatialReference, CoordTransform
-from django.contrib import messages
+
 from .models import BicycleNetwork, BicycleNetworkPart
 
 logger = logging.getLogger("bicycle_network")
@@ -19,7 +20,7 @@ SRID_MAPPINGS = {
 # if None, No transformations are made and source datas srid is used.
 CONVERT_TO_SRID = 4326
 
-# GK25_SRID is used to transform linestrings to, to calculate the length, 
+# GK25_SRID is used to transform linestrings to, to calculate the length,
 # as the Unit for 3879 is metre, in 4326 the Unit is degrees.
 GK25_SRID = 3879
 GK25_SRS = SpatialReference(GK25_SRID)
@@ -189,7 +190,7 @@ def save_network_to_db(input_geojson, obj_id):
 
 def process_file_obj(obj, request):
     """
-    This function Opens the uploaded file, calls the filter function 
+    This function Opens the uploaded file, calls the filter function
     and finally stores the filtered data to the db and file.
     """
     with open(obj.file.path, "r") as file:
@@ -203,10 +204,8 @@ def process_file_obj(obj, request):
     if not merged_linestring:
         merge_successs, merged_geojson = merge_linestrings(filtered_geojson, request)
 
-    if merge_successs:
-        save_network_to_db(merged_geojson, obj.id)
-    else:
-        save_network_to_db(filtered_geojson, obj.id)
+    save_network_to_db(merged_geojson, obj.id)
+    if not merge_success:
         messages.warning(
             request, "Merging of linestrings failed, saved without merging."
         )
