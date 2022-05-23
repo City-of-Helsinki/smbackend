@@ -69,6 +69,15 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             "extra",
         ]
 
+    # Contains the corresponding field names of the MobileUnit model if they differs
+    # from the Unit model.
+    mobile_unit_to_unit_field_mappings = {
+        "address": "street_address",
+        "address_fi": "street_address_fi",
+        "address_sv": "street_address_sv",
+        "address_en": "street_address_en",
+    }
+
     def to_representation(self, obj):
         representation = super().to_representation(obj)
         # If mobile_unit has a unit_id we serialize the data from the services_unit table.
@@ -76,8 +85,13 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         if unit_id:
             unit = Unit.objects.get(id=unit_id)
             for field in self.fields:
-                if hasattr(unit, field):
-                    representation[field] = getattr(unit, field)
+                if field in self.mobile_unit_to_unit_field_mappings:
+                    key = self.mobile_unit_to_unit_field_mappings[field]
+                else:
+                    key = field
+                if hasattr(unit, key):
+                    representation[field] = getattr(unit, key)
+            # The location field must be serialized with its wkt value.
             if unit.location:
                 representation["geometry"] = unit.location.wkt
         return representation
