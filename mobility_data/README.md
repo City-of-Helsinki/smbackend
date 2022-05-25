@@ -41,6 +41,12 @@ To import data type:
 ./manage.py import_bicycle_stands 
 ```
 
+### Bike service stations
+To import data type:  
+```
+./manage.py import_bike_service_stations
+```
+
 ### Payment Zones
 To import data type:
 ```
