@@ -13,6 +13,12 @@ from services.management.commands.services_import.services import (
     update_service_node_counts,
 )
 from services.models import Service, ServiceNode, Unit, UnitServiceDetails
+from smbackend_turku.importers.constants import (
+    BICYCLE_STAND_SERVICE_NAME,
+    BICYCLE_STAND_SERVICE_NAMES,
+    BICYCLE_STAND_SERVICE_NODE_NAME,
+    BICYCLE_STAND_SERVICE_NODE_NAMES,
+)
 from smbackend_turku.importers.utils import (
     create_service,
     create_service_node,
@@ -31,19 +37,10 @@ class BicycleStandImporter:
     SERVICE_ID = settings.BICYCLE_STANDS_IDS["service"]
     SERVICE_NODE_ID = settings.BICYCLE_STANDS_IDS["service_node"]
     UNITS_ID_OFFSET = settings.BICYCLE_STANDS_IDS["units_offset"]
-    SERVICE_NODE_NAME = "Pyöräpysäköinti"
-    SERVICE_NAME = "Pyöräpysäköinti"
-
-    SERVICE_NODE_NAMES = {
-        "fi": SERVICE_NODE_NAME,
-        "sv": "Cykelparkering",
-        "en": "Bicycle parking",
-    }
-    SERVICE_NAMES = {
-        "fi": SERVICE_NAME,
-        "sv": "Cykelparkering",
-        "en": "Bicycle parking",
-    }
+    SERVICE_NODE_NAME = BICYCLE_STAND_SERVICE_NODE_NAME
+    SERVICE_NAME = BICYCLE_STAND_SERVICE_NAME
+    SERVICE_NODE_NAMES = BICYCLE_STAND_SERVICE_NODE_NAMES
+    SERVICE_NAMES = BICYCLE_STAND_SERVICE_NAMES
 
     def __init__(self, logger=None, root_service_node_name=None, test_data=None):
         self.logger = logger
@@ -115,6 +112,8 @@ def delete_bicycle_stands(**kwargs):
         importer.SERVICE_NODE_ID,
         mobility_data_delete_bicycle_stands,
     )
+    update_service_node_counts()
+    update_service_counts()
 
 
 def import_bicycle_stands(**kwargs):
