@@ -13,6 +13,10 @@ from smbackend_turku.importers.bicycle_stands import (
     delete_bicycle_stands,
     import_bicycle_stands,
 )
+from smbackend_turku.importers.bike_service_stations import (
+    delete_bike_service_stations,
+    import_bike_service_stations,
+)
 from smbackend_turku.importers.geo_search import (
     import_enriched_addresses,
     import_geo_search_addresses,
@@ -33,6 +37,7 @@ class Command(BaseCommand):
         "gas_filling_stations",
         "charging_stations",
         "bicycle_stands",
+        "bike_service_stations",
     ]
 
     importer_types = [
@@ -149,6 +154,16 @@ class Command(BaseCommand):
     @db.transaction.atomic
     def delete_bicycle_stands(self):
         delete_bicycle_stands(logger=self.logger)
+
+    @db.transaction.atomic
+    def delete_bike_service_stations(self):
+        delete_bike_service_stations(logger=self.logger)
+
+    @db.transaction.atomic
+    def import_bike_service_stations(self):
+        import_bike_service_stations(
+            logger=self.logger, root_service_node_name="Vapaa-aika"
+        )
 
     @db.transaction.atomic
     def import_mobility_data(self):
