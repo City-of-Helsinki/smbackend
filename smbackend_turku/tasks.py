@@ -62,6 +62,11 @@ def import_bicycle_stands(name="import_bicycle_stands"):
 
 
 @shared_task
+def import_bike_service_stations(name="bike_service_stations"):
+    management.call_command("turku_services_import", "bike_service_stations")
+
+
+@shared_task
 def import_gas_filling_stations(name="import_gas_filling_stations"):
     management.call_command("turku_services_import", "gas_filling_stations")
 
