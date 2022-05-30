@@ -100,7 +100,7 @@ def delete_bike_service_stations():
 
 @db.transaction.atomic
 def create_bike_service_station_content_type():
-    description = "Bike service stations The Turku Region."
+    description = "Bike service stations in The Turku Region."
     name = "Bike service station"
     content_type, _ = get_or_create_content_type(
         ContentType.BIKE_SERVICE_STATION, name, description
