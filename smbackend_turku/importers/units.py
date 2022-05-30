@@ -26,11 +26,8 @@ from services.models import (
     UnitServiceDetails,
 )
 from services.utils import AccessibilityShortcomingCalculator
-from smbackend_turku.importers.bicycle_stands import BicycleStandImporter
-from smbackend_turku.importers.stations import (
-    ChargingStationImporter,
-    GasFillingStationImporter,
-)
+from smbackend_turku.importers.services import EXTERNAL_IMPORTERS
+
 from smbackend_turku.importers.utils import (
     get_localized_value,
     get_turku_resource,
@@ -126,9 +123,8 @@ class UnitImporter:
         for unit in units:
             self._handle_unit(unit)
         if not self.delete_external_source:
-            self._handle_external_units(GasFillingStationImporter)
-            self._handle_external_units(ChargingStationImporter)
-            self._handle_external_units(BicycleStandImporter)
+            for importer in EXTERNAL_IMPORTERS:
+                self._handle_external_units(importer)
 
         self.unitsyncher.finish()
 

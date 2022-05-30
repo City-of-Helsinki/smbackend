@@ -8,21 +8,32 @@ from services.management.commands.services_import.services import (
     update_service_root_service_nodes,
 )
 from services.models import Service, ServiceNode
+from smbackend_turku.importers.bicycle_stands import BicycleStandImporter
+from smbackend_turku.importers.bike_service_stations import BikeServiceStationImporter
+from smbackend_turku.importers.stations import (
+    ChargingStationImporter,
+    GasFillingStationImporter,
+)
 from smbackend_turku.importers.utils import (
     convert_code_to_int,
     get_turku_resource,
     set_syncher_object_field,
     set_syncher_tku_translated_field,
 )
-from smbackend_turku.importers.stations import (
-    GasFillingStationImporter,
-    ChargingStationImporter,
-)
-from smbackend_turku.importers.bicycle_stands import BicycleStandImporter
 
 UTC_TIMEZONE = pytz.timezone("UTC")
 
 SERVICE_AS_SERVICE_NODE_PREFIX = "service_"
+"""
+List of All external importers that imports data to the services list.
+If importer is not added to the list, its imported data will be deleted during importing of Units and Services.
+"""
+EXTERNAL_IMPORTERS = [
+    GasFillingStationImporter,
+    ChargingStationImporter,
+    BikeServiceStationImporter,
+    BicycleStandImporter,
+]
 
 BLACKLISTED_SERVICE_NODES = [
     "2_1",
@@ -32,14 +43,13 @@ BLACKLISTED_SERVICE_NODES = [
 
 
 class ServiceImporter:
-  
     def __init__(self, logger=None, importer=None, delete_external_sources=False):
         self.logger = logger
         self.importer = importer
         self.delete_external_sources = delete_external_sources
         self.nodesyncher = ModelSyncher(ServiceNode.objects.all(), lambda obj: obj.id)
         self.servicesyncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
-        
+
     def import_services(self):
         keyword_handler = KeywordHandler(logger=self.logger)
         self._import_services(keyword_handler)
@@ -55,9 +65,8 @@ class ServiceImporter:
             self._handle_service_node(parent_node, keyword_handler)
 
         if not self.delete_external_sources:
-            self._handle_external_service_node(GasFillingStationImporter)
-            self._handle_external_service_node(ChargingStationImporter)
-            self._handle_external_service_node(BicycleStandImporter)
+            for importer in EXTERNAL_IMPORTERS:
+                self._handle_external_service_node(importer)
 
         self.nodesyncher.finish()
 
@@ -80,9 +89,8 @@ class ServiceImporter:
             self._handle_service(service, keyword_handler)
 
         if not self.delete_external_sources:
-            self._handle_external_service(GasFillingStationImporter)
-            self._handle_external_service(ChargingStationImporter)
-            self._handle_external_service(BicycleStandImporter)
+            for importer in EXTERNAL_IMPORTERS:
+                self._handle_external_service(importer)
 
         self.servicesyncher.finish()
 

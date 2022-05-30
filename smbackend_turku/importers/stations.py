@@ -131,6 +131,7 @@ class GasFillingStationImporter:
             create_mobile_unit_as_unit_reference(unit_id, content_type)
         update_service_node_counts()
         update_service_counts()
+        self.logger.info(f"Imported {len(filtered_objects)} gas filling stations...")
 
 
 class ChargingStationImporter:
@@ -186,6 +187,7 @@ class ChargingStationImporter:
             create_mobile_unit_as_unit_reference(unit_id, content_type)
         update_service_node_counts()
         update_service_counts()
+        self.logger.info(f"Imported {len(filtered_objects)} charging stations...")
 
 
 def delete_gas_filling_stations(**kwargs):
@@ -196,6 +198,8 @@ def delete_gas_filling_stations(**kwargs):
         importer.SERVICE_NODE_ID,
         mobility_data_delete_gas_filling_stations,
     )
+    update_service_node_counts()
+    update_service_counts()
 
 
 def import_gas_filling_stations(**kwargs):
@@ -229,6 +233,8 @@ def delete_charging_stations(**kwargs):
         importer.SERVICE_NODE_ID,
         mobility_data_delete_charging_stations,
     )
+    update_service_node_counts()
+    update_service_counts()
 
 
 def import_charging_stations(**kwargs):
