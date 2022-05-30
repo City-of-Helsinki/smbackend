@@ -150,6 +150,9 @@ class DataSourceAdmin(admin.ModelAdmin):
             self.error_message(request, "No Data File given, data source not saved.")
             return False
 
+        super().save_model(request, obj, form, change)
+        self.file_clean_up()
+
         if "data_file" in form.changed_data:
             file_name = PATH + str(obj.data_file.file)
             # Check if file with same name exists.
@@ -160,16 +163,6 @@ class DataSourceAdmin(admin.ModelAdmin):
                         "File with the same name exist with different Content Type, aborting.",
                     )
                     return False
-
-            data_source_qs = DataSource.objects.filter(id=obj.id)
-            # if data source exists, delete the old file.
-            if data_source_qs.exists():
-                data_source = data_source_qs[0]
-                with suppress(OSError):
-                    remove(str(data_source.data_file.file))
-
-        super().save_model(request, obj, form, change)
-        self.file_clean_up()
 
 
 admin.site.register(DataSource, DataSourceAdmin)
