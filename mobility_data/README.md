@@ -76,5 +76,5 @@ To import data type:
 Imports parking places for car sharing cars. 
 To import data type:
 ```
-./manage.py import_car_share_parking_places
+./manage.py import_share_car_parking_places
 ```
