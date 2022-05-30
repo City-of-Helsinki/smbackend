@@ -95,6 +95,13 @@ To import type:
 ./manage.py turku_services_import bicycle_stands
 ```
 
+### Bike service stations
+Add following line to the .env file:
+BIKE_SERVICE_STATIONS_IDS=service_node=500000,service=500000,units_offset=500000
+To import type:
+```
+./manage.py turku_services_import bike_service_stations
+```
 ### Mobility data
 For detailed information about importing, see: /mobility_data/README.md
 

@@ -160,6 +160,20 @@ def streets():
         municipality_id="turku",
     )
     streets.append(street)
+    street = Street.objects.create(
+        name="Yliopistonkatu",
+        name_fi="Yliopistonkatu",
+        name_sv="Universitetsgatan",
+        municipality_id="turku",
+    )
+    streets.append(street)
+    street = Street.objects.create(
+        name="Ratapihankatu",
+        name_fi="Ratapihankatu",
+        name_sv="Bangårdsgatan",
+        municipality_id="turku",
+    )
+    streets.append(street)
     return streets
 
 
@@ -216,4 +230,23 @@ def address(streets):
         full_name_sv="Kuppisgatan 8",
     )
     addresses.append(address)
-    return addresses
+    location = Point(22.26097246971352, 60.45055294118857, srid=4326)
+    address = Address.objects.create(
+        id=105,
+        location=location,
+        street=streets[5],
+        number=29,
+        full_name_fi="Yliopistonkatu 29",
+        full_name_sv="Universitetsgatan 29",
+    )
+    addresses.append(address)
+    location = Point(22.247047171564706, 60.45159033848499, srid=4326)
+    address = Address.objects.create(
+        id=106,
+        location=location,
+        street=streets[6],
+        number=53,
+        full_name_fi="Ratapihankatu 53",
+        full_name_sv="Bangårdsgatan 53",
+    )
+    addresses.append(address)

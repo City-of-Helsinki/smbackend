@@ -8,6 +8,7 @@ from munigeo.models import (
     Address,
     AdministrativeDivision,
     AdministrativeDivisionGeometry,
+    PostalCodeArea,
     Street,
 )
 
@@ -92,6 +93,18 @@ def get_closest_address(point):
         .first()
     )
     return address
+
+
+def get_postal_code(point):
+    """
+    Returns the clostest known postal code for the given point.
+    """
+    address = get_closest_address(point)
+    try:
+        postal_code_area = PostalCodeArea.objects.get(id=address.postal_code_area_id)
+    except PostalCodeArea.DoesNotExist:
+        return None
+    return postal_code_area.postal_code
 
 
 def get_street_name_translations(name, municipality):

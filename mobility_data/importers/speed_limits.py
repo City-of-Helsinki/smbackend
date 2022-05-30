@@ -20,6 +20,7 @@ SPEED_LIMITS_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
     "?service=WFS&request=GetFeature&typeName=GIS:Nopeusrajoitusalueet&outputFormat=GML3&maxFeatures=10000",
 )
+LIMIT_FIELD_NAME = "voimassa_a"
 
 
 class SpeedLimit:
@@ -39,7 +40,7 @@ class SpeedLimit:
         else:
             self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
-        self.speed_limit = feature["Nopeus"].as_int()
+        self.speed_limit = feature[LIMIT_FIELD_NAME].as_int()
 
 
 def get_speed_limit_objects(data_source=None):
