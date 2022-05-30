@@ -40,6 +40,8 @@ class ContentType(BaseType):
     ACCESSORY_TABLE = "ATE"
     ACCESSORY_FURNITURE_GROUP = "AFG"
     BIKE_SERVICE_STATION = "BSS"
+    SHARE_CAR_PARKING_PLACE = "SCP"
+
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
         (GAS_FILLING_STATION, "GasFillingStation"),
@@ -56,6 +58,7 @@ class ContentType(BaseType):
         (ACCESSORY_TABLE, "AccessoryTable"),
         (ACCESSORY_FURNITURE_GROUP, "AccessoryFurnitureGroup"),
         (BIKE_SERVICE_STATION, "BikeServiceStation"),
+        (SHARE_CAR_PARKING_PLACE, "ShareCarParkingPlace"),
     ]
     type_name = models.CharField(max_length=3, choices=CONTENT_TYPES, null=True)
 
