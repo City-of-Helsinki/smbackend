@@ -20,7 +20,7 @@ class BicycleNetworkPartCoordsSerializer(serializers.ModelSerializer):
 
     def get_geometry_coords(self, obj):
         if obj.geometry:
-            if self.context["latlon"] is True:
+            if self.context["latlon"]:
                 if isinstance(obj.geometry, LineString):
                     # Return LineString coordinates in (lat,lon) format
                     coords = []
