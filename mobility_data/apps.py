@@ -7,4 +7,4 @@ class MobilityDataConfig(AppConfig):
 
     def ready(self):
         # register signals
-        from mobility_data import signals
+        from mobility_data import signals  # noqa: F401

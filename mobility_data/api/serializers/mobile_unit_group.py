@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from . import MobileUnitSerializer, GroupTypeSerializer
-from ...models import MobileUnitGroup, MobileUnit
+
+from ...models import MobileUnit, MobileUnitGroup
+from . import GroupTypeSerializer, MobileUnitSerializer
 
 FIELDS = [
     "id",

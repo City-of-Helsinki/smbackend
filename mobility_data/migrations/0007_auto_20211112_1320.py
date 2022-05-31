@@ -6,48 +6,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mobility_data', '0006_auto_20211112_1312'),
+        ("mobility_data", "0006_auto_20211112_1312"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='mobileunit',
-            name='name',
+            model_name="mobileunit",
+            name="name",
             field=models.CharField(max_length=256, null=True),
         ),
         migrations.AlterField(
-            model_name='mobileunit',
-            name='name_en',
+            model_name="mobileunit",
+            name="name_en",
             field=models.CharField(max_length=256, null=True),
         ),
         migrations.AlterField(
-            model_name='mobileunit',
-            name='name_fi',
+            model_name="mobileunit",
+            name="name_fi",
             field=models.CharField(max_length=256, null=True),
         ),
         migrations.AlterField(
-            model_name='mobileunit',
-            name='name_sv',
+            model_name="mobileunit",
+            name="name_sv",
             field=models.CharField(max_length=256, null=True),
         ),
         migrations.AlterField(
-            model_name='mobileunitgroup',
-            name='name',
+            model_name="mobileunitgroup",
+            name="name",
             field=models.CharField(max_length=256, null=True),
         ),
         migrations.AlterField(
-            model_name='mobileunitgroup',
-            name='name_en',
+            model_name="mobileunitgroup",
+            name="name_en",
             field=models.CharField(max_length=256, null=True),
         ),
         migrations.AlterField(
-            model_name='mobileunitgroup',
-            name='name_fi',
+            model_name="mobileunitgroup",
+            name="name_fi",
             field=models.CharField(max_length=256, null=True),
         ),
         migrations.AlterField(
-            model_name='mobileunitgroup',
-            name='name_sv',
+            model_name="mobileunitgroup",
+            name="name_sv",
             field=models.CharField(max_length=256, null=True),
         ),
     ]

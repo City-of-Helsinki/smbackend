@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mobility_data', '0004_auto_20211102_0806'),
+        ("mobility_data", "0004_auto_20211102_0806"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='mobileunit',
-            name='unit_id',
-            field=models.IntegerField(null=True, verbose_name='optonal id to a unit in the servicemap'),
+            model_name="mobileunit",
+            name="unit_id",
+            field=models.IntegerField(
+                null=True, verbose_name="optonal id to a unit in the servicemap"
+            ),
         ),
     ]

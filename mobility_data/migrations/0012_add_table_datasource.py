@@ -6,18 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mobility_data', '0011_alter_contenttype_type_name'),
+        ("mobility_data", "0011_alter_contenttype_type_name"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='DataSource',
+            name="DataSource",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=64)),
-                ('type_name', models.CharField(max_length=3, null=True)),
-                ('data_file', models.FileField(upload_to='data_sources')),
-                ('run_importer', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=64)),
+                ("type_name", models.CharField(max_length=3, null=True)),
+                ("data_file", models.FileField(upload_to="data_sources")),
+                ("run_importer", models.BooleanField(default=True)),
             ],
         ),
     ]
