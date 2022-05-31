@@ -48,6 +48,8 @@ class IoTViewSet(GenericAPIView):
             queryset = cached_data[key_queryset]
             serializer = cached_data[key_serializer]
 
+        page = self.paginate_queryset(queryset)  # noqa: F841
+
         if logger.level <= logging.DEBUG:
             logger.debug(connection.queries)
             queries_time = sum([float(s["time"]) for s in connection.queries])
