@@ -249,7 +249,7 @@ class UnitPTVImporter:
             index += 1
 
         numbers = unit_data.get("phoneNumbers", [])
-        for number in numbers:            
+        for number in numbers:
             prefix_number = number.get("prefixNumber", "")
             postfix_number = number.get("number", "")
             if not prefix_number:
