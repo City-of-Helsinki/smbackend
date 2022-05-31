@@ -1,9 +1,10 @@
-#from observations.tests.fixtures import organization
+# from observations.tests.fixtures import organization
 import pytest
-from observations.tests.fixtures import *
-  # noqa: F401,F403
+# noqa: F401,F403
 from rest_framework.reverse import reverse
 from utils import match_observable_property_object_to_dict
+
+
 @pytest.mark.django_db
 def test__get_observable_properties_for_unit(api_client, observable_property):
     services = observable_property.services.all()
