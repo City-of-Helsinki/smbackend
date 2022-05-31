@@ -198,9 +198,7 @@ def test_importer():
         week__week_number=39, week__years__year_number=2021
     )[0]
     week = Week.objects.filter(week_number=39, years__year_number=2021)[0]
-    assert (
-        week.days.count() == 3
-    )
+    assert week.days.count() == 3
     # week 39 in 2021 has only 3 days in October, the rest 4 days are in September.
     assert week_data.value_jp == 288  # 3*96
     week_data = WeekData.objects.filter(week__week_number=40)[0]
