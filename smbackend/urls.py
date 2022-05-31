@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.conf.urls.static import static
-from django.views.static import serve
 from django.conf import settings
 from django.urls import include, re_path
 from django.utils.translation import gettext_lazy as _
@@ -17,7 +16,7 @@ from services.search.api import SearchViewSet
 import eco_counter.api.urls
 import mobility_data.api.urls
 import bicycle_network.api.urls
-from iot.api import IoTViewSet 
+from iot.api import IoTViewSet
 
 admin.site.site_header = _("Servicemap administration")
 admin.site.index_title = _("Application management")
