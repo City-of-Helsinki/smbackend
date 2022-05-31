@@ -1,9 +1,11 @@
 import logging
-from django.db import connection, reset_queries
+
 from django.core.cache import cache
-from rest_framework.generics import GenericAPIView
+from django.db import connection, reset_queries
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
+from rest_framework.generics import GenericAPIView
+
 from iot.models import IoTData
 from iot.utils import get_cache_keys, get_source_names
 
@@ -46,8 +48,6 @@ class IoTViewSet(GenericAPIView):
             queryset = cached_data[key_queryset]
             serializer = cached_data[key_serializer]
 
-        page = self.paginate_queryset(queryset)
-
         if logger.level <= logging.DEBUG:
             logger.debug(connection.queries)
             queries_time = sum([float(s["time"]) for s in connection.queries])
@@ -56,7 +56,7 @@ class IoTViewSet(GenericAPIView):
             else:
                 num_queries = 0
             logger.debug(
-                f"Search queries total execution time: {queries_time} Num queries: {num_queries}"
+                f"IoT queries total execution time: {queries_time} Num queries: {num_queries}"
             )
             reset_queries()
 

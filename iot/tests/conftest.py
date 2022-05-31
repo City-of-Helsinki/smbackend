@@ -1,9 +1,7 @@
 import pytest
 from rest_framework.test import APIClient
-from iot.models import (
-    IoTDataSource,
-    IoTData,
-)
+
+from iot.models import IoTData, IoTDataSource
 
 
 @pytest.fixture
