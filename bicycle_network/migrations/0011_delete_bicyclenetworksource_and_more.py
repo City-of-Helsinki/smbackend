@@ -6,56 +6,56 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bicycle_network', '0010_auto_20211124_1141'),
+        ("bicycle_network", "0010_auto_20211124_1141"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='BicycleNetworkSource',
+            name="BicycleNetworkSource",
         ),
         migrations.RemoveField(
-            model_name='bicyclenetworkpart',
-            name='TKU_toiminnall_pp',
+            model_name="bicyclenetworkpart",
+            name="TKU_toiminnall_pp",
         ),
         migrations.RemoveField(
-            model_name='bicyclenetworkpart',
-            name='liikennevi',
+            model_name="bicyclenetworkpart",
+            name="liikennevi",
         ),
         migrations.RemoveField(
-            model_name='bicyclenetworkpart',
-            name='teksti',
+            model_name="bicyclenetworkpart",
+            name="teksti",
         ),
         migrations.RemoveField(
-            model_name='bicyclenetworkpart',
-            name='tienim2',
+            model_name="bicyclenetworkpart",
+            name="tienim2",
         ),
         migrations.RemoveField(
-            model_name='bicyclenetworkpart',
-            name='toiminnall',
+            model_name="bicyclenetworkpart",
+            name="toiminnall",
         ),
         migrations.AddField(
-            model_name='bicyclenetwork',
-            name='file',
-            field=models.FileField(null=True, upload_to='bicycle_network'),
+            model_name="bicyclenetwork",
+            name="file",
+            field=models.FileField(null=True, upload_to="bicycle_network"),
         ),
         migrations.AddField(
-            model_name='bicyclenetwork',
-            name='length',
+            model_name="bicyclenetwork",
+            name="length",
             field=models.FloatField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='bicyclenetwork',
-            name='name_en',
+            model_name="bicyclenetwork",
+            name="name_en",
             field=models.CharField(max_length=32, null=True),
         ),
         migrations.AddField(
-            model_name='bicyclenetwork',
-            name='name_fi',
+            model_name="bicyclenetwork",
+            name="name_fi",
             field=models.CharField(max_length=32, null=True),
         ),
         migrations.AddField(
-            model_name='bicyclenetwork',
-            name='name_sv',
+            model_name="bicyclenetwork",
+            name="name_sv",
             field=models.CharField(max_length=32, null=True),
         ),
     ]

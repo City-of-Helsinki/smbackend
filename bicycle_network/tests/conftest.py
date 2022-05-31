@@ -1,11 +1,9 @@
 import pytest
-from rest_framework.test import APIClient
 from django.contrib.gis.geos import LineString
+from rest_framework.test import APIClient
+
+from ..models import BicycleNetwork, BicycleNetworkPart
 from .utils import generate_coords
-from ..models import (
-    BicycleNetwork,
-    BicycleNetworkPart,
-)
 
 
 @pytest.fixture
