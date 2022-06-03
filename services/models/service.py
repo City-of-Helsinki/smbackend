@@ -1,8 +1,8 @@
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import (  # add the Postgres recommended GIN index
     GinIndex,
 )
 from django.contrib.postgres.search import SearchVectorField
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from services.utils import get_translated
@@ -47,14 +47,13 @@ class Service(models.Model):
     def get_syllable_fi_columns(cls):
         """
         Defines the columns that will be used when populating
-        finnish syllables to syllables_fi column. The content 
-        will be tokenized to lexems(to_tsvector) and added to 
+        finnish syllables to syllables_fi column. The content
+        will be tokenized to lexems(to_tsvector) and added to
         the search_column.
         """
         return [
-            "name_fi",     
+            "name_fi",
         ]
-
 
     @classmethod
     def get_search_column_indexing(cls, lang):
@@ -65,7 +64,6 @@ class Service(models.Model):
         if lang == "fi":
             return [
                 ("name_fi", "finnish", "A"),
-
             ]
         elif lang == "sv":
             return [

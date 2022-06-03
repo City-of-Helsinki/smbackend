@@ -1,4 +1,5 @@
 from django.core.cache import cache
+
 from iot.models import IoTDataSource
 
 CACHE_KEY_PREFIX = __package__

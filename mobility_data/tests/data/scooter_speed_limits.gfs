@@ -1,0 +1,22 @@
+<GMLFeatureClassList>
+  <GMLFeatureClass>
+    <Name>Sahkopotkulauta_nopeusrajoitus</Name>
+    <ElementPath>Sahkopotkulauta_nopeusrajoitus</ElementPath>
+    <!--POLYGON-->
+    <GeometryType>3</GeometryType>
+    <SRSName>EPSG:3877</SRSName>
+    <DatasetSpecificInfo>
+      <FeatureCount>3</FeatureCount>
+      <ExtentXMin>23459554.73200</ExtentXMin>
+      <ExtentXMax>23459906.96600</ExtentXMax>
+      <ExtentYMin>6704380.21000</ExtentYMin>
+      <ExtentYMax>6704780.10500</ExtentYMax>
+    </DatasetSpecificInfo>
+    <PropertyDefn>
+      <Name>Tunnus</Name>
+      <ElementPath>Tunnus</ElementPath>
+      <Type>String</Type>
+      <Width>27</Width>
+    </PropertyDefn>
+  </GMLFeatureClass>
+</GMLFeatureClassList>

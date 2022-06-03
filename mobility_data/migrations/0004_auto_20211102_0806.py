@@ -6,83 +6,83 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mobility_data', '0003_auto_20211101_1501'),
+        ("mobility_data", "0003_auto_20211101_1501"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='mobileunit',
-            name='address_en',
+            model_name="mobileunit",
+            name="address_en",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='mobileunit',
-            name='address_fi',
+            model_name="mobileunit",
+            name="address_fi",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='mobileunit',
-            name='address_sv',
+            model_name="mobileunit",
+            name="address_sv",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='mobileunit',
-            name='description_en',
+            model_name="mobileunit",
+            name="description_en",
             field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='mobileunit',
-            name='description_fi',
+            model_name="mobileunit",
+            name="description_fi",
             field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='mobileunit',
-            name='description_sv',
+            model_name="mobileunit",
+            name="description_sv",
             field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='mobileunit',
-            name='name_en',
+            model_name="mobileunit",
+            name="name_en",
             field=models.CharField(max_length=64, null=True),
         ),
         migrations.AddField(
-            model_name='mobileunit',
-            name='name_fi',
+            model_name="mobileunit",
+            name="name_fi",
             field=models.CharField(max_length=64, null=True),
         ),
         migrations.AddField(
-            model_name='mobileunit',
-            name='name_sv',
+            model_name="mobileunit",
+            name="name_sv",
             field=models.CharField(max_length=64, null=True),
         ),
         migrations.AddField(
-            model_name='mobileunitgroup',
-            name='description_en',
+            model_name="mobileunitgroup",
+            name="description_en",
             field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='mobileunitgroup',
-            name='description_fi',
+            model_name="mobileunitgroup",
+            name="description_fi",
             field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='mobileunitgroup',
-            name='description_sv',
+            model_name="mobileunitgroup",
+            name="description_sv",
             field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='mobileunitgroup',
-            name='name_en',
+            model_name="mobileunitgroup",
+            name="name_en",
             field=models.CharField(max_length=64, null=True),
         ),
         migrations.AddField(
-            model_name='mobileunitgroup',
-            name='name_fi',
+            model_name="mobileunitgroup",
+            name="name_fi",
             field=models.CharField(max_length=64, null=True),
         ),
         migrations.AddField(
-            model_name='mobileunitgroup',
-            name='name_sv',
+            model_name="mobileunitgroup",
+            name="name_sv",
             field=models.CharField(max_length=64, null=True),
         ),
     ]

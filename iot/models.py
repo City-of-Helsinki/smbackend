@@ -23,7 +23,7 @@ class IoTDataSource(models.Model):
             raise ValidationError(f"The given url {self.url} does not exist.")
         # Test if valid json
         try:
-            json_data = response.json()
+            response.json()
         except json.decoder.JSONDecodeError:
             raise ValidationError(
                 f"Could not parse the JSON data for the given url {self.url}"

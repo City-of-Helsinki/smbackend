@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mobility_data', '0008_auto_20211118_1256'),
+        ("mobility_data", "0008_auto_20211118_1256"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contenttype',
-            name='type_name',
-            field=models.CharField(choices=[('CGS', 'ChargingStation'), ('GFS', 'GasFillingStation'), ('CRU', 'CultureRouteUnit'), ('CRG', 'CultureRouteGeometry'), ('BIS', 'BicycleStand')], max_length=3, null=True),
+            model_name="contenttype",
+            name="type_name",
+            field=models.CharField(
+                choices=[
+                    ("CGS", "ChargingStation"),
+                    ("GFS", "GasFillingStation"),
+                    ("CRU", "CultureRouteUnit"),
+                    ("CRG", "CultureRouteGeometry"),
+                    ("BIS", "BicycleStand"),
+                ],
+                max_length=3,
+                null=True,
+            ),
         ),
     ]

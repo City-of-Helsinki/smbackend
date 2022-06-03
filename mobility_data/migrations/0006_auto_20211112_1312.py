@@ -6,18 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mobility_data', '0005_alter_mobileunit_unit_id'),
+        ("mobility_data", "0005_alter_mobileunit_unit_id"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='mobileunit',
-            old_name='unit_group',
-            new_name='mobile_unit_group',
+            model_name="mobileunit",
+            old_name="unit_group",
+            new_name="mobile_unit_group",
         ),
         migrations.AlterField(
-            model_name='grouptype',
-            name='type_name',
-            field=models.CharField(choices=[('CRE', 'CULTURE_ROUTE')], max_length=3, null=True),
+            model_name="grouptype",
+            name="type_name",
+            field=models.CharField(
+                choices=[("CRE", "CULTURE_ROUTE")], max_length=3, null=True
+            ),
         ),
     ]

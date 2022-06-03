@@ -1,10 +1,12 @@
-import requests
-import logging
 import json
-from django.core.management.base import BaseCommand
+import logging
+
+import requests
 from django.core.cache import cache
+from django.core.management.base import BaseCommand
+
 from iot.models import IoTData, IoTDataSource
-from iot.utils import get_cache_keys, get_source_names, clear_source_names_from_cache
+from iot.utils import clear_source_names_from_cache, get_cache_keys, get_source_names
 
 logger = logging.getLogger("iot")
 

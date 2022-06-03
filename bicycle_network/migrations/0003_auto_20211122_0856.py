@@ -6,28 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bicycle_network', '0002_auto_20211119_1306'),
+        ("bicycle_network", "0002_auto_20211119_1306"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='bicyclenetworksource',
-            name='local_network',
-            field=models.FileField(null=True, upload_to='bicycle_routes'),
+            model_name="bicyclenetworksource",
+            name="local_network",
+            field=models.FileField(null=True, upload_to="bicycle_routes"),
         ),
         migrations.AddField(
-            model_name='bicyclenetworksource',
-            name='quality_lanes',
-            field=models.FileField(null=True, upload_to='bicycle_routes'),
+            model_name="bicyclenetworksource",
+            name="quality_lanes",
+            field=models.FileField(null=True, upload_to="bicycle_routes"),
         ),
         migrations.AlterField(
-            model_name='bicycenetworkpart',
-            name='guid',
+            model_name="bicycenetworkpart",
+            name="guid",
             field=models.CharField(max_length=128, null=True),
         ),
         migrations.AlterField(
-            model_name='bicyclenetworksource',
-            name='main_network',
-            field=models.FileField(null=True, upload_to='bicycle_routes'),
+            model_name="bicyclenetworksource",
+            name="main_network",
+            field=models.FileField(null=True, upload_to="bicycle_routes"),
         ),
     ]

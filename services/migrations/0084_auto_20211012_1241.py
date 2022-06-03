@@ -6,18 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0083_unitentrance'),
+        ("services", "0083_unitentrance"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unit',
-            name='deleted_at',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='Deleted at'),
+            model_name="unit",
+            name="deleted_at",
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="Deleted at"
+            ),
         ),
         migrations.AlterField(
-            model_name='unit',
-            name='is_active',
-            field=models.BooleanField(default=True, verbose_name='Active'),
+            model_name="unit",
+            name="is_active",
+            field=models.BooleanField(default=True, verbose_name="Active"),
         ),
     ]

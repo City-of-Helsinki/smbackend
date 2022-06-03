@@ -12,8 +12,8 @@ def generate_coords(start_lon, start_lat, end_lon, end_lat, num_coords):
     """
     coords = []
     for i in range(num_coords):
-        l = i / num_coords
-        lon = lerp(start_lon, end_lon, l)
-        lat = lerp(start_lat, end_lat, l)
+        lerp_value = i / num_coords
+        lon = lerp(start_lon, end_lon, lerp_value)
+        lat = lerp(start_lat, end_lat, lerp_value)
         coords.append((lon, lat))
     return coords
