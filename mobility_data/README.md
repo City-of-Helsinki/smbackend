@@ -72,3 +72,9 @@ To import data type:
 ```
 ./manage.py import_accessories
 ```
+### Share car parking places
+Imports parking places for car sharing cars. 
+To import data type:
+```
+./manage.py import_share_car_parking_places
+```

@@ -33,3 +33,8 @@ def import_mobility_data(name="import_mobility_data"):
 @shared_task
 def import_accessories(name="import_accessories"):
     management.call_command("import_accessories")
+
+
+@shared_task
+def import_share_car_parking_places(name="impor_share_car_parking_places"):
+    management.call_command("import_share_car_parking_places")
