@@ -95,7 +95,7 @@ def get_bike_service_station_objects(geojson_file=None):
 
 @db.transaction.atomic
 def delete_bike_service_stations():
-    delete_mobile_units(ContentType.BICYCLE_STAND)
+    delete_mobile_units(ContentType.BIKE_SERVICE_STATION)
 
 
 @db.transaction.atomic
