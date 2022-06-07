@@ -25,4 +25,7 @@ else
                --manage-script-name \
                --die-on-term \
                --strict
+               --ignore-sigpipe
+               --ignore-write-errors
+               --disable-write-exception
 fi
