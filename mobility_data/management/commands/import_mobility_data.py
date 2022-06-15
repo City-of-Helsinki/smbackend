@@ -18,6 +18,7 @@ importers = [
     "accessories",
     "bike_service_stations",
     "share_car_parking_places",
+    "bicycle_networks",
 ]
 logger = logging.getLogger("mobility_data")
 
