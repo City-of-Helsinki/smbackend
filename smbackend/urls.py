@@ -1,22 +1,22 @@
-from django.contrib import admin
-from django.conf.urls.static import static
 from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib import admin
 from django.urls import include, re_path
 from django.utils.translation import gettext_lazy as _
 from munigeo.api import all_views as munigeo_views
 from rest_framework import routers
 
+import bicycle_network.api.urls
+import eco_counter.api.urls
+import mobility_data.api.urls
+from iot.api import IoTViewSet
 from observations.api import views as observations_views
 from observations.views import obtain_auth_token
 from services import views
 from services.api import all_views as services_views
+from services.search.api import SearchViewSet
 from services.unit_redirect_viewset import UnitRedirectViewSet
 from shortcutter import urls as shortcutter_urls
-from services.search.api import SearchViewSet
-import eco_counter.api.urls
-import mobility_data.api.urls
-import bicycle_network.api.urls
-from iot.api import IoTViewSet
 
 admin.site.site_header = _("Servicemap administration")
 admin.site.index_title = _("Application management")
@@ -52,7 +52,8 @@ urlpatterns = [
     re_path(r"^api/v2/redirect/unit/", UnitRedirectViewSet.as_view({"get": "list"})),
     re_path(r"^mobility_data/", include(mobility_data.api.urls), name="mobility_data"),
     re_path(r"^eco-counter/", include(eco_counter.api.urls), name="eco_counter"),
-    re_path(r"^bicycle_network/", include(bicycle_network.api.urls), name="bicycle_network"),
+    re_path(
+        r"^bicycle_network/", include(bicycle_network.api.urls), name="bicycle_network"
+    ),
     re_path(r"", include(shortcutter_urls)),
-
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
