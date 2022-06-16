@@ -14,6 +14,7 @@ jobs:
     env:
       # Database for tests
       DATABASE_URL: postgis://postgres:postgres@localhost/smbackend
+      ADDITIONAL_INSTALLED_APPS: smbackend_turku,ptv
       PTV_ID_OFFSET: 10000000
       
     steps:
