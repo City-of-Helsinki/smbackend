@@ -24,6 +24,8 @@ jobs:
     - name: Install required Ubuntu packages
       run: |
         sudo apt-get install gdal-bin
+        sudo apt-get install voikko-fi
+        sudo apt-get install libvoikko-dev
     - name: Create needed postgis extensions
       run: |
         psql -h localhost -U postgres template1 -c 'create extension hstore;'
