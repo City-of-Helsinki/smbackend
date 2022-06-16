@@ -14,7 +14,8 @@ jobs:
     env:
       # Database for tests
       DATABASE_URL: postgis://postgres:postgres@localhost/smbackend
-
+      PTV_ID_OFFSET: 10000000
+      
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.10.0
