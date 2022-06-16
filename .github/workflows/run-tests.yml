@@ -34,6 +34,7 @@ jobs:
     - name: Create needed postgis extensions
       run: |
         psql -h localhost -U postgres template1 -c 'create extension hstore;'
+        psql -h localhost -U postgres template1 -c 'create extension pg_trgm;'
     - name: Install PyPI dependencies
       run: |
         python -m pip install --upgrade pip
