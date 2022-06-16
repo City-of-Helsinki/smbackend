@@ -19,6 +19,7 @@ jobs:
       BIKE_SERVICE_STATIONS_IDS: service_node=500000,service=500000,units_offset=500000
       GAS_FILLING_STATIONS_IDS: service_node=200000,service=200000,units_offset=200000
       CHARGING_STATIONS_IDS: service_node=300000,service=300000,units_offset=300000
+      BICYCLE_STANDS_IDS: service_node=400000,service=400000,units_offset=400000
 
     steps:
     - uses: actions/checkout@v2
