@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    # Ubuntu latest is Ubuntu 18.04 as of 2020/12
+    # Ubuntu latest is Ubuntu 20.04 as of 2022/6
     runs-on: ubuntu-latest
 
     env:
