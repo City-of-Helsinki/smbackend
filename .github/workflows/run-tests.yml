@@ -45,7 +45,7 @@ jobs:
       # Label used to access the service container
       postgres:
         # Docker Hub image
-        image: postgis/postgis:13-3
+        image: postgis/postgis:13-3.1
         # Provide the password for postgres
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
