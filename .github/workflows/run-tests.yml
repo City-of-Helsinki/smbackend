@@ -16,6 +16,8 @@ jobs:
       DATABASE_URL: postgis://postgres:postgres@localhost/smbackend
       ADDITIONAL_INSTALLED_APPS: smbackend_turku,ptv
       PTV_ID_OFFSET: 10000000
+      BIKE_SERVICE_STATIONS_IDS: service_node=500000,service=500000,units_offset=500000
+
       
     steps:
     - uses: actions/checkout@v2
