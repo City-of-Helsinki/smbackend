@@ -17,7 +17,7 @@ jobs:
       ADDITIONAL_INSTALLED_APPS: smbackend_turku,ptv
       PTV_ID_OFFSET: 10000000
       BIKE_SERVICE_STATIONS_IDS: service_node=500000,service=500000,units_offset=500000
-
+      GAS_FILLING_STATIONS_IDS: service_node=200000,service=200000,units_offset=200000
       
     steps:
     - uses: actions/checkout@v2
