@@ -1,6 +1,4 @@
-# from observations.tests.fixtures import organization
 import pytest
-# noqa: F401,F403
 from rest_framework.reverse import reverse
 from utils import match_observable_property_object_to_dict
 
