@@ -7,23 +7,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0093_combine_servicenodes_with_same_name'),
+        ("services", "0093_combine_servicenodes_with_same_name"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='service',
-            name='syllables_fi',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=16), default=list, size=None),
+            model_name="service",
+            name="syllables_fi",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=16), default=list, size=None
+            ),
         ),
         migrations.AddField(
-            model_name='servicenode',
-            name='syllables_fi',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=16), default=list, size=None),
+            model_name="servicenode",
+            name="syllables_fi",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=16), default=list, size=None
+            ),
         ),
         migrations.AddField(
-            model_name='unit',
-            name='syllables_fi',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=16), default=list, size=None),
+            model_name="unit",
+            name="syllables_fi",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=16), default=list, size=None
+            ),
         ),
     ]

@@ -8,12 +8,18 @@ on:
 
 jobs:
   build:
-    # Ubuntu latest is Ubuntu 18.04 as of 2020/12
+    # Ubuntu latest is Ubuntu 20.04 as of 2022/6
     runs-on: ubuntu-latest
 
     env:
       # Database for tests
       DATABASE_URL: postgis://postgres:postgres@localhost/smbackend
+      ADDITIONAL_INSTALLED_APPS: smbackend_turku,ptv
+      PTV_ID_OFFSET: 10000000
+      BIKE_SERVICE_STATIONS_IDS: service_node=500000,service=500000,units_offset=500000
+      GAS_FILLING_STATIONS_IDS: service_node=200000,service=200000,units_offset=200000
+      CHARGING_STATIONS_IDS: service_node=300000,service=300000,units_offset=300000
+      BICYCLE_STANDS_IDS: service_node=400000,service=400000,units_offset=400000
 
     steps:
     - uses: actions/checkout@v2
@@ -24,9 +30,12 @@ jobs:
     - name: Install required Ubuntu packages
       run: |
         sudo apt-get install gdal-bin
+        sudo apt-get install voikko-fi
+        sudo apt-get install libvoikko-dev
     - name: Create needed postgis extensions
       run: |
         psql -h localhost -U postgres template1 -c 'create extension hstore;'
+        psql -h localhost -U postgres template1 -c 'create extension pg_trgm;'
     - name: Install PyPI dependencies
       run: |
         python -m pip install --upgrade pip
@@ -45,7 +54,7 @@ jobs:
       # Label used to access the service container
       postgres:
         # Docker Hub image
-        image: postgis/postgis:10-2.5
+        image: postgis/postgis:13-3.1
         # Provide the password for postgres
         env:
           POSTGRES_HOST_AUTH_METHOD: trust

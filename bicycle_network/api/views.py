@@ -1,18 +1,21 @@
 from distutils.util import strtobool
+
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.gdal import SpatialReference
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.db.models import Q
-from rest_framework.exceptions import ParseError
-from rest_framework import viewsets
 from munigeo import api as munigeo_api
+from rest_framework import viewsets
+from rest_framework.exceptions import ParseError
+
 from services.api_pagination import Pagination
+
 from ..models import BicycleNetwork, BicycleNetworkPart
 from .serializers import (
-    BicycleNetworkSerializer,
-    BicycleNetworkPartSerializer,
     BicycleNetworkPartCoordsSerializer,
+    BicycleNetworkPartSerializer,
+    BicycleNetworkSerializer,
 )
 
 

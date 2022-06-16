@@ -95,12 +95,12 @@ def get_bike_service_station_objects(geojson_file=None):
 
 @db.transaction.atomic
 def delete_bike_service_stations():
-    delete_mobile_units(ContentType.BICYCLE_STAND)
+    delete_mobile_units(ContentType.BIKE_SERVICE_STATION)
 
 
 @db.transaction.atomic
 def create_bike_service_station_content_type():
-    description = "Bike service stations The Turku Region."
+    description = "Bike service stations in the Turku region."
     name = "Bike service station"
     content_type, _ = get_or_create_content_type(
         ContentType.BIKE_SERVICE_STATION, name, description
@@ -116,7 +116,7 @@ def save_to_database(objects, delete_tables=True):
     content_type = create_bike_service_station_content_type()
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
-            content_type=content_type, extra=object.extra
+            content_type=content_type, extra=object.extra, geometry=object.geometry
         )
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "description", object.description)

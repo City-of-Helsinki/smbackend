@@ -1,0 +1,16 @@
+<GMLFeatureClassList>
+  <GMLFeatureClass>
+    <Name>Sahkopotkulauta_pysakointikielto</Name>
+    <ElementPath>Sahkopotkulauta_pysakointikielto</ElementPath>
+    <!--POLYGON-->
+    <GeometryType>3</GeometryType>
+    <SRSName>EPSG:3877</SRSName>
+    <DatasetSpecificInfo>
+      <FeatureCount>3</FeatureCount>
+      <ExtentXMin>23459201.41700</ExtentXMin>
+      <ExtentXMax>23460208.20000</ExtentXMax>
+      <ExtentYMin>6705020.61600</ExtentYMin>
+      <ExtentYMax>6705590.36000</ExtentYMax>
+    </DatasetSpecificInfo>
+  </GMLFeatureClass>
+</GMLFeatureClassList>

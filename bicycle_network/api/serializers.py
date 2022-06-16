@@ -1,9 +1,7 @@
 from django.contrib.gis.geos import LineString, MultiLineString
 from rest_framework import serializers
-from ..models import (
-    BicycleNetwork,
-    BicycleNetworkPart,
-)
+
+from ..models import BicycleNetwork, BicycleNetworkPart
 
 
 class BicycleNetworkSerializer(serializers.ModelSerializer):
@@ -22,7 +20,7 @@ class BicycleNetworkPartCoordsSerializer(serializers.ModelSerializer):
 
     def get_geometry_coords(self, obj):
         if obj.geometry:
-            if self.context["latlon"] == True:
+            if self.context["latlon"]:
                 if isinstance(obj.geometry, LineString):
                     # Return LineString coordinates in (lat,lon) format
                     coords = []

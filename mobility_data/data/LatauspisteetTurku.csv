@@ -36,9 +36,9 @@
 50;2;CCS;30;Hakakatu 16;23461905;6705273;Kesko;Kesko;Kesko;Asiakas/julkinen;Maksullinen;;;K-lataus;;12.5.2022;
 50;2;CHAdeMO;30;Hakakatu 16;23461905;6705273;Kesko;Kesko;Kesko;Asiakas/julkinen;Maksullinen;;;K-lataus;;12.5.2022;
 22;4;Type 2;34;Itäkaari 20;23462711;6702242;Kesko;Kesko;Kesko;Asiakas/julkinen;Maksullinen;;;K-lataus;;12.5.2022;
-150;2;CCS;44;Vanha Kakskerrantie 1;23458546;6702374;Kesko;Kesko;Kesko;asiakas/julkinen;Maksullinen;;;k-lataus;;12.5.2022;
-50;1;chAdeMO;44;vanha Kakskerrantie 1;23458546;6702374;kesko;Kesko;Kesko;asiakas/julkinen;maksullinen;;;k-lataus;;12.5.2022;
-11;1;type 2;44;vanha Kakskerrantie 1;23458546;6702374;kesko;Kesko;Kesko;asiakas/julkinen;maksullinen;;;k-lataus;;12.5.2022;
+150;2;CCS;44;Vanha Kakskerrantie 1;23457565;6700949;Kesko;Kesko;Kesko;asiakas/julkinen;Maksullinen;;;k-lataus;;12.5.2022;
+50;1;chAdeMO;44;vanha Kakskerrantie 1;23457565;6700949;kesko;Kesko;Kesko;asiakas/julkinen;maksullinen;;;k-lataus;;12.5.2022;
+11;1;type 2;44;vanha Kakskerrantie 1;23457565;6700949;kesko;Kesko;Kesko;asiakas/julkinen;maksullinen;;;k-lataus;;12.5.2022;
 22;4;Type 2;62;Voudinkatu 5;23454422;6708920;Kesko;Kesko;Kesko;Julkinen;Maksullinen;;;K-lataus;;12.5.2022;
 50;2;CCS;62;Voudinkatu 5;23454422;6708920;Kesko;Kesko;Kesko;Julkinen;Maksullinen;;;K-lataus;;12.5.2022;
 50;2;CHAdeMO;62;Voudinkatu 5;23454422;6708920;Kesko;Kesko;Kesko;Julkinen;Maksullinen;;;K-lataus;;12.5.2022;
@@ -55,7 +55,7 @@
 50;1;ccs;46;Viilarinkatu 12;23457083;6706956;Lidl;Lidl;Lidl;asiakas/julkinen;ilmainen;;;aikarajoittettu;;12.5.2022;
 50;1;chadeMO;46;viilarinkatu 12;23457083;6706956;lidl;Lidl;Lidl;asiakas/julkinen;ilmainen;;;aikarajoittettu;;12.5.2022;
 22;1;Type 2;46;viilarinkatu 12;23457083;6706956;Lidl;Lidl;Lidl;asiakas/julkinen;ilmainen;;;aikarajoittettu;;12.5.2022;
-4;22;Type 2;53;Kalevantie 19-23;23461968;6704367;Lidl;Lidl;Lidl;Asiakas/julkinen;Ilmainen;;;aikarajoittettu;;12.5.2022;
+22;4;Type 2;53;Kalevantie 19-23;23461968;6704367;Lidl;Lidl;Lidl;Asiakas/julkinen;Ilmainen;;;aikarajoittettu;;12.5.2022;
 22;4;Type 2;55;Kollikatu 1;23458203;6704989;Lidl;Lidl;Lidl;Asiakas/julkinen;Ilmainen;;;aikarajoittettu;;12.5.2022;
 22;4;Type 2;56;Kärsämäentie 2;23460565;6707027;Lidl;Lidl;Lidl;Asiakas/julkinen;Ilmainen;;;aikarajoittettu;;12.5.2022;
 22;4;Type 2;60;Simpukkatie 4;23470398;6710289;Lidl;Lidl;Lidl;Asiakas/julkinen;Ilmainen;;;aikarajoittettu;;12.5.2022;

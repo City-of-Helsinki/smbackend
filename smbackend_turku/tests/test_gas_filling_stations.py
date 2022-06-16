@@ -6,7 +6,6 @@ import pytz
 from django.conf import settings
 
 from services.models import Service, ServiceNode, Unit
-
 from smbackend_turku.importers.stations import (
     GasFillingStationImporter as Importer,
     import_gas_filling_stations,

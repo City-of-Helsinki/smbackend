@@ -4,7 +4,6 @@ import pytest
 from django.db.models.deletion import ProtectedError
 from django.urls import reverse as django_reverse
 from django.utils import timezone
-from observations.tests.fixtures import *  # noqa: F401,F403
 from rest_framework.reverse import reverse
 
 from data import observation_raw_data

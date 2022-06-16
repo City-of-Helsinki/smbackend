@@ -1,0 +1,21 @@
+<GMLFeatureClassList>
+  <GMLFeatureClass>
+    <Name>Nopeusrajoitusalueet</Name>
+    <ElementPath>Nopeusrajoitusalueet</ElementPath>
+    <!--POLYGON-->
+    <GeometryType>3</GeometryType>
+    <SRSName>EPSG:3877</SRSName>
+    <DatasetSpecificInfo>
+      <FeatureCount>3</FeatureCount>
+      <ExtentXMin>23456343.71600</ExtentXMin>
+      <ExtentXMax>23460502.73000</ExtentXMax>
+      <ExtentYMin>6700344.12000</ExtentYMin>
+      <ExtentYMax>6707840.58200</ExtentYMax>
+    </DatasetSpecificInfo>
+    <PropertyDefn>
+      <Name>voimassa_a</Name>
+      <ElementPath>voimassa_a</ElementPath>
+      <Type>Integer</Type>
+    </PropertyDefn>
+  </GMLFeatureClass>
+</GMLFeatureClassList>

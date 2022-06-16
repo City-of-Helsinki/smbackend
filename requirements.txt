@@ -58,7 +58,6 @@ django==4.0.4
     #   django-modeltranslation
     #   django-munigeo
     #   django-polymorphic
-    #   django-timezone-field
     #   djangorestframework
 django-celery-beat @ git+https://github.com/celery/django-celery-beat.git
     # via -r requirements.in
@@ -86,7 +85,7 @@ django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.69
     # via -r requirements.in
 django-polymorphic==3.1.0
     # via -r requirements.in
-django-timezone-field==4.2.3
+django-timezone-field==5.0
     # via django-celery-beat
 djangorestframework==3.12.4
     # via -r requirements.in
@@ -222,6 +221,8 @@ tqdm==4.62.3
     # via -r requirements.in
 typing-extensions==3.10.0.2
     # via black
+tzdata==2022.1
+    # via django-celery-beat
 url-normalize==1.4.3
     # via requests-cache
 urllib3==1.26.7

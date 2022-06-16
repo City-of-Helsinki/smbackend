@@ -2,6 +2,7 @@ from django.contrib.gis.gdal.error import GDALException
 from django.contrib.gis.geos import (
     GEOSGeometry,
     LineString,
+    MultiLineString,
     MultiPolygon,
     Point,
     Polygon,
@@ -120,7 +121,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             return pos
 
         elif isinstance(geometry, LineString):
-            if self.context["latlon"] is True:
+            if self.context["latlon"]:
                 # Return LineString coordinates in (lat,lon) format
                 coords = []
                 for coord in geometry.coords:
@@ -132,7 +133,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 return geometry.coords
 
         elif isinstance(geometry, Polygon):
-            if self.context["latlon"] is True:
+            if self.context["latlon"]:
                 # Return Polygon coordinates in (lat,lon) format
                 coords = []
                 for coord in list(*geometry.coords):
@@ -143,7 +144,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             else:
                 return geometry.coords
         elif isinstance(geometry, MultiPolygon):
-            if self.context["latlon"] is True:
+            if self.context["latlon"]:
                 coords = []
                 # Iterate through all the polygons in the multipolygon
                 # Create a list of swapped coords for every polygon
@@ -157,5 +158,17 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 return coords
             else:
                 return geometry.coords
+        elif isinstance(geometry, MultiLineString):
+            if self.context["latlon"]:
+                coords = []
+                for linestring in geometry.coords:
+                    # swap lon,lat -> lat lon
+                    for coord in linestring:
+                        e = (coord[1], coord[0])
+                        coords.append(e)
+                return coords
+            else:
+                return geometry.coords
+
         else:
             return ""

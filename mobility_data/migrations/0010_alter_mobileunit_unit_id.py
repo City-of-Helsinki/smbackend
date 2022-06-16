@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mobility_data', '0009_alter_contenttype_type_name'),
+        ("mobility_data", "0009_alter_contenttype_type_name"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='mobileunit',
-            name='unit_id',
-            field=models.IntegerField(null=True, verbose_name='optional id to a unit in the servicemap, if id exist data is serialized from services_unit table'),
+            model_name="mobileunit",
+            name="unit_id",
+            field=models.IntegerField(
+                null=True,
+                verbose_name="optional id to a unit in the servicemap, if id exist data is serialized from services_unit table",
+            ),
         ),
     ]

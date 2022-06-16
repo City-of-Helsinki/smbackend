@@ -1,0 +1,16 @@
+<GMLFeatureClassList>
+  <GMLFeatureClass>
+    <Name>Sahkopotkulautaparkki</Name>
+    <ElementPath>Sahkopotkulautaparkki</ElementPath>
+    <!--POINT-->
+    <GeometryType>1</GeometryType>
+    <SRSName>EPSG:3877</SRSName>
+    <DatasetSpecificInfo>
+      <FeatureCount>3</FeatureCount>
+      <ExtentXMin>23459403.74000</ExtentXMin>
+      <ExtentXMax>23459472.93000</ExtentXMax>
+      <ExtentYMin>6704133.60000</ExtentYMin>
+      <ExtentYMax>6704586.64300</ExtentYMax>
+    </DatasetSpecificInfo>
+  </GMLFeatureClass>
+</GMLFeatureClassList>

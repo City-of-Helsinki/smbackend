@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('iot', '0001_initial'),
+        ("iot", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='iotdata',
-            options={'ordering': ['-created']},
+            name="iotdata",
+            options={"ordering": ["-created"]},
         ),
     ]

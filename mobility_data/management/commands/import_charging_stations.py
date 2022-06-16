@@ -1,8 +1,10 @@
 import logging
+
 from mobility_data.importers.charging_stations import (
     get_charging_station_objects,
     save_to_database,
 )
+
 from ._base_import_command import BaseImportCommand
 
 logger = logging.getLogger("mobility_data")

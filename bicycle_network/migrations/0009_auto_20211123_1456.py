@@ -7,26 +7,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bicycle_network', '0008_rename_tienimi2_bicyclenetworkpart_tienim2'),
+        ("bicycle_network", "0008_rename_tienimi2_bicyclenetworkpart_tienim2"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='bicyclenetworkpart',
-            options={'ordering': ['-id']},
+            name="bicyclenetworkpart",
+            options={"ordering": ["-id"]},
         ),
         migrations.RemoveField(
-            model_name='bicyclenetwork',
-            name='geometry',
+            model_name="bicyclenetwork",
+            name="geometry",
         ),
         migrations.AlterField(
-            model_name='bicyclenetworkpart',
-            name='TKU_toiminnall_pp',
-            field=models.FloatField(null=True, verbose_name='Functional class of cycle or pedestrian path'),
+            model_name="bicyclenetworkpart",
+            name="TKU_toiminnall_pp",
+            field=models.FloatField(
+                null=True, verbose_name="Functional class of cycle or pedestrian path"
+            ),
         ),
         migrations.AlterField(
-            model_name='bicyclenetworkpart',
-            name='geometry',
-            field=django.contrib.gis.db.models.fields.GeometryField(null=True, srid=4326),
+            model_name="bicyclenetworkpart",
+            name="geometry",
+            field=django.contrib.gis.db.models.fields.GeometryField(
+                null=True, srid=4326
+            ),
         ),
     ]

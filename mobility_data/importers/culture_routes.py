@@ -61,7 +61,7 @@ URLS = {
     },
     "Kaupunkitarinoita Turusta": {
         "fi": "https://citynomadi.com/api/route/84252a5f01ecc706901452c41896905e/kml?lang=fi",
-    },  
+    },
 }
 
 

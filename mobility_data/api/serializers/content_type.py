@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from ...models import (
-    ContentType,
-)
+
+from ...models import ContentType
 
 
 class ContentTypeSerializer(serializers.ModelSerializer):

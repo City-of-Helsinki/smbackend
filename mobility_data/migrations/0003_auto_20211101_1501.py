@@ -6,26 +6,26 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mobility_data', '0002_mobileunit_extra'),
+        ("mobility_data", "0002_mobileunit_extra"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='gasfillingstationcontent',
-            name='mobile_unit',
+            model_name="gasfillingstationcontent",
+            name="mobile_unit",
         ),
         migrations.RemoveField(
-            model_name='contenttype',
-            name='class_name',
+            model_name="contenttype",
+            name="class_name",
         ),
         migrations.RemoveField(
-            model_name='grouptype',
-            name='class_name',
+            model_name="grouptype",
+            name="class_name",
         ),
         migrations.DeleteModel(
-            name='ChargingStationContent',
+            name="ChargingStationContent",
         ),
         migrations.DeleteModel(
-            name='GasFillingStationContent',
+            name="GasFillingStationContent",
         ),
     ]

@@ -6,28 +6,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bicycle_network', '0009_auto_20211123_1456'),
+        ("bicycle_network", "0009_auto_20211123_1456"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='bicyclenetwork',
-            name='name',
+            model_name="bicyclenetwork",
+            name="name",
             field=models.CharField(max_length=32, null=True),
         ),
         migrations.AlterField(
-            model_name='bicyclenetworkpart',
-            name='TKU_toiminnall_pp',
-            field=models.IntegerField(null=True, verbose_name='Functional class of cycle or pedestrian path'),
+            model_name="bicyclenetworkpart",
+            name="TKU_toiminnall_pp",
+            field=models.IntegerField(
+                null=True, verbose_name="Functional class of cycle or pedestrian path"
+            ),
         ),
         migrations.AlterField(
-            model_name='bicyclenetworkpart',
-            name='liikennevi',
-            field=models.IntegerField(null=True, verbose_name='Direction of trafic flow'),
+            model_name="bicyclenetworkpart",
+            name="liikennevi",
+            field=models.IntegerField(
+                null=True, verbose_name="Direction of trafic flow"
+            ),
         ),
         migrations.AlterField(
-            model_name='bicyclenetworkpart',
-            name='toiminnall',
-            field=models.IntegerField(null=True, verbose_name='Functional class'),
+            model_name="bicyclenetworkpart",
+            name="toiminnall",
+            field=models.IntegerField(null=True, verbose_name="Functional class"),
         ),
     ]

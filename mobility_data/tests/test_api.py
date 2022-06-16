@@ -1,7 +1,8 @@
 import pytest
-from rest_framework.reverse import reverse
 from django.conf import settings
 from django.contrib.gis.geos import Point
+from rest_framework.reverse import reverse
+
 
 @pytest.mark.django_db
 def test_content_type(api_client, content_type):
@@ -13,6 +14,7 @@ def test_content_type(api_client, content_type):
     assert results["name"] == "test"
     assert results["description"] == "test content type"
 
+
 @pytest.mark.django_db
 def test_group_type(api_client, group_type):
     url = reverse("mobility_data:group_types-list")
@@ -22,6 +24,7 @@ def test_group_type(api_client, group_type):
     assert results["type_name"] == "TGT"
     assert results["name"] == "test group"
     assert results["description"] == "test group type"
+
 
 @pytest.mark.django_db
 def test_mobile_unit(api_client, mobile_unit, content_type):
@@ -34,6 +37,7 @@ def test_mobile_unit(api_client, mobile_unit, content_type):
     assert results["content_type"]["id"] == str(content_type.id)
     assert results["extra"]["test"] == "4242"
     assert results["geometry"] == Point(42.42, 21.21, srid=settings.DEFAULT_SRID)
+
 
 @pytest.mark.django_db
 def test_mobile_unit_group(api_client, mobile_unit_group, group_type):

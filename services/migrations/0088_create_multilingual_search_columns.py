@@ -8,67 +8,79 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0087_create_service_names_fields'),
+        ("services", "0087_create_service_names_fields"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='service',
-            name='search_column_en',
+            model_name="service",
+            name="search_column_en",
             field=django.contrib.postgres.search.SearchVectorField(null=True),
         ),
         migrations.AddField(
-            model_name='service',
-            name='search_column_fi',
+            model_name="service",
+            name="search_column_fi",
             field=django.contrib.postgres.search.SearchVectorField(null=True),
         ),
         migrations.AddField(
-            model_name='service',
-            name='search_column_sv',
+            model_name="service",
+            name="search_column_sv",
             field=django.contrib.postgres.search.SearchVectorField(null=True),
         ),
         migrations.AddField(
-            model_name='unit',
-            name='search_column_en',
+            model_name="unit",
+            name="search_column_en",
             field=django.contrib.postgres.search.SearchVectorField(null=True),
         ),
         migrations.AddField(
-            model_name='unit',
-            name='search_column_fi',
+            model_name="unit",
+            name="search_column_fi",
             field=django.contrib.postgres.search.SearchVectorField(null=True),
         ),
         migrations.AddField(
-            model_name='unit',
-            name='search_column_sv',
+            model_name="unit",
+            name="search_column_sv",
             field=django.contrib.postgres.search.SearchVectorField(null=True),
         ),
         migrations.AlterField(
-            model_name='unit',
-            name='related_units',
-            field=models.ManyToManyField(blank=True, to='services.Unit'),
+            model_name="unit",
+            name="related_units",
+            field=models.ManyToManyField(blank=True, to="services.Unit"),
         ),
         migrations.AddIndex(
-            model_name='service',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['search_column_fi'], name='services_se_search__f21af3_gin'),
+            model_name="service",
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=["search_column_fi"], name="services_se_search__f21af3_gin"
+            ),
         ),
         migrations.AddIndex(
-            model_name='service',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['search_column_sv'], name='services_se_search__ebad2e_gin'),
+            model_name="service",
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=["search_column_sv"], name="services_se_search__ebad2e_gin"
+            ),
         ),
         migrations.AddIndex(
-            model_name='service',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['search_column_en'], name='services_se_search__738f33_gin'),
+            model_name="service",
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=["search_column_en"], name="services_se_search__738f33_gin"
+            ),
         ),
         migrations.AddIndex(
-            model_name='unit',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['search_column_fi'], name='services_un_search__ee3ad5_gin'),
+            model_name="unit",
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=["search_column_fi"], name="services_un_search__ee3ad5_gin"
+            ),
         ),
         migrations.AddIndex(
-            model_name='unit',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['search_column_sv'], name='services_un_search__2d74bd_gin'),
+            model_name="unit",
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=["search_column_sv"], name="services_un_search__2d74bd_gin"
+            ),
         ),
         migrations.AddIndex(
-            model_name='unit',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['search_column_en'], name='services_un_search__ddb323_gin'),
+            model_name="unit",
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=["search_column_en"], name="services_un_search__ddb323_gin"
+            ),
         ),
     ]
