@@ -6,13 +6,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mobility_data', '0013_add_contenttype_bike_service_station'),
+        ("mobility_data", "0013_add_contenttype_bike_service_station"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contenttype',
-            name='type_name',
-            field=models.CharField(choices=[('CGS', 'ChargingStation'), ('GFS', 'GasFillingStation'), ('CRU', 'CultureRouteUnit'), ('CRG', 'CultureRouteGeometry'), ('BIS', 'BicycleStand'), ('PAZ', 'PaymentZone'), ('SLZ', 'SpeedLimitZone'), ('SPG', 'ScooterParking'), ('SSL', 'ScooterSpeedLimit'), ('SNP', 'ScooterNoParking'), ('APT', 'AccessoryPublicToilet'), ('ABH', 'AccessoryBench'), ('ATE', 'AccessoryTable'), ('AFG', 'AccessoryFurnitureGroup'), ('BSS', 'BikeServiceStation'), ('SCP', 'ShareCarParkingPlace')], max_length=3, null=True),
+            model_name="contenttype",
+            name="type_name",
+            field=models.CharField(
+                choices=[
+                    ("CGS", "ChargingStation"),
+                    ("GFS", "GasFillingStation"),
+                    ("CRU", "CultureRouteUnit"),
+                    ("CRG", "CultureRouteGeometry"),
+                    ("BIS", "BicycleStand"),
+                    ("PAZ", "PaymentZone"),
+                    ("SLZ", "SpeedLimitZone"),
+                    ("SPG", "ScooterParking"),
+                    ("SSL", "ScooterSpeedLimit"),
+                    ("SNP", "ScooterNoParking"),
+                    ("APT", "AccessoryPublicToilet"),
+                    ("ABH", "AccessoryBench"),
+                    ("ATE", "AccessoryTable"),
+                    ("AFG", "AccessoryFurnitureGroup"),
+                    ("BSS", "BikeServiceStation"),
+                    ("SCP", "ShareCarParkingPlace"),
+                ],
+                max_length=3,
+                null=True,
+            ),
         ),
     ]

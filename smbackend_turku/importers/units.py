@@ -27,7 +27,6 @@ from services.models import (
 )
 from services.utils import AccessibilityShortcomingCalculator
 from smbackend_turku.importers.services import EXTERNAL_IMPORTERS
-
 from smbackend_turku.importers.utils import (
     get_localized_value,
     get_turku_resource,
