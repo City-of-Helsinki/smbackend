@@ -12,24 +12,15 @@ from mobility_data.models import ContentType, MobileUnit
 
 from .utils import delete_mobile_units, get_or_create_content_type
 
-# NOTE, TODO, when the data is available in the public WFS server, change the URLS
-# MARINA_URL = "{}{}".format(
-#     settings.TURKU_WFS_URL,
-#     "?service=WFS&request=GetFeature&typeName=GIS:Venesatamat&outputFormat=GML3"
-# )
-# GUEST_MARINA_BOAT_PARKING_URL = "{}{}".format(
-#     settings.TURKU_WFS_URL,
-#     "service=WFS&request=GetFeature&typeName=GIS:Muu_venesatama&outputFormat=GML3"
-# )
+MARINA_URL = "{}{}".format(
+    settings.TURKU_WFS_URL,
+    "?service=WFS&request=GetFeature&typeName=GIS:Venesatamat&outputFormat=GML3",
+)
+GUEST_MARINA_BOAT_PARKING_URL = "{}{}".format(
+    settings.TURKU_WFS_URL,
+    "?service=WFS&request=GetFeature&typeName=GIS:Muu_venesatama&outputFormat=GML3",
+)
 
-MARINA_URL = (
-    "http://tkuikp/TeklaOGCWeb/WFS.ashx?"
-    "service=WFS&request=GetFeature&typeName=GIS:Venesatamat&outputFormat=GML3"
-)
-GUEST_MARINA_BOAT_PARKING_URL = (
-    "http://tkuikp/TeklaOGCWeb/WFS.ashx?"
-    "service=WFS&request=GetFeature&typeName=GIS:Muu_venesatama&outputFormat=GML3"
-)
 
 GUEST_MARINA = "Vierasvenesatama"
 BOAT_PARKING = "Lyhytaikainen veneparkki"
