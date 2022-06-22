@@ -753,6 +753,12 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
             c.section_type = section_type
 
             c.order = i
+
+            tags = conn.get("tags", [])
+            if tags and getattr(c, "tags") != tags:
+                setattr(c, "tags", tags)
+                c._changed = True
+
             fields = ["email", "phone", "contact_person"]
             for field in fields:
                 val = conn.get(field, None)

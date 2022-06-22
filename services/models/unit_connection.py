@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from .unit import Unit
@@ -40,6 +41,7 @@ class UnitConnection(models.Model):
     phone = models.CharField(max_length=50, null=True)
     contact_person = models.CharField(max_length=80, null=True)
     order = models.PositiveSmallIntegerField(default=0)
+    tags = ArrayField(models.CharField(max_length=200), null=True, default=list)
 
     class Meta:
         ordering = ["order"]
