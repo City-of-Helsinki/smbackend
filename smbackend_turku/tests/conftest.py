@@ -75,10 +75,11 @@ def postal_code_areas():
 
 @pytest.mark.django_db
 @pytest.fixture
-def address(streets, postal_code_areas):
+def address(streets, postal_code_areas, municipality):
     addresses = []
     location = Point(22.26097246971352, 60.45055294118857, srid=4326)
     address = Address.objects.create(
+        municipality_id=municipality.id,
         id=105,
         postal_code_area_id=postal_code_areas[0].id,
         location=location,
