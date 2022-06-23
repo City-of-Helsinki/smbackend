@@ -383,6 +383,24 @@ class SearchViewSet(GenericAPIView):
                         street__municipality_id__in=municipalities
                     )
             addresses_qs = addresses_qs[: model_limits["address"]]
+            # Use naturalsort function that is migrated to munigeo to
+            # sort the addresses.
+            if len(addresses_qs) > 0:
+                ids = [str(addr.id) for addr in addresses_qs]
+                # create string containing ids in format (1,4,2)
+                ids_str = ",".join(ids)
+                ids_str = f"({ids_str})"
+                sql = f"""
+                    select id from munigeo_address where id in {ids_str}
+                    order by naturalsort(full_name_{language_short}) asc;
+                """
+                cursor = connection.cursor()
+                cursor.execute(sql)
+                addresses = cursor.fetchall()
+                # addresses are in format e.g. [(12755,), (4067,)], remove comma and parenthesis
+                ids = [re.sub(r"[(,)]", "", str(a)) for a in addresses]
+                preserved = get_preserved_order(ids)
+                addresses_qs = Address.objects.filter(id__in=ids).order_by(preserved)
         else:
             addresses_qs = Address.objects.none()
 
