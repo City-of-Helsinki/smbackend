@@ -38,3 +38,4 @@ git+https://github.com/celery/django-celery-beat.git#fa73034be892052893e4ef17926
 django-celery-results
 redis
 libvoikko
+numpy>=1.22
