@@ -383,7 +383,7 @@ class SearchViewSet(GenericAPIView):
                         street__municipality_id__in=municipalities
                     )
             addresses_qs = addresses_qs[: model_limits["address"]]
-            # Use the naturalsort function that is migratet in the munigeo to
+            # Use naturalsort function that is migrated to munigeo to
             # sort the addresses.
             if len(addresses_qs) > 0:
                 ids = [str(addr.id) for addr in addresses_qs]
