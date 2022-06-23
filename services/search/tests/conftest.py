@@ -92,10 +92,11 @@ def services():
 
 @pytest.mark.django_db
 @pytest.fixture
-def addresses(streets):
+def addresses(streets, municipality):
     addresses = []
     location = Point(60.479032, 22.25417, srid=4326)
     addr = Address.objects.create(
+        municipality_id=municipality.id,
         id=1,
         street_id=42,
         number=1,
@@ -106,6 +107,7 @@ def addresses(streets):
     addresses.append(addr)
     location = Point(60.379032, 22.15417)
     addr = Address.objects.create(
+        municipality_id=municipality.id,
         id=2,
         street_id=43,
         number=1,
@@ -116,17 +118,32 @@ def addresses(streets):
     addresses.append(addr)
     location = Point(60.45484552050515, 22.273209685057232)
     addr = Address.objects.create(
-        id=3, street_id=44, number=5, location=location, full_name="Yliopistonkatu 5"
+        municipality_id=municipality.id,
+        id=3,
+        street_id=44,
+        number=5,
+        location=location,
+        full_name="Yliopistonkatu 5",
     )
     addresses.append(addr)
     location = Point(60.45264337230143, 22.264875756221265)
     addr = Address.objects.create(
-        id=4, street_id=44, number=21, location=location, full_name="Yliopistonkatu 21"
+        municipality_id=municipality.id,
+        id=4,
+        street_id=44,
+        number=21,
+        location=location,
+        full_name="Yliopistonkatu 21",
     )
     addresses.append(addr)
     location = Point(60.45015934221425, 22.258536898549355)
     addr = Address.objects.create(
-        id=5, street_id=44, number=33, location=location, full_name="Yliopistonkatu 33"
+        municipality_id=municipality.id,
+        id=5,
+        street_id=44,
+        number=33,
+        location=location,
+        full_name="Yliopistonkatu 33",
     )
     addresses.append(addr)
 
