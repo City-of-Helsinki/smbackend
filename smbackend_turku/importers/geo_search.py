@@ -250,6 +250,7 @@ class GeoSearchImporter:
             # Ensures that no duplicates goes to DB, as there are some in the source data
             if full_name_fi not in self.address_cache:
                 address = Address(
+                    municipality_id=municipality.id,
                     street=self.streets_cache[street_name_fi],
                     number=number,
                     number_end=number_end,
@@ -389,6 +390,7 @@ class GeoSearchImporter:
                 street_entry["name_sv"] = street_name_sv
 
             address_entry = {
+                "municipality_id": municipality.id,
                 "street": self.streets_cache[street_name_fi],
                 "number": result["number"],
                 "number_end": result["number_end"],
