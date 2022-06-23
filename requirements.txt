@@ -120,8 +120,10 @@ mccabe==0.6.1
     # via flake8
 mypy-extensions==0.4.3
     # via black
-numpy==1.21.2
-    # via pandas
+numpy==1.23.0
+    # via
+    #   -r requirements.in
+    #   pandas
 packaging==21.0
     # via
     #   pytest
