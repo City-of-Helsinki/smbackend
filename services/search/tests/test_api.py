@@ -38,3 +38,10 @@ def test_search(
     results = response.json()["results"]
     assert results[0]["object_type"] == "administrativedivision"
     assert results[0]["name"]["fi"] == "Turku"
+    # Test that addresses are sorted by naturalsort
+    url = reverse("search") + "?q=yliopistonkatu"
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert results[0]["name"]["fi"] == "Yliopistonkatu 5"
+    assert results[1]["name"]["fi"] == "Yliopistonkatu 21"
+    assert results[2]["name"]["fi"] == "Yliopistonkatu 33"
