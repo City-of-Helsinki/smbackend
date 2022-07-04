@@ -130,6 +130,7 @@ class AddressImporter:
             full_name_fi = f"{name_fi} {number_letter}"
             full_name_sv = f"{name_sv} {number_letter}"
             entry["address"] = {}
+            entry["address"]["municipality_id"] = municipality.id
             entry["address"]["street"] = street
             entry["address"]["location"] = point
             entry["address"]["full_name_fi"] = full_name_fi
