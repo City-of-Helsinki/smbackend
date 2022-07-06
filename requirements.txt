@@ -78,7 +78,7 @@ jedi==0.18.1
     # via -r requirements.in
 libvoikko==4.3
     # via -r requirements.in
-lxml==4.9.0
+lxml==4.9.1
     # via -r requirements.in
 mccabe==0.6.1
     # via flake8
