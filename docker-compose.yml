@@ -1,4 +1,4 @@
-version: '3.10'
+version: '3.8'
 services:
     postgres:
         build: ./docker/postgres/
@@ -9,12 +9,12 @@ services:
         ports:
             - "5432:5432"
         volumes:
-            - postgres-data:/var/lib/postgres/data 
+            - ./postgres-data:/var/lib/postgresql/data 
     servicemap:
         build:
             context: ./
             dockerfile: ./Dockerfile
-        environment:
+        environment:   
             - APPLY_MIGRATIONS=true
         command: start_django_development_server
         env_file:
@@ -25,8 +25,9 @@ services:
             - "8000:8000"
         restart: on-failure
         depends_on:
-            - postgres
-    # Todo, uncomment and fix when Turku frontend has a working image
+            postgres:
+                condition: service_started
+    # Todo, fix when Turku frontend has a working image
     # servicemap-ui:
     #     #image: helsinki/servicemap-ui:staging
     #     image: turku/servicemap-ui:staging
