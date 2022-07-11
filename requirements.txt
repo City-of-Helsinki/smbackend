@@ -48,7 +48,7 @@ coverage==5.5
     # via pytest-cov
 deprecated==1.2.13
     # via redis
-django==4.0.4
+django==4.0.6
     # via
     #   -r requirements.in
     #   django-celery-beat
