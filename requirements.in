@@ -13,7 +13,7 @@ django-cors-headers
 django-extensions
 psycopg2-binary<2.9
 django-mptt
-lxml>=4.6.5
+lxml>=4.9.1
 raven~=6.10.0
 pip-tools
 python-dateutil
