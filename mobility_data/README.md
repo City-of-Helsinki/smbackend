@@ -78,3 +78,17 @@ To import data type:
 ```
 ./manage.py import_share_car_parking_places
 ```
+
+### Bicycle networks
+Imports brush salted and brush sanded bicycle networks.
+To import data type:
+```
+./manage.py import_bicycle_networks
+```
+
+### Marinas
+Imports marinas, guest marina and boat parking.
+To import data type:
+```
+./manage.py import_marinas
+```

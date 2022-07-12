@@ -38,3 +38,13 @@ def import_accessories(name="import_accessories"):
 @shared_task
 def import_share_car_parking_places(name="impor_share_car_parking_places"):
     management.call_command("import_share_car_parking_places")
+
+
+@shared_task
+def import_bicycle_networks(name="import_bicycle_networks"):
+    management.call_command("import_bicycle_networks")
+
+
+@shared_task
+def import_marinas(name="import_marinas"):
+    management.call_command("import_marinas")
