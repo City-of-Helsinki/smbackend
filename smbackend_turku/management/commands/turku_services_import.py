@@ -33,6 +33,10 @@ from smbackend_turku.importers.units import import_units
 
 class Command(BaseCommand):
     help = "Import services from City of Turku APIs and from external sources."
+
+    # Umbrella source that imports all external_sources
+    MOBILITY_DATA = "mobility_data"
+
     external_sources = [
         "gas_filling_stations",
         "charging_stations",
@@ -47,6 +51,7 @@ class Command(BaseCommand):
         "addresses",
         "geo_search_addresses",
         "enriched_addresses",
+        MOBILITY_DATA,
     ] + external_sources
 
     supported_languages = [lang[0] for lang in settings.LANGUAGES]
@@ -195,9 +200,17 @@ class Command(BaseCommand):
             if not delete_count:
                 sys.stderr.write("Nothing to delete.\n")
         else:
+            importers = self.options["import_types"]
+            if self.MOBILITY_DATA in self.options["import_types"]:
+                # Add external sources and by creating a set ensure there are no duplicates
+                # as the user can add args as mobility_data charging_stations
+                importers = set(importers + self.external_sources)
+                # remove the mobility_data source as it has no function attached to it.
+                importers.remove(self.MOBILITY_DATA)
+
             import_count = 0
             for imp in self.importer_types:
-                if imp not in self.options["import_types"]:
+                if imp not in importers:
                     continue
                 method = getattr(self, "import_%s" % imp)
                 if self.verbosity:
