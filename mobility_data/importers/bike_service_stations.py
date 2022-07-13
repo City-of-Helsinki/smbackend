@@ -7,13 +7,16 @@ from django.contrib.gis.geos import GEOSGeometry
 
 from mobility_data.importers.utils import (
     delete_mobile_units,
+    get_file_name_from_data_source,
     get_or_create_content_type,
+    get_root_dir,
     get_street_name_translations,
     set_translated_field,
 )
-from mobility_data.models import ContentType, DataSource, MobileUnit
+from mobility_data.models import ContentType, MobileUnit
 
-logger = logging.getLogger("bicycle_network")
+logger = logging.getLogger("mobility_data")
+
 SOURCE_DATA_SRID = 3877
 GEOJSON_FILENAME = "Pyorienkorjauspisteet_2022.geojson"
 LANGUAGES = [language[0] for language in settings.LANGUAGES]
@@ -69,23 +72,15 @@ class BikeServiceStation:
 def get_bike_service_station_objects(geojson_file=None):
     bicycle_repair_points = []
     file_name = None
-    if hasattr(settings, "PROJECT_ROOT"):
-        root_dir = settings.PROJECT_ROOT
-    else:
-        root_dir = settings.BASE_DIR
-
     if not geojson_file:
-        data_source_qs = DataSource.objects.filter(
-            type_name=ContentType.BIKE_SERVICE_STATION
-        )
-        # If data source found, use the uploaded data file.
-        if data_source_qs.exists():
-            file_name = str(data_source_qs.first().data_file.file)
+        file_name = get_file_name_from_data_source(ContentType.BIKE_SERVICE_STATION)
+        if not file_name:
+            file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
         else:
-            file_name = f"{root_dir}/mobility_data/data/{GEOJSON_FILENAME}"
+            file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
     else:
         # Use the test data file
-        file_name = f"{root_dir}/mobility_data/tests/data/{geojson_file}"
+        file_name = f"{get_root_dir()}/mobility_data/tests/data/{geojson_file}"
 
     data_layer = GDALDataSource(file_name)[0]
     for feature in data_layer:
