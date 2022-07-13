@@ -13,6 +13,7 @@ from .utils import (
     get_municipality_name,
     get_or_create_content_type,
     get_postal_code,
+    get_root_dir,
     get_street_name_translations,
     LANGUAGES,
     set_translated_field,
@@ -111,10 +112,6 @@ def get_charging_station_objects(csv_file=None):
     # Store the imported stations to dict, the index is the key.
     charging_stations = {}
 
-    if hasattr(settings, "PROJECT_ROOT"):
-        root_dir = settings.PROJECT_ROOT
-    else:
-        root_dir = settings.BASE_DIR
     column_mappings = {}
     if not csv_file:
         data_source_qs = DataSource.objects.filter(
@@ -124,11 +121,11 @@ def get_charging_station_objects(csv_file=None):
         if data_source_qs.exists():
             file_name = str(data_source_qs.first().data_file.file)
         else:
-            file_name = f"{root_dir}/mobility_data/data/{SOURCE_DATA_FILE_NAME}"
+            file_name = f"{get_root_dir()}/mobility_data/data/{SOURCE_DATA_FILE_NAME}"
 
     else:
         # Use the test data file
-        file_name = f"{root_dir}/mobility_data/tests/data/{csv_file}"
+        file_name = f"{get_root_dir()}/mobility_data/tests/data/{csv_file}"
 
     number_of_rows = get_number_of_rows(file_name)
     with open(file_name, encoding="utf-8-sig") as csv_file:
