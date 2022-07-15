@@ -8,6 +8,9 @@ data/*
 .coverage
 venv_smbackend
 venv
+env/
+static/
+media/
 *.env
 .DS_Store
 .cache
