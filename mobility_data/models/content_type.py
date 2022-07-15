@@ -48,6 +48,7 @@ class ContentType(BaseType):
     GUEST_MARINA = "GMA"
     BOAT_PARKING = "BOK"
     MARINA = "MAR"
+    NO_STAFF_PARKING = "NSP"
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
         (GAS_FILLING_STATION, "GasFillingStation"),
@@ -70,6 +71,7 @@ class ContentType(BaseType):
         (GUEST_MARINA, "GuestMarina"),
         (BOAT_PARKING, "BoatParking"),
         (MARINA, "Marina"),
+        (NO_STAFF_PARKING, "NoStaffParking"),
     ]
     type_name = models.CharField(max_length=3, choices=CONTENT_TYPES, null=True)
 
