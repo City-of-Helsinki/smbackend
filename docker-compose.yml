@@ -10,6 +10,7 @@ services:
             - "5432:5432"
         volumes:
             - ./postgres-data:/var/lib/postgresql/data 
+            
     servicemap:
         build:
             context: ./
@@ -21,12 +22,32 @@ services:
             - config_dev.env
         volumes:
             - django-media:/var/media/
+            - smbackend:/smbackend/
         ports:
             - "8000:8000"
         restart: on-failure
         depends_on:
             postgres:
                 condition: service_started
+    redis:
+        image: redis        
+
+    # celery:
+    #     restart: always
+    #     build:
+    #         context: .
+        
+    #     command: celery -A smbackend worker -l INFO
+    #     env_file:
+    #         - config_dev.env
+    #     volumes:
+    #         - ./smbackend:/smbackend
+    #     depends_on:
+    #         - servicemap
+    #         - redis
+    #         - postgres
+
+
     # Todo, fix when Turku frontend has a working image
     # servicemap-ui:
     #     #image: helsinki/servicemap-ui:staging
@@ -40,3 +61,4 @@ services:
 volumes:
     postgres-data:
     django-media:
+    smbackend:
