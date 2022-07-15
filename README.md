@@ -38,6 +38,7 @@ First, install the necessary Debian packages.
 * libxslt1-dev
 * voikko-fi
 * libvoikko-dev
+* libpq-dev
 
 2. 
 Clone the repository.
