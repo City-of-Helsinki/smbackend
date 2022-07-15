@@ -12,6 +12,13 @@ if [ "$DJANGO_SUPERUSER_USERNAME" ]; then
         --password $DJANGO_SUPERUSER_PASSWORD
 fi
 
+if [ "$CELERY_BROKER_URL" ]; then
+    echo "Starting celery worker detached..."
+    celery -A smbackend worker -l INFO --detach
+    echo "Starting celery beat detached..."
+    celery -A smbackend beat -l INFO --detach
+fi
+
 if [ "$1" = 'start_django_development_server' ]; then
     # Start server
     echo "Starting development server."
