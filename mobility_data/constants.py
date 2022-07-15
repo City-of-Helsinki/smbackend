@@ -13,4 +13,8 @@ DATA_SOURCE_IMPORTERS = {
         "importer_name": "car_share_parking_places",
         "to_services_list": False,
     },
+    ContentType.NO_STAFF_PARKING: {
+        "importer_name": "no_staff_parkings",
+        "to_services_list": False,
+    },
 }
