@@ -23,7 +23,7 @@ django-polymorphic>=3.1
 requests-mock
 tqdm
 django-environ
-black
+black>22.1.0
 isort
 pep8-naming
 jedi
