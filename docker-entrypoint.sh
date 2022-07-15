@@ -6,7 +6,7 @@ if [[ "$APPLY_MIGRATIONS" = "true" ]]; then
 fi
 
 if [ "$DJANGO_SUPERUSER_USERNAME" ]; then
-    echo "Creating superuser if not exists."
+    echo "Creating superuser if it does not exists."
     python manage.py ensure_adminuser --username $DJANGO_SUPERUSER_USERNAME \
         --email $DJANGO_SUPERUSER_EMAIL \
         --password $DJANGO_SUPERUSER_PASSWORD
