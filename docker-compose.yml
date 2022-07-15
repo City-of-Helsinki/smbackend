@@ -9,8 +9,7 @@ services:
         ports:
             - "5432:5432"
         volumes:
-            - ./postgres-data:/var/lib/postgresql/data 
-            
+            - ./postgres-data:/var/lib/postgresql/data             
     servicemap:
         build:
             context: ./
@@ -31,22 +30,8 @@ services:
                 condition: service_started
     redis:
         image: redis        
-
-    # celery:
-    #     restart: always
-    #     build:
-    #         context: .
-        
-    #     command: celery -A smbackend worker -l INFO
-    #     env_file:
-    #         - config_dev.env
-    #     volumes:
-    #         - ./smbackend:/smbackend
-    #     depends_on:
-    #         - servicemap
-    #         - redis
-    #         - postgres
-
+        ports:
+            - "6379:6379"  
 
     # Todo, fix when Turku frontend has a working image
     # servicemap-ui:
