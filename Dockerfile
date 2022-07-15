@@ -27,7 +27,6 @@ RUN python manage.py collectstatic
 # Munigeo will fetch data to this directory
 RUN mkdir -p /smbackend/data && chgrp -R 0 /smbackend/data && chmod -R g+w /smbackend/data
 
-
 # Openshift starts the container process with group zero and random ID
 # we mimic that here with nobody and group zero
 USER nobody:0
