@@ -11,7 +11,6 @@ from mobility_data.importers.utils import (
     get_file_name_from_data_source,
     get_or_create_content_type,
     get_root_dir,
-    set_translated_field,
 )
 from mobility_data.models import ContentType, MobileUnit
 
@@ -82,10 +81,12 @@ class NoStaffParking:
     }
 
     def __init__(self, feature):
-        # TODO, Address will be handled separately
-        self.address = {}
-        # TODO, Add kohde
-        self.name = {}
+        # TODO, add multilang Address, when data available
+        # self.address = {}
+        # TODO, Add multilang name when data available
+        # self.name = {}
+        self.address = feature["osoite"].as_string().split(",")[0]
+        self.name = feature["kohde"].as_string()
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
         self.extra = {}
@@ -148,6 +149,8 @@ def save_to_database(objects, delete_tables=True):
         mobile_unit = MobileUnit.objects.create(
             content_type=content_type, extra=object.extra, geometry=object.geometry
         )
-        set_translated_field(mobile_unit, "name", object.name)
-        set_translated_field(mobile_unit, "address", object.address)
+        mobile_unit.address = object.address
+        mobile_unit.name = object.name
+        # set_translated_field(mobile_unit, "name", object.name)
+        # set_translated_field(mobile_unit, "address", object.address)
         mobile_unit.save()
