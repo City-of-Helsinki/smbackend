@@ -14,16 +14,19 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# smbackend needs only static files, media is not used
+# smbackend needs static files and media for data sources
 ENV STATIC_ROOT /srv/smbackend/static
-RUN mkdir -p /srv/smbackend/static
+RUN mkdir -p /ssmbackend/static
+ENV MEDIA_ROOT /srv/smbackend/media
+RUN mkdir -p /srv/smbackend/media
 
 ENV SECRET_KEY "only-for-build"
-#RUN python manage.py compilemessages
-#RUN python manage.py collectstatic
+RUN python manage.py compilemessages
+RUN python manage.py collectstatic
 
 # Munigeo will fetch data to this directory
 RUN mkdir -p /smbackend/data && chgrp -R 0 /smbackend/data && chmod -R g+w /smbackend/data
+
 
 # Openshift starts the container process with group zero and random ID
 # we mimic that here with nobody and group zero
