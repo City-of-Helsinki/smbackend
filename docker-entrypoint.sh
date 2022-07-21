@@ -24,5 +24,6 @@ else
                --mount ${URL_PREFIX:-/}=smbackend/wsgi.py \
                --manage-script-name \
                --die-on-term \
-               --strict
+               --strict \
+               --listen 400
 fi
