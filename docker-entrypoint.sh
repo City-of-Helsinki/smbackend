@@ -25,5 +25,6 @@ else
                --manage-script-name \
                --die-on-term \
                --strict \
-               --listen 400
+               --thunder-lock \
+               --listen 128
 fi
