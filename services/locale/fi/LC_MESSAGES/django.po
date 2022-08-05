@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-04 10:31+0200\n"
+"POT-Creation-Date: 2022-08-05 14:07+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,6 +44,12 @@ msgstr "Aktiivinen"
 
 msgid "Only active objects are visible in the API."
 msgstr "Vain aktiiviseksi merkityt ilmoitukset näkyvät rajapinnassa."
+
+msgid "Outdoor sports map usage"
+msgstr "Ulkoliikunnan käyttöön"
+
+msgid "Intented for outdoor sports map usage"
+msgstr "Ulkoliikunnan käyttöön tarkoitettu"
 
 msgid "announcement"
 msgstr "uutinen"
