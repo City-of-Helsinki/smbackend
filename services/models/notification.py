@@ -16,6 +16,11 @@ class Notification(models.Model):
         verbose_name=_("Active"),
         help_text=_("Only active objects are visible in the API."),
     )
+    outdoor_sports_map_usage = models.BooleanField(
+        default=False,
+        verbose_name=_("Outdoor sports map usage"),
+        help_text=_("Intented for outdoor sports map usage"),
+    )
 
     class Meta:
         abstract = True
