@@ -1,6 +1,7 @@
 import logging
 import re
 import uuid
+from distutils.util import strtobool
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
@@ -1195,13 +1196,29 @@ class AddressViewSet(munigeo_api.AddressViewSet):
 register_view(AddressViewSet, "address")
 
 
+class OutdoorSportsMapUsageViewSet(viewsets.ReadOnlyModelViewSet):
+    def get_queryset(self):
+        queryset = super(OutdoorSportsMapUsageViewSet, self).get_queryset()
+        query_params = self.request.query_params
+        outdoor_sports_map_usage = False
+        if "outdoor_sports_map_usage" in query_params:
+            try:
+                outdoor_sports_map_usage = bool(
+                    strtobool(query_params["outdoor_sports_map_usage"])
+                )
+            except ValueError:
+                raise ParseError("'outdoor_sports_map_usage' needs to be a boolean")
+        queryset = queryset.filter(outdoor_sports_map_usage=outdoor_sports_map_usage)
+        return queryset
+
+
 class AnnouncementSerializer(TranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = Announcement
-        exclude = ["id", "active"]
+        exclude = ["id", "active", "outdoor_sports_map_usage"]
 
 
-class AnnouncementViewSet(viewsets.ReadOnlyModelViewSet):
+class AnnouncementViewSet(OutdoorSportsMapUsageViewSet):
     queryset = Announcement.objects.filter(active=True)
     serializer_class = AnnouncementSerializer
 
@@ -1212,10 +1229,10 @@ register_view(AnnouncementViewSet, "announcement")
 class ErrorMessageSerializer(TranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = ErrorMessage
-        exclude = ["id", "active"]
+        exclude = ["id", "active", "outdoor_sports_map_usage"]
 
 
-class ErrorMessageViewSet(viewsets.ReadOnlyModelViewSet):
+class ErrorMessageViewSet(OutdoorSportsMapUsageViewSet):
     queryset = ErrorMessage.objects.filter(active=True)
     serializer_class = ErrorMessageSerializer
 
