@@ -24,6 +24,10 @@ def test_geojson_import(municipality):
     assert kupittaan_maauimala.extra["invapaikkoja"] == 1
     assert kupittaan_maauimala.address_zip == "20520"
     assert kupittaan_maauimala.municipality == turku_muni
+    assert kupittaan_maauimala.extra["rajoitustyyppi"]["fi"] == "Erityisalue"
+    assert kupittaan_maauimala.extra["rajoitustyyppi"]["sv"] == "Specialområde"
+    assert kupittaan_maauimala.extra["rajoitustyyppi"]["en"] == "Special area"
+
     kupittaan_seikkailupuisto = MobileUnit.objects.get(name="Kupittaan seikkailupuisto")
     assert kupittaan_seikkailupuisto
     assert kupittaan_seikkailupuisto.address_sv == "Tahkogränden 5"
