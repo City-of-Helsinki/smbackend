@@ -5,12 +5,14 @@ from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource as GDALDataSource
 from django.contrib.gis.geos import GEOSGeometry
+from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
     delete_mobile_units,
     get_file_name_from_data_source,
     get_or_create_content_type,
     get_root_dir,
+    set_translated_field,
 )
 from mobility_data.models import ContentType, MobileUnit
 
@@ -32,67 +34,88 @@ class FieldTypes(Enum):
 class NoStaffParking:
     extra_field_mappings = {
         "saavutettavuus": {
-            "name": "accessability",
             "type": FieldTypes.MULTILANG_STRING,
         },
-        "paikkoja_y": {"name": "places", "type": FieldTypes.INTEGER},
-        "invapaikkoja": {"name": "places_for_disabled", "type": FieldTypes.INTEGER},
+        "paikkoja_y": {"type": FieldTypes.INTEGER},
+        "invapaikkoja": {"type": FieldTypes.INTEGER},
         "sahkolatauspaikkoja": {
-            "name": "e_charging_points",
             "type": FieldTypes.INTEGER,
         },
-        "tolppapaikkoja": {"name": "post_positions", "type": FieldTypes.INTEGER},
-        "rajoitukset/maksullisuus": {"name": "limits_fees", "type": FieldTypes.STRING},
-        "aikarajoitus": {"name": "time_limit", "type": FieldTypes.STRING},
-        "paivays": {"name": "timestamp", "type": FieldTypes.STRING},
-        "lastauspiste": {"name": "lastauspiste", "type": FieldTypes.MULTILANG_STRING},
+        "tolppapaikkoja": {"type": FieldTypes.INTEGER},
+        "rajoitukset/maksullisuus": {"type": FieldTypes.STRING},
+        "aikarajoitus": {"type": FieldTypes.STRING},
+        "paivays": {"type": FieldTypes.STRING},
+        "lastauspiste": {"type": FieldTypes.MULTILANG_STRING},
         "lisatietoja": {
-            "name": "additinal_information",
             "type": FieldTypes.MULTILANG_STRING,
         },
-        "rajoitustyyppi": {"name": "limit_type", "type": FieldTypes.MULTILANG_STRING},
-        "maksuvyohyke": {"name": "payment_zone", "type": FieldTypes.INTEGER},
-        "max_aika_h": {"name": "max_time_h", "type": FieldTypes.FLOAT},
-        "max_aika_m": {"name": "max_time_m", "type": FieldTypes.FLOAT},
+        "rajoitustyyppi": {"type": FieldTypes.MULTILANG_STRING},
+        "maksuvyohyke": {"type": FieldTypes.INTEGER},
+        "max_aika_h": {"type": FieldTypes.FLOAT},
+        "max_aika_m": {"type": FieldTypes.FLOAT},
         "rajoitus_maksul_arki": {
-            "name": "limit_payment_weekday",
             "type": FieldTypes.STRING,
         },
         "rajoitus_maksul_l": {
-            "name": "limit_payment_saturday",
             "type": FieldTypes.STRING,
         },
         "rajoitus_maksul_s": {
-            "name": "limit_payment_sunday",
             "type": FieldTypes.STRING,
         },
-        "rajoitettu_ark": {"name": "limited_weekday", "type": FieldTypes.STRING},
-        "rajoitettu_l": {"name": "limited_saturday", "type": FieldTypes.STRING},
-        "rajoitettu_s": {"name": "limited_sunday", "type": FieldTypes.STRING},
-        "voimassaolokausi": {"name": "validity_period", "type": FieldTypes.STRING},
+        "rajoitettu_ark": {"type": FieldTypes.STRING},
+        "rajoitettu_l": {"type": FieldTypes.STRING},
+        "rajoitettu_s": {"type": FieldTypes.STRING},
+        "voimassaolokausi": {"type": FieldTypes.STRING},
         "rajoit_lisat": {
-            "name": "limit_extra_info",
             "type": FieldTypes.MULTILANG_STRING,
         },
-        "varattu_tiet_ajon": {"name": "reserved_for", "type": FieldTypes.STRING},
-        "erityisluv": {"name": "extra_permission", "type": FieldTypes.STRING},
-        "vuoropys": {"name": "shift_parking", "type": FieldTypes.STRING},
-        "talvikunno": {"name": "winter_maintenance", "type": FieldTypes.STRING},
+        "varattu_tiet_ajon": {"type": FieldTypes.STRING},
+        "erityisluv": {"type": FieldTypes.STRING},
+        "vuoropys": {"type": FieldTypes.STRING},
+        "talvikunno": {"type": FieldTypes.STRING},
     }
 
     def __init__(self, feature):
-        # TODO, add multilang Address, when data available
-        # self.address = {}
-        # TODO, Add multilang name when data available
-        # self.name = {}
-        self.address = feature["osoite"].as_string().split(",")[0]
-        self.name = feature["kohde"].as_string()
+        self.address = {}
+        self.name = {}
+        # Addresses are in format e.g.: Kupittaankuja 1, 20520 Turku / Kuppisgränden 1 20520 Åbo
+        # Create a list, where every language is a item where trailing spaces, comma, postalcode
+        # and municipality are removed. e.g. ["Kupittaankuja 1", "Kuppisgränden 1"]
+        addresses = [
+            " ".join(a.strip().split(" ")[:-2]).rstrip(",")
+            for a in feature["osoite"].as_string().split("/")
+        ]
+        names = [n.strip() for n in feature["kohde"].as_string().split("/")]
+        for i, lang in enumerate(LANGUAGES):
+            if i < len(addresses):
+                self.address[lang] = addresses[i]
+            else:
+                # assign Fi if translation not found
+                self.address[lang] = addresses[0]
+            if i < len(names):
+                self.name[lang] = names[i]
+            else:
+                self.name[lang] = names[0]
+        self.address_zip, municipality = (
+            feature["osoite"].as_string().split("/")[0].strip().split(" ")[-2:]
+        )
+        try:
+            municipality = Municipality.objects.get(name=municipality)
+            self.municipality = municipality
+        except Municipality.DoesNotExist:
+            self.municipality = None
+
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
         self.extra = {}
         for field in feature.fields:
             if field in self.extra_field_mappings:
-                field_name = self.extra_field_mappings[field]["name"]
+                # It is possible to define a name in the extra_field_mappings
+                # and this name will be used in the extra field and serialized data.
+                if hasattr(self.extra_field_mappings[field], "name"):
+                    field_name = self.extra_field_mappings[field]["name"]
+                else:
+                    field_name = field
                 match self.extra_field_mappings[field]["type"]:
                     case FieldTypes.STRING:
                         self.extra[field_name] = feature[field].as_string()
@@ -100,7 +123,7 @@ class NoStaffParking:
                         self.extra[field_name] = {}
                         field_content = feature[field].as_string()
                         if field_content:
-                            strings = feature[field].as_string().split("/")
+                            strings = field_content.split("/")
                             for i, lang in enumerate(LANGUAGES):
                                 if i < len(strings):
                                     self.extra[field_name][lang] = strings[i].strip()
@@ -118,6 +141,10 @@ def get_no_staff_parking_objects(geojson_file=None):
         file_name = get_file_name_from_data_source(ContentType.NO_STAFF_PARKING)
         if not file_name:
             file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
+    else:
+        # Use the test data file
+        file_name = f"{get_root_dir()}/mobility_data/tests/data/{geojson_file}"
+
     data_layer = GDALDataSource(file_name)[0]
     for feature in data_layer:
         no_staff_parkings.append(NoStaffParking(feature))
@@ -130,7 +157,7 @@ def delete_no_staff_parkings():
 
 
 @db.transaction.atomic
-def create_no_staff_parking_content_type():
+def get_and_create_no_staff_parking_content_type():
     description = "No staff parkings in the Turku region."
     name = "No staff parking"
     content_type, _ = get_or_create_content_type(
@@ -144,13 +171,13 @@ def save_to_database(objects, delete_tables=True):
     if delete_tables:
         delete_no_staff_parkings()
 
-    content_type = create_no_staff_parking_content_type()
+    content_type = get_and_create_no_staff_parking_content_type()
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
             content_type=content_type, extra=object.extra, geometry=object.geometry
         )
-        mobile_unit.address = object.address
-        mobile_unit.name = object.name
-        # set_translated_field(mobile_unit, "name", object.name)
-        # set_translated_field(mobile_unit, "address", object.address)
+        set_translated_field(mobile_unit, "name", object.name)
+        set_translated_field(mobile_unit, "address", object.address)
+        mobile_unit.address_zip = object.address_zip
+        mobile_unit.municipality = object.municipality
         mobile_unit.save()
