@@ -35,7 +35,7 @@ shapely
 celery
 # Currently only revision fa73034be892052893e4ef17926ef3a5d4a21ea2 of django-celery-beat supports django4
 git+https://github.com/celery/django-celery-beat.git#fa73034be892052893e4ef17926ef3a5d4a21ea2
-django-celery-results
+django-celery-results>=2.4.0
 redis
 libvoikko
 numpy>=1.22
