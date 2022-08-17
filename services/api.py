@@ -1006,7 +1006,11 @@ class UnitViewSet(
             ).distinct()
 
         if "address" in filters:
-            queryset = queryset.filter(street_address__contains=filters["address"])
+            address = filters["address"]
+            if len(address.split()) == 1:
+                queryset = queryset.filter(street_address__contains=address)
+            else:
+                queryset = queryset.filter(street_address__exact=address)
 
         maintenance_organization = self.request.query_params.get(
             "maintenance_organization"
