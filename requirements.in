@@ -1,4 +1,4 @@
-Django>=4.0.6
+Django>=4.0.7
 djangorestframework
 djangorestframework-jsonp
 Markdown
