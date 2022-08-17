@@ -57,6 +57,8 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             "address_fi",
             "address_sv",
             "address_en",
+            "address_zip",
+            "municipality",
             "description",
             "description_fi",
             "description_sv",

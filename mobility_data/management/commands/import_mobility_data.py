@@ -20,6 +20,7 @@ importers = [
     "share_car_parking_places",
     "bicycle_networks",
     "marinas",
+    "no_staff_parkings",
 ]
 logger = logging.getLogger("mobility_data")
 

@@ -92,3 +92,10 @@ To import data type:
 ```
 ./manage.py import_marinas
 ```
+
+### No staff parkings
+Imports no staff parkings, i.e. parking places that are not intended for the staff.
+To import data type:
+```
+./manage.py import_no_staff_parkings
+```
