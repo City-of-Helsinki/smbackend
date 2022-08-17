@@ -14,8 +14,8 @@ raw SQL migration 008X_create_search_view.py.
 - The search if performed by quering the views search_columns.
 - For models included in the search a post_save signal is connected and the
   search_column is updated when they are saved.
- - The search_columns can be manually updated with  the index_search_columns
- management script.
+- The search_columns can be manually updated with  the index_search_columns
+and emptied with the empty_search_columns management script.
 """
 import logging
 import re
@@ -159,6 +159,7 @@ class SearchViewSet(GenericAPIView):
 
     def get(self, request):
         model_limits = {}
+        show_only_address = False
         units_order_list = ["provider_type"]
         extended_serializer = True
         for model in list(QUERY_PARAM_TYPE_NAMES):
@@ -302,6 +303,8 @@ class SearchViewSet(GenericAPIView):
             else:
                 units_qs = Unit.objects.none()
 
+            if not units_qs.exists():
+                show_only_address = True
             if not units_qs and "unit" in use_trigram:
                 units_qs = get_trigram_results(
                     Unit,
@@ -401,6 +404,10 @@ class SearchViewSet(GenericAPIView):
                 ids = [re.sub(r"[(,)]", "", str(a)) for a in addresses]
                 preserved = get_preserved_order(ids)
                 addresses_qs = Address.objects.filter(id__in=ids).order_by(preserved)
+                # if no units has been found without trigram search and addresses are found,
+                # do not return any units, thus they might confuse in the results.
+                if addresses_qs.exists() and show_only_address:
+                    units_qs = Unit.objects.none()
         else:
             addresses_qs = Address.objects.none()
 
