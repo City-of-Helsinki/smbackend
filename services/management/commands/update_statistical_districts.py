@@ -84,31 +84,8 @@ class Command(BaseCommand):
                 district_id, lang, gender, age, year = item.get("key")
                 statistic_key = "%s_population_by_age" % year
                 value = item.get("values")[0]
-                ocd_id = OCD_ID_STATISTICS_BASE + district_id
-                division_qs = AdministrativeDivision.objects.filter(ocd_id=ocd_id)
-                if division_qs:
-                    division = division_qs.first()
-                else:
-                    continue
-                if not division.extra:
-                    division.extra = {}
-                if not division.extra.get("statistical_data"):
-                    division.extra.update({"statistical_data": {}})
-                if not division.extra.get("statistical_data").get(statistic_key):
-                    division.extra.get("statistical_data").update({statistic_key: {}})
-                division.extra.get("statistical_data").get(statistic_key).update(
-                    {
-                        age: {
-                            "value": value,
-                        }
-                    }
-                )
-                division.save()
-                num_statistics_updated += 1
-                logger.info(
-                    "Division {} extra updated to: {}".format(
-                        division.id, division.extra
-                    )
+                num_statistics_updated = self._update_statistical_district(
+                    age, district_id, num_statistics_updated, statistic_key, value
                 )
         logger.info(
             f"{num_statistics_updated} statistic items updated "
@@ -128,33 +105,39 @@ class Command(BaseCommand):
                 lang, district_id, age, origin_key, year = item.get("key")
                 statistic_key = "%s_population_forecast" % year
                 value = item.get("values")[0]
-                ocd_id = OCD_ID_STATISTICS_BASE + district_id
-                division_qs = AdministrativeDivision.objects.filter(ocd_id=ocd_id)
-                if division_qs:
-                    division = division_qs.first()
-                else:
-                    continue
-                if not division.extra:
-                    division.extra = {}
-                if not division.extra.get("statistical_data"):
-                    division.extra.update({"statistical_data": {}})
-                if not division.extra.get("statistical_data").get(statistic_key):
-                    division.extra.get("statistical_data").update({statistic_key: {}})
-                division.extra.get("statistical_data").get(statistic_key).update(
-                    {
-                        age: {
-                            "value": value,
-                        }
-                    }
-                )
-                division.save()
-                num_statistics_updated += 1
-                logger.info(
-                    "Division {} extra updated to: {}".format(
-                        division.id, division.extra
-                    )
+                num_statistics_updated = self._update_statistical_district(
+                    age, district_id, num_statistics_updated, statistic_key, value
                 )
         logger.info(
             f"{num_statistics_updated} statistic items updated "
             f"in {time() - start_time:.0f} seconds."
         )
+
+    def _update_statistical_district(
+        self, age, district_id, num_statistics_updated, statistic_key, value
+    ):
+        ocd_id = OCD_ID_STATISTICS_BASE + district_id
+        division_qs = AdministrativeDivision.objects.filter(ocd_id=ocd_id)
+        if division_qs:
+            division = division_qs.first()
+        else:
+            return num_statistics_updated
+        if not division.extra:
+            division.extra = {}
+        if not division.extra.get("statistical_data"):
+            division.extra.update({"statistical_data": {}})
+        if not division.extra.get("statistical_data").get(statistic_key):
+            division.extra.get("statistical_data").update({statistic_key: {}})
+        division.extra.get("statistical_data").get(statistic_key).update(
+            {
+                age: {
+                    "value": value,
+                }
+            }
+        )
+        division.save()
+        num_statistics_updated += 1
+        logger.info(
+            "Division {} extra updated to: {}".format(division.id, division.extra)
+        )
+        return num_statistics_updated
