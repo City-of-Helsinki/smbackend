@@ -998,6 +998,9 @@ class UnitViewSet(
                 | Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))
             ).distinct()
 
+        if "address" in filters:
+            queryset = queryset.filter(street_address__contains=filters["address"])
+
         maintenance_organization = self.request.query_params.get(
             "maintenance_organization"
         )
