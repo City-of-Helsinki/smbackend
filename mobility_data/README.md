@@ -88,6 +88,7 @@ To import data type:
 
 ### Marinas
 Imports marinas, guest marina and boat parking.
+Imports also berths that belongs to marinas.
 To import data type:
 ```
 ./manage.py import_marinas
