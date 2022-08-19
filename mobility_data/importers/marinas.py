@@ -10,6 +10,7 @@ from django.contrib.gis.geos import GEOSGeometry
 
 from mobility_data.models import ContentType, MobileUnit
 
+from .berths import get_berths
 from .utils import delete_mobile_units, get_or_create_content_type
 
 MARINA_URL = "{}{}".format(
@@ -33,6 +34,8 @@ class Marina:
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
         self.name = feature["Venesatamat"].as_string()
+        berths = get_berths(self.name)
+        self.extra = {"berths": berths}
 
 
 @db.transaction.atomic
@@ -96,7 +99,10 @@ def import_marinas(delete=True):
     content_type = create_marina_content_type()
     for marina in marinas:
         MobileUnit.objects.create(
-            content_type=content_type, geometry=marina.geometry, name=marina.name
+            content_type=content_type,
+            geometry=marina.geometry,
+            name=marina.name,
+            extra=marina.extra,
         )
     return len(marinas)
 
