@@ -1006,13 +1006,16 @@ class UnitViewSet(
             ).distinct()
 
         if "address" in filters:
-            address_parts = filters["address"].split(" ")
-            if len(address_parts) == 1:
-                queryset = queryset.filter(street_address__startswith=address_parts[0])
+            language = filters["language"] if "language" in filters else "fi"
+            address_splitted = filters["address"].split(" ")
+            key = f"street_address_{language}"
+            if len(address_splitted) == 1:
+                key += "__startswith"
+                arg = address_splitted[0]
             else:
-                queryset = queryset.filter(
-                    street_address__iregex=filters["address"] + r"($|\s|,|[a-zA-Z]).*"
-                )
+                key += "__iregex"
+                arg = filters["address"] + r"($|\s|,|[a-zA-Z]).*"
+            queryset = queryset.filter(**{key: arg})
 
         maintenance_organization = self.request.query_params.get(
             "maintenance_organization"
