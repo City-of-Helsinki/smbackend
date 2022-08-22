@@ -1224,7 +1224,7 @@ class OutdoorSportsMapUsageViewSet(viewsets.ReadOnlyModelViewSet):
 class AnnouncementSerializer(TranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = Announcement
-        exclude = ["id", "active", "outdoor_sports_map_usage"]
+        exclude = ["active", "outdoor_sports_map_usage"]
 
 
 class AnnouncementViewSet(OutdoorSportsMapUsageViewSet):
@@ -1238,7 +1238,7 @@ register_view(AnnouncementViewSet, "announcement")
 class ErrorMessageSerializer(TranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = ErrorMessage
-        exclude = ["id", "active", "outdoor_sports_map_usage"]
+        exclude = ["active", "outdoor_sports_map_usage"]
 
 
 class ErrorMessageViewSet(OutdoorSportsMapUsageViewSet):
