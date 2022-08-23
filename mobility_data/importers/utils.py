@@ -1,4 +1,5 @@
 import re
+from enum import Enum
 
 import requests
 from django.conf import settings
@@ -21,6 +22,14 @@ GEOMETRY_URL = (
     + f"id={GEOMETRY_ID}&lastUpdated=false"
 )
 LANGUAGES = ["fi", "sv", "en"]
+
+
+class FieldTypes(Enum):
+    STRING = 1
+    MULTILANG_STRING = 2
+    INTEGER = 3
+    FLOAT = 4
+    BOOLEAN = 5
 
 
 def fetch_json(url):

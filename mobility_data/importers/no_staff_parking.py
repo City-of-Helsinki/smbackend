@@ -1,5 +1,4 @@
 import logging
-from enum import Enum
 
 from django import db
 from django.conf import settings
@@ -9,6 +8,7 @@ from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
     delete_mobile_units,
+    FieldTypes,
     get_file_name_from_data_source,
     get_or_create_content_type,
     get_root_dir,
@@ -22,13 +22,6 @@ SOURCE_DATA_SRID = 3877
 
 GEOJSON_FILENAME = "autopysäköinti_eihlö.geojson"
 LANGUAGES = [language[0] for language in settings.LANGUAGES]
-
-
-class FieldTypes(Enum):
-    STRING = 1
-    MULTILANG_STRING = 2
-    INTEGER = 3
-    FLOAT = 4
 
 
 class NoStaffParking:
