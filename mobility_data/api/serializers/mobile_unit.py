@@ -137,12 +137,16 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         elif isinstance(geometry, Polygon):
             if self.context["latlon"]:
                 # Return Polygon coordinates in (lat,lon) format
+                # The polygon needs to be a three dimensional array
+                # to be compatible with Leaflet polygon element.
+                polygon = []
                 coords = []
                 for coord in list(*geometry.coords):
                     # swap lon,lat -> lat lon
                     e = (coord[1], coord[0])
                     coords.append(e)
-                return coords
+                polygon.append(coords)
+                return polygon
             else:
                 return geometry.coords
         elif isinstance(geometry, MultiPolygon):
