@@ -1,6 +1,5 @@
 from collections import defaultdict, OrderedDict
 from datetime import date, datetime
-from functools import lru_cache
 
 import pytz
 from django.conf import settings
@@ -9,7 +8,6 @@ from django.contrib.gis.geos import Point, Polygon
 from django.utils import formats, translation
 from django.utils.dateparse import parse_date
 from munigeo.importer.sync import ModelSyncher
-from munigeo.models import Municipality
 
 from services.management.commands.services_import.services import (
     remove_empty_service_nodes,
@@ -29,6 +27,8 @@ from services.utils import AccessibilityShortcomingCalculator
 from smbackend_turku.importers.services import EXTERNAL_IMPORTERS
 from smbackend_turku.importers.utils import (
     get_localized_value,
+    get_municipality,
+    get_municipality_name_by_point,
     get_turku_resource,
     get_weekday_str,
     set_syncher_object_field,
@@ -99,14 +99,6 @@ else:
     BOUNDING_BOX = Polygon.from_bbox(settings.BOUNDING_BOX)
     BOUNDING_BOX.srid = settings.DEFAULT_SRID
     BOUNDING_BOX.transform(SOURCE_DATA_SRID)
-
-
-@lru_cache(None)
-def get_municipality(name):
-    try:
-        return Municipality.objects.get(name=name)
-    except Municipality.DoesNotExist:
-        return None
 
 
 class UnitImporter:
@@ -191,7 +183,7 @@ class UnitImporter:
     def _handle_location(self, obj, unit_data):
         location_data = unit_data.get("fyysinenPaikka")
         location = None
-
+        municipality = None
         if location_data:
             latitude = location_data.get("leveysaste")
             longitude = location_data.get("pituusaste")
@@ -246,7 +238,13 @@ class UnitImporter:
             )
             if not municipality:
                 municipality = get_municipality(post_office_fi)
-            set_syncher_object_field(obj, "municipality", municipality)
+        # If no municipality found, find the municipality by location. The Search filters units
+        #  by municipality_id, if empty the unit will not be returned by the search.
+        if not municipality and location:
+            municipality_name = get_municipality_name_by_point(location)
+            municipality = get_municipality(municipality_name)
+
+        set_syncher_object_field(obj, "municipality", municipality)
 
     def _handle_extra_info(self, obj, unit_data):
         # TODO handle existing extra data erasing when needed

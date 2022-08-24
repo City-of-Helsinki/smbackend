@@ -8,7 +8,11 @@ import pytz
 import requests
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from munigeo.models import Municipality
+from munigeo.models import (
+    AdministrativeDivision,
+    AdministrativeDivisionGeometry,
+    Municipality,
+)
 
 from services.models import Service, ServiceNode, Unit
 
@@ -72,6 +76,20 @@ def get_ar_servicepoint_resource(resource_name=None):
 
     url = url_template.format(*template_vars)
     return get_resource(url)
+
+
+def get_municipality_name_by_point(point):
+    """
+    Returns the string name of the municipality in which the point
+    is located.
+    """
+    try:
+        # resolve in which division the point is.
+        division = AdministrativeDivisionGeometry.objects.get(boundary__contains=point)
+    except AdministrativeDivisionGeometry.DoesNotExist:
+        return None
+    # Get the division and return its name.
+    return AdministrativeDivision.objects.get(id=division.division_id).name
 
 
 def get_ar_servicepoint_accessibility_resource(resource_name=None):
