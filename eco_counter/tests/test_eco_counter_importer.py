@@ -1,5 +1,5 @@
 """
-To run test: pytest -m test_import_eco_counter
+To run test: pytest -m pytest -m test_eco_counter_importer
 Test has been marked with the eco_counter_import marker and is not
 executed by default. The reason is that the tests are very slow
 and only needed if changes are made to the importer.
@@ -16,11 +16,13 @@ from django.core.management import call_command
 from eco_counter.models import (
     Day,
     DayData,
+    ECO_COUNTER,
     HourData,
     ImportState,
     Month,
     MonthData,
     Station,
+    TRAFFIC_COUNTER,
     Week,
     WeekData,
     Year,
@@ -42,9 +44,9 @@ def import_command(*args, **kwargs):
     return out.getvalue()
 
 
-@pytest.mark.test_import_eco_counter
+@pytest.mark.test_eco_counter_importer
 @pytest.mark.django_db
-def test_importer():
+def test_eco_counter_importer():
     """
     In test data, for every 15min the value 1 is set, so the sum for an hour is 4.
     For a day the sum is 96(24*4) and for a week 682(96*7).
@@ -54,11 +56,10 @@ def test_importer():
     """
     start_time = dateutil.parser.parse("2020-01-01T00:00")
     end_time = dateutil.parser.parse("2020-02-29T23:45")
-    import_command(test_mode=(start_time, end_time))
+    import_command(test_counter=(ECO_COUNTER, start_time, end_time))
 
     num_stations = Station.objects.all().count()
     assert Station.objects.get(name=TEST_STATION_NAME)
-
     # Test hourly data
     # TEST_STAION_NAMEis the only station that observes bicycles, pedestrains and cars
     hour_data = HourData.objects.get(
@@ -133,7 +134,7 @@ def test_importer():
     assert year_data.value_jp == jan_month_days * 96 + feb_month_days * 96
     assert Year.objects.get(station__name=TEST_STATION_NAME, year_number=2020)
     # test state
-    state = ImportState.load()
+    state = ImportState.objects.get(csv_data_source=ECO_COUNTER)
     assert state.current_month_number == 2
     assert state.current_year_number == 2020
     week = Week.objects.filter(week_number=5)[0]
@@ -141,9 +142,10 @@ def test_importer():
     # test incremental importing
     start_time = dateutil.parser.parse("2020-02-01T00:00")
     end_time = dateutil.parser.parse("2020-03-31T23:45")
-    import_command(test_mode=(start_time, end_time))
+    import_command(test_counter=(ECO_COUNTER, start_time, end_time))
+
     # test that state is updated
-    state = ImportState.load()
+    state = ImportState.objects.get(csv_data_source=ECO_COUNTER)
     assert state.current_month_number == 3
     assert state.current_year_number == 2020
     # test that number of days in weeks remains intact
@@ -188,7 +190,7 @@ def test_importer():
     # Test new year and daylight saving change to "winter time".
     start_time = dateutil.parser.parse("2021-10-01T00:00")
     end_time = dateutil.parser.parse("2021-10-31T23:45")
-    import_command(test_mode=(start_time, end_time))
+    import_command(test_counter=(ECO_COUNTER, start_time, end_time))
     # Test that year 2020 instance still exists.
     assert Year.objects.get(station__name=TEST_STATION_NAME, year_number=2020)
     # Test new year instance is created.
@@ -225,13 +227,13 @@ def test_importer():
         jan_month_days * 96 + feb_month_days * 96 + mar_month_days * 96
     )
     # test that state is updated
-    state = ImportState.load()
+    state = ImportState.objects.get(csv_data_source=ECO_COUNTER)
     assert state.current_month_number == 10
     assert state.current_year_number == 2021
     # test year change and week 53
     start_time = dateutil.parser.parse("2020-12-26T00:00")
     end_time = dateutil.parser.parse("2021-01-11T23:45")
-    import_command(test_mode=(start_time, end_time))
+    import_command(test_counter=(ECO_COUNTER, start_time, end_time))
     weeks = Week.objects.filter(week_number=53, years__year_number=2020)
     assert len(weeks) == num_stations
     assert weeks[0].days.all().count() == 7
@@ -241,3 +243,9 @@ def test_importer():
     weeks = Week.objects.filter(week_number=1, years__year_number=2021)
     assert len(weeks), num_stations
     assert weeks[0].days.all().count() == 7
+
+
+@pytest.mark.test_traffic_counter_icmporter
+@pytest.mark.django_db
+def test_traffic_counter_import():
+    pass
