@@ -41,32 +41,40 @@ of the .csv file, 1.1.2020.
 
 """
 
-import io
 import logging
 import math
 import re
 from datetime import datetime, timedelta
 
 import dateutil.parser
-import pandas as pd
 import pytz
-import requests
 from django.conf import settings
-from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand
 
 from eco_counter.models import (
     Day,
     DayData,
+    ECO_COUNTER,
+    ECO_COUNTER_START_YEAR,
     HourData,
     ImportState,
     Month,
     MonthData,
     Station,
+    TRAFFIC_COUNTER,
+    TRAFFIC_COUNTER_START_YEAR,
     Week,
     WeekData,
     Year,
     YearData,
+)
+
+from .utils import (
+    gen_eco_counter_test_csv,
+    get_eco_counter_csv,
+    get_traffic_counter_csv,
+    save_eco_counter_stations,
+    save_traffic_counter_stations,
 )
 
 logger = logging.getLogger("eco_counter")
@@ -79,12 +87,14 @@ assert (
 class Command(BaseCommand):
     help = "Imports Turku Traffic Volumes"
 
-    # List used to lookup name and type
-    # Output of pandas dataframe, i.e. csv_data.keys()
-    columns = []
-    # The name of the column in the csv, that holds the timestamp.
     TIMESTAMP_COL_NAME = "startTime"
     TIMEZONE = pytz.timezone("Europe/Helsinki")
+    STATION_TYPES = [
+        ("ak", "ap", "at"),
+        ("pk", "pp", "pt"),
+        ("jk", "jp", "jt"),
+        ("bk", "bp", "bt"),
+    ]
 
     def delete_tables(self):
         HourData.objects.all().delete()
@@ -99,18 +109,8 @@ class Command(BaseCommand):
         Station.objects.all().delete()
         ImportState.objects.all().delete()
 
-    def get_dataframe(self):
-        response = requests.get(settings.ECO_COUNTER_OBSERVATIONS_URL)
-        assert (
-            response.status_code == 200
-        ), "Fetching observations csv {} status code: {}".format(
-            settings.ECO_COUNTER_OBSERVATIONS_URL, response.status_code
-        )
-        string_data = response.content
-        csv_data = pd.read_csv(io.StringIO(string_data.decode("utf-8")))
-        return csv_data
-
     def calc_and_save_cumulative_data(self, src_obj, dst_obj):
+        # TODO refactor
         dst_obj.value_ak = 0
         dst_obj.value_ap = 0
         dst_obj.value_at = 0
@@ -120,6 +120,9 @@ class Command(BaseCommand):
         dst_obj.value_jk = 0
         dst_obj.value_jp = 0
         dst_obj.value_jt = 0
+        dst_obj.value_bk = 0
+        dst_obj.value_bp = 0
+        dst_obj.value_bt = 0
         for src in src_obj:
             dst_obj.value_ak += src.value_ak
             dst_obj.value_ap += src.value_ap
@@ -130,6 +133,9 @@ class Command(BaseCommand):
             dst_obj.value_jk += src.value_jk
             dst_obj.value_jp += src.value_jp
             dst_obj.value_jt += src.value_jt
+            dst_obj.value_bk += src.value_bk
+            dst_obj.value_bp += src.value_bp
+            dst_obj.value_bt += src.value_bt
         dst_obj.save()
 
     def create_and_save_year_data(self, stations, current_years):
@@ -164,6 +170,8 @@ class Command(BaseCommand):
                 station=stations[station], day=current_days[station]
             )
             current_hour = current_hours[station]
+            # TODO refactor
+
             day_data.value_ak = sum(current_hour.values_ak)
             day_data.value_ap = sum(current_hour.values_ap)
             day_data.value_at = sum(current_hour.values_at)
@@ -173,94 +181,88 @@ class Command(BaseCommand):
             day_data.value_jk = sum(current_hour.values_jk)
             day_data.value_jp = sum(current_hour.values_jp)
             day_data.value_jt = sum(current_hour.values_jt)
+            day_data.value_bk = sum(current_hour.values_bk)
+            day_data.value_bp = sum(current_hour.values_bp)
+            day_data.value_bt = sum(current_hour.values_bt)
             day_data.save()
 
     def save_hour_data(self, current_hour, current_hours):
         for station in current_hour:
             hour_data = current_hours[station]
-            # Store "Auto"
-            if "AK" and "AP" in current_hour[station]:
-                ak = current_hour[station]["AK"]
-                ap = current_hour[station]["AP"]
-                tot = ak + ap
-                hour_data.values_ak.append(ak)
-                hour_data.values_ap.append(ap)
-                hour_data.values_at.append(tot)
-            # Store "Pyöräilijä"
-            if "PK" and "PP" in current_hour[station]:
-                pk = current_hour[station]["PK"]
-                pp = current_hour[station]["PP"]
-                tot = pk + pp
-                hour_data.values_pk.append(pk)
-                hour_data.values_pp.append(pp)
-                hour_data.values_pt.append(tot)
-            # store "Jalankulkija" pedestrian
-            if "JK" and "JP" in current_hour[station]:
-                jk = current_hour[station]["JK"]
-                jp = current_hour[station]["JP"]
-                tot = jk + jp
-                hour_data.values_jk.append(jk)
-                hour_data.values_jp.append(jp)
-                hour_data.values_jt.append(tot)
 
+            for station_type in self.STATION_TYPES:
+                # keskustaan päin
+                k_field = station_type[0]
+                k_value = 0
+                # poispäin keskustastat
+                p_field = station_type[1]
+                p_value = 0
+
+                total_field = station_type[2]
+                if k_field.upper() in current_hour[station]:
+                    k_value = current_hour[station][k_field.upper()]
+                    getattr(hour_data, f"values_{k_field}").append(k_value)
+
+                if p_field.upper() in current_hour[station]:
+                    p_value = current_hour[station][p_field.upper()]
+                    getattr(hour_data, f"values_{p_field}").append(p_value)
+                # print(f"{station_type} {k_value} {p_value}")
+                getattr(hour_data, f"values_{total_field}").append(k_value + p_value)
+
+            # # Store "Auto"
+            # if "AK" and "AP" in current_hour[station]:
+            #     ak = current_hour[station]["AK"]
+            #     ap = current_hour[station]["AP"]
+            #     tot = ak + ap
+            #     hour_data.values_ak.append(ak)
+            #     hour_data.values_ap.append(ap)
+            #     hour_data.values_at.append(tot)
+            #     print("A")
+            # # Store "Pyöräilijä"
+            # if "PK" and "PP" in current_hour[station]:
+            #     pk = current_hour[station]["PK"]
+            #     pp = current_hour[station]["PP"]
+            #     tot = pk + pp
+            #     hour_data.values_pk.append(pk)
+            #     hour_data.values_pp.append(pp)
+            #     hour_data.values_pt.append(tot)
+            #     print("P")
+            # # store "Jalankulkija" pedestrian
+            # if "JK" and "JP" in current_hour[station]:
+            #     jk = current_hour[station]["JK"]
+            #     jp = current_hour[station]["JP"]
+            #     tot = jk + jp
+            #     hour_data.values_jk.append(jk)
+            #     hour_data.values_jp.append(jp)
+            #     hour_data.values_jt.append(tot)
+            #     print("J")
+            #  # store "Jalankulkija" pedestrian
+            # if "BK" and "BP" in current_hour[station]:
+            #     bk = current_hour[station]["BK"]
+            #     bp = current_hour[station]["BP"]
+            #     tot = bk + bp
+            #     hour_data.values_bk.append(bk)
+            #     hour_data.values_bp.append(bp)
+            #     hour_data.values_bt.append(tot)
+            #     print("B")
+            # breakpoint()
             hour_data.save()
 
-    def save_stations(self):
-        response = requests.get(settings.ECO_COUNTER_STATIONS_URL)
-        assert (
-            response.status_code == 200
-        ), "Fetching stations from {} , status code {}".format(
-            settings.ECO_COUNTER_STATIONS_URL, response.status_code
-        )
-        response_json = response.json()
-        features = response_json["features"]
-        saved = 0
-        for feature in features:
-            station = Station()
-            name = feature["properties"]["Nimi"]
-            if not Station.objects.filter(name=name).exists():
-                station.name = name
-                lon = feature["geometry"]["coordinates"][0]
-                lat = feature["geometry"]["coordinates"][1]
-                point = Point(lon, lat, srid=4326)
-                point.transform(settings.DEFAULT_SRID)
-                station.geom = point
-                station.save()
-                saved += 1
-        logger.info(
-            "Retrieved {numloc} stations, saved {saved} stations.".format(
-                numloc=len(features), saved=saved
-            )
-        )
-
-    def gen_test_csv(self, keys, start_time, end_time):
-        """
-        Generates testdata for a given timespan,
-        for every 15min the value 1 is set.
-        """
-        df = pd.DataFrame(columns=keys)
-        df.keys = keys
-        cur_time = start_time
-        c = 0
-        while cur_time <= end_time:
-            # Add value to all keys(sensor stations)
-            vals = [1 for x in range(len(keys) - 1)]
-            vals.insert(0, str(cur_time))
-            df.loc[c] = vals
-            cur_time = cur_time + timedelta(minutes=15)
-            c += 1
-        return df
-
     def get_station_name_and_type(self, column):
-        # Station type is always: A|P|J + K|P
-        station_type = re.findall("[APJ][PK]", column)[0]
+        # Station type is always: A|P|J|B + K|P
+        try:
+            station_type = re.findall("[APJB][PK]", column)[0]
+        except IndexError:
+            breakpoint()
         station_name = column.replace(station_type, "").strip()
         return station_name, station_type
 
-    def save_observations(self, csv_data, start_time):
+    def save_observations(
+        self, csv_data, start_time, column_names, csv_data_source=ECO_COUNTER
+    ):
         stations = {}
-        # Dict used to lookup station relations
-        for station in Station.objects.all():
+        # Populate stations dict, used to lookup station relations
+        for station in Station.objects.filter(csv_data_source=csv_data_source):
             stations[station.name] = station
         # state variable for the current hour that is calucalted for every iteration(15min)
         current_hour = {}
@@ -269,8 +271,7 @@ class Command(BaseCommand):
         current_weeks = {}
         current_months = {}
         current_years = {}
-
-        import_state = ImportState.load()
+        import_state = ImportState.objects.get(csv_data_source=csv_data_source)
         rows_imported = import_state.rows_imported
         current_year_number = import_state.current_year_number
         current_month_number = import_state.current_month_number
@@ -352,7 +353,7 @@ class Command(BaseCommand):
                         temp_hour = {}
                         for station in stations:
                             temp_hour[station] = {}
-                        for column in self.columns[1:]:
+                        for column in column_names[1:]:
                             station_name, station_type = self.get_station_name_and_type(
                                 column
                             )
@@ -435,19 +436,22 @@ class Command(BaseCommand):
             Build the current_hour dict by iterating all cols in row.
             current_hour dict store the rows in a structured form.
             current_hour keys are the station names and every value contains a dict with the type as its key
-            The type is: A|P|J(Auto, Pyöräilijä, Jalankulkija) + direction P|K , e.g. "JK"
+            The type is: A|P|J|B (Auto, Pyöräilijä, Jalankulkija, Bussi) + direction P|K , e.g. "JK"
             current_hour[station][station_type] = value, e.g. current_hour["TeatteriSilta"]["PK"] = 6
             Note the first col is the self.TIMESTAMP_COL_NAME and is discarded, the rest are observations
             for every station.
             """
-            for column in self.columns[1:]:
+            for column in column_names[1:]:
                 station_name, station_type = self.get_station_name_and_type(column)
                 value = row[column]
                 if math.isnan(value):
                     value = int(0)
                 else:
                     value = int(row[column])
-
+                # TODO threshold for too big(errorneous) values in source data
+                # 15*60 seconds in 15min *4 lanes
+                if value > 3600:
+                    value = 0
                 if station_name not in current_hour:
                     current_hour[station_name] = {}
                 # if type exist in current_hour, we add the new value to get the hourly sample
@@ -480,11 +484,11 @@ class Command(BaseCommand):
                  starts importing from row 0.",
         )
         parser.add_argument(
-            "--test-mode",
+            "--test-counter",
             type=int,
             nargs="+",
             default=False,
-            help="Run script in test mode. Uses Generated pandas dataframe.",
+            help="Test importing of  data. Uses Generated pandas dataframe.",
         )
 
     def handle(self, *args, **options):
@@ -492,32 +496,71 @@ class Command(BaseCommand):
             logger.info("Deleting tables")
             self.delete_tables()
             logger.info("Retrieving stations...")
-            self.save_stations()
-        logger.info("Retrieving observations...")
-        csv_data = self.get_dataframe()
-        self.columns = csv_data.keys()
+            save_eco_counter_stations()
+            save_traffic_counter_stations()
 
+        logger.info("Retrieving observations...")
+        eco_counter_csv = get_eco_counter_csv()
+        traffic_counter_csv = get_traffic_counter_csv()
+        counter_data = {
+            ECO_COUNTER: {
+                "csv_data": eco_counter_csv,
+                "column_names": eco_counter_csv.keys(),
+                "start_year": ECO_COUNTER_START_YEAR,
+            },
+            TRAFFIC_COUNTER: {
+                "csv_data": traffic_counter_csv,
+                "column_names": traffic_counter_csv.keys(),
+                "start_year": TRAFFIC_COUNTER_START_YEAR,
+            },
+        }
         start_time = None
-        if options["test_mode"]:
-            logger.info("Retrieving observations in test mode.")
-            self.save_stations()
-            start_time = options["test_mode"][0]
-            end_time = options["test_mode"][1]
-            csv_data = self.gen_test_csv(csv_data.keys(), start_time, end_time)
-        else:
-            import_state = ImportState.load()
-            start_time = "{year}-{month}-1T00:00".format(
-                year=import_state.current_year_number,
-                month=import_state.current_month_number,
+
+        if options["test_counter"]:
+            logger.info("Testing eco_counter importer.")
+            save_eco_counter_stations()
+            counter = options["test_counter"][0]
+            start_time = options["test_counter"][1]
+            end_time = options["test_counter"][2]
+            csv_data = gen_eco_counter_test_csv(
+                counter_data[counter]["column_names"], start_time, end_time
             )
-            start_time = dateutil.parser.parse(start_time)
-            start_time = self.TIMEZONE.localize(start_time)
-            # The timeformat for the input data is : 2020-03-01T00:00
-            # Convert starting time to input datas timeformat
-            start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")
-            start_index = csv_data.index[
-                csv_data[self.TIMESTAMP_COL_NAME] == start_time_string
-            ].values[0]
-            logger.info("Starting import at index: {}".format(start_index))
-            csv_data = csv_data[start_index:]
-        self.save_observations(csv_data, start_time)
+            ImportState.objects.get_or_create(csv_data_source=counter)
+            self.save_observations(
+                csv_data, start_time, counter_data[counter]["column_names"]
+            )
+
+        else:
+            for counter in [ECO_COUNTER, TRAFFIC_COUNTER]:  # , TRAFFIC_COUNTER]:
+                logger.info(f"Importing/counting data for {counter}...")
+                if ImportState.objects.filter(csv_data_source=counter).exists():
+                    import_state = ImportState.objects.filter(
+                        csv_data_source=counter
+                    ).first()
+                else:
+                    import_state = ImportState.objects.create(
+                        csv_data_source=counter,
+                        current_year_number=counter_data[counter]["start_year"],
+                    )
+
+                start_time = "{year}-{month}-1T00:00".format(
+                    year=import_state.current_year_number,
+                    month=import_state.current_month_number,
+                )
+                start_time = dateutil.parser.parse(start_time)
+                start_time = self.TIMEZONE.localize(start_time)
+                csv_data = counter_data[counter]["csv_data"]
+                # The timeformat for the input data is : 2020-03-01T00:00
+                # Convert starting time to input datas timeformat
+                start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")
+                start_index = csv_data.index[
+                    csv_data[self.TIMESTAMP_COL_NAME] == start_time_string
+                ].values[0]
+                logger.info("Starting import at index: {}".format(start_index))
+                csv_data = csv_data[start_index:]
+                self.save_observations(
+                    csv_data,
+                    start_time,
+                    counter_data[counter]["column_names"],
+                    csv_data_source=counter,
+                )
