@@ -71,5 +71,5 @@ def get_berths(berth_name):
                     geometry.transform(TRANSFROM_TO_SRID)
                     berth[f"{X_COORDINATE_COLUMN}_4326"] = geometry.x
                     berth[f"{Y_COORDINATE_COLUMN}_4326"] = geometry.y
-                    berths.append(berth)
+                berths.append(berth)
     return berths
