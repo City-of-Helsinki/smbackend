@@ -116,7 +116,11 @@ class SearchSerializer(serializers.Serializer):
 
         if self.context["extended_serializer"]:
             if object_type == "unit":
-                representation["street_address"] = getattr(obj, "street_address")
+                representation["street_address"] = {
+                    "fi": getattr(obj, "street_address_fi"),
+                    "sv": getattr(obj, "street_address_sv"),
+                    "en": getattr(obj, "street_address_en"),
+                }
                 if hasattr(obj.municipality, "id"):
                     representation["municipality"] = getattr(obj.municipality, "id")
                 try:
