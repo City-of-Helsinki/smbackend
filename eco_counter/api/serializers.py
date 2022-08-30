@@ -38,6 +38,10 @@ class StationSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "name_fi",
+            "name_sv",
+            "name_en",
+            "csv_data_source",
             "geom",
             "x",
             "y",
