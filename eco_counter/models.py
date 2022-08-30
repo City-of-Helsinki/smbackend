@@ -7,10 +7,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.timezone import now
 
 TRAFFIC_COUNTER_START_YEAR = 2015
+# Manually define the end year, as the source data comes from the page
+# defined in env variable TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL.
+# Change end year when data for the next year is available.
+TRAFFIC_COUNTER_END_YEAR = 2022
 ECO_COUNTER_START_YEAR = 2020
 TRAFFIC_COUNTER = "TC"
 ECO_COUNTER = "EC"
-CSV_DATAS_SOURCES = (
+CSV_DATA_SOURCES = (
     (TRAFFIC_COUNTER, "TrafficCounter"),
     (ECO_COUNTER, "EcoCounter"),
 )
@@ -26,7 +30,7 @@ class ImportState(models.Model):
     )
     csv_data_source = models.CharField(
         max_length=2,
-        choices=CSV_DATAS_SOURCES,
+        choices=CSV_DATA_SOURCES,
         default=ECO_COUNTER,
     )
 
@@ -37,7 +41,7 @@ class Station(models.Model):
     geom = models.PointField(srid=settings.DEFAULT_SRID)
     csv_data_source = models.CharField(
         max_length=2,
-        choices=CSV_DATAS_SOURCES,
+        choices=CSV_DATA_SOURCES,
         default=ECO_COUNTER,
     )
 
