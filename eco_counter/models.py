@@ -21,7 +21,6 @@ CSV_DATA_SOURCES = (
 
 
 class ImportState(models.Model):
-    rows_imported = models.PositiveIntegerField(default=0)
     current_year_number = models.PositiveSmallIntegerField(
         default=ECO_COUNTER_START_YEAR
     )
