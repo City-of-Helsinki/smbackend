@@ -85,6 +85,11 @@ assert (
 assert (
     settings.TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL
 ), "Missing TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL in env."
+# Threshold for too big(errorneous?) values in source data.
+# The value is calculated by estimating one car passing every second
+# on a six lane road during the sample time (15min), 15min*60s*6lanes.
+# If the value is greater than the threshold value the value is set to 0.
+ERRORNEOUS_VALUE_THRESHOLD = 5400
 
 
 class Command(BaseCommand):
@@ -222,6 +227,7 @@ class Command(BaseCommand):
     def save_observations(
         self, csv_data, start_time, column_names, csv_data_source=ECO_COUNTER
     ):
+        errorneous_values = 0
         stations = {}
         # Populate stations dict, used to lookup station relations
         for station in Station.objects.filter(csv_data_source=csv_data_source):
@@ -234,7 +240,6 @@ class Command(BaseCommand):
         current_months = {}
         current_years = {}
         import_state = ImportState.objects.get(csv_data_source=csv_data_source)
-        rows_imported = import_state.rows_imported
         current_year_number = import_state.current_year_number
         current_month_number = import_state.current_month_number
         current_weekday_number = None
@@ -308,9 +313,7 @@ class Command(BaseCommand):
                         # Add an hour where the values are 0, for the nonexistent hour 3:00-4:00
                         # To keep the hour data consistent with 24 hours.
                         logger.info(
-                            "Detected daylight savings time change to summer. DateTime: {}".format(
-                                current_time
-                            )
+                            f"Detected daylight savings time change to summer. DateTime: {current_time}"
                         )
                         temp_hour = {}
                         for station in stations:
@@ -321,6 +324,7 @@ class Command(BaseCommand):
                             )
                             temp_hour[station_name][station_type] = 0
                         self.save_hour_data(temp_hour, current_hours)
+
             # print(f"Current_time: {current_time} Year: {current_time.year}, I {index}")
             current_year_number = current_time.year
             current_week_number = int(current_time.strftime("%-V"))
@@ -410,9 +414,12 @@ class Command(BaseCommand):
                     value = int(0)
                 else:
                     value = int(row[column])
-                # TODO threshold for too big(errorneous) values in source data
-                # 15*60 seconds in 15min *4 lanes
-                if value > 3600:
+                if value > ERRORNEOUS_VALUE_THRESHOLD:
+                    logger.warning(
+                        (f"Found errorneous(>={ERRORNEOUS_VALUE_THRESHOLD}) value:{value}, "
+                        f"column:{column}, time:{current_time}, index:{index}")
+                    )
+                    errorneous_values += 1
                     value = 0
                 if station_name not in current_hour:
                     current_hour[station_name] = {}
@@ -433,9 +440,11 @@ class Command(BaseCommand):
 
         import_state.current_year_number = current_year_number
         import_state.current_month_number = current_month_number
-        import_state.rows_imported = rows_imported + len(csv_data)
         import_state.save()
-        logger.info("Imported observations until: " + str(current_time))
+        logger.info(
+            f"Found {errorneous_values} errorneous(>={ERRORNEOUS_VALUE_THRESHOLD}) values."
+        )
+        logger.info(f"Imported observations until:{str(current_time)}")
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -457,7 +466,7 @@ class Command(BaseCommand):
             type=str,
             nargs="+",
             default=False,
-            help=f"Import specific counter data, choices are: {ECO_COUNTER} and {TRAFFIC_COUNTER}.",
+            help=f"Import specific counter data, choices are: {ECO_COUNTER} or {TRAFFIC_COUNTER}.",
         )
 
     def handle(self, *args, **options):
@@ -469,7 +478,6 @@ class Command(BaseCommand):
             save_traffic_counter_stations()
 
         logger.info("Retrieving observations...")
-
         start_time = None
 
         if options["test_counter"]:
@@ -498,7 +506,10 @@ class Command(BaseCommand):
             else:
                 raise CommandError("No valid counter argument given.")
             self.save_observations(
-                csv_data, start_time, column_names, csv_data_source=counter
+                csv_data,
+                start_time,
+                column_names,
+                csv_data_source=counter,
             )
         else:
             if options["counter"]:
@@ -551,7 +562,7 @@ class Command(BaseCommand):
                 start_index = csv_data.index[
                     csv_data[self.TIMESTAMP_COL_NAME] == start_time_string
                 ].values[0]
-                logger.info("Starting import at index: {}".format(start_index))
+                logger.info(f"Starting saving observations at index:{start_index}")
 
                 csv_data = csv_data[start_index:]
                 self.save_observations(
