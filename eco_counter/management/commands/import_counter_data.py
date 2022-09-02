@@ -73,6 +73,7 @@ from .utils import (
     gen_eco_counter_test_csv,
     get_eco_counter_csv,
     get_traffic_counter_csv,
+    get_traffic_counter_test_dataframe,
     save_eco_counter_stations,
     save_traffic_counter_stations,
 )
@@ -416,8 +417,10 @@ class Command(BaseCommand):
                     value = int(row[column])
                 if value > ERRORNEOUS_VALUE_THRESHOLD:
                     logger.warning(
-                        (f"Found errorneous(>={ERRORNEOUS_VALUE_THRESHOLD}) value:{value}, "
-                        f"column:{column}, time:{current_time}, index:{index}")
+                        (
+                            f"Found errorneous(>={ERRORNEOUS_VALUE_THRESHOLD}) value:{value}, "
+                            f"column:{column}, time:{current_time}, index:{index}"
+                        )
                     )
                     errorneous_values += 1
                     value = 0
@@ -496,13 +499,11 @@ class Command(BaseCommand):
                 column_names = eco_counter_csv.keys()
             elif counter == TRAFFIC_COUNTER:
                 save_traffic_counter_stations()
-                # Building the complete CSV takes time, optimize by only using the
-                # rows from year 2020 and onwards.
-                traffic_counter_csv = get_traffic_counter_csv(start_year=2020)
+                traffic_counter_dataframe = get_traffic_counter_test_dataframe()
                 csv_data = gen_eco_counter_test_csv(
-                    traffic_counter_csv.keys(), start_time, end_time
+                    traffic_counter_dataframe.keys(), start_time, end_time
                 )
-                column_names = traffic_counter_csv.keys()
+                column_names = traffic_counter_dataframe.keys()
             else:
                 raise CommandError("No valid counter argument given.")
             self.save_observations(
