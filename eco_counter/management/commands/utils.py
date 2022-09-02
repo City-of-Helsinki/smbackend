@@ -15,6 +15,7 @@ from eco_counter.models import (
     TRAFFIC_COUNTER_END_YEAR,
     TRAFFIC_COUNTER_START_YEAR,
 )
+from eco_counter.tests.test_import_counter_data import TRAFFIC_COUNTER_TEST_COLUMNS
 from mobility_data.importers.utils import get_root_dir
 
 logger = logging.getLogger("eco_counter")
@@ -50,6 +51,16 @@ def get_dataframe(url):
 
 def get_eco_counter_csv():
     return get_dataframe(settings.ECO_COUNTER_OBSERVATIONS_URL)
+
+
+def get_traffic_counter_test_dataframe():
+    """
+    Generate a Dataframe with only column names for testing. The dataframe
+    will then be populated with generated values. The reason for this is
+    to avoid calling the very slow get_traffic_counter_csv function to only
+    get the column names which is needed for generating testing data.
+    """
+    return pd.DataFrame(columns=TRAFFIC_COUNTER_TEST_COLUMNS)
 
 
 def get_traffic_counter_csv(start_year=2015):
