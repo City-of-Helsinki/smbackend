@@ -31,6 +31,20 @@ from eco_counter.models import (
 
 TEST_EC_STATION_NAME = "Auransilta"
 TEST_TC_STATION_NAME = "Aninkaistenkatu/Eerikinkatu"
+TRAFFIC_COUNTER_TEST_COLUMNS = [
+    "startTime",
+    "Aninkaistenkatu/Eerikinkatu AK",
+    "Aninkaistenkatu/Eerikinkatu AP",
+    "Aninkaistenkatu/Eerikinkatu PK",
+    "Aninkaistenkatu/Eerikinkatu PP",
+    "Aninkaistenkatu/Eerikinkatu JK",
+    "Aninkaistenkatu/Eerikinkatu JP",
+    "Aninkaistenkatu/Eerikinkatu BK",
+    "Aninkaistenkatu/Eerikinkatu BP",
+    "Askaistentie/Vähäheikkiläntie BK",
+    "Askaistentie/Vähäheikkiläntie BP",
+    "Aurakatu/Läntinen Rantakatu PK",
+]
 
 
 def import_command(*args, **kwargs):
@@ -58,7 +72,6 @@ def test_import_counter_data():
     start_time = dateutil.parser.parse("2020-01-01T00:00")
     end_time = dateutil.parser.parse("2020-02-29T23:45")
     import_command(test_counter=(ECO_COUNTER, start_time, end_time))
-
     num_ec_stations = Station.objects.filter(csv_data_source=ECO_COUNTER).count()
     assert Station.objects.get(name=TEST_EC_STATION_NAME)
     # Test hourly data
@@ -235,9 +248,15 @@ def test_import_counter_data():
     assert state.current_month_number == 10
     assert state.current_year_number == 2021
     # test year change and week 53
+    # First set state to correct year, otherwise the importer will create duplicate years.
+    # As the year is set to 2021 in previous test.
+    state = ImportState.objects.get(csv_data_source=ECO_COUNTER)
+    state.current_year_number = 2020
+    state.save()
     start_time = dateutil.parser.parse("2020-12-26T00:00")
     end_time = dateutil.parser.parse("2021-01-11T23:45")
     import_command(test_counter=(ECO_COUNTER, start_time, end_time))
+
     weeks = Week.objects.filter(week_number=53, years__year_number=2020)
     assert len(weeks) == num_ec_stations
     assert weeks[0].days.all().count() == 7
@@ -247,24 +266,80 @@ def test_import_counter_data():
     weeks = Week.objects.filter(week_number=1, years__year_number=2021)
     assert len(weeks), num_ec_stations
     assert weeks[0].days.all().count() == 7
-
     # Test importing of Traffic Counter
+
     start_time = dateutil.parser.parse("2020-01-01T00:00")
     end_time = dateutil.parser.parse("2020-02-29T23:45")
     import_command(test_counter=(TRAFFIC_COUNTER, start_time, end_time))
-    # Todo use num_tc_stations to calculate number of tables
-    # num_tc_stations = Station.objects.filter(csv_data_source=TRAFFIC_COUNTER).count()
+    num_tc_stations = Station.objects.filter(csv_data_source=TRAFFIC_COUNTER).count()
     state = ImportState.objects.get(csv_data_source=TRAFFIC_COUNTER)
     assert state.current_year_number == 2020
     assert state.current_month_number == 2
-    assert Station.objects.get(name=TEST_TC_STATION_NAME)
+    test_station = Station.objects.get(name=TEST_TC_STATION_NAME)
+    assert test_station
     hour_data = HourData.objects.get(
         station__name=TEST_TC_STATION_NAME, day__date=start_time
     )
     res = [4 for x in range(24)]
-    # res_tot = [8 for x in range(24)]
+    res_tot = [8 for x in range(24)]
     assert hour_data.values_ak == res
-    assert hour_data.values_at == res
+    assert hour_data.values_ap == res
+    assert hour_data.values_at == res_tot
+    assert hour_data.values_pk == res
+    assert hour_data.values_pp == res
+    assert hour_data.values_pt == res_tot
+    assert hour_data.values_jk == res
+    assert hour_data.values_jp == res
+    assert hour_data.values_jt == res_tot
     assert hour_data.values_bk == res
-    assert hour_data.values_bt == res
-    # TODO, add tests when correct version of metadata is available
+    assert hour_data.values_bp == res
+    assert hour_data.values_bt == res_tot
+
+    # Test day data
+    day = Day.objects.get(date=start_time, station__name=TEST_TC_STATION_NAME)
+    assert day.weekday_number == 2  # First day in 2020 in is wednesday
+    day_data = DayData.objects.get(
+        day__date=start_time, station__name=TEST_TC_STATION_NAME
+    )
+    assert day_data.value_bp == 96
+    day_data = DayData.objects.filter(
+        day__week__week_number=2, station__name=TEST_TC_STATION_NAME
+    )[0]
+    assert day_data.value_bt == 96 * 2
+    day = Day.objects.get(
+        date=dateutil.parser.parse("2020-02-06T00:00"),
+        station__name=TEST_TC_STATION_NAME,
+    )
+    assert day.weekday_number == 3  # Second day in week 2 in 2020 is thursday
+
+    week_data = WeekData.objects.get(
+        week__week_number=3, station__name=TEST_TC_STATION_NAME
+    )
+    week = Week.objects.filter(week_number=3)[0]
+    assert week.days.count() == 7  # third week of 2020 7 days.
+    assert week_data.value_bp == 672  # 96*7
+    assert week_data.value_bk == 672  # 96*7
+    assert week_data.value_bt == 672 * 2
+    # Test month data
+    month = Month.objects.get(
+        station__name=TEST_TC_STATION_NAME, month_number=2, year__year_number=2020
+    )
+    num_month_days = month.days.all().count()
+    feb_month_days = calendar.monthrange(month.year.year_number, month.month_number)[1]
+    assert num_month_days == feb_month_days
+    month_data = MonthData.objects.get(month=month)
+    assert month_data.value_pp == feb_month_days * 96
+    assert month_data.value_pk == feb_month_days * 96
+    assert month_data.value_pt == feb_month_days * 96 * 2
+    # Todo test year data
+    year_data = YearData.objects.get(
+        station__name=TEST_TC_STATION_NAME, year__year_number=2020
+    )
+    assert year_data.value_bk == (jan_month_days + feb_month_days) * 24 * 4
+    assert year_data.value_bp == (jan_month_days + feb_month_days) * 24 * 4
+    assert year_data.value_bt == (jan_month_days + feb_month_days) * 24 * 4 * 2
+    # Test that exacly one year object is created for every station in 2020
+    assert (
+        Year.objects.filter(year_number=2020).count()
+        == num_ec_stations + num_tc_stations
+    )
