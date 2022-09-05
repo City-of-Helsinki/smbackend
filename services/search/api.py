@@ -387,7 +387,7 @@ class SearchViewSet(GenericAPIView):
                 )
                 if len(municipalities) > 0:
                     addresses_qs = addresses_qs.filter(
-                        street__municipality_id__in=municipalities
+                        municipality_id__in=municipalities
                     )
             addresses_qs = addresses_qs[: model_limits["address"]]
             # Use naturalsort function that is migrated to munigeo to
