@@ -15,7 +15,10 @@ from eco_counter.models import (
     TRAFFIC_COUNTER_END_YEAR,
     TRAFFIC_COUNTER_START_YEAR,
 )
-from eco_counter.tests.test_import_counter_data import TRAFFIC_COUNTER_TEST_COLUMNS
+from eco_counter.tests.test_import_counter_data import (
+    ECO_COUNTER_TEST_COLUMNS,
+    TRAFFIC_COUNTER_TEST_COLUMNS,
+)
 from mobility_data.importers.utils import get_root_dir
 
 logger = logging.getLogger("eco_counter")
@@ -61,6 +64,10 @@ def get_traffic_counter_test_dataframe():
     get the column names which is needed for generating testing data.
     """
     return pd.DataFrame(columns=TRAFFIC_COUNTER_TEST_COLUMNS)
+
+
+def get_eco_counter_test_dataframe():
+    return pd.DataFrame(columns=ECO_COUNTER_TEST_COLUMNS)
 
 
 def get_traffic_counter_csv(start_year=2015):
