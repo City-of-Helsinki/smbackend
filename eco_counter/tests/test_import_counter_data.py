@@ -31,6 +31,17 @@ from eco_counter.models import (
 
 TEST_EC_STATION_NAME = "Auransilta"
 TEST_TC_STATION_NAME = "Aninkaistenkatu/Eerikinkatu"
+
+ECO_COUNTER_TEST_COLUMNS = [
+    "startTime",
+    "Auransilta AK",
+    "Auransilta AP",
+    "Auransilta JK",
+    "Auransilta JP",
+    "Auransilta PK",
+    "Auransilta PP",
+]
+
 TRAFFIC_COUNTER_TEST_COLUMNS = [
     "startTime",
     "Aninkaistenkatu/Eerikinkatu AK",
@@ -69,6 +80,7 @@ def test_import_counter_data():
     1.1.2020 is used as the starting point thus it is the same
     starting point as in the real data.
     """
+    print(TRAFFIC_COUNTER)
     start_time = dateutil.parser.parse("2020-01-01T00:00")
     end_time = dateutil.parser.parse("2020-02-29T23:45")
     import_command(test_counter=(ECO_COUNTER, start_time, end_time))
@@ -108,12 +120,17 @@ def test_import_counter_data():
     assert day.weekday_number == 0  # First day in week 2 in 2020 is monday
 
     # Test week data
-    week_data = WeekData.objects.filter(week__week_number=1)[0]
+
+    week_data = WeekData.objects.filter(
+        week__week_number=1, station__name=TEST_EC_STATION_NAME
+    )[0]
     week = Week.objects.filter(week_number=1)[0]
     # first week of 2020 has only 5 days, thus it is the start of the import
     assert week.days.count() == 5
     assert week_data.value_jp == 480  # 5*96
-    week_data = WeekData.objects.filter(week__week_number=2)[0]
+    week_data = WeekData.objects.filter(
+        week__week_number=2, station__name=TEST_EC_STATION_NAME
+    )[0]
     week = Week.objects.filter(week_number=2)[0]
     assert week.days.count() == 7  # second week of 2020 7 days.
     assert week_data.value_jp == 672  # 96*7
@@ -122,7 +139,9 @@ def test_import_counter_data():
     assert Week.objects.filter(week_number=2).count() == num_ec_stations
     assert WeekData.objects.filter(week__week_number=2).count() == num_ec_stations
     # Test month data
-    month = Month.objects.filter(month_number=1, year__year_number=2020)[0]
+    month = Month.objects.get(
+        month_number=1, year__year_number=2020, station__name=TEST_EC_STATION_NAME
+    )
     num_month_days = month.days.all().count()
     jan_month_days = calendar.monthrange(month.year.year_number, month.month_number)[1]
     assert num_month_days == jan_month_days
@@ -130,7 +149,9 @@ def test_import_counter_data():
     assert month_data.value_pp == jan_month_days * 96
     assert month_data.value_pk == jan_month_days * 96
     assert month_data.value_pt == jan_month_days * 96 * 2
-    month = Month.objects.filter(month_number=2, year__year_number=2020)[0]
+    month = Month.objects.get(
+        month_number=2, year__year_number=2020, station__name=TEST_EC_STATION_NAME
+    )
     num_month_days = month.days.all().count()
     feb_month_days = calendar.monthrange(month.year.year_number, month.month_number)[1]
     assert num_month_days == feb_month_days
@@ -176,8 +197,10 @@ def test_import_counter_data():
     )[0]
     assert day_data.value_jt == 96 * 2
     # Test week in previous month
-    week_data = WeekData.objects.filter(week__week_number=8)[0]
-    week = Week.objects.filter(week_number=8)[0]
+    week_data = WeekData.objects.get(
+        week__week_number=8, station__name=TEST_EC_STATION_NAME
+    )
+    week = Week.objects.get(week_number=8, station__name=TEST_EC_STATION_NAME)
     assert week.days.all().count() == 7
     assert week_data.value_jp == 672
     # Test starting month
@@ -185,13 +208,17 @@ def test_import_counter_data():
     month_data = MonthData.objects.get(month=month)
     assert month_data.value_jp == feb_month_days * 96
     # Test new month
-    month = Month.objects.filter(month_number=3, year__year_number=2020)[0]
+    month = Month.objects.get(
+        month_number=3, year__year_number=2020, station__name=TEST_EC_STATION_NAME
+    )
     num_month_days = month.days.all().count()
     mar_month_days = calendar.monthrange(month.year.year_number, month.month_number)[1]
     assert num_month_days == mar_month_days
     month_data = MonthData.objects.get(month=month)
     assert month_data.value_jp == mar_month_days * 96
-    year_data = YearData.objects.filter(year__year_number=2020)[0]
+    year_data = YearData.objects.get(
+        year__year_number=2020, station__name=TEST_EC_STATION_NAME
+    )
     assert year_data.value_jp == (
         jan_month_days * 96 + feb_month_days * 96 + mar_month_days * 96
     )
@@ -212,18 +239,26 @@ def test_import_counter_data():
     # Test new year instance is created.
     assert Year.objects.get(station__name=TEST_EC_STATION_NAME, year_number=2021)
 
-    week_data = WeekData.objects.filter(
-        week__week_number=39, week__years__year_number=2021
-    )[0]
-    week = Week.objects.filter(week_number=39, years__year_number=2021)[0]
+    week_data = WeekData.objects.get(
+        week__week_number=39,
+        week__years__year_number=2021,
+        station__name=TEST_EC_STATION_NAME,
+    )
+    week = Week.objects.get(
+        week_number=39, years__year_number=2021, station__name=TEST_EC_STATION_NAME
+    )
     assert week.days.count() == 3
     # week 39 in 2021 has only 3 days in October, the rest 4 days are in September.
     assert week_data.value_jp == 288  # 3*96
-    week_data = WeekData.objects.filter(week__week_number=40)[0]
-    week = Week.objects.filter(week_number=40)[0]
+    week_data = WeekData.objects.get(
+        week__week_number=40, station__name=TEST_EC_STATION_NAME
+    )
+    week = Week.objects.get(week_number=40, station__name=TEST_EC_STATION_NAME)
     assert week.days.count() == 7  # week 36 in 2021 has 7 days.
     assert week_data.value_jp == 672  # 96*7
-    month = Month.objects.filter(month_number=10, year__year_number=2021)[0]
+    month = Month.objects.get(
+        month_number=10, year__year_number=2021, station__name=TEST_EC_STATION_NAME
+    )
     num_month_days = month.days.all().count()
     oct_month_days = calendar.monthrange(month.year.year_number, month.month_number)[1]
     assert num_month_days == oct_month_days
@@ -236,10 +271,14 @@ def test_import_counter_data():
     )
     # Test the day has 24hours stored even though in reality it hs 25hours.
     # assert len(HourData.objects.get(day_id=day.id).values_ak) == 24
-    year_data = YearData.objects.filter(year__year_number=2021)[0]
+    year_data = YearData.objects.get(
+        year__year_number=2021, station__name=TEST_EC_STATION_NAME
+    )
     assert year_data.value_pp == oct_month_days * 96
     # verify that previous year is intact
-    year_data = YearData.objects.filter(year__year_number=2020)[0]
+    year_data = YearData.objects.get(
+        year__year_number=2020, station__name=TEST_EC_STATION_NAME
+    )
     assert year_data.value_pp == (
         jan_month_days * 96 + feb_month_days * 96 + mar_month_days * 96
     )
