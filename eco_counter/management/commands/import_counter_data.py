@@ -72,6 +72,7 @@ from eco_counter.models import (
 from .utils import (
     gen_eco_counter_test_csv,
     get_eco_counter_csv,
+    get_eco_counter_test_dataframe,
     get_traffic_counter_csv,
     get_traffic_counter_test_dataframe,
     save_eco_counter_stations,
@@ -492,11 +493,11 @@ class Command(BaseCommand):
             ImportState.objects.get_or_create(csv_data_source=counter)
             if counter == ECO_COUNTER:
                 save_eco_counter_stations()
-                eco_counter_csv = get_eco_counter_csv()
+                eco_counter_dataframe = get_eco_counter_test_dataframe()
                 csv_data = gen_eco_counter_test_csv(
-                    eco_counter_csv.keys(), start_time, end_time
+                    eco_counter_dataframe.keys(), start_time, end_time
                 )
-                column_names = eco_counter_csv.keys()
+                column_names = eco_counter_dataframe.keys()
             elif counter == TRAFFIC_COUNTER:
                 save_traffic_counter_stations()
                 traffic_counter_dataframe = get_traffic_counter_test_dataframe()
