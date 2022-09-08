@@ -12,6 +12,7 @@ TRAFFIC_COUNTER_START_YEAR = 2015
 # Change end year when data for the next year is available.
 TRAFFIC_COUNTER_END_YEAR = 2022
 ECO_COUNTER_START_YEAR = 2020
+LAM_COUNTER_START_YEAR = 2010
 TRAFFIC_COUNTER = "TC"
 ECO_COUNTER = "EC"
 LAM_COUNTER = "LC"
@@ -38,13 +39,16 @@ class ImportState(models.Model):
 
 class Station(models.Model):
 
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=64)
     geom = models.PointField(srid=settings.DEFAULT_SRID)
     csv_data_source = models.CharField(
         max_length=2,
         choices=CSV_DATA_SOURCES,
         default=ECO_COUNTER,
     )
+    # For lam stations store the LAM station ID, this is
+    # required when fetching data from the API using the ID.
+    lam_id = models.PositiveSmallIntegerField(null=True)
 
     def __str__(self):
         return "%s %s" % (self.name, self.geom)
