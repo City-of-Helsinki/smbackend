@@ -26,11 +26,15 @@ class Service(models.Model):
         "ServiceNode", null=True, on_delete=models.CASCADE
     )
 
+    keyword_names_fi = ArrayField(models.CharField(max_length=200), default=list)
+    keyword_names_sv = ArrayField(models.CharField(max_length=200), default=list)
+    keyword_names_en = ArrayField(models.CharField(max_length=200), default=list)
+
+    syllables_fi = ArrayField(models.CharField(max_length=16), default=list)
+
     search_column_fi = SearchVectorField(null=True)
     search_column_sv = SearchVectorField(null=True)
     search_column_en = SearchVectorField(null=True)
-
-    syllables_fi = ArrayField(models.CharField(max_length=16), default=list)
 
     def __str__(self):
         return "%s (%s)" % (get_translated(self, "name"), self.id)
@@ -51,9 +55,7 @@ class Service(models.Model):
         will be tokenized to lexems(to_tsvector) and added to
         the search_column.
         """
-        return [
-            "name_fi",
-        ]
+        return ["name_fi", "keyword_names_fi"]
 
     @classmethod
     def get_search_column_indexing(cls, lang):
@@ -65,14 +67,17 @@ class Service(models.Model):
             return [
                 ("name_fi", "finnish", "A"),
                 ("syllables_fi", "finnish", "A"),
+                ("keyword_names_fi", "finnish", "A"),
             ]
         elif lang == "sv":
             return [
                 ("name_sv", "swedish", "A"),
+                ("keyword_names_sv", "swedish", "A"),
             ]
         elif lang == "en":
             return [
                 ("name_en", "english", "A"),
+                ("keyword_names_en", "english", "A"),
             ]
         else:
             return []

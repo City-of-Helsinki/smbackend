@@ -22,6 +22,7 @@ def unit_on_save(sender, **kwargs):
 @receiver(post_save, sender=Service)
 def service_on_save(sender, **kwargs):
     obj = kwargs["instance"]
+    populate_service_keywords(obj)
     generate_syllables(obj)
     transaction.on_commit(populate_search_column(obj))
 
@@ -61,6 +62,23 @@ def generate_syllables(obj):
                     syllables_fi.append(s)
     # Use update instead of save. Save triggers the post_save signal and MPTT building.
     model.objects.filter(id=obj.id).update(syllables_fi=syllables_fi)
+
+
+def populate_service_keywords(obj):
+    keywords = obj.keywords.all()
+    keywords_fi, keywords_sv, keywords_en = [], [], []
+    for keyword in keywords:
+        if keyword.language == "fi":
+            keywords_fi.append(keyword.name)
+        elif keyword.language == "sv":
+            keywords_sv.append(keyword.name)
+        else:
+            keywords_en.append(keyword.name)
+    Service.objects.filter(id=obj.id).update(
+        keyword_names_fi=keywords_fi,
+        keyword_names_sv=keywords_sv,
+        keyword_names_en=keywords_en,
+    )
 
 
 def populate_search_column(obj):
