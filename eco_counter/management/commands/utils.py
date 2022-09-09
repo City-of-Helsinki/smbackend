@@ -236,7 +236,7 @@ def save_lam_counter_stations():
             station.geom = station_obj.geom
             station.save()
             saved += 1
-    logger.info(f"Saved {saved} lam-counter stations.")
+    logger.info(f"Saved {saved} Lam Counter stations.")
 
 
 def save_traffic_counter_stations():
@@ -261,7 +261,7 @@ def save_traffic_counter_stations():
         station.geom = geom
         station.save()
         saved += 1
-    logger.info(f"Saved {saved} traffic-counter stations.")
+    logger.info(f"Saved {saved} Traffic Counter stations.")
 
 
 def save_eco_counter_stations():
@@ -287,11 +287,8 @@ def save_eco_counter_stations():
             station.geom = point
             station.save()
             saved += 1
-    logger.info(
-        "Retrieved {numloc} eco-counter stations, saved {saved} stations.".format(
-            numloc=len(features), saved=saved
-        )
-    )
+
+    logger.info(f"Saved {saved} Eco Counter stations.")
 
 
 def get_traffic_counter_test_dataframe():
