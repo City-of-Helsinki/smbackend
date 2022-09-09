@@ -80,6 +80,7 @@ from .utils import (
     save_eco_counter_stations,
     save_lam_counter_stations,
     save_traffic_counter_stations,
+    TIMESTAMP_COL_NAME,
 )
 
 logger = logging.getLogger("eco_counter")
@@ -101,7 +102,6 @@ class Command(BaseCommand):
     help = "Imports traffic counter data in the Turku region."
     COUNTERS = [ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER]
     COUNTER_CHOICES_STR = f"{ECO_COUNTER}, {TRAFFIC_COUNTER} and {LAM_COUNTER}"
-    TIMESTAMP_COL_NAME = "startTime"
     TIMEZONE = pytz.timezone("Europe/Helsinki")
     STATION_TYPES = [
         ("ak", "ap", "at"),
@@ -290,7 +290,7 @@ class Command(BaseCommand):
             current_weeks[station].years.add(current_years[station])
         for index, row in csv_data.iterrows():
             try:
-                timestamp = row.get(self.TIMESTAMP_COL_NAME, None)
+                timestamp = row.get(TIMESTAMP_COL_NAME, None)
                 if type(timestamp) == str:
                     current_time = dateutil.parser.parse(timestamp)
                 # Support also timestamps that are of Pandas Timestamp type.
@@ -414,7 +414,7 @@ class Command(BaseCommand):
             current_hour keys are the station names and every value contains a dict with the type as its key
             The type is: A|P|J|B (Auto, Pyöräilijä, Jalankulkija, Bussi) + direction P|K , e.g. "JK"
             current_hour[station][station_type] = value, e.g. current_hour["TeatteriSilta"]["PK"] = 6
-            Note the first col is the self.TIMESTAMP_COL_NAME and is discarded, the rest are observations
+            Note the first col is the TIMESTAMP_COL_NAME and is discarded, the rest are observations
             for every station.
             """
             for column in column_names[1:]:
@@ -575,7 +575,7 @@ class Command(BaseCommand):
                 # Convert starting time to input datas timeformat
                 start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")
                 start_index = csv_data.index[
-                    csv_data[self.TIMESTAMP_COL_NAME] == start_time_string
+                    csv_data[TIMESTAMP_COL_NAME] == start_time_string
                 ].values[0]
                 # As LAM data is fetched with a timespan, no index data is available, instead
                 # show time.
