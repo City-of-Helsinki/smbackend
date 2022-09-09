@@ -42,11 +42,11 @@ of the .csv file, 1.1.2020. for the eco counter and 1.1.2015 for the traffic cou
 """
 
 import logging
-import math
 import re
 from datetime import datetime, timedelta
 
 import dateutil.parser
+import pandas as pd
 import pytz
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -58,6 +58,8 @@ from eco_counter.models import (
     ECO_COUNTER_START_YEAR,
     HourData,
     ImportState,
+    LAM_COUNTER,
+    LAM_COUNTER_START_YEAR,
     Month,
     MonthData,
     Station,
@@ -73,9 +75,11 @@ from .utils import (
     gen_eco_counter_test_csv,
     get_eco_counter_csv,
     get_eco_counter_test_dataframe,
+    get_lam_counter_csv,
     get_traffic_counter_csv,
     get_traffic_counter_test_dataframe,
     save_eco_counter_stations,
+    save_lam_counter_stations,
     save_traffic_counter_stations,
 )
 
@@ -281,12 +285,14 @@ class Command(BaseCommand):
                 years__year_number=current_year_number,
             )[0]
             current_weeks[station].years.add(current_years[station])
-
         for index, row in csv_data.iterrows():
             try:
                 timestamp = row.get(self.TIMESTAMP_COL_NAME, None)
                 if type(timestamp) == str:
                     current_time = dateutil.parser.parse(timestamp)
+                # Support also timestamps that are of Pandas Timestamp type.
+                elif type(timestamp) == pd.Timestamp:
+                    current_time = dateutil.parser.parse(str(timestamp))
                 # When the time is changed due to daylight savings
                 # Input data does not contain any timestamp for that hour, only data
                 # so the current_time is calculated
@@ -327,7 +333,6 @@ class Command(BaseCommand):
                             temp_hour[station_name][station_type] = 0
                         self.save_hour_data(temp_hour, current_hours)
 
-            # print(f"Current_time: {current_time} Year: {current_time.year}, I {index}")
             current_year_number = current_time.year
             current_week_number = int(current_time.strftime("%-V"))
             current_weekday_number = current_time.weekday()
@@ -411,8 +416,11 @@ class Command(BaseCommand):
             """
             for column in column_names[1:]:
                 station_name, station_type = self.get_station_name_and_type(column)
-                value = row[column]
-                if math.isnan(value):
+                try:
+                    value = row[column]
+                except TypeError:
+                    breakpoint()
+                if pd.isnull(value):
                     value = int(0)
                 else:
                     value = int(row[column])
@@ -475,15 +483,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options["initial_import"]:
+            # TODO add opption for what counter to be deleted
             logger.info("Deleting tables")
             self.delete_tables()
             logger.info("Retrieving stations...")
             save_eco_counter_stations()
             save_traffic_counter_stations()
+            save_lam_counter_stations()
 
         logger.info("Retrieving observations...")
         start_time = None
-
         if options["test_counter"]:
             logger.info("Testing eco_counter importer.")
             counter = options["test_counter"][0]
@@ -516,29 +525,46 @@ class Command(BaseCommand):
         else:
             if options["counter"]:
                 counters = options["counter"][0]
-                if ECO_COUNTER != counters and TRAFFIC_COUNTER != counters:
+                if (
+                    ECO_COUNTER != counters
+                    and TRAFFIC_COUNTER != counters
+                    and LAM_COUNTER != counters
+                ):
                     raise CommandError(
-                        f"Invalid counter type, valid types are {ECO_COUNTER} or {TRAFFIC_COUNTER}."
+                        f"Invalid counter type, valid types are {ECO_COUNTER}, {TRAFFIC_COUNTER} or {LAM_COUNTER}."
                     )
                 counters = [counters]
             else:
-                counters = [ECO_COUNTER, TRAFFIC_COUNTER]
 
+                counters = [ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER]
+                counters = [TRAFFIC_COUNTER, LAM_COUNTER, ECO_COUNTER]
+
+            # counter_data = {}
+            # if ECO_COUNTER in counters:
+            #     eco_counter_csv = get_eco_counter_csv()
+            #     counter_data[ECO_COUNTER] = {
+            #         "csv_data": eco_counter_csv,
+            #         "column_names": eco_counter_csv.keys(),
+            #         "start_year": ECO_COUNTER_START_YEAR,
+            #     }
+            # if TRAFFIC_COUNTER in counters:
+            #     traffic_counter_csv = get_traffic_counter_csv()
+            #     counter_data[TRAFFIC_COUNTER] = {
+            #         "csv_data": traffic_counter_csv,
+            #         "column_names": traffic_counter_csv.keys(),
+            #         "start_year": TRAFFIC_COUNTER_START_YEAR,
+            #     }
+            # For optimization reasons build rest of the LAM_COUNTER state when
+            # if LAM_COUNTER in counters:
+            #     counter_data[LAM_COUNTER] = {
+            #         "start_year": LAM_COUNTER_START_YEAR,
+            #     }
+            # TODO move/make COUNTER_START_YEARS to models
             counter_data = {}
-            if ECO_COUNTER in counters:
-                eco_counter_csv = get_eco_counter_csv()
-                counter_data[ECO_COUNTER] = {
-                    "csv_data": eco_counter_csv,
-                    "column_names": eco_counter_csv.keys(),
-                    "start_year": ECO_COUNTER_START_YEAR,
-                }
-            if TRAFFIC_COUNTER in counters:
-                traffic_counter_csv = get_traffic_counter_csv()
-                counter_data[TRAFFIC_COUNTER] = {
-                    "csv_data": traffic_counter_csv,
-                    "column_names": traffic_counter_csv.keys(),
-                    "start_year": TRAFFIC_COUNTER_START_YEAR,
-                }
+            counter_data[LAM_COUNTER] = {"start_year": LAM_COUNTER_START_YEAR}
+            counter_data[ECO_COUNTER] = {"start_year": ECO_COUNTER_START_YEAR}
+            counter_data[TRAFFIC_COUNTER] = {"start_year": TRAFFIC_COUNTER_START_YEAR}
+
             for counter in counters:
                 logger.info(f"Importing/counting data for {counter}...")
                 if ImportState.objects.filter(csv_data_source=counter).exists():
@@ -550,26 +576,36 @@ class Command(BaseCommand):
                         csv_data_source=counter,
                         current_year_number=counter_data[counter]["start_year"],
                     )
-
+                if counter == LAM_COUNTER:
+                    start_time = f"{import_state.current_year_number}-{import_state.current_month_number}-01"
+                    csv_data = get_lam_counter_csv(start_time)
+                    # counter_data[LAM_COUNTER]["csv_data"] = lam_counter_csv
+                    # counter_data[LAM_COUNTER]["column_names"] = lam_counter_csv.keys()
+                elif counter == ECO_COUNTER:
+                    csv_data = get_eco_counter_csv()
+                elif counter == TRAFFIC_COUNTER:
+                    csv_data = get_traffic_counter_csv()
                 start_time = "{year}-{month}-1T00:00".format(
                     year=import_state.current_year_number,
                     month=import_state.current_month_number,
                 )
                 start_time = dateutil.parser.parse(start_time)
                 start_time = self.TIMEZONE.localize(start_time)
-                csv_data = counter_data[counter]["csv_data"]
+                # TODO if counter in LAM_COUNTER add csv_data with start_time
+                # csv_data = counter_data[counter]["csv_data"]
                 # The timeformat for the input data is : 2020-03-01T00:00
                 # Convert starting time to input datas timeformat
                 start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")
                 start_index = csv_data.index[
                     csv_data[self.TIMESTAMP_COL_NAME] == start_time_string
                 ].values[0]
+                # TODO, as LAM has no index, use date otherwise index
                 logger.info(f"Starting saving observations at index:{start_index}")
 
                 csv_data = csv_data[start_index:]
                 self.save_observations(
                     csv_data,
                     start_time,
-                    counter_data[counter]["column_names"],
+                    csv_data.keys(),
                     csv_data_source=counter,
                 )
