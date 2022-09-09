@@ -36,6 +36,9 @@ LAM_STATIONS_API_FETCH_URL = (
     + "&lam_type=option1&piste={id}&luokka=kaikki&suunta={direction}&sisallytakaistat=0"
 )
 
+TIMESTAMP_COL_NAME = "startTime"
+
+
 LAM_STATIONS_DIRECTION_MAPPINGS = {
     "1_Piikkiö": "P",
     "1_Naantali": "P",
@@ -103,10 +106,10 @@ def get_traffic_counter_csv(start_year=2015):
         # data from years before the start year.
         if key <= start_year:
             continue
-        app_df = get_dataframe(TRAFFIC_COUNTER_CSV_URLS[key])
+        concat_df = get_dataframe(TRAFFIC_COUNTER_CSV_URLS[key])
         # ignore_index=True, do not use the index values along the concatenation axis.
         # The resulting axis will be labeled 0, …, n - 1.
-        df = pd.concat([df, app_df], ignore_index=True)
+        df = pd.concat([df, concat_df], ignore_index=True)
 
     data_layer = get_traffic_counter_metadata_data_layer()
 
@@ -134,6 +137,8 @@ def get_traffic_counter_csv(start_year=2015):
         new_name = f"{name} {measurement_type}{direction}"
         # Rename the column with the new name that is built from the metadata.
         df.columns = df.columns.str.replace(col_name, new_name, regex=False)
+        df[new_name] = df[new_name].fillna(0).astype("int")
+
     # drop columns with number, i.e. not in metadata as the new column
     # names are in format name_type|direction and does not contain numbers
     df = df.drop(df.filter(regex="[0-9]+").columns, axis=1)
@@ -142,7 +147,8 @@ def get_traffic_counter_csv(start_year=2015):
     df = df.groupby(df.columns, axis=1).sum()
     logger.info(df.info(verbose=False))
     # Move column 'startTime to first (0) position.
-    df.insert(0, "startTime", df.pop("startTime"))
+    df.insert(0, TIMESTAMP_COL_NAME, df.pop(TIMESTAMP_COL_NAME))
+    # df.to_csv("tc_out.csv")
     return df
 
 
@@ -163,7 +169,24 @@ def get_lam_station_dataframe(id, direction, start_date, end_date):
 
 def get_lam_counter_csv(start_date):
     """
-    The func
+    This function returns the lam counter data in a format supported by the counter.
+    startDate, station_name |Type|direction
+    e.g.:
+    startTime,Tie 8 Raisio AP,Tie 8 Raisio AK,
+    0,2010-01-01 00:00:00,168,105
+    1,2010-01-01 00:00:15,138,45
+
+    1. Creates a dataframe and generate a column(startTime) with timestamps for every 15min
+    2. For every station fetch the csv data with the given start_date to the current day.
+    3. The source data is in format
+    257;yt1851_Turku_Härkämäki;20141024;2;Artukainen;*;Kaikki;kaikki;30;7;13;14;34;137;478;768;551;523;528;585;647;634;700;762;745;890;698;515;282;171;90;77;9879
+    Drop the non data column.
+    Transpose every row and as there are data only for every hour, add threee consecutive 0 values
+    after every hour value.
+    4. Add a column for every stations both directions with the transposed and filled data.
+    5. Shift the columns with the calculated shift_index, this must be done if there is no data
+    for the station from the start_date. This ensures the data matches the timestamps.
+
     """
 
     today = date.today().strftime("%Y-%m-%d")
@@ -178,32 +201,32 @@ def get_lam_counter_csv(start_date):
     time_stamps = pd.date_range(start_time, freq="15T", periods=num_15min_freq)
 
     data_frame = pd.DataFrame()
-    data_frame["startTime"] = time_stamps
+    data_frame[TIMESTAMP_COL_NAME] = time_stamps
     for station in Station.objects.filter(csv_data_source=LAM_COUNTER):
-        # Directions are 1 and 2
+        # In source data the directions are 1 and 2.
         for direction in range(1, 3):
             df = get_lam_station_dataframe(station.lam_id, direction, start_date, today)
             # Read the direction
             direction_name = df["suuntaselite"].iloc[0]
+            # From the mappings determine the keskustaan päin or poispäin keskustasta direction.
             direction_value = LAM_STATIONS_DIRECTION_MAPPINGS[
                 f"{direction}_{direction_name}"
             ]
-
             start_time = dateutil.parser.parse(f"{str(df['pvm'].iloc[0])}-T00:00")
             # Calculate shift index, i.e., if data starts from different position that the start_date.
             # then shift the rows to the correct position using the calculated shift_index.
-            shift_index = data_frame.index[data_frame.startTime == str(start_time)][0]
-
+            shift_index = data_frame.index[
+                getattr(data_frame, TIMESTAMP_COL_NAME) == str(start_time)
+            ][0]
             column_name = f"{station.name} A{direction_value}"
-            # Drop non data columns
+            # Drop non data columns from the beginning of the dataframe
             df.drop(df.iloc[:, 0:8], inplace=True, axis=1)
             # Drop last "Yhteensä" columns
             df = df.iloc[:, :-1]
             values = []
-
             for _, row in df.iterrows():
                 i = 0
-                # Transpose row
+                # Transpose and add 3 consecutive 0 values
                 for e in range(len(row) * 4):
                     if e % 4 == 0:
                         values.append(row[i])
@@ -212,6 +235,7 @@ def get_lam_counter_csv(start_date):
                         values.append(0)
 
             data_frame[column_name] = pd.Series(values)
+            data_frame[column_name] = data_frame[column_name].fillna(0).astype("int")
             data_frame[column_name] = data_frame[column_name].shift(
                 periods=shift_index, axis=0, fill_value=0
             )
