@@ -1,7 +1,9 @@
 import io
+import json
 import logging
-from datetime import timedelta
+from datetime import date, timedelta
 
+import dateutil.parser
 import pandas as pd
 import requests
 from django.conf import settings
@@ -10,6 +12,7 @@ from django.contrib.gis.geos import GEOSGeometry, Point
 
 from eco_counter.models import (
     ECO_COUNTER,
+    LAM_COUNTER,
     Station,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_END_YEAR,
@@ -24,8 +27,30 @@ from mobility_data.importers.utils import get_root_dir
 logger = logging.getLogger("eco_counter")
 
 TRAFFIC_COUNTER_METADATA_GEOJSON = "traffic_counter_metadata.geojson"
+# LAM stations located in the municipalities list are included.
+LAM_STATION_MUNICIPALITIES = ["Turku", "Raisio", "Kaarina", "Lieto"]
+# LAM_STATION_MUNICIPALITIES = ["Turku"]
+LAM_STATIONS_API_FETCH_URL = (
+    settings.LAM_COUNTER_API_BASE_URL
+    + "?api=liikennemaara&tyyppi=h&pvm={start_date}&loppu={end_date}"
+    + "&lam_type=option1&piste={id}&luokka=kaikki&suunta={direction}&sisallytakaistat=0"
+)
 
-
+LAM_STATIONS_DIRECTION_MAPPINGS = {
+    "1_Piikkiö": "P",
+    "1_Naantali": "P",
+    "2_Naantali": "K",
+    "1_Turku": "K",
+    "2_Turku": "K",
+    "2_Helsinki": "P",
+    "1_Suikkila": "K",
+    "2_Artukainen": "P",
+    "1_Vaasa": "P",
+    "1_Kuusisto": "P",
+    "2_Kaarina": "K",
+    "1_Tampere": "P",
+    "1_Hämeenlinna": "P",
+}
 # Create a dict where the years to be importer are keys and the value is the url of the csv data.
 # e.g. {2015, "https://data.turku.fi/2yxpk2imqi2mzxpa6e6knq/2015_laskenta.csv"}
 keys = [k for k in range(TRAFFIC_COUNTER_START_YEAR, TRAFFIC_COUNTER_END_YEAR + 1)]
@@ -35,6 +60,20 @@ TRAFFIC_COUNTER_CSV_URLS = dict(
         for k in keys
     ]
 )
+
+
+class LAMStation:
+    def __init__(self, feature):
+        self.lam_id = feature["tmsNumber"].as_int()
+        names = json.loads(feature["names"].as_string())
+        self.name = names["fi"]
+        self.name_sv = names["sv"]
+        self.name_en = names["en"]
+        # The source data has a obsolete Z dimension with value 0, remove it.
+        geom = feature.geom.clone()
+        geom.coord_dim = 2
+        self.geom = GEOSGeometry(geom.wkt, srid=4326)
+        self.geom.transform(settings.DEFAULT_SRID)
 
 
 def get_traffic_counter_metadata_data_layer():
@@ -54,20 +93,6 @@ def get_dataframe(url):
 
 def get_eco_counter_csv():
     return get_dataframe(settings.ECO_COUNTER_OBSERVATIONS_URL)
-
-
-def get_traffic_counter_test_dataframe():
-    """
-    Generate a Dataframe with only column names for testing. The dataframe
-    will then be populated with generated values. The reason for this is
-    to avoid calling the very slow get_traffic_counter_csv function to only
-    get the column names which is needed for generating testing data.
-    """
-    return pd.DataFrame(columns=TRAFFIC_COUNTER_TEST_COLUMNS)
-
-
-def get_eco_counter_test_dataframe():
-    return pd.DataFrame(columns=ECO_COUNTER_TEST_COLUMNS)
 
 
 def get_traffic_counter_csv(start_year=2015):
@@ -119,6 +144,99 @@ def get_traffic_counter_csv(start_year=2015):
     # Move column 'startTime to first (0) position.
     df.insert(0, "startTime", df.pop("startTime"))
     return df
+
+
+def get_lam_dataframe(csv_url):
+    response = requests.get(csv_url)
+    string_data = response.content
+    csv_data = pd.read_csv(io.StringIO(string_data.decode("utf-8")), delimiter=";")
+    return csv_data
+
+
+def get_lam_station_dataframe(id, direction, start_date, end_date):
+    url = LAM_STATIONS_API_FETCH_URL.format(
+        id=id, direction=direction, start_date=start_date, end_date=end_date
+    )
+    df = get_lam_dataframe(url)
+    return df
+
+
+def get_lam_counter_csv(start_date):
+    """
+    The func
+    """
+
+    today = date.today().strftime("%Y-%m-%d")
+    start_time = dateutil.parser.parse(f"{start_date}-T00:00")
+    end_time = dateutil.parser.parse(f"{today}-T23:45")
+    dif_time = end_time - start_time
+    # TODO, add 1 ?
+    num_15min_freq = dif_time.total_seconds() / 60 / 15
+    # TODO capsulate to own function
+    # TODO Daylight saving , leap year
+    # tz= 'Europe/Helsinki'
+    time_stamps = pd.date_range(start_time, freq="15T", periods=num_15min_freq)
+
+    data_frame = pd.DataFrame()
+    data_frame["startTime"] = time_stamps
+    for station in Station.objects.filter(csv_data_source=LAM_COUNTER):
+        # Directions are 1 and 2
+        for direction in range(1, 3):
+            df = get_lam_station_dataframe(station.lam_id, direction, start_date, today)
+            # Read the direction
+            direction_name = df["suuntaselite"].iloc[0]
+            direction_value = LAM_STATIONS_DIRECTION_MAPPINGS[
+                f"{direction}_{direction_name}"
+            ]
+
+            start_time = dateutil.parser.parse(f"{str(df['pvm'].iloc[0])}-T00:00")
+            # Calculate shift index, i.e., if data starts from different position that the start_date.
+            # then shift the rows to the correct position using the calculated shift_index.
+            shift_index = data_frame.index[data_frame.startTime == str(start_time)][0]
+
+            column_name = f"{station.name} A{direction_value}"
+            # Drop non data columns
+            df.drop(df.iloc[:, 0:8], inplace=True, axis=1)
+            # Drop last "Yhteensä" columns
+            df = df.iloc[:, :-1]
+            values = []
+
+            for _, row in df.iterrows():
+                i = 0
+                # Transpose row
+                for e in range(len(row) * 4):
+                    if e % 4 == 0:
+                        values.append(row[i])
+                        i += 1
+                    else:
+                        values.append(0)
+
+            data_frame[column_name] = pd.Series(values)
+            data_frame[column_name] = data_frame[column_name].shift(
+                periods=shift_index, axis=0, fill_value=0
+            )
+    # data_frame.to_csv("lam_out.csv")
+    return data_frame
+
+
+def save_lam_counter_stations():
+    data_layer = DataSource(settings.LAM_COUNTER_STATIONS_URL)[0]
+    saved = 0
+    for feature in data_layer:
+        if feature["municipality"].as_string() in LAM_STATION_MUNICIPALITIES:
+            station_obj = LAMStation(feature)
+            if Station.objects.filter(name=station_obj.name).exists():
+                continue
+            station = Station()
+            station.lam_id = station_obj.lam_id
+            station.name = station_obj.name
+            station.name_sv = station_obj.name_sv
+            station.name_en = station_obj.name_en
+            station.csv_data_source = LAM_COUNTER
+            station.geom = station_obj.geom
+            station.save()
+            saved += 1
+    logger.info(f"Saved {saved} lam-counter stations.")
 
 
 def save_traffic_counter_stations():
@@ -174,6 +292,20 @@ def save_eco_counter_stations():
             numloc=len(features), saved=saved
         )
     )
+
+
+def get_traffic_counter_test_dataframe():
+    """
+    Generate a Dataframe with only column names for testing. The dataframe
+    will then be populated with generated values. The reason for this is
+    to avoid calling the very slow get_traffic_counter_csv function to only
+    get the column names which is needed for generating testing data.
+    """
+    return pd.DataFrame(columns=TRAFFIC_COUNTER_TEST_COLUMNS)
+
+
+def get_eco_counter_test_dataframe():
+    return pd.DataFrame(columns=ECO_COUNTER_TEST_COLUMNS)
 
 
 def gen_eco_counter_test_csv(keys, start_time, end_time):
