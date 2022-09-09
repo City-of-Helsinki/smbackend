@@ -41,6 +41,7 @@ of the .csv file, 1.1.2020. for the eco counter and 1.1.2015 for the traffic cou
 
 """
 
+import gc
 import logging
 import re
 from datetime import datetime, timedelta
@@ -52,19 +53,17 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from eco_counter.models import (
+    COUNTER_START_YEARS,
     Day,
     DayData,
     ECO_COUNTER,
-    ECO_COUNTER_START_YEAR,
     HourData,
     ImportState,
     LAM_COUNTER,
-    LAM_COUNTER_START_YEAR,
     Month,
     MonthData,
     Station,
     TRAFFIC_COUNTER,
-    TRAFFIC_COUNTER_START_YEAR,
     Week,
     WeekData,
     Year,
@@ -99,8 +98,9 @@ ERRORNEOUS_VALUE_THRESHOLD = 5400
 
 
 class Command(BaseCommand):
-    help = "Imports Turku Traffic Volumes"
-
+    help = "Imports traffic counter data in the Turku region."
+    COUNTERS = [ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER]
+    COUNTER_CHOICES_STR = f"{ECO_COUNTER}, {TRAFFIC_COUNTER} and {LAM_COUNTER}"
     TIMESTAMP_COL_NAME = "startTime"
     TIMEZONE = pytz.timezone("Europe/Helsinki")
     STATION_TYPES = [
@@ -110,18 +110,21 @@ class Command(BaseCommand):
         ("bk", "bp", "bt"),
     ]
 
-    def delete_tables(self):
-        HourData.objects.all().delete()
-        DayData.objects.all().delete()
-        Day.objects.all().delete()
-        WeekData.objects.all().delete()
-        Week.objects.all().delete()
-        Month.objects.all().delete()
-        MonthData.objects.all().delete()
-        Year.objects.all().delete()
-        YearData.objects.all().delete()
-        Station.objects.all().delete()
-        ImportState.objects.all().delete()
+    def delete_tables(
+        self, csv_data_sources=[ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER]
+    ):
+        # HourData.objects.all().delete()
+        # DayData.objects.all().delete()
+        # Day.objects.all().delete()
+        # WeekData.objects.all().delete()
+        # Week.objects.all().delete()
+        # Month.objects.all().delete()
+        # MonthData.objects.all().delete()
+        # Year.objects.all().delete()
+        # YearData.objects.all().delete()
+        for csv_data_source in csv_data_sources:
+            Station.objects.filter(csv_data_source=csv_data_source).delete()
+            ImportState.objects.filter(csv_data_source=csv_data_source).delete()
 
     def calc_and_save_cumulative_data(self, src_obj, dst_obj):
 
@@ -210,7 +213,7 @@ class Command(BaseCommand):
                 # keskustaan päin
                 k_field = station_type[0]
                 k_value = 0
-                # poispäin keskustastat
+                # poispäin keskustasta
                 p_field = station_type[1]
                 p_value = 0
                 total_field = station_type[2]
@@ -416,10 +419,7 @@ class Command(BaseCommand):
             """
             for column in column_names[1:]:
                 station_name, station_type = self.get_station_name_and_type(column)
-                try:
-                    value = row[column]
-                except TypeError:
-                    breakpoint()
+                value = row[column]
                 if pd.isnull(value):
                     value = int(0)
                 else:
@@ -461,38 +461,60 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--initial-import",
-            action="store_true",
+            type=str,
+            nargs="+",
             default=False,
-            help="Deletes all tables before importing. Imports stations and\
-                 starts importing from row 0.",
+            help=f"For given counters in arguments deletes all tables before importing, imports stations and\
+                 starts importing from row 0. The counter arguments are: {self.COUNTER_CHOICES_STR}",
         )
         parser.add_argument(
             "--test-counter",
             type=int,
             nargs="+",
             default=False,
-            help="Test importing of  data. Uses Generated pandas dataframe.",
+            help="Test importing of data. Uses Generated pandas dataframe.",
         )
         parser.add_argument(
-            "--counter",
+            "--counters",
             type=str,
             nargs="+",
             default=False,
-            help=f"Import specific counter data, choices are: {ECO_COUNTER} or {TRAFFIC_COUNTER}.",
+            help=f"Import specific counter(s) data, choices are: {self.COUNTER_CHOICES_STR}.",
         )
 
-    def handle(self, *args, **options):
-        if options["initial_import"]:
-            # TODO add opption for what counter to be deleted
-            logger.info("Deleting tables")
-            self.delete_tables()
-            logger.info("Retrieving stations...")
-            save_eco_counter_stations()
-            save_traffic_counter_stations()
-            save_lam_counter_stations()
+    def check_counters_argument(self, counters):
+        for counter in counters:
+            if counter not in self.COUNTERS:
+                raise CommandError(
+                    f"Invalid counter type, valid types are: {self.COUNTER_CHOICES_STR}."
+                )
 
-        logger.info("Retrieving observations...")
+    def handle(self, *args, **options):
+        initial_import_counters = None
         start_time = None
+        if options["initial_import"]:
+            if len(options["initial_import"]) == 0:
+                raise CommandError(
+                    f"Specify the counter(s), choices are: {self.COUNTER_CHOICES_STR}."
+                )
+            else:
+                initial_import_counters = options["initial_import"]
+                self.check_counters_argument(initial_import_counters)
+                logger.info(f"Deleting tables for: {initial_import_counters}")
+                self.delete_tables(csv_data_sources=initial_import_counters)
+                for counter in initial_import_counters:
+                    import_state = ImportState.objects.create(
+                        csv_data_source=counter,
+                        current_year_number=COUNTER_START_YEARS[counter],
+                    )
+                    logger.info(f"Retrieving stations for {counter}.")
+                    if counter == ECO_COUNTER:
+                        save_eco_counter_stations()
+                    elif counter == TRAFFIC_COUNTER:
+                        save_traffic_counter_stations()
+                    elif counter == LAM_COUNTER:
+                        save_lam_counter_stations()
+
         if options["test_counter"]:
             logger.info("Testing eco_counter importer.")
             counter = options["test_counter"][0]
@@ -522,65 +544,23 @@ class Command(BaseCommand):
                 column_names,
                 csv_data_source=counter,
             )
-        else:
-            if options["counter"]:
-                counters = options["counter"][0]
-                if (
-                    ECO_COUNTER != counters
-                    and TRAFFIC_COUNTER != counters
-                    and LAM_COUNTER != counters
-                ):
-                    raise CommandError(
-                        f"Invalid counter type, valid types are {ECO_COUNTER}, {TRAFFIC_COUNTER} or {LAM_COUNTER}."
-                    )
-                counters = [counters]
+        # Import if counters arg or counters (initial import).
+        if options["counters"] or initial_import_counters:
+            if not initial_import_counters:
+                # run with counters argument
+                counters = options["counters"]
+                self.check_counters_argument(counters)
             else:
-
-                counters = [ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER]
-                counters = [TRAFFIC_COUNTER, LAM_COUNTER, ECO_COUNTER]
-
-            # counter_data = {}
-            # if ECO_COUNTER in counters:
-            #     eco_counter_csv = get_eco_counter_csv()
-            #     counter_data[ECO_COUNTER] = {
-            #         "csv_data": eco_counter_csv,
-            #         "column_names": eco_counter_csv.keys(),
-            #         "start_year": ECO_COUNTER_START_YEAR,
-            #     }
-            # if TRAFFIC_COUNTER in counters:
-            #     traffic_counter_csv = get_traffic_counter_csv()
-            #     counter_data[TRAFFIC_COUNTER] = {
-            #         "csv_data": traffic_counter_csv,
-            #         "column_names": traffic_counter_csv.keys(),
-            #         "start_year": TRAFFIC_COUNTER_START_YEAR,
-            #     }
-            # For optimization reasons build rest of the LAM_COUNTER state when
-            # if LAM_COUNTER in counters:
-            #     counter_data[LAM_COUNTER] = {
-            #         "start_year": LAM_COUNTER_START_YEAR,
-            #     }
-            # TODO move/make COUNTER_START_YEARS to models
-            counter_data = {}
-            counter_data[LAM_COUNTER] = {"start_year": LAM_COUNTER_START_YEAR}
-            counter_data[ECO_COUNTER] = {"start_year": ECO_COUNTER_START_YEAR}
-            counter_data[TRAFFIC_COUNTER] = {"start_year": TRAFFIC_COUNTER_START_YEAR}
+                counters = initial_import_counters
 
             for counter in counters:
                 logger.info(f"Importing/counting data for {counter}...")
-                if ImportState.objects.filter(csv_data_source=counter).exists():
-                    import_state = ImportState.objects.filter(
-                        csv_data_source=counter
-                    ).first()
-                else:
-                    import_state = ImportState.objects.create(
-                        csv_data_source=counter,
-                        current_year_number=counter_data[counter]["start_year"],
-                    )
+                import_state = ImportState.objects.filter(
+                    csv_data_source=counter
+                ).first()
                 if counter == LAM_COUNTER:
                     start_time = f"{import_state.current_year_number}-{import_state.current_month_number}-01"
                     csv_data = get_lam_counter_csv(start_time)
-                    # counter_data[LAM_COUNTER]["csv_data"] = lam_counter_csv
-                    # counter_data[LAM_COUNTER]["column_names"] = lam_counter_csv.keys()
                 elif counter == ECO_COUNTER:
                     csv_data = get_eco_counter_csv()
                 elif counter == TRAFFIC_COUNTER:
@@ -591,16 +571,19 @@ class Command(BaseCommand):
                 )
                 start_time = dateutil.parser.parse(start_time)
                 start_time = self.TIMEZONE.localize(start_time)
-                # TODO if counter in LAM_COUNTER add csv_data with start_time
-                # csv_data = counter_data[counter]["csv_data"]
                 # The timeformat for the input data is : 2020-03-01T00:00
                 # Convert starting time to input datas timeformat
                 start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")
                 start_index = csv_data.index[
                     csv_data[self.TIMESTAMP_COL_NAME] == start_time_string
                 ].values[0]
-                # TODO, as LAM has no index, use date otherwise index
-                logger.info(f"Starting saving observations at index:{start_index}")
+                # As LAM data is fetched with a timespan, no index data is available, instead
+                # show time.
+                if counter == LAM_COUNTER:
+                    logger.info(f"Starting saving observations at time:{start_time}")
+
+                else:
+                    logger.info(f"Starting saving observations at index:{start_index}")
 
                 csv_data = csv_data[start_index:]
                 self.save_observations(
@@ -609,3 +592,6 @@ class Command(BaseCommand):
                     csv_data.keys(),
                     csv_data_source=counter,
                 )
+                # Try to Free memory
+                del csv_data
+                gc.collect()
