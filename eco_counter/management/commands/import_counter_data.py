@@ -1,9 +1,6 @@
 """
 Usage:
-For initial import or changes in the stations:
-python manage.py import-counter-data --initial-import
-otherwise for incremental import:
-python manage.py import-counter-data
+see README.md
 
 Brief explanation of the import alogithm:
 1. Import the stations.
@@ -37,7 +34,8 @@ Brief explanation of the import alogithm:
 10. Save import state.
 
 * If executed with the --init-tables flag, the imports will start from the beginning
-of the .csv file, 1.1.2020. for the eco counter and 1.1.2015 for the traffic counter.
+of the .csv file, 1.1.2020. for the eco counter , 1.1.2015 for the traffic counter and
+1.1.2010 for the lam counter.
 
 """
 
@@ -112,15 +110,6 @@ class Command(BaseCommand):
     def delete_tables(
         self, csv_data_sources=[ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER]
     ):
-        # HourData.objects.all().delete()
-        # DayData.objects.all().delete()
-        # Day.objects.all().delete()
-        # WeekData.objects.all().delete()
-        # Week.objects.all().delete()
-        # Month.objects.all().delete()
-        # MonthData.objects.all().delete()
-        # Year.objects.all().delete()
-        # YearData.objects.all().delete()
         for csv_data_source in csv_data_sources:
             Station.objects.filter(csv_data_source=csv_data_source).delete()
             ImportState.objects.filter(csv_data_source=csv_data_source).delete()
@@ -287,6 +276,7 @@ class Command(BaseCommand):
                 years__year_number=current_year_number,
             )[0]
             current_weeks[station].years.add(current_years[station])
+
         for index, row in csv_data.iterrows():
             try:
                 timestamp = row.get(TIMESTAMP_COL_NAME, None)
@@ -354,6 +344,7 @@ class Command(BaseCommand):
 
                 # Year, month, week tables are created before the day tables
                 # to ensure correct relations.
+
                 if prev_year_number != current_year_number or not current_years:
                     # if we have a prev_year_number and it is not the current_year_number store yearly data.
                     if prev_year_number:
@@ -519,7 +510,13 @@ class Command(BaseCommand):
             counter = options["test_counter"][0]
             start_time = options["test_counter"][1]
             end_time = options["test_counter"][2]
-            ImportState.objects.get_or_create(csv_data_source=counter)
+            import_state, created = ImportState.objects.get_or_create(
+                csv_data_source=counter
+            )
+            if created:
+                import_state.current_year_number = start_time.year
+                import_state.current_month_number = start_time.month
+                import_state.save()
             if counter == ECO_COUNTER:
                 save_eco_counter_stations()
             elif counter == TRAFFIC_COUNTER:
