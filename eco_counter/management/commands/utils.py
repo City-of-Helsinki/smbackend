@@ -18,27 +18,19 @@ from eco_counter.models import (
     TRAFFIC_COUNTER_END_YEAR,
     TRAFFIC_COUNTER_START_YEAR,
 )
-from eco_counter.tests.test_import_counter_data import (
-    ECO_COUNTER_TEST_COLUMNS,
-    TRAFFIC_COUNTER_TEST_COLUMNS,
-)
+from eco_counter.tests.test_import_counter_data import TEST_COLUMN_NAMES
 from mobility_data.importers.utils import get_root_dir
 
 logger = logging.getLogger("eco_counter")
-
+TIMESTAMP_COL_NAME = "startTime"
 TRAFFIC_COUNTER_METADATA_GEOJSON = "traffic_counter_metadata.geojson"
 # LAM stations located in the municipalities list are included.
 LAM_STATION_MUNICIPALITIES = ["Turku", "Raisio", "Kaarina", "Lieto"]
-# LAM_STATION_MUNICIPALITIES = ["Turku"]
 LAM_STATIONS_API_FETCH_URL = (
     settings.LAM_COUNTER_API_BASE_URL
     + "?api=liikennemaara&tyyppi=h&pvm={start_date}&loppu={end_date}"
     + "&lam_type=option1&piste={id}&luokka=kaikki&suunta={direction}&sisallytakaistat=0"
 )
-
-TIMESTAMP_COL_NAME = "startTime"
-
-
 LAM_STATIONS_DIRECTION_MAPPINGS = {
     "1_Piikkiö": "P",
     "1_Naantali": "P",
@@ -99,6 +91,16 @@ def get_eco_counter_csv():
 
 
 def get_traffic_counter_csv(start_year=2015):
+    """
+    This function returns traffic counter data in a format supported by the counter.
+    1. For every year there is a separate csv file. Fetch them and concate into one.
+    2. With the metadata set the column names to station_name|Type|direction format
+    e.g.:
+    startTime,Aninkaistenkatu/Eerikinkatu AK,Aninkaistenkatu/Eerikinkatu BK
+    0,2015-01-01T00:00,105,79
+    0,2015-01-01T00:15,125,89
+    3. Merge columns with same name into one column, i.e., merge lanes into one.
+    """
     df = get_dataframe(TRAFFIC_COUNTER_CSV_URLS[start_year])
     # Concat the Traffic counter CSV data into one CSV.
     for key in TRAFFIC_COUNTER_CSV_URLS.keys():
@@ -112,7 +114,6 @@ def get_traffic_counter_csv(start_year=2015):
         df = pd.concat([df, concat_df], ignore_index=True)
 
     data_layer = get_traffic_counter_metadata_data_layer()
-
     ids_not_found = 0
     # Rename columns using the metadata to format: name_type|direction
     # e.g. Yliopistonkatu AK
@@ -130,7 +131,7 @@ def get_traffic_counter_csv(start_year=2015):
             logger.error(f"Multiple ids: {id}, found in csv data, skipping.")
             continue
         if len(column.keys()) == 0:
-            logger.warning(f"ID:{id} in metadata not found in csv data")
+            logger.warning(f"ID:{id} in metadata not found in csv data.")
             ids_not_found += 1
             continue
         col_name = column.keys()[0]
@@ -146,6 +147,7 @@ def get_traffic_counter_csv(start_year=2015):
     # axis=1, split along columns.
     df = df.groupby(df.columns, axis=1).sum()
     logger.info(df.info(verbose=False))
+    logger.info(f"{ids_not_found} IDs not found in metadata.")
     # Move column 'startTime to first (0) position.
     df.insert(0, TIMESTAMP_COL_NAME, df.pop(TIMESTAMP_COL_NAME))
     # df.to_csv("tc_out.csv")
@@ -170,7 +172,7 @@ def get_lam_station_dataframe(id, direction, start_date, end_date):
 def get_lam_counter_csv(start_date):
     """
     This function returns the lam counter data in a format supported by the counter.
-    startDate, station_name |Type|direction
+    startDate, station_name|Type|direction
     e.g.:
     startTime,Tie 8 Raisio AP,Tie 8 Raisio AK,
     0,2010-01-01 00:00:00,168,105
@@ -199,7 +201,6 @@ def get_lam_counter_csv(start_date):
     # TODO Daylight saving , leap year
     # tz= 'Europe/Helsinki'
     time_stamps = pd.date_range(start_time, freq="15T", periods=num_15min_freq)
-
     data_frame = pd.DataFrame()
     data_frame[TIMESTAMP_COL_NAME] = time_stamps
     for station in Station.objects.filter(csv_data_source=LAM_COUNTER):
@@ -315,18 +316,14 @@ def save_eco_counter_stations():
     logger.info(f"Saved {saved} Eco Counter stations.")
 
 
-def get_traffic_counter_test_dataframe():
+def get_test_dataframe(counter):
     """
     Generate a Dataframe with only column names for testing. The dataframe
     will then be populated with generated values. The reason for this is
     to avoid calling the very slow get_traffic_counter_csv function to only
     get the column names which is needed for generating testing data.
     """
-    return pd.DataFrame(columns=TRAFFIC_COUNTER_TEST_COLUMNS)
-
-
-def get_eco_counter_test_dataframe():
-    return pd.DataFrame(columns=ECO_COUNTER_TEST_COLUMNS)
+    return pd.DataFrame(columns=TEST_COLUMN_NAMES[counter])
 
 
 def gen_eco_counter_test_csv(keys, start_time, end_time):

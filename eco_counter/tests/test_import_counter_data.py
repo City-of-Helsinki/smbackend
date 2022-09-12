@@ -19,6 +19,7 @@ from eco_counter.models import (
     ECO_COUNTER,
     HourData,
     ImportState,
+    LAM_COUNTER,
     Month,
     MonthData,
     Station,
@@ -31,8 +32,8 @@ from eco_counter.models import (
 
 TEST_EC_STATION_NAME = "Auransilta"
 TEST_TC_STATION_NAME = "Aninkaistenkatu/Eerikinkatu"
-
-ECO_COUNTER_TEST_COLUMNS = [
+TEST_LC_STATION_NAME = "Tie 8 Raisio"
+ECO_COUNTER_TEST_COLUMN_NAMES = [
     "startTime",
     "Auransilta AK",
     "Auransilta AP",
@@ -42,7 +43,7 @@ ECO_COUNTER_TEST_COLUMNS = [
     "Auransilta PP",
 ]
 
-TRAFFIC_COUNTER_TEST_COLUMNS = [
+TRAFFIC_COUNTER_TEST_COLUMN_NAMES = [
     "startTime",
     "Aninkaistenkatu/Eerikinkatu AK",
     "Aninkaistenkatu/Eerikinkatu AP",
@@ -56,6 +57,24 @@ TRAFFIC_COUNTER_TEST_COLUMNS = [
     "Askaistentie/Vähäheikkiläntie BP",
     "Aurakatu/Läntinen Rantakatu PK",
 ]
+
+LAM_COUNTER_TEST_COLUMN_NAMES = [
+    "startTime",
+    "Tie 8 Raisio AP",
+    "Tie 8 Raisio AK",
+    "Tie 8 Raisio PP",
+    "Tie 8 Raisio PK",
+    "Tie 8 Raisio JP",
+    "Tie 8 Raisio JK",
+    "Tie 8 Raisio BP",
+    "Tie 8 Raisio BK",
+]
+
+TEST_COLUMN_NAMES = {
+    ECO_COUNTER: ECO_COUNTER_TEST_COLUMN_NAMES,
+    TRAFFIC_COUNTER: TRAFFIC_COUNTER_TEST_COLUMN_NAMES,
+    LAM_COUNTER: LAM_COUNTER_TEST_COLUMN_NAMES,
+}
 
 
 def import_command(*args, **kwargs):

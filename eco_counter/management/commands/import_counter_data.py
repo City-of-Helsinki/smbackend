@@ -73,10 +73,9 @@ from eco_counter.models import (
 from .utils import (
     gen_eco_counter_test_csv,
     get_eco_counter_csv,
-    get_eco_counter_test_dataframe,
     get_lam_counter_csv,
+    get_test_dataframe,
     get_traffic_counter_csv,
-    get_traffic_counter_test_dataframe,
     save_eco_counter_stations,
     save_lam_counter_stations,
     save_traffic_counter_stations,
@@ -520,31 +519,26 @@ class Command(BaseCommand):
             counter = options["test_counter"][0]
             start_time = options["test_counter"][1]
             end_time = options["test_counter"][2]
-
             ImportState.objects.get_or_create(csv_data_source=counter)
             if counter == ECO_COUNTER:
                 save_eco_counter_stations()
-                eco_counter_dataframe = get_eco_counter_test_dataframe()
-                csv_data = gen_eco_counter_test_csv(
-                    eco_counter_dataframe.keys(), start_time, end_time
-                )
-                column_names = eco_counter_dataframe.keys()
             elif counter == TRAFFIC_COUNTER:
                 save_traffic_counter_stations()
-                traffic_counter_dataframe = get_traffic_counter_test_dataframe()
-                csv_data = gen_eco_counter_test_csv(
-                    traffic_counter_dataframe.keys(), start_time, end_time
-                )
-                column_names = traffic_counter_dataframe.keys()
+            elif counter == LAM_COUNTER:
+                save_lam_counter_stations()
             else:
                 raise CommandError("No valid counter argument given.")
+            test_dataframe = get_test_dataframe(counter)
+            csv_data = gen_eco_counter_test_csv(
+                test_dataframe.keys(), start_time, end_time
+            )
             self.save_observations(
                 csv_data,
                 start_time,
-                column_names,
+                test_dataframe.keys(),
                 csv_data_source=counter,
             )
-        # Import if counters arg or counters (initial import).
+        # Import if counters arg or (initial import).
         if options["counters"] or initial_import_counters:
             if not initial_import_counters:
                 # run with counters argument
@@ -564,7 +558,9 @@ class Command(BaseCommand):
                 elif counter == ECO_COUNTER:
                     csv_data = get_eco_counter_csv()
                 elif counter == TRAFFIC_COUNTER:
-                    csv_data = get_traffic_counter_csv()
+                    csv_data = get_traffic_counter_csv(
+                        start_year=import_state.current_year_number
+                    )
                 start_time = "{year}-{month}-1T00:00".format(
                     year=import_state.current_year_number,
                     month=import_state.current_month_number,
