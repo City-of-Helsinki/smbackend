@@ -99,14 +99,12 @@ def test_import_counter_data():
     1.1.2020 is used as the starting point thus it is the same
     starting point as in the real data.
     """
-    print(TRAFFIC_COUNTER)
     start_time = dateutil.parser.parse("2020-01-01T00:00")
     end_time = dateutil.parser.parse("2020-02-29T23:45")
     import_command(test_counter=(ECO_COUNTER, start_time, end_time))
     num_ec_stations = Station.objects.filter(csv_data_source=ECO_COUNTER).count()
     assert Station.objects.get(name=TEST_EC_STATION_NAME)
     # Test hourly data
-    # TEST_STATION_NAME is the only station that observes bicycles, pedestrains and cars
     hour_data = HourData.objects.get(
         station__name=TEST_EC_STATION_NAME, day__date=start_time
     )
@@ -198,7 +196,6 @@ def test_import_counter_data():
     start_time = dateutil.parser.parse("2020-02-01T00:00")
     end_time = dateutil.parser.parse("2020-03-31T23:45")
     import_command(test_counter=(ECO_COUNTER, start_time, end_time))
-
     # test that state is updated
     state = ImportState.objects.get(csv_data_source=ECO_COUNTER)
     assert state.current_month_number == 3
@@ -246,8 +243,11 @@ def test_import_counter_data():
         date=dateutil.parser.parse("2020-03-29T00:00"),
         station__name=TEST_EC_STATION_NAME,
     )
+    assert year_data.value_pp == (
+        jan_month_days * 96 + feb_month_days * 96 + mar_month_days * 96
+    )
     # Test the day has 24hours stored even though in reality it has 23hours.
-    # assert len(HourData.objects.get(day_id=day.id).values_ak) == 24
+    assert len(HourData.objects.get(day_id=day.id).values_ak) == 24
 
     # Test new year and daylight saving change to "winter time".
     start_time = dateutil.parser.parse("2021-10-01T00:00")
@@ -298,9 +298,7 @@ def test_import_counter_data():
     year_data = YearData.objects.get(
         year__year_number=2020, station__name=TEST_EC_STATION_NAME
     )
-    assert year_data.value_pp == (
-        jan_month_days * 96 + feb_month_days * 96 + mar_month_days * 96
-    )
+
     # test that state is updated
     state = ImportState.objects.get(csv_data_source=ECO_COUNTER)
     assert state.current_month_number == 10
@@ -325,7 +323,6 @@ def test_import_counter_data():
     assert len(weeks), num_ec_stations
     assert weeks[0].days.all().count() == 7
     # Test importing of Traffic Counter
-
     start_time = dateutil.parser.parse("2020-01-01T00:00")
     end_time = dateutil.parser.parse("2020-02-29T23:45")
     import_command(test_counter=(TRAFFIC_COUNTER, start_time, end_time))
@@ -353,7 +350,7 @@ def test_import_counter_data():
     assert hour_data.values_bp == res
     assert hour_data.values_bt == res_tot
 
-    # Test day data
+    # Test traffic counter day data
     day = Day.objects.get(date=start_time, station__name=TEST_TC_STATION_NAME)
     assert day.weekday_number == 2  # First day in 2020 in is wednesday
     day_data = DayData.objects.get(
@@ -369,7 +366,6 @@ def test_import_counter_data():
         station__name=TEST_TC_STATION_NAME,
     )
     assert day.weekday_number == 3  # Second day in week 2 in 2020 is thursday
-
     week_data = WeekData.objects.get(
         week__week_number=3, station__name=TEST_TC_STATION_NAME
     )
@@ -378,7 +374,7 @@ def test_import_counter_data():
     assert week_data.value_bp == 672  # 96*7
     assert week_data.value_bk == 672  # 96*7
     assert week_data.value_bt == 672 * 2
-    # Test month data
+    # Test traffic counter month data
     month = Month.objects.get(
         station__name=TEST_TC_STATION_NAME, month_number=2, year__year_number=2020
     )
@@ -389,15 +385,102 @@ def test_import_counter_data():
     assert month_data.value_pp == feb_month_days * 96
     assert month_data.value_pk == feb_month_days * 96
     assert month_data.value_pt == feb_month_days * 96 * 2
-    # Todo test year data
+    # Test traffic counter year data
     year_data = YearData.objects.get(
         station__name=TEST_TC_STATION_NAME, year__year_number=2020
     )
     assert year_data.value_bk == (jan_month_days + feb_month_days) * 24 * 4
     assert year_data.value_bp == (jan_month_days + feb_month_days) * 24 * 4
     assert year_data.value_bt == (jan_month_days + feb_month_days) * 24 * 4 * 2
+    # Test lam counter data and year change
+    start_time = dateutil.parser.parse("2019-12-01T00:00")
+    end_time = dateutil.parser.parse("2020-01-31T23:45")
+    import_command(test_counter=(LAM_COUNTER, start_time, end_time))
+    num_lc_stations = Station.objects.filter(csv_data_source=LAM_COUNTER).count()
+    state = ImportState.objects.get(csv_data_source=LAM_COUNTER)
+    assert state.current_year_number == 2020
+    assert state.current_month_number == 1
+    test_station = Station.objects.get(name=TEST_LC_STATION_NAME)
+    assert test_station
+    hour_data = HourData.objects.get(
+        station__name=TEST_LC_STATION_NAME, day__date=start_time
+    )
+    res = [4 for x in range(24)]
+    res_tot = [8 for x in range(24)]
+    assert hour_data.values_ak == res
+    assert hour_data.values_ap == res
+    assert hour_data.values_at == res_tot
+    assert hour_data.values_pk == res
+    assert hour_data.values_pp == res
+    assert hour_data.values_pt == res_tot
+    assert hour_data.values_jk == res
+    assert hour_data.values_jp == res
+    assert hour_data.values_jt == res_tot
+    assert hour_data.values_bk == res
+    assert hour_data.values_bp == res
+    assert hour_data.values_bt == res_tot
+    # 2019 December 2019 has 5 weeks and January 2020 has 5 week = 10 weeks
+    assert Week.objects.filter(station__name=TEST_LC_STATION_NAME).count() == 10
+    # 5 days of week 5 in 2020 is imported, e.g. 4*24*5 = 480
+    assert (
+        WeekData.objects.filter(station__name=TEST_LC_STATION_NAME, week__week_number=5)
+        .first()
+        .value_ak
+        == 480
+    )
+    # Test lam counter month data
+    dec_month = Month.objects.get(
+        station__name=TEST_LC_STATION_NAME, month_number=12, year__year_number=2019
+    )
+    jan_month = Month.objects.get(
+        station__name=TEST_LC_STATION_NAME, month_number=1, year__year_number=2020
+    )
+    jan_month_days = calendar.monthrange(
+        jan_month.year.year_number, jan_month.month_number
+    )[1]
+    dec_month_days = calendar.monthrange(
+        dec_month.year.year_number, dec_month.month_number
+    )[1]
+    assert dec_month_days == dec_month.days.all().count()
+    assert jan_month_days == jan_month.days.all().count()
+    month_data = MonthData.objects.get(month=dec_month)
+    assert month_data.value_pp == dec_month_days * 96
+    assert month_data.value_pk == dec_month_days * 96
+    assert month_data.value_pt == dec_month_days * 96 * 2
+
+    month_data = MonthData.objects.get(month=jan_month)
+    assert month_data.value_pp == jan_month_days * 96
+    assert month_data.value_pk == jan_month_days * 96
+    assert month_data.value_pt == jan_month_days * 96 * 2
+    # Test lam counter year data
+    year_data = YearData.objects.get(
+        station__name=TEST_LC_STATION_NAME, year__year_number=2019
+    )
+    assert year_data.value_ak == jan_month_days * 24 * 4
+    assert year_data.value_ap == jan_month_days * 24 * 4
+    assert year_data.value_at == jan_month_days * 24 * 4 * 2
+    year_data = YearData.objects.get(
+        station__name=TEST_LC_STATION_NAME, year__year_number=2020
+    )
+    assert year_data.value_bk == dec_month_days * 24 * 4
+    assert year_data.value_ap == dec_month_days * 24 * 4
+    assert year_data.value_at == dec_month_days * 24 * 4 * 2
+    # Test that only one month has been created for years 2019 and 2020
+    assert (
+        YearData.objects.filter(
+            station__name=TEST_LC_STATION_NAME, year__year_number=2019
+        ).count()
+        == 1
+    )
+    assert (
+        YearData.objects.filter(
+            station__name=TEST_LC_STATION_NAME, year__year_number=2020
+        ).count()
+        == 1
+    )
+
     # Test that exacly one year object is created for every station in 2020
     assert (
         Year.objects.filter(year_number=2020).count()
-        == num_ec_stations + num_tc_stations
+        == num_ec_stations + num_tc_stations + num_lc_stations
     )
