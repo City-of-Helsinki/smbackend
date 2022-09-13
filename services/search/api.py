@@ -166,9 +166,9 @@ class SearchViewSet(GenericAPIView):
             model_limits[model] = DEFAULT_MODEL_LIMIT_VALUE
 
         params = self.request.query_params
-        q_val = params.get("q", "").strip()
+        q_val = params.get("q", "").strip() or params.get("input", "").strip()
         if not q_val:
-            raise ParseError("Supply search terms with 'q=' '")
+            raise ParseError("Supply search terms with 'q=' ' or input=' '")
 
         types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])
         types = params.get("type", types_str).split(",")
