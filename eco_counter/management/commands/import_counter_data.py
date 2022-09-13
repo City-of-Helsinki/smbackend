@@ -248,6 +248,8 @@ class Command(BaseCommand):
         prev_week_number = current_week_number
         current_time = None
         prev_time = None
+        year_has_changed = False
+        changed_daylight_saving_to_summer = False
         # All Hourly, daily and weekly data that are past the current_week_number
         # are delete thus they are repopulated.  HourData and DayData are deleted
         # thus their on_delete is set to models.CASCADE.
@@ -291,7 +293,7 @@ class Command(BaseCommand):
                 else:
                     current_time = prev_time + timedelta(minutes=15)
             except dateutil.parser._parser.ParserError:
-                # If malformed time calcultate new current_time.
+                # If malformed time, calcultate new current_time.
                 current_time = prev_time + timedelta(minutes=15)
 
             current_time = self.TIMEZONE.localize(current_time)
@@ -324,6 +326,7 @@ class Command(BaseCommand):
                             )
                             temp_hour[station_name][station_type] = 0
                         self.save_hour_data(temp_hour, current_hours)
+                        changed_daylight_saving_to_summer = True
 
             current_year_number = current_time.year
             current_week_number = int(current_time.strftime("%-V"))
@@ -332,9 +335,13 @@ class Command(BaseCommand):
 
             # Adds data for an hour every fourth iteration, sample rate is 15min.
             if index % 4 == 0:
-                self.save_hour_data(current_hour, current_hours)
-                # Clear current_hour after storage, to get data for every hour.
-                current_hour = {}
+                # If daylight has changed to summer we do not store the hourly data
+                if changed_daylight_saving_to_summer:
+                    changed_daylight_saving_to_summer = False
+                else:
+                    self.save_hour_data(current_hour, current_hours)
+                    # Clear current_hour after storage, to get data for every hour.
+                    current_hour = {}
 
             if prev_weekday_number != current_weekday_number or not current_hours:
                 # Store hour data if data exists.
@@ -344,11 +351,15 @@ class Command(BaseCommand):
 
                 # Year, month, week tables are created before the day tables
                 # to ensure correct relations.
-
                 if prev_year_number != current_year_number or not current_years:
-                    # if we have a prev_year_number and it is not the current_year_number store yearly data.
-                    if prev_year_number:
-                        self.create_and_save_year_data(stations, current_years)
+                    year_has_changed = True
+                    # If year has changed, we must store the current month data before storing
+                    # the year data, the year data is calculated from the month datas.
+                    self.create_and_save_month_data(
+                        stations, current_months, current_years
+                    )
+                    self.create_and_save_year_data(stations, current_years)
+
                     for station in stations:
                         year = Year.objects.create(
                             year_number=current_year_number, station=stations[station]
@@ -358,7 +369,7 @@ class Command(BaseCommand):
                     prev_year_number = current_year_number
 
                 if prev_month_number != current_month_number or not current_months:
-                    if prev_month_number:
+                    if prev_month_number and not year_has_changed:
                         self.create_and_save_month_data(
                             stations, current_months, current_years
                         )
@@ -372,7 +383,7 @@ class Command(BaseCommand):
                     prev_month_number = current_month_number
 
                 if prev_week_number != current_week_number or not current_weeks:
-                    if prev_week_number:
+                    if prev_week_number and not year_has_changed:
                         self.create_and_save_week_data(stations, current_weeks)
                     for station in stations:
                         week = Week.objects.create(
@@ -381,7 +392,8 @@ class Command(BaseCommand):
                         week.years.add(current_years[station])
                         current_weeks[station] = week
                     prev_week_number = current_week_number
-
+                if year_has_changed:
+                    year_has_changed = False
                 for station in stations:
                     day = Day.objects.create(
                         station=stations[station],
