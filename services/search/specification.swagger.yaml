@@ -1,0 +1,295 @@
+swagger: "2.0"
+
+info:
+  title: Servicemap Search
+  description:
+      Search endpoint for the servicemap.
+  version: "2.0"
+host: 127.0.0.1:8000
+basePath: /search
+
+schemes:
+  - http
+  - https
+
+produces:
+  - application/json
+components:
+  parameters:
+    q_param:
+      name: q
+      in: query
+      description: The string that will be used when searching in the search view. It searches the search_columns for the given models. Whitspaces and commas between words are interpreted as and operator. Words ending with the "|" sign
+       are interpreted as or operator. Note, if no results are found for the model,
+        trigram search is used if use_trigram=true (default).
+      required: true
+      schema:
+        type: string
+    language_param:
+      name: language
+      in: query
+      description: The two-character ISO 639-1 language code to be used in the search.
+        If missing, the search will use the default language Finnish.
+      schema:
+        type: string
+      example: fi
+      default: fi
+    order_units_by_num_services_param:
+      name: order_units_by_num_services
+      in: query
+      schema:
+        type: boolean
+        default: true
+      description: If set to false ordering by number of services is discarded in units results.
+    use_trigram_param:
+      name: use_trigram
+      in: query
+      description: A comma-separeted list of resource types that will include trigram results in search if no results are found. Possible values are *service*, *unit*, *servicenode*, *address* and *administrative_division*. If not present, defualts to unit and service. If list is empty trigram  will not be used.
+      schema:
+        type: string
+        example: unit,address
+        default: unit
+    trigram_threshold_param:
+      name: trigram_threshold
+      in: query
+      desription: The threshold value, if trigram similarity is greater-than or equal to this value return the result.
+      type: number
+      default: 0.15
+    sql_query_limit_param:
+      name: sql_query_limit
+      in: query
+      description: Limit value used in the SQL query that searches from the search view. The view contains the searchable data(the content in the search_column) from all models. Note, this limits the number of total results from which the model specific results are dervied. Making the number too small may affect the results in a unvanted way. The value also affects the performance, the smaller the value is the better the performance is.
+      schema:
+        type: integer
+        example: 100
+        default: No limit.
+    unit_limit_param:
+      name: unit_limit
+      in: query
+      description: Limit the number of Units in results. Units are ordered by their provider(self produced first) and in ascending order by number of services. This is good to keep in mind when deciding the limit value.
+      schema:
+        type: integer
+        example: 5
+        default: No limit
+    service_limit_param:
+      name: service_limit
+      in: query
+      description: Limit the number of Services in results. Services are order by their provider(self produced first) and in ascending order by number of units are connected to the services.
+      schema:
+        type: integer
+        example: 5
+        default: No limit
+    servicenode_limit_param:
+      name: servicenode_limit
+      in: query
+      description: Limit the number of ServicesNodes in results.
+      schema:
+        type: integer
+        example: 5
+        default: No limit
+    address_limit_param:
+      name: address_limit
+      in: query
+      description: Limit the number of Addresses in results.
+      schema:
+        type: integer
+        example: 5
+        default: No limit
+    administrativedivision_limit_param:
+      name: administrativedivision_limit
+      in: query
+      description: Limit the number of Administrative division in results.
+      schema:
+        type: integer
+        example: 5
+        default: No limit
+    extended_serializer_param:
+      name: extended_serializer
+      in: query
+      description: If set to true extends the number of fields to be serialized for units.
+      schema:
+        type: boolean
+        default: false
+    type_param:
+      name: type
+      in: query
+      description: A comma-separeted list of resource types to be returned in the results Possible values are *service*, *servicenode*, *unit*, *address* and *administrativedivision*. If not present, defualts to all types.
+      schema:
+        type: string
+    municipality_param:
+      name: municipality
+      in: query
+      style: form
+      explode: false
+      description: A comma-separated list of municipalities to be used to filter units.
+        Uses the simple format of lowercase municipality name in Finnish
+        instead of an OCD id.
+      schema:
+        type: array
+        items:
+          type: string
+      example: turku
+    service_param:
+        name: service
+        in: query
+        style: form
+        explode: false
+        description: A comma-separated list of service ids to be used to filter units.
+        schema:
+          type: array
+          items:
+            type: integer
+        example: 456,567
+    page_param:
+      name: page
+      in: query
+      description: Request particular page in paginated results.
+      required: false
+      schema:
+        type: integer
+      example: 1
+    pagesize_param:
+      name: page_size
+      in: query
+      description: Request that server delivers page_size results in response.
+      required: false
+      schema:
+        type: integer
+      example: 10
+
+
+paths:
+  /search:
+    get:
+      summary: "List of search resluts, paginated"
+      parameters:
+        - $ref: "#/components/parameters/q_param"
+        - $ref: "#/components/parameters/language_param"
+        - $ref: "#/components/parameters/use_trigram_param"
+        - $ref: "#/components/parameters/trigram_threshold_param"
+        - $ref: "#/components/parameters/order_units_by_num_services_param"
+        - $ref: "#/components/parameters/extended_serializer_param"
+        - $ref: "#/components/parameters/sql_query_limit_param"
+        - $ref: "#/components/parameters/unit_limit_param"
+        - $ref: "#/components/parameters/service_limit_param"
+        - $ref: "#/components/parameters/servicenode_limit_param"
+        - $ref: "#/components/parameters/address_limit_param"
+        - $ref: "#/components/parameters/type_param"
+        - $ref: "#/components/parameters/municipality_param"
+        - $ref: "#/components/parameters/service_param"
+        - $ref: "#/components/parameters/page_param"
+        - $ref: "#/components/parameters/pagesize_param"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+            properties:
+              resuts:
+                  type: array
+                  items:
+                    type: object
+                    description: Depending on the results and query parameters the object contains units, services, addresses, and administrativedivision.
+
+definitions:
+
+  unit:
+    type: object
+    title: Unit
+    properties:
+      id:
+        type: integer
+      object_type:
+        type: string
+      name:
+        description: The name of the unit (multilingual)
+        type: object
+        properties:
+          name_fi:
+            type: string
+          name_sv:
+            type: string
+          name_en:
+            type: string
+      location:
+        type: object
+        properties:
+          type:
+            type: string
+            description: Currently always \"Point\"
+          coordinates:
+            type: array
+            description: The unit\'s coordinates in WGS84.
+            items:
+              type: number
+
+  service:
+    type: object
+    title: Service
+    properties:
+      id:
+        type: integer
+      object_type:
+        type: string
+      name:
+        description: The name of the service (multilingual)
+        type: object
+        properties:
+          name_fi:
+            type: string
+          name_sv:
+            type: string
+          name_en:
+            type: string
+
+  address:
+    type: object
+    title: Address
+    properties:
+      id:
+        type: integer
+      object_type:
+        type: string
+      full_name:
+        description: The full name of the address, includes the number and letter.
+        type: object
+        properties:
+          full_name_fi:
+            type: string
+          full_name_sv:
+            type: string
+          full_name_en:
+            type: string
+      location:
+        type: object
+        properties:
+          type:
+            type: string
+            description: Currently always \"Point\"
+          coordinates:
+            type: array
+            description: The unit\'s coordinates in WGS84.
+            items:
+              type: number
+
+  administrative_division:
+    type: object
+    title: Administrative_division
+    properties:
+      id:
+        type: integer
+      object_type:
+        type: string
+      name:
+        description: The name of the Administrative division (multilingual)
+        type: object
+        properties:
+          name_fi:
+            type: string
+          name_sv:
+            type: string
+          name_en:
+            type: string
+

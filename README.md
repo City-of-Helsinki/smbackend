@@ -1,7 +1,7 @@
-![CI](https://github.com/City-of-Helsinki/smbackend/actions/workflows/ci.yml/badge.svg)
-[![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=City-of-Helsinki_smbackend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=City-of-Helsinki_smbackend)
+
+[![Build status](https://api.travis-ci.com/City-of-Helsinki/smbackend.svg?branch=master)](https://travis-ci.org/github/City-of-Helsinki/smbackend)
 [![Codecov](https://codecov.io/gh/City-of-Helsinki/smbackend/branch/master/graph/badge.svg)](https://codecov.io/gh/City-of-Helsinki/smbackend)
-[![Requirements](https://requires.io/github/City-of-Helsinki/smbackend/requirements.svg?branch=develop)](https://requires.io/github/City-of-Helsinki/smbackend/requirements/?branch=develop)
+[![Requirements](https://requires.io/github/City-of-Helsinki/smbackend/requirements.svg?branch=master)](https://requires.io/github/City-of-Helsinki/smbackend/requirements/?branch=master)
 
 Service Map Backend
 ===================
@@ -17,7 +17,7 @@ First configure development environment settings as stated in `config_dev.env.ex
 
 Run application with `docker-compose up`
 
-This will startup and bind local postgres, elasticsearch, servicemap backend and servicemap frontend containers.
+This will startup and bind local postgres, servicemap backend and servicemap frontend containers.
 
 ### Importing data
 
@@ -27,60 +27,96 @@ To import data for development usage and automatically index it, run command:
 Installation without Docker
 ------------
 
-First, install the necessary Debian packages.
+1. First, install the necessary Debian packages.
 
-    libpython3.7-dev virtualenvwrapper libyaml-dev libxml2-dev libxslt1-dev
+* libpython3.10-dev 
+* python3.10-distutils
+* virtualenvwrapper 
+* libyaml-dev 
+* libxml2-dev 
+* libxslt1-dev
+* voikko-fi
+* libvoikko-dev
 
-You might need to start a new shell for the virtualenvwrapper commands to activate.
-
-1. Make a Python virtual environment.
-
+2. Clone the repository.
+Use pyenv to manage python version and create a virtualenv with virtualenvwrapper.  
+The virtualenv that will be created and used here is named "servicemap"
 ```
-mkvirtualenv -p /usr/bin/python3 servicemap
+pyenv install -v 3.10.1
+pyenv virtualenv 3.10.1 smbackend
+pyenv local smbackend
+pyenv virtualenvwrapper
+mkvirtualenv servicemap
 ```
 
-2. Install pip requirements.
+Installation and usage info for pyenv, pyenv-virtualenvwrapper and  
+ virtualenvwrapper can be found here:
+https://github.com/pyenv/pyenv-virtualenv
+https://github.com/pyenv/pyenv-virtualenvwrapper
+https://virtualenvwrapper.readthedocs.io/en/latest/install.html
 
-    ```pip install -r requirements.txt```
- 
-3. Setup the PostGIS database.
 
-Please note we require PostgreSQL version 9.4 or higher
+3. Install pip requirements.
+Be sure to load the virtualenv before installing the requirements:
+Example with virtualenv named servicemap as created in example above.
+```workon servicemap```
+Install the requirements:
+```pip install -r requirements.txt```
+
+ If this error occurs:
+```   
+ ImportError: cannot import name 'html5lib' from 'pip._vendor' (/home/johndoe/.virtualenvs/servicemap/lib/python3.10/site-packages/pip/_vendor/__init__.py)
+```
+Try installing latest pip. 
+```
+curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
+```
+
+4. Setup the PostGIS database.
+
+Please note, we recommend PostgreSQL version 13 or higher.
 
 Local setup:
+First, ensure that the collation fi_FI.UTF-8 exists by entering the
+postgresql shell with the psql command.
+```
+sudo su postgres
+psql
+SELECT * FROM pg_collation where collname like '%fi%';
+```
+There should be a `collname` fi_FI.UTF-8 . If not, you must create the collation.
+
 
 ```
 sudo su postgres
-
+psql
+ALTER database template1 is_template=false;
+DROP database template1;
+CREATE DATABASE template1 WITH OWNER = postgres ENCODING = 'UTF8' TABLESPACE = pg_default LC_COLLATE = 'fi_FI.UTF-8' LC_CTYPE = 'fi_FI.UTF-8' CONNECTION LIMIT = -1 TEMPLATE template0;
+ALTER database template1 is_template=true;
+\q  
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS postgis;'
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
-
+psql template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
 createuser -RSPd servicemap
-
 createdb -O servicemap -T template1 -l fi_FI.UTF-8 -E utf8 servicemap
+```
 
+```
+ERROR:  could not open extension control file "/usr/share/postgresql/14/extension/postgis.control": No such file or directory
+```
+Solution for ubuntu and Postgresql 14:
+```
+sudo apt install postgis postgresql-14-postgis-3
 ```
 
 Docker setup (modify as needed, starts the database on local port 8765):
 ```
-docker run --name servicemap-psql -e POSTGRES_USER=servicemap -e POSTGRES_PASSWORD=servicemap -p 8765:5432 -d mdillon/postgis
+docker run --name servicemap-psql -e POSTGRES_USE.R=servicemap -e POSTGRES_PASSWORD=servicemap -p 8765:5432 -d mdillon/postgis
 # you'll need the hstore extension enabled:
 echo "CREATE EXTENSION hstore;" | docker exec -i servicemap-psql psql -U servicemap
 ```
 
-4. Modify `local_settings.py` to contain the local database info.
-
-```
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'HOST': '127.0.0.1',
-        'NAME': 'servicemap',
-        'USER': 'servicemap',
-        'PASSWORD': 'servicemap',
-    }
-}
-```
 
 5. Create database tables.
 
@@ -94,57 +130,48 @@ then install the GEOS library. On a Mac this can be achieved with HomeBrew:
 brew install geos
 ```
 
+
 6. Import geo data.
 
 ```
 ./manage.py geo_import finland --municipalities
 ./manage.py geo_import helsinki --divisions
+./manage.py geo_import helsinki --addresses
 ```
 
-Search
-------
+### Importing addresses from geo-search
+```
+./manage.py geo_import uusimaa --addresses
+./manage.py update_postal_code_areas
+```
+Note, this imports all the addresses from Uusimaa-region and might take ~6 hours.
+Postal code area datas can be enriched from geo-search using `update_postal_code_areas` -management-command.
 
-You can configure multilingual Elasticsearch-based search by including
-something like the following in your `local_settings.py`:
+###  Indexing search columns
+The search columns must be indexed after the first time data is imported or geo-search addresses are imported or addresses are enriched with geo-search data.
+```
+./manage.py index_search_columns
+```
 
-```python
-import json
-def read_config(name):
-    return json.load(open(
-        os.path.join(
-            BASE_DIR,
-            'smbackend',
-            'elasticsearch/{}.json'.format(name))))
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'multilingual_haystack.backends.MultilingualSearchEngine',
-    },
-    'default-fi': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': 'http://localhost:9200/',
-        'INDEX_NAME': 'servicemap-fi',
-        'MAPPINGS': read_config('mappings_finnish')['modelresult']['properties'],
-        'SETTINGS': read_config('settings_finnish')
-    },
-    'default-sv': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': 'http://localhost:9200/',
-        'INDEX_NAME': 'servicemap-sv',
-        'MAPPINGS': read_config('mappings_swedish')['modelresult']['properties'],
-        'SETTINGS': read_config('settings_swedish')
-    },
-    'default-en': {
-        'ENGINE': 'multilingual_haystack.backends.LanguageSearchEngine',
-        'BASE_ENGINE': 'multilingual_haystack.custom_elasticsearch_search_backend.CustomEsSearchEngine',
-        'URL': 'http://localhost:9200/',
-        'INDEX_NAME': 'servicemap-en',
-        'MAPPINGS': read_config('mappings_english')['modelresult']['properties'],
-        'SETTINGS': read_config('settings_english')
-    },
-}
+7. Redis
+Redis is used for caching and as a message broker for Celery.
+Install Redis. Ubuntu: `sudo apt-get install redis-server`
+
+8. Celery
+
+Install and run a message broker such as Redis or RabbitMQ.
+Redis is recommended as it is also used for caching.
+Configure the message broker in the environment variable "CELERY_BROKER_URL".
+Start a Celery worker to handle asynchronous tasks locally with command:
+```
+celery -A smbackend worker -l INFO
+```
+Note, in production environment the celery worker can be run as a daemon.
+https://docs.celeryproject.org/en/stable/userguide/daemonizing.html#daemonizing
+Start Celery beat to handle scheduled periodic tasks with command:
+```
+celery -A smbackend beat -l INFO
 ```
 
 Observations
@@ -168,4 +195,13 @@ Can be fixed by adding this to local_settings.py:
 GDAL_LIBRARY_PATH = "/usr/local/lib/libgdal.dylib"
 import ctypes
 ctypes.CDLL(GDAL_LIBRARY_PATH)
+```
+
+The error:
+ ```
+  psycopg2.errors.UndefinedObject: operator class "gin_trgm_ops" does not exist for access method "gin"
+```
+Can be fixed by adding the pg_trgm extension to the database:
+```
+psql template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
 ```

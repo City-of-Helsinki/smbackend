@@ -36,7 +36,14 @@ from services.models.unit import (
 )
 from services.utils import AccessibilityShortcomingCalculator
 
-from .utils import clean_text, pk_get, postcodes, save_translated_field
+from .utils import (
+    clean_text,
+    pk_get,
+    postcodes,
+    save_translated_field,
+    update_extra_searchwords,
+    update_service_names_fields,
+)
 
 UTC_TIMEZONE = pytz.timezone("UTC")
 ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
@@ -577,8 +584,13 @@ def _import_unit(
     obj_changed, update_fields = _import_unit_services(
         obj, info, obj_changed, update_fields
     )
+    obj_changed, update_fields = update_service_names_fields(
+        obj, info, obj_changed, update_fields
+    )
     obj_changed = keyword_handler.sync_searchwords(obj, info, obj_changed)
-
+    obj_changed, update_fields = update_extra_searchwords(
+        obj, info, obj_changed, update_fields
+    )
     obj_changed, update_fields = _import_unit_accessibility_variables(
         obj, info, obj_changed, update_fields
     )
@@ -668,6 +680,7 @@ def _import_unit_services(obj, info, obj_changed, update_fields):
             unit_owd.save()
 
         obj.service_details_hash = owd_hash
+
         obj_changed = True
         update_fields.append("service_details_hash")
 
@@ -749,6 +762,12 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
             c.section_type = section_type
 
             c.order = i
+
+            tags = conn.get("tags", [])
+            if tags and getattr(c, "tags") != tags:
+                setattr(c, "tags", tags)
+                c._changed = True
+
             fields = ["email", "phone", "contact_person"]
             for field in fields:
                 val = conn.get(field, None)
