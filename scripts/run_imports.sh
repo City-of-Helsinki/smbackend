@@ -10,17 +10,19 @@ function stage_0 {
 
 function stage_1 {
     # Somewhat rarely executed imports (once a month)
-    # Parking areas update
+    # Parking areas, Statistical districts and Addresses
     ./manage.py update_parking_areas
+    ./manage.py update_statistical_districts
+    ./manage.py geo_import helsinki --addresses
+    ./manage.py geo_import uusimaa --addresses
 }
 
 function stage_2 {
     # Once a day
-    # Helsinki, Espoo and HSY administrative division and address data
+    # Helsinki, Espoo and HSY administrative divisions
     ./manage.py geo_import helsinki --divisions
     ./manage.py geo_import espoo --divisions
     ./manage.py geo_import hsy --divisions
-    ./manage.py geo_import helsinki --addresses
     # Unit properties import
     ./manage.py services_import_v4 unit_properties
 }
