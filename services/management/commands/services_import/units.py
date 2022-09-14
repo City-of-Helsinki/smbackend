@@ -338,6 +338,15 @@ def _import_unit(
     municipality_id = None
     muni_name = None
     org_id = info.get("org_id", None)
+
+    # FIXME: Temporarily skip Vake - health district units completely
+    if org_id == "5de91045-92ab-484b-9f96-7010ff7fb35e":
+        LOGGER.info(
+            "Temporarily skipping health district '5de91045-92ab-484b-9f96-7010ff7fb35e' unit: %s"
+            % obj
+        )
+        return None
+
     if org_id:
         department_qs = Department.objects.filter(uuid=org_id)
         if department_qs:
