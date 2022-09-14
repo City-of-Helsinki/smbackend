@@ -26,6 +26,7 @@ TIMESTAMP_COL_NAME = "startTime"
 TRAFFIC_COUNTER_METADATA_GEOJSON = "traffic_counter_metadata.geojson"
 # LAM stations located in the municipalities list are included.
 LAM_STATION_MUNICIPALITIES = ["Turku", "Raisio", "Kaarina", "Lieto"]
+
 LAM_STATIONS_API_FETCH_URL = (
     settings.LAM_COUNTER_API_BASE_URL
     + "?api=liikennemaara&tyyppi=h&pvm={start_date}&loppu={end_date}"
@@ -165,7 +166,19 @@ def get_lam_station_dataframe(id, direction, start_date, end_date):
     url = LAM_STATIONS_API_FETCH_URL.format(
         id=id, direction=direction, start_date=start_date, end_date=end_date
     )
+    print(url)
     df = get_lam_dataframe(url)
+    return df
+
+
+def get_lam_station_dataframe_test(id, direction, start_date, end_date):
+    import os
+
+    from mobility_data.importers.utils import get_root_dir
+
+    data_path = os.path.join(get_root_dir(), "")
+    file_path = os.path.join(data_path, "test.csv")
+    df = pd.read_csv(file_path, delimiter=";")
     return df
 
 
@@ -191,20 +204,28 @@ def get_lam_counter_csv(start_date):
 
     """
 
+    drop_columns = [
+        "pistetunnus",
+        "sijainti",
+        "suunta",
+        "suuntaselite",
+        "kaista",
+        "jaottelu",
+        "ajoneuvoluokka",
+        "yhteensa",
+    ]
+    source_data_timestamp_format = "%Y%m%d"
     today = date.today().strftime("%Y-%m-%d")
     start_time = dateutil.parser.parse(f"{start_date}-T00:00")
     end_time = dateutil.parser.parse(f"{today}-T23:45")
     dif_time = end_time - start_time
-    # TODO, add 1 ?
     num_15min_freq = dif_time.total_seconds() / 60 / 15
-    # TODO capsulate to own function
-    # TODO Daylight saving , leap year
-    # tz= 'Europe/Helsinki'
     time_stamps = pd.date_range(start_time, freq="15T", periods=num_15min_freq)
     data_frame = pd.DataFrame()
     data_frame[TIMESTAMP_COL_NAME] = time_stamps
     for station in Station.objects.filter(csv_data_source=LAM_COUNTER):
-        # In source data the directions are 1 and 2.
+        # for station in Station.objects.filter(name__icontains="Kaarina, P"):
+        # In the source data the directions are 1 and 2.
         for direction in range(1, 3):
             df = get_lam_station_dataframe(station.lam_id, direction, start_date, today)
             # Read the direction
@@ -220,27 +241,48 @@ def get_lam_counter_csv(start_date):
                 getattr(data_frame, TIMESTAMP_COL_NAME) == str(start_time)
             ][0]
             column_name = f"{station.name} A{direction_value}"
-            # Drop non data columns from the beginning of the dataframe
-            df.drop(df.iloc[:, 0:8], inplace=True, axis=1)
-            # Drop last "Yhteensä" columns
-            df = df.iloc[:, :-1]
+            # Drop all unnecessary columns.
+            df.drop(columns=drop_columns, inplace=True, axis=1)
             values = []
+            current_date = start_time
             for _, row in df.iterrows():
-                i = 0
-                # Transpose and add 3 consecutive 0 values
-                for e in range(len(row) * 4):
-                    if e % 4 == 0:
-                        values.append(row[i])
-                        i += 1
-                    else:
-                        values.append(0)
+                # The source data can miss data, that must be handled and filled with 0 values.
+                current_time_str = current_date.strftime(source_data_timestamp_format)
+                row_timestamp_str = str(int(row[0]))
+                if current_time_str != row_timestamp_str:
+                    # Loop until a day with data is found and add 0 values for the days not found in data.
+                    while True:
+                        logger.warning(
+                            f"{station.name} has no data for {current_date.strftime(source_data_timestamp_format)} "
+                        )
+                        # Add 0 values for a day.
+                        values.extend([0] * 24 * 4)
+                        if row_timestamp_str == str(
+                            current_date.strftime(source_data_timestamp_format)
+                        ):
+                            break
+                        else:
+                            current_date += timedelta(days=1)
+                else:
+                    # Start with index 1, as the first column contains the timestamp
+                    i = 1
+                    # Transpose(i.e., add values to a list which is then assigned to a column)
+                    # and add 3 consecutive 0 values.
+                    for e in range(1, (len(row) - 1) * 4 + 1):
+                        if e % 4 == 0:
+                            values.append(row[i])
+                            i += 1
+                        else:
+                            values.append(0)
+                current_date += timedelta(days=1)
 
             data_frame[column_name] = pd.Series(values)
             data_frame[column_name] = data_frame[column_name].fillna(0).astype("int")
-            data_frame[column_name] = data_frame[column_name].shift(
-                periods=shift_index, axis=0, fill_value=0
-            )
-    # data_frame.to_csv("lam_out.csv")
+            if shift_index > 0:
+                data_frame[column_name] = data_frame[column_name].shift(
+                    periods=shift_index, axis=0, fill_value=0
+                )
+    # data_frame.to_csv("lam_out2.csv")
     return data_frame
 
 
