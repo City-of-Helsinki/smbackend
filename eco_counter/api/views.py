@@ -2,9 +2,11 @@ import sys
 
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 
 from ..models import (
+    CSV_DATA_SOURCES,
     Day,
     DayData,
     HourData,
@@ -51,6 +53,19 @@ def get_serialized_data_by_date(class_name, query_params):
 class StationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Station.objects.all()
     serializer_class = StationSerializer
+
+    def list(self, request):
+        queryset = Station.objects.all()
+        filters = self.request.query_params
+        if "counter_type" in filters:
+            counter_type = filters["counter_type"]
+            if counter_type in str(CSV_DATA_SOURCES):
+                queryset = Station.objects.filter(csv_data_source=counter_type)
+            else:
+                raise ParseError("Valid 'counter_type' choices are: 'EC','TC' or 'LC'.")
+        page = self.paginate_queryset(queryset)
+        serializer = StationSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class HourDataViewSet(viewsets.ReadOnlyModelViewSet):
