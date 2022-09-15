@@ -59,10 +59,15 @@ class ImportStateAdmin(admin.ModelAdmin):
         return [f.name for f in self.model._meta.fields]
 
 
+class StationAdmin(admin.ModelAdmin):
+    def get_readonly_fields(self, request, obj=None):
+        return [f.name for f in self.model._meta.fields]
+
+
 admin.site.register(YearData, YearDataAdmin)
 admin.site.register(MonthData, MonthDataAdmin)
 admin.site.register(WeekData, WeekDataAdmin)
 admin.site.register(DayData, DayDataAdmin)
 admin.site.register(HourData, HourDataAdmin)
-admin.site.register(Station)
+admin.site.register(Station, StationAdmin)
 admin.site.register(ImportState, ImportStateAdmin)
