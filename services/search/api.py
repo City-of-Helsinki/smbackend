@@ -157,29 +157,26 @@ class SearchSerializer(serializers.Serializer):
 
         for include in self.context["include"]:
             try:
-                include_object_type, field = include.split(".")
+                include_object_type, include_field = include.split(".")
             except ValueError:
                 raise ParseError(
                     "'include' list elements must be in format: entity.field, e.g., unit.connections."
                 )
 
             if object_type == "unit" and include_object_type == "unit":
-                if "connections" in field:
+                if "connections" in include_field:
                     representation["connections"] = UnitConnectionSerializer(
                         obj.connections, many=True
                     ).data
-                elif "phone" in field:
-                    representation["phone"] = getattr(obj, "phone")
-                elif "email" in field:
-                    representation["email"] = getattr(obj, "email")
-                elif "www" in field:
-                    representation["www"] = getattr(obj, "www")
-                elif "call_charge_info" in field:
-                    representation["call_charge_info"] = getattr(
-                        obj, "call_charge_info"
-                    )
-                elif "picture_url" in field:
-                    representation["picture_url"] = getattr(obj, "picture_url")
+                else:
+                    if hasattr(obj, include_field):
+                        representation[include_field] = getattr(
+                            obj, include_field, None
+                        )
+                    else:
+                        raise ParseError(
+                            f"Entity {object_type} does not contain a {include_field} field."
+                        )
 
         return representation
 
