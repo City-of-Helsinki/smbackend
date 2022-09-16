@@ -51,5 +51,5 @@ def import_marinas(name="import_marinas"):
 
 
 @shared_task
-def import_no_staff_parkings(name="import_no_staff_parkings"):
-    management.call_command("import_no_staff_parkings")
+def import_disabled_and_no_staff_parkings(name="import_disabled_and_no_staff_parkings"):
+    management.call_command("import_disabled_and_no_staff_parkings")
