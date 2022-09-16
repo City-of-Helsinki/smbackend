@@ -190,6 +190,7 @@ def get_and_create_disabled_parking_content_type():
 def save_to_database(objects, delete_tables=True):
     if delete_tables:
         delete_no_staff_parkings()
+        delete_disabled_parkings()
 
     no_staff_parking_content_type = get_and_create_no_staff_parking_content_type()
     disabled_parking_content_type = get_and_create_disabled_parking_content_type()
