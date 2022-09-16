@@ -41,14 +41,15 @@ class ContentType(BaseType):
     ACCESSORY_FURNITURE_GROUP = "AFG"
     BIKE_SERVICE_STATION = "BSS"
     SHARE_CAR_PARKING_PLACE = "SCP"
-    # Harjasuolatut pyoratiet
+    # Harjasuolatut pyöratiet
     BRUSH_SALTED_BICYCLE_NETWORK = "BLB"
-    # Harjahiekoitetut pyoratiet
+    # Harjahiekoitetut pyöratiet
     BRUSH_SANDED_BICYCLE_NETWORK = "BND"
     GUEST_MARINA = "GMA"
     BOAT_PARKING = "BOK"
     MARINA = "MAR"
     NO_STAFF_PARKING = "NSP"
+    DISABLED_PARKING = "DSP"
     BERTH = "BER"
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
@@ -73,6 +74,7 @@ class ContentType(BaseType):
         (BOAT_PARKING, "BoatParking"),
         (MARINA, "Marina"),
         (NO_STAFF_PARKING, "NoStaffParking"),
+        (DISABLED_PARKING, "DisabledParking"),
         (BERTH, "Berth"),
     ]
     type_name = models.CharField(max_length=3, choices=CONTENT_TYPES, null=True)
