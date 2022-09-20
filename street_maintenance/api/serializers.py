@@ -14,6 +14,23 @@ class MaintenanceUnitSerializer(serializers.ModelSerializer):
 
 
 class MaintenanceWorkSerializer(serializers.ModelSerializer):
+    lon = serializers.SerializerMethodField()
+    lat = serializers.SerializerMethodField()
+
     class Meta:
         model = MaintenanceWork
-        fields = "__all__"
+        fields = [
+            "id",
+            "maintenance_unit",
+            "point",
+            "timestamp",
+            "events",
+            "lat",
+            "lon",
+        ]
+
+    def get_lat(self, obj):
+        return obj.point.y
+
+    def get_lon(self, obj):
+        return obj.point.x
