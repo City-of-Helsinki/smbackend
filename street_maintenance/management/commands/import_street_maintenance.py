@@ -9,19 +9,25 @@ from django.core.management.base import BaseCommand
 
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
-# Max number of items to download per unit
-HISTORY_SIZE = 10000
-
 UNITS_URL = (
     "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/query?since=72hours"
 )
-
+DEFAULT_HISTORY_SIZE = 10000
 WORKS_URL = "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/{id}?history={history_size}"
 
 logger = logging.getLogger("street_maintenance")
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--history_size",
+            type=int,
+            nargs="+",
+            default=False,
+            help=f"Max number of location history items to fetch per unit. Default {DEFAULT_HISTORY_SIZE}.",
+        )
+
     def get_and_create_maintenance_units(self):
         response = requests.get(UNITS_URL)
         assert (
@@ -36,11 +42,11 @@ class Command(BaseCommand):
             f"Imported {MaintenanceUnit.objects.all().count()} Mainetance Units."
         )
 
-    def get_and_create_maintenance_works(self):
+    def get_and_create_maintenance_works(self, history_size):
         works = []
         for unit in MaintenanceUnit.objects.all():
             response = requests.get(
-                WORKS_URL.format(id=unit.unit_id, history_size=HISTORY_SIZE)
+                WORKS_URL.format(id=unit.unit_id, history_size=history_size)
             )
             if "location_history" in response.json():
                 json_data = response.json()["location_history"]
@@ -72,7 +78,11 @@ class Command(BaseCommand):
         start_time = datetime.now()
         MaintenanceUnit.objects.all().delete()
         self.get_and_create_maintenance_units()
-        self.get_and_create_maintenance_works()
+        if options["history_size"]:
+            history_size = options["history_size"][0]
+        else:
+            history_size = DEFAULT_HISTORY_SIZE
+        self.get_and_create_maintenance_works(history_size)
         end_time = datetime.now()
         duration = end_time - start_time
         logger.info(f"Imported maintenance history in: {duration}")
