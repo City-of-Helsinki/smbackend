@@ -236,7 +236,6 @@ class SearchViewSet(GenericAPIView):
 
         if "include" in params:
             include_fields = params["include"].split(",")
-            # breakpoint()
         else:
             include_fields = []
         # Limit number of results in searchquery.
