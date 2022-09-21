@@ -103,10 +103,10 @@ components:
         type: integer
         example: 5
         default: No limit
-    extended_serializer_param:
-      name: extended_serializer
+    geometry_param:
+      name: geometry
       in: query
-      description: If set to true extends the number of fields to be serialized for units.
+      description: If set to true serializes the geometry of Units.
       schema:
         type: boolean
         default: false
@@ -129,6 +129,13 @@ components:
         items:
           type: string
       example: turku
+    include_param:
+      name: include
+      in: query
+      type: array
+      items:
+        type: string
+      description: A comma-separated list of enity.field e.g., unit.connections,unit.www.
     service_param:
         name: service
         in: query
@@ -168,9 +175,10 @@ paths:
         - $ref: "#/components/parameters/use_trigram_param"
         - $ref: "#/components/parameters/trigram_threshold_param"
         - $ref: "#/components/parameters/order_units_by_num_services_param"
-        - $ref: "#/components/parameters/extended_serializer_param"
+        - $ref: "#/components/parameters/geometry_param"
         - $ref: "#/components/parameters/sql_query_limit_param"
         - $ref: "#/components/parameters/unit_limit_param"
+        - $ref: "#/components/parameters/include_param"
         - $ref: "#/components/parameters/service_limit_param"
         - $ref: "#/components/parameters/servicenode_limit_param"
         - $ref: "#/components/parameters/address_limit_param"
