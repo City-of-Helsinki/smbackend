@@ -3,6 +3,21 @@ from rest_framework import serializers
 from street_maintenance.models import MaintenanceUnit, MaintenanceWork
 
 
+class HistoryGeometrySerializer(serializers.Serializer):
+    def to_representation(self, obj):
+        representation = super().to_representation(obj)
+        representation["terte"] = "dgdgdgd"
+        if "linestrings" in obj:
+            for i, linestring in enumerate(obj["linestrings"]):
+                field_name = f"linestring_{i}"
+                representation[field_name] = list(linestring)
+        if "points" in obj:
+            for i, point in enumerate(obj["points"]):
+                field_name = f"point_{i}"
+                representation[field_name] = list(point)
+        return representation
+
+
 class ActiveEventSerializer(serializers.Serializer):
     events = serializers.CharField(max_length=64)
 
