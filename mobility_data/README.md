@@ -94,9 +94,9 @@ To import data type:
 ./manage.py import_marinas
 ```
 
-### No staff parkings
-Imports no staff parkings, i.e. parking places that are not intended for the staff.
+### Disabled and no staff parkings
+Imports disabled parkings and no staff parkings, i.e., no staff parking are parking places that are not intended for the staff.
 To import data type:
 ```
-./manage.py import_no_staff_parkings
+./manage.py import_disabled_and_no_staff_parkings
 ```

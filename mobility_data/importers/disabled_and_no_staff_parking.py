@@ -25,12 +25,14 @@ LANGUAGES = [language[0] for language in settings.LANGUAGES]
 
 
 class NoStaffParking:
+    PARKING_PLACES = "paikkoja_y"
+    DISABLED_PARKING_PLACES = "invapaikkoja"
     extra_field_mappings = {
         "saavutettavuus": {
             "type": FieldTypes.MULTILANG_STRING,
         },
-        "paikkoja_y": {"type": FieldTypes.INTEGER},
-        "invapaikkoja": {"type": FieldTypes.INTEGER},
+        PARKING_PLACES: {"type": FieldTypes.INTEGER},
+        DISABLED_PARKING_PLACES: {"type": FieldTypes.INTEGER},
         "sahkolatauspaikkoja": {
             "type": FieldTypes.INTEGER,
         },
@@ -101,6 +103,16 @@ class NoStaffParking:
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
         self.extra = {}
+        # If the amount of parking places is equal to disabled parking places
+        # it is a only disabled parking place.
+        if (
+            feature[self.PARKING_PLACES].as_int()
+            == feature[self.DISABLED_PARKING_PLACES].as_int()
+        ):
+            self.content_type = ContentType.DISABLED_PARKING
+        else:
+            self.content_type = ContentType.NO_STAFF_PARKING
+
         for field in feature.fields:
             if field in self.extra_field_mappings:
                 # It is possible to define a name in the extra_field_mappings
@@ -150,6 +162,11 @@ def delete_no_staff_parkings():
 
 
 @db.transaction.atomic
+def delete_disabled_parkings():
+    delete_mobile_units(ContentType.DISABLED_PARKING)
+
+
+@db.transaction.atomic
 def get_and_create_no_staff_parking_content_type():
     description = "No staff parkings in the Turku region."
     name = "No staff parking"
@@ -160,15 +177,37 @@ def get_and_create_no_staff_parking_content_type():
 
 
 @db.transaction.atomic
+def get_and_create_disabled_parking_content_type():
+    description = "Parkings for disabled in the Turku region."
+    name = "Disabled parking"
+    content_type, _ = get_or_create_content_type(
+        ContentType.DISABLED_PARKING, name, description
+    )
+    return content_type
+
+
+@db.transaction.atomic
 def save_to_database(objects, delete_tables=True):
     if delete_tables:
         delete_no_staff_parkings()
+        delete_disabled_parkings()
 
-    content_type = get_and_create_no_staff_parking_content_type()
+    no_staff_parking_content_type = get_and_create_no_staff_parking_content_type()
+    disabled_parking_content_type = get_and_create_disabled_parking_content_type()
+
     for object in objects:
-        mobile_unit = MobileUnit.objects.create(
-            content_type=content_type, extra=object.extra, geometry=object.geometry
-        )
+        if object.content_type == ContentType.NO_STAFF_PARKING:
+            mobile_unit = MobileUnit.objects.create(
+                content_type=no_staff_parking_content_type,
+                extra=object.extra,
+                geometry=object.geometry,
+            )
+        else:
+            mobile_unit = MobileUnit.objects.create(
+                content_type=disabled_parking_content_type,
+                extra=object.extra,
+                geometry=object.geometry,
+            )
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "address", object.address)
         mobile_unit.address_zip = object.address_zip
