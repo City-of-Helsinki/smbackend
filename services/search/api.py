@@ -133,14 +133,6 @@ class SearchSerializer(serializers.Serializer):
                 self, obj
             )
             representation["department"] = DepartmentSerializer(obj.department).data
-            if object_type == "address":
-                set_address_fields(obj, representation)
-
-            if object_type == "service":
-                set_service_unit_count(obj, representation)
-                representation["root_service_node"] = RootServiceNodeSerializer(
-                    obj.root_service_node
-                ).data
             if self.context["geometry"]:
                 if obj.geometry:
                     representation["geometry"] = munigeo_api.geom_to_json(
@@ -149,6 +141,13 @@ class SearchSerializer(serializers.Serializer):
                 else:
                     representation["geometry"] = None
 
+        if object_type == "address":
+            set_address_fields(obj, representation)
+        if object_type == "service":
+            set_service_unit_count(obj, representation)
+            representation["root_service_node"] = RootServiceNodeSerializer(
+                obj.root_service_node
+            ).data
         if object_type == "unit" or object_type == "address":
             if obj.location:
                 representation["location"] = munigeo_api.geom_to_json(
