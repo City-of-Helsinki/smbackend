@@ -50,7 +50,7 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(detail=False, methods=["get"])
-    def get_history_geometry(self, request):
+    def get_geometry_history(self, request):
         # 30 minutes in seconds
         max_work_length = 30 * 60
         if "max_work_length" in request.query_params:
@@ -89,7 +89,7 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
                 linestrings_list.append(LineString(points, srid=DEFAULT_SRID))
             else:
                 points_list.append(elem.point)
-      
+
         data = [{"linestrings": linestrings_list, "points": points_list}]
         results = HistoryGeometrySerializer(data, many=True).data
         return Response(results)
