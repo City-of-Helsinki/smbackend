@@ -13,6 +13,9 @@ from street_maintenance.api.serializers import (
 )
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
+# Default is 30minutes 30*60s
+DEFAULT_MAX_WORK_LENGTH = 1800
+
 
 class ActiveEventsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = MaintenanceWork.objects.order_by().distinct("events")
@@ -30,7 +33,6 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = MaintenanceWork.objects.filter(
                 events__contains=[filters["event"]]
             )
-
         if "start_date_time" in filters:
             start_date_time = filters["start_date_time"]
             try:
@@ -43,7 +45,6 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset
 
     def list(self, request):
-
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         serializer = self.serializer_class(page, many=True)
@@ -51,13 +52,19 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=["get"])
     def get_geometry_history(self, request):
-        # 30 minutes in seconds
-        max_work_length = 30 * 60
+        """
+        Returns linestrings(if two or more points(works) can be determined to belong to the same uniform work)
+        and/or points for works that can not be determined to belong to a uniform work(linestring).
+        """
+        if "event" not in request.query_params:
+            raise ParseError("'get_geometry_history' requires the 'event' argument.")
         if "max_work_length" in request.query_params:
             try:
                 max_work_length = int(request.query_params.get("max_work_length"))
             except ValueError:
                 raise ParseError("'max_work_length' needs to be of type integer.")
+        else:
+            max_work_length = DEFAULT_MAX_WORK_LENGTH
         queryset = self.get_queryset()
         linestrings_list = []
         points_list = []
@@ -73,7 +80,7 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
             for elem in qs:
                 if prev_timestamp:
                     delta_time = elem.timestamp - prev_timestamp
-                    # If delta_time is bigger than the max_work_length, then we cas assume
+                    # If delta_time is bigger than the max_work_length, then we can assume
                     # that the work should not be in the same linestring/point.
                     if delta_time.seconds > max_work_length:
                         if len(points) > 1:
