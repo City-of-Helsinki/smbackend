@@ -46,6 +46,14 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request):
         queryset = self.get_queryset()
+        if "unit_id" in request.query_params:
+            try:
+                unit_id = int(request.query_params["unit_id"])
+            except ValueError:
+                return Response(
+                    "'unit_id' must be a integer.", status=status.HTTP_400_BAD_REQUEST
+                )
+            queryset = queryset.filter(maintenance_unit__unit_id=unit_id)
         page = self.paginate_queryset(queryset)
         serializer = self.serializer_class(page, many=True)
         return self.get_paginated_response(serializer.data)
