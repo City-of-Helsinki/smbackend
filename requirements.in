@@ -13,7 +13,7 @@ django-extensions
 psycopg2<2.9
 django-mptt
 lxml
-raven~=6.10.0
+sentry-sdk
 pip-tools
 python-dateutil
 pytest-django
