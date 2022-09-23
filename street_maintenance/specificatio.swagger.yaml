@@ -1,9 +1,9 @@
 swagger: "2.0"
 
 info:
-  description: "Street maintance API that serves history data of maintance works, active events and provides history as generated geometries."
+  description: "Street maintenance API that serves history data of maintenance works, active events and provides history as generated geometries."
   version: "1.0.0"
-  title: "Street Maintance History"  
+  title: "Street Maintenance History"  
   
 schemes:
 - "https"
@@ -90,7 +90,7 @@ paths:
                   $ref: "#/definitions/maintenance_work"
   /maintenance_works/{id}:
     get:
-      summary: "Return a single maintance work."
+      summary: "Return a single maintenace work."
       parameters:
       - name: "id"
         in: path
