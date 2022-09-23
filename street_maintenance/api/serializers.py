@@ -6,7 +6,6 @@ from street_maintenance.models import MaintenanceUnit, MaintenanceWork
 class HistoryGeometrySerializer(serializers.Serializer):
     def to_representation(self, obj):
         representation = super().to_representation(obj)
-        representation["terte"] = "dgdgdgd"
         if "linestrings" in obj:
             for i, linestring in enumerate(obj["linestrings"]):
                 field_name = f"linestring_{i}"
