@@ -9,11 +9,11 @@ from django.core.management.base import BaseCommand
 
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
-UNITS_URL = (
+INFRAROAD_UNITS_URL = (
     "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/query?since=72hours"
 )
+INFRAROAD_WORKS_URL = "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/{id}?history={history_size}"
 DEFAULT_HISTORY_SIZE = 10000
-WORKS_URL = "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/{id}?history={history_size}"
 
 logger = logging.getLogger("street_maintenance")
 
@@ -29,11 +29,11 @@ class Command(BaseCommand):
         )
 
     def get_and_create_maintenance_units(self):
-        response = requests.get(UNITS_URL)
+        response = requests.get(INFRAROAD_UNITS_URL)
         assert (
             response.status_code == 200
         ), "Fetching Maintenance Unit {} status code: {}".format(
-            UNITS_URL, response.status_code
+            INFRAROAD_UNITS_URL, response.status_code
         )
         for unit in response.json():
             MaintenanceUnit.objects.create(unit_id=unit["id"])
@@ -45,7 +45,7 @@ class Command(BaseCommand):
         works = []
         for unit in MaintenanceUnit.objects.all():
             response = requests.get(
-                WORKS_URL.format(id=unit.unit_id, history_size=history_size)
+                INFRAROAD_WORKS_URL.format(id=unit.unit_id, history_size=history_size)
             )
             if "location_history" in response.json():
                 json_data = response.json()["location_history"]
