@@ -1,7 +1,6 @@
-import sentry_sdk
-import os
 from pathlib import Path
 
+import sentry_sdk
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.log import DEFAULT_LOGGING
@@ -25,8 +24,8 @@ env = Env(
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
     ALLOWED_HOSTS=(list, []),
-    SENTRY_DSN=(str, None),
-    SENTRY_ENVIRONMENT=(str, "development"),
+    SENTRY_DSN=(str, ""),
+    SENTRY_ENVIRONMENT=(str, ""),
     COOKIE_PREFIX=(str, "servicemap"),
     INTERNAL_IPS=(list, []),
     STATIC_ROOT=(str, str(BASE_DIR / "static")),
@@ -271,13 +270,9 @@ KML_REGEXP = r"application/vnd.google-earth\.kml"
 
 LOCALE_PATHS = (str(BASE_DIR / "locale"),)
 
-SENTRY_DSN = env("SENTRY_DSN")
-SENTRY_ENVIRONMENT = env("SENTRY_ENVIRONMENT")
-
 sentry_sdk.init(
     dsn=env.str("SENTRY_DSN"),
-    release="n/a",
-    environment=env("SENTRY_ENVIRONMENT"),
+    environment=env.str("SENTRY_ENVIRONMENT"),
     traces_sample_rate=1.0,
     send_default_pii=True,
     integrations=[DjangoIntegration()],
