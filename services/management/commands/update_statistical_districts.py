@@ -95,7 +95,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options) -> None:
         self.update_population_by_age()
-        # self.update_population_forecast()
+        self.update_population_forecast()
 
     def update_population_by_age(self):
         start_time = time()
@@ -181,7 +181,7 @@ class Command(BaseCommand):
         division.extra.get("statistical_data").get(statistic_key).update(
             {
                 age: {
-                    "value": value,
+                    "value": value if value != ".." else "",
                 }
             }
         )
