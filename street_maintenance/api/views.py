@@ -105,7 +105,13 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
             else:
                 points_list.append(elem.point)
         if linestrings_list or points_list:
-            data = [{"linestrings": linestrings_list, "points": points_list}]
+            data = [
+                {
+                    "event": request.query_params["event"],
+                    "linestrings": linestrings_list,
+                    "points": points_list,
+                }
+            ]
         else:
             data = []
         results = HistoryGeometrySerializer(data, many=True).data
