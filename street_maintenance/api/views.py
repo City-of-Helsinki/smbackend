@@ -39,7 +39,7 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
                 queryset = queryset.filter(timestamp__gte=start_date_time)
             except ValidationError:
                 return Response(
-                    "'start_date_time' must be in format YYYY--MM-DD HH:MM e.g.,'2022-09-18 10:00'",
+                    "'start_date_time' must be in format YYYY--MM-DD HH:MM elem.g.,'2022-09-18 10:00'",
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         return queryset
@@ -74,8 +74,7 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             max_work_length = DEFAULT_MAX_WORK_LENGTH
         queryset = self.get_queryset()
-        linestrings_list = []
-        points_list = []
+        geometries = []
         unit_ids = (
             queryset.order_by("maintenance_unit_id")
             .values_list("maintenance_unit_id", flat=True)
@@ -92,28 +91,32 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
                     # that the work should not be in the same linestring/point.
                     if delta_time.seconds > max_work_length:
                         if len(points) > 1:
-                            linestrings_list.append(
-                                LineString(points, srid=DEFAULT_SRID)
-                            )
+                            geometries.append(LineString(points, srid=DEFAULT_SRID))
                         else:
-                            points_list.append(elem.point)
+                            geometries.append(elem.point)
                         points = []
                 points.append(elem.point)
                 prev_timestamp = elem.timestamp
             if len(points) > 1:
-                linestrings_list.append(LineString(points, srid=DEFAULT_SRID))
+                geometries.append(LineString(points, srid=DEFAULT_SRID))
             else:
-                points_list.append(elem.point)
-        if linestrings_list or points_list:
-            data = [
-                {
-                    "event": request.query_params["event"],
-                    "linestrings": linestrings_list,
-                    "points": points_list,
-                }
-            ]
+                geometries.append(elem.point)
+
+        if geometries:
+            data = []
+            for geometry in geometries:
+                elem = {}
+                elem["event"] = request.query_params["event"]
+                if isinstance(geometry, LineString):
+                    elem["name"] = "LineString"
+                else:
+                    elem["name"] = "Point"
+
+                elem["coordinates"] = geometry.coords
+                data.append(elem)
         else:
             data = []
+
         results = HistoryGeometrySerializer(data, many=True).data
         return Response(results)
 
