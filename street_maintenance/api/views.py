@@ -104,8 +104,10 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
                 linestrings_list.append(LineString(points, srid=DEFAULT_SRID))
             else:
                 points_list.append(elem.point)
-
-        data = [{"linestrings": linestrings_list, "points": points_list}]
+        if linestrings_list or points_list:
+            data = [{"linestrings": linestrings_list, "points": points_list}]
+        else:
+            data = []
         results = HistoryGeometrySerializer(data, many=True).data
         return Response(results)
 
