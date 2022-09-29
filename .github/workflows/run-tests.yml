@@ -54,6 +54,8 @@ jobs:
         coverage report -m
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2
+      with:
+        token: 1aa01f72-ce21-41c7-82a7-ccb5d524f209
     # Majority of the tests require database
     services:
       # Label used to access the service container
