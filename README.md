@@ -1,6 +1,7 @@
 [![Service Map API tests](https://github.com/City-of-Turku/smbackend/actions/workflows/run-tests.yml/badge.svg)](https://github.com/City-of-Turku/smbackend/actions/workflows/run-tests.yml)
 [![codecov](https://codecov.io/github/City-of-Turku/smbackend/branch/turku/graph/badge.svg?token=IZJMSFNJB5)](https://codecov.io/github/City-of-Turku/smbackend)
 
+
 Service Map Backend
 ===================
 
