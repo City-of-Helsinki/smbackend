@@ -1,2 +1,9 @@
 codecov:
-  branch: develop # set new Default branch
+  branch: develop # set Default branch
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 10%
