@@ -2,9 +2,9 @@ name: Service Map API tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ develop ]
   pull_request:
-    branches: [ master ]
+    branches: [ develop ]
 
 jobs:
   build:
@@ -48,7 +48,12 @@ jobs:
     - name: Run pytest code functionality tests
       run: |
         pytest --cov=.
-
+    - name: Generate Report
+      run: |
+        pip install coverage
+        coverage report -m
+    - name: Upload Coverage to Codecov
+      uses: codecov/codecov-action@v2  
     # Majority of the tests require database
     services:
       # Label used to access the service container
