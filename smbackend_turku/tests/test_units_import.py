@@ -67,10 +67,8 @@ def test_unit_import(resource):
 
     assert unit_1.municipality_id == "turku"
     assert unit_2.municipality.id == "turku"
-    assert unit_1.address_postal_full.replace(u"\xa0", " ") == "Testitie 2 20810 Turku"
-    assert (
-        unit_2.address_postal_full.replace(u"\xa0", " ") == "Testikatu 21 20540 Turku"
-    )
+    assert unit_1.address_postal_full.replace("\xa0", " ") == "Testitie 2 20810 Turku"
+    assert unit_2.address_postal_full.replace("\xa0", " ") == "Testikatu 21 20540 Turku"
     assert unit_1.street_address == "Testitie 2"
     assert unit_2.street_address == "Testikatu 21"
     assert unit_1.address_zip == "20810"
