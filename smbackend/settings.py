@@ -298,7 +298,7 @@ CACHES = {
         "LOCATION": env("CACHE_LOCATION"),
     }
 }
-# Include extended information. i.e. name of the task etc. otherwise the name will be empty in 
+# Include extended information. i.e. name of the task etc. otherwise the name will be empty in
 # version 2.4.0
 CELERY_RESULT_EXTENDED = True
 
