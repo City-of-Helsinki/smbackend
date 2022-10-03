@@ -1,10 +1,11 @@
-import os
 from pathlib import Path
 
+import sentry_sdk
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.log import DEFAULT_LOGGING
 from environ import Env
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Enable logging to console from our modules by configuring the root logger
 DEFAULT_LOGGING["loggers"][""] = {
@@ -23,8 +24,8 @@ env = Env(
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
     ALLOWED_HOSTS=(list, []),
-    SENTRY_DSN=(str, None),
-    SENTRY_ENVIRONMENT=(str, "development"),
+    SENTRY_DSN=(str, ""),
+    SENTRY_ENVIRONMENT=(str, ""),
     COOKIE_PREFIX=(str, "servicemap"),
     INTERNAL_IPS=(list, []),
     STATIC_ROOT=(str, str(BASE_DIR / "static")),
@@ -72,7 +73,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.gis",
     "django.contrib.postgres",
-    "raven.contrib.django.raven_compat",
     "rest_framework.authtoken",
     "rest_framework",
     "corsheaders",
@@ -270,19 +270,13 @@ KML_REGEXP = r"application/vnd.google-earth\.kml"
 
 LOCALE_PATHS = (str(BASE_DIR / "locale"),)
 
-SENTRY_DSN = env("SENTRY_DSN")
-SENTRY_ENVIRONMENT = env("SENTRY_ENVIRONMENT")
-
-import raven  # noqa
-
-if SENTRY_DSN:
-    RAVEN_CONFIG = {
-        "dsn": SENTRY_DSN,
-        # Needs to change if settings.py is not in an immediate child of the project
-        "release": raven.fetch_git_sha(os.path.dirname(os.pardir)),
-        "environment": SENTRY_ENVIRONMENT,
-    }
-
+sentry_sdk.init(
+    dsn=env.str("SENTRY_DSN"),
+    environment=env.str("SENTRY_ENVIRONMENT"),
+    traces_sample_rate=1.0,
+    send_default_pii=True,
+    integrations=[DjangoIntegration()],
+)
 
 COOKIE_PREFIX = env("COOKIE_PREFIX")
 INTERNAL_IPS = env("INTERNAL_IPS")

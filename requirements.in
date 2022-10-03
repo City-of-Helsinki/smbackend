@@ -6,14 +6,14 @@ django-modeltranslation
 flake8
 requests
 requests_cache
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.73#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.74#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions
 psycopg2<2.9
 django-mptt
 lxml
-raven~=6.10.0
+sentry-sdk
 pip-tools
 python-dateutil
 pytest-django

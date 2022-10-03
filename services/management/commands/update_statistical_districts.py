@@ -8,7 +8,7 @@ from time import time
 
 import requests
 from django.core.management.base import BaseCommand
-from munigeo.models import AdministrativeDivision
+from munigeo.models import AdministrativeDivision, Municipality
 
 logger = logging.getLogger("import")
 
@@ -39,10 +39,23 @@ VANTAA_POPULATION_BY_AGE_URL = (
 with open(get_abs_file_path("vantaa_population_by_age.json")) as f:
     VANTAA_POPULATION_BY_AGE = json.load(f)
 
-queries = {
-    HELSINKI_POPULATION_BY_AGE_URL: HELSINKI_POPULATION_BY_AGE,
-    ESPOO_POPULATION_BY_AGE_URL: ESPOO_POPULATION_BY_AGE,
-    VANTAA_POPULATION_BY_AGE_URL: VANTAA_POPULATION_BY_AGE,
+
+population_by_age_configs = {
+    "helsinki": {
+        "url": HELSINKI_POPULATION_BY_AGE_URL,
+        "data": HELSINKI_POPULATION_BY_AGE,
+        "municipality": Municipality.objects.get(name="Helsinki"),
+    },
+    "espoo": {
+        "url": ESPOO_POPULATION_BY_AGE_URL,
+        "data": ESPOO_POPULATION_BY_AGE,
+        "municipality": Municipality.objects.get(name="Espoo"),
+    },
+    "vantaa": {
+        "url": VANTAA_POPULATION_BY_AGE_URL,
+        "data": VANTAA_POPULATION_BY_AGE,
+        "municipality": Municipality.objects.get(name="Vantaa"),
+    },
 }
 
 HELSINKI_POPULATION_FORECAST_URL = "https://stat.hel.fi:443/api/v1/fi/Aluesarjat/vrm/vaenn/pksoa/A01HKIS_Vaestoennuste.px"
@@ -57,10 +70,23 @@ VANTAA_POPULATION_FORECAST_URL = "https://stat.hel.fi:443/api/v1/fi/Aluesarjat/v
 with open(get_abs_file_path("vantaa_population_forecast.json")) as f:
     VANTAA_POPULATION_FORECAST = json.load(f)
 
-forecast_queries = {
-    HELSINKI_POPULATION_FORECAST_URL: HELSINKI_POPULATION_FORECAST,
-    ESPOO_POPULATION_FORECAST_URL: ESPOO_POPULATION_FORECAST,
-    VANTAA_POPULATION_FORECAST_URL: VANTAA_POPULATION_FORECAST,
+
+population_forecast_configs = {
+    "helsinki": {
+        "url": HELSINKI_POPULATION_FORECAST_URL,
+        "data": HELSINKI_POPULATION_FORECAST,
+        "municipality": Municipality.objects.get(name="Helsinki"),
+    },
+    "espoo": {
+        "url": ESPOO_POPULATION_FORECAST_URL,
+        "data": ESPOO_POPULATION_FORECAST,
+        "municipality": Municipality.objects.get(name="Espoo"),
+    },
+    "vantaa": {
+        "url": VANTAA_POPULATION_FORECAST_URL,
+        "data": VANTAA_POPULATION_FORECAST,
+        "municipality": Municipality.objects.get(name="Vantaa"),
+    },
 }
 
 
@@ -74,8 +100,12 @@ class Command(BaseCommand):
     def update_population_by_age(self):
         start_time = time()
         num_statistics_updated = 0
-        for query in queries:
-            response = requests.post(query, json=queries[query], timeout=120)
+        for config in population_by_age_configs:
+            response = requests.post(
+                population_by_age_configs[config]["url"],
+                json=population_by_age_configs[config]["data"],
+                timeout=120,
+            )
             assert response.status_code == 200, "response status code {}".format(
                 response.status_code
             )
@@ -85,7 +115,12 @@ class Command(BaseCommand):
                 statistic_key = "%s_population_by_age" % year
                 value = item.get("values")[0]
                 num_statistics_updated = self._update_statistical_district(
-                    age, district_id, num_statistics_updated, statistic_key, value
+                    age,
+                    district_id,
+                    num_statistics_updated,
+                    statistic_key,
+                    value,
+                    population_by_age_configs[config]["municipality"],
                 )
         logger.info(
             f"{num_statistics_updated} statistic items updated "
@@ -95,8 +130,12 @@ class Command(BaseCommand):
     def update_population_forecast(self):
         start_time = time()
         num_statistics_updated = 0
-        for query in forecast_queries:
-            response = requests.post(query, json=forecast_queries[query], timeout=120)
+        for config in population_forecast_configs:
+            response = requests.post(
+                population_forecast_configs[config]["url"],
+                json=population_forecast_configs[config]["data"],
+                timeout=120,
+            )
             assert response.status_code == 200, "response status code {}".format(
                 response.status_code
             )
@@ -106,7 +145,12 @@ class Command(BaseCommand):
                 statistic_key = "%s_population_forecast" % year
                 value = item.get("values")[0]
                 num_statistics_updated = self._update_statistical_district(
-                    age, district_id, num_statistics_updated, statistic_key, value
+                    age,
+                    district_id,
+                    num_statistics_updated,
+                    statistic_key,
+                    value,
+                    population_by_age_configs[config]["municipality"],
                 )
         logger.info(
             f"{num_statistics_updated} statistic items updated "
@@ -114,7 +158,13 @@ class Command(BaseCommand):
         )
 
     def _update_statistical_district(
-        self, age, district_id, num_statistics_updated, statistic_key, value
+        self,
+        age,
+        district_id,
+        num_statistics_updated,
+        statistic_key,
+        value,
+        municipality,
     ):
         ocd_id = OCD_ID_STATISTICS_BASE + district_id
         division_qs = AdministrativeDivision.objects.filter(ocd_id=ocd_id)
@@ -131,10 +181,11 @@ class Command(BaseCommand):
         division.extra.get("statistical_data").get(statistic_key).update(
             {
                 age: {
-                    "value": value,
+                    "value": value if value != ".." else "",
                 }
             }
         )
+        division.municipality = municipality
         division.save()
         num_statistics_updated += 1
         logger.info(

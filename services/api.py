@@ -210,6 +210,32 @@ def root_service_nodes(services):
     )
 
 
+def resolve_divisions(divisions):
+    div_list = []
+    for division_path in divisions:
+        if division_path.startswith("ocd-division"):
+            muni_ocd_id = division_path
+        else:
+            ocd_id_base = r"[\w0-9~_.-]+"
+            match_re = r"(%s)/([\w_-]+):(%s)" % (ocd_id_base, ocd_id_base)
+            m = re.match(match_re, division_path, re.U)
+            if not m:
+                raise ParseError("'division' must be of form 'muni/type:id'")
+
+            arr = division_path.split("/")
+            muni_ocd_id = make_muni_ocd_id(arr.pop(0), "/".join(arr))
+        try:
+            div = AdministrativeDivision.objects.select_related("geometry").get(
+                ocd_id=muni_ocd_id
+            )
+        except AdministrativeDivision.DoesNotExist:
+            raise ParseError(
+                "administrative division with OCD ID '%s' not found" % muni_ocd_id
+            )
+        div_list.append(div)
+    return div_list
+
+
 class JSONAPISerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super(JSONAPISerializer, self).__init__(*args, **kwargs)
@@ -315,6 +341,17 @@ class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
             total += unit_count.count
             ret["unit_count"]["municipality"][div_name] = unit_count.count
         ret["unit_count"]["total"] = total
+
+        divisions = self.context.get("divisions", [])
+        include_fields = self.context.get("include", [])
+        if "unit_count_per_division" in include_fields and divisions:
+            ret["unit_count_per_division"] = {}
+            div_list = resolve_divisions(divisions)
+            for div in div_list:
+                ret["unit_count_per_division"][div.name] = Unit.objects.filter(
+                    services=obj.pk, location__within=div.geometry.boundary
+                ).count()
+
         return ret
 
     class Meta:
@@ -530,6 +567,13 @@ register_view(ServiceNodeViewSet, "service_node")
 class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
+
+    def get_serializer_context(self):
+        ret = super(ServiceViewSet, self).get_serializer_context()
+        query_params = self.request.query_params
+        division = query_params.get("division", "")
+        ret["divisions"] = [x.strip() for x in division.split(",") if x]
+        return ret
 
     def get_queryset(self):
         queryset = (
@@ -923,29 +967,7 @@ class UnitViewSet(
             # Divisions can be specified with form:
             # division=helsinki/kaupunginosa:kallio,vantaa/äänestysalue:5
             d_list = filters["division"].lower().split(",")
-            div_list = []
-            for division_path in d_list:
-                if division_path.startswith("ocd-division"):
-                    muni_ocd_id = division_path
-                else:
-                    ocd_id_base = r"[\w0-9~_.-]+"
-                    match_re = r"(%s)/([\w_-]+):(%s)" % (ocd_id_base, ocd_id_base)
-                    m = re.match(match_re, division_path, re.U)
-                    if not m:
-                        raise ParseError("'division' must be of form 'muni/type:id'")
-
-                    arr = division_path.split("/")
-                    muni_ocd_id = make_muni_ocd_id(arr.pop(0), "/".join(arr))
-                try:
-                    div = AdministrativeDivision.objects.select_related("geometry").get(
-                        ocd_id=muni_ocd_id
-                    )
-                except AdministrativeDivision.DoesNotExist:
-                    raise ParseError(
-                        "administrative division with OCD ID '%s' not found"
-                        % muni_ocd_id
-                    )
-                div_list.append(div)
+            div_list = resolve_divisions(d_list)
 
             if div_list:
                 mp = div_list.pop(0).geometry.boundary
