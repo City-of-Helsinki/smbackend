@@ -6,6 +6,7 @@ from datetime import datetime
 import requests
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand
+from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry
 
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
@@ -28,6 +29,14 @@ class Command(BaseCommand):
             help=f"Max number of location history items to fetch per unit. Default {DEFAULT_HISTORY_SIZE}.",
         )
 
+    def get_turku_boundry(self):
+        division_turku = AdministrativeDivision.objects.get(name="Turku")
+        turku_boundary = AdministrativeDivisionGeometry.objects.get(
+            division=division_turku
+        ).boundary
+        turku_boundary.transform(DEFAULT_SRID)
+        return turku_boundary
+
     def get_and_create_maintenance_units(self):
         response = requests.get(INFRAROAD_UNITS_URL)
         assert (
@@ -42,6 +51,7 @@ class Command(BaseCommand):
         )
 
     def get_and_create_maintenance_works(self, history_size):
+        turku_boundary = self.get_turku_boundry()
         works = []
         for unit in MaintenanceUnit.objects.all():
             response = requests.get(
@@ -53,12 +63,17 @@ class Command(BaseCommand):
                 logger.warning(f"Location history not found for: {unit.unit_id}")
                 continue
             for work in json_data:
-                timestamp = datetime.strptime(
-                    work["timestamp"], "%Y-%m-%d %H:%M:%S"
-                ).replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki"))
                 coords = work["coords"]
                 coords = [float(c) for c in re.sub(r"[()]", "", coords).split(" ")]
                 point = Point(coords[0], coords[1], srid=DEFAULT_SRID)
+                # discard events outsise Turku.
+                if not turku_boundary.contains(point):
+                    continue
+
+                timestamp = datetime.strptime(
+                    work["timestamp"], "%Y-%m-%d %H:%M:%S"
+                ).replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki"))
+
                 events = []
                 for event in work["events"]:
                     events.append(event)
