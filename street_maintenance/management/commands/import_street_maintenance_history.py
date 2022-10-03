@@ -66,7 +66,7 @@ class Command(BaseCommand):
                 coords = work["coords"]
                 coords = [float(c) for c in re.sub(r"[()]", "", coords).split(" ")]
                 point = Point(coords[0], coords[1], srid=DEFAULT_SRID)
-                # discard events outsise Turku.
+                # discard events outside Turku.
                 if not turku_boundary.contains(point):
                     continue
 
