@@ -89,6 +89,7 @@ INSTALLED_APPS = [
     "mobility_data.apps.MobilityDataConfig",
     "bicycle_network.apps.BicycleNetworkConfig",
     "iot.apps.IotConfig",
+    "street_maintenance.apps.StreetMaintenanceConfig",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
@@ -272,6 +273,7 @@ LOGGING = {
         "eco_counter": {"handlers": ["console"], "level": "INFO"},
         "mobility_data": {"handlers": ["console"], "level": "INFO"},
         "bicycle_network": {"handlers": ["console"], "level": "INFO"},
+        "street_maintenance": {"handlers": ["console"], "level": "INFO"},
     },
 }
 
