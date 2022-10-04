@@ -17,6 +17,10 @@ DATA_SOURCE_IMPORTERS = {
         "importer_name": "no_staff_parkings",
         "to_services_list": False,
     },
+    ContentType.LOADING_UNLOADING_PLACE: {
+        "importer_name": "loading_and_unloading_places",
+        "to_services_list": False,
+    },
     ContentType.BERTH: {
         "importer_name": "marinas",
         # Uses the marinas importer, but the data contains berths so define
