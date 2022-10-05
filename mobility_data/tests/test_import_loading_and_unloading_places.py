@@ -20,6 +20,7 @@ def test_import(municipality):
     except Municipality.DoesNotExist:
         assert turku_muni
     niuskalankatu = MobileUnit.objects.get(name="Mäntykoti Räntämäki")
+    assert niuskalankatu.content_type.type_name == ContentType.LOADING_UNLOADING_PLACE
     assert niuskalankatu.name_sv == "Räntämäki äldreboende"
     assert niuskalankatu.name_en == "Räntämäki nursing home"
     assert niuskalankatu.address_fi == "Niuskalankatu 7"
