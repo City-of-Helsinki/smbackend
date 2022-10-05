@@ -26,7 +26,7 @@ LANGUAGES = [language[0] for language in settings.LANGUAGES]
 class LoadingPlace:
 
     extra_field_mappings = {
-        "saavutettavuus": {
+        "Saavutetta": {
             "type": FieldTypes.MULTILANG_STRING,
         },
         "Lastaus": {
