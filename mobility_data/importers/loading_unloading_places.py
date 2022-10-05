@@ -38,9 +38,6 @@ class LoadingPlace:
         "Muutanimi": {
             "type": FieldTypes.MULTILANG_STRING,
         },
-        "Kohteet": {
-            "type": FieldTypes.MULTILANG_STRING,
-        },
     }
 
     def __init__(self, feature):
@@ -54,17 +51,17 @@ class LoadingPlace:
         self.address_zip, municipality = (
             feature["osoite"].as_string().split("/")[0].strip().split(" ")[-2:]
         )
+        names = [n.strip() for n in feature["Kohteet"].as_string().split("/")]
         for i, lang in enumerate(LANGUAGES):
-
             if i < len(addresses):
                 self.address[lang] = addresses[i]
-                # as the source data has no specific names, use address as the name
-                self.name[lang] = addresses[i]
-
             else:
                 # assign Fi if translation not found
                 self.address[lang] = addresses[0]
-                self.name[lang] = addresses[0]
+            if i < len(names):
+                self.name[lang] = names[i]
+            else:
+                self.name[lang] = names[0]
 
         try:
             municipality = Municipality.objects.get(name=municipality)
