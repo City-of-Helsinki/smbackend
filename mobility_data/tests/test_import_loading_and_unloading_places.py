@@ -27,3 +27,17 @@ def test_import(municipality):
     assert niuskalankatu.address_en == "Niuskalankatu 7"
     assert niuskalankatu.address_zip == "20380"
     assert niuskalankatu.municipality == turku_muni
+    assert niuskalankatu.extra["Lastaus"]["fi"] == "Lastauslaituri rakennuksen takana."
+    assert niuskalankatu.extra["Lastaus"]["sv"] == "Lastkaj bakom huset."
+    assert niuskalankatu.extra["Lastaus"]["en"] == "Loading bridge behind the building."
+    assert niuskalankatu.extra["Lisatieto"]["fi"] == "Ei korkeusrajoitusta."
+    assert niuskalankatu.extra["Lisatieto"]["sv"] == "Ingen höjdbegränsning."
+    assert niuskalankatu.extra["Lisatieto"]["en"] == "No height limit."
+    assert niuskalankatu.extra["Muutanimi"]["fi"] == "Pysäköintikielto, pelastustie."
+    assert (
+        niuskalankatu.extra["Muutanimi"]["sv"] == "Parkering förbjuden, räddningsväg."
+    )
+    assert niuskalankatu.extra["Muutanimi"]["en"] == "No parking, rescue road."
+    assert niuskalankatu.extra["Saavutetta"]["fi"] == "Vapaa pääsy"
+    assert niuskalankatu.extra["Saavutetta"]["sv"] == "Öppen tillgång"
+    assert niuskalankatu.extra["Saavutetta"]["en"] == "Free entry"
