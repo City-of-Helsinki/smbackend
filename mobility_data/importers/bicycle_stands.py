@@ -15,6 +15,7 @@ from .utils import (
     get_closest_address_full_name,
     get_municipality_name,
     get_or_create_content_type,
+    get_root_dir,
     get_street_name_translations,
     locates_in_turku,
     set_translated_field,
@@ -193,11 +194,7 @@ def get_bicycle_stand_objects(data_source=None):
         ds = DataSource(BICYCLE_STANDS_URL)
         data_sources.append(("gml", ds))
         # Add the GEOJSON datasource which is a file
-        if hasattr(settings, "PROJECT_ROOT"):
-            root_dir = settings.PROJECT_ROOT
-        else:
-            root_dir = settings.BASE_DIR
-        data_path = os.path.join(root_dir, "mobility_data/data")
+        data_path = os.path.join(get_root_dir(), "mobility_data/data")
         file_path = os.path.join(data_path, GEOJSON_FILENAME)
         ds = DataSource(file_path)
         data_sources.append(("geojson", ds))

@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.contrib.gis.db import models
+from munigeo.models import Municipality
 
 from . import ContentType, GroupType
 
@@ -47,6 +48,11 @@ class MobileUnit(BaseUnit):
 
     geometry = models.GeometryField(srid=settings.DEFAULT_SRID, null=True)
     address = models.CharField(max_length=100, null=True)
+    municipality = models.ForeignKey(
+        Municipality, null=True, db_index=True, on_delete=models.CASCADE
+    )
+    address_zip = models.CharField(max_length=10, null=True)
+
     content_type = models.ForeignKey(
         ContentType, on_delete=models.CASCADE, related_name="units"
     )

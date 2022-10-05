@@ -9,6 +9,7 @@ from rest_framework import routers
 import bicycle_network.api.urls
 import eco_counter.api.urls
 import mobility_data.api.urls
+import street_maintenance.api.urls
 from iot.api import IoTViewSet
 from observations.api import views as observations_views
 from observations.views import obtain_auth_token
@@ -54,6 +55,11 @@ urlpatterns = [
     re_path(r"^eco-counter/", include(eco_counter.api.urls), name="eco_counter"),
     re_path(
         r"^bicycle_network/", include(bicycle_network.api.urls), name="bicycle_network"
+    ),
+    re_path(
+        r"^street_maintenance/",
+        include(street_maintenance.api.urls),
+        name="street_maintenance",
     ),
     re_path(r"", include(shortcutter_urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

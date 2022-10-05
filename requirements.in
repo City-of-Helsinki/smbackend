@@ -1,4 +1,4 @@
-Django>=4.0.4
+Django>=4.0.7
 djangorestframework
 djangorestframework-jsonp
 Markdown
@@ -7,13 +7,13 @@ django-modeltranslation
 flake8
 requests
 requests_cache
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.69#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.73#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions
 psycopg2-binary<2.9
 django-mptt
-lxml>=4.6.5
+lxml>=4.9.1
 raven~=6.10.0
 pip-tools
 python-dateutil
@@ -23,7 +23,7 @@ django-polymorphic>=3.1
 requests-mock
 tqdm
 django-environ
-black
+black>22.1.0
 isort
 pep8-naming
 jedi
@@ -35,6 +35,7 @@ shapely
 celery
 # Currently only revision fa73034be892052893e4ef17926ef3a5d4a21ea2 of django-celery-beat supports django4
 git+https://github.com/celery/django-celery-beat.git#fa73034be892052893e4ef17926ef3a5d4a21ea2
-django-celery-results
+django-celery-results>=2.4.0
 redis
 libvoikko
+numpy>=1.22

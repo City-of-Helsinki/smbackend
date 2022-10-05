@@ -1,0 +1,818 @@
+PaikkaNimi;Varaustyyppi;Kohdetyyppi;PaakohdeNimi;VarauksenTila;TuoreimmanVarauksenPaatymisaikaUtc;Varaustapa;Varattavissa;HintaAlv0;HintaAlv%;Aktiivinen;KeskipisteP;KeskipisteI
+Aurajoki Airisto;Aurajoki laituripaikat;Aurajoki Airisto;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;1122.0000;24.00;1;6703837.1820514333;23458955.033166487
+Aurajoki Airisto - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Airisto - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;814.0000;24.00;1;NULL;NULL
+Aurajoki Anna Duuni;Aurajoki laituripaikat;Aurajoki Anna Duuni;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;559.0000;24.00;1;6703780.7000203608;23459014.68847942
+Aurajoki Anya;Aurajoki laituripaikat;Aurajoki Anya;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;989.0000;24.00;1;6702987.0560289863;23458076.704189617
+Aurajoki Anya - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Anya - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;851.0000;24.00;1;NULL;NULL
+Aurajoki Blue Nose;Aurajoki laituripaikat;Aurajoki Blue Nose;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;516.0000;24.00;1;6703591.8016777681;23458783.526351862
+Aurajoki Bon Marin;Aurajoki laituripaikat;Aurajoki Bon Marin;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;969.0000;24.00;1;NULL;NULL
+Aurajoki Dolphin;Aurajoki laituripaikat;Aurajoki Doplhin;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;602.0000;24.00;1;6703731.810125933;23458938.15819231
+Aurajoki Famnen;Aurajoki laituripaikat;Aurajoki Famnen;Satama: Aurajoki;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;1326.0000;24.00;1;6703622.2563181957;23458711.131554171
+Aurajoki Famnen - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Famnen - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;962.0000;24.00;1;NULL;NULL
+Aurajoki Kökar;Aurajoki laituripaikat;Aurajoki Kökar;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;1938.0000;24.00;1;NULL;NULL
+Aurajoki Kökar - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Kökar - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;1406.0000;24.00;1;NULL;NULL
+Aurajoki Laura;Aurajoki laituripaikat;Aurajoki Laura;Satama: Aurajoki;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;612.0000;24.00;1;NULL;NULL
+Aurajoki Lily;Aurajoki laituripaikat;Aurajoki Lily;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;1836.0000;24.00;1;6703741.7383503485;23458836.462269057
+Aurajoki Lily - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Lily - talvi;Satama: Aurajoki - talvi;Paattynyt;2021-10-20 09:03:30.247;2 - Ei varattavissa;Ei - varauskausi ei voimassa;1332.0000;24.00;1;NULL;NULL
+Aurajoki Mariangela P-48583;Aurajoki laituripaikat;Aurajoki Mariangela P-48583;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;817.0000;24.00;1;6703632.5098430794;23458824.823985953
+Aurajoki Mariangela P-48583 - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Mariangela P-48583 - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;703.0000;24.00;1;NULL;NULL
+Aurajoki Marina;Aurajoki laituripaikat;Aurajoki Marina;Satama: Aurajoki;Paattynyt;2022-03-22 20:11:59.000;0 - Julkisesti;Ei - varauskausi ei voimassa;561.0000;24.00;1;NULL;NULL
+Aurajoki Ms Jaarli;Aurajoki laituripaikat;Aurajoki Ms Jaarli;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;969.0000;24.00;1;NULL;NULL
+Aurajoki Ms Jaarli - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Ms Jaarli - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;703.0000;24.00;1;NULL;NULL
+Aurajoki Nicke;Aurajoki laituripaikat;Aurajoki Nicke;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;602.0000;24.00;1;6703030.5646792762;23458105.441767164
+Aurajoki Nicke - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Nicke - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;518.0000;24.00;1;NULL;NULL
+Aurajoki Norrskär;Aurajoki laituripaikat;Aurajoki Norrskär;Satama: Aurajoki;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;918.0000;24.00;1;6703671.2259667255;23458763.165265065
+Aurajoki Norrskär - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Norrskär - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;666.0000;24.00;1;NULL;NULL
+Aurajoki Outoori;Aurajoki laituripaikat;Aurajoki Outoori;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;817.0000;24.00;1;6703203.7433351148;23458389.887078259
+Aurajoki Outoori - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Outoori - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;703.0000;24.00;1;NULL;NULL
+Aurajoki Polar Cruiser;Aurajoki laituripaikat;Aurajoki Polar Cruiser;Satama: Aurajoki;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;860.0000;24.00;1;6703611.9322215132;23458803.853920583
+Aurajoki Polar Cruiser - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Polar Cruiser - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;740.0000;24.00;1;NULL;NULL
+Aurajoki Rosita;Aurajoki laituripaikat;Aurajoki Rosita;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;1224.0000;24.00;1;NULL;NULL
+Aurajoki Rosita - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Rosita - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;888.0000;24.00;1;NULL;NULL
+Aurajoki Rudolfina;Aurajoki laituripaikat - talvikausi;Aurajoki Rudolfina - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;1050.0000;24.00;1;NULL;NULL
+Aurajoki Rudolfina;Aurajoki laituripaikat;Aurajoki Rudolfina;Satama: Aurajoki;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;1530.0000;24.00;1;6703700.1555126058;23458791.633580361
+Aurajoki Ruissalolautta;Aurajoki laituripaikat;Aurajoki Ruissalolautta;Satama: Aurajoki;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;765.0000;24.00;1;NULL;NULL
+Aurajoki Ruissalolautta - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Ruissalolautta - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;555.0000;24.00;1;NULL;NULL
+Aurajoki Solida;Aurajoki laituripaikat;Aurajoki Solida;Satama: Aurajoki;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;559.0000;24.00;1;6703748.0847711321;23458963.366142038
+Aurajoki Tavi;Aurajoki laituripaikat;Aurajoki Tavi;Satama: Aurajoki;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;1247.0000;24.00;1;6703553.4587575942;23458743.30982963
+Aurajoki Tavi - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Tavi - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;1073.0000;24.00;1;NULL;NULL
+Aurajoki Tolvan;Aurajoki laituripaikat;Aurajoki Tolvan;Satama: Aurajoki;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;903.0000;24.00;1;6703221.4417323004;23458408.369832929
+Aurajoki Tolvan - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Tolvan - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;777.0000;24.00;1;NULL;NULL
+Aurajoki Ukkopekka;Aurajoki laituripaikat;Aurajoki Ukkopekka;Satama: Aurajoki;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;1734.0000;24.00;1;6703814.8269651383;23458924.838447731
+Aurajoki Ukkopekka - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Ukkopekka - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;1258.0000;24.00;1;NULL;NULL
+Aurajoki Zaida;Aurajoki laituripaikat;Aurajoki Zaida;Satama: Aurajoki;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;860.0000;24.00;1;NULL;NULL
+Aurajoki Zaida - talvi;Aurajoki laituripaikat - talvikausi;Aurajoki Zaida - talvi;Satama: Aurajoki - talvi;Paattynyt;2022-05-31 20:00:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;740.0000;24.00;1;NULL;NULL
+Bore001;Venepaikat;Takapaalupaikka 4.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703949.3308382649;23459158.277382523
+Bore002;Venepaikat;Takapaalupaikka 4.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703951.4663227219;23459162.238433443
+Bore003;Venepaikat;Takapaalupaikka 4.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703953.6018772777;23459166.199366558
+Bore004;Venepaikat;Takapaalupaikka 4.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703955.7374499999;23459170.160350002
+Bore005;Venepaikat;Takapaalupaikka 4.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703957.8730500005;23459174.121350002
+Bore006;Venepaikat;Takapaalupaikka 4.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703960.0087444792;23459178.082780827
+Bore007;Venepaikat;Takapaalupaikka 4.6x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;1 - Vain kasittelija;Ei - toinen varaus voimassa;201.6100;24.00;1;6703962.2633091565;23459182.264167253
+Bore008;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703964.2802360645;23459186.005134478
+Bore009;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703965.9412844796;23459189.085898537
+Bore010;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703967.6023000004;23459192.166650001
+Bore011;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703969.2632999998;23459195.247400001
+Bore012;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703970.9243000001;23459198.32815
+Bore013;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703972.5853000004;23459201.4089
+Bore014;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703974.2463139361;23459204.489665519
+Bore015;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703975.9072860638;23459207.570434481
+Bore016;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703977.5683139367;23459210.651165519
+Bore017;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703979.2293015849;23459213.731935944
+Bore018;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703980.89035;23459216.8127
+Bore019;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703982.5513500003;23459219.893449999
+Bore020;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703984.2123499997;23459222.974199999
+Bore021;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703985.8733499991;23459226.054949999
+Bore022;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703987.5343500003;23459229.135699999
+Bore023;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703989.1953639351;23459232.216465522
+Bore024;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703990.8564461097;23459235.29719758
+Bore025;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Bore;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703992.5178484097;23459238.37836406
+Kirjasto001;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Kirjasto;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704593.3390509933;23460034.185115848
+Kirjasto002;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Kirjasto;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704596.4659490064;23460035.757584151
+Kirjasto003;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Kirjasto;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704599.5928509934;23460037.330015849
+Kirjasto004;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Kirjasto;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704602.7197490064;23460038.902484152
+Kirjasto005;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Kirjasto;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704605.8455999997;23460040.476999998
+Kirjasto006;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Kirjasto;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704608.9658510145;23460042.062615834
+Kirjasto007;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Kirjasto;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704612.0814989852;23460043.657284167
+Kirjasto008;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Kirjasto;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704615.1971964864;23460045.252027325
+Kirjasto009;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Kirjasto;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704618.3129045321;23460046.846538499
+Kirjasto010;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Kirjasto;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704621.428500358;23460048.441313993
+Kirjasto011;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Kirjasto;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704624.5493886052;23460050.025624063
+LauttarantaA001;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701653.3970220527;23457502.786096647
+LauttarantaA002;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701661.9874220518;23457501.619196646
+LauttarantaA003;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701653.8110181214;23457505.833672054
+LauttarantaA004;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701662.4205779471;23457504.665903352
+LauttarantaA005;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701654.2003401741;23457508.844268702
+LauttarantaA006;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701662.847340174;23457507.798868701
+LauttarantaA007;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701654.6389220525;23457511.953496646
+LauttarantaA008;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701663.264459827;23457510.835931301
+LauttarantaA009;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701655.1145401746;23457515.136668701
+LauttarantaA010;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701663.7199818781;23457513.940127946
+LauttarantaA011;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701655.5408220533;23457518.221196648
+LauttarantaA012;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701664.1499401741;23457517.012368701
+LauttarantaA013;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701655.969559826;23457521.201331299
+LauttarantaA014;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701664.5581499999;23457520.021949999
+LauttarantaA015;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701656.4307220522;23457524.300096646
+LauttarantaA016;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701664.9810779467;23457523.073703352
+LauttarantaA017;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701656.8749401737;23457527.363868702
+LauttarantaA018;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701665.4006960681;23457526.145975407
+LauttarantaA019;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701657.3095779466;23457530.420703351
+LauttarantaA020;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701665.8601499991;23457529.230999999
+LauttarantaA021;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701657.7490039309;23457533.492924593
+LauttarantaA022;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701666.2971220529;23457532.321096648
+LauttarantaA023;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701658.1799779469;23457536.531203352
+LauttarantaA024;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701666.7417779472;23457535.342203353
+LauttarantaA025;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701658.6278779469;23457539.586503353
+LauttarantaA026;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701667.1843779469;23457538.424703352
+LauttarantaA027;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701659.0588401742;23457542.641768701
+LauttarantaA028;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701667.6208681213;23457541.445772052
+LauttarantaA029;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701659.4797044331;23457545.766780656
+LauttarantaA030;Venepaikat;Aisapaikka 2.7x6x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701668.0537044331;23457544.560780656
+LauttarantaA031;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701658.9344543014;23457548.976815205
+LauttarantaA032;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701669.5065872446;23457547.573648464
+LauttarantaA033;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701659.3359213695;23457552.045397677
+LauttarantaA034;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701669.9142786311;23457550.611502323
+LauttarantaA035;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701659.775454429;23457555.117730957
+LauttarantaA036;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;314.5200;24.00;1;6701670.327897165;23457553.67442631
+LauttarantaA037;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701660.2017999999;23457558.1503
+LauttarantaA038;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701670.7446213681;23457556.711897675
+LauttarantaA039;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701660.6148500005;23457561.209400002
+LauttarantaA040;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701671.1400786331;23457559.785702325
+LauttarantaA041;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701661.0278786318;23457564.308302324
+LauttarantaA042;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701671.5502500013;23457562.851500001
+LauttarantaA043;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701661.4674257981;23457567.354128633
+LauttarantaA044;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701672.0031971661;23457565.892826308
+LauttarantaA045;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701661.8938028347;23457570.43977369
+LauttarantaA046;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;314.5200;24.00;1;6701672.4264786309;23457568.965202324
+LauttarantaA047;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701662.3068213686;23457573.512097675
+LauttarantaA048;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701672.8600000003;23457572.058000002
+LauttarantaA049;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701662.7331213681;23457576.544697676
+LauttarantaA050;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701673.2709757965;23457575.120128632
+LauttarantaA051;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701663.1721757948;23457579.632028621
+LauttarantaA052;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701673.6957757939;23457578.163528621
+LauttarantaA053;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701663.5972500006;23457582.7841
+LauttarantaA054;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;314.5200;24.00;1;6701674.1678242059;23457581.35217138
+LauttarantaA055;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701664.0355500001;23457585.843399998
+LauttarantaA056;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701674.6089999992;23457584.4157
+LauttarantaA057;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701664.4605999999;23457588.823100001
+LauttarantaA058;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701675.0335999997;23457587.398700003
+LauttarantaA059;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;314.5200;24.00;1;6701664.8723999998;23457591.9089
+LauttarantaA060;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701675.4453757945;23457590.471228622
+LauttarantaA061;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701665.2842242057;23457594.994671378
+LauttarantaA062;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;314.5200;24.00;1;6701675.8699257933;23457593.569328621
+LauttarantaA063;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;314.5200;24.00;1;6701665.7092499994;23457598.0407
+LauttarantaA064;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701676.2781500006;23457596.616300002
+LauttarantaA065;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701666.1210242053;23457601.10657138
+LauttarantaA066;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701676.7052757945;23457599.67602862
+LauttarantaA067;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Paattynyt;2022-04-19 07:42:59.000;0 - Julkisesti;Kylla - julkisesti;314.5200;24.00;1;6701666.5328000002;23457604.179099999
+LauttarantaA068;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701677.1079000002;23457602.756199997
+LauttarantaA069;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701666.9313500002;23457607.245000001
+LauttarantaA070;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701677.5160757937;23457605.796528623
+LauttarantaA071;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701667.3961786209;23457610.330802325
+LauttarantaA072;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701677.9408499999;23457608.889600001
+LauttarantaA073;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;314.5200;24.00;1;6701667.8212000001;23457613.403299998
+LauttarantaA074;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701678.3432499999;23457611.968700003
+LauttarantaA075;Venepaikat;Aisapaikka 2.7x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701668.2330000009;23457616.4626
+LauttarantaA076;Venepaikat;Aisapaikka 2.7x8x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701678.7609999999;23457615.003400002
+LauttarantaA077;Venepaikat;Aisapaikka 2.7x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701668.6580257937;23457619.561628621
+LauttarantaA078;Venepaikat;Aisapaikka 2.7x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701679.1932499995;23457618.0836
+LauttarantaA079;Venepaikat;Aisapaikka 2.7x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701669.0964028277;23457622.634173706
+LauttarantaA080;Venepaikat;Aisapaikka 2.7x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701679.6254757941;23457621.125428621
+LauttarantaA081;Venepaikat;Aisapaikka 2.7x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701669.5479500005;23457625.719950002
+LauttarantaA082;Venepaikat;Aisapaikka 2.7x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701680.0884257946;23457624.228628621
+LauttarantaA083;Venepaikat;Aisapaikka 2.7x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701669.9963797331;23457628.783362791
+LauttarantaA084;Venepaikat;Aisapaikka 2.7x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;314.5200;24.00;1;6701680.5175824026;23457627.274636466
+LauttarantaB001;Venepaikat;Aisapaikka 3.2x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701613.0226704041;23457509.680971809
+LauttarantaB002;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701623.6491704052;23457508.202271808
+LauttarantaB003;Venepaikat;Aisapaikka 3.2x8x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701613.5109000001;23457513.259750001
+LauttarantaB004;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701624.1613204051;23457511.751071807
+LauttarantaB005;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701614.0284499992;23457516.822999999
+LauttarantaB006;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701624.6834795959;23457515.303828191
+LauttarantaB007;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701614.6407204047;23457521.116671808
+LauttarantaB008;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701625.2619218081;23457519.573197097
+LauttarantaB009;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701615.118400001;23457524.504900001
+LauttarantaB010;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701625.7519577863;23457522.922331095
+LauttarantaB011;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701615.7358014043;23457528.849325288
+LauttarantaB012;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701626.3859999999;23457527.290150002
+LauttarantaB013;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2020-08-28 07:44:34.250;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701616.1722295955;23457532.234528191
+LauttarantaB014;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701626.8594500003;23457530.62565
+LauttarantaB015;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2020-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701616.7565014046;23457536.564325288
+LauttarantaB016;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701627.4398499997;23457535.003200002
+LauttarantaB017;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701617.3031014046;23457540.150425289
+LauttarantaB018;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2019-05-29 09:18:59.000;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701627.9406204047;23457538.621471807
+LauttarantaB019;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701617.8709395546;23457544.388127845
+LauttarantaB020;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701628.5174599802;23457542.893799659
+LauttarantaB021;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Paattynyt;2022-02-03 11:23:59.000;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701618.3336204039;23457547.71627181
+LauttarantaB022;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2022-04-11 11:01:04.917;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701628.9651795961;23457546.149328191
+LauttarantaB023;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701618.9183501936;23457552.019133817
+LauttarantaB024;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701629.5370501922;23457550.441933818
+LauttarantaB025;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Paattynyt;2021-07-17 14:25:44.533;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701619.3497000001;23457555.319650002
+LauttarantaB026;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2019-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701629.9951999998;23457553.7557
+LauttarantaB027;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Paattynyt;2018-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701619.9671499999;23457559.64065
+LauttarantaB028;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2020-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701630.5960577875;23457558.153731097
+LauttarantaB029;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701620.4464295954;23457563.17702819
+LauttarantaB030;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701631.0941014038;23457561.557225287
+LauttarantaB031;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701621.0727000004;23457567.468800001
+LauttarantaB032;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701631.7201204039;23457565.95237181
+LauttarantaB033;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701621.4983781911;23457570.833552904
+LauttarantaB034;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701632.1750499997;23457569.28785
+LauttarantaB035;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701622.0806795955;23457575.128228191
+LauttarantaB036;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701632.7657000003;23457573.609850001
+LauttarantaB037;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701622.5456422139;23457578.540268905
+LauttarantaB038;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2021-10-21 05:46:27.313;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701633.2328000003;23457576.951450001
+LauttarantaB039;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701623.1716;23457582.945149999
+LauttarantaB040;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2018-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701633.8295218088;23457581.377047095
+LauttarantaB041;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701623.6387218079;23457586.342797097
+LauttarantaB042;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701634.2905295948;23457584.751528192
+LauttarantaB043;Venepaikat;Kävelyaisa 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701624.2482177485;23457590.686030749
+LauttarantaB044;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2022-07-10 17:36:22.937;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701634.8732803864;23457589.180071469
+LauttarantaB045;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701623.7492787903;23457594.18350216
+LauttarantaB046;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701636.3540467415;23457592.348919053
+LauttarantaB047;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701624.3098467337;23457598.490669053
+LauttarantaB048;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701636.9325956777;23457596.706326634
+LauttarantaB049;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701624.8026744677;23457602.00582879
+LauttarantaB050;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701637.4057755312;23457600.163171209
+LauttarantaB051;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;411.2900;24.00;1;6701625.4067000002;23457606.374499999
+LauttarantaB052;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;411.2900;24.00;1;6701638.0183255319;23457604.551371209
+LauttarantaB053;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701625.885874467;23457609.936228793
+LauttarantaB054;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701638.5036255317;23457608.114271209
+LauttarantaB055;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701626.5046043238;23457614.314673364
+LauttarantaB056;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701639.1222467413;23457612.57806905
+LauttarantaB057;Venepaikat;Kävelyaisa 3.2x10x1.4 m;Satama: Lauttaranta;Paattynyt;2022-05-16 18:59:59.000;0 - Julkisesti;Kylla - julkisesti;411.2900;24.00;1;6701626.9983744686;23457617.809328791
+LauttarantaB058;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Paattynyt;2020-08-20 07:45:21.207;0 - Julkisesti;Kylla - julkisesti;411.2900;24.00;1;6701639.6160532581;23457616.010530949
+LauttarantaB059;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Paattynyt;2022-04-13 08:00:29.320;0 - Julkisesti;Kylla - julkisesti;411.2900;24.00;1;6701627.5817255313;23457622.18897121
+LauttarantaB060;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701640.2140000006;23457620.363400001
+LauttarantaB061;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Paattynyt;2020-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;411.2900;24.00;1;6701628.0609255331;23457625.555671208
+LauttarantaB062;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;411.2900;24.00;1;6701640.6663744682;23457623.71662879
+LauttarantaB063;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701628.6709744679;23457629.925528791
+LauttarantaB064;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701641.2703744676;23457628.11212879
+LauttarantaB065;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701629.1587255327;23457633.418971207
+LauttarantaB066;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701641.7495532585;23457631.631130949
+LauttarantaB067;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701629.7834755331;23457637.781471208
+LauttarantaB068;Venepaikat;Kävelyaisa 3.2x10x1.5 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701642.3694978077;23457635.99121147
+LauttarantaC001;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2020-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701573.3826781902;23457514.823202904
+LauttarantaC002;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701584.0117295953;23457513.289428193
+LauttarantaC003;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701573.8891795948;23457518.371728193
+LauttarantaC004;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701584.5007795962;23457516.84952819
+LauttarantaC005;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701574.3843422132;23457521.974168904
+LauttarantaC006;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701585.0064014038;23457520.399825286
+LauttarantaC007;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701574.9883781914;23457526.233702905
+LauttarantaC008;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701585.6090218099;23457524.686897095
+LauttarantaC009;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701575.476601406;23457529.586825285
+LauttarantaC010;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701586.0735704042;23457528.072071809
+LauttarantaC011;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701576.0762795955;23457533.98202819
+LauttarantaC012;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701586.6722000008;23457532.404100001
+LauttarantaC013;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701576.5364500005;23457537.379500002
+LauttarantaC014;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701587.1790500004;23457535.84375
+LauttarantaC015;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2020-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701577.1375795947;23457541.715228193
+LauttarantaC016;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701587.7582781911;23457540.163652904
+LauttarantaC017;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701577.6110577863;23457545.164631095
+LauttarantaC018;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701588.2495218087;23457543.630047094
+LauttarantaC019;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;379.0300;24.00;1;6701578.2369959317;23457549.490433652
+LauttarantaC020;Venepaikat;Kävelyaisa 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2018-05-30 10:32:39.913;0 - Julkisesti;Kylla - julkisesti;379.0300;24.00;1;6701588.8437803863;23457547.933371469
+LauttarantaC021;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701577.71655;23457552.885300003
+LauttarantaC022;Venepaikat;Kävelyaisa 3.2x10x1.4 m;Satama: Lauttaranta;Paattynyt;2019-07-30 05:43:13.190;0 - Julkisesti;Kylla - julkisesti;411.2900;24.00;1;6701590.3407787904;23457551.103902157
+LauttarantaC023;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Paattynyt;2019-07-15 12:25:17.633;0 - Julkisesti;Kylla - julkisesti;411.2900;24.00;1;6701578.2930419995;23457557.263191503
+LauttarantaC024;Venepaikat;Kävelyaisa 3.2x10x1.4 m;Satama: Lauttaranta;Paattynyt;2018-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;411.2900;24.00;1;6701590.9507477917;23457555.446546059
+LauttarantaC025;Venepaikat;Kävelyaisa 3.2x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701578.8741000006;23457561.213950001
+LauttarantaC026;Venepaikat;Kävelyaisa 3.2x10x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;411.2900;24.00;1;6701591.5241244677;23457559.473428786
+LauttarantaC027;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701579.5523500005;23457566.020800002
+LauttarantaC028;Venepaikat;Kävelyaisa 4x10x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701592.1870014071;23457564.242775284
+LauttarantaC029;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701580.1527922126;23457570.454818904
+LauttarantaC030;Venepaikat;Kävelyaisa 4x10x1.4 m;Satama: Lauttaranta;Paattynyt;2021-10-21 05:42:42.437;0 - Julkisesti;Kylla - julkisesti;500.0000;24.00;1;6701592.836600001;23457568.685150001
+LauttarantaC031;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;500.0000;24.00;1;6701580.8926499998;23457575.609549999
+LauttarantaC032;Venepaikat;Kävelyaisa 4x10x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701593.5413499996;23457573.817949999
+LauttarantaC033;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Paattynyt;2021-06-29 12:25:28.307;0 - Julkisesti;Kylla - julkisesti;500.0000;24.00;1;6701581.5262295958;23457580.093078192
+LauttarantaC034;Venepaikat;Kävelyaisa 4x10x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701594.1818999993;23457578.313000001
+LauttarantaC035;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701582.2588718086;23457585.234247096
+LauttarantaC036;Venepaikat;Kävelyaisa 4x10x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701594.8994704038;23457583.464021809
+LauttarantaC037;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;500.0000;24.00;1;6701582.9157514041;23457589.781675287
+LauttarantaC038;Venepaikat;Kävelyaisa 4x10x1.4 m;Satama: Lauttaranta;Paattynyt;NULL;0 - Julkisesti;Kylla - julkisesti;500.0000;24.00;1;6701595.5561000006;23457587.99295
+LauttarantaC039;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701583.5981999999;23457594.903300002
+LauttarantaC040;Venepaikat;Kävelyaisa 4x10x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701596.2819204042;23457593.191121809
+LauttarantaC041;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701584.2366718091;23457599.359147094
+LauttarantaC042;Venepaikat;Kävelyaisa 4x10x1.4 m;Satama: Lauttaranta;Paattynyt;2020-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;500.0000;24.00;1;6701596.9199999999;23457597.560850002
+LauttarantaC043;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701584.9813795956;23457604.515978191
+LauttarantaC044;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;500.0000;24.00;1;6701597.6178499991;23457602.719900001
+LauttarantaC045;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701585.6183999991;23457608.984200001
+LauttarantaC046;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701598.2478704043;23457607.163621809
+LauttarantaC047;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701586.3328499999;23457614.128850002
+LauttarantaC048;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701599.0092500001;23457612.38075
+LauttarantaC049;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701586.9521795958;23457618.523378193
+LauttarantaC050;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701599.615479595;23457616.790278193
+LauttarantaC051;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701587.7150499998;23457623.889600001
+LauttarantaC052;Venepaikat;Kävelyaisa 4x10x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701600.3533514049;23457622.052475289
+LauttarantaC053;Venepaikat;Kävelyaisa 4x12x1.8 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701587.344325494;23457628.368278667
+LauttarantaC054;Venepaikat;Kävelyaisa 4x12x1.7 m;Satama: Lauttaranta;Paattynyt;2019-05-02 06:55:25.547;0 - Julkisesti;Kylla - julkisesti;596.7800;24.00;1;6701601.963325494;23457626.195278667
+LauttarantaC055;Venepaikat;Kävelyaisa 4x12x1.8 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701588.1136754937;23457633.564578667
+LauttarantaC056;Venepaikat;Kävelyaisa 4x12x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701602.7576958388;23457631.458119046
+LauttarantaC057;Venepaikat;Kävelyaisa 4x12x1.8 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701588.7556713261;23457638.061647717
+LauttarantaC058;Venepaikat;Kävelyaisa 4x12x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701603.3815286728;23457635.896052282
+LauttarantaC059;Venepaikat;Kävelyaisa 4x12x1.8 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701589.5264713261;23457643.204547718
+LauttarantaC060;Venepaikat;Kävelyaisa 4x12x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701604.1204713257;23457641.125147715
+LauttarantaD001;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2019-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701533.352907788;23457518.193681095
+LauttarantaD002;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2017-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701544.0714514041;23457517.969375286
+LauttarantaD003;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701533.8292485951;23457521.660024714
+LauttarantaD004;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2015-06-18 06:06:22.320;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701544.6019281922;23457521.548402905
+LauttarantaD005;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2015-12-31 00:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701534.2950295955;23457525.189278193
+LauttarantaD006;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701545.0970485955;23457525.192924712
+LauttarantaD007;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701534.8080514045;23457528.718475286
+LauttarantaD008;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;NULL;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701545.5308485953;23457528.699524712
+LauttarantaD009;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;NULL;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701535.2878704034;23457532.363721807
+LauttarantaD010;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2020-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701546.0259204032;23457532.282721806
+LauttarantaD011;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2017-03-01 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701535.7482922124;23457535.989618905
+LauttarantaD012;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701546.4750485951;23457535.850624714
+LauttarantaD013;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701536.247392212;23457539.518818904
+LauttarantaD014;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701546.9547718083;23457539.418497097
+LauttarantaD015;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701536.7464922126;23457543.086718906
+LauttarantaD016;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2017-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701547.4345281916;23457542.940402903
+LauttarantaD017;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701537.2558485959;23457546.701724712
+LauttarantaD018;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701547.9456485957;23457546.508424714
+LauttarantaD019;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701537.0287999995;23457552.317049999
+LauttarantaD020;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2020-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701548.4560704036;23457550.076421808
+LauttarantaD021;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Paattynyt;2019-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;500.0000;24.00;1;6701537.5932514044;23457556.513475288
+LauttarantaD022;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;NULL;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701548.9355485961;23457553.643924713
+LauttarantaD023;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Paattynyt;2022-03-01 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;500.0000;24.00;1;6701538.3076999998;23457561.87985
+LauttarantaD024;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701549.4111514045;23457557.213875286
+LauttarantaD025;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;500.0000;24.00;1;6701538.9205704043;23457566.269621808
+LauttarantaD026;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2015-12-31 00:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701549.9445922123;23457560.841118906
+LauttarantaD027;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701539.671728191;23457571.622452904
+LauttarantaD028;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701550.4243922122;23457564.370718904
+LauttarantaD029;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701540.2807;23457575.918450002
+LauttarantaD030;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701550.9123704033;23457567.867221806
+LauttarantaD031;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701541.02415;23457581.140750002
+LauttarantaD032;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2018-04-15 11:59:59.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701551.4030295955;23457571.372378193
+LauttarantaD033;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701541.6331000011;23457585.448350001
+LauttarantaD034;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701551.910649999;23457574.945
+LauttarantaD035;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701542.3572000004;23457590.6745
+LauttarantaD036;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701552.4015077874;23457578.488981094
+LauttarantaD037;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701542.9700500006;23457595.059450001
+LauttarantaD038;Venepaikat;Aisapaikka 3.2x8x1.4 m;Satama: Lauttaranta;Paattynyt;2022-05-12 18:54:48.177;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701552.8807922127;23457582.114318904
+LauttarantaD039;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701543.7212281907;23457600.401652906
+LauttarantaD040;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Paattynyt;2022-03-01 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701553.369251404;23457585.706675287
+LauttarantaD041;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701544.3031000001;23457604.775000002
+LauttarantaD042;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Paattynyt;2020-03-01 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701553.8675295962;23457589.211778194
+LauttarantaD043;Venepaikat;Kävelyaisa 4x10x1.6 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;500.0000;24.00;1;6701545.0310999993;23457609.977949999
+LauttarantaD044;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701554.367492212;23457592.784418903
+LauttarantaD045;Venepaikat;Kävelyaisa 4x12x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701544.6497500008;23457614.456
+LauttarantaD046;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701554.8975077877;23457596.523281097
+LauttarantaD047;Venepaikat;Kävelyaisa 4x12x1.7 m;Satama: Lauttaranta;Paattynyt;2022-07-19 06:31:48.833;0 - Julkisesti;Kylla - julkisesti;596.7800;24.00;1;6701545.4330713246;23457619.836697716
+LauttarantaD048;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701555.3772514034;23457600.078775287
+LauttarantaD049;Venepaikat;Kävelyaisa 4x12x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;1 - Vain kasittelija;Ei - toinen varaus voimassa;596.7800;24.00;1;6701546.027671326;23457623.989447717
+LauttarantaD050;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701555.8571922118;23457603.547618903
+LauttarantaD051;Venepaikat;Kävelyaisa 4x12x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701546.7723286739;23457629.331452284
+LauttarantaD052;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701556.3554514032;23457607.053675286
+LauttarantaD053;Venepaikat;Kävelyaisa 4x12x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701547.4055713266;23457633.696947716
+LauttarantaD054;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Paattynyt;2021-07-22 11:15:03.517;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701556.8661922123;23457610.633918904
+LauttarantaD055;Venepaikat;Kävelyaisa 4x12x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701548.1222041678;23457638.942280956
+LauttarantaD056;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701557.3815485965;23457614.172424711
+LauttarantaD057;Venepaikat;Kävelyaisa 4x12x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701548.7641713275;23457643.307747718
+LauttarantaD058;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701557.8690485964;23457617.748024713
+LauttarantaD060;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701558.3526514033;23457621.335275289
+LauttarantaD062;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701558.8595485967;23457624.883824714
+LauttarantaD064;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701559.3856718084;23457628.451697096
+LauttarantaD066;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701559.9351514038;23457631.973175287
+LauttarantaD068;Venepaikat;Aisapaikka 3.2x8x1.7 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701560.4652077882;23457635.502381098
+LauttarantaD070;Venepaikat;Aisapaikka 3.2x8x1.8 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701560.9604295967;23457639.093478192
+LauttarantaD072;Venepaikat;Aisapaikka 3.2x8x1.8 m;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701561.4595500007;23457642.692299999
+LauttarantaS001;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701581.3035969408;23457492.416477561
+LauttarantaS002;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701583.2922306191;23457492.203442998
+LauttarantaS003;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701585.2808469413;23457491.99037756
+LauttarantaS004;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701587.2694754992;23457491.777301881
+LauttarantaS005;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701589.2580969408;23457491.56427756
+LauttarantaS006;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701591.2467030594;23457491.351222441
+LauttarantaS007;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701593.2353245011;23457491.138198119
+LauttarantaS008;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701595.2239530589;23457490.92512244
+LauttarantaS009;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701597.2125724405;23457490.712029442
+LauttarantaS010;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701599.2011969406;23457490.498977561
+LauttarantaS011;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701601.1898030592;23457490.285922438
+LauttarantaS012;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701603.1784245009;23457490.07289812
+LauttarantaS013;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701605.1670530587;23457489.859822441
+LauttarantaS014;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701607.1556693809;23457489.646756999
+LauttarantaS015;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701609.1443030592;23457489.43372244
+LauttarantaS016;Soutuvenepaikat;Soutuvenepaikka;Satama: Lauttaranta;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;68.5500;24.00;1;6701611.1328969412;23457489.220677562
+LauttarantaT001;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701638.9855500003;23457471.739799999
+LauttarantaT002;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701635.9890999999;23457471.594050001
+LauttarantaT003;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701632.9926499994;23457471.448350001
+LauttarantaT004;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-04-24 15:32:50.480;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701629.9961999999;23457471.302650001
+LauttarantaT005;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701626.9997264687;23457471.156922296
+LauttarantaT006;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701624.0032735309;23457471.011277705
+LauttarantaT007;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701621.0068000006;23457470.86555
+LauttarantaT008;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701618.0103500001;23457470.71985
+LauttarantaT009;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701615.0139000006;23457470.57415
+LauttarantaT010;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701612.0174267357;23457470.42840483
+LauttarantaT011;Talvisäilytyspaikat;Talvisäilytyspaikka 3,5x12 m;Satama: Lauttaranta;Paattynyt;2019-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;370.9700;24.00;1;6701608.4729901748;23457471.25729337
+LauttarantaT012;Talvisäilytyspaikat;Talvisäilytyspaikka 3,5x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;370.9700;24.00;1;6701604.4777229996;23457471.062961794
+LauttarantaT013;Talvisäilytyspaikat;Talvisäilytyspaikka 3,5x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;370.9700;24.00;1;6701597.4859506814;23457470.722993478
+LauttarantaT014;Talvisäilytyspaikat;Talvisäilytyspaikka 3,5x12 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;370.9700;24.00;1;6701593.4906762782;23457470.528738778
+LauttarantaT015;Talvisäilytyspaikat;Talvisäilytyspaikka 3,5x12 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;370.9700;24.00;1;6701589.4954269249;23457470.334413201
+LauttarantaT016;Talvisäilytyspaikat;Talvisäilytyspaikka 3,5x12 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;370.9700;24.00;1;6701585.5001506815;23457470.14014348
+LauttarantaT017;Talvisäilytyspaikat;Talvisäilytyspaikka 3,5x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;370.9700;24.00;1;6701581.5048473245;23457469.94587899
+LauttarantaT018;Talvisäilytyspaikat;Talvisäilytyspaikka 3,5x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;370.9700;24.00;1;6701577.5095763644;23457469.75165128
+LauttarantaT019;Talvisäilytyspaikat;Talvisäilytyspaikka 3,5x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;370.9700;24.00;1;6701573.514300555;23457469.55734469
+LauttarantaT020;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701552.8668385306;23457466.222319428
+LauttarantaT021;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2020-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701550.3137558494;23457467.797688533
+LauttarantaT022;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701547.7606614688;23457469.373030573
+LauttarantaT023;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2018-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701545.2075941507;23457470.948411468
+LauttarantaT024;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701542.6545385309;23457472.523819428
+LauttarantaT025;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2019-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701540.1014558496;23457474.099188533
+LauttarantaT026;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701537.5483614691;23457475.674530573
+LauttarantaT027;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701534.9952941509;23457477.249911468
+LauttarantaT028;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2020-08-28 09:42:31.687;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701532.4422385311;23457478.825319428
+LauttarantaT029;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701529.8891558489;23457480.400688533
+LauttarantaT030;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701527.3360609654;23457481.976031307
+LauttarantaT031;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701523.9952999996;23457482.274900001
+LauttarantaT032;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701521.4422325101;23457483.850277811
+LauttarantaT033;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701518.8891674895;23457485.425622188
+LauttarantaT034;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2020-12-04 07:05:06.920;1 - Vain kasittelija;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701516.3361;23457487.001000002
+LauttarantaT035;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2021-08-20 17:31:59.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701513.7829999998;23457488.576400001
+LauttarantaT036;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701639.4712524284;23457461.751626469
+LauttarantaT037;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701636.4747975711;23457461.605873533
+LauttarantaT038;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701633.4783500005;23457461.46015
+LauttarantaT039;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701630.4819;23457461.314449999
+LauttarantaT040;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701627.4854000006;23457461.168749999
+LauttarantaT041;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701624.4889500001;23457461.023049999
+LauttarantaT042;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701621.4924999997;23457460.877349999
+LauttarantaT043;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701618.4960500002;23457460.731650002
+LauttarantaT044;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701615.4995999997;23457460.585949998
+LauttarantaT045;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701612.503101429;23457460.440232594
+LauttarantaT046;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701609.5066499999;23457460.294550002
+LauttarantaT047;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701606.5102001335;23457460.148841269
+LauttarantaT048;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2019-08-07 06:03:42.503;1 - Vain kasittelija;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701603.5137513625;23457460.003133401
+LauttarantaT049;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2019-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701600.5172999669;23457459.857400402
+LauttarantaT050;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701597.5208000001;23457459.711649999
+LauttarantaT051;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2020-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701594.5243500005;23457459.565949999
+LauttarantaT052;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701591.5278997524;23457459.420266252
+LauttarantaT053;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701588.5314493189;23457459.274558302
+LauttarantaT054;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701585.5350000001;23457459.128850002
+LauttarantaT055;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2020-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701582.5385264689;23457458.983122293
+LauttarantaT056;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701579.5420736456;23457458.837470189
+LauttarantaT057;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701576.5455993842;23457458.691757493
+LauttarantaT058;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701573.5491500003;23457458.546050001
+LauttarantaT059;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701550.9563352857;23457457.413213097
+LauttarantaT060;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701548.4032647144;23457458.988586903
+LauttarantaT061;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701545.8501972249;23457460.563964713
+LauttarantaT062;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701543.2971027754;23457462.139335286
+LauttarantaT063;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701540.7440352859;23457463.714713097
+LauttarantaT064;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701538.1909647146;23457465.290086903
+LauttarantaT065;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701535.6378972251;23457466.865464713
+LauttarantaT066;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701533.0848027756;23457468.440835286
+LauttarantaT067;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701530.5317352861;23457470.016213097
+LauttarantaT068;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701527.9786647139;23457471.591586903
+LauttarantaT069;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2020-09-23 08:46:18.917;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701525.4255972244;23457473.166964713
+LauttarantaT070;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701522.8725027749;23457474.742335286
+LauttarantaT071;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701520.3194352854;23457476.317713097
+LauttarantaT072;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701517.7663647141;23457477.893086903
+LauttarantaT073;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701515.2132972246;23457479.468464714
+LauttarantaT074;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701512.6602027752;23457481.043835286
+LauttarantaT075;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2020-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701510.1071352856;23457482.619213097
+LauttarantaT076;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2018-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701507.5540647143;23457484.194586903
+LauttarantaT077;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701505.0009972248;23457485.769964714
+LauttarantaT078;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2019-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701502.4479027754;23457487.345335286
+LauttarantaT079;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701499.8948352858;23457488.920713097
+LauttarantaT080;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2020-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701497.3417647146;23457490.496086903
+LauttarantaT081;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701494.7886972241;23457492.071464714
+LauttarantaT082;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701634.650076949;23457439.323571552
+LauttarantaT083;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701631.1570253586;23457439.103205398
+LauttarantaT084;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701627.6639746409;23457438.882694602
+LauttarantaT085;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701624.1709230514;23457438.662328448
+LauttarantaT086;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701620.6778792562;23457438.441848502
+LauttarantaT087;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701617.1848207442;23457438.221451502
+LauttarantaT088;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2017-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701613.691776949;23457438.000971552
+LauttarantaT089;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701610.1987253586;23457437.780605398
+LauttarantaT090;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701606.7056476921;23457437.560123052
+LauttarantaT091;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2020-11-06 08:02:24.753;0 - Julkisesti;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701603.2126000002;23457437.339699998
+LauttarantaT092;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2019-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701599.7195523074;23457437.119276948
+LauttarantaT093;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701596.2264976921;23457436.898823053
+LauttarantaT094;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701592.7334500002;23457436.678399999
+LauttarantaT095;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701589.2404000005;23457436.45795
+LauttarantaT096;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701585.7473499998;23457436.237500001
+LauttarantaT097;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701582.2543000001;23457436.017099999
+LauttarantaT098;Talvisäilytyspaikat;Talvisäilytyspaikka 3x12 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;314.5200;24.00;1;6701578.7612500004;23457435.79665
+LauttarantaT099;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x7 m;Satama: Lauttaranta;Paattynyt;2018-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;169.3600;24.00;1;6701575.2681999998;23457435.576200001
+LauttarantaT100;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701551.4912999999;23457435.88445
+LauttarantaT101;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701549.3129000003;23457437.111049999
+LauttarantaT102;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701547.1344999997;23457438.337650001
+LauttarantaT103;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701544.9561000001;23457439.56425
+LauttarantaT104;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701542.7776862597;23457440.790866978
+LauttarantaT105;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701540.59925;23457442.017450001
+LauttarantaT106;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701538.4208171172;23457443.244019281
+LauttarantaT107;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701536.2423966229;23457444.47056374
+LauttarantaT108;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701534.0640000002;23457445.697149999
+LauttarantaT109;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701531.8855999997;23457446.923750002
+LauttarantaT110;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2018-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701529.7072000001;23457448.150350001
+LauttarantaT111;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2020-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701527.5287999995;23457449.376949999
+LauttarantaT112;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701525.3503862601;23457450.603566978
+LauttarantaT113;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2020-08-28 07:30:23.017;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701523.1719500003;23457451.830150001
+LauttarantaT114;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701520.9935499998;23457453.05675
+LauttarantaT115;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701518.81511374;23457454.283333022
+LauttarantaT116;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2020-10-31 16:58:59.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701516.6366999997;23457455.509950001
+LauttarantaT117;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701514.4583000001;23457456.73655
+LauttarantaT118;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701512.2799033774;23457457.963136259
+LauttarantaT119;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701510.1014966229;23457459.189663738
+LauttarantaT120;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701504.3127499996;23457462.207699999
+LauttarantaT121;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2017-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701502.2805500003;23457463.663800001
+LauttarantaT122;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701500.24835;23457465.119899999
+LauttarantaT123;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;NULL;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701498.2161874566;23457466.576014407
+LauttarantaT124;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701496.1840000004;23457468.032099999
+LauttarantaT125;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;NULL;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701494.1518125432;23457469.488185592
+LauttarantaT126;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2020-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701492.1196559491;23457470.944287457
+LauttarantaT127;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701490.0874499995;23457472.400350001
+LauttarantaT128;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2019-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701488.0552500002;23457473.856449999
+LauttarantaT129;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701486.02305;23457475.312550001
+LauttarantaT130;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2019-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701483.9908874566;23457476.768664408
+LauttarantaT131;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701481.9586999994;23457478.224750001
+LauttarantaT132;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701479.926512544;23457479.680835593
+LauttarantaT133;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2021-09-29 08:55:43.973;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701477.8943499997;23457481.136950001
+LauttarantaT134;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2021-10-07 13:01:17.607;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701475.8621500004;23457482.593049999
+LauttarantaT135;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701473.8299440509;23457484.049112543
+LauttarantaT136;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701471.7977499999;23457485.505200002
+LauttarantaT137;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701470.4360137191;23457488.326247171
+LauttarantaT138;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701467.9973922279;23457490.073560663
+LauttarantaT139;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2020-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701465.5587999998;23457491.820900001
+LauttarantaT140;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701463.1201499999;23457493.5682
+LauttarantaT141;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2018-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701460.6815077718;23457495.315539338
+LauttarantaT142;Talvisäilytyspaikat;Talvisäilytyspaikka 2,5x10 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;221.7800;24.00;1;6701458.2429;23457497.062850002
+LauttarantaT143;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701553.6697000004;23457434.657850001
+LauttarantaT144;Talvisäilytyspaikat;Talvisäilytyspaikka 2x7 m;Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;145.1600;24.00;1;6701555.8481137399;23457433.431233022
+LauttarantaT145;Talvisäilytyspaikat;Talvisäilytyspaikka 3,5x12 m;Satama: Lauttaranta;Paattynyt;2019-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;370.9700;24.00;1;6701567.2198500009;23457492.397950001
+LauttarantaT146;Talvisäilytyspaikat;Talvisäilytyspaikka 3,5x12 m;Satama: Lauttaranta;Paattynyt;2021-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;370.9700;24.00;1;6701548.1208213586;23457494.584920406
+LauttarantaTS001;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701454.0737500004;23457497.154600002
+LauttarantaTS002;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701455.0445499998;23457498.903200001
+LauttarantaTS003;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701456.01535;23457500.651799999
+LauttarantaTS004;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Paattynyt;2020-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701456.9861500002;23457502.400350001
+LauttarantaTS005;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701457.9569820734;23457504.148904406
+LauttarantaTS006;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701458.9277999997;23457505.897500001
+LauttarantaTS007;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701459.8986;23457507.6461
+LauttarantaTS008;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701460.8694000002;23457509.394700002
+LauttarantaTS009;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701461.8402000004;23457511.143300001
+LauttarantaTS010;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701462.8109999998;23457512.891849998
+LauttarantaTS011;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;0 - Julkisesti;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701463.7818;23457514.6404
+LauttarantaTS012;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Voimassa;2023-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701464.7526000002;23457516.389000002
+LauttarantaTS013;Soutuveneiden talvisäilytyspaikat;Talvisäilytyspaikka (soutuvene);Satama: Lauttaranta;Paattynyt;2022-05-31 20:59:00.000;1 - Vain kasittelija;Ei - varauskausi ei voimassa;56.4500;24.00;1;6701465.7234000005;23457518.137600001
+Marina001;Venepaikat;Kylkipaikka 15 m HUOM. isoille veneille;Satama: Marina;Paattynyt;2022-05-20 12:02:26.043;0 - Julkisesti;Kylla - julkisesti;282.2600;24.00;1;6704048.6499827458;23459335.719354782
+Marina002;Venepaikat;Kylkipaikka 15 m HUOM. isoille veneille;Satama: Marina;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;282.2600;24.00;1;6704055.7075237837;23459348.947003253
+Marina003;Venepaikat;Kylkipaikka 15 m HUOM. isoille veneille;Satama: Marina;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;282.2600;24.00;1;6704062.7719592247;23459362.187515538
+Marina004;Venepaikat;Kylkipaikka 15 m HUOM. isoille veneille;Satama: Marina;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;282.2600;24.00;1;6704069.8368327767;23459375.419566002
+Marina005;Venepaikat;Kylkipaikka 15 m HUOM. isoille veneille;Satama: Marina;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;282.2600;24.00;1;6704076.9043285428;23459388.601221703
+Marina006;Venepaikat;Kylkipaikka 15 m HUOM. isoille veneille;Satama: Marina;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;282.2600;24.00;1;6704084.0022082599;23459401.839404162
+Sointu001;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703798.4141500005;23459054.247749999
+Sointu002;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703800.3092624107;23459057.118664443
+Sointu003;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703802.2042875886;23459059.989635557
+Sointu004;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703804.0993499998;23459062.860550001
+Sointu005;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703805.9944624109;23459065.731464442
+Sointu006;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703807.8895375887;23459068.602435559
+Sointu007;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703809.7846500007;23459071.47335
+Sointu008;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703811.679712411;23459074.344264444
+Sointu009;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703813.5747375889;23459077.215235557
+Sointu010;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703815.4698624108;23459080.086164441
+Sointu011;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703817.3649375886;23459082.957135558
+Sointu012;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703819.2600500006;23459085.828049999
+Sointu013;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703821.1551268529;23459088.698967829
+Sointu014;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703823.0501731467;23459091.56993217
+Sointu015;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703824.9452499999;23459094.440850001
+Sointu016;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703826.8403624101;23459097.311764441
+Sointu017;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703828.7354375897;23459100.182735559
+Sointu018;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703830.6305144429;23459103.053653385
+Sointu019;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703832.5255979681;23459105.924561057
+Sointu020;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703834.4206375889;23459108.795535557
+Sointu021;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703836.3157500001;23459111.666450001
+Sointu022;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703838.2108624112;23459114.537364442
+Sointu023;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703840.105937589;23459117.408335559
+Sointu024;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703842.0010000002;23459120.27925
+Sointu025;Venepaikat;Takapaalupaikka 3.3x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703843.8960624104;23459123.150164444
+Sointu026;Venepaikat;Takapaalupaikka 3.3x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703845.7911375891;23459126.021135557
+Sointu027;Venepaikat;Takapaalupaikka 3.3x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703847.6862624111;23459128.892064441
+Sointu028;Venepaikat;Takapaalupaikka 3.3x8 m;Satama: Sointu;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703849.5813375888;23459131.763035558
+Teatteri001;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703967.3946000002;23459311.93705
+Teatteri002;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703969.0928153722;23459314.997451697
+Teatteri003;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703970.7910846276;23459318.057848305
+Teatteri004;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703972.4893000005;23459321.118250001
+Teatteri005;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703974.1875153715;23459324.178651698
+Teatteri006;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703975.8857500004;23459327.239050001
+Teatteri007;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703977.5839846274;23459330.299448304
+Teatteri008;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703979.2822000002;23459333.359850001
+Teatteri009;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703980.9907653593;23459336.414501719
+Teatteri010;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;201.6100;24.00;1;6703982.7097346401;23459339.463398281
+Teatteri011;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703984.4286516747;23459342.512286358
+Teatteri012;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703986.1476346403;23459345.561148282
+Teatteri013;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703987.8665653598;23459348.610051718
+Teatteri014;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703989.58555;23459351.658950001
+Teatteri015;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703991.3045346411;23459354.707848281
+Teatteri016;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703993.0234653587;23459357.75675172
+Teatteri017;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703994.7424346404;23459360.805648282
+Teatteri018;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703996.4613653598;23459363.854551718
+Teatteri019;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703998.1827846225;23459366.907798301
+Teatteri020;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6703999.9066153774;23459369.965401698
+Teatteri021;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704001.6304846229;23459373.022998303
+Teatteri022;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704003.3543636398;23459376.080615375
+Teatteri023;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704005.0782153774;23459379.138251696
+Teatteri024;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704006.8020846229;23459382.195848301
+Teatteri025;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704008.5259153778;23459385.253451698
+Teatteri026;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704010.2566420054;23459388.323653903
+Teatteri027;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704011.97755;23459391.399300002
+Teatteri028;Venepaikat;Takapaalupaikka 3.1x8 m;Satama: Teatteri;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;201.6100;24.00;1;6704013.6810863419;23459394.468184613
+UittamoA001;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701077.7600499997;23458818.907749999
+UittamoA002;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701070.1501065707;23458827.43601371
+UittamoA003;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701075.1681296919;23458816.555777494
+UittamoA004;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701067.5548434304;23458825.087686289
+UittamoA005;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701072.5761637064;23458814.203808799
+UittamoA006;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701064.9595999997;23458822.739350002
+UittamoA007;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701069.9842362935;23458811.851791199
+UittamoA008;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701062.3643500004;23458820.39105
+UittamoA009;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701067.3922637068;23458809.499808799
+UittamoA010;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701059.7691000002;23458818.0427
+UittamoA011;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701064.8003500002;23458807.147799999
+UittamoA012;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701057.1738499999;23458815.69435
+UittamoA013;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701062.2084362926;23458804.795791201
+UittamoA014;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701054.5785637097;23458813.346058831
+UittamoA015;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701059.616470309;23458802.443822507
+UittamoA016;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701051.9833362903;23458810.997691169
+UittamoA017;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701057.0245500002;23458800.091850001
+UittamoA018;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701049.3880500002;23458808.649349999
+UittamoA019;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701054.4325999999;23458797.73985
+UittamoA020;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701046.7927999999;23458806.30105
+UittamoA021;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701051.8406433975;23458795.387886293
+UittamoA022;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701044.1975565702;23458803.952713709
+UittamoA023;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701049.2487362931;23458793.035891201
+UittamoA024;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701041.6022934299;23458801.604386292
+UittamoA025;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701046.6567637073;23458790.683908798
+UittamoA026;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701039.0070500001;23458799.256050002
+UittamoA027;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701044.0648499997;23458788.331900001
+UittamoA028;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701036.4117999999;23458796.907749999
+UittamoA029;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701041.4729362931;23458785.9798912
+UittamoA030;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701033.8165500006;23458794.5594
+UittamoA031;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701038.8809637064;23458783.6279088
+UittamoA032;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701031.2213000003;23458792.21105
+UittamoA033;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701036.2890428957;23458781.275904905
+UittamoA034;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701028.6260500001;23458789.862750001
+UittamoA035;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2022-03-03 07:40:35.073;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701033.6970637068;23458778.923958801
+UittamoA036;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701026.0307702804;23458787.51442254
+UittamoA037;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701031.1051500002;23458776.57195
+UittamoA038;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701017.561786334;23458777.052107155
+UittamoA039;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701028.5132296914;23458774.219977494
+UittamoA040;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701015.1473219143;23458779.585929181
+UittamoA041;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701025.9212637069;23458771.8680088
+UittamoA042;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701012.7328417525;23458782.119763669
+UittamoA043;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2022-07-26 13:27:27.287;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701023.3293500002;23458769.515999999
+UittamoA044;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701010.3183500003;23458784.6536
+UittamoA045;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701020.7374;23458767.164000001
+UittamoA046;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701007.9038500004;23458787.187400002
+UittamoA048;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701005.4893500004;23458789.7212
+UittamoA049;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6700978.8556000004;23458811.197700001
+UittamoA050;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701003.0748582482;23458792.255036332
+UittamoA051;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6700981.2200863268;23458813.427441634
+UittamoA052;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701000.6603417527;23458794.788863666
+UittamoA053;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6700983.7664136728;23458815.828758366
+UittamoA054;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6700998.2458863333;23458797.322707154
+UittamoA055;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6700986.3127500005;23458818.23
+UittamoA056;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6700995.8314136667;23458799.856492847
+UittamoA057;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6700988.8591;23458820.631250001
+UittamoA058;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6700993.4169500005;23458802.390300002
+UittamoA059;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2022-03-01 11:38:14.700;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6700991.4054500004;23458823.03255
+UittamoA060;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6700991.0024582474;23458804.924136333
+UittamoA061;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6700993.9517999999;23458825.433850002
+UittamoA062;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6700988.5879417518;23458807.457963668
+UittamoA063;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6700996.4981500003;23458827.835099999
+UittamoA064;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701001.8903000001;23458816.991350003
+UittamoA065;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6700999.0444863271;23458830.236341633
+UittamoA066;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701004.4151935754;23458819.415155496
+UittamoA067;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2022-03-01 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701001.5908136731;23458832.637658365
+UittamoA068;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701006.9400064247;23458821.839044504
+UittamoA069;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701004.137186327;23458835.038941633
+UittamoA070;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701009.4649072383;23458824.262863662
+UittamoA071;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701006.6835066369;23458837.440244693
+UittamoA072;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701011.9897927623;23458826.686736338
+UittamoA074;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2022-06-10 04:57:05.797;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701014.5146863377;23458829.110541835
+UittamoA076;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-05-31 09:07:34.153;2 - Ei varattavissa;Ei - pois kaytosta;346.7800;24.00;1;6700999.4736129269;23458814.671409246
+UittamoB001;Venepaikat;Kävelyaisa 4.2x12 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701097.9383905083;23458786.108837672
+UittamoB002;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701088.4408999998;23458795.001850002
+UittamoB003;Venepaikat;Kävelyaisa 4.2x12 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701094.7493594922;23458782.933962326
+UittamoB004;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701085.9734999994;23458792.519549999
+UittamoB005;Venepaikat;Kävelyaisa 4.2x12 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701091.5602875706;23458779.759132292
+UittamoB006;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701083.5060636541;23458790.03725763
+UittamoB007;Venepaikat;Kävelyaisa 4.2x12 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701088.3711916665;23458776.584241703
+UittamoB008;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701081.0386499995;23458787.554949999
+UittamoB009;Venepaikat;Kävelyaisa 4.2x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701083.7710499996;23458774.826749999
+UittamoB010;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701078.5712363468;23458785.072642367
+UittamoB011;Venepaikat;Kävelyaisa 4.1x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701080.6173999999;23458771.687199999
+UittamoB012;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701076.1038000006;23458782.590350002
+UittamoB013;Venepaikat;Kävelyaisa 4.1x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701077.4992000004;23458768.582899999
+UittamoB014;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701073.6364000002;23458780.10805
+UittamoB015;Venepaikat;Kävelyaisa 3.9x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;419.3600;24.00;1;6701074.4518499998;23458765.549150001
+UittamoB016;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701071.168963653;23458777.625757631
+UittamoB017;Venepaikat;Kävelyaisa 3.9x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;419.3600;24.00;1;6701071.4753442965;23458762.585935123
+UittamoB018;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701068.7015499994;23458775.143449999
+UittamoB019;Venepaikat;Kävelyaisa 3.6x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;395.1600;24.00;1;6701068.5697499998;23458759.69325
+UittamoB020;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701066.2341363467;23458772.661142368
+UittamoB021;Venepaikat;Kävelyaisa 3.6x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;395.1600;24.00;1;6701065.7350000003;23458756.871150002
+UittamoB022;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701063.7666999996;23458770.178849999
+UittamoB023;Venepaikat;Aisapaikka 2.9x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701063.1483083302;23458754.295963179
+UittamoB024;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701061.2992714224;23458767.696521286
+UittamoB025;Venepaikat;Aisapaikka 3x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701060.8096500002;23458751.967750002
+UittamoB026;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701058.8318499997;23458765.214200001
+UittamoB027;Venepaikat;Aisapaikka 3x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701058.4709999999;23458749.63955
+UittamoB028;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2022-03-01 07:15:34.497;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701056.3644363461;23458762.731892366
+UittamoB029;Venepaikat;Aisapaikka 3x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;326.6100;24.00;1;6701056.1323500006;23458747.311299998
+UittamoB030;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701053.8969999999;23458760.249600001
+UittamoB031;Venepaikat;Aisapaikka 3x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701053.7936500004;23458744.98305
+UittamoB032;Venepaikat;Aisapaikka 3.4x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;358.8700;24.00;1;6701051.3590928521;23458757.696385935
+UittamoB033;Venepaikat;Aisapaikka 3x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701051.4550000001;23458742.654850002
+UittamoB034;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701048.8211636534;23458755.143157631
+UittamoB036;Venepaikat;Aisapaikka 3x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701046.4242584538;23458752.73176318
+UittamoB038;Venepaikat;Aisapaikka 3x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701044.0978283668;23458750.391328506
+UittamoC001;Venepaikat;Kävelyaisa 4.2x12 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701136.6877500005;23458754.571000002
+UittamoC002;Venepaikat;Kävelyaisa 4.2x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701127.541464583;23458764.454206325
+UittamoC003;Venepaikat;Kävelyaisa 4.2x12 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;596.7800;24.00;1;6701133.4942454137;23458751.400598265
+UittamoC004;Venepaikat;Kävelyaisa 4.2x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701124.3479500003;23458761.283800002
+UittamoC005;Venepaikat;Kävelyaisa 4.2x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701129.2466379404;23458749.292274535
+UittamoC006;Venepaikat;Kävelyaisa 4.2x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701121.1544415904;23458758.113408256
+UittamoC007;Venepaikat;Kävelyaisa 4.2x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701126.0555438213;23458746.119135417
+UittamoC008;Venepaikat;Kävelyaisa 4.2x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701117.960864584;23458754.943056326
+UittamoC009;Venepaikat;Kävelyaisa 4.2x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701122.8639364112;23458742.930388447
+UittamoC010;Venepaikat;Kävelyaisa 4.2x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701114.75557251;23458751.781121649
+UittamoC011;Venepaikat;Kävelyaisa 3.35x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;395.1600;24.00;1;6701119.9644146804;23458740.071331643
+UittamoC012;Venepaikat;Kävelyaisa 4.15x9 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;491.9400;24.00;1;6701111.583232102;23458748.631680626
+UittamoC013;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701117.0929873632;23458737.90493232
+UittamoC014;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701109.1228833441;23458745.464609697
+UittamoC015;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701114.6089000003;23458735.436000001
+UittamoC016;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701106.6390363462;23458742.998642217
+UittamoC017;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701112.1277060313;23458732.967444126
+UittamoC018;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701104.1551636532;23458740.532807782
+UittamoC019;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701109.6465939684;23458730.498855874
+UittamoC020;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701101.6713363463;23458738.066942215
+UittamoC021;Venepaikat;Aisapaikka 2.9x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701107.2717500003;23458728.136100002
+UittamoC022;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701099.1874636533;23458735.601107784
+UittamoC023;Venepaikat;Aisapaikka 2.9x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701105.0032413341;23458725.879137084
+UittamoC024;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701096.7036363464;23458733.135242216
+UittamoC025;Venepaikat;Aisapaikka 2.9x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701102.7347586658;23458723.622162916
+UittamoC026;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2022-05-08 18:27:22.670;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701094.2197423819;23458730.669386346
+UittamoC027;Venepaikat;Aisapaikka 2.9x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701100.4662500005;23458721.365200002
+UittamoC027a;Venepaikat;Aisapaikka 2.9x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;326.6100;24.00;1;6701098.1965129171;23458719.109458838
+UittamoC028;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701091.7358712722;23458728.203521438
+UittamoC029;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701081.8062914703;23458705.428413685
+UittamoC030;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701089.2520363461;23458725.737642217
+UittamoC031;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701084.1891000001;23458702.864750002
+UittamoC032;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701086.768163654;23458723.271807782
+UittamoC033;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701086.5719085289;23458700.301086318
+UittamoC034;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701084.2843363462;23458720.805942215
+UittamoC035;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701088.9546914706;23458697.737413686
+UittamoC036;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701081.8004636532;23458718.340107784
+UittamoC037;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701091.3374585304;23458695.173786316
+UittamoC038;Venepaikat;Aisapaikka 3.5x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;358.8700;24.00;1;6701079.2101857504;23458715.768543128
+UittamoC039;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701093.965293562;23458692.346414931
+UittamoC040;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701076.6198500004;23458713.197000001
+UittamoC041;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701096.8410564177;23458689.252385058
+UittamoC042;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701074.1359636532;23458710.731157783
+UittamoC043;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701099.4716914706;23458686.422013685
+UittamoC044;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701071.6521363463;23458708.265292216
+UittamoC045;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;346.7800;24.00;1;6701101.8545085294;23458683.858386315
+UittamoC046;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701111.2154000001;23458673.786850002
+UittamoC047;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701104.2372414703;23458681.294713683
+UittamoC048;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701112.6712499997;23458663.693
+UittamoC049;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701106.6200000001;23458678.73105
+UittamoC050;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701114.8953499999;23458665.706300002
+UittamoC051;Venepaikat;Aisapaikka 3.2x8 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;346.7800;24.00;1;6701109.0028085299;23458676.167386316
+UittamoC052;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701117.1194500001;23458667.719599999
+UittamoC053;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701122.3189500002;23458687.637699999
+UittamoC054;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701119.3435500003;23458669.732900001
+UittamoC055;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701124.5378583558;23458689.656662382
+UittamoC056;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701121.5676499996;23458671.746199999
+UittamoC057;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701126.7567999996;23458691.675650001
+UittamoC058;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701123.7917499999;23458673.759500001
+UittamoC059;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701128.9757500002;23458693.694649998
+UittamoC060;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701126.4182949904;23458676.137135237
+UittamoC060a;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701129.4452;23458678.877149999
+UittamoC061;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701131.19465;23458695.713649999
+UittamoC062;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701132.06965;23458681.25285
+UittamoC063;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701133.4135623826;23458697.732660741
+UittamoC064;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701134.2937500002;23458683.266150001
+UittamoC065;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701135.6325376173;23458699.751639258
+UittamoC066;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701136.5178499995;23458685.279449999
+UittamoC068;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701138.7419500006;23458687.292750001
+UittamoC070;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701140.9660499999;23458689.306049999
+UittamoC072;Venepaikat;Aisapaikka 2.7x8 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701143.1901500002;23458691.31935
+UittamoD001;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701212.1467642551;23458695.979053818
+UittamoD002;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;1 - Vain kasittelija;Kylla - kasittelija;290.3200;24.00;1;6701204.0776500003;23458701.414900001
+UittamoD003;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701210.4472500002;23458693.506900001
+UittamoD004;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701202.3764522057;23458698.943889581
+UittamoD005;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701208.7477357443;23458691.034746185
+UittamoD006;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701200.6753477938;23458696.472810421
+UittamoD007;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701207.0481642559;23458688.562603816
+UittamoD008;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701198.9741500001;23458694.001800001
+UittamoD009;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701205.3486379413;23458686.090435743
+UittamoD010;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701197.2729642503;23458691.530753829
+UittamoD011;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701203.6491120579;23458683.618264254
+UittamoD012;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701195.5718;23458689.059700001
+UittamoD013;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701201.94955;23458681.1461
+UittamoD014;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701193.8706357498;23458686.588696171
+UittamoD015;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701200.2500357451;23458678.673946183
+UittamoD016;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701192.1694642501;23458684.117653828
+UittamoD017;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701198.5504642557;23458676.201803815
+UittamoD018;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701190.4682999998;23458681.646600001
+UittamoD019;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2022-05-10 06:51:46.213;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701196.8509499999;23458673.729650002
+UittamoD020;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701188.7671357496;23458679.17559617
+UittamoD021;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701195.1514357449;23458671.257496186
+UittamoD022;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701187.0659499997;23458676.704550002
+UittamoD023;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701193.4518642556;23458668.785303816
+UittamoD024;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701185.3647642499;23458674.23350383
+UittamoD025;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701191.752335744;23458666.313146185
+UittamoD026;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701183.6636237064;23458671.76248192
+UittamoD027;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701190.0527642556;23458663.841003817
+UittamoD028;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701181.9624620443;23458669.29141425
+UittamoD029;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701188.3532500006;23458661.36885
+UittamoD030;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701180.2612642497;23458666.820403829
+UittamoD031;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701186.6537357438;23458658.896696184
+UittamoD032;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701178.5601000004;23458664.349350002
+UittamoD033;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701184.9541521976;23458656.424539559
+UittamoD034;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701176.8589357501;23458661.87829617
+UittamoD035;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701183.2546620583;23458653.952364255
+UittamoD036;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701175.1577642504;23458659.407303829
+UittamoD037;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2022-05-17 09:20:42.673;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701181.5551000005;23458651.4802
+UittamoD038;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701173.4566000002;23458656.936250001
+UittamoD039;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701179.8555500004;23458649.008050002
+UittamoD040;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701171.7554357499;23458654.46519617
+UittamoD041;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701178.1560357446;23458646.535896186
+UittamoD042;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2021-12-31 07:00:00.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701170.05425;23458651.994200002
+UittamoD043;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Voimassa;2022-12-31 07:00:00.000;0 - Julkisesti;Ei - toinen varaus voimassa;290.3200;24.00;1;6701176.4564521974;23458644.063739561
+UittamoD044;Venepaikat;Aisapaikka 2.7x7 m;Satama: Uittamo;Paattynyt;2022-04-04 00:18:59.000;0 - Julkisesti;Kylla - julkisesti;290.3200;24.00;1;6701168.3530642502;23458649.52315383

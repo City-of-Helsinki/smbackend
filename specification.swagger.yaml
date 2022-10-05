@@ -258,6 +258,13 @@ paths:
             items:
               type: string
           example: service:234,service:863
+        - name: address
+          in: query
+          description: >
+            Retrive units with the given address.
+          schema:
+            type: string
+          example: Aurakatu
       responses:
         "200":
           description: List of units, paginated

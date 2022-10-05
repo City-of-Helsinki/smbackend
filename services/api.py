@@ -998,6 +998,19 @@ class UnitViewSet(
                 | Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))
             ).distinct()
 
+        if "address" in filters:
+            language = filters["language"] if "language" in filters else "fi"
+            address_splitted = filters["address"].split(" ")
+            key = f"street_address_{language}"
+            if len(address_splitted) == 1:
+                key += "__startswith"
+                arg = address_splitted[0]
+
+            else:
+                key += "__iregex"
+                arg = filters["address"] + r"($|\s|,|[a-zA-Z]).*"
+            queryset = queryset.filter(**{key: arg})
+
         maintenance_organization = self.request.query_params.get(
             "maintenance_organization"
         )

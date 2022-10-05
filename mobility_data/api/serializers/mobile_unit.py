@@ -13,6 +13,7 @@ from services.models import Unit
 
 from ...models import GroupType, MobileUnit, MobileUnitGroup
 from . import ContentTypeSerializer
+from .utils import swap_coords
 
 
 class GeometrySerializer(serializers.Serializer):
@@ -57,6 +58,8 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             "address_fi",
             "address_sv",
             "address_en",
+            "address_zip",
+            "municipality",
             "description",
             "description_fi",
             "description_sv",
@@ -126,7 +129,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 coords = []
                 for coord in geometry.coords:
                     # swap lon,lat -> lat lon
-                    e = (coord[1], coord[0])
+                    e = swap_coords(coord)
                     coords.append(e)
                 return coords
             else:
@@ -135,12 +138,21 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         elif isinstance(geometry, Polygon):
             if self.context["latlon"]:
                 # Return Polygon coordinates in (lat,lon) format
+                # The polygon needs to be a three dimensional array
+                # to be compatible with Leaflet polygon element.
+                polygon = []
                 coords = []
-                for coord in list(*geometry.coords):
-                    # swap lon,lat -> lat lon
-                    e = (coord[1], coord[0])
-                    coords.append(e)
-                return coords
+                # If geometry.coords contains multiple lists they must be handled separately.
+                if len(geometry.coords) > 1:
+                    for geometry_coords in geometry.coords:
+                        for coord in geometry_coords:
+                            # swap lon,lat -> lat lon
+                            coords.append(swap_coords(coord))
+                else:
+                    for coord in list(*geometry.coords):
+                        coords.append(swap_coords(coord))
+                polygon.append(coords)
+                return polygon
             else:
                 return geometry.coords
         elif isinstance(geometry, MultiPolygon):
@@ -152,8 +164,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                     polygon_coords = []
                     for p_c in list(*polygon):
                         # swap lon,lat -> lat lon
-                        e = (p_c[1], p_c[0])
-                        polygon_coords.append(e)
+                        polygon_coords.append(swap_coords(p_c))
                     coords.append(polygon_coords)
                 return coords
             else:
@@ -164,8 +175,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 for linestring in geometry.coords:
                     # swap lon,lat -> lat lon
                     for coord in linestring:
-                        e = (coord[1], coord[0])
-                        coords.append(e)
+                        coords.append(swap_coords(coord))
                 return coords
             else:
                 return geometry.coords

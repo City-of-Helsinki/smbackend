@@ -9,29 +9,41 @@ services:
         ports:
             - "5432:5432"
         volumes:
-            - postgres-data:/var/lib/postgres/data 
+            - ./postgres-data:/var/lib/postgresql/data             
     servicemap:
         build:
             context: ./
             dockerfile: ./Dockerfile
+        environment:   
+            - APPLY_MIGRATIONS=true
         command: start_django_development_server
         env_file:
             - config_dev.env
         volumes:
             - django-media:/var/media/
+            - smbackend:/smbackend/
         ports:
             - "8000:8000"
         restart: on-failure
         depends_on:
-            - postgres
-    servicemap-ui:
-        image: helsinki/servicemap-ui:staging
+            postgres:
+                condition: service_started
+    redis:
+        image: redis        
         ports:
-            - "2048:2048"
-        env_file:
-            - config_dev_ui.env.example
-        depends_on:
-            - servicemap
+            - "6379:6379"  
+
+    # Todo, fix when Turku frontend has a working image
+    # servicemap-ui:
+    #     #image: helsinki/servicemap-ui:staging
+    #     image: turku/servicemap-ui:staging
+    #     ports:
+    #         - "2048:2048"
+    #     env_file:
+    #         - config_dev_ui.env
+    #     depends_on:
+    #         - servicemap
 volumes:
     postgres-data:
     django-media:
+    smbackend:

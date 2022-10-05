@@ -1,7 +1,6 @@
+[![Service Map API tests](https://github.com/City-of-Turku/smbackend/actions/workflows/run-tests.yml/badge.svg)](https://github.com/City-of-Turku/smbackend/actions/workflows/run-tests.yml)
+[![codecov](https://codecov.io/github/City-of-Turku/smbackend/branch/turku/graph/badge.svg?token=IZJMSFNJB5)](https://codecov.io/github/City-of-Turku/smbackend)
 
-[![Build status](https://api.travis-ci.com/City-of-Helsinki/smbackend.svg?branch=master)](https://travis-ci.org/github/City-of-Helsinki/smbackend)
-[![Codecov](https://codecov.io/gh/City-of-Helsinki/smbackend/branch/master/graph/badge.svg)](https://codecov.io/gh/City-of-Helsinki/smbackend)
-[![Requirements](https://requires.io/github/City-of-Helsinki/smbackend/requirements.svg?branch=master)](https://requires.io/github/City-of-Helsinki/smbackend/requirements/?branch=master)
 
 Service Map Backend
 ===================
@@ -38,6 +37,7 @@ First, install the necessary Debian packages.
 * libxslt1-dev
 * voikko-fi
 * libvoikko-dev
+* libpq-dev
 
 2. 
 Clone the repository.

@@ -179,10 +179,11 @@ def streets():
 
 @pytest.mark.django_db
 @pytest.fixture
-def address(streets):
+def address(streets, municipality):
     addresses = []
     location = Point(22.244, 60.4, srid=4326)
     address = Address.objects.create(
+        municipality_id=municipality.id,
         id=100,
         location=location,
         street=streets[0],
@@ -193,6 +194,7 @@ def address(streets):
     addresses.append(address)
     location = Point(22.227168, 60.4350612, srid=4326)
     address = Address.objects.create(
+        municipality_id=municipality.id,
         id=101,
         location=location,
         street=streets[1],
@@ -202,6 +204,7 @@ def address(streets):
     addresses.append(address)
     location = Point(22.264457, 60.448905, srid=4326)
     address = Address.objects.create(
+        municipality_id=municipality.id,
         id=102,
         location=location,
         street=streets[2],
@@ -212,6 +215,7 @@ def address(streets):
     addresses.append(address)
     location = Point(22.2383, 60.411726, srid=4326)
     address = Address.objects.create(
+        municipality_id=municipality.id,
         id=103,
         location=location,
         street=streets[3],
@@ -222,6 +226,7 @@ def address(streets):
     addresses.append(address)
     location = Point(22.2871092678621, 60.44677715747775, srid=4326)
     address = Address.objects.create(
+        municipality_id=municipality.id,
         id=104,
         location=location,
         street=streets[4],
@@ -232,6 +237,7 @@ def address(streets):
     addresses.append(address)
     location = Point(22.26097246971352, 60.45055294118857, srid=4326)
     address = Address.objects.create(
+        municipality_id=municipality.id,
         id=105,
         location=location,
         street=streets[5],
@@ -242,6 +248,7 @@ def address(streets):
     addresses.append(address)
     location = Point(22.247047171564706, 60.45159033848499, srid=4326)
     address = Address.objects.create(
+        municipality_id=municipality.id,
         id=106,
         location=location,
         street=streets[6],

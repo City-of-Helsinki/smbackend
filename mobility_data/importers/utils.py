@@ -1,4 +1,5 @@
 import re
+from enum import Enum
 
 import requests
 from django.conf import settings
@@ -12,7 +13,7 @@ from munigeo.models import (
     Street,
 )
 
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import ContentType, DataSource, MobileUnit
 
 # 11 = Southwest Finland
 GEOMETRY_ID = 11
@@ -21,6 +22,14 @@ GEOMETRY_URL = (
     + f"id={GEOMETRY_ID}&lastUpdated=false"
 )
 LANGUAGES = ["fi", "sv", "en"]
+
+
+class FieldTypes(Enum):
+    STRING = 1
+    MULTILANG_STRING = 2
+    INTEGER = 3
+    FLOAT = 4
+    BOOLEAN = 5
 
 
 def fetch_json(url):
@@ -184,3 +193,27 @@ def locates_in_turku(feature, source_data_srid):
     geometry = GEOSGeometry(feature.geom.wkt, srid=source_data_srid)
     geometry.transform(settings.DEFAULT_SRID)
     return turku_boundary.contains(geometry)
+
+
+def get_root_dir():
+    """
+    Returns the root directory of the project.
+    """
+    if hasattr(settings, "PROJECT_ROOT"):
+        return settings.PROJECT_ROOT
+    else:
+        return settings.BASE_DIR
+
+
+def get_file_name_from_data_source(content_type):
+    """
+    Returns the stored file name in the DataSource table for
+    given content type. The name of the file is used by
+    the importer when it reads the data.
+    """
+    data_source_qs = DataSource.objects.filter(type_name=content_type)
+    # If data source found, use the uploaded data file name.
+    if data_source_qs.exists():
+        file_name = str(data_source_qs.first().data_file.file)
+        return file_name
+    return None

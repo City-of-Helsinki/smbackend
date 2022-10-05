@@ -85,3 +85,18 @@ To import data type:
 ```
 ./manage.py import_bicycle_networks
 ```
+
+### Marinas
+Imports marinas, guest marina and boat parking.
+Imports also berths that belongs to marinas.
+To import data type:
+```
+./manage.py import_marinas
+```
+
+### Disabled and no staff parkings
+Imports disabled parkings and no staff parkings, i.e., no staff parking are parking places that are not intended for the staff.
+To import data type:
+```
+./manage.py import_disabled_and_no_staff_parkings
+```
