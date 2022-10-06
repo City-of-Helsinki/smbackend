@@ -4,23 +4,32 @@ import zoneinfo
 from datetime import datetime
 
 import requests
-from django.contrib.gis.geos import Point
+from django.contrib.gis.geos import LineString, Point
 from django.core.management.base import BaseCommand
-from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry
 
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
-INFRAROAD_UNITS_URL = (
-    "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/query?since=72hours"
+from .constants import EVENT_MAPPINGS, INFRAROAD_WORKS_URL
+from .utils import (
+    create_dict_from_autori_events,
+    create_infraroad_maintenance_units,
+    get_autori_access_token,
+    get_autori_contract,
+    get_autori_event_types,
+    get_autori_routes,
+    get_turku_boundary,
 )
-INFRAROAD_WORKS_URL = "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/{id}?history={history_size}"
+
 DEFAULT_HISTORY_SIZE = 10000
 
 logger = logging.getLogger("street_maintenance")
 
+TURKU_BOUNDARY = get_turku_boundary()
+
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
+        # TODO change to Infraroad history size etc...
         parser.add_argument(
             "--history-size",
             type=int,
@@ -29,45 +38,24 @@ class Command(BaseCommand):
             help=f"Max number of location history items to fetch per unit. Default {DEFAULT_HISTORY_SIZE}.",
         )
 
-    def get_turku_boundry(self):
-        division_turku = AdministrativeDivision.objects.get(name="Turku")
-        turku_boundary = AdministrativeDivisionGeometry.objects.get(
-            division=division_turku
-        ).boundary
-        turku_boundary.transform(DEFAULT_SRID)
-        return turku_boundary
-
-    def get_and_create_maintenance_units(self):
-        response = requests.get(INFRAROAD_UNITS_URL)
-        assert (
-            response.status_code == 200
-        ), "Fetching Maintenance Unit {} status code: {}".format(
-            INFRAROAD_UNITS_URL, response.status_code
-        )
-        for unit in response.json():
-            MaintenanceUnit.objects.create(unit_id=unit["id"])
-        logger.info(
-            f"Imported {MaintenanceUnit.objects.all().count()} Mainetance Units."
-        )
-
-    def get_and_create_maintenance_works(self, history_size):
-        turku_boundary = self.get_turku_boundry()
+    def get_and_create_infraroad_maintenance_works(self, history_size):
+        create_infraroad_maintenance_units()
         works = []
-        for unit in MaintenanceUnit.objects.all():
+        for unit in MaintenanceUnit.objects.filter(provider=MaintenanceUnit.INFRAROAD):
             response = requests.get(
                 INFRAROAD_WORKS_URL.format(id=unit.unit_id, history_size=history_size)
             )
             if "location_history" in response.json():
                 json_data = response.json()["location_history"]
             else:
-                logger.warning(f"Location history not found for: {unit.unit_id}")
+                logger.warning(f"Location history not found for unit: {unit.unit_id}")
                 continue
             for work in json_data:
                 coords = work["coords"]
                 coords = [float(c) for c in re.sub(r"[()]", "", coords).split(" ")]
                 point = Point(coords[0], coords[1], srid=DEFAULT_SRID)
                 # discard events outside Turku.
-                if not turku_boundary.contains(point):
+                if not TURKU_BOUNDARY.contains(point):
                     continue
 
                 timestamp = datetime.strptime(
@@ -76,27 +64,72 @@ class Command(BaseCommand):
 
                 events = []
                 for event in work["events"]:
-                    events.append(event)
+                    if event in EVENT_MAPPINGS:
+                        events.append(EVENT_MAPPINGS[event])
+                    else:
+                        logger.warning(f"Found unmapped event: {event}")
                 works.append(
                     MaintenanceWork(
-                        maintenance_unit=unit,
                         timestamp=timestamp,
-                        point=point,
+                        maintenance_unit=unit,
+                        geometry=point,
                         events=events,
                     )
                 )
         MaintenanceWork.objects.bulk_create(works)
-        logger.info(f"Imported {len(works)} Mainetance Works.")
+        logger.info(f"Imported {len(works)} Infraroad mainetance works.")
+
+    def get_and_create_autori_maintenance_works(self):
+        # Yit
+        access_token = get_autori_access_token()
+        contract = get_autori_contract(access_token)
+        list_of_events = get_autori_event_types(access_token)
+        event_name_mappings = create_dict_from_autori_events(list_of_events)
+        routes = get_autori_routes(access_token, contract)
+        works = []
+        for route in routes:
+            if len(route["geography"]["features"]) > 1:
+                logger.warning(
+                    f"Route contains multiple features. {route['geography']['features']}"
+                )
+            coordinates = route["geography"]["features"][0]["geometry"]["coordinates"]
+            geometry = LineString(coordinates, srid=DEFAULT_SRID)
+            # TODO Uncomment in production, as all test data is outside Turku
+            # if not TURKU_BOUNDARY.contains(geometry):
+            #     continue
+
+            events = []
+            operations = route["operations"]
+            for operation in operations:
+                event_name = event_name_mappings[operation]
+                events.append(EVENT_MAPPINGS[event_name])
+            if len(route["geography"]["features"]) > 1:
+                logger.warning(
+                    f"Route contains multiple features. {route['geography']['features']}"
+                )
+            works.append(
+                MaintenanceWork(
+                    timestamp=route["startTime"],
+                    events=events,
+                    geometry=geometry,
+                )
+            )
+
+        MaintenanceWork.objects.bulk_create(works)
+        logger.info(f"Imported {len(works)} Autori(YIT) mainetance works.")
 
     def handle(self, *args, **options):
         start_time = datetime.now()
         MaintenanceUnit.objects.all().delete()
-        self.get_and_create_maintenance_units()
+        # Infraroad
         if options["history_size"]:
             history_size = options["history_size"][0]
         else:
             history_size = DEFAULT_HISTORY_SIZE
-        self.get_and_create_maintenance_works(history_size)
+        self.get_and_create_infraroad_maintenance_works(history_size)
+        # Autori(YIT)
+        self.get_and_create_autori_maintenance_works()
+
         end_time = datetime.now()
         duration = end_time - start_time
         logger.info(f"Imported street maintenance history in: {duration}")
