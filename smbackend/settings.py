@@ -45,6 +45,9 @@ env = environ.Env(
     CHARGING_STATIONS_IDS=(dict, {}),
     BICYCLE_STANDS_IDS=(dict, {}),
     BIKE_SERVICE_STATIONS_IDS=(dict, {}),
+    AUTORI_SCOPE=(str, None),
+    AUTORI_CLIENT_ID=(str, None),
+    AUTORI_CLIENT_SECRET=(str, None),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -359,7 +362,7 @@ GEO_SEARCH_API_KEY = env("GEO_SEARCH_API_KEY")
 ECO_COUNTER_OBSERVATIONS_URL = env("ECO_COUNTER_OBSERVATIONS_URL")
 ECO_COUNTER_STATIONS_URL = env("ECO_COUNTER_STATIONS_URL")
 
-# Typecast the dicts values to int with comporehension.
+# Typecast the values to int with listcomprehension.
 GAS_FILLING_STATIONS_IDS = {
     k: int(v) for k, v in env("GAS_FILLING_STATIONS_IDS").items()
 }
@@ -368,3 +371,6 @@ BICYCLE_STANDS_IDS = {k: int(v) for k, v in env("BICYCLE_STANDS_IDS").items()}
 BIKE_SERVICE_STATIONS_IDS = {
     k: int(v) for k, v in env("BIKE_SERVICE_STATIONS_IDS").items()
 }
+AUTORI_SCOPE = env("AUTORI_SCOPE")
+AUTORI_CLIENT_ID = env("AUTORI_CLIENT_ID")
+AUTORI_CLIENT_SECRET = env("AUTORI_CLIENT_SECRET")
