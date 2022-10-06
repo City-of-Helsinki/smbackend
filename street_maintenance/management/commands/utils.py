@@ -1,9 +1,18 @@
+import zoneinfo
+from datetime import datetime, timedelta
+
 import requests
 from django.conf import settings
 from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry
 
 from street_maintenance.models import DEFAULT_SRID
-from .constants import AUTORI_CONTRACTS_URL, AUTORI_EVENTS_URL,AUTORI_ROUTES_URL,AUTORI_TOKEN_URL
+
+from .constants import (
+    AUTORI_CONTRACTS_URL,
+    AUTORI_EVENTS_URL,
+    AUTORI_ROUTES_URL,
+    AUTORI_TOKEN_URL,
+)
 
 
 def get_turku_boundry():
@@ -39,11 +48,19 @@ def create_dict_from_autori_events(list_of_events):
 
 
 def get_autori_routes(access_token, contract):
-    # Todo get times and calculate start -3 days etc
+    now = datetime.now()
+    end = now.replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki")).strftime(
+        "%Y-%m-%d %H:%M:%S%z"
+    )
+    start = (
+        (now - timedelta(days=5))
+        .replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki"))
+        .strftime("%Y-%m-%d %H:%M:%S%z")
+    )
     params = {
         "contract": contract,
-        "start": "2022-10-1 00:00:00Z",
-        "end": "2022-10-6 00:00:00Z",
+        "start": start,
+        "end": end,
     }
     response = requests.get(
         AUTORI_ROUTES_URL,
