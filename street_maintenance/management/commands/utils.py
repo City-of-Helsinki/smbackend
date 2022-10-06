@@ -1,3 +1,4 @@
+import logging
 import zoneinfo
 from datetime import datetime, timedelta
 
@@ -5,7 +6,7 @@ import requests
 from django.conf import settings
 from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry
 
-from street_maintenance.models import DEFAULT_SRID
+from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit
 
 from .constants import (
     AUTORI_CONTRACTS_URL,
@@ -15,8 +16,10 @@ from .constants import (
     INFRAROAD_UNITS_URL,
 )
 
+logger = logging.getLogger("street_maintenance")
 
-def get_turku_boundry():
+
+def get_turku_boundary():
     division_turku = AdministrativeDivision.objects.get(name="Turku")
     turku_boundary = AdministrativeDivisionGeometry.objects.get(
         division=division_turku
@@ -25,17 +28,31 @@ def get_turku_boundry():
     return turku_boundary
 
 
-def get_infrarod_unit_ids():
+# def get_infrarod_unit_ids():
+#     response = requests.get(INFRAROAD_UNITS_URL)
+#     assert (
+#         response.status_code == 200
+#     ), "Fetching Infrarod Maintenance Unit {}, status code: {}".format(
+#         INFRAROAD_UNITS_URL, response.status_code
+#     )
+#     ids = []
+#     for unit in response.json():
+#         ids.append(unit["id"])
+#     return ids
+def create_infraroad_maintenance_units():
     response = requests.get(INFRAROAD_UNITS_URL)
     assert (
         response.status_code == 200
-    ), "Fetching Infrarod Maintenance Unit {}, status code: {}".format(
+    ), "Fetching Maintenance Unit {} status code: {}".format(
         INFRAROAD_UNITS_URL, response.status_code
     )
-    ids = []
     for unit in response.json():
-        ids.append(unit["id"])
-    return ids
+        MaintenanceUnit.objects.create(
+            unit_id=unit["id"], provider=MaintenanceUnit.INFRAROAD
+        )
+    logger.info(
+        f"Imported {MaintenanceUnit.objects.all().count()} Infraroad mainetance Units."
+    )
 
 
 def get_autori_contract(access_token):
@@ -66,7 +83,7 @@ def create_dict_from_autori_events(list_of_events):
     events = {}
     for event in list_of_events:
         events[event["id"]] = event["operationName"]
-    return event
+    return events
 
 
 def get_autori_routes(access_token, contract):
