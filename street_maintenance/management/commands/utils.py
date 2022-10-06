@@ -12,6 +12,7 @@ from .constants import (
     AUTORI_EVENTS_URL,
     AUTORI_ROUTES_URL,
     AUTORI_TOKEN_URL,
+    INFRAROAD_UNITS_URL,
 )
 
 
@@ -24,11 +25,28 @@ def get_turku_boundry():
     return turku_boundary
 
 
+def get_infrarod_unit_ids():
+    response = requests.get(INFRAROAD_UNITS_URL)
+    assert (
+        response.status_code == 200
+    ), "Fetching Infrarod Maintenance Unit {}, status code: {}".format(
+        INFRAROAD_UNITS_URL, response.status_code
+    )
+    ids = []
+    for unit in response.json():
+        ids.append(unit["id"])
+    return ids
+
+
 def get_autori_contract(access_token):
     response = requests.get(
         AUTORI_CONTRACTS_URL, headers={"Authorization": f"Bearer {access_token}"}
     )
-    assert response.status_code == 200
+    assert (
+        response.status_code == 200
+    ), "Fetcing Autori Contract {} failed, status code: {}".format(
+        AUTORI_CONTRACTS_URL, response.status_code
+    )
     return response.json()[0].get("id", None)
 
 
@@ -36,7 +54,11 @@ def get_autori_event_types(access_token):
     response = requests.get(
         AUTORI_EVENTS_URL, headers={"Authorization": f"Bearer {access_token}"}
     )
-    assert response.status_code == 200
+    assert (
+        response.status_code == 200
+    ), " Fetching Autori event types {} failed, status code: {}".format(
+        AUTORI_EVENTS_URL, response.status_code
+    )
     return response.json()
 
 
@@ -67,7 +89,11 @@ def get_autori_routes(access_token, contract):
         headers={"Authorization": f"Bearer {access_token}"},
         params=params,
     )
-    assert response.status_code == 200
+    assert (
+        response.status_code == 200
+    ), "Fetching Autori routes {}, failed, status code: {}".format(
+        AUTORI_ROUTES_URL, response.status_code
+    )
     return response.json()
 
 
@@ -80,6 +106,10 @@ def get_autori_access_token():
         "client_secret": settings.AUTORI_CLIENT_SECRET,
     }
     response = requests.post(AUTORI_TOKEN_URL, data=test_data)
-    assert response.status_code == 200
+    assert (
+        response.status_code == 200
+    ), "Fetchin oauth2 token from Autori {} failed, status code: {}".format(
+        AUTORI_TOKEN_URL, response.status_code
+    )
     access_token = response.json().get("access_token", None)
     return access_token
