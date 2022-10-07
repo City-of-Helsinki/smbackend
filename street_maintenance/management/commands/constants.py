@@ -38,7 +38,7 @@ EVENT_MAPPINGS = {
     "Harjaus ja sohjonpoisto": PUHTAANAPITO,
     "Pölynsidonta": PUHTAANAPITO,
     "Hiekanpoisto": HIEKANPOISTO,
-    "Muu työ": MUUT,
+    "Muut työt": MUUT,
     "Kaivot": MUUT,
     "Metsätyöt": MUUT,
     "Rikkakasvien torjunta": MUUT,
