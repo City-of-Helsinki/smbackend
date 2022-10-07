@@ -20,7 +20,7 @@ from .utils import (
     get_turku_boundary,
 )
 
-DEFAULT_HISTORY_SIZE = 10000
+INFRAROAD_DEFAULT_HISTORY_SIZE = 10000
 
 logger = logging.getLogger("street_maintenance")
 
@@ -29,13 +29,12 @@ TURKU_BOUNDARY = get_turku_boundary()
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-        # TODO change to Infraroad history size etc...
         parser.add_argument(
-            "--history-size",
+            "--infraroad-history-size",
             type=int,
             nargs="+",
             default=False,
-            help=f"Max number of location history items to fetch per unit. Default {DEFAULT_HISTORY_SIZE}.",
+            help=f"Max number of location history items to fetch per unit. Default {INFRAROAD_DEFAULT_HISTORY_SIZE}.",
         )
 
     def get_and_create_infraroad_maintenance_works(self, history_size):
@@ -55,7 +54,7 @@ class Command(BaseCommand):
                 coords = [float(c) for c in re.sub(r"[()]", "", coords).split(" ")]
                 point = Point(coords[0], coords[1], srid=DEFAULT_SRID)
                 # discard events outside Turku.
-                if not TURKU_BOUNDARY.contains(point):
+                if not TURKU_BOUNDARY.covers(point):
                     continue
 
                 timestamp = datetime.strptime(
@@ -94,8 +93,10 @@ class Command(BaseCommand):
                 )
             coordinates = route["geography"]["features"][0]["geometry"]["coordinates"]
             geometry = LineString(coordinates, srid=DEFAULT_SRID)
-            # TODO Uncomment in production, as all test data is outside Turku
-            # if not TURKU_BOUNDARY.contains(geometry):
+
+            # TODO fix this
+            # if not TURKU_BOUNDARY.covers(geometry):
+            #     print("YIT not in turku")
             #     continue
 
             events = []
@@ -121,11 +122,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         start_time = datetime.now()
         MaintenanceUnit.objects.all().delete()
+        # Delete also all works as, there might be works that do not have a relation to a Unit.
+        MaintenanceWork.objects.all().delete()
+
         # Infraroad
-        if options["history_size"]:
-            history_size = options["history_size"][0]
+        if options["infraroad_history_size"]:
+            history_size = options["infraroad_history_size"][0]
         else:
-            history_size = DEFAULT_HISTORY_SIZE
+            history_size = INFRAROAD_DEFAULT_HISTORY_SIZE
         self.get_and_create_infraroad_maintenance_works(history_size)
         # Autori(YIT)
         self.get_and_create_autori_maintenance_works()
