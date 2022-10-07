@@ -48,6 +48,10 @@ env = environ.Env(
     AUTORI_SCOPE=(str, None),
     AUTORI_CLIENT_ID=(str, None),
     AUTORI_CLIENT_SECRET=(str, None),
+    AUTORI_EVENTS_URL=(str, None),
+    AUTORI_ROUTES_URL=(str, None),
+    AUTORI_CONTRACTS_URL=(str, None),
+    AUTORI_TOKEN_URL=(str, None),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -374,3 +378,7 @@ BIKE_SERVICE_STATIONS_IDS = {
 AUTORI_SCOPE = env("AUTORI_SCOPE")
 AUTORI_CLIENT_ID = env("AUTORI_CLIENT_ID")
 AUTORI_CLIENT_SECRET = env("AUTORI_CLIENT_SECRET")
+AUTORI_EVENTS_URL = env("AUTORI_EVENTS_URL")
+AUTORI_ROUTES_URL = env("AUTORI_ROUTES_URL")
+AUTORI_CONTRACTS_URL = env("AUTORI_CONTRACTS_URL")
+AUTORI_TOKEN_URL = env("AUTORI_TOKEN_URL")
