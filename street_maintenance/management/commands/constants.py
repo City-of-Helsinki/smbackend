@@ -1,23 +1,24 @@
-AUTORI_EVENTS_URL = (
-    "https://test-api.autori.io/api/dailymaintenance-a3/route/types/operation"
-)
-AUTORI_ROUTES_URL = "https://test-api.autori.io/api/dailymaintenance-a3/route/"
-AUTORI_CONTRACTS_URL = "https://test-api.autori.io/api/dailymaintenance-a3/contracts/"
-AUTORI_TOKEN_URL = (
-    "https://login.microsoftonline.com/86792d09-0d81-4899-8d66-95dfc96c8014/oauth2/v2.0/token?"
-    + "Scope=api://7f45c30e-cc67-4a93-85f1-0149b44c1cdf/.default"
-)
+from django.conf import settings
+
+AUTORI_EVENTS_URL = settings.AUTORI_EVENTS_URL
+AUTORI_ROUTES_URL = settings.AUTORI_ROUTES_URL
+AUTORI_CONTRACTS_URL = settings.AUTORI_CONTRACTS_URL
+AUTORI_TOKEN_URL = settings.AUTORI_TOKEN_URL
 INFRAROAD_UNITS_URL = (
     "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/query?since=72hours"
 )
 INFRAROAD_WORKS_URL = "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/{id}?history={history_size}"
 
+
+# Events are categorized into main groups
 AURAUS = "Auraus"
 LIUKKAUDENTORJUNTA = "Liukkaudentorjunta"
 PUHTAANAPITO = "Puhtaanapito"
 HIEKANPOISTO = "Hiekanpoisto"
 # MUUT is currenlty only for testing purposes, TODO, remove from production
 MUUT = "Muut"
+# As data providers have different names for their events, the are mapped
+# with this dict, so that every event that does the same has the same name.
 EVENT_MAPPINGS = {
     "Auraus": AURAUS,
     "Auraus ja sohjonpoisto": AURAUS,
@@ -40,4 +41,5 @@ EVENT_MAPPINGS = {
     "Muu työ": MUUT,
     "Kaivot": MUUT,
     "Metsätyöt": MUUT,
+    "Rikkakasvien torjunta": MUUT,
 }
