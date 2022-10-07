@@ -75,12 +75,22 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
             max_work_length = DEFAULT_MAX_WORK_LENGTH
         queryset = self.get_queryset()
         geometries = []
+        elements_to_remove = []
+        # Add works that are linestrings,
+        for elem in queryset:
+            if isinstance(elem.geometry, LineString):
+                geometries.append(elem.geometry)
+                elements_to_remove.append(elem.id)
+        # Remove the linestring elements, as they are not needed when generaintg
+        # linestrings from point data
+        queryset = queryset.exclude(id__in=elements_to_remove)
         unit_ids = (
             queryset.order_by("maintenance_unit_id")
             .values_list("maintenance_unit_id", flat=True)
             .distinct("maintenance_unit_id")
         )
         for unit_id in unit_ids:
+            # Temporary store points to list for LineString creation
             points = []
             qs = queryset.filter(maintenance_unit_id=unit_id).order_by("timestamp")
             prev_timestamp = None
@@ -93,15 +103,17 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
                         if len(points) > 1:
                             geometries.append(LineString(points, srid=DEFAULT_SRID))
                         else:
-                            geometries.append(elem.point)
+                            geometries.append(elem.geometry)
                         points = []
-                points.append(elem.point)
+
+                points.append(elem.geometry)
                 prev_timestamp = elem.timestamp
             if len(points) > 1:
                 geometries.append(LineString(points, srid=DEFAULT_SRID))
             else:
-                geometries.append(elem.point)
+                geometries.append(elem.geometry)
 
+        # Create objects for every geometry to the serializer
         if geometries:
             data = []
             for geometry in geometries:
