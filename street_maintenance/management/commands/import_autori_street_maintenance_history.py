@@ -6,7 +6,11 @@ from django.core.management.base import BaseCommand
 
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
-from .constants import AUTORI_DEFAULT_WORKS_HISTORY_SIZE, EVENT_MAPPINGS
+from .constants import (
+    AUTORI_DEFAULT_WORKS_HISTORY_SIZE,
+    AUTORI_MAX_WORKS_HISTORY_SIZE,
+    EVENT_MAPPINGS,
+)
 from .utils import (
     create_autori_maintenance_units,
     create_dict_from_autori_events,
@@ -83,6 +87,9 @@ class Command(BaseCommand):
         history_size = AUTORI_DEFAULT_WORKS_HISTORY_SIZE
         if options["history_size"]:
             history_size = int(options["history_size"][0])
+            if history_size > AUTORI_MAX_WORKS_HISTORY_SIZE:
+                error_msg = f"Max value for the history size is: {AUTORI_MAX_WORKS_HISTORY_SIZE}"
+                raise ValueError(error_msg)
 
         self.get_and_create_autori_maintenance_works(history_size=history_size)
         importer_end_time = datetime.now()
