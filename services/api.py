@@ -326,7 +326,13 @@ class ServiceNodeSerializer(
 
     class Meta:
         model = ServiceNode
-        fields = "__all__"
+        exclude = (
+            "search_column_fi",
+            "search_column_sv",
+            "search_column_en",
+            "syllables_fi",
+            "service_reference",
+        )
 
 
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
@@ -766,6 +772,7 @@ class UnitSerializer(
             "accessibility_property_hash",
             "identifier_hash",
             "public",
+            "syllables_fi",
             "search_column_fi",
             "search_column_sv",
             "search_column_en",
