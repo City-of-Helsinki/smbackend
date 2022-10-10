@@ -12,7 +12,7 @@ class MaintenanceUnit(models.Model):
         (INFRAROAD, "Infraroad"),
         (AUTORI, "Autori"),
     )
-    unit_id = models.PositiveIntegerField(default=0)
+    unit_id = models.CharField(max_length=64, null=True)
     provider = models.CharField(max_length=16, choices=PROVIDER_CHOICES, null=True)
 
     def __str__(self):
