@@ -10,9 +10,11 @@ from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit
 
 from .constants import (
     AUTORI_CONTRACTS_URL,
+    AUTORI_DATE_TIME_FORMAT,
     AUTORI_EVENTS_URL,
     AUTORI_ROUTES_URL,
     AUTORI_TOKEN_URL,
+    AUTORI_VEHICLES_URL,
     INFRAROAD_UNITS_URL,
 )
 
@@ -20,7 +22,7 @@ logger = logging.getLogger("street_maintenance")
 
 
 def get_turku_boundary():
-    division_turku = AdministrativeDivision.objects.get(name="Turku")
+    division_turku = AdministrativeDivision.objects.get(name="Raisio")
     turku_boundary = AdministrativeDivisionGeometry.objects.get(
         division=division_turku
     ).boundary
@@ -28,17 +30,6 @@ def get_turku_boundary():
     return turku_boundary
 
 
-# def get_infrarod_unit_ids():
-#     response = requests.get(INFRAROAD_UNITS_URL)
-#     assert (
-#         response.status_code == 200
-#     ), "Fetching Infrarod Maintenance Unit {}, status code: {}".format(
-#         INFRAROAD_UNITS_URL, response.status_code
-#     )
-#     ids = []
-#     for unit in response.json():
-#         ids.append(unit["id"])
-#     return ids
 def create_infraroad_maintenance_units():
     response = requests.get(INFRAROAD_UNITS_URL)
     assert (
@@ -51,7 +42,8 @@ def create_infraroad_maintenance_units():
             unit_id=unit["id"], provider=MaintenanceUnit.INFRAROAD
         )
     logger.info(
-        f"Imported {MaintenanceUnit.objects.all().count()} Infraroad mainetance Units."
+        f"Imported {MaintenanceUnit.objects.filter(provider=MaintenanceUnit.INFRAROAD).count()}"
+        + " Infraroad mainetance Units."
     )
 
 
@@ -86,16 +78,36 @@ def create_dict_from_autori_events(list_of_events):
     return events
 
 
-def get_autori_routes(access_token, contract):
+def create_autori_maintenance_units(access_token):
+    response = requests.get(
+        AUTORI_VEHICLES_URL, headers={"Authorization": f"Bearer {access_token}"}
+    )
+    assert (
+        response.status_code == 200
+    ), " Fetching Autori vehicles {} failed, status code: {}".format(
+        AUTORI_VEHICLES_URL, response.status_code
+    )
+    for unit in response.json():
+        MaintenanceUnit.objects.create(
+            unit_id=unit["id"], provider=MaintenanceUnit.AUTORI
+        )
+    logger.info(
+        f"Imported {MaintenanceUnit.objects.filter(provider=MaintenanceUnit.AUTORI).count()}"
+        + " Infraroad mainetance Units."
+    )
+
+
+def get_autori_routes(access_token, contract, history_size):
     now = datetime.now()
     end = now.replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki")).strftime(
-        "%Y-%m-%d %H:%M:%S%z"
+        AUTORI_DATE_TIME_FORMAT
     )
     start = (
-        (now - timedelta(days=5))
+        (now - timedelta(days=history_size))
         .replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki"))
-        .strftime("%Y-%m-%d %H:%M:%S%z")
+        .strftime(AUTORI_DATE_TIME_FORMAT)
     )
+
     params = {
         "contract": contract,
         "start": start,
