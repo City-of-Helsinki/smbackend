@@ -14,6 +14,7 @@ class MaintenanceUnit(models.Model):
     )
     unit_id = models.CharField(max_length=64, null=True)
     provider = models.CharField(max_length=16, choices=PROVIDER_CHOICES, null=True)
+    names = ArrayField(models.CharField(max_length=64), default=list)
 
     def __str__(self):
         return "%s" % (self.unit_id)
