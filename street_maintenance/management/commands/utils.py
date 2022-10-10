@@ -38,8 +38,10 @@ def create_infraroad_maintenance_units():
         INFRAROAD_UNITS_URL, response.status_code
     )
     for unit in response.json():
+        # The names of the unit is derived from the events.
+        names = [n for n in unit["last_location"]["events"]]
         MaintenanceUnit.objects.create(
-            unit_id=unit["id"], provider=MaintenanceUnit.INFRAROAD
+            unit_id=unit["id"], names=names, provider=MaintenanceUnit.INFRAROAD
         )
     logger.info(
         f"Imported {MaintenanceUnit.objects.filter(provider=MaintenanceUnit.INFRAROAD).count()}"
@@ -88,8 +90,9 @@ def create_autori_maintenance_units(access_token):
         AUTORI_VEHICLES_URL, response.status_code
     )
     for unit in response.json():
+        names = [unit["vehicleTypeName"]]
         MaintenanceUnit.objects.create(
-            unit_id=unit["id"], provider=MaintenanceUnit.AUTORI
+            unit_id=unit["id"], names=names, provider=MaintenanceUnit.AUTORI
         )
     logger.info(
         f"Imported {MaintenanceUnit.objects.filter(provider=MaintenanceUnit.AUTORI).count()}"
