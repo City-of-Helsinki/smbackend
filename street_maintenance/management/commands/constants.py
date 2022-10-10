@@ -2,6 +2,7 @@ from django.conf import settings
 
 AUTORI_EVENTS_URL = settings.AUTORI_EVENTS_URL
 AUTORI_ROUTES_URL = settings.AUTORI_ROUTES_URL
+AUTORI_VEHICLES_URL = settings.AUTORI_VEHICLES_URL
 AUTORI_CONTRACTS_URL = settings.AUTORI_CONTRACTS_URL
 AUTORI_TOKEN_URL = settings.AUTORI_TOKEN_URL
 INFRAROAD_UNITS_URL = (
@@ -43,3 +44,8 @@ EVENT_MAPPINGS = {
     "Metsätyöt": MUUT,
     "Rikkakasvien torjunta": MUUT,
 }
+# The number of works(point data with timestamp and event) to be fetched for every unit.
+INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE = 10000
+# Length of Autori history size in days
+AUTORI_DEFAULT_WORKS_HISTORY_SIZE = 10
+AUTORI_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S%z"
