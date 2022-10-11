@@ -18,7 +18,7 @@ PUHTAANAPITO = "Puhtaanapito"
 HIEKANPOISTO = "Hiekanpoisto"
 # MUUT is currenlty only for testing purposes, TODO, remove from production
 MUUT = "Muut"
-# As data providers have different names for their events, the are mapped
+# As data providers have different names for their events, they are mapped
 # with this dict, so that every event that does the same has the same name.
 EVENT_MAPPINGS = {
     "Auraus": AURAUS,
