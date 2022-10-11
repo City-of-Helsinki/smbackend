@@ -50,9 +50,8 @@ class Command(BaseCommand):
                 )
             coordinates = route["geography"]["features"][0]["geometry"]["coordinates"]
             geometry = LineString(coordinates, srid=DEFAULT_SRID)
-            # TODO Uncomment this from production as test data locates in Raisio
-            # if not TURKU_BOUNDARY.covers(geometry):
-            #     continue
+            if not TURKU_BOUNDARY.covers(geometry):
+                continue
 
             events = []
             operations = route["operations"]
