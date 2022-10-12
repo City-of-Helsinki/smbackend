@@ -2,6 +2,7 @@ import logging
 import zoneinfo
 from datetime import datetime, timedelta
 
+import numpy as np
 import requests
 from django.conf import settings
 from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry
@@ -96,7 +97,7 @@ def create_autori_maintenance_units(access_token):
         )
     logger.info(
         f"Imported {MaintenanceUnit.objects.filter(provider=MaintenanceUnit.AUTORI).count()}"
-        + " Infraroad mainetance Units."
+        + " Autori(YIT) mainetance Units."
     )
 
 
@@ -145,3 +146,7 @@ def get_autori_access_token():
     )
     access_token = response.json().get("access_token", None)
     return access_token
+
+
+def is_nested_coordinates(coordinates):
+    return bool(np.array(coordinates).ndim > 1)
