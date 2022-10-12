@@ -100,3 +100,9 @@ To import data type:
 ```
 ./manage.py import_disabled_and_no_staff_parkings
 ```
+
+### Loading and unloading places:
+To import data type:
+```
+./manage.py import_loading_and_unloading_places
+```

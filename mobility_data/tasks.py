@@ -53,3 +53,8 @@ def import_marinas(name="import_marinas"):
 @shared_task
 def import_disabled_and_no_staff_parkings(name="import_disabled_and_no_staff_parkings"):
     management.call_command("import_disabled_and_no_staff_parkings")
+
+
+@shared_task
+def import_loading_and_unloading_places(name="import_loading_and_unloading_places"):
+    management.call_command("import_loading_and_unloading_places")
