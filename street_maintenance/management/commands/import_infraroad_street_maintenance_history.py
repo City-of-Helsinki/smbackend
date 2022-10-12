@@ -63,6 +63,9 @@ class Command(BaseCommand):
                         events.append(EVENT_MAPPINGS[event])
                     else:
                         logger.warning(f"Found unmapped event: {event}")
+                # If no events found discard the work
+                if len(events) == 0:
+                    continue
                 works.append(
                     MaintenanceWork(
                         timestamp=timestamp,
