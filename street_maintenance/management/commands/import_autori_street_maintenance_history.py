@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from django.contrib.gis.geos import LineString
+from django.contrib.gis.geos import LineString, Point
 from django.core.management.base import BaseCommand
 
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
@@ -19,6 +19,7 @@ from .utils import (
     get_autori_event_types,
     get_autori_routes,
     get_turku_boundary,
+    is_nested_coordinates,
 )
 
 TURKU_BOUNDARY = get_turku_boundary()
@@ -49,7 +50,11 @@ class Command(BaseCommand):
                     f"Route contains multiple features. {route['geography']['features']}"
                 )
             coordinates = route["geography"]["features"][0]["geometry"]["coordinates"]
-            geometry = LineString(coordinates, srid=DEFAULT_SRID)
+            if is_nested_coordinates(coordinates):
+                geometry = LineString(coordinates, srid=DEFAULT_SRID)
+            else:
+                geometry = Point(coordinates, srid=DEFAULT_SRID)
+
             if not TURKU_BOUNDARY.covers(geometry):
                 continue
 
@@ -57,7 +62,14 @@ class Command(BaseCommand):
             operations = route["operations"]
             for operation in operations:
                 event_name = event_name_mappings[operation]
-                events.append(EVENT_MAPPINGS[event_name])
+                if event_name in EVENT_MAPPINGS:
+                    events.append(EVENT_MAPPINGS[event_name])
+                else:
+                    logger.warning(f"Found unmapped event: {event_name}")
+
+            # If no events found discard the work
+            if len(events) == 0:
+                continue
             if len(route["geography"]["features"]) > 1:
                 logger.warning(
                     f"Route contains multiple features. {route['geography']['features']}"
