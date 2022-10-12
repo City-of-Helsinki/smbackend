@@ -19,7 +19,7 @@ definitions:
         type: integer
       unit_id:
         type: integer
-        description: "The id(name) of the unit"
+        description: "The id(name) of the unit."
   maintenance_work:
     type: object
     title: MaintenanceWork
@@ -27,7 +27,7 @@ definitions:
     properties:
       id:
         type: integer
-      point: 
+     geometry: 
         type: string
       timestamp:
         type: string
@@ -37,10 +37,15 @@ definitions:
         type: array
         description: "Name of the events."
         items:
-          type: string
+          type: string 
+      coords:
+        description: "Returns if geometry is of type Linestring."
+        type: array
       lat:
+        description: "Returns if geometry is of type Point."
         type: number
       lon: 
+        description: "Returns if geometry is of type Point."
         type: number
 
 paths:

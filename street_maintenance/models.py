@@ -5,14 +5,23 @@ DEFAULT_SRID = 4326
 
 
 class MaintenanceUnit(models.Model):
-    unit_id = models.PositiveIntegerField(default=0)
+
+    INFRAROAD = "IFRAROAD"
+    AUTORI = "AUTORI"
+    PROVIDER_CHOICES = (
+        (INFRAROAD, "Infraroad"),
+        (AUTORI, "Autori"),
+    )
+    unit_id = models.CharField(max_length=64, null=True)
+    provider = models.CharField(max_length=16, choices=PROVIDER_CHOICES, null=True)
+    names = ArrayField(models.CharField(max_length=64), default=list)
 
     def __str__(self):
         return "%s" % (self.unit_id)
 
 
 class MaintenanceWork(models.Model):
-    point = models.PointField(srid=4326)
+    geometry = models.GeometryField(srid=DEFAULT_SRID, null=True)
     events = ArrayField(models.CharField(max_length=64), default=list)
     timestamp = models.DateTimeField()
     maintenance_unit = models.ForeignKey(
