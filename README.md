@@ -194,3 +194,7 @@ Can be fixed by adding the pg_trgm extension to the database:
 ```
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
 ```
+
+Mobility platform
+-----------------
+The mobility data platform of the service map is being developed as part of European Union Horizon 2020 programme funded SCALE-UP project (grant agreement no. 955332).
