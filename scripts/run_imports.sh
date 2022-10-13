@@ -3,26 +3,26 @@
 export PYTHONIOENCODING=utf-8
 
 function stage_0 {
-    # Very seldomly executed imports (once a year)
+    # Execute every 6 months
     # Finnish municipalities
     ./manage.py geo_import finland --municipalities
+    # Parking areas, Statistical districts
+    ./manage.py update_parking_areas
+    ./manage.py update_statistical_districts
 }
 
 function stage_1 {
-    # Somewhat rarely executed imports (once a month)
-    # Parking areas, Statistical districts and Addresses
-    ./manage.py update_parking_areas
-    ./manage.py update_statistical_districts
+    # Execute once a week
+    # Helsinki, Espoo and HSY Administrative divisions and Addresses
+    #./manage.py geo_import helsinki --divisions
+    #./manage.py geo_import espoo --divisions
+    ./manage.py geo_import hsy --divisions
     ./manage.py geo_import helsinki --addresses
     ./manage.py geo_import uusimaa --addresses
 }
 
 function stage_2 {
-    # Once a day
-    # Helsinki, Espoo and HSY administrative divisions
-    ./manage.py geo_import helsinki --divisions
-    ./manage.py geo_import espoo --divisions
-    ./manage.py geo_import hsy --divisions
+    # Execute daily
     # Unit properties import
     ./manage.py services_import_v4 unit_properties
 }
