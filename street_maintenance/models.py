@@ -6,7 +6,7 @@ DEFAULT_SRID = 4326
 
 class MaintenanceUnit(models.Model):
 
-    INFRAROAD = "IFRAROAD"
+    INFRAROAD = "INFRAROAD"
     AUTORI = "AUTORI"
     PROVIDER_CHOICES = (
         (INFRAROAD, "Infraroad"),
