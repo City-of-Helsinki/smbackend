@@ -49,12 +49,7 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = self.get_queryset()
         filters = self.request.query_params
         if "unit_id" in filters:
-            try:
-                unit_id = int(request.query_params["unit_id"])
-            except ValueError:
-                return Response(
-                    "'unit_id' must be a integer.",
-                )
+            unit_id = filters["unit_id"]
             queryset = queryset.filter(maintenance_unit__unit_id=unit_id)
 
         page = self.paginate_queryset(queryset)
