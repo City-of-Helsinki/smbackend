@@ -8,7 +8,7 @@ amqp==5.0.9
     # via kombu
 appdirs==1.4.4
     # via requests-cache
-asgiref==3.4.1
+asgiref==3.5.2
     # via django
 attrs==21.2.0
     # via
@@ -48,7 +48,7 @@ coverage==5.5
     # via pytest-cov
 deprecated==1.2.13
     # via redis
-django==4.0.7
+django==4.1.2
     # via
     #   -r requirements.in
     #   django-celery-beat
