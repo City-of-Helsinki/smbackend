@@ -9,6 +9,7 @@ from munigeo.models import (
     Address,
     AdministrativeDivision,
     AdministrativeDivisionGeometry,
+    AdministrativeDivisionType,
     PostalCodeArea,
     Street,
 )
@@ -148,12 +149,20 @@ def get_municipality_name(point):
     is located.
     """
     try:
-        # resolve in which division to point is.
-        division = AdministrativeDivisionGeometry.objects.get(boundary__contains=point)
+        muni_type = AdministrativeDivisionType.objects.get(type="muni")
+    except AdministrativeDivisionType.DoesNotExist:
+        return None
+    try:
+        geometry = AdministrativeDivisionGeometry.objects.get(
+            division__type=muni_type, boundary__contains=point
+        )
     except AdministrativeDivisionGeometry.DoesNotExist:
         return None
-    # Get the division and return its name.
-    return AdministrativeDivision.objects.get(id=division.division_id).name
+    try:
+        # Get the division from the geometry and return its name.
+        return AdministrativeDivision.objects.get(id=geometry.division_id).name
+    except AdministrativeDivision.DoesNotExist:
+        return None
 
 
 def set_translated_field(obj, field_name, data):
