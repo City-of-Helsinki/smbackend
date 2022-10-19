@@ -51,7 +51,7 @@ Note, if geo-search addresses are imported this might take ~45minutes.
 ## Importing external data sources
 
 Importing from external data sources should always be done after importing the services and units.
-To import the mobility data, currently imports: gas filling stations, bicycle stands, charging_stations and bike service stations.
+To import the mobility data, currently imports: gas filling stations, bicycle stands, charging stations and bike service stations.
 ```
 ./manage.py turku_services_import mobility_data
 ```
