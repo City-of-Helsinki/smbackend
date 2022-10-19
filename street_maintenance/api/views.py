@@ -1,6 +1,7 @@
+from datetime import datetime
+
 from django.contrib.gis.geos import LineString
-from django.core.exceptions import ValidationError
-from rest_framework import mixins, status, viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
@@ -36,24 +37,21 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
         if "start_date_time" in filters:
             start_date_time = filters["start_date_time"]
             try:
-                queryset = queryset.filter(timestamp__gte=start_date_time)
-            except ValidationError:
-                return Response(
-                    "'start_date_time' must be in format YYYY--MM-DD HH:MM elem.g.,'2022-09-18 10:00'",
-                    status=status.HTTP_400_BAD_REQUEST,
+                datetime.strptime(start_date_time, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                raise ParseError(
+                    "'start_date_time' must be in format YYYY--MM-DD HH:MM elem.g.,'2022-09-18 10:00'"
                 )
+            queryset = queryset.filter(timestamp__gte=start_date_time)
         return queryset
 
     def list(self, request):
         queryset = self.get_queryset()
-        if "unit_id" in request.query_params:
-            try:
-                unit_id = int(request.query_params["unit_id"])
-            except ValueError:
-                return Response(
-                    "'unit_id' must be a integer.", status=status.HTTP_400_BAD_REQUEST
-                )
+        filters = self.request.query_params
+        if "unit_id" in filters:
+            unit_id = filters["unit_id"]
             queryset = queryset.filter(maintenance_unit__unit_id=unit_id)
+
         page = self.paginate_queryset(queryset)
         serializer = self.serializer_class(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -64,11 +62,15 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
         Returns linestrings(if two or more points(works) can be determined to belong to the same uniform work)
         and/or points for works that can not be determined to belong to a uniform work(linestring).
         """
-        if "event" not in request.query_params:
+        queryset = self.get_queryset()
+        filters = self.request.query_params
+
+        if "event" not in filters:
             raise ParseError("'get_geometry_history' requires the 'event' argument.")
-        if "max_work_length" in request.query_params:
+
+        if "max_work_length" in filters:
             try:
-                max_work_length = int(request.query_params.get("max_work_length"))
+                max_work_length = int(filters.get("max_work_length"))
             except ValueError:
                 raise ParseError("'max_work_length' needs to be of type integer.")
         else:

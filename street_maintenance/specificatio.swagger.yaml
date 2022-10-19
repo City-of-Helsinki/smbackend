@@ -116,14 +116,11 @@ paths:
       responses:
         200:
           description: "Returns Linestrings and Points of works of given event from given start date and time."
-                  
-                  
   /active_events/:
     get:
-      summary: "Returns a list of active events."
+      summary: "Returns a list of active events with their mapped names. i.e., event names that are shown in the front end, not the names that are in the source data."
       responses:
         200:
-
           description: "List of active events."
   
 components:
@@ -131,7 +128,7 @@ components:
     event_param:
       name: event
       in: query
-      description: "Return works of given event."
+      description: "Return works of given event. The event name is the mapped name and the active event names can be seen from the active_events endpoint."
       schema:
         type: string
     start_date_time_param:
