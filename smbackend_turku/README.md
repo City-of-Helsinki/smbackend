@@ -23,8 +23,9 @@ Note, All imports can and is recommended to be run from the Admin using Celery T
 
 ```
 ./manage.py geo_import finland --municipalities
-./manage.py turku_services_import services accessibility units addresses
+./manage.py turku_services_import services accessibility units divisions addresses
 ```
+
 
 ## Enricing addresses with geo-search-data
 This enriches addresses imported with the address importer(from the WFS server)
@@ -50,7 +51,7 @@ Note, if geo-search addresses are imported this might take ~45minutes.
 ## Importing external data sources
 
 Importing from external data sources should always be done after importing the services and units.
-To import the mobility data, currently imports: gas filling stations, bicycle stands, payment_zones, scooter_restrictions and speed_limit_zones
+To import the mobility data, currently imports: gas filling stations, bicycle stands, charging_stations and bike service stations.
 ```
 ./manage.py turku_services_import mobility_data
 ```
