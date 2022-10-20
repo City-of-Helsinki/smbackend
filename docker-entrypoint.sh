@@ -28,4 +28,5 @@ else
                --ignore-sigpipe
                --ignore-write-errors
                --disable-write-exception
+               --reload-on-rss 500
 fi
