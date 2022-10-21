@@ -36,7 +36,7 @@ data_sources:
       päiv_aika: PÄIV_AIKA
 
   - content_type: REFRESH_ROUTE
-    content_type_name: 'Virkistys reitit'
+    content_type_name: 'Refresh route'
     data_url: 'https://data.lounaistieto.fi/data/dataset/3e92c2b6-7b62-49d1-b2fd-ff4917208f2a/resource/f20f006f-7592-45a8-9698-7c6fa09af068/download/virkistysaineisto.zip'
     # Include only if field contains given string
     include:
