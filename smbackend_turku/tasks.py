@@ -20,6 +20,11 @@ def import_mds_data(name="import_mds_data"):
 
 
 @shared_task
+def import_division(name="import_division"):
+    management.call_command("turku_services_import", "divisions")
+
+
+@shared_task
 def import_all_addresses(name="import_all_addresses"):
     # Task that imports all the addresses and indexes search columns
     management.call_command("turku_services_import", "addresses")
