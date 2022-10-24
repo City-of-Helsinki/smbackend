@@ -54,7 +54,7 @@ class ContentType(BaseType):
     BERTH = "BER"
     LOADING_UNLOADING_PLACE = "LUP"
     SLIPWAY = "SWY"
-    REFRESH_ROUTE = "RRE"
+    RECREATIONAL_ROUTE = "RCR"
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
         (GAS_FILLING_STATION, "GasFillingStation"),
@@ -83,7 +83,7 @@ class ContentType(BaseType):
         (BERTH, "Berth"),
         (LOADING_UNLOADING_PLACE, "LoadingUnloadingPlace"),
         (SLIPWAY, "Slipway"),
-        (REFRESH_ROUTE, "RefreshRoute"),
+        (RECREATIONAL_ROUTE, "RecreationalRoute"),
     ]
     type_name = models.CharField(max_length=3, choices=CONTENT_TYPES, null=True)
 
