@@ -24,9 +24,9 @@ else
                --mount ${URL_PREFIX:-/}=smbackend/wsgi.py \
                --manage-script-name \
                --die-on-term \
-               --strict
-               --ignore-sigpipe
-               --ignore-write-errors
-               --disable-write-exception
+               --strict \
+               --ignore-sigpipe \
+               --ignore-write-errors \
+               --disable-write-exception \
                --reload-on-rss 500
 fi
