@@ -3,7 +3,7 @@ import logging
 from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
-from django.contrib.gis.geos import LineString, MultiLineString
+from django.contrib.gis.geos import LineString
 
 from mobility_data.models import ContentType, MobileUnit
 
@@ -52,33 +52,34 @@ def create_brush_sanded_bicycle_network_content_type():
     return content_type
 
 
-def get_and_create_multilinestring(layer):
-    lines = []
+def get_geometry_objects(layer):
+    geometries = []
     for feature in layer:
         geom = feature.geom
         geom.transform(settings.DEFAULT_SRID)
-        # Add as GEOS LineString as GEOSGeometry is used in the model
-        lines.append(LineString(geom.coords, sird=SOURCE_DATA_SRID))
-    return MultiLineString(lines, srid=settings.DEFAULT_SRID)
+        geometries.append(LineString(geom.coords, srid=settings.DEFAULT_SRID))
+    return geometries
 
 
 @db.transaction.atomic
 def import_brush_salted_bicycle_network(delete=True):
     if delete:
         delete_brush_salted_bicycle_network()
-
     ds = DataSource(BRUSH_SALTED_BICYCLE_NETWORK_URL)
-    geometry = get_and_create_multilinestring(ds[0])
+    assert len(ds) == 1
+    geometries = get_geometry_objects(ds[0])
     content_type = create_brush_salted_bicycle_network_content_type()
-    MobileUnit.objects.create(content_type=content_type, geometry=geometry)
+    for geometry in geometries:
+        MobileUnit.objects.create(content_type=content_type, geometry=geometry)
 
 
 @db.transaction.atomic
 def import_brush_sanded_bicycle_network(delete=True):
     if delete:
         delete_brush_sanded_bicycle_network()
-
     ds = DataSource(BRUSH_SANDED_BICYCLE_NETWORK_URL)
-    geometry = get_and_create_multilinestring(ds[0])
+    assert len(ds) == 1
+    geometries = get_geometry_objects(ds[0])
     content_type = create_brush_sanded_bicycle_network_content_type()
-    MobileUnit.objects.create(content_type=content_type, geometry=geometry)
+    for geometry in geometries:
+        MobileUnit.objects.create(content_type=content_type, geometry=geometry)
