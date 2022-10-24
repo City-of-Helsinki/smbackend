@@ -28,6 +28,5 @@ else
                --ignore-sigpipe \
                --ignore-write-errors \
                --disable-write-exception \
-               --thunder-lock \
-               --listen 128
+               --reload-on-rss 500
 fi
