@@ -145,6 +145,9 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             queryset = MobileUnit.objects.all()
 
+        for filter in filters:
+            if filter.startswith("extra__"):
+                queryset = queryset.filter(**{filter: filters[filter].strip()})
         page = self.paginate_queryset(queryset)
         serializer = MobileUnitSerializer(
             page, many=True, context={"srid": srid, "latlon": latlon}
