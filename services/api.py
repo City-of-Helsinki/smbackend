@@ -1058,18 +1058,14 @@ class UnitViewSet(
             )
 
         if "observations" in self.include_fields:
-            queryset = (
-                queryset.prefetch_related(
-                    Prefetch(
-                        "observation_set",
-                        queryset=Observation.objects.filter(
-                            Q(property__expiration=None)
-                            | Q(time__gt=timezone.now() - F("property__expiration"))
-                        ),
-                    )
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    "observation_set",
+                    queryset=Observation.objects.filter(
+                        Q(property__expiration=None)
+                        | Q(time__gt=timezone.now() - F("property__expiration"))
+                    ),
                 )
-                .prefetch_related("observation_set__property__allowed_values")
-                .prefetch_related("observation_set__value")
             )
 
         if "service_nodes" in self.include_fields:
