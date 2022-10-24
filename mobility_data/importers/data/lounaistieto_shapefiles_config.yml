@@ -1,0 +1,68 @@
+data_sources:
+  # Note, add the content type to the model
+  - content_type: MARINA_SOUTHWEST_FINLAND
+    content_type_name: "Marinas in Southwest Finland"
+    content_type_description: "Marinas in Southwest Finland, the data contains marinas, moorings, connection piers"
+    data_url: 'https://data.lounaistieto.fi/data/dataset/6069c4d5-cbed-4e32-9f21-502688f26192/resource/214e5337-8232-4e02-8324-81285b1a1024/download/venesatamat_kaikki.zip'
+    fields:
+      # If the first definition is None use the later as fallbacks 
+      name:
+        fi: NIMI
+        sv: NIMI
+        en: NIMI      
+      name: 
+        fi: SATAMA        
+        sv: SATAMA        
+        en: SATAMA 
+    # Field from which to lookup the munigeo.municipality.
+    municipality: KUNTA
+    extra_fields:
+      luokitus: LUOKITUS
+      lähde: LÄHDE
+      kunta: KUNTA
+      www: www
+
+  - content_type: SLIPWAY
+    content_type_name: "Slipway"
+    content_type_description: "Slipways for boats."
+    data_url: 'https://data.lounaistieto.fi/data/dataset/84116aeb-4ced-48ca-9c93-58edb946ab96/resource/2bf2497e-4ed0-4b38-b1e9-ecd1bbb28856/download/venerampit.zip'
+    fields:
+      name:
+        fi: NIMI        
+        sv: NIMI        
+        en: NIMI
+    extra_fields:
+      lisätieto: LISÄTIETO
+      päiv_aika: PÄIV_AIKA
+
+  - content_type: RECREATIONAL_ROUTE
+    content_type_name: 'Refresh route'
+    data_url: 'https://data.lounaistieto.fi/data/dataset/3e92c2b6-7b62-49d1-b2fd-ff4917208f2a/resource/f20f006f-7592-45a8-9698-7c6fa09af068/download/virkistysaineisto.zip'
+    # Include only if field contains given string
+    # include:
+    #   Kunta: "Turku"
+    # Exclude if field contains given string.
+    exclude:
+      Kuvaus: "Turun kulttuurikuntoilureitit"
+    fields:
+      name:
+        fi: ReNimi
+        sv: ReNimi_ruo
+        en: ReNimi_eng
+      address:
+        fi: Katuosoite
+    municipality: Kunta
+    extra_fields:
+      reitin_osan_nimi: ReOsa_Nimi
+      reitin_pituus: ReOsa_Pitu
+      kuvaus: Kuvaus
+      tietolahde: Tietolahd
+      valaistus: Valaistus
+      lisatietoja: Lisatieto
+      www: www
+      reittiluokk: ReittLuokk
+      kayttorajo: KayttoRajo
+      muutosPvm: MuutosPvm
+      SLVaaLuokk: SLVaaLuokk
+      OmistLuokk: OmistLuokk
+      YllapLuokk: YllapLuokk 
