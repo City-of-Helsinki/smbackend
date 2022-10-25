@@ -1,0 +1,100 @@
+name: Turku
+origin_id: 853
+
+paths:
+    division: divisions
+
+divisions:
+
+  - type: major_district
+    name: Suurpiiri
+    ocd_id: suurpiiri
+    wfs_layer: 'GIS:Palveluverkko_suuralueet'
+    fields:
+        name:
+            fi: Tunnus
+        origin_id: Tunnus
+        ocd_id: Tunnus
+
+  - type: district
+    name: Kaupunginosa
+    parent: major_district
+    ocd_id: kaupunginosa
+    wfs_layer: 'GIS:Kaupunginosat'
+    fields:
+        name:
+            fi: Kaupunginosan_Nimi
+        origin_id: Kaupunginosan_Nimi
+        ocd_id: Kaupunginosan_Nimi
+
+  - type: sub_district
+    name: Pienalue
+    parent: district
+    ocd_id: pienalue
+    wfs_layer: 'GIS:Pienalueet'
+    fields:
+        name:
+            fi: Numero
+        origin_id: Numero
+        ocd_id: Numero
+
+  - type: voting_district
+    name: Äänestysalue
+    ocd_id: äänestysalue
+    wfs_layer: 'GIS:Aanestysalueet'
+    fields:
+        name:
+            fi: nimi_FIN
+            sv: Nimi_SWE
+        origin_id: Äänestysalueen_Nro
+        ocd_id: Äänestysalueen_Nro
+
+  - type: zip_code_are
+    name: Postinumeroalue
+    ocd_id: Postinumeroalue
+    wfs_layer: 'GIS:Postinumeroalueet'
+    fields:
+        name:
+            fi: Tunnus           
+        origin_id: Tunnus
+        ocd_id: Tunnus
+
+  - type: school_district_fi
+    name: "Oppilaaksiottoalue, suomenkielinen"
+    validity:
+        start: '2022-08-01'
+        end: '2023-08-01'
+    ocd_id: oppilaaksiottoalue_alakoulu
+    wfs_layer: 'GIS:Oppilasalueet_suomi'
+    fields:
+        name:
+          fi: Oppilasalueen_kuvaus
+        origin_id: Oppilasalueen_kuvaus
+        ocd_id: Oppilasalueen_kuvaus
+
+  - type: lower_comprehensive_school_district_sv
+    name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"
+    validity:
+        start: '2022-08-01'
+        end: '2023-08-01'
+    ocd_id: oppilaaksiottoalue_alakoulu_sv
+    wfs_layer: 'GIS:Oppilasalueet_ruotsi_1-6'
+    fields:
+      name:
+        sv: Oppilasalueen_kuvaus
+      origin_id: Oppilasalueen_kuvaus
+      ocd_id: Oppilasalueen_kuvaus
+
+  - type: upper_comprehensive_school_district_sv
+    name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"
+    validity:
+        start: '2022-08-01'
+        end: '2023-08-01'
+    ocd_id: oppilaaksiottoalue_ylakoulu_sv
+    wfs_layer: 'GIS:Oppilasalueet_ruotsi_7-9'
+    fields:
+      name:
+        sv: Oppilasalueen_kuvaus
+      origin_id: Oppilasalueen_kuvaus
+      ocd_id: Oppilasalueen_kuvaus
+      
