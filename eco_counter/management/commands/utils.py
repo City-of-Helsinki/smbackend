@@ -168,19 +168,7 @@ def get_lam_station_dataframe(id, direction, start_date, end_date):
     url = LAM_STATIONS_API_FETCH_URL.format(
         id=id, direction=direction, start_date=start_date, end_date=end_date
     )
-    print(url)
     df = get_lam_dataframe(url)
-    return df
-
-
-def get_lam_station_dataframe_test(id, direction, start_date, end_date):
-    import os
-
-    from mobility_data.importers.utils import get_root_dir
-
-    data_path = os.path.join(get_root_dir(), "")
-    file_path = os.path.join(data_path, "test.csv")
-    df = pd.read_csv(file_path, delimiter=";")
     return df
 
 
