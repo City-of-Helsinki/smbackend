@@ -148,16 +148,14 @@ class DivisionImporter:
                 # the most.
                 parents = []
                 # Calculate diffs
-                poly_diffs = []
-                for parent in parent_dict.values():
-                    diff_area = poly_diff(geom, parent.geometry.boundary)
-                    elem = (parent, diff_area)
-                    poly_diffs.append(elem)
+                poly_diffs = [
+                    (parent, poly_diff(geom, parent.geometry.boundary))
+                    for parent in parent_dict.values()
+                ]
                 # Sort by diff_area.
                 poly_diffs.sort(key=lambda x: x[1])
                 # Assign the parent with smallest poly_diff as parent.
                 parents.append(poly_diffs[0][0])
-
                 if not parents:
                     raise Exception("No parent found for %s" % origin_id)
                 elif len(parents) > 1:
