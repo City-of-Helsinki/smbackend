@@ -7,7 +7,7 @@ import dateutil.parser
 import pandas as pd
 import requests
 from django.conf import settings
-from django.contrib.gis.gdal import DataSource as DataSource
+from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry, Point
 
 from eco_counter.models import (
@@ -144,9 +144,11 @@ def get_traffic_counter_csv(start_year=2015):
     # drop columns with number, i.e. not in metadata as the new column
     # names are in format name_type|direction and does not contain numbers
     df = df.drop(df.filter(regex="[0-9]+").columns, axis=1)
+
     # Combine columns with same name, i.e. combines lanes into one.
     # axis=1, split along columns.
-    df = df.groupby(df.columns, axis=1).sum()
+    df = df.groupby(by=df.columns, axis=1).sum()
+
     logger.info(df.info(verbose=False))
     logger.info(f"{ids_not_found} IDs not found in metadata.")
     # Move column 'startTime to first (0) position.
