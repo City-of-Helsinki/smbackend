@@ -48,10 +48,13 @@ class ContentType(BaseType):
     GUEST_MARINA = "GMA"
     BOAT_PARKING = "BOK"
     MARINA = "MAR"
+    MARINA_SOUTHWEST_FINLAND = "MSF"
     NO_STAFF_PARKING = "NSP"
     DISABLED_PARKING = "DSP"
     BERTH = "BER"
     LOADING_UNLOADING_PLACE = "LUP"
+    SLIPWAY = "SWY"
+    RECREATIONAL_ROUTE = "RCR"
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
         (GAS_FILLING_STATION, "GasFillingStation"),
@@ -74,10 +77,13 @@ class ContentType(BaseType):
         (GUEST_MARINA, "GuestMarina"),
         (BOAT_PARKING, "BoatParking"),
         (MARINA, "Marina"),
+        (MARINA_SOUTHWEST_FINLAND, "MarinaSouthestFinalnd"),
         (NO_STAFF_PARKING, "NoStaffParking"),
         (DISABLED_PARKING, "DisabledParking"),
         (BERTH, "Berth"),
         (LOADING_UNLOADING_PLACE, "LoadingUnloadingPlace"),
+        (SLIPWAY, "Slipway"),
+        (RECREATIONAL_ROUTE, "RecreationalRoute"),
     ]
     type_name = models.CharField(max_length=3, choices=CONTENT_TYPES, null=True)
 
