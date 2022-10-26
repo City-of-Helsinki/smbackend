@@ -47,9 +47,10 @@ LAM_STATIONS_DIRECTION_MAPPINGS = {
     "1_Tampere": "P",
     "1_Hämeenlinna": "P",
 }
+
+keys = [k for k in range(TRAFFIC_COUNTER_START_YEAR, TRAFFIC_COUNTER_END_YEAR + 1)]
 # Create a dict where the years to be importer are keys and the value is the url of the csv data.
 # e.g. {2015, "https://data.turku.fi/2yxpk2imqi2mzxpa6e6knq/2015_laskenta.csv"}
-keys = [k for k in range(TRAFFIC_COUNTER_START_YEAR, TRAFFIC_COUNTER_END_YEAR + 1)]
 TRAFFIC_COUNTER_CSV_URLS = dict(
     [
         (k, f"{settings.TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL}{k}_laskenta.csv")
@@ -100,7 +101,7 @@ def get_traffic_counter_csv(start_year=2015):
     startTime,Aninkaistenkatu/Eerikinkatu AK,Aninkaistenkatu/Eerikinkatu BK
     0,2015-01-01T00:00,105,79
     0,2015-01-01T00:15,125,89
-    3. Merge columns with same name into one column, i.e., merge lanes into one.
+    3. Merge columns with same name into one column, i.e., merges lanes into one column.
     """
     df = get_dataframe(TRAFFIC_COUNTER_CSV_URLS[start_year])
     # Concat the Traffic counter CSV data into one CSV.
@@ -121,18 +122,16 @@ def get_traffic_counter_csv(start_year=2015):
     for feature in data_layer:
         id = feature["Mittauspisteiden_ID"].as_int()
         direction = feature["Suunta"].as_string()
-        # TODO, remove when the final/corrected version of the metadata is available
-        direction = "K"
         measurement_type = feature["Tyyppi"].as_string()
-        # with the id find the column from the data csv
+        # Use the id to find the column from the CSV data
         name = feature["Osoite_fi"].as_string()
         regex = rf".*\({id}\)"
         column = df.filter(regex=regex)
         if len(column.keys()) > 1:
-            logger.error(f"Multiple ids: {id}, found in csv data, skipping.")
+            logger.error(f"Multiple ids: {id}, found in CSV data, skipping.")
             continue
         if len(column.keys()) == 0:
-            logger.warning(f"ID:{id} in metadata not found in csv data.")
+            logger.warning(f"ID:{id} in metadata not found in CSV data.")
             ids_not_found += 1
             continue
         col_name = column.keys()[0]
@@ -174,7 +173,7 @@ def get_lam_station_dataframe(id, direction, start_date, end_date):
 
 def get_lam_counter_csv(start_date):
     """
-    This function returns the lam counter data in a format supported by the counter.
+    This function returns the LAM counter data in a format supported by the counter.
     startDate, station_name|Type|direction
     e.g.:
     startTime,Tie 8 Raisio AP,Tie 8 Raisio AK,
@@ -186,12 +185,11 @@ def get_lam_counter_csv(start_date):
     3. The source data is in format
     257;yt1851_Turku_Härkämäki;20141024;2;Artukainen;*;Kaikki;kaikki;30;7;13;14;34;137;478;768;551;523;528;585;647;634;700;762;745;890;698;515;282;171;90;77;9879
     Drop the non data column.
-    Transpose every row and as there are data only for every hour, add threee consecutive 0 values
+    Transpose every row and as there are data only for every hour, add three consecutive zero values
     after every hour value.
-    4. Add a column for every stations both directions with the transposed and filled data.
+    4. Add a column for every station and both directions with the transposed and filled data.
     5. Shift the columns with the calculated shift_index, this must be done if there is no data
     for the station from the start_date. This ensures the data matches the timestamps.
-
     """
 
     drop_columns = [
@@ -214,13 +212,12 @@ def get_lam_counter_csv(start_date):
     data_frame = pd.DataFrame()
     data_frame[TIMESTAMP_COL_NAME] = time_stamps
     for station in Station.objects.filter(csv_data_source=LAM_COUNTER):
-        # for station in Station.objects.filter(name__icontains="Kaarina, P"):
         # In the source data the directions are 1 and 2.
         for direction in range(1, 3):
             df = get_lam_station_dataframe(station.lam_id, direction, start_date, today)
             # Read the direction
             direction_name = df["suuntaselite"].iloc[0]
-            # From the mappings determine the keskustaan päin or poispäin keskustasta direction.
+            # From the mappings determine the 'keskustaan päin' or 'poispäin keskustasta' direction.
             direction_value = LAM_STATIONS_DIRECTION_MAPPINGS[
                 f"{direction}_{direction_name}"
             ]
@@ -236,16 +233,16 @@ def get_lam_counter_csv(start_date):
             values = []
             current_date = start_time
             for _, row in df.iterrows():
-                # The source data can miss data, that must be handled and filled with 0 values.
+                # The source data can miss data, this must be handled and filled with zero values.
                 current_time_str = current_date.strftime(source_data_timestamp_format)
                 row_timestamp_str = str(int(row[0]))
                 if current_time_str != row_timestamp_str:
-                    # Loop until a day with data is found and add 0 values for the days not found in data.
+                    # Loop until a day with data is found and add zero values for the days not found in data.
                     while True:
                         logger.warning(
                             f"{station.name} has no data for {current_date.strftime(source_data_timestamp_format)} "
                         )
-                        # Add 0 values for a day.
+                        # Add zero values for a day.
                         values.extend([0] * 24 * 4)
                         if row_timestamp_str == str(
                             current_date.strftime(source_data_timestamp_format)
@@ -272,7 +269,6 @@ def get_lam_counter_csv(start_date):
                 data_frame[column_name] = data_frame[column_name].shift(
                     periods=shift_index, axis=0, fill_value=0
                 )
-    # data_frame.to_csv("lam_out2.csv")
     return data_frame
 
 
@@ -293,7 +289,7 @@ def save_lam_counter_stations():
             station.geom = station_obj.geom
             station.save()
             saved += 1
-    logger.info(f"Saved {saved} Lam Counter stations.")
+    logger.info(f"Saved {saved} LAM Counter stations.")
 
 
 def save_traffic_counter_stations():
@@ -344,7 +340,6 @@ def save_eco_counter_stations():
             station.geom = point
             station.save()
             saved += 1
-
     logger.info(f"Saved {saved} Eco Counter stations.")
 
 
@@ -360,8 +355,8 @@ def get_test_dataframe(counter):
 
 def gen_eco_counter_test_csv(keys, start_time, end_time):
     """
-    Generates testdata for a given timespan,
-    for every 15min the value 1 is set.
+    Generates test data for a given timespan,
+    for every row (15min) the value 1 is set.
     """
     df = pd.DataFrame(columns=keys)
     df.keys = keys
