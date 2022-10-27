@@ -1,19 +1,22 @@
 import logging
 
+import shapefile
 from django import db
 from django.conf import settings
-from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.geos import GEOSGeometry, LineString, Point
 from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
     delete_mobile_units,
     get_or_create_content_type,
     set_translated_field,
-    ZippedShapefileDataSource,
 )
 from mobility_data.models import ContentType, MobileUnit
 
 logger = logging.getLogger("mobility_data")
+
+DEFAULT_SRID = 3067
+DEFAULT_ENCODING = "utf-8"
 
 
 class MobilityData:
@@ -25,59 +28,75 @@ class MobilityData:
         self.geometry = None
         self.municipality = None
 
-    def add_feature(self, feature, config):
-        try:
-            # Do not add feature if include value matches.
-            if "include" in config:
-                for attr, value in config["include"].items():
-                    if value not in feature[attr].as_string():
-                        return False
-            # Do not add feature if execlude value matches.
-            if "exclude" in config:
-                for attr, value in config["exclude"].items():
-                    if value in feature[attr].as_string():
-                        return False
+    def validate_coords(self, coords):
+        for coord in coords:
+            if abs(coord) > 1_000_000_000:
+                return False
+        return True
 
-            geometry = feature.geom
-            if geometry.srid != settings.DEFAULT_SRID:
-                geometry.transform(settings.DEFAULT_SRID)
+    def add_feature(self, feature, config, srid):
+        # try:
+        # Do not add feature if include value matches.
+        if "include" in config:
+            for attr, value in config["include"].items():
+                if value not in feature.record[attr]:
+                    return False
+        # Do not add feature if execlude value matches.
+        if "exclude" in config:
+            for attr, value in config["exclude"].items():
+                if value in feature.record[attr]:
+                    return False
+        geometry = None
 
-            try:
-                self.geometry = GEOSGeometry(geometry.wkt, srid=settings.DEFAULT_SRID)
-            except Exception as e:
-                logger.warning(f"Skipping feature {feature.geom}, invalid geom {e}")
-            if "municipality" in config:
-                municipality = feature[config["municipality"]].as_string()
-                if municipality:
-                    municipality_id = municipality.lower()
-                    self.municipality = Municipality.objects.filter(
-                        id=municipality_id
-                    ).first()
-
-            for attr, field in config["fields"].items():
-                for lang, field_name in field.items():
-                    # attr can have  fallback definitons if None
-                    if getattr(self, attr)[lang] is None:
-                        getattr(self, attr)[lang] = feature[field_name].as_string()
-            if "extra_fields" in config:
-                for attr, field in config["extra_fields"].items():
-                    self.extra[attr] = feature[field].as_string()
-
-        # TODO find a solution for this?
-        # Catch exception, as_string() method fails for unknown reasons
-        # 'utf-8' codec can't decode byte 0xf6 in position 64: invalid start byte
-        except Exception as e:
-            logger.warning(f"Skipping feature {feature} {e}")
+        match feature.shape.shapeTypeName:
+            case "POLYLINE":
+                geometry = LineString(feature.shape.points, srid=srid)
+            case "POINT":
+                points = feature.shape.points[0]
+                assert len(points) == 2
+                geometry = Point(points[0], points[1], srid=srid)
+                # The source data can containt invalid point data
+                # e.g., (-1.7976931348623157e+308, -1.7976931348623157e+308)
+                if not self.validate_coords(geometry.coords):
+                    logger.warning(f"Found invalid geometry {feature}")
+                    return False
+            case _:
+                logger.warning(f"Unsuported geometry type in {config}")
+                return False
+        if not geometry:
+            logger.warning(f"No supported geometry for {feature}")
             return False
+        if geometry.srid != settings.DEFAULT_SRID:
+            geometry.transform(settings.DEFAULT_SRID)
+
+        try:
+            self.geometry = GEOSGeometry(geometry.wkt, srid=settings.DEFAULT_SRID)
+        except Exception as e:
+            logger.warning(f"Skipping feature {feature.geom}, invalid geom {e}")
+            return False
+        if "municipality" in config:
+            municipality = feature.record[config["municipality"]]
+            if municipality:
+                municipality_id = municipality.lower()
+                self.municipality = Municipality.objects.filter(
+                    id=municipality_id
+                ).first()
+
+        for attr, field in config["fields"].items():
+            for lang, field_name in field.items():
+                # attr can have  fallback definitons if None
+                if getattr(self, attr)[lang] is None:
+                    getattr(self, attr)[lang] = feature.record[field_name]
+
+        if "extra_fields" in config:
+            for attr, field in config["extra_fields"].items():
+                self.extra[attr] = str(feature.record[field])
+
         return True
 
 
 @db.transaction.atomic
 def get_and_create_datasource_content_type(config):
-    if "content_type" not in config or "content_type_name" not in config:
-        logger.warning(
-            f"Skipping data source {config}, 'content_type' and 'content_type_name' are required."
-        )
     if "content_type_description" in config:
         description = config["content_type_description"]
     else:
@@ -112,17 +131,30 @@ def save_to_database(objects, config):
 
 
 def import_lounaistieto_data_source(config):
+    if "content_type" not in config or "content_type_name" not in config:
+        logger.warning(
+            f"Skipping data source {config}, 'content_type' and 'content_type_name' are required."
+        )
     if "data_url" not in config:
         logger.warning(f"Skipping data source {config}, missing 'data_url'")
-    zip_ds = ZippedShapefileDataSource(config["data_url"])
+    logger.info(f"Importing {config['content_type']}")
+
+    if "encoding" in config:
+        encoding = config["encoding"]
+    else:
+        encoding = DEFAULT_ENCODING
+        logger.info(f"No encoding defined, using default: {DEFAULT_ENCODING}")
+    if "srid" in config:
+        srid = config["srid"]
+    else:
+        srid = 3067
+        logger.info(f"No 'srid' configuration found setting default: '{DEFAULT_SRID}'")
     objects = []
-    assert len(zip_ds.data_source) == 1
+    sf = shapefile.Reader(config["data_url"], encoding=encoding)
     delete_content_type(config)
-    layer = zip_ds.data_source[0]
-    for i, feature in enumerate(layer):
+    for feature in sf.shapeRecords():
         obj = MobilityData()
-        if obj.add_feature(feature, config):
+        if obj.add_feature(feature, config, srid):
             objects.append(obj)
-    zip_ds.clean()
     save_to_database(objects, config)
     logger.info(f"Saved {len(objects)} {config['content_type_name']} objects.")
