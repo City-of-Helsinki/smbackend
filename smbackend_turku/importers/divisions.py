@@ -28,10 +28,13 @@ SOURCE_DATA_SRID = 3877
 PROJECTION_SRID = settings.DEFAULT_SRID
 SOURCE_DATA_SRS = SpatialReference(SOURCE_DATA_SRID)
 PROJECTION_SRS = SpatialReference(PROJECTION_SRID)
+WEB_MERCATOR_SRS = SpatialReference(3857)
+
 TURKU_WFS_URL = (
     settings.TURKU_WFS_URL
     + "?service=WFS&request=GetFeature&typeName={layer}&outputFormat=GML3"
 )
+CONFIG_FILE = "divisions_config.yml"
 
 
 class DivisionImporter:
@@ -144,10 +147,15 @@ class DivisionImporter:
                 # heuristically by choosing the one that we overlap with
                 # the most.
                 parents = []
-                for parent in parent_dict.values():
-                    diff_area = poly_diff(geom, parent.geometry.boundary)
-                    if diff_area < 300:
-                        parents.append(parent)
+                # Calculate diffs
+                poly_diffs = [
+                    (parent, poly_diff(geom, parent.geometry.boundary))
+                    for parent in parent_dict.values()
+                ]
+                # Sort by diff_area.
+                poly_diffs.sort(key=lambda x: x[1])
+                # Assign the parent with smallest poly_diff as parent.
+                parents.append(poly_diffs[0][0])
                 if not parents:
                     raise Exception("No parent found for %s" % origin_id)
                 elif len(parents) > 1:
@@ -268,7 +276,7 @@ class DivisionImporter:
 
     def import_divisions(self):
         config_path = f"{get_root_dir()}/smbackend_turku/importers/data/"
-        path = os.path.join(config_path, "config.yml")
+        path = os.path.join(config_path, CONFIG_FILE)
         config = yaml.safe_load(open(path, "r", encoding="utf-8"))
         self.division_data_path = os.path.join(
             self.muni_data_path, config["paths"]["division"]

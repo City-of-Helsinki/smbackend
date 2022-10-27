@@ -5,6 +5,39 @@ paths:
     division: divisions
 
 divisions:
+
+  - type: major_district
+    name: Suurpiiri
+    ocd_id: suurpiiri
+    wfs_layer: 'GIS:Palveluverkko_suuralueet'
+    fields:
+        name:
+            fi: Tunnus
+        origin_id: Tunnus
+        ocd_id: Tunnus
+
+  - type: district
+    name: Kaupunginosa
+    parent: major_district
+    ocd_id: kaupunginosa
+    wfs_layer: 'GIS:Kaupunginosat'
+    fields:
+        name:
+            fi: Kaupunginosan_Nimi
+        origin_id: Kaupunginosan_Nimi
+        ocd_id: Kaupunginosan_Nimi
+
+  - type: sub_district
+    name: Pienalue
+    parent: district
+    ocd_id: pienalue
+    wfs_layer: 'GIS:Pienalueet'
+    fields:
+        name:
+            fi: Numero
+        origin_id: Numero
+        ocd_id: Numero
+
   - type: voting_district
     name: Äänestysalue
     ocd_id: äänestysalue
@@ -16,7 +49,7 @@ divisions:
         origin_id: Äänestysalueen_Nro
         ocd_id: Äänestysalueen_Nro
 
-  - type: zip_code_are
+  - type: postcode_area
     name: Postinumeroalue
     ocd_id: Postinumeroalue
     wfs_layer: 'GIS:Postinumeroalueet'
