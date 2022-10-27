@@ -11,7 +11,7 @@ def test_search(
     # trigram search is not used.
 
     # Search only units and services, no munigeo data in fixtures
-    url = reverse("search") + "?q=museo&use_trigram=false&extended_serializer=false"
+    url = reverse("search") + "?q=museo&use_trigram=false"
     response = api_client.get(url)
     assert response.status_code == 200
     results = response.json()["results"]
@@ -21,7 +21,7 @@ def test_search(
     assert results[2]["name"]["sv"] == "Museum"
 
     # Test that unit Impivara is retrived from service Uimahalli
-    url = reverse("search") + "?q=uimahalli&use_trigram=false&extended_serializer=false"
+    url = reverse("search") + "?q=uimahalli&use_trigram=false"
     response = api_client.get(url)
     results = response.json()["results"]
     assert results[0]["name"]["fi"] == "Impivaara"
@@ -33,7 +33,7 @@ def test_search(
     assert results[0]["name"]["fi"] == "Kurrapolku 1A"
     assert results[0]["object_type"] == "address"
     # Test administrative division search
-    url = reverse("search") + "?q=hel&use_trigram=false&extended_serializer=false"
+    url = reverse("search") + "?q=hel&use_trigram=false"
     response = api_client.get(url)
     results = response.json()["results"]
     assert results[0]["object_type"] == "administrativedivision"
