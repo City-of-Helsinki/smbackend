@@ -15,7 +15,6 @@ from mobility_data.models import ContentType, MobileUnit
 
 logger = logging.getLogger("mobility_data")
 
-DEFAULT_SRID = 3067
 DEFAULT_ENCODING = "utf-8"
 
 
@@ -35,7 +34,6 @@ class MobilityData:
         return True
 
     def add_feature(self, feature, config, srid):
-        # try:
         # Do not add feature if include value matches.
         if "include" in config:
             for attr, value in config["include"].items():
@@ -47,7 +45,6 @@ class MobilityData:
                 if value in feature.record[attr]:
                     return False
         geometry = None
-
         match feature.shape.shapeTypeName:
             case "POLYLINE":
                 geometry = LineString(feature.shape.points, srid=srid)
@@ -61,14 +58,13 @@ class MobilityData:
                     logger.warning(f"Found invalid geometry {feature}")
                     return False
             case _:
-                logger.warning(f"Unsuported geometry type in {config}")
+                logger.warning(
+                    f"Unsuported geometry type {feature.shape.shapeTypeName} in {config}"
+                )
                 return False
-        if not geometry:
-            logger.warning(f"No supported geometry for {feature}")
-            return False
+
         if geometry.srid != settings.DEFAULT_SRID:
             geometry.transform(settings.DEFAULT_SRID)
-
         try:
             self.geometry = GEOSGeometry(geometry.wkt, srid=settings.DEFAULT_SRID)
         except Exception as e:
@@ -147,8 +143,10 @@ def import_lounaistieto_data_source(config):
     if "srid" in config:
         srid = config["srid"]
     else:
-        srid = 3067
-        logger.info(f"No 'srid' configuration found setting default: '{DEFAULT_SRID}'")
+        srid = settings.DEFAULT_SRID
+        logger.info(
+            f"No 'srid' configuration found setting default: '{settings.DEFAULT_SRID}'"
+        )
     objects = []
     sf = shapefile.Reader(config["data_url"], encoding=encoding)
     delete_content_type(config)
