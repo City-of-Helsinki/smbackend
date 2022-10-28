@@ -134,7 +134,7 @@ components:
     start_date_time_param:
       name: start_date_time
       in: query
-      description: "The start date and time of the works to fetch. Must be in format YYYY--MM-DD HH:MM e.g.,'2022-09-18 10:00' "
+      description: "The start date and time of the works to fetch. Must be in format YYYY-MM-DD HH:MM e.g.,'2022-09-18 10:00' "
       schema:
         type: string
     unit_id_param:
