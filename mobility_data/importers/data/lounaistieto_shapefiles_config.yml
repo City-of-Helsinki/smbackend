@@ -1,9 +1,54 @@
 data_sources:
   # Note, add the content type to the model
+  - content_type: FISHING_SPOT
+    content_type_name: "Fishing spot"
+    content_type_description: "Fishing spots in Soutwest Finland."
+    data_url: 'https://data.lounaistieto.fi/data/dataset/50451034-b760-4b39-8f88-701d9c968d88/resource/cd41b91f-f684-4cdc-bbf8-e2c4eaca3a70/download/kalapaikat.zip'
+    srid: 3067
+    encoding: latin_1
+    fields:
+      name:
+        fi: Paikka
+        sv: Paikka
+        en: Paikka 
+    
+    municipality: Kunta
+    extra_fields:
+      lähiosoite: Lähiosoite
+      kuvaus: Kuvaus
+      kalastus: Kalastus
+      kalasto: Kalasto
+      pääsy: Pääsy
+      pysäköinti: Pysäköinti
+      jätehuolto: Jätehuolto
+      tulipaikka: Tulipaikka
+      leiriytyminen: Leiritymin
+      veneenlasku: Veneenlask
+      säilyvyys: Säilyvyys
+      www: Linkki
+      tietod: Tiedot
+
+  - content_type: FERRY_ROUTE
+    content_type_name: "Ferry Route"
+    content_type_description: "Ferry routes in Southwest Finland"
+    data_url: 'https://data.lounaistieto.fi/data/dataset/4809cdd7-7d6d-46f7-86b1-5d6f3fbd97aa/resource/a3905406-cb79-465d-927c-1d6b53c0385e/download/lossireitit_euref.zip'
+    srid: 3067
+    encoding: latin_1
+    fields:
+      name:
+        fi: NIMI
+        sv: NIMI
+        en: NIMI
+    extra_fields:
+      silta: SILTA
+      pituus: PITUUS
+
   - content_type: MARINA_SOUTHWEST_FINLAND
     content_type_name: "Marinas in Southwest Finland"
     content_type_description: "Marinas in Southwest Finland, the data contains marinas, moorings, connection piers"
     data_url: 'https://data.lounaistieto.fi/data/dataset/6069c4d5-cbed-4e32-9f21-502688f26192/resource/214e5337-8232-4e02-8324-81285b1a1024/download/venesatamat_kaikki.zip'
+    srid: 3067
+    encoding: utf-8
     fields:
       # If the first definition is None use the later as fallbacks 
       name:
@@ -19,13 +64,14 @@ data_sources:
     extra_fields:
       luokitus: LUOKITUS
       lähde: LÄHDE
-      kunta: KUNTA
       www: www
 
   - content_type: SLIPWAY
     content_type_name: "Slipway"
     content_type_description: "Slipways for boats."
     data_url: 'https://data.lounaistieto.fi/data/dataset/84116aeb-4ced-48ca-9c93-58edb946ab96/resource/2bf2497e-4ed0-4b38-b1e9-ecd1bbb28856/download/venerampit.zip'
+    srid: 3067
+    encoding: latin_1
     fields:
       name:
         fi: NIMI        
@@ -36,8 +82,11 @@ data_sources:
       päiv_aika: PÄIV_AIKA
 
   - content_type: RECREATIONAL_ROUTE
-    content_type_name: 'Refresh route'
+    content_type_name: 'Recreational route'
+    content_type_description: 'Recreational routes in Southwest Finland'
     data_url: 'https://data.lounaistieto.fi/data/dataset/3e92c2b6-7b62-49d1-b2fd-ff4917208f2a/resource/f20f006f-7592-45a8-9698-7c6fa09af068/download/virkistysaineisto.zip'
+    srid: 3067
+    encoding: latin_1
     # Include only if field contains given string
     # include:
     #   Kunta: "Turku"

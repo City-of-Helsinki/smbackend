@@ -40,4 +40,4 @@ class Command(BaseImportCommand):
                 try:
                     import_lounaistieto_data_source(data_source)
                 except Exception as e:
-                    logger.warning(f"Skipping datasource {config} : {e}")
+                    logger.warning(f"Skipping data_source {data_source} : {e}")

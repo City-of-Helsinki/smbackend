@@ -160,6 +160,8 @@ pykml==0.2.0
     # via -r requirements.in
 pyparsing==2.4.7
     # via packaging
+pyshp==2.3.1
+    # via -r requirements.in
 pytest==6.2.5
     # via
     #   pytest-cov
