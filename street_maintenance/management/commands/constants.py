@@ -48,7 +48,7 @@ EVENT_MAPPINGS = {
 }
 # The number of works(point data with timestamp and event) to be fetched for every unit.
 INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE = 10000
-# Length of Autori history size in days
+# Length of Autori history size in days, max value is 31.
 AUTORI_DEFAULT_WORKS_HISTORY_SIZE = 10
 AUTORI_MAX_WORKS_HISTORY_SIZE = 31
 AUTORI_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S%z"

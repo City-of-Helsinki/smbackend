@@ -23,7 +23,7 @@ logger = logging.getLogger("street_maintenance")
 
 
 def get_turku_boundary():
-    division_turku = AdministrativeDivision.objects.get(name="Raisio")
+    division_turku = AdministrativeDivision.objects.get(name="Turku")
     turku_boundary = AdministrativeDivisionGeometry.objects.get(
         division=division_turku
     ).boundary
