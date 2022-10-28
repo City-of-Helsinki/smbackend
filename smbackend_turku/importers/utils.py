@@ -239,6 +239,18 @@ def get_municipality(name):
         return None
 
 
+def get_turku_boundary():
+    division_turku = AdministrativeDivision.objects.filter(name="Turku").first()
+    if division_turku:
+        turku_boundary = AdministrativeDivisionGeometry.objects.get(
+            division=division_turku
+        ).boundary
+        turku_boundary.transform(settings.DEFAULT_SRID)
+        return turku_boundary
+    else:
+        return None
+
+
 def create_service_node(service_node_id, name, parent_name, service_node_names):
     """
     Creates service_node with given name and id if it does not exist.
