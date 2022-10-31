@@ -116,3 +116,9 @@ To run the importer type:
 ```
 ./manage.py import_lounaistieto_shapefiles
 ```
+
+### Paavonpolkus
+To import data type:
+```
+./manage.py import_paavonpolkus
+```
