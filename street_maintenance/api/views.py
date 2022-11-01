@@ -40,7 +40,7 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
                 datetime.strptime(start_date_time, "%Y-%m-%d %H:%M:%S")
             except ValueError:
                 raise ParseError(
-                    "'start_date_time' must be in format YYYY--MM-DD HH:MM elem.g.,'2022-09-18 10:00'"
+                    "'start_date_time' must be in format YYYY-MM-DD HH:MM elem.g.,'2022-09-18 10:00'"
                 )
             queryset = queryset.filter(timestamp__gte=start_date_time)
         return queryset
