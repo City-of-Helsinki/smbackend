@@ -89,12 +89,20 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         if unit_id:
             unit = Unit.objects.get(id=unit_id)
             for field in self.fields:
+                # lookup the field name in the service_unit table, as not all field names that contains
+                # similar data has the same name.
                 if field in self.mobile_unit_to_unit_field_mappings:
                     key = self.mobile_unit_to_unit_field_mappings[field]
                 else:
                     key = field
+
                 if hasattr(unit, key):
-                    representation[field] = getattr(unit, key)
+                    # unit.municipality is of type munigeo.models.Municipality and not serializable
+                    if key == "municipality":
+                        representation[field] = unit.municipality.id
+                    else:
+                        representation[field] = getattr(unit, key)
+
             # The location field must be serialized with its wkt value.
             if unit.location:
                 representation["geometry"] = unit.location.wkt

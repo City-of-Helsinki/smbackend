@@ -1,14 +1,20 @@
+import io
+import os
 import re
+import tempfile
+import zipfile
 from enum import Enum
 
 import requests
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.gdal import DataSource as GDALDataSource
 from django.contrib.gis.geos import GEOSGeometry
 from munigeo.models import (
     Address,
     AdministrativeDivision,
     AdministrativeDivisionGeometry,
+    AdministrativeDivisionType,
     PostalCodeArea,
     Street,
 )
@@ -30,6 +36,27 @@ class FieldTypes(Enum):
     INTEGER = 3
     FLOAT = 4
     BOOLEAN = 5
+
+
+class ZippedShapefileDataSource:
+    tmp_path = tempfile.gettempdir()
+
+    def __init__(self, zip_url):
+        self.zip_path = None
+        self.data_source = None
+        self.zip_url = zip_url
+        response = requests.get(zip_url, stream=True)
+        with zipfile.ZipFile(io.BytesIO(response.content)) as zip_file:
+            zip_file.extractall(self.tmp_path)
+            self.file_names = zip_file.namelist()
+            self.zip_path = self.tmp_path + "/" + self.file_names[0].split("/")[0]
+            self.data_source = GDALDataSource(self.zip_path)
+
+    def clean(self):
+        for file in self.file_names:
+            os.remove(f"{self.tmp_path}/{file}")
+        if os.path.exists(self.zip_path):
+            os.rmdir(self.zip_path)
 
 
 def fetch_json(url):
@@ -148,12 +175,20 @@ def get_municipality_name(point):
     is located.
     """
     try:
-        # resolve in which division to point is.
-        division = AdministrativeDivisionGeometry.objects.get(boundary__contains=point)
+        muni_type = AdministrativeDivisionType.objects.get(type="muni")
+    except AdministrativeDivisionType.DoesNotExist:
+        return None
+    try:
+        geometry = AdministrativeDivisionGeometry.objects.get(
+            division__type=muni_type, boundary__contains=point
+        )
     except AdministrativeDivisionGeometry.DoesNotExist:
         return None
-    # Get the division and return its name.
-    return AdministrativeDivision.objects.get(id=division.division_id).name
+    try:
+        # Get the division from the geometry and return its name.
+        return AdministrativeDivision.objects.get(id=geometry.division_id).name
+    except AdministrativeDivision.DoesNotExist:
+        return None
 
 
 def set_translated_field(obj, field_name, data):

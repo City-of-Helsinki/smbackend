@@ -19,7 +19,7 @@ definitions:
         type: integer
       unit_id:
         type: integer
-        description: "The id(name) of the unit"
+        description: "The id(name) of the unit."
   maintenance_work:
     type: object
     title: MaintenanceWork
@@ -27,7 +27,7 @@ definitions:
     properties:
       id:
         type: integer
-      point: 
+     geometry: 
         type: string
       timestamp:
         type: string
@@ -37,10 +37,15 @@ definitions:
         type: array
         description: "Name of the events."
         items:
-          type: string
+          type: string 
+      coords:
+        description: "Returns if geometry is of type Linestring."
+        type: array
       lat:
+        description: "Returns if geometry is of type Point."
         type: number
       lon: 
+        description: "Returns if geometry is of type Point."
         type: number
 
 paths:
@@ -111,14 +116,11 @@ paths:
       responses:
         200:
           description: "Returns Linestrings and Points of works of given event from given start date and time."
-                  
-                  
   /active_events/:
     get:
-      summary: "Returns a list of active events."
+      summary: "Returns a list of active events with their mapped names. i.e., event names that are shown in the front end, not the names that are in the source data."
       responses:
         200:
-
           description: "List of active events."
   
 components:
@@ -126,13 +128,13 @@ components:
     event_param:
       name: event
       in: query
-      description: "Return works of given event."
+      description: "Return works of given event. The event name is the mapped name and the active event names can be seen from the active_events endpoint."
       schema:
         type: string
     start_date_time_param:
       name: start_date_time
       in: query
-      description: "The start date and time of the works to fetch. Must be in format YYYY--MM-DD HH:MM e.g.,'2022-09-18 10:00' "
+      description: "The start date and time of the works to fetch. Must be in format YYYY-MM-DD HH:MM e.g.,'2022-09-18 10:00' "
       schema:
         type: string
     unit_id_param:

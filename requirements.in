@@ -1,4 +1,4 @@
-Django>=4.0.7
+Django>=4.0.8
 djangorestframework
 djangorestframework-jsonp
 Markdown
@@ -7,7 +7,7 @@ django-modeltranslation
 flake8
 requests
 requests_cache
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.73#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.76#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions
@@ -39,3 +39,4 @@ django-celery-results>=2.4.0
 redis
 libvoikko
 numpy>=1.22
+pyshp

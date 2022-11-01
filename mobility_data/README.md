@@ -100,3 +100,19 @@ To import data type:
 ```
 ./manage.py import_disabled_and_no_staff_parkings
 ```
+
+### Loading and unloading places
+To import data type:
+```
+./manage.py import_loading_and_unloading_places
+```
+
+### Lounaistieto shapefiles
+The importer imports shapefiles from https://data.lounaistieto.fi and stores them
+as mobility data. The importer can be configured by modifying the file:
+/mobility_data/importers/data/lounaistieto_shapefiles_config.yml
+Note, if a new data_source is added a content type must be added to the model.
+To run the importer type:
+```
+./manage.py import_lounaistieto_shapefiles
+```

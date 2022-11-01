@@ -1,3 +1,4 @@
+from django.contrib.gis.geos import LineString, Point
 from rest_framework import serializers
 
 from street_maintenance.models import MaintenanceUnit, MaintenanceWork
@@ -21,23 +22,21 @@ class MaintenanceUnitSerializer(serializers.ModelSerializer):
 
 
 class MaintenanceWorkSerializer(serializers.ModelSerializer):
-    lon = serializers.SerializerMethodField()
-    lat = serializers.SerializerMethodField()
-
     class Meta:
         model = MaintenanceWork
         fields = [
             "id",
             "maintenance_unit",
-            "point",
+            "geometry",
             "timestamp",
             "events",
-            "lat",
-            "lon",
         ]
 
-    def get_lat(self, obj):
-        return obj.point.y
-
-    def get_lon(self, obj):
-        return obj.point.x
+    def to_representation(self, obj):
+        representation = super().to_representation(obj)
+        if isinstance(obj.geometry, Point):
+            representation["lat"] = obj.geometry.y
+            representation["lon"] = obj.geometry.x
+        elif isinstance(obj.geometry, LineString):
+            representation["coords"] = obj.geometry.coords
+        return representation
