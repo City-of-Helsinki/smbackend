@@ -97,4 +97,15 @@ divisions:
         sv: Oppilasalueen_kuvaus
       origin_id: Oppilasalueen_kuvaus
       ocd_id: Oppilasalueen_kuvaus
+
+  - type: parish
+    name: "Seurakunta"  
+    ocd_id: seurakunta
+    wfs_layer: 'GIS:Seurakunnat'
+    fields:
+      name:
+        fi: Numero
+      origin_id: Numero
+      ocd_id: Numero
+      
       

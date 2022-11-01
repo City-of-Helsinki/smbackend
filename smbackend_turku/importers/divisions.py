@@ -23,6 +23,7 @@ from munigeo.models import (
 )
 
 from mobility_data.importers.utils import get_root_dir
+from smbackend_turku.importers.utils import get_turku_boundary
 
 SOURCE_DATA_SRID = 3877
 PROJECTION_SRID = settings.DEFAULT_SRID
@@ -35,6 +36,7 @@ TURKU_WFS_URL = (
     + "?service=WFS&request=GetFeature&typeName={layer}&outputFormat=GML3"
 )
 CONFIG_FILE = "divisions_config.yml"
+TURKU_BOUNDARY = get_turku_boundary()
 
 
 class DivisionImporter:
@@ -58,6 +60,21 @@ class DivisionImporter:
         if geom.geom_type == "Polygon":
             geom = MultiPolygon(geom.buffer(0), srid=geom.srid)
 
+        locates_in_turku = TURKU_BOUNDARY.contains(geom) or geom.overlaps(
+            TURKU_BOUNDARY
+        )
+        if not locates_in_turku:
+            return
+
+        # Check if the geometry locates in Turku.
+        # As some geometries are not precisely inside the Turku boundarys and some might
+        # overlap a bit the Turku boundary even thou the major part is outside the Turku boundarys.
+        # So the only way to solve this is by calculating the poly_diff.
+        # The value 1_800_000 is chosen heuristically by choosing the biggest value
+        # of a geometry that is inside the Turku boundarys.
+        p_d = poly_diff(geom, TURKU_BOUNDARY)
+        if p_d > 1_800_000:
+            return
         #
         # Attributes
         #
