@@ -114,7 +114,7 @@ def get_traffic_counter_csv(start_year=2015):
         # ignore_index=True, do not use the index values along the concatenation axis.
         # The resulting axis will be labeled 0, …, n - 1.
         df = pd.concat([df, concat_df], ignore_index=True)
-
+    # df.to_csv("tc_concat.csv")
     data_layer = get_traffic_counter_metadata_data_layer()
     ids_not_found = 0
     # Rename columns using the metadata to format: name_type|direction
@@ -125,13 +125,14 @@ def get_traffic_counter_csv(start_year=2015):
         measurement_type = feature["Tyyppi"].as_string()
         # Use the id to find the column from the CSV data
         name = feature["Osoite_fi"].as_string()
-        regex = rf".*\({id}\)"
+        regex = rf".*\({id}\)$"
         column = df.filter(regex=regex)
         if len(column.keys()) > 1:
+            # TODO, for some reason the concat makes a duplicate row ID???
             logger.error(f"Multiple ids: {id}, found in CSV data, skipping.")
             continue
         if len(column.keys()) == 0:
-            logger.warning(f"ID:{id} in metadata not found in CSV data.")
+            logger.warning(f"ID: {id} in metadata not found in CSV data.")
             ids_not_found += 1
             continue
         col_name = column.keys()[0]
@@ -142,7 +143,7 @@ def get_traffic_counter_csv(start_year=2015):
 
     # drop columns with number, i.e. not in metadata as the new column
     # names are in format name_type|direction and does not contain numbers
-    df = df.drop(df.filter(regex="[0-9]+").columns, axis=1)
+    df = df.drop(df.filter(regex=r"\([0-9]+\)$").columns, axis=1)
 
     # Combine columns with same name, i.e. combines lanes into one.
     # axis=1, split along columns.
