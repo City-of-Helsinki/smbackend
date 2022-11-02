@@ -204,6 +204,9 @@ class Command(BaseCommand):
                 # poispäin keskustasta
                 p_field = station_type[1]
                 p_value = 0
+                # molempiin suuntiin k
+                t_field = station_type[2]
+                t_value = 0
                 total_field = station_type[2]
                 if k_field.upper() in current_hour[station]:
                     k_value = current_hour[station][k_field.upper()]
@@ -212,12 +215,20 @@ class Command(BaseCommand):
                 if p_field.upper() in current_hour[station]:
                     p_value = current_hour[station][p_field.upper()]
                     getattr(hour_data, f"values_{p_field}").append(p_value)
-                getattr(hour_data, f"values_{total_field}").append(k_value + p_value)
+
+                if t_field.upper() in current_hour[station]:
+                    t_value = current_hour[station][t_field.upper()]
+                    getattr(hour_data, f"values_{total_field}").append(t_value)
+                else:
+                    getattr(hour_data, f"values_{total_field}").append(
+                        k_value + p_value
+                    )
+
             hour_data.save()
 
     def get_station_name_and_type(self, column):
         # Station type is always: A|P|J|B + K|P
-        station_type = re.findall("[APJB][PK]", column)[0]
+        station_type = re.findall("[APJB][PKT]", column)[0]
         station_name = column.replace(station_type, "").strip()
         return station_name, station_type
 
@@ -225,6 +236,8 @@ class Command(BaseCommand):
         self, csv_data, start_time, column_names, csv_data_source=ECO_COUNTER
     ):
         errorneous_values = 0
+        negative_values = 0
+
         stations = {}
         # Populate stations dict, used to lookup station relations
         for station in Station.objects.filter(csv_data_source=csv_data_source):
@@ -429,11 +442,20 @@ class Command(BaseCommand):
                 if value > ERRORNEOUS_VALUE_THRESHOLD:
                     logger.warning(
                         (
-                            f"Found errorneous(>={ERRORNEOUS_VALUE_THRESHOLD}) value:{value}, "
-                            f"column:{column}, time:{current_time}, index:{index}"
+                            f"Found errorneous(>={ERRORNEOUS_VALUE_THRESHOLD}) value: {value}, "
+                            f"column: {column}, time: {current_time}, index: {index}"
                         )
                     )
                     errorneous_values += 1
+                    value = 0
+                if value < 0:
+                    logger.warning(
+                        (
+                            f"Found negative value: {value}, "
+                            f"column: {column}, time: {current_time}, index: {index}"
+                        )
+                    )
+                    negative_values += 1
                     value = 0
                 if station_name not in current_hour:
                     current_hour[station_name] = {}
@@ -458,6 +480,7 @@ class Command(BaseCommand):
         logger.info(
             f"Found {errorneous_values} errorneous(>={ERRORNEOUS_VALUE_THRESHOLD}) values."
         )
+        logger.info(f"Found {negative_values} negative values.")
         logger.info(f"Imported observations until:{str(current_time)}")
 
     def add_arguments(self, parser):
@@ -569,6 +592,7 @@ class Command(BaseCommand):
                 elif counter == TRAFFIC_COUNTER:
                     csv_data = get_traffic_counter_csv(
                         start_year=import_state.current_year_number
+                        # start_year=2022
                     )
                 start_time = "{year}-{month}-1T00:00".format(
                     year=import_state.current_year_number,
