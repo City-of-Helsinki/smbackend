@@ -1,5 +1,7 @@
 import re
+import sys
 from datetime import datetime
+from functools import lru_cache
 
 import pytz
 from django import db
@@ -147,33 +149,26 @@ def update_service_node(node, units_by_service):
     return units
 
 
-MUNI_DIVISION_TYPE = None
-DIVISIONS_BY_MUNI = None
-
-
+@lru_cache(maxsize=0 if "pytest" in sys.modules else 128)
 def get_municipality_division_type():
-    global MUNI_DIVISION_TYPE
-    if MUNI_DIVISION_TYPE is None:
-        try:
-            MUNI_DIVISION_TYPE = AdministrativeDivisionType.objects.get(type="muni")
-        except AdministrativeDivisionType.DoesNotExist:
-            MUNI_DIVISION_TYPE = None
-    return MUNI_DIVISION_TYPE
+    try:
+        return AdministrativeDivisionType.objects.get(type="muni")
+    except AdministrativeDivisionType.DoesNotExist:
+        return None
 
 
+@lru_cache(maxsize=0 if "pytest" in sys.modules else 128)
 def get_divisions_by_muni():
-    global DIVISIONS_BY_MUNI
     type = get_municipality_division_type()
     if type is None:
         return {}
-    if DIVISIONS_BY_MUNI is None:
-        DIVISIONS_BY_MUNI = dict(
+    else:
+        return dict(
             (
                 (x.name_fi.lower(), x)
                 for x in AdministrativeDivision.objects.filter(type=type)
             )
         )
-    return DIVISIONS_BY_MUNI
 
 
 def update_count_objects(service_node_unit_count_objects, node):
