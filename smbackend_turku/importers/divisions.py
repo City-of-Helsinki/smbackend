@@ -46,7 +46,9 @@ class DivisionImporter:
         self.muni_data_path = "data"
 
     def _import_division(self, muni, div, type_obj, syncher, parent_dict, feat):
-
+        check_turku_boundary = True
+        if "check_turku_boundary" in div:
+            check_turku_boundary = div["check_turku_boundary"]
         geom = feat.geom
         if not geom.srid:
             geom.srid = SOURCE_DATA_SRID
@@ -60,21 +62,17 @@ class DivisionImporter:
         if geom.geom_type == "Polygon":
             geom = MultiPolygon(geom.buffer(0), srid=geom.srid)
 
-        locates_in_turku = TURKU_BOUNDARY.contains(geom) or geom.overlaps(
-            TURKU_BOUNDARY
-        )
-        if not locates_in_turku:
-            return
-
         # Check if the geometry locates in Turku.
         # As some geometries are not precisely inside the Turku boundarys and some might
         # overlap a bit the Turku boundary even thou the major part is outside the Turku boundarys.
         # So the only way to solve this is by calculating the poly_diff.
         # The value 1_800_000 is chosen heuristically by choosing the biggest value
         # of a geometry that is inside the Turku boundarys.
-        p_d = poly_diff(geom, TURKU_BOUNDARY)
-        if p_d > 1_800_000:
-            return
+        if check_turku_boundary:
+            p_d = poly_diff(geom, TURKU_BOUNDARY)
+            if p_d > 1_800_000:
+                return
+
         #
         # Attributes
         #
@@ -137,8 +135,8 @@ class DivisionImporter:
         attr_dict["extra"] = extra_attr_dict
         """
         ocd-division/country:fi/kunta:turku/äänestysalue:41
-        tai
-        ocd-division/country:fi/kunta:turku/Postinumeroalue:21120
+        with check_turku_boundary set to false:
+        ocd-division/country:fi/Postinumeroalue:21120
         """
 
         origin_id = attr_dict["origin_id"]
@@ -219,16 +217,21 @@ class DivisionImporter:
             assert (parent and parent.ocd_id) or "parent_ocd_id" in div
             if parent:
                 if div.get("parent_in_ocd_id", False):
-                    args = {"parent": parent.ocd_id}
+                    ocd_id_args = {"parent": parent.ocd_id}
                 else:
-                    args = {"parent": muni.division.ocd_id}
+                    if check_turku_boundary:
+                        ocd_id_args = {"parent": muni.division.ocd_id}
+                    else:
+                        # If not filtering by Turku boundarys, we only set country as
+                        # we can not be sure of the municipality.
+                        ocd_id_args = {"country": "fi"}
             else:
-                args = {"parent": div["parent_ocd_id"]}
+                ocd_id_args = {"parent": div["parent_ocd_id"]}
             val = attr_dict["ocd_id"]
             if "id_suffix" in div:
                 val = val + div["id_suffix"]
-            args[div["ocd_id"]] = val
-            obj.ocd_id = ocd.make_id(**args)
+            ocd_id_args[div["ocd_id"]] = val
+            obj.ocd_id = ocd.make_id(**ocd_id_args)
             self.logger.debug("%s" % obj.ocd_id)
         obj.save()
         syncher.mark(obj, True)
