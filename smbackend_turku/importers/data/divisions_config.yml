@@ -53,6 +53,7 @@ divisions:
     name: Postinumeroalue
     ocd_id: Postinumeroalue
     wfs_layer: 'GIS:Postinumeroalueet'
+    check_turku_boundary: False
     fields:
         name:
             fi: Tunnus           
@@ -60,10 +61,7 @@ divisions:
         ocd_id: Tunnus
 
   - type: school_district_fi
-    name: "Oppilaaksiottoalue, suomenkielinen"
-    validity:
-        start: '2022-08-01'
-        end: '2023-08-01'
+    name: "Oppilaaksiottoalue, suomenkielinen"    
     ocd_id: oppilaaksiottoalue_alakoulu
     wfs_layer: 'GIS:Oppilasalueet_suomi'
     fields:
@@ -73,10 +71,7 @@ divisions:
         ocd_id: Oppilasalueen_kuvaus
 
   - type: lower_comprehensive_school_district_sv
-    name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"
-    validity:
-        start: '2022-08-01'
-        end: '2023-08-01'
+    name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"   
     ocd_id: oppilaaksiottoalue_alakoulu_sv
     wfs_layer: 'GIS:Oppilasalueet_ruotsi_1-6'
     fields:
@@ -86,10 +81,7 @@ divisions:
       ocd_id: Oppilasalueen_kuvaus
 
   - type: upper_comprehensive_school_district_sv
-    name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"
-    validity:
-        start: '2022-08-01'
-        end: '2023-08-01'
+    name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"  
     ocd_id: oppilaaksiottoalue_ylakoulu_sv
     wfs_layer: 'GIS:Oppilasalueet_ruotsi_7-9'
     fields:
@@ -107,5 +99,4 @@ divisions:
         fi: Numero
       origin_id: Numero
       ocd_id: Numero
-      
       
