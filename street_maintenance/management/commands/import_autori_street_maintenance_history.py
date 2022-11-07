@@ -36,7 +36,7 @@ class Command(BaseCommand):
             help="History size in days.",
         )
 
-    def get_and_create_autori_maintenance_works(self, history_size=None):
+    def create_autori_maintenance_works(self, history_size=None):
         access_token = get_autori_access_token()
         create_autori_maintenance_units(access_token)
         contract = get_autori_contract(access_token)
@@ -61,11 +61,13 @@ class Command(BaseCommand):
             events = []
             operations = route["operations"]
             for operation in operations:
-                event_name = event_name_mappings[operation]
+                event_name = event_name_mappings[operation].lower()
                 if event_name in EVENT_MAPPINGS:
                     events.append(EVENT_MAPPINGS[event_name])
                 else:
-                    logger.warning(f"Found unmapped event: {event_name}")
+                    logger.warning(
+                        f"Found unmapped event: {event_name_mappings[operation]}"
+                    )
 
             # If no events found discard the work
             if len(events) == 0:
@@ -102,7 +104,7 @@ class Command(BaseCommand):
                 error_msg = f"Max value for the history size is: {AUTORI_MAX_WORKS_HISTORY_SIZE}"
                 raise ValueError(error_msg)
 
-        self.get_and_create_autori_maintenance_works(history_size=history_size)
+        self.create_autori_maintenance_works(history_size=history_size)
         importer_end_time = datetime.now()
         duration = importer_end_time - importer_start_time
         logger.info(f"Imported Autori(YIT) street maintenance history in: {duration}")
