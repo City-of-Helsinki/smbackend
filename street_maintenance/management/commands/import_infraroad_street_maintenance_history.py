@@ -33,7 +33,7 @@ class Command(BaseCommand):
             ),
         )
 
-    def get_and_create_infraroad_maintenance_works(self, history_size):
+    def create_infraroad_maintenance_works(self, history_size):
         create_infraroad_maintenance_units()
         works = []
         for unit in MaintenanceUnit.objects.filter(provider=MaintenanceUnit.INFRAROAD):
@@ -59,8 +59,9 @@ class Command(BaseCommand):
 
                 events = []
                 for event in work["events"]:
-                    if event in EVENT_MAPPINGS:
-                        events.append(EVENT_MAPPINGS[event])
+                    event_lower = event.lower()
+                    if event_lower in EVENT_MAPPINGS:
+                        events.append(EVENT_MAPPINGS[event_lower])
                     else:
                         logger.warning(f"Found unmapped event: {event}")
                 # If no events found discard the work
@@ -84,7 +85,7 @@ class Command(BaseCommand):
             history_size = options["infraroad_history_size"][0]
         else:
             history_size = INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE
-        self.get_and_create_infraroad_maintenance_works(history_size)
+        self.create_infraroad_maintenance_works(history_size)
         importer_end_time = datetime.now()
         duration = importer_end_time - importer_start_time
         logger.info(f"Imported Infraroad street maintenance history in: {duration}")
