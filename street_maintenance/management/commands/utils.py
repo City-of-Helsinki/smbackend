@@ -17,6 +17,7 @@ from .constants import (
     AUTORI_TOKEN_URL,
     AUTORI_VEHICLES_URL,
     INFRAROAD_UNITS_URL,
+    KUNTEC_UNITS_URL,
 )
 
 logger = logging.getLogger("street_maintenance")
@@ -81,6 +82,40 @@ def create_dict_from_autori_events(list_of_events):
     return events
 
 
+def create_kuntec_maintenance_units():
+    response = requests.get(KUNTEC_UNITS_URL)
+    assert (
+        response.status_code == 200
+    ), "Fetching Maintenance Unit {} status code: {}".format(
+        KUNTEC_UNITS_URL, response.status_code
+    )
+    no_io_din = 0
+    for unit in response.json()["data"]["units"]:
+        names = []
+        if "io_din" in unit:
+            on_states = 0
+            # example io_din field: {'no': 3, 'label': 'Muu työ', 'state': 0}
+            for io in unit["io_din"]:
+                if io["state"] == 1:
+                    on_states += 1
+                    names.append(io["label"])
+        # If names, we have a unit with at least one io_din with State On.
+        if len(names) > 0:
+            unit_id = unit["unit_id"]
+            MaintenanceUnit.objects.create(
+                unit_id=unit_id, names=names, provider=MaintenanceUnit.KUNTEC
+            )
+        else:
+            no_io_din += 1
+    logger.info(
+        f"Discarding {no_io_din} Kuntec units that do not have a io_din with Status 'On'(1)."
+    )
+    logger.info(
+        f"Imported {MaintenanceUnit.objects.filter(provider=MaintenanceUnit.KUNTEC).count()}"
+        + " Kuntec mainetance Units."
+    )
+
+
 def create_autori_maintenance_units(access_token):
     response = requests.get(
         AUTORI_VEHICLES_URL, headers={"Authorization": f"Bearer {access_token}"}
@@ -111,7 +146,6 @@ def get_autori_routes(access_token, contract, history_size):
         .replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki"))
         .strftime(AUTORI_DATE_TIME_FORMAT)
     )
-
     params = {
         "contract": contract,
         "start": start,
@@ -131,14 +165,13 @@ def get_autori_routes(access_token, contract, history_size):
 
 
 def get_autori_access_token():
-
-    test_data = {
+    data = {
         "grant_type": "client_credentials",
         "scope": settings.AUTORI_SCOPE,
         "client_id": settings.AUTORI_CLIENT_ID,
         "client_secret": settings.AUTORI_CLIENT_SECRET,
     }
-    response = requests.post(AUTORI_TOKEN_URL, data=test_data)
+    response = requests.post(AUTORI_TOKEN_URL, data=data)
     assert (
         response.status_code == 200
     ), "Fetchin oauth2 token from Autori {} failed, status code: {}".format(
