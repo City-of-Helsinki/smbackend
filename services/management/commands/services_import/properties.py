@@ -36,9 +36,12 @@ def _import_unit_property(info):
 
     cached_unit_extra = CACHED_UNIT.extra
     property_name = info["property_name"]
-    property_value = (
-        info["value_numeric"] if "value_numeric" in info else info["value_text"]
-    )
+    if "value_numeric" in info:
+        property_value = info["value_numeric"]
+    elif "value_text" in info:
+        property_value = info["value_text"]
+    else:
+        return
 
     if (
         property_name in cached_unit_extra
