@@ -63,3 +63,8 @@ def import_loading_and_unloading_places(name="import_loading_and_unloading_place
 @shared_task
 def import_lounaistieto_shapefiles(name="import_lounaistieto_shapefiles"):
     management.call_command("import_lounaistieto_shapefiles")
+
+
+@shared_task
+def import_paavonpolkus(name="import_paavonpolkus"):
+    management.call_command("import_paavonpolkus")

@@ -23,6 +23,7 @@ importers = [
     "disabled_and_no_staff_parkings",
     "loading_and_unloading_places",
     "lounaistieto_shapefiles",
+    "paavonpolkus",
 ]
 logger = logging.getLogger("mobility_data")
 
