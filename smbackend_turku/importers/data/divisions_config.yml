@@ -5,7 +5,6 @@ paths:
     division: divisions
 
 divisions:
-
   - type: major_district
     name: Suurpiiri
     ocd_id: suurpiiri
@@ -51,7 +50,7 @@ divisions:
 
   - type: postcode_area
     name: Postinumeroalue
-    ocd_id: Postinumeroalue
+    ocd_id: postinumeroalue
     wfs_layer: 'GIS:Postinumeroalueet'
     check_turku_boundary: False
     fields:
