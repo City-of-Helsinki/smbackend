@@ -62,4 +62,5 @@ urlpatterns = [
     re_path(r"^v2/", include(router.urls)),
     re_path(r"^v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
     re_path(r"", include(shortcutter_urls)),
+    re_path(r"^stats/", views.post_statistic, name="stats"),
 ]

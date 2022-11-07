@@ -1,8 +1,12 @@
 import requests
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.utils import timezone as tz
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from rest_framework import status
+
+from services.models.statistic import RequestStatistic
 
 
 @csrf_exempt
@@ -32,3 +36,24 @@ def post_service_request(request):
         return HttpResponseBadRequest()
 
     return HttpResponse(r.content, content_type="application/json")
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def post_statistic(request):
+    payload = request.POST.copy()
+    data = payload.dict()
+    now = tz.now()
+    timeframe = "%s/%s" % (now.month, now.year)
+    statistic, _ = RequestStatistic.objects.get_or_create(timeframe=timeframe)
+    statistic.request_counter += 1
+
+    if "embed" in data and data["embed"]:
+        statistic.details["embed"] += 1
+
+    if "mobile_device" in data and data["mobile_device"]:
+        statistic.details["mobile_device"] += 1
+
+    statistic.save()
+
+    return HttpResponse(status=status.HTTP_201_CREATED, content_type="application/json")
