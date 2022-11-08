@@ -165,6 +165,11 @@ def get_autori_routes(access_token, contract, history_size):
 
 
 def get_autori_access_token():
+    assert settings.AUTORI_SCOPE, "AUTOR_SCOPE not defined in environment."
+    assert settings.AUTORI_CLIENT_ID, "AUTOR_CLIENT_ID not defined in environment."
+    assert (
+        settings.AUTORI_CLIENT_SECRET
+    ), "AUTOR_CLIENT_SECRET not defined in environment."
     data = {
         "grant_type": "client_credentials",
         "scope": settings.AUTORI_SCOPE,
