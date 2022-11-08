@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import polyline
 import requests
+from django.conf import settings
 from django.contrib.gis.geos import LineString
 from django.core.management.base import BaseCommand
 
@@ -80,6 +81,7 @@ class Command(BaseCommand):
         logger.info(f"Imported {len(works)} Kuntec maintenance works.")
 
     def handle(self, *args, **options):
+        assert settings.KUNTEC_KEY, "KUNTEC_KEY not found in environment."
         importer_start_time = datetime.now()
         MaintenanceUnit.objects.filter(provider=MaintenanceUnit.KUNTEC).delete()
         history_size = KUNTEC_DEFAULT_WORKS_HISTORY_SIZE
