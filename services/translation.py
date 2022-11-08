@@ -4,6 +4,7 @@ from services.models import (
     Announcement,
     Department,
     ErrorMessage,
+    FeedbackMapping,
     Service,
     ServiceNode,
     Unit,
@@ -90,3 +91,10 @@ class UnitEntranceTranslationOptions(TranslationOptions):
 
 
 translator.register(UnitEntrance, UnitEntranceTranslationOptions)
+
+
+class FeedbackMappingTranslationOptions(TranslationOptions):
+    fields = ("name",)
+
+
+translator.register(FeedbackMapping, FeedbackMappingTranslationOptions)

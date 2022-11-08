@@ -1,5 +1,6 @@
 from .accessibility_variable import AccessibilityVariable
 from .department import Department
+from .feedback import FeedbackMapping
 from .keyword import Keyword
 from .notification import Announcement, ErrorMessage
 from .service import Service, UnitServiceDetails

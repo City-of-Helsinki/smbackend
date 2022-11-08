@@ -58,9 +58,9 @@ urlpatterns = [
     re_path(r"^healthz/", healthz),
     re_path(r"^readiness/", readiness),
     re_path(r"^admin/", admin.site.urls),
-    re_path(r"^open311/", views.post_service_request, name="services"),
+    re_path(r"^open311", views.post_service_request, name="open311"),
+    re_path(r"^stats", views.post_statistic, name="stats"),
     re_path(r"^v2/", include(router.urls)),
     re_path(r"^v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
     re_path(r"", include(shortcutter_urls)),
-    re_path(r"^stats/", views.post_statistic, name="stats"),
 ]

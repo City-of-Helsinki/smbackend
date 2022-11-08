@@ -32,6 +32,7 @@ env = Env(
     MEDIA_ROOT=(str, str(BASE_DIR / "media")),
     STATIC_URL=(str, "/static/"),
     MEDIA_URL=(str, "/media/"),
+    OPEN311_NEW_SERVICE_ENABLED=(bool, False),
     OPEN311_URL_BASE=(str, None),
     OPEN311_API_KEY=(str, None),
     OPEN311_INTERNAL_API_KEY=(str, None),
@@ -188,6 +189,7 @@ LEVELS = {
 
 # Configuration for Open311 feedback forwarding
 OPEN311 = {
+    "NEW_SERVICE_ENABLED": env("OPEN311_NEW_SERVICE_ENABLED"),
     "URL_BASE": env("OPEN311_URL_BASE"),
     "API_KEY": env("OPEN311_API_KEY"),
     "INTERNAL_FEEDBACK_API_KEY": env("OPEN311_INTERNAL_API_KEY"),
