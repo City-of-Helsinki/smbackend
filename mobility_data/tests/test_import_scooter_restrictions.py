@@ -2,7 +2,7 @@ import pytest
 from django.conf import settings
 from django.contrib.gis.geos import Point
 
-from mobility_data.importers.scooter_restrictions import SOURCE_DATA_SRID
+from mobility_data.importers.wfs import DEFAULT_SOURCE_DATA_SRID
 from mobility_data.models import ContentType, MobileUnit
 
 from .utils import import_command
@@ -42,7 +42,7 @@ def test_import_scooter_restrictions():
     assert parking_units_qs.count() == 3
     parking_unit = parking_units_qs[2]
     parking_unit.content_type == parking_content_type
-    point = Point(239576.42, 6711050.26, srid=SOURCE_DATA_SRID)
+    point = Point(239576.42, 6711050.26, srid=DEFAULT_SOURCE_DATA_SRID)
     parking_unit.geometry.equals_exact(point, tolerance=0.0001)
 
     # Test scooter speed limits
