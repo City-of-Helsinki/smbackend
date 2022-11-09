@@ -122,3 +122,17 @@ To import data type:
 ```
 ./manage.py import_paavonpolkus
 ```
+
+## Deletion
+To delete mobile units for a content type.
+```
+./manage.py delete_mobility_data CONTENT_TYPE(S)
+```
+e.g., this would delete Paavonpolku mobile units,
+```
+./manage.py delete_mobility_data PPU
+```
+To get the list of content types and their full names type:
+```
+./manage.py delete_mobility_data -h
+```
