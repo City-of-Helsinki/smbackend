@@ -53,6 +53,7 @@ env = environ.Env(
     AUTORI_VEHICLES_URL=(str, None),
     AUTORI_CONTRACTS_URL=(str, None),
     AUTORI_TOKEN_URL=(str, None),
+    KUNTEC_KEY=(str, None),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -384,3 +385,4 @@ AUTORI_ROUTES_URL = env("AUTORI_ROUTES_URL")
 AUTORI_VEHICLES_URL = env("AUTORI_VEHICLES_URL")
 AUTORI_CONTRACTS_URL = env("AUTORI_CONTRACTS_URL")
 AUTORI_TOKEN_URL = env("AUTORI_TOKEN_URL")
+KUNTEC_KEY = env("KUNTEC_KEY")

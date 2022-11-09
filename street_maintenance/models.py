@@ -8,9 +8,11 @@ class MaintenanceUnit(models.Model):
 
     INFRAROAD = "INFRAROAD"
     AUTORI = "AUTORI"
+    KUNTEC = "KUNTEC"
     PROVIDER_CHOICES = (
         (INFRAROAD, "Infraroad"),
         (AUTORI, "Autori"),
+        (KUNTEC, "Kuntec"),
     )
     unit_id = models.CharField(max_length=64, null=True)
     provider = models.CharField(max_length=16, choices=PROVIDER_CHOICES, null=True)
