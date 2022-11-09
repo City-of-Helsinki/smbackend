@@ -41,6 +41,9 @@ def _import_unit_property(info):
     elif "value_text" in info:
         property_value = info["value_text"]
     else:
+        LOGGER.warning(
+            "%s has no value for property: { %s }" % (CACHED_UNIT, property_name)
+        )
         return
 
     if (
