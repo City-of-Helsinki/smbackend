@@ -1,0 +1,62 @@
+features:
+  - content_type: PPU
+    content_type_name: Paavonpolku
+    content_type_description: Paavonpolku routes in the Turku region.
+    wfs_layer: GIS:Paavonpolut
+    fields:
+      name:
+        fi: Tunnus
+    extra_fields:
+      lenght:
+        wfs_field: Pituus
+        # e.g, 150m
+        wfs_type: string
+
+  - content_type: PAZ
+    content_type_name: Payment Zones
+    content_type_description: Payment zones in the Turku region
+    wfs_layer: GIS:Pysakoinnin_maksuvyohykkeet
+    # If not set, use default srid 3877
+    srid: 3877
+    # If not set, use default value 1000
+    max_features: 100
+    test_data: payment_zones.gml
+    extra_fields:
+      lisatieto: 
+        wfs_field: Lisatieto
+        # types are: string, double and int.
+        wfs_type: string
+      maksullisuus_arki:
+        # string is the default type if no type is defined.
+        wfs_field: maksullisuus_arki
+      maksullisuus_lauantai:
+        wfs_field: maksullisuus_lauantai
+      maksullisuus_sunnuntai:
+        wfs_field: maksullisuus_sunnuntai
+      maksuvyohyke:
+        wfs_field: maksuvyohyke
+      maksuvyohykehinta:
+        wfs_field: maksuvyohykehinta
+      paatosdiaari:
+        wfs_field: paatosdiaari
+      paatospykala:
+        wfs_field: paatospykala
+  
+  - content_type: SPG 
+    content_type_name: Scooter parking.
+    content_type_description: Scooter parking zones in the Turku region.
+    wfs_layer: GIS:Sahkopotkulautaparkki
+    test_data: scooter_parkings.gml
+  
+  - content_type: SSL
+    content_type_name: Scooter speed limit
+    content_type_description: Scooter speed limit zones in the Turku region.
+    wfs_layer: GIS:Sahkopotkulauta_nopeusrajoitus
+    test_data: scooter_speed_limits.gml
+
+  - content_type: SNP
+    content_type_name: Scooter no parking
+    content_type_description: Scooter no parking zones in the Turku region.
+    wfs_layer: GIS:Sahkopotkulauta_pysakointikielto
+    test_data: scooter_no_parking_zones.gml
+
