@@ -32,7 +32,7 @@ https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx
 
 @pytest.mark.django_db
 def test_import_scooter_restrictions():
-    import_command("import_scooter_restrictions", test_mode=True)
+    import_command("import_wfs", ["SPG", "SSL", "SNP"], test_mode=True)
     # Test scooter parking
     parking_content_type = ContentType.objects.get(
         type_name=ContentType.SCOOTER_PARKING
