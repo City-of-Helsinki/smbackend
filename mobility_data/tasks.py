@@ -68,3 +68,8 @@ def import_lounaistieto_shapefiles(name="import_lounaistieto_shapefiles"):
 @shared_task
 def import_paavonpolkus(name="import_paavonpolkus"):
     management.call_command("import_paavonpolkus")
+
+
+@shared_task
+def delete_mobility_data(args=None, name="delete_mobility_data"):
+    management.call_command("delete_mobility_data", args)
