@@ -9,7 +9,7 @@ DataSource to fail when loading data.
 
 import pytest
 from django.conf import settings
-from django.contrib.gis.geos import MultiPolygon, Point, Polygon
+from django.contrib.gis.geos import Point, Polygon
 
 from mobility_data.models import ContentType, MobileUnit
 
@@ -18,7 +18,7 @@ from .utils import import_command
 
 @pytest.mark.django_db
 def test_import_payment_zones():
-    import_command("import_payment_zones", test_mode="payment_zones.gml")
+    import_command("import_wfs", "PAZ", test_mode=True)
     assert ContentType.objects.all().count() == 1
     content_type = ContentType.objects.first()
     assert content_type.type_name == ContentType.PAYMENT_ZONE
@@ -41,9 +41,8 @@ def test_import_payment_zones():
     assert payment_zone0.geometry.contains(turku_cathedral) is False
     assert payment_zone0.geometry.contains(forum_marinum) is False
 
-    assert payment_zone1.geometry.contains(market_square) is True
+    assert payment_zone1.geometry.contains(market_square) is False
     assert payment_zone1.geometry.contains(turku_cathedral) is True
     assert payment_zone1.geometry.contains(forum_marinum) is False
 
     assert isinstance(payment_zone0.geometry, Polygon)
-    assert isinstance(payment_zone1.geometry, MultiPolygon)
