@@ -22,7 +22,7 @@ features:
     max_features: 100
     test_data: payment_zones.gml
     extra_fields:
-      lisatieto: 
+      Lisatieto: 
         wfs_field: Lisatieto
         # types are: string, double and int.
         wfs_type: string
@@ -60,3 +60,172 @@ features:
     wfs_layer: GIS:Sahkopotkulauta_pysakointikielto
     test_data: scooter_no_parking_zones.gml
 
+  - content_type: APT
+    content_type_name: Public toilets
+    content_type_description: Public toilets in the Turku region.
+    wfs_layer: GIS:Varusteet
+    test_data: accessories.gml
+    max_features: 10000
+    # Default is False, if True include only if geometry locates in Turku.
+    locates_in_turku: True
+    # Include if field 'Tyyppi' includes value 'WC'
+    include:
+      Tyyppi: WC
+    extra_fields:
+      Varustelaji_koodi:
+        wfs_field: Varustelaji_koodi
+        wfs_type: int
+      Varustelaji:
+        wfs_field: Varustelaji
+      Valmistaja:
+        wfs_field: Valmistaja
+      Valmistaja_koodi:
+        wfs_field: Valmistaja_koodi
+        wfs_type: int
+      Malli:
+        wfs_field: Malli
+      Malli_koodi:
+        wfs_field: Malli_koodi
+        wfs_type: int
+      Hankintavuosi:
+        wfs_field: Hankintavuosi
+        wfs_type: int
+      Kunto:
+        wfs_field: Kunto
+      Kunto_koodi:
+        wfs_field: Kunto_koodi
+        wfs_type: int    
+      Pituus:
+        wfs_field: Pituus
+        wfs_type: double
+      Asennus:
+        wfs_field: Asennus
+      Asennus_koodi:
+        wfs_field: Asennus_koodi
+        wfs_type: int
+
+  - content_type: ATE
+    content_type_name: Public tables.
+    content_type_description: Public tables in the Turku region.
+    wfs_layer: GIS:Varusteet
+    test_data: accessories.gml
+    max_features: 10000
+    locates_in_turku: True
+    include:
+      Tyyppi: Poyta
+    extra_fields:
+      Varustelaji_koodi:
+        wfs_field: Varustelaji_koodi
+        wfs_type: int
+      Varustelaji:
+        wfs_field: Varustelaji
+      Valmistaja:
+        wfs_field: Valmistaja
+      Valmistaja_koodi:
+        wfs_field: Valmistaja_koodi
+        wfs_type: int
+      Malli:
+        wfs_field: Malli
+      Malli_koodi:
+        wfs_field: Malli_koodi
+        wfs_type: int
+      Hankintavuosi:
+        wfs_field: Hankintavuosi
+        wfs_type: int
+      Kunto:
+        wfs_field: Kunto
+      Kunto_koodi:
+        wfs_field: Kunto_koodi
+        wfs_type: int     
+      Pituus:
+        wfs_field: Pituus
+        wfs_type: double
+      Asennus:
+        wfs_field: Asennus
+      Asennus_koodi:
+        wfs_field: Asennus_koodi
+        wfs_type: int
+
+  - content_type: ABH
+    content_type_name: Public benches
+    content_type_description: Benches in the Turku region.
+    wfs_layer: GIS:Varusteet
+    test_data: accessories.gml
+    max_features: 10000
+    locates_in_turku: True
+    include:
+      Tyyppi: Penkki
+    extra_fields:
+      Varustelaji_koodi:
+        wfs_field: Varustelaji_koodi
+        wfs_type: int
+      Varustelaji:
+        wfs_field: Varustelaji
+      Valmistaja:
+        wfs_field: Valmistaja
+      Valmistaja_koodi:
+        wfs_field: Valmistaja_koodi
+        wfs_type: int
+      Malli:
+        wfs_field: Malli
+      Malli_koodi:
+        wfs_field: Malli_koodi
+        wfs_type: int
+      Hankintavuosi:
+        wfs_field: Hankintavuosi
+        wfs_type: int
+      Kunto:
+        wfs_field: Kunto
+      Kunto_koodi:
+        wfs_field: Kunto_koodi
+        wfs_type: int     
+      Pituus:
+        wfs_field: Pituus
+        wfs_type: double
+      Asennus:
+        wfs_field: Asennus
+      Asennus_koodi:
+        wfs_field: Asennus_koodi
+        wfs_type: int
+
+  - content_type: AFG
+    content_type_name: Furniture groups
+    content_type_description: Furniture groups in the Turku region.
+    wfs_layer: GIS:Varusteet
+    test_data: accessories.gml
+    max_features: 10000
+    locates_in_turku: True
+    include:
+      Tyyppi: Kalusteryhma
+    extra_fields:
+      Varustelaji_koodi:
+        wfs_field: Varustelaji_koodi
+        wfs_type: int
+      Varustelaji:
+        wfs_field: Varustelaji
+      Valmistaja:
+        wfs_field: Valmistaja
+      Valmistaja_koodi:
+        wfs_field: Valmistaja_koodi
+        wfs_type: int
+      Malli:
+        wfs_field: Malli
+      Malli_koodi:
+        wfs_field: Malli_koodi
+        wfs_type: int
+      Hankintavuosi:
+        wfs_field: Hankintavuosi
+        wfs_type: int
+      Kunto:
+        wfs_field: Kunto
+      Kunto_koodi:
+        wfs_field: Kunto_koodi
+        wfs_type: int     
+      Pituus:
+        wfs_field: Pituus
+        wfs_type: double
+      Asennus:
+        wfs_field: Asennus
+      Asennus_koodi:
+        wfs_field: Asennus_koodi
+        wfs_type: int
