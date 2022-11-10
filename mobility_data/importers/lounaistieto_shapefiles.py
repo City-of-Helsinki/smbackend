@@ -34,7 +34,7 @@ class MobilityData:
         return True
 
     def add_feature(self, feature, config, srid):
-        # Do not add feature if include value matches.
+        # Do not add feature if include value does not match.
         if "include" in config:
             for attr, value in config["include"].items():
                 if value not in feature.record[attr]:
