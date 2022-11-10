@@ -50,27 +50,27 @@ To import data type:
 ### Payment Zones
 To import data type:
 ```
-./manage.py import_payment_zones
+./manage.py import_wfs PAZ
 ```
 
 ### Speed limit Zones
 To import type:
 ```
-./manage.py import_speed_limit_zones
+./manage.py import_wfs SLZ
 ```
 
 ### Scooter Restriction
-Imports parking, no parking and speed limit zones.
+Imports parking(SPG), no parking(SNP) and speed limit zones(SSL).
 To import data type:
 ```
-./manage.py import_scooter_restrictions
+./manage.py import_wfs SPG SSL SNP
 ```
 
 ### Accessories
-Imports benches, public toilets, tables and furniture groups.
+Imports benches(ABH), public toilets(APT), tables(ATE) and furniture groups(AFG).
 To import data type:
 ```
-./manage.py import_accessories
+./manage.py import_wfs APT ATE ABH AFG
 ```
 ### Share car parking places
 Imports parking places for car sharing cars. 
@@ -80,10 +80,10 @@ To import data type:
 ```
 
 ### Bicycle networks
-Imports brush salted and brush sanded bicycle networks.
+Imports brush salted(BLB) and brush sanded bicycle networks(BND).
 To import data type:
 ```
-./manage.py import_bicycle_networks
+./manage.py import_wfs BLB BND
 ```
 
 ### Marinas
@@ -120,7 +120,7 @@ To run the importer type:
 ### Paavonpolkus
 To import data type:
 ```
-./manage.py import_paavonpolkus
+./manage.py import_wfs PPU
 ```
 
 ## Deletion
@@ -135,4 +135,11 @@ e.g., this would delete Paavonpolku mobile units,
 To get the list of content types and their full names type:
 ```
 ./manage.py delete_mobility_data -h
+```
+## WFS Importer
+The WFS importer imports data from the open Turku WFS server.
+To set up a data source for importing in the WFS importer, configure the data source in the mobility_data/importers/data/wfs_importer_config.yml file.
+To import the data type:
+```
+./manage import_wfs CONTENT_TYPE
 ```
