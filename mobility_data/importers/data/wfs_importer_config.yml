@@ -68,7 +68,7 @@ features:
     max_features: 10000
     # Default is False, if True include only if geometry locates in Turku.
     locates_in_turku: True
-    # Include if field 'Tyyppi' includes value 'WC'
+    # Include feature if field 'Tyyppi' has value 'WC'
     include:
       Tyyppi: WC
     extra_fields:
@@ -239,3 +239,13 @@ features:
     content_type_name: Brush sanded bicycle network
     content_type_description: Brush sanded bicycle network In the region of Turku.
     wfs_layer: GIS:Harjahiekoitetut_pyoratiet
+
+  - content_type: SLZ
+    content_type_name: Speed limit zones
+    content_type_description: Speed limit zones in the Turku region.
+    wfs_layer: GIS:Nopeusrajoitusalueet
+    test_data: speed_limits.gml
+    extra_fields:
+      speed_limit:
+        wfs_field: voimassa_a
+        wfs_type: int
