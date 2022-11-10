@@ -229,3 +229,13 @@ features:
       Asennus_koodi:
         wfs_field: Asennus_koodi
         wfs_type: int
+
+  - content_type: BLB
+    content_type_name: Brush salted bicycle network
+    content_type_description: Brush salted bicycle network in the region of Turku.
+    wfs_layer: GIS:Harjasuolatut_pyoratiet
+ 
+  - content_type: BND
+    content_type_name: Brush sanded bicycle network
+    content_type_description: Brush sanded bicycle network In the region of Turku.
+    wfs_layer: GIS:Harjahiekoitetut_pyoratiet
