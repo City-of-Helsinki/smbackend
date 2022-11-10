@@ -18,6 +18,12 @@ def get_yaml_config():
     return yaml.safe_load(open(path, "r", encoding="utf-8"))
 
 
+def get_configured_cotent_types(config=None):
+    if not config:
+        config = get_yaml_config()
+    return [f["content_type"] for f in config["features"]]
+
+
 class Command(BaseCommand):
     config = get_yaml_config()
 
@@ -29,7 +35,7 @@ class Command(BaseCommand):
             help="Run script in test mode.",
         )
         # Read all the defined content types from the config
-        choices = [f["content_type"] for f in self.config["features"]]
+        choices = get_configured_cotent_types(self.config)
         parser.add_argument("content_types", nargs="*", choices=choices, help=help)
 
     def handle(self, *args, **options):
