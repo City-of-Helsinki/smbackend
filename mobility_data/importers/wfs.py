@@ -58,7 +58,6 @@ def save_to_database_using_yaml_config(objects, config):
         mobile_unit.save()
 
 
-# Todo refactor when everything is merged to use utility function in yaml_utils.py
 class MobilityData:
     def __init__(self):
         self.extra = {}
@@ -86,6 +85,7 @@ class MobilityData:
 
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=source_srid)
         self.geometry.transform(settings.DEFAULT_SRID)
+
         if "fields" in config:
             for attr, field in config["fields"].items():
                 for lang, field_name in field.items():
