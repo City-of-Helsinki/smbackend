@@ -8,6 +8,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from mobility_data.importers.utils import (
     delete_mobile_units,
     get_or_create_content_type,
+    locates_in_turku,
     set_translated_field,
 )
 from mobility_data.management.commands._utils import get_test_gdal_data_source
@@ -68,10 +69,20 @@ class MobilityData:
         self.municipality = None
 
     def add_feature(self, feature, config):
+        if "include" in config:
+            for attr, value in config["include"].items():
+                if value not in feature[attr].as_string():
+                    return False
+
         if "srid" in config:
             source_srid = config["srid"]
         else:
             source_srid = DEFAULT_SOURCE_DATA_SRID
+
+        if "locates_in_turku" in config:
+            if config["locates_in_turku"]:
+                if not locates_in_turku(feature, source_srid):
+                    return False
 
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=source_srid)
         self.geometry.transform(settings.DEFAULT_SRID)
