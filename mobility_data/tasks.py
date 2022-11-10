@@ -32,7 +32,7 @@ def import_mobility_data(name="import_mobility_data"):
 
 @shared_task
 def import_accessories(name="import_accessories"):
-    management.call_command("import_accessories")
+    management.call_command("import_wfs", ["APT", "ATE", "ABH", "AFG"])
 
 
 @shared_task
