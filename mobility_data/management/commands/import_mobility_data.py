@@ -13,7 +13,6 @@ importers = [
     "culture_routes",
     "gas_filling_stations",
     "charging_stations",
-    "bicycle_stands",
     "speed_limit_zones",
     "bike_service_stations",
     "share_car_parking_places",
