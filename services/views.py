@@ -1,3 +1,6 @@
+import logging
+from distutils.util import strtobool
+
 import requests
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,6 +12,8 @@ from rest_framework import status
 
 from services.models import FeedbackMapping, RequestStatistic, Unit
 from services.models.feedback import DEFAULT_SERVICE_CODE
+
+logger = logging.getLogger("django")
 
 
 # TODO: Remove this once the new Open311 service is enabled to production
@@ -86,11 +91,17 @@ def post_statistic(request):
     statistic, _ = RequestStatistic.objects.get_or_create(timeframe=timeframe)
     statistic.request_counter += 1
 
-    if "embed" in data and data["embed"]:
-        statistic.details["embed"] += 1
+    try:
+        if "embed" in data and strtobool(data["embed"]):
+            statistic.details["embed"] += 1
+    except ValueError as e:
+        logger.warning(f"Statistic 'embed' value error: {e}")
 
-    if "mobile_device" in data and data["mobile_device"]:
-        statistic.details["mobile_device"] += 1
+    try:
+        if "mobile_device" in data and strtobool(data["mobile_device"]):
+            statistic.details["mobile_device"] += 1
+    except ValueError as e:
+        logger.warning(f"Statistic 'mobile_device' value error: {e}")
 
     statistic.save()
 
