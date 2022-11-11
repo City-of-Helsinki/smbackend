@@ -70,9 +70,20 @@ class MobilityData:
             for attr, value in config["include"].items():
                 if attr not in feature.fields:
                     return False
+                # None value returns False as they are not the include value.
                 if not feature[attr].as_string():
                     return False
                 if value not in feature[attr].as_string():
+                    return False
+        if "exclude" in config:
+            for attr, value in config["exclude"].items():
+                if attr not in feature.fields:
+                    return False
+                # If value is None, continue as it is not possible do determine
+                # if the value matches.
+                if not feature[attr].as_string():
+                    continue
+                if value in feature[attr].as_string():
                     return False
 
         if "srid" in config:
