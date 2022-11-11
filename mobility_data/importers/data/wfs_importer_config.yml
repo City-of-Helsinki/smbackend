@@ -1,16 +1,27 @@
 features:
   - content_type: PPU
     content_type_name: Paavonpolku
-    content_type_description: Paavonpolku routes in the Turku region.
-    wfs_layer: GIS:Paavonpolut
+    content_type_description: Paavo trails are marked trails in the terrain that introduce walkers to the nearby nature and urban environment. Blue signs painted on trees and stones.
+    # if not defined use the Turku WFS url set in environment
+    wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
+    wfs_layer: virma_reitit_kuntoreitti
+    srid: 3067
+    # Include if contains field 'info_fi' and contains the string
+    # 'Paavonpolut ovat maastoon merkittyjä reittejä'
+    include:
+      info_fi: Paavonpolut ovat maastoon merkittyjä reittejä
     fields:
       name:
-        fi: Tunnus
+        fi: name_fi
+        sv: name_se
+        en: name_en
+  
     extra_fields:
-      lenght:
-        wfs_field: Pituus
-        # e.g, 150m
-        wfs_type: string
+      lenght_km:
+        wfs_field: length_km
+        # e.g, 1.5km
+        wfs_type: int
+    
 
   - content_type: PAZ
     content_type_name: Payment Zones
