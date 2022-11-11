@@ -1,0 +1,251 @@
+features:
+  - content_type: PPU
+    content_type_name: Paavonpolku
+    content_type_description: Paavonpolku routes in the Turku region.
+    wfs_layer: GIS:Paavonpolut
+    fields:
+      name:
+        fi: Tunnus
+    extra_fields:
+      lenght:
+        wfs_field: Pituus
+        # e.g, 150m
+        wfs_type: string
+
+  - content_type: PAZ
+    content_type_name: Payment Zones
+    content_type_description: Payment zones in the Turku region
+    wfs_layer: GIS:Pysakoinnin_maksuvyohykkeet
+    # If not set, use default srid 3877
+    srid: 3877
+    # If not set, use default value 1000
+    max_features: 100
+    test_data: payment_zones.gml
+    extra_fields:
+      Lisatieto: 
+        wfs_field: Lisatieto
+        # types are: string, double and int.
+        wfs_type: string
+      maksullisuus_arki:
+        # string is the default type if no type is defined.
+        wfs_field: maksullisuus_arki
+      maksullisuus_lauantai:
+        wfs_field: maksullisuus_lauantai
+      maksullisuus_sunnuntai:
+        wfs_field: maksullisuus_sunnuntai
+      maksuvyohyke:
+        wfs_field: maksuvyohyke
+      maksuvyohykehinta:
+        wfs_field: maksuvyohykehinta
+      paatosdiaari:
+        wfs_field: paatosdiaari
+      paatospykala:
+        wfs_field: paatospykala
+  
+  - content_type: SPG 
+    content_type_name: Scooter parking.
+    content_type_description: Scooter parking zones in the Turku region.
+    wfs_layer: GIS:Sahkopotkulautaparkki
+    test_data: scooter_parkings.gml
+  
+  - content_type: SSL
+    content_type_name: Scooter speed limit
+    content_type_description: Scooter speed limit zones in the Turku region.
+    wfs_layer: GIS:Sahkopotkulauta_nopeusrajoitus
+    test_data: scooter_speed_limits.gml
+
+  - content_type: SNP
+    content_type_name: Scooter no parking
+    content_type_description: Scooter no parking zones in the Turku region.
+    wfs_layer: GIS:Sahkopotkulauta_pysakointikielto
+    test_data: scooter_no_parking_zones.gml
+
+  - content_type: APT
+    content_type_name: Public toilets
+    content_type_description: Public toilets in the Turku region.
+    wfs_layer: GIS:Varusteet
+    test_data: accessories.gml
+    max_features: 10000
+    # Default is False, if True include only if geometry locates in Turku.
+    locates_in_turku: True
+    # Include feature if field 'Tyyppi' has value 'WC'
+    include:
+      Tyyppi: WC
+    extra_fields:
+      Varustelaji_koodi:
+        wfs_field: Varustelaji_koodi
+        wfs_type: int
+      Varustelaji:
+        wfs_field: Varustelaji
+      Valmistaja:
+        wfs_field: Valmistaja
+      Valmistaja_koodi:
+        wfs_field: Valmistaja_koodi
+        wfs_type: int
+      Malli:
+        wfs_field: Malli
+      Malli_koodi:
+        wfs_field: Malli_koodi
+        wfs_type: int
+      Hankintavuosi:
+        wfs_field: Hankintavuosi
+        wfs_type: int
+      Kunto:
+        wfs_field: Kunto
+      Kunto_koodi:
+        wfs_field: Kunto_koodi
+        wfs_type: int    
+      Pituus:
+        wfs_field: Pituus
+        wfs_type: double
+      Asennus:
+        wfs_field: Asennus
+      Asennus_koodi:
+        wfs_field: Asennus_koodi
+        wfs_type: int
+
+  - content_type: ATE
+    content_type_name: Public tables.
+    content_type_description: Public tables in the Turku region.
+    wfs_layer: GIS:Varusteet
+    test_data: accessories.gml
+    max_features: 10000
+    locates_in_turku: True
+    include:
+      Tyyppi: Poyta
+    extra_fields:
+      Varustelaji_koodi:
+        wfs_field: Varustelaji_koodi
+        wfs_type: int
+      Varustelaji:
+        wfs_field: Varustelaji
+      Valmistaja:
+        wfs_field: Valmistaja
+      Valmistaja_koodi:
+        wfs_field: Valmistaja_koodi
+        wfs_type: int
+      Malli:
+        wfs_field: Malli
+      Malli_koodi:
+        wfs_field: Malli_koodi
+        wfs_type: int
+      Hankintavuosi:
+        wfs_field: Hankintavuosi
+        wfs_type: int
+      Kunto:
+        wfs_field: Kunto
+      Kunto_koodi:
+        wfs_field: Kunto_koodi
+        wfs_type: int     
+      Pituus:
+        wfs_field: Pituus
+        wfs_type: double
+      Asennus:
+        wfs_field: Asennus
+      Asennus_koodi:
+        wfs_field: Asennus_koodi
+        wfs_type: int
+
+  - content_type: ABH
+    content_type_name: Public benches
+    content_type_description: Benches in the Turku region.
+    wfs_layer: GIS:Varusteet
+    test_data: accessories.gml
+    max_features: 10000
+    locates_in_turku: True
+    include:
+      Tyyppi: Penkki
+    extra_fields:
+      Varustelaji_koodi:
+        wfs_field: Varustelaji_koodi
+        wfs_type: int
+      Varustelaji:
+        wfs_field: Varustelaji
+      Valmistaja:
+        wfs_field: Valmistaja
+      Valmistaja_koodi:
+        wfs_field: Valmistaja_koodi
+        wfs_type: int
+      Malli:
+        wfs_field: Malli
+      Malli_koodi:
+        wfs_field: Malli_koodi
+        wfs_type: int
+      Hankintavuosi:
+        wfs_field: Hankintavuosi
+        wfs_type: int
+      Kunto:
+        wfs_field: Kunto
+      Kunto_koodi:
+        wfs_field: Kunto_koodi
+        wfs_type: int     
+      Pituus:
+        wfs_field: Pituus
+        wfs_type: double
+      Asennus:
+        wfs_field: Asennus
+      Asennus_koodi:
+        wfs_field: Asennus_koodi
+        wfs_type: int
+
+  - content_type: AFG
+    content_type_name: Furniture groups
+    content_type_description: Furniture groups in the Turku region.
+    wfs_layer: GIS:Varusteet
+    test_data: accessories.gml
+    max_features: 10000
+    locates_in_turku: True
+    include:
+      Tyyppi: Kalusteryhma
+    extra_fields:
+      Varustelaji_koodi:
+        wfs_field: Varustelaji_koodi
+        wfs_type: int
+      Varustelaji:
+        wfs_field: Varustelaji
+      Valmistaja:
+        wfs_field: Valmistaja
+      Valmistaja_koodi:
+        wfs_field: Valmistaja_koodi
+        wfs_type: int
+      Malli:
+        wfs_field: Malli
+      Malli_koodi:
+        wfs_field: Malli_koodi
+        wfs_type: int
+      Hankintavuosi:
+        wfs_field: Hankintavuosi
+        wfs_type: int
+      Kunto:
+        wfs_field: Kunto
+      Kunto_koodi:
+        wfs_field: Kunto_koodi
+        wfs_type: int     
+      Pituus:
+        wfs_field: Pituus
+        wfs_type: double
+      Asennus:
+        wfs_field: Asennus
+      Asennus_koodi:
+        wfs_field: Asennus_koodi
+        wfs_type: int
+
+  - content_type: BLB
+    content_type_name: Brush salted bicycle network
+    content_type_description: Brush salted bicycle network in the region of Turku.
+    wfs_layer: GIS:Harjasuolatut_pyoratiet
+ 
+  - content_type: BND
+    content_type_name: Brush sanded bicycle network
+    content_type_description: Brush sanded bicycle network In the region of Turku.
+    wfs_layer: GIS:Harjahiekoitetut_pyoratiet
+
+  - content_type: SLZ
+    content_type_name: Speed limit zones
+    content_type_description: Speed limit zones in the Turku region.
+    wfs_layer: GIS:Nopeusrajoitusalueet
+    test_data: speed_limits.gml
+    extra_fields:
+      speed_limit:
+        wfs_field: voimassa_a
+        wfs_type: int

@@ -17,7 +17,7 @@ from .utils import import_command
 
 @pytest.mark.django_db
 def test_import_speed_limits():
-    import_command("import_speed_limit_zones", test_mode="speed_limits.gml")
+    import_command("import_wfs", "SLZ", test_mode=True)
 
     assert ContentType.objects.all().count() == 1
     content_type = ContentType.objects.first()

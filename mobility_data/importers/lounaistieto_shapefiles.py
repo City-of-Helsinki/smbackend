@@ -34,7 +34,7 @@ class MobilityData:
         return True
 
     def add_feature(self, feature, config, srid):
-        # Do not add feature if include value matches.
+        # Do not add feature if include value does not match.
         if "include" in config:
             for attr, value in config["include"].items():
                 if value not in feature.record[attr]:
@@ -131,8 +131,10 @@ def import_lounaistieto_data_source(config):
         logger.warning(
             f"Skipping data source {config}, 'content_type' and 'content_type_name' are required."
         )
+        return False
     if "data_url" not in config:
         logger.warning(f"Skipping data source {config}, missing 'data_url'")
+        return False
     logger.info(f"Importing {config['content_type']}")
 
     if "encoding" in config:
