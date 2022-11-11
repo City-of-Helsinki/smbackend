@@ -58,6 +58,7 @@ class ContentType(BaseType):
     FERRY_ROUTE = "FYR"
     FISHING_SPOT = "FGS"
     PAAVONPOLKU = "PPU"
+    FTINESS_TRAIL = "FTL"
     CONTENT_TYPES = [
         (CHARGING_STATION, "ChargingStation"),
         (GAS_FILLING_STATION, "GasFillingStation"),
@@ -90,6 +91,7 @@ class ContentType(BaseType):
         (FERRY_ROUTE, "FerryRoute"),
         (FISHING_SPOT, "FishingSpot"),
         (PAAVONPOLKU, "PaavonPolku"),
+        (FTINESS_TRAIL, "FitnessTrail"),
     ]
     type_name = models.CharField(max_length=3, choices=CONTENT_TYPES, null=True)
 
