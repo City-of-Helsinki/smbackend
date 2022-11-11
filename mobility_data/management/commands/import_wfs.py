@@ -48,4 +48,4 @@ class Command(BaseCommand):
                 try:
                     import_wfs_feature(feature, test_mode)
                 except Exception as e:
-                    logger.warning(f"Skipping data_source {feature} : {e}")
+                    logger.warning(f"Skipping content_type {feature} : {e}")
