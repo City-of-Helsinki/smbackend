@@ -50,10 +50,10 @@ LAM_STATIONS_DIRECTION_MAPPINGS = {
 
 keys = [k for k in range(TRAFFIC_COUNTER_START_YEAR, TRAFFIC_COUNTER_END_YEAR + 1)]
 # Create a dict where the years to be importer are keys and the value is the url of the csv data.
-# e.g. {2015, "https://data.turku.fi/2yxpk2imqi2mzxpa6e6knq/2015_laskenta.csv"}
+# e.g. {2015, "https://data.turku.fi/2yxpk2imqi2mzxpa6e6knq/2015_laskenta_juha.csv"}
 TRAFFIC_COUNTER_CSV_URLS = dict(
     [
-        (k, f"{settings.TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL}{k}_laskenta.csv")
+        (k, f"{settings.TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL}{k}_laskenta_juha.csv")
         for k in keys
     ]
 )
