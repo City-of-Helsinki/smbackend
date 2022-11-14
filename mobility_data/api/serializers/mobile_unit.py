@@ -181,9 +181,11 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             if self.context["latlon"]:
                 coords = []
                 for linestring in geometry.coords:
+                    linestring_coords = []
                     # swap lon,lat -> lat lon
-                    for coord in linestring:
-                        coords.append(swap_coords(coord))
+                    for coord in list(*linestring):
+                        linestring_coords.append(swap_coords(coord))
+                    coords.append(linestring_coords)
                 return coords
             else:
                 return geometry.coords
