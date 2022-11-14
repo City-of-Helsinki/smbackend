@@ -7,6 +7,7 @@ features:
     wfs_layer: virma_reitit_kuntoreitti
     # If not set, use default srid 3877
     srid: 3067
+    municipality: municipali
     # Exclude feature if it does not contain field 'info_fi' or it contanis the string 
     #'Paavonpolut ovat maastoon merkittyjä reittejä' 
     exclude:
@@ -26,7 +27,6 @@ features:
       length_km:
         wfs_field: length_km
         wfs_type: int
-
  
   - content_type: PPU
     content_type_name: Paavonpolku
@@ -38,12 +38,12 @@ features:
     # 'Paavonpolut ovat maastoon merkittyjä reittejä'
     include:
       info_fi: Paavonpolut ovat maastoon merkittyjä reittejä
+    municipality: municipali
     fields:
       name:
         fi: name_fi
         sv: name_se
         en: name_en
-  
     extra_fields:
       length_km:
         wfs_field: length_km
