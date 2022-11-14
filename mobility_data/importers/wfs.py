@@ -4,6 +4,7 @@ from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
+from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
     delete_mobile_units,
@@ -98,6 +99,14 @@ class MobilityData:
 
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=source_srid)
         self.geometry.transform(settings.DEFAULT_SRID)
+
+        if "municipality" in config:
+            municipality = feature[config["municipality"]].as_string()
+            if municipality:
+                municipality_id = municipality.lower()
+                self.municipality = Municipality.objects.filter(
+                    id=municipality_id
+                ).first()
 
         if "fields" in config:
             for attr, field in config["fields"].items():
