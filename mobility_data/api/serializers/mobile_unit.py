@@ -183,7 +183,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 for linestring in geometry.coords:
                     linestring_coords = []
                     # swap lon,lat -> lat lon
-                    for coord in list(*linestring):
+                    for coord in linestring:
                         linestring_coords.append(swap_coords(coord))
                     coords.append(linestring_coords)
                 return coords
