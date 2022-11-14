@@ -1,11 +1,102 @@
 features:
-  - content_type: FTL
-    content_type_name: Fitness trails
-    content_type_description: Fitness trails in Southwest Finalnd
+  - content_type: PTL
+    content_type_name: Paddling trail
+    content_type_description: Paddling trails in Southwest Finalnd
    # if not defined use the Turku WFS url set in environment
     wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
-    wfs_layer: virma_reitit_kuntoreitti
+    wfs_layer: virma_reitit_melontareitti
     # If not set, use default srid 3877
+    srid: 3067
+    municipality: municipali    
+    fields:
+      name:
+        fi: name_fi
+        sv: name_se
+        en: name_en
+    extra_fields:
+      info_fi:
+        wfs_field: info_fi
+      info_se:
+        wfs_field: info_se
+      info_en:
+        wfs_field: info_en
+      www_fi:
+        wfs_field: www_fi
+      www_se:
+        wfs_field: www_se
+      www_en:
+        wfs_field: www_en       
+      length_km:
+        wfs_field: length_km
+        wfs_type: int
+
+  - content_type: HTL
+    content_type_name: Hiking trail
+    content_type_description: Hiking trails in Southwest Finalnd
+    wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
+    wfs_layer: virma_reitit_retkeilyreitti
+    srid: 3067
+    municipality: municipali 
+    # Exclude feature if it does not contain field 'name_fi' or it contanis the string 
+    #'Paavonpolut' 
+    exclude:
+      name_fi: Paavonpolut
+    fields:
+      name:
+        fi: name_fi
+        sv: name_se
+        en: name_en
+    extra_fields:
+      info_fi:
+        wfs_field: info_fi
+      info_se:
+        wfs_field: info_se
+      info_en:
+        wfs_field: info_en
+      www_fi:
+        wfs_field: www_fi
+      www_se:
+        wfs_field: www_se
+      www_en:
+        wfs_field: www_en       
+      length_km:
+        wfs_field: length_km
+        wfs_type: int
+
+  - content_type: NTL
+    content_type_name: Nature trail
+    content_type_description: Nature trails in Southwest Finalnd
+    wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
+    wfs_layer: virma_reitit_luontopolku
+    srid: 3067
+    municipality: municipali   
+    fields:
+      name:
+        fi: name_fi
+        sv: name_se
+        en: name_en
+    extra_fields:
+      info_fi:
+        wfs_field: info_fi
+      info_se:
+        wfs_field: info_se
+      info_en:
+        wfs_field: info_en
+      www_fi:
+        wfs_field: www_fi
+      www_se:
+        wfs_field: www_se
+      www_en:
+        wfs_field: www_en       
+      length_km:
+        wfs_field: length_km
+        wfs_type: int
+
+  - content_type: FTL
+    content_type_name: Fitness trail
+    content_type_description: Fitness trails in Southwest Finalnd
+    wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
+    wfs_layer: virma_reitit_kuntoreitti
     srid: 3067
     municipality: municipali
     # Exclude feature if it does not contain field 'info_fi' or it contanis the string 
@@ -24,9 +115,16 @@ features:
         wfs_field: info_se
       info_en:
         wfs_field: info_en
+      www_fi:
+        wfs_field: www_fi
+      www_se:
+        wfs_field: www_se
+      www_en:
+        wfs_field: www_en    
       length_km:
         wfs_field: length_km
         wfs_type: int
+
  
   - content_type: PPU
     content_type_name: Paavonpolku
