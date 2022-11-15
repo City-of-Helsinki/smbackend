@@ -14,6 +14,24 @@ from .serializers import (
     MobileUnitSerializer,
 )
 
+# Mappings, so that deprecated type_names will work.
+# This will be removed when the fron end is updated.
+
+
+type_name_mappings = {
+    "BIS": "BicycleStand",
+    "BSS": "BikeServiceStation",
+    "BOK": "BoatParking",
+    "CGS": "ChargingStation",
+    "DSP": "DisabledParking",
+    "GFS": "GasFillingStation",
+    "GMA": "GuestMarina",
+    "SCP": "ShareCarParkingPlace",
+    "MAR": "Marina",
+    "NSP": "NoStaffParking",
+    "LUP": "LoadingUnloadingPlace",
+}
+
 
 def get_srid_and_latlon(filters):
     """
@@ -84,6 +102,7 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
         # If mobile_units true, include all mobileunits that belongs to the group.
         mobile_units = get_mobile_units(filters)
         if "type_name" in filters:
+
             type_name = filters["type_name"]
             if not GroupType.objects.filter(type_name=type_name).exists():
                 return Response(
@@ -137,11 +156,14 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         srid, latlon = get_srid_and_latlon(filters)
         if "type_name" in filters:
             type_name = filters["type_name"]
-            if not ContentType.objects.filter(type_name=type_name).exists():
+            # TODO, remove when front end is updated.
+            if type_name in type_name_mappings:
+                type_name = type_name_mappings[type_name]
+            if not ContentType.objects.filter(name=type_name).exists():
                 return Response(
                     "type_name does not exist.", status=status.HTTP_400_BAD_REQUEST
                 )
-            queryset = MobileUnit.objects.filter(content_type__type_name=type_name)
+            queryset = MobileUnit.objects.filter(content_type__name=type_name)
         else:
             queryset = MobileUnit.objects.all()
 
