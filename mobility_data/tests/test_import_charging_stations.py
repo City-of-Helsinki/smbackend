@@ -1,6 +1,7 @@
 import pytest
 from munigeo.models import Address
 
+from mobility_data.importers.charging_stations import CONTENT_TYPE_NAME
 from mobility_data.models import ContentType, MobileUnit
 from smbackend_turku.importers.constants import CHARGING_STATION_SERVICE_NAMES
 
@@ -17,15 +18,8 @@ def test_import_charging_stations(
     address,
 ):
     import_command("import_charging_stations", test_mode="charging_stations.csv")
-    assert (
-        ContentType.objects.filter(type_name=ContentType.CHARGING_STATION).count() == 1
-    )
-    assert (
-        MobileUnit.objects.filter(
-            content_type__type_name=ContentType.CHARGING_STATION
-        ).count()
-        == 3
-    )
+    assert ContentType.objects.filter(name=CONTENT_TYPE_NAME).count() == 1
+    assert MobileUnit.objects.filter(content_type__name=CONTENT_TYPE_NAME).count() == 3
     aimopark = MobileUnit.objects.get(name="Aimopark, Yliopistonkatu 29")
     assert aimopark
     assert aimopark.address == "Yliopistonkatu 29"

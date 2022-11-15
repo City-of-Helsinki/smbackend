@@ -1,7 +1,11 @@
 import pytest
 from munigeo.models import Municipality
 
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.importers.disabled_and_no_staff_parking import (
+    DISABLED_PARKING_CONTENT_TYPE_NAME,
+    NO_STAFF_PARKING_CONTENT_TYPE_NAME,
+)
+from mobility_data.models import MobileUnit
 
 from .utils import import_command
 
@@ -18,7 +22,7 @@ def test_geojson_import(municipality):
     except Municipality.DoesNotExist:
         assert turku_muni
     kupittaan_maauimala = MobileUnit.objects.get(name="Kupittaan maauimala")
-    assert kupittaan_maauimala.content_type.type_name == ContentType.DISABLED_PARKING
+    assert kupittaan_maauimala.content_type.name == DISABLED_PARKING_CONTENT_TYPE_NAME
     assert kupittaan_maauimala
     assert kupittaan_maauimala.name_sv == "Kuppis utebad"
     assert kupittaan_maauimala.name_en == "Kupittaa outdoor pool"
@@ -34,7 +38,8 @@ def test_geojson_import(municipality):
 
     kupittaan_seikkailupuisto = MobileUnit.objects.get(name="Kupittaan seikkailupuisto")
     assert (
-        kupittaan_seikkailupuisto.content_type.type_name == ContentType.NO_STAFF_PARKING
+        kupittaan_seikkailupuisto.content_type.name
+        == NO_STAFF_PARKING_CONTENT_TYPE_NAME
     )
     assert kupittaan_seikkailupuisto
     assert kupittaan_seikkailupuisto.address_sv == "Tahkogränden 5"
@@ -45,7 +50,9 @@ def test_geojson_import(municipality):
 
     kupittaan_urheiluhalli = MobileUnit.objects.get(name="Kupittaan urheiluhalli")
     assert kupittaan_urheiluhalli
-    assert kupittaan_urheiluhalli.content_type.type_name == ContentType.NO_STAFF_PARKING
+    assert (
+        kupittaan_urheiluhalli.content_type.name == NO_STAFF_PARKING_CONTENT_TYPE_NAME
+    )
     assert kupittaan_urheiluhalli.name_en == "Kupittaa sports hall"
     assert kupittaan_urheiluhalli.extra["sahkolatauspaikkoja"] == 42
     assert kupittaan_urheiluhalli.extra["tolppapaikkoja"] == 24
