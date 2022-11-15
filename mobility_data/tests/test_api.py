@@ -10,8 +10,7 @@ def test_content_type(api_client, content_type):
     response = api_client.get(url)
     assert response.status_code == 200
     results = response.json()["results"][0]
-    assert results["type_name"] == "TTT"
-    assert results["name"] == "test"
+    assert results["name"] == "Test"
     assert results["description"] == "test content type"
 
 
@@ -21,8 +20,7 @@ def test_group_type(api_client, group_type):
     response = api_client.get(url)
     assert response.status_code == 200
     results = response.json()["results"][0]
-    assert results["type_name"] == "TGT"
-    assert results["name"] == "test group"
+    assert results["name"] == "TestGroup"
     assert results["description"] == "test group type"
 
 
