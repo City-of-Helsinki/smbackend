@@ -76,5 +76,10 @@ def delete_mobility_data(args=None, name="delete_mobility_data"):
 
 
 @shared_task
+def import_outdoor_trails(args=None, name="import_outdoor_trails"):
+    management.call_command("import_wfs", ["PTL", "NTL", "HTL", "FTL"])
+
+
+@shared_task
 def import_wfs(args=None, name="import_wfs"):
     management.call_command("import_wfs", args)

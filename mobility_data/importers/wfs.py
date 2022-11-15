@@ -4,6 +4,7 @@ from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
+from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
     delete_mobile_units,
@@ -19,10 +20,7 @@ DEFAULT_MAX_FEATURES = 1000
 DEFAULT_WFS_TYPE = "string"
 logger = logging.getLogger("mobility_data")
 
-WFS_URL = "{}{}".format(
-    settings.TURKU_WFS_URL,
-    "?service=WFS&request=GetFeature&typeName={wfs_layer}&outputFormat=GML3&maxFeatures={max_features}",
-)
+WFS_URL = "{wfs_url}?service=WFS&request=GetFeature&typeName={wfs_layer}&outputFormat=GML3&maxFeatures={max_features}"
 
 
 @db.transaction.atomic
@@ -68,9 +66,25 @@ class MobilityData:
         self.municipality = None
 
     def add_feature(self, feature, config):
+
         if "include" in config:
             for attr, value in config["include"].items():
+                if attr not in feature.fields:
+                    return False
+                # None value returns False as they are not the include value.
+                if not feature[attr].as_string():
+                    return False
                 if value not in feature[attr].as_string():
+                    return False
+        if "exclude" in config:
+            for attr, value in config["exclude"].items():
+                if attr not in feature.fields:
+                    return False
+                # If value is None, continue as it is not possible do determine
+                # if the value matches.
+                if not feature[attr].as_string():
+                    continue
+                if value in feature[attr].as_string():
                     return False
 
         if "srid" in config:
@@ -86,38 +100,47 @@ class MobilityData:
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=source_srid)
         self.geometry.transform(settings.DEFAULT_SRID)
 
+        if "municipality" in config:
+            municipality = feature[config["municipality"]].as_string()
+            if municipality:
+                municipality_id = municipality.lower()
+                self.municipality = Municipality.objects.filter(
+                    id=municipality_id
+                ).first()
+
         if "fields" in config:
             for attr, field in config["fields"].items():
                 for lang, field_name in field.items():
                     # attr can have fallback definitons if None
                     if getattr(self, attr)[lang] is None:
                         getattr(self, attr)[lang] = feature[field_name].as_string()
-
         if "extra_fields" in config:
             for field, attr in config["extra_fields"].items():
                 val = None
+
                 if "wfs_field" in attr:
                     wfs_field = attr["wfs_field"]
                 else:
                     logger.warning(f"No 'wfs_field' defined for {config}.")
                     return False
-                if "wfs_type" in attr:
-                    wfs_type = attr["wfs_type"]
-                else:
-                    wfs_type = DEFAULT_WFS_TYPE
-                match wfs_type:
-                    case "double":
-                        val = feature[wfs_field].as_double()
-                    case "int":
-                        val = feature[wfs_field].as_int()
-                    case "string":
-                        val = feature[wfs_field].as_string()
-                    case _:
-                        logger.warning(
-                            f"Unrecognizable 'wfs_type' {wfs_type}, using 'string'."
-                        )
-                        val = feature[wfs_field].as_string()
 
+                if wfs_field in feature.fields:
+                    if "wfs_type" in attr:
+                        wfs_type = attr["wfs_type"]
+                    else:
+                        wfs_type = DEFAULT_WFS_TYPE
+                    match wfs_type:
+                        case "double":
+                            val = feature[wfs_field].as_double()
+                        case "int":
+                            val = feature[wfs_field].as_int()
+                        case "string":
+                            val = feature[wfs_field].as_string()
+                        case _:
+                            logger.warning(
+                                f"Unrecognizable 'wfs_type' {wfs_type}, using 'string'."
+                            )
+                            val = feature[wfs_field].as_string()
                 self.extra[field] = val
         return True
 
@@ -143,7 +166,13 @@ def import_wfs_feature(config, test_mode):
             return False
         ds = get_test_gdal_data_source(config["test_data"])
     else:
-        url = WFS_URL.format(wfs_layer=wfs_layer, max_features=max_features)
+        wfs_url = settings.TURKU_WFS_URL
+        if "wfs_url" in config:
+            wfs_url = config["wfs_url"]
+
+        url = WFS_URL.format(
+            wfs_url=wfs_url, wfs_layer=wfs_layer, max_features=max_features
+        )
         ds = DataSource(url)
     layer = ds[0]
     assert len(ds) == 1
@@ -151,6 +180,5 @@ def import_wfs_feature(config, test_mode):
         object = MobilityData()
         if object.add_feature(feature, config):
             objects.append(object)
-
     save_to_database_using_yaml_config(objects, config)
     logger.info(f"Saved {len(objects)} {config['content_type_name']} objects.")

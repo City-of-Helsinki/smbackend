@@ -122,6 +122,29 @@ To import data type:
 ```
 ./manage.py import_wfs PPU
 ```
+### Paddling trails
+To import data type:
+```
+./manage.py import_wfs PTL
+```
+
+### Hiking trails
+To import data type:
+```
+./manage.py import_wfs NTL
+```
+
+### Nature trails
+To import data type:
+```
+./manage.py import_wfs HTL
+```
+
+### Fitness trails
+To import data type:
+```
+./manage.py import_wfs FTL
+```
 
 ## Deletion
 To delete mobile units for a content type.
