@@ -5,7 +5,7 @@ from django.contrib.gis.db import models
 
 class BaseType(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
-    name = models.CharField(max_length=64, null=True)
+    name = models.CharField(max_length=64, null=True, unique=True)
     description = models.TextField(
         null=True, verbose_name="Optional description of the content type."
     )
