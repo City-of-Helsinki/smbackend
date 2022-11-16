@@ -25,7 +25,7 @@ from .utils import (
     set_translated_field,
 )
 
-CONTENT_TYPE_NAME = "BICYCLE_STAND"
+CONTENT_TYPE_NAME = "BicycleStand"
 FI_KEY = "fi"
 SV_KEY = "sv"
 EN_KEY = "en"
