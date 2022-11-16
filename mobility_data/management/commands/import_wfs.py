@@ -18,10 +18,10 @@ def get_yaml_config():
     return yaml.safe_load(open(path, "r", encoding="utf-8"))
 
 
-def get_configured_cotent_types(config=None):
+def get_configured_cotent_type_names(config=None):
     if not config:
         config = get_yaml_config()
-    return [f["content_type"] for f in config["features"]]
+    return [f["content_type_name"] for f in config["features"]]
 
 
 class Command(BaseCommand):
@@ -35,8 +35,8 @@ class Command(BaseCommand):
             help="Run script in test mode.",
         )
         # Read all the defined content types from the config
-        choices = get_configured_cotent_types(self.config)
-        parser.add_argument("content_types", nargs="*", choices=choices, help=help)
+        choices = get_configured_cotent_type_names(self.config)
+        parser.add_argument("content_type_names", nargs="*", choices=choices, help=help)
 
     def handle(self, *args, **options):
 
@@ -44,7 +44,7 @@ class Command(BaseCommand):
         if options["test_mode"]:
             test_mode = True
         for feature in self.config["features"]:
-            if feature["content_type"] in options["content_types"]:
+            if feature["content_type_name"] in options["content_type_names"]:
                 try:
                     import_wfs_feature(feature, test_mode)
                 except Exception as e:
