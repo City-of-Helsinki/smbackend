@@ -30,15 +30,14 @@ def get_or_create_content_type_using_yaml_config(config):
     else:
         description = ""
     name = config["content_type_name"]
-    content_type = config["content_type"]
-    ct, _ = get_or_create_content_type(content_type, name, description)
+    ct, _ = get_or_create_content_type(name, description)
     return ct
 
 
 @db.transaction.atomic
 def delete_content_type_using_yaml_config(config):
-    content_type = config["content_type"]
-    delete_mobile_units(content_type)
+    content_type_name = config["content_type_name"]
+    delete_mobile_units(content_type_name)
 
 
 @db.transaction.atomic
@@ -147,10 +146,8 @@ class MobilityData:
 
 def import_wfs_feature(config, test_mode):
     max_features = DEFAULT_MAX_FEATURES
-    if "content_type" not in config or "content_type_name" not in config:
-        logger.warning(
-            f"Skipping feature {config}, 'content_type' and 'content_type_name' are required."
-        )
+    if "content_type_name" not in config:
+        logger.warning(f"Skipping feature {config}, 'content_type_name' is required.")
         return False
     if "wfs_layer" not in config:
         logger.warning(f"Skipping feature {config}, no wfs_layer defined.")
