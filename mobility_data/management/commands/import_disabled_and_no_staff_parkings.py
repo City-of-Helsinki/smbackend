@@ -1,10 +1,11 @@
 import logging
 
 from mobility_data.importers.disabled_and_no_staff_parking import (
+    DISABLED_PARKING_CONTENT_TYPE_NAME,
     get_no_staff_parking_objects,
+    NO_STAFF_PARKING_CONTENT_TYPE_NAME,
     save_to_database,
 )
-from mobility_data.models import ContentType
 
 from ._base_import_command import BaseImportCommand
 
@@ -20,10 +21,10 @@ class Command(BaseImportCommand):
         objects = get_no_staff_parking_objects(geojson_file=geojson_file)
         save_to_database(objects)
         num_no_staff_parkings = len(
-            [x for x in objects if x.content_type == ContentType.NO_STAFF_PARKING]
+            [x for x in objects if x.content_type == NO_STAFF_PARKING_CONTENT_TYPE_NAME]
         )
         num_disabled_parkings = len(
-            [x for x in objects if x.content_type == ContentType.DISABLED_PARKING]
+            [x for x in objects if x.content_type == DISABLED_PARKING_CONTENT_TYPE_NAME]
         )
         logger.info(f"Imorted {num_no_staff_parkings} no staff parkings")
         logger.info(f"Imorted {num_disabled_parkings} disabled parkings")
