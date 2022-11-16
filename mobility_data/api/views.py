@@ -15,7 +15,7 @@ from .serializers import (
 )
 
 # Mappings, so that deprecated type_names will work.
-# This will be removed when the fron end is updated.
+# These will be removed when the front end is updated.
 group_name_mappings = {"CRE": "CultureRoute"}
 type_name_mappings = {
     "FGS": "FishingSpot",
