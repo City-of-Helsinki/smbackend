@@ -12,6 +12,7 @@ from mobility_data.management.commands.import_wfs import (
 
 # Names of the mobility_data importers to be include when importing data.
 importers = [
+    "bicycle_stands",
     "culture_routes",
     "gas_filling_stations",
     "charging_stations",
