@@ -1,5 +1,7 @@
 """
 Imports marinas, guest marina and boat parking.
+Note, wfs importer is not used as the berths data is
+separately assigned to the marina mobile units.
 """
 import logging
 
@@ -8,7 +10,7 @@ from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
 
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import MobileUnit
 
 from .berths import get_berths
 from .utils import delete_mobile_units, get_or_create_content_type
@@ -21,7 +23,9 @@ GUEST_MARINA_BOAT_PARKING_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
     "?service=WFS&request=GetFeature&typeName=GIS:Muu_venesatama&outputFormat=GML3",
 )
-
+GUEST_MARINA_CONTENT_TYPE_NAME = "GuestMarina"
+BOAT_PARKING_CONTENT_TYPE_NAME = "BoatParking"
+MARINA_CONTENT_TYPE_NAME = "Marina"
 
 GUEST_MARINA = "Vierasvenesatama"
 BOAT_PARKING = "Lyhytaikainen veneparkki"
@@ -40,7 +44,7 @@ class Marina:
 
 @db.transaction.atomic
 def delete_guest_marina():
-    delete_mobile_units(ContentType.GUEST_MARINA)
+    delete_mobile_units(GUEST_MARINA_CONTENT_TYPE_NAME)
 
 
 db.transaction.atomic
@@ -48,16 +52,15 @@ db.transaction.atomic
 
 def create_guest_marina_content_type():
     description = "Guest marina in Turku."
-    name = "Guest marina"
     content_type, _ = get_or_create_content_type(
-        ContentType.GUEST_MARINA, name, description
+        GUEST_MARINA_CONTENT_TYPE_NAME, description
     )
     return content_type
 
 
 @db.transaction.atomic
 def delete_boat_parking():
-    delete_mobile_units(ContentType.BOAT_PARKING)
+    delete_mobile_units(BOAT_PARKING_CONTENT_TYPE_NAME)
 
 
 db.transaction.atomic
@@ -65,16 +68,15 @@ db.transaction.atomic
 
 def create_boat_parking_content_type():
     description = "Boat parking in Turku."
-    name = "Boat parking"
     content_type, _ = get_or_create_content_type(
-        ContentType.BOAT_PARKING, name, description
+        BOAT_PARKING_CONTENT_TYPE_NAME, description
     )
     return content_type
 
 
 @db.transaction.atomic
 def delete_marinas():
-    delete_mobile_units(ContentType.MARINA)
+    delete_mobile_units(MARINA_CONTENT_TYPE_NAME)
 
 
 db.transaction.atomic
@@ -82,8 +84,7 @@ db.transaction.atomic
 
 def create_marina_content_type():
     description = "Marinas in the Turku region."
-    name = "Marina"
-    content_type, _ = get_or_create_content_type(ContentType.MARINA, name, description)
+    content_type, _ = get_or_create_content_type(MARINA_CONTENT_TYPE_NAME, description)
     return content_type
 
 

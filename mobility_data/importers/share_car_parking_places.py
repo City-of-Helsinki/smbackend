@@ -12,13 +12,14 @@ from mobility_data.importers.utils import (
     get_root_dir,
     set_translated_field,
 )
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import MobileUnit
 
 logger = logging.getLogger("bicycle_network")
 SOURCE_DATA_SRID = 3877
 GEOJSON_FILENAME = "Yhteiskayttoautojen_pysakointi_2022.geojson"
 
 LANGUAGES = [language[0] for language in settings.LANGUAGES]
+CONTENT_TYPE_NAME = "ShareCarParkingPlace"
 
 
 class CarShareParkingPlace:
@@ -63,7 +64,7 @@ def get_car_share_parking_place_objects(geojson_file=None):
     car_share_parking_places = []
     file_name = None
     if not geojson_file:
-        file_name = get_file_name_from_data_source(ContentType.SHARE_CAR_PARKING_PLACE)
+        file_name = get_file_name_from_data_source(CONTENT_TYPE_NAME)
         if not file_name:
             file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
     else:
@@ -78,16 +79,13 @@ def get_car_share_parking_place_objects(geojson_file=None):
 
 @db.transaction.atomic
 def delete_car_share_parking_places():
-    delete_mobile_units(ContentType.SHARE_CAR_PARKING_PLACE)
+    delete_mobile_units(CONTENT_TYPE_NAME)
 
 
 @db.transaction.atomic
 def create_car_share_parking_place_content_type():
     description = "Car share parking places in the Turku region."
-    name = "Car share parking place"
-    content_type, _ = get_or_create_content_type(
-        ContentType.SHARE_CAR_PARKING_PLACE, name, description
-    )
+    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
     return content_type
 
 

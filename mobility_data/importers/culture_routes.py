@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.gis.geos import LineString, Point
 from pykml import parser
 
-from mobility_data.models import ContentType, GroupType, MobileUnit, MobileUnitGroup
+from mobility_data.models import GroupType, MobileUnit, MobileUnitGroup
 
 from .utils import get_or_create_content_type, set_translated_field
 
@@ -20,6 +20,9 @@ CLEANR_HTML = re.compile(
 CLEANR_CSS = re.compile(r".*\{.*\}", flags=re.DOTALL)
 CLEANR_STAR = re.compile(r"^.*/")
 LANGUAGES = ["fi", "sv", "en"]
+ROUTE_CONTENT_TYPE_NAME = "CultureRouteUnit"
+GEOMETRY_CONTENT_TYPE_NAME = "CultureRouteGeometry"
+GROUP_CONTENT_TYPE_NAME = "CultureRoute"
 SOURCE_DATA_SRID = 4326
 # Routes are from https://citynomadi.com/route/?keywords=turku
 URLS = {
@@ -254,18 +257,15 @@ def save_to_database(routes, delete_tables=False):
         GroupType.objects.filter(type_name=GroupType.CULTURE_ROUTE).delete()
 
     group_type, _ = GroupType.objects.get_or_create(
-        type_name=GroupType.CULTURE_ROUTE,
-        name="Culture Route",
+        name=GROUP_CONTENT_TYPE_NAME,
         description="Culture Routes in Turku",
     )
     unit_type, _ = get_or_create_content_type(
-        ContentType.CULTURE_ROUTE_UNIT,
-        "Culture Route MobileUnit",
-        "Contains pointdata, name and description of a place in a Culture Route.",
+        name=ROUTE_CONTENT_TYPE_NAME,
+        description="Contains pointdata, name and description of a place in a Culture Route.",
     )
     geometry_type, _ = get_or_create_content_type(
-        ContentType.CULTURE_ROUTE_GEOMETRY,
-        "Culture Route Geometry",
+        GEOMETRY_CONTENT_TYPE_NAME,
         "Contains the LineString geometry of the Culture Route.",
     )
     routes_saved = 0

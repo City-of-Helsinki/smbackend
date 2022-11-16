@@ -1,3 +1,7 @@
+"""
+Note, bicycle stands are not imorter via the wfs importer
+as it needs logic to derive if the stand is hull lockable or covered.
+"""
 import logging
 import os
 
@@ -7,7 +11,7 @@ from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
 from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry
 
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import MobileUnit
 from services.models import Unit
 
 from .utils import (
@@ -21,6 +25,7 @@ from .utils import (
     set_translated_field,
 )
 
+CONTENT_TYPE_NAME = "BICYCLE_STAND"
 FI_KEY = "fi"
 SV_KEY = "sv"
 EN_KEY = "en"
@@ -234,16 +239,13 @@ def get_bicycle_stand_objects(data_source=None):
 
 @db.transaction.atomic
 def delete_bicycle_stands():
-    delete_mobile_units(ContentType.BICYCLE_STAND)
+    delete_mobile_units(CONTENT_TYPE_NAME)
 
 
 @db.transaction.atomic
 def create_bicycle_stand_content_type():
     description = "Bicycle stands in The Turku Region."
-    name = "Bicycle Stands"
-    content_type, _ = get_or_create_content_type(
-        ContentType.BICYCLE_STAND, name, description
-    )
+    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
     return content_type
 
 
