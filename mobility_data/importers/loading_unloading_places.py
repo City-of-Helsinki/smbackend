@@ -8,10 +8,10 @@ from django.contrib.gis.geos import GEOSGeometry
 from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
-    delete_mobile_units_v2,
+    delete_mobile_units,
     FieldTypes,
     get_file_name_from_data_source,
-    get_or_create_content_type_v2,
+    get_or_create_content_type,
     get_root_dir,
     set_translated_field,
 )
@@ -133,13 +133,13 @@ def get_loading_and_unloading_objects(geojson_file=None):
 
 @db.transaction.atomic
 def delete_loading_and_unloading_places():
-    delete_mobile_units_v2(CONTENT_TYPE_NAME)
+    delete_mobile_units(CONTENT_TYPE_NAME)
 
 
 @db.transaction.atomic
 def get_and_create_loading_and_unloading_place_content_type():
     description = "Loading and uloading places in the Turku region."
-    content_type, _ = get_or_create_content_type_v2(CONTENT_TYPE_NAME, description)
+    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
     return content_type
 
 
