@@ -28,9 +28,15 @@ def test_import_payment_zones():
 
     payment_zone0.content_type == content_type
     payment_zone1.content_type == content_type
-    market_square = Point(239755.11, 6711065.07, srid=settings.DEFAULT_SRID)
-    turku_cathedral = Point(240377.95, 6711025.00, srid=settings.DEFAULT_SRID)
-    forum_marinum = Point(237834.55, 6709569.05, srid=settings.DEFAULT_SRID)
+    market_square = Point(
+        239760.23602773887, 6711049.638094525, srid=settings.DEFAULT_SRID
+    )
+    turku_cathedral = Point(
+        245497.83040278094, 6710749.819904401, srid=settings.DEFAULT_SRID
+    )
+    forum_marinum = Point(
+        237944.11102389736, 6709556.670906566, srid=settings.DEFAULT_SRID
+    )
 
     assert payment_zone0.extra["maksuvyohykehinta"] == "3,0 €/h"
     assert payment_zone1.extra["maksuvyohykehinta"] == "1,5 €/h"
@@ -41,8 +47,7 @@ def test_import_payment_zones():
     assert payment_zone0.geometry.contains(turku_cathedral) is False
     assert payment_zone0.geometry.contains(forum_marinum) is False
 
-    assert payment_zone1.geometry.contains(market_square) is False
-    assert payment_zone1.geometry.contains(turku_cathedral) is True
-    assert payment_zone1.geometry.contains(forum_marinum) is False
+    assert market_square.contains(payment_zone1.geometry) is False
+    assert forum_marinum.contains(payment_zone1.geometry) is False
 
     assert isinstance(payment_zone0.geometry, Polygon)
