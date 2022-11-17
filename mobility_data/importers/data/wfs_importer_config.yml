@@ -149,6 +149,8 @@ features:
     # If not set, use default value 1000
     max_features: 100
     test_data: payment_zones.gml
+    # If geometry contains multiple polygons create one multipolygon from the polygons
+    create_multipolygon: True
     extra_fields:
       Lisatieto: 
         wfs_field: Lisatieto
@@ -362,6 +364,8 @@ features:
   - content_type_name: SpeedLimitZone
     content_type_description: Speed limit zones in the Turku region.
     wfs_layer: GIS:Nopeusrajoitusalueet
+    # If geometry contains multiple polygons create one multipolygon from the polygons
+    create_multipolygon: True
     test_data: speed_limits.gml
     extra_fields:
       speed_limit:
