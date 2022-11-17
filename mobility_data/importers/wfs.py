@@ -1,9 +1,10 @@
 import logging
 
+import django.contrib.gis.gdal.geometries as gdalgeometries
 from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
-from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon
 from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
@@ -65,6 +66,9 @@ class MobilityData:
         self.municipality = None
 
     def add_feature(self, feature, config):
+        create_multipolygon = False
+        if "create_multipolygon" in config:
+            create_multipolygon = config["create_multipolygon"]
 
         if "include" in config:
             for attr, value in config["include"].items():
@@ -96,7 +100,19 @@ class MobilityData:
                 if not locates_in_turku(feature, source_srid):
                     return False
 
-        self.geometry = GEOSGeometry(feature.geom.wkt, srid=source_srid)
+        # If geometry contains multiple polygons and create_multipolygon attribute is True
+        # create one multipolygon from the polygons.
+        if (
+            len(feature.geom.coords) > 1
+            and create_multipolygon
+            and isinstance(feature.geom, gdalgeometries.Polygon)
+        ):
+            polygons = []
+            for coords in feature.geom.coords:
+                polygons.append(Polygon(coords, srid=source_srid))
+            self.geometry = MultiPolygon(polygons, srid=source_srid)
+        else:
+            self.geometry = GEOSGeometry(feature.geom.wkt, srid=source_srid)
         self.geometry.transform(settings.DEFAULT_SRID)
 
         if "municipality" in config:
@@ -113,6 +129,7 @@ class MobilityData:
                     # attr can have fallback definitons if None
                     if getattr(self, attr)[lang] is None:
                         getattr(self, attr)[lang] = feature[field_name].as_string()
+
         if "extra_fields" in config:
             for field, attr in config["extra_fields"].items():
                 val = None
