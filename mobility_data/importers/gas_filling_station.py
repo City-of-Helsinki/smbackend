@@ -4,7 +4,7 @@ from django import db
 from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
 
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import MobileUnit
 
 from .utils import (
     delete_mobile_units,
@@ -22,6 +22,8 @@ GAS_FILLING_STATIONS_URL = (
     "https://services1.arcgis.com/rhs5fjYxdOG1Et61/ArcGIS/rest/services/GasFillingStations/FeatureServer/0/query"
     "?f=json&where=1%3D1&outFields=OPERATOR%2CLAT%2CLON%2CSTATION_NAME%2CADDRESS%2CCITY%2CZIP_CODE%2CLNG_CNG%2CObjectId"
 )
+
+CONTENT_TYPE_NAME = "GasFillingStation"
 
 
 class GasFillingStation:
@@ -88,16 +90,13 @@ def get_filtered_gas_filling_station_objects(json_data=None):
 
 @db.transaction.atomic
 def delete_gas_filling_stations():
-    delete_mobile_units(ContentType.GAS_FILLING_STATION)
+    delete_mobile_units(CONTENT_TYPE_NAME)
 
 
 @db.transaction.atomic
 def create_gas_filling_station_content_type():
-    description = "Gas filling stations in province of SouthWest Finland."
-    name = "Gas Filling Stations"
-    content_type, _ = get_or_create_content_type(
-        ContentType.GAS_FILLING_STATION, name, description
-    )
+    description = "Gas filling stations in province of Southwest Finland."
+    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
     return content_type
 
 

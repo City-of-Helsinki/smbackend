@@ -18,10 +18,10 @@ from .utils import import_command
 
 @pytest.mark.django_db
 def test_import_payment_zones():
-    import_command("import_wfs", "PAZ", test_mode=True)
+    import_command("import_wfs", "PaymentZone", test_mode=True)
     assert ContentType.objects.all().count() == 1
     content_type = ContentType.objects.first()
-    assert content_type.type_name == ContentType.PAYMENT_ZONE
+    assert content_type.name == "PaymentZone"
     assert MobileUnit.objects.all().count() == 2
     payment_zone0 = MobileUnit.objects.all()[0]
     payment_zone1 = MobileUnit.objects.all()[1]

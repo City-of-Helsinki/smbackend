@@ -6,10 +6,13 @@ import logging
 from django.core import management
 from django.core.management import BaseCommand
 
-from mobility_data.management.commands.import_wfs import get_configured_cotent_types
+from mobility_data.management.commands.import_wfs import (
+    get_configured_cotent_type_names,
+)
 
 # Names of the mobility_data importers to be include when importing data.
 importers = [
+    "bicycle_stands",
     "culture_routes",
     "gas_filling_stations",
     "charging_stations",
@@ -20,14 +23,14 @@ importers = [
     "loading_and_unloading_places",
     "lounaistieto_shapefiles",
 ]
-# Read the content types to be imported
-wfs_content_types = get_configured_cotent_types()
+# Read the content type names to be imported
+wfs_content_type_names = get_configured_cotent_type_names()
 logger = logging.getLogger("mobility_data")
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         logger.info("Importing mobility data...")
-        management.call_command("import_wfs", wfs_content_types)
+        management.call_command("import_wfs", wfs_content_type_names)
         for importer in importers:
             management.call_command(f"import_{importer}")

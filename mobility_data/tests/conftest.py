@@ -48,7 +48,7 @@ def api_client():
 @pytest.fixture
 def content_type():
     content_type = ContentType.objects.create(
-        type_name="TTT", name="test", description="test content type"
+        name="Test", description="test content type"
     )
     return content_type
 
@@ -57,7 +57,7 @@ def content_type():
 @pytest.fixture
 def group_type():
     group_type = GroupType.objects.create(
-        type_name="TGT", name="test group", description="test group type"
+        name="TestGroup", description="test group type"
     )
     return group_type
 

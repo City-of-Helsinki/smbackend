@@ -23,11 +23,13 @@ def test_import_accessories(
     administrative_division_type,
     administrative_division_geometry,
 ):
-    import_command("import_wfs", ["APT", "ATE", "ABH", "AFG"], test_mode=True)
-
-    public_toilet_content_type = ContentType.objects.get(
-        type_name=ContentType.ACCESSORY_PUBLIC_TOILET
+    import_command(
+        "import_wfs",
+        ["PublicToilet", "PublicTable", "PublicBench", "PublicFurnitureGroup"],
+        test_mode=True,
     )
+
+    public_toilet_content_type = ContentType.objects.get(name="PublicToilet")
     assert public_toilet_content_type
     public_toilet_units_qs = MobileUnit.objects.filter(
         content_type=public_toilet_content_type
@@ -49,7 +51,7 @@ def test_import_accessories(
     assert extra["Valmistaja_koodi"] == 0
     assert extra["Varustelaji_koodi"] == 4022
 
-    bench_content_type = ContentType.objects.get(type_name=ContentType.ACCESSORY_BENCH)
+    bench_content_type = ContentType.objects.get(name="PublicBench")
     assert bench_content_type
 
     bench_units_qs = MobileUnit.objects.filter(content_type=bench_content_type)
@@ -60,15 +62,13 @@ def test_import_accessories(
     point = Point(23464051.217, 6706051.818, srid=DEFAULT_SOURCE_DATA_SRID)
     point.transform(settings.DEFAULT_SRID)
     bench_unit.geometry.equals_exact(point, tolerance=0.0001)
-    table_content_type = ContentType.objects.get(type_name=ContentType.ACCESSORY_TABLE)
+    table_content_type = ContentType.objects.get(name="PublicTable")
     assert table_content_type
     table_units_qs = MobileUnit.objects.filter(content_type=table_content_type)
     assert table_units_qs.count() == 2
     assert table_units_qs[0].content_type == table_content_type
 
-    furniture_group_content_type = ContentType.objects.get(
-        type_name=ContentType.ACCESSORY_FURNITURE_GROUP
-    )
+    furniture_group_content_type = ContentType.objects.get(name="PublicFurnitureGroup")
     assert furniture_group_content_type
     furniture_group_units_qs = MobileUnit.objects.filter(
         content_type=furniture_group_content_type

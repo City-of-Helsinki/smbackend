@@ -1,4 +1,5 @@
 import logging
+import re
 
 from django import db
 from django.conf import settings
@@ -14,28 +15,30 @@ from mobility_data.importers.utils import (
     get_root_dir,
     set_translated_field,
 )
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import MobileUnit
 
 logger = logging.getLogger("mobility_data")
 
 SOURCE_DATA_SRID = 3877
 GEOJSON_FILENAME = "loading_and_unloading_places.geojson"
 LANGUAGES = [language[0] for language in settings.LANGUAGES]
+CONTENT_TYPE_NAME = "LoadingUnloadingPlace"
 
 
 class LoadingPlace:
 
     extra_field_mappings = {
-        "Saavutetta": {
+        "Saavutettavuus": {
             "type": FieldTypes.MULTILANG_STRING,
         },
-        "Lastaus": {
+        "lastauspiste": {
             "type": FieldTypes.MULTILANG_STRING,
         },
-        "Lisatieto": {
+        "rajoitustyyppi": {
             "type": FieldTypes.MULTILANG_STRING,
         },
-        "Muutanimi": {
+        "paikkoja_y": {"type": FieldTypes.INTEGER},
+        "Lisätieto": {
             "type": FieldTypes.MULTILANG_STRING,
         },
     }
@@ -43,15 +46,30 @@ class LoadingPlace:
     def __init__(self, feature):
         self.address = {}
         self.name = {}
+        municipality = None
+        self.address_zip = None
         addresses = [
             " ".join(a.strip().split(" ")[:-2]).rstrip(",")
-            for a in feature["osoite"].as_string().split("/")
+            for a in feature["Osoite"].as_string().split("/")
         ]
+        splitted_addr = feature["Osoite"].as_string().split("/")[0].strip().split(" ")
+        # e.g, of 'Osoite' Puolalankatu 8 20100 Turku
+        # if lenght of splitted_addr > 3, then we can assume it have
+        # zipcode and municipality.
+        if len(splitted_addr) > 3:
+            self.address_zip, municipality = splitted_addr[-2:]
+        names = []
+        # Create names from 'Osoite' field
+        for n in feature["Osoite"].as_string().split("/"):
+            tmp = n.strip().split(" ")
+            name = tmp[0].strip()
+            for t in tmp[1:]:
+                if bool(re.search(r"\d", t)):
+                    break
+                else:
+                    name += f" {t.strip()}"
+            names.append(name)
 
-        self.address_zip, municipality = (
-            feature["osoite"].as_string().split("/")[0].strip().split(" ")[-2:]
-        )
-        names = [n.strip() for n in feature["Kohteet"].as_string().split("/")]
         for i, lang in enumerate(LANGUAGES):
             if i < len(addresses):
                 self.address[lang] = addresses[i]
@@ -62,11 +80,13 @@ class LoadingPlace:
                 self.name[lang] = names[i]
             else:
                 self.name[lang] = names[0]
-
-        try:
-            municipality = Municipality.objects.get(name=municipality)
-            self.municipality = municipality
-        except Municipality.DoesNotExist:
+        if municipality:
+            try:
+                municipality = Municipality.objects.get(name=municipality)
+                self.municipality = municipality
+            except Municipality.DoesNotExist:
+                self.municipality = None
+        else:
             self.municipality = None
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
@@ -89,6 +109,8 @@ class LoadingPlace:
                             for i, lang in enumerate(LANGUAGES):
                                 if i < len(strings):
                                     self.extra[field_name][lang] = strings[i].strip()
+                    case FieldTypes.INTEGER:
+                        self.extra[field_name] = feature[field].as_int()
 
 
 def get_loading_and_unloading_objects(geojson_file=None):
@@ -96,7 +118,7 @@ def get_loading_and_unloading_objects(geojson_file=None):
     file_name = None
 
     if not geojson_file:
-        file_name = get_file_name_from_data_source(ContentType.LOADING_UNLOADING_PLACE)
+        file_name = get_file_name_from_data_source(CONTENT_TYPE_NAME)
         if not file_name:
             file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
     else:
@@ -111,16 +133,13 @@ def get_loading_and_unloading_objects(geojson_file=None):
 
 @db.transaction.atomic
 def delete_loading_and_unloading_places():
-    delete_mobile_units(ContentType.LOADING_UNLOADING_PLACE)
+    delete_mobile_units(CONTENT_TYPE_NAME)
 
 
 @db.transaction.atomic
 def get_and_create_loading_and_unloading_place_content_type():
     description = "Loading and uloading places in the Turku region."
-    name = "Loading and unloading place."
-    content_type, _ = get_or_create_content_type(
-        ContentType.LOADING_UNLOADING_PLACE, name, description
-    )
+    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
     return content_type
 
 

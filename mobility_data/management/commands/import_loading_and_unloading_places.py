@@ -18,5 +18,4 @@ class Command(BaseImportCommand):
             geojson_file = options["test_mode"]
         objects = get_loading_and_unloading_objects(geojson_file=geojson_file)
         save_to_database(objects)
-        objects = get_loading_and_unloading_objects()
         logger.info(f"Imported {len(objects)} loading and unloading places.")

@@ -50,27 +50,26 @@ To import data type:
 ### Payment Zones
 To import data type:
 ```
-./manage.py import_wfs PAZ
+./manage.py import_wfs PaymentZone
 ```
 
 ### Speed limit Zones
 To import type:
 ```
-./manage.py import_wfs SLZ
+./manage.py import_wfs SpeedLimitZone
 ```
 
 ### Scooter Restriction
-Imports parking(SPG), no parking(SNP) and speed limit zones(SSL).
 To import data type:
 ```
-./manage.py import_wfs SPG SSL SNP
+./manage.py import_wfs ScooterParkingArea ScooterSpeedLimitArea ScooterNoParkingArea
 ```
 
 ### Accessories
-Imports benches(ABH), public toilets(APT), tables(ATE) and furniture groups(AFG).
+Imports public benches, toilets, tables and furniture groups.
 To import data type:
 ```
-./manage.py import_wfs APT ATE ABH AFG
+./manage.py import_wfs PublicToilet PublicTable PublicBench PublicFurnitureGroup
 ```
 ### Share car parking places
 Imports parking places for car sharing cars. 
@@ -83,7 +82,7 @@ To import data type:
 Imports brush salted(BLB) and brush sanded bicycle networks(BND).
 To import data type:
 ```
-./manage.py import_wfs BLB BND
+./manage.py import_wfs BrushSaltedBicycleNetwork BrushSandedBicycleNetwork
 ```
 
 ### Marinas
@@ -120,49 +119,46 @@ To run the importer type:
 ### Paavonpolkus
 To import data type:
 ```
-./manage.py import_wfs PPU
+./manage.py import_wfs PaavonPolku
 ```
 ### Paddling trails
 To import data type:
 ```
-./manage.py import_wfs PTL
+./manage.py import_wfs PaddlingTrail
 ```
 
 ### Hiking trails
 To import data type:
 ```
-./manage.py import_wfs NTL
+./manage.py import_wfs HikingTrail
 ```
 
 ### Nature trails
 To import data type:
 ```
-./manage.py import_wfs HTL
+./manage.py import_wfs NatureTrail
 ```
 
 ### Fitness trails
 To import data type:
 ```
-./manage.py import_wfs FTL
+./manage.py import_wfs FitnessTrail
 ```
 
 ## Deletion
 To delete mobile units for a content type.
 ```
-./manage.py delete_mobility_data CONTENT_TYPE(S)
+./manage.py delete_mobility_data CONTENT_TYPE_NAMES(S)
 ```
 e.g., this would delete Paavonpolku mobile units,
 ```
-./manage.py delete_mobility_data PPU
+./manage.py delete_mobility_data PaavonPolku
 ```
-To get the list of content types and their full names type:
-```
-./manage.py delete_mobility_data -h
-```
+
 ## WFS Importer
 The WFS importer imports data from the open Turku WFS server.
 To set up a data source for importing in the WFS importer, configure the data source in the mobility_data/importers/data/wfs_importer_config.yml file.
 To import the data type:
 ```
-./manage import_wfs CONTENT_TYPE
+./manage import_wfs CONTENT_TYPE_NAME
 ```
