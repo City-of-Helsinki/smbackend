@@ -84,10 +84,15 @@ def delete_mobility_data(args=None, name="delete_mobility_data"):
 
 
 @shared_task
-def import_outdoor_trails(args=None, name="import_outdoor_trails"):
+def import_outdoor_trails(name="import_outdoor_trails"):
     management.call_command(
         "import_wfs", ["PaddlingTrail", "HikingTrail", "NatureTrail", "FitnessTrail"]
     )
+
+
+@shared_task
+def import_traffic_signs(name="import_traffic_signs"):
+    management.call_command("import_wfs", ["CrossWalkSign", "DisabledParkingSign"])
 
 
 @shared_task
