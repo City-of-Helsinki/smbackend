@@ -1,11 +1,18 @@
 features:
-  - content_type_name: CrossWalk
-    content_type_description: Crosswalks in the city of Turku.
+  - content_type_name: CrossWalkSign
+    content_type_description: Crosswalk signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
-      Varustelaji: Suojatie
+      Varustelaji: 511 Suojatie
     max_features: 50000
-    
+
+  - content_type_name: DisabledParkingSign
+    content_type_description: Disabled parking signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 836 Invalidin ajoneuvo
+    max_features: 50000
+
   - content_type_name: PaddlingTrail
     content_type_description: Paddling trails in Southwest Finland    
    # if not defined use the Turku WFS url set in environment

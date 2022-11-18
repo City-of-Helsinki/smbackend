@@ -145,6 +145,14 @@ To import data type:
 ./manage.py import_wfs FitnessTrail
 ```
 
+### Crosswalk signs
+```
+./manage.py import_wfs CrossWalkSign
+```
+### Disabled parking signs
+```
+./manage.py import_wfs DisabledParkingSign
+```
 ## Deletion
 To delete mobile units for a content type.
 ```
