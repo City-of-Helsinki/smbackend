@@ -193,7 +193,31 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
 
         for filter in filters:
             if filter.startswith("extra__"):
-                queryset = queryset.filter(**{filter: filters[filter].strip()})
+                if "type_name" not in filters:
+                    return Response(
+                        "You must provide a 'type_name' argument when filtering with 'extra__' argument."
+                    )
+                if queryset.count() > 0:
+                    value = filters[filter].strip()
+                    key = filter.split("__")[1]
+                    # Determine the type of the value in jsonfield and typecast argument to int
+                    # or float if required. Assume all fields with same key has same value type.
+                    # If not typecasted, filtering is done with string values and will not work for
+                    # int or float values.
+                    try:
+                        field_value = queryset[0].extra[key]
+                        field_type = type(field_value)
+                    except KeyError:
+                        return Response(
+                            f"extra field '{key}' does not exist",
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                    if field_type == float:
+                        value = float(value)
+                    elif field_type == int:
+                        value = int(value)
+                    queryset = queryset.filter(**{filter: value})
+
         page = self.paginate_queryset(queryset)
         serializer = MobileUnitSerializer(
             page, many=True, context={"srid": srid, "latlon": latlon}
