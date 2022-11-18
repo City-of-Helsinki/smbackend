@@ -1,6 +1,13 @@
 features:
+  - content_type_name: CrossWalk
+    content_type_description: Crosswalks in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: Suojatie
+    max_features: 50000
+    
   - content_type_name: PaddlingTrail
-    content_type_description: Paddling trails in Southwest Finalnd
+    content_type_description: Paddling trails in Southwest Finland    
    # if not defined use the Turku WFS url set in environment
     wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
     wfs_layer: virma_reitit_melontareitti
@@ -30,7 +37,7 @@ features:
         wfs_type: double
 
   - content_type_name: HikingTrail
-    content_type_description: Hiking trails in Southwest Finalnd
+    content_type_description: Hiking trails in Southwest Finland
     wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
     wfs_layer: virma_reitit_retkeilyreitti
     srid: 3067
@@ -62,7 +69,7 @@ features:
         wfs_type: double
 
   - content_type_name: NatureTrail
-    content_type_description: Nature trails in Southwest Finalnd
+    content_type_description: Nature trails in Southwest Finland
     wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
     wfs_layer: virma_reitit_luontopolku
     srid: 3067
@@ -90,7 +97,7 @@ features:
         wfs_type: double
 
   - content_type_name: FitnessTrail
-    content_type_description: Fitness trails in Southwest Finalnd
+    content_type_description: Fitness trails in Southwest Finland
     wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
     wfs_layer: virma_reitit_kuntoreitti
     srid: 3067
