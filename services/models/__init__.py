@@ -1,10 +1,12 @@
 from .accessibility_variable import AccessibilityVariable
 from .department import Department
+from .feedback import FeedbackMapping
 from .keyword import Keyword
 from .notification import Announcement, ErrorMessage
 from .service import Service, UnitServiceDetails
 from .service_mapping import ServiceMapping
 from .service_node import ServiceNode
+from .statistic import RequestStatistic
 from .unit import Unit
 from .unit_accessibility_property import UnitAccessibilityProperty
 from .unit_accessibility_shortcomings import UnitAccessibilityShortcomings

@@ -31,7 +31,7 @@ click==8.1.3
     #   pip-tools
 coverage[toml]==6.5.0
     # via pytest-cov
-django==4.1.2
+django==4.1.3
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -52,7 +52,7 @@ django-filter==22.1
     # via -r requirements.in
 django-js-asset==2.0.0
     # via django-mptt
-django-modeltranslation==0.18.5
+django-modeltranslation==0.18.7
     # via
     #   -r requirements.in
     #   django-munigeo
@@ -68,11 +68,11 @@ djangorestframework==3.14.0
     # via -r requirements.in
 djangorestframework-jsonp==1.0.2
     # via -r requirements.in
-exceptiongroup==1.0.0
+exceptiongroup==1.0.4
     # via
     #   cattrs
     #   pytest
-flake8==5.0.4
+flake8==6.0.0
     # via
     #   -r requirements.in
     #   pep8-naming
@@ -82,7 +82,7 @@ iniconfig==1.1.1
     # via pytest
 isort==5.10.1
     # via -r requirements.in
-jedi==0.18.1
+jedi==0.18.2
     # via -r requirements.in
 libvoikko==4.3
     # via -r requirements.in
@@ -100,23 +100,23 @@ parso==0.8.3
     # via
     #   -r requirements.in
     #   jedi
-pathspec==0.10.1
+pathspec==0.10.2
     # via black
 pep517==0.13.0
     # via build
 pep8-naming==0.13.2
     # via -r requirements.in
-pip-tools==6.9.0
+pip-tools==6.10.0
     # via -r requirements.in
-platformdirs==2.5.2
+platformdirs==2.5.4
     # via black
 pluggy==1.0.0
     # via pytest
 psycopg2==2.8.6
     # via -r requirements.in
-pycodestyle==2.9.1
+pycodestyle==2.10.0
     # via flake8
-pyflakes==2.5.0
+pyflakes==3.0.1
     # via flake8
 pyparsing==3.0.9
     # via packaging
@@ -130,7 +130,7 @@ pytest-django==4.5.2
     # via -r requirements.in
 python-dateutil==2.8.2
     # via -r requirements.in
-pytz==2022.5
+pytz==2022.6
     # via
     #   -r requirements.in
     #   djangorestframework
@@ -146,7 +146,7 @@ requests-cache==0.9.7
     # via -r requirements.in
 requests-mock==1.10.0
     # via -r requirements.in
-sentry-sdk==1.10.1
+sentry-sdk==1.11.1
     # via -r requirements.in
 six==1.16.0
     # via
@@ -165,14 +165,16 @@ tomli==2.0.1
     #   pytest
 tqdm==4.64.1
     # via -r requirements.in
+typing-extensions==4.4.0
+    # via django-modeltranslation
 url-normalize==1.4.3
     # via requests-cache
-urllib3==1.26.12
+urllib3==1.26.13
     # via
     #   requests
     #   requests-cache
     #   sentry-sdk
-wheel==0.37.1
+wheel==0.38.4
     # via pip-tools
 whitenoise==6.2.0
     # via -r requirements.in
