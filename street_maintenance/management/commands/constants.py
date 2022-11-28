@@ -19,43 +19,59 @@ KUNTEC_WORKS_URL = (
     "https://mapon.com/api/v1/route/list.json?key={key}&from={start}"
     "&till={end}&include=polyline&unit_id={unit_id}"
 )
-# Events are categorized into flowwoing main groups:
+# Events are categorized into main groups:
 AURAUS = "auraus"
 LIUKKAUDENTORJUNTA = "liukkaudentorjunta"
 PUHTAANAPITO = "puhtaanapito"
 HIEKANPOISTO = "hiekanpoisto"
 # MUUT is currenlty only for testing purposes, TODO, remove from production
 MUUT = "muut"
+
 # As data providers have different names for their events, they are mapped
 # with this dict, so that every event that does the same has the same name.
+# The value is a list, as there can be events that belong to multiple main groups.
+# e.g., event "Auraus ja hiekanpoisto".
 EVENT_MAPPINGS = {
-    "auraus": AURAUS,
-    "auraus ja sohjonpoisto": AURAUS,
-    "lumen poisajo": AURAUS,
-    "lumensiirto": AURAUS,
-    "suolas": LIUKKAUDENTORJUNTA,
-    "suolaus (sirotinlaite)": LIUKKAUDENTORJUNTA,
-    "liuossuolaus": LIUKKAUDENTORJUNTA,
-    "hiekoitus": LIUKKAUDENTORJUNTA,
-    "hiekotus": LIUKKAUDENTORJUNTA,
-    "hiekoitus (sirotinlaite)": LIUKKAUDENTORJUNTA,
-    "linjahiekoitus": LIUKKAUDENTORJUNTA,
-    "pistehiekoitus": LIUKKAUDENTORJUNTA,
-    "paannejään poisto": LIUKKAUDENTORJUNTA,
-    "puhtaanapito": PUHTAANAPITO,
-    "harjaus": PUHTAANAPITO,
-    "pesu": PUHTAANAPITO,
-    "harjaus ja sohjonpoisto": PUHTAANAPITO,
-    "pölynsidonta": PUHTAANAPITO,
-    "hiekanpoisto": HIEKANPOISTO,
-    "muut työt": MUUT,
-    "lisätyö": MUUT,
-    "viherhoito": MUUT,
-    "kaivot": MUUT,
-    "metsätyöt": MUUT,
-    "rikkakasvien torjunta": MUUT,
-    "paikkaus": MUUT,
+    "Laiturin ja asema-alueen auraus": [AURAUS],
+    "au": [AURAUS],
+    "auraus": [AURAUS],
+    "auraus ja sohjonpoisto": [AURAUS],
+    "lumen poisajo": [AURAUS],
+    "lumensiirto": [AURAUS],
+    "suolas": [LIUKKAUDENTORJUNTA],
+    "suolaus (sirotinlaite)": [LIUKKAUDENTORJUNTA],
+    "liuossuolaus": [LIUKKAUDENTORJUNTA],
+    # Hiekoitus
+    "hi": [LIUKKAUDENTORJUNTA],
+    "su": [LIUKKAUDENTORJUNTA],
+    "hiekoitus": [LIUKKAUDENTORJUNTA],
+    "hiekotus": [LIUKKAUDENTORJUNTA],
+    "hiekoitus (sirotinlaite)": [LIUKKAUDENTORJUNTA],
+    "linjahiekoitus": [LIUKKAUDENTORJUNTA],
+    "pistehiekoitus": [LIUKKAUDENTORJUNTA],
+    "paannejään poisto": [LIUKKAUDENTORJUNTA],
+    # Kadunpesu
+    "pe": [PUHTAANAPITO],
+    # Harjaus
+    "hj": [PUHTAANAPITO],
+    # Hiekanpoisto
+    "hn": [PUHTAANAPITO],
+    "puhtaanapito": [PUHTAANAPITO],
+    "harjaus": [PUHTAANAPITO],
+    "pesu": [PUHTAANAPITO],
+    "harjaus ja sohjonpoisto": [PUHTAANAPITO],
+    "pölynsidonta": [PUHTAANAPITO],
+    "hiekanpoisto": [HIEKANPOISTO],
+    "muut työt": [MUUT],
+    "muu työ": [MUUT],
+    "lisätyö": [MUUT],
+    "viherhoito": [MUUT],
+    "kaivot": [MUUT],
+    "metsätyöt": [MUUT],
+    "rikkakasvien torjunta": [MUUT],
+    "paikkaus": [MUUT],
 }
+
 # The number of works(point data with timestamp and event) to be fetched for every unit.
 INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE = 10000
 # Length of Autori history size in days, max value is 31.

@@ -63,7 +63,8 @@ class Command(BaseCommand):
             for operation in operations:
                 event_name = event_name_mappings[operation].lower()
                 if event_name in EVENT_MAPPINGS:
-                    events.append(EVENT_MAPPINGS[event_name])
+                    for e in EVENT_MAPPINGS[event_name]:
+                        events.append(e)
                 else:
                     logger.warning(
                         f"Found unmapped event: {event_name_mappings[operation]}"

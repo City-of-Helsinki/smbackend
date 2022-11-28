@@ -14,8 +14,8 @@ from street_maintenance.api.serializers import (
 )
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
-# Default is 30minutes 30*60s
-DEFAULT_MAX_WORK_LENGTH = 1800
+# Default is 3minutes 3*60s
+DEFAULT_MAX_WORK_LENGTH = 180
 
 
 class ActiveEventsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -107,9 +107,9 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
                         else:
                             geometries.append(elem.geometry)
                         points = []
-
                 points.append(elem.geometry)
                 prev_timestamp = elem.timestamp
+
             if len(points) > 1:
                 geometries.append(LineString(points, srid=DEFAULT_SRID))
             else:
