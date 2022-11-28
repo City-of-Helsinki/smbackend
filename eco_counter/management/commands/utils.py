@@ -39,8 +39,8 @@ LAM_STATIONS_DIRECTION_MAPPINGS = {
     "1_Turku": "K",
     "2_Turku": "K",
     "2_Helsinki": "P",
-    "1_Suikkila": "K",
-    "2_Artukainen": "P",
+    "1_Suikkila.": "K",
+    "2_Artukainen.": "P",
     "1_Vaasa": "P",
     "1_Kuusisto": "P",
     "2_Kaarina": "K",
@@ -219,9 +219,13 @@ def get_lam_counter_csv(start_date):
             # Read the direction
             direction_name = df["suuntaselite"].iloc[0]
             # From the mappings determine the 'keskustaan päin' or 'poispäin keskustasta' direction.
-            direction_value = LAM_STATIONS_DIRECTION_MAPPINGS[
-                f"{direction}_{direction_name}"
-            ]
+            try:
+                direction_value = LAM_STATIONS_DIRECTION_MAPPINGS[
+                    f"{direction}_{direction_name}"
+                ]
+            except KeyError as e:
+                logger.warning(f"Discarding station {station} KeyError: {e}")
+                continue
             start_time = dateutil.parser.parse(f"{str(df['pvm'].iloc[0])}-T00:00")
             # Calculate shift index, i.e., if data starts from different position that the start_date.
             # then shift the rows to the correct position using the calculated shift_index.
