@@ -347,10 +347,7 @@ def _import_unit(
     org_id = info.get("org_id", None)
 
     # FIXME: Temporarily skip health district units completely
-    if (
-        org_id == "5de91045-92ab-484b-9f96-7010ff7fb35e"
-        or org_id == "0c8e4f99-3d52-47b9-84df-395716bd8b11"
-    ):
+    if org_id == "5de91045-92ab-484b-9f96-7010ff7fb35e":
         LOGGER.info("Temporarily skipping health district unit: %s" % obj)
         return None
 
