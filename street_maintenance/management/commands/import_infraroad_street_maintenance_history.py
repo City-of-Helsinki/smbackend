@@ -59,9 +59,10 @@ class Command(BaseCommand):
 
                 events = []
                 for event in work["events"]:
-                    event_lower = event.lower()
-                    if event_lower in EVENT_MAPPINGS:
-                        events.append(EVENT_MAPPINGS[event_lower])
+                    event_name = event.lower()
+                    if event_name in EVENT_MAPPINGS:
+                        for e in EVENT_MAPPINGS[event_name]:
+                            events.append(e)
                     else:
                         logger.warning(f"Found unmapped event: {event}")
                 # If no events found discard the work
