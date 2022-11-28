@@ -55,7 +55,8 @@ class Command(BaseCommand):
                             for name in unit.names:
                                 event_name = name.lower()
                                 if event_name in EVENT_MAPPINGS:
-                                    events.append(EVENT_MAPPINGS[event_name])
+                                    for e in EVENT_MAPPINGS[event_name]:
+                                        events.append(e)
                                 else:
                                     logger.warning(
                                         f"Found unmapped event: {event_name}"
@@ -64,10 +65,10 @@ class Command(BaseCommand):
                         if len(events) > 0 and "polyline" in route:
                             coords = polyline.decode(route["polyline"], geojson=True)
                             geometry = LineString(coords, srid=DEFAULT_SRID)
-                            # Note, currently not in use as some geometrys might
-                            # start outside the boundarys of Turku.
-                            # if not TURKU_BOUNDARY.covers(geometry):
-                            #     continue
+                            # Note, some works(geometries) might start outside the boundarys
+                            # of Turku and are therefore discarded.
+                            if not TURKU_BOUNDARY.covers(geometry):
+                                continue
                             timestamp = route["start"]["time"]
                             works.append(
                                 MaintenanceWork(
