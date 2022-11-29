@@ -50,27 +50,26 @@ To import data type:
 ### Payment Zones
 To import data type:
 ```
-./manage.py import_payment_zones
+./manage.py import_wfs PaymentZone
 ```
 
 ### Speed limit Zones
 To import type:
 ```
-./manage.py import_speed_limit_zones
+./manage.py import_wfs SpeedLimitZone
 ```
 
 ### Scooter Restriction
-Imports parking, no parking and speed limit zones.
 To import data type:
 ```
-./manage.py import_scooter_restrictions
+./manage.py import_wfs ScooterParkingArea ScooterSpeedLimitArea ScooterNoParkingArea
 ```
 
 ### Accessories
-Imports benches, public toilets, tables and furniture groups.
+Imports public benches, toilets, tables and furniture groups.
 To import data type:
 ```
-./manage.py import_accessories
+./manage.py import_wfs PublicToilet PublicTable PublicBench PublicFurnitureGroup
 ```
 ### Share car parking places
 Imports parking places for car sharing cars. 
@@ -80,10 +79,10 @@ To import data type:
 ```
 
 ### Bicycle networks
-Imports brush salted and brush sanded bicycle networks.
+Imports brush salted(BLB) and brush sanded bicycle networks(BND).
 To import data type:
 ```
-./manage.py import_bicycle_networks
+./manage.py import_wfs BrushSaltedBicycleNetwork BrushSandedBicycleNetwork
 ```
 
 ### Marinas
@@ -94,9 +93,80 @@ To import data type:
 ./manage.py import_marinas
 ```
 
-### No staff parkings
-Imports no staff parkings, i.e. parking places that are not intended for the staff.
+### Disabled and no staff parkings
+Imports disabled parkings and no staff parkings, i.e., no staff parking are parking places that are not intended for the staff.
 To import data type:
 ```
-./manage.py import_no_staff_parkings
+./manage.py import_disabled_and_no_staff_parkings
+```
+
+### Loading and unloading places
+To import data type:
+```
+./manage.py import_loading_and_unloading_places
+```
+
+### Lounaistieto shapefiles
+The importer imports shapefiles from https://data.lounaistieto.fi and stores them
+as mobility data. The importer can be configured by modifying the file:
+/mobility_data/importers/data/lounaistieto_shapefiles_config.yml
+Note, if a new data_source is added a content type must be added to the model.
+To run the importer type:
+```
+./manage.py import_lounaistieto_shapefiles
+```
+
+### Paavonpolkus
+To import data type:
+```
+./manage.py import_wfs PaavonPolku
+```
+### Paddling trails
+To import data type:
+```
+./manage.py import_wfs PaddlingTrail
+```
+
+### Hiking trails
+To import data type:
+```
+./manage.py import_wfs HikingTrail
+```
+
+### Nature trails
+To import data type:
+```
+./manage.py import_wfs NatureTrail
+```
+
+### Fitness trails
+To import data type:
+```
+./manage.py import_wfs FitnessTrail
+```
+
+### Crosswalk signs
+```
+./manage.py import_wfs CrossWalkSign
+```
+### Disabled parking signs
+```
+./manage.py import_wfs DisabledParkingSign
+```
+## Deletion
+To delete mobile units for a content type.
+```
+./manage.py delete_mobility_data CONTENT_TYPE_NAMES(S)
+```
+e.g., this would delete Paavonpolku mobile units,
+```
+./manage.py delete_mobility_data PaavonPolku
+```
+
+## WFS Importer
+The WFS importer imports data from the open Turku WFS server.
+To set up a data source for importing in the WFS importer, configure the data source in the mobility_data/importers/data/wfs_importer_config.yml file.
+To import the data type:
+```
+./manage import_wfs CONTENT_TYPE_NAME
 ```

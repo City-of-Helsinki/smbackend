@@ -64,6 +64,7 @@ class Service(models.Model):
         if lang == "fi":
             return [
                 ("name_fi", "finnish", "A"),
+                ("syllables_fi", "finnish", "A"),
             ]
         elif lang == "sv":
             return [

@@ -4,8 +4,6 @@ from distutils.util import strtobool
 
 from django.contrib.gis.geos import Point
 
-from mobility_data.models import ContentType
-
 from .utils import FieldTypes, get_file_name_from_data_source, get_root_dir
 
 # Default name of the file, if not added to DataSource.
@@ -34,11 +32,15 @@ column_mappings = {
     Y_COORDINATE_COLUMN: {"type": FieldTypes.FLOAT},
 }
 
+# NOTE, berths are an exception, as they do not have a real content type relation.
+# They are assigned to the marina data as extra data.
+CONTENT_TYPE_NAME = "Berth"
+
 
 def get_berths(berth_name):
     berths = []
     column_indexes = {}
-    file_path = get_file_name_from_data_source(ContentType.BERTH)
+    file_path = get_file_name_from_data_source(CONTENT_TYPE_NAME)
     if not file_path:
         data_path = os.path.join(get_root_dir(), "mobility_data/data")
         file_path = os.path.join(data_path, BERTH_CVS_FILE)
@@ -71,5 +73,5 @@ def get_berths(berth_name):
                     geometry.transform(TRANSFROM_TO_SRID)
                     berth[f"{X_COORDINATE_COLUMN}_4326"] = geometry.x
                     berth[f"{Y_COORDINATE_COLUMN}_4326"] = geometry.y
-                    berths.append(berth)
+                berths.append(berth)
     return berths

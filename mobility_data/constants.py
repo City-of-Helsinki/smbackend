@@ -1,27 +1,51 @@
-from mobility_data.models import ContentType
+from mobility_data.importers.berths import CONTENT_TYPE_NAME as BERTH
+from mobility_data.importers.bike_service_stations import (
+    CONTENT_TYPE_NAME as BIKE_SERVICE_STATION,
+)
+from mobility_data.importers.charging_stations import (
+    CONTENT_TYPE_NAME as CHARGING_STATION,
+)
+from mobility_data.importers.disabled_and_no_staff_parking import (
+    DISABLED_PARKING_CONTENT_TYPE_NAME as DISABLED_PARKING,
+    NO_STAFF_PARKING_CONTENT_TYPE_NAME as NO_STAFF_PARKING,
+)
+from mobility_data.importers.loading_unloading_places import (
+    CONTENT_TYPE_NAME as LOADING_UNLOADING_PLACE,
+)
+from mobility_data.importers.share_car_parking_places import (
+    CONTENT_TYPE_NAME as SHARE_CAR_PARKING_PLACE,
+)
 
 DATA_SOURCE_IMPORTERS = {
-    ContentType.CHARGING_STATION: {
+    CHARGING_STATION: {
         "importer_name": "charging_stations",
         "to_services_list": True,
     },
-    ContentType.BIKE_SERVICE_STATION: {
+    BIKE_SERVICE_STATION: {
         "importer_name": "bike_service_stations",
         "to_services_list": True,
     },
-    ContentType.SHARE_CAR_PARKING_PLACE: {
-        "importer_name": "car_share_parking_places",
+    SHARE_CAR_PARKING_PLACE: {
+        "importer_name": "share_car_parking_places",
         "to_services_list": False,
     },
-    ContentType.NO_STAFF_PARKING: {
-        "importer_name": "no_staff_parkings",
+    NO_STAFF_PARKING: {
+        "importer_name": "disabled_and_no_staff_parkings",
         "to_services_list": False,
     },
-    ContentType.BERTH: {
+    DISABLED_PARKING: {
+        "importer_name": "disabled_and_no_staff_parkings",
+        "to_services_list": False,
+    },
+    LOADING_UNLOADING_PLACE: {
+        "importer_name": "loading_and_unloading_places",
+        "to_services_list": False,
+    },
+    BERTH: {
         "importer_name": "marinas",
         # Uses the marinas importer, but the data contains berths so define
         # optional display_name that is shown to the user instead of the importer name.
-        "display_name": "berhts",
+        "display_name": "berths",
         "to_services_list": False,
     },
 }

@@ -11,6 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from munigeo.models import (
     AdministrativeDivision,
     AdministrativeDivisionGeometry,
+    AdministrativeDivisionType,
     Municipality,
 )
 
@@ -84,8 +85,14 @@ def get_municipality_name_by_point(point):
     is located.
     """
     try:
+        muni_type = AdministrativeDivisionType.objects.get(type="muni")
+    except AdministrativeDivisionType.DoesNotExist:
+        return None
+    try:
         # resolve in which division the point is.
-        division = AdministrativeDivisionGeometry.objects.get(boundary__contains=point)
+        division = AdministrativeDivisionGeometry.objects.get(
+            division__type=muni_type, boundary__contains=point
+        )
     except AdministrativeDivisionGeometry.DoesNotExist:
         return None
     # Get the division and return its name.
@@ -236,6 +243,18 @@ def get_municipality(name):
     try:
         return Municipality.objects.get(name=name)
     except Municipality.DoesNotExist:
+        return None
+
+
+def get_turku_boundary():
+    division_turku = AdministrativeDivision.objects.filter(name="Turku").first()
+    if division_turku:
+        turku_boundary = AdministrativeDivisionGeometry.objects.get(
+            division=division_turku
+        ).boundary
+        turku_boundary.transform(settings.DEFAULT_SRID)
+        return turku_boundary
+    else:
         return None
 
 

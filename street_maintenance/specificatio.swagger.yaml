@@ -1,0 +1,154 @@
+swagger: "2.0"
+
+info:
+  description: "Street maintenance API that serves history data of maintenance works, active events and provides history as generated geometries."
+  version: "1.0.0"
+  title: "Street Maintenance History"  
+  
+schemes:
+- "https"
+- "http"
+
+definitions:
+  maintenance_unit:
+    type: object
+    title: MaintenanceUnit
+    description: "The maintenace unit."
+    properties:
+      id:
+        type: integer
+      unit_id:
+        type: integer
+        description: "The id(name) of the unit."
+  maintenance_work:
+    type: object
+    title: MaintenanceWork
+    description: "The isolated work performed by the unit."
+    properties:
+      id:
+        type: integer
+     geometry: 
+        type: string
+      timestamp:
+        type: string
+      maintenance_unit:
+        type: integer
+      events:
+        type: array
+        description: "Name of the events."
+        items:
+          type: string 
+      coords:
+        description: "Returns if geometry is of type Linestring."
+        type: array
+      lat:
+        description: "Returns if geometry is of type Point."
+        type: number
+      lon: 
+        description: "Returns if geometry is of type Point."
+        type: number
+
+paths:
+  /maintenance_units/:
+    get:
+      summary: "Returns list of maintenance units."
+      responses:
+        200:
+          description: "List of maintenance units."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/maintenance_unit"
+  /maintenance_units/{id}:
+    get:
+      summary: "Return a maintenance unit by id."
+      parameters:
+      - name: "id"
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "Maintenance unit object."
+          schema:
+            $ref: "#/definitions/maintenance_unit"
+            
+  /maintenance_works/:
+    get:
+      summary: "Returns list of maintenance works. A work is a single work event."
+      parameters:
+        - $ref: "#/components/parameters/event_param"
+        - $ref: "#/components/parameters/start_date_time_param"
+        - $ref: "#/components/parameters/unit_id_param"
+      responses:
+        200:
+          description: "List of maintenance works"
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/maintenance_work"
+  /maintenance_works/{id}:
+    get:
+      summary: "Return a single maintenace work."
+      parameters:
+      - name: "id"
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "The maintenance work object."
+          schema:
+            $ref: "#/definitions/maintenance_work"
+  /maintenance_works/get_geometry_history:
+    get:
+      summary: "From the given parameters generates linestrings for the event. If two or more points can not be determined to belong to the linestring output a point."
+      parameters:
+        - $ref: "#/components/parameters/event_param"
+        - $ref: "#/components/parameters/start_date_time_param"
+        - $ref: "#/components/parameters/max_work_length_param"
+      responses:
+        200:
+          description: "Returns Linestrings and Points of works of given event from given start date and time."
+  /active_events/:
+    get:
+      summary: "Returns a list of active events with their mapped names. i.e., event names that are shown in the front end, not the names that are in the source data."
+      responses:
+        200:
+          description: "List of active events."
+  
+components:
+  parameters:
+    event_param:
+      name: event
+      in: query
+      description: "Return works of given event. The event name is the mapped name and the active event names can be seen from the active_events endpoint."
+      schema:
+        type: string
+    start_date_time_param:
+      name: start_date_time
+      in: query
+      description: "The start date and time of the works to fetch. Must be in format YYYY-MM-DD HH:MM e.g.,'2022-09-18 10:00' "
+      schema:
+        type: string
+    unit_id_param:
+      name: unit_id
+      in: query
+      description: "The 'unit_id' of the maintenance unit"
+      schema:
+        type: integer
+    max_work_length_param:
+      name: max_work_length
+      in: query
+      description: "The max work length in Seconds of one uniform work. I.e, if the delta time of two works timestamps are greated than the max work length it will end the linestring and create a new. Changing the value can be usefull for different events as their length of the uniform work can vary."
+      default: 1800
+      schema:
+        type: integer
+                  
+  

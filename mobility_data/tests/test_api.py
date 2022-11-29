@@ -10,8 +10,7 @@ def test_content_type(api_client, content_type):
     response = api_client.get(url)
     assert response.status_code == 200
     results = response.json()["results"][0]
-    assert results["type_name"] == "TTT"
-    assert results["name"] == "test"
+    assert results["name"] == "Test"
     assert results["description"] == "test content type"
 
 
@@ -21,8 +20,7 @@ def test_group_type(api_client, group_type):
     response = api_client.get(url)
     assert response.status_code == 200
     results = response.json()["results"][0]
-    assert results["type_name"] == "TGT"
-    assert results["name"] == "test group"
+    assert results["name"] == "TestGroup"
     assert results["description"] == "test group type"
 
 
@@ -35,8 +33,36 @@ def test_mobile_unit(api_client, mobile_unit, content_type):
     assert results["name"] == "Test mobileunit"
     assert results["description"] == "Test description"
     assert results["content_type"]["id"] == str(content_type.id)
-    assert results["extra"]["test"] == "4242"
+    assert results["extra"]["test_string"] == "4242"
+    assert results["extra"]["test_int"] == 4242
+    assert results["extra"]["test_float"] == 42.42
     assert results["geometry"] == Point(42.42, 21.21, srid=settings.DEFAULT_SRID)
+    url = (
+        reverse("mobility_data:mobile_units-list")
+        + "?type_name=Test?extra__test_string=4242"
+    )
+    response = api_client.get(url)
+    assert response.status_code == 200
+    results = response.json()["results"][0]
+    assert results["name"] == "Test mobileunit"
+    # Test int value in extra field
+    url = (
+        reverse("mobility_data:mobile_units-list")
+        + "?type_name=Test?extra__test_int=4242"
+    )
+    response = api_client.get(url)
+    assert response.status_code == 200
+    results = response.json()["results"][0]
+    assert results["name"] == "Test mobileunit"
+    # Test float value in extra field
+    url = (
+        reverse("mobility_data:mobile_units-list")
+        + "?type_name=Test?extra__test_float=42.42"
+    )
+    response = api_client.get(url)
+    assert response.status_code == 200
+    results = response.json()["results"][0]
+    assert results["name"] == "Test mobileunit"
 
 
 @pytest.mark.django_db

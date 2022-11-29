@@ -17,6 +17,7 @@ from smbackend_turku.importers.bike_service_stations import (
     delete_bike_service_stations,
     import_bike_service_stations,
 )
+from smbackend_turku.importers.divisions import import_divisions
 from smbackend_turku.importers.geo_search import (
     import_enriched_addresses,
     import_geo_search_addresses,
@@ -51,6 +52,7 @@ class Command(BaseCommand):
         "addresses",
         "geo_search_addresses",
         "enriched_addresses",
+        "divisions",
         MOBILITY_DATA,
     ] + external_sources
 
@@ -128,6 +130,10 @@ class Command(BaseCommand):
 
     def import_enriched_addresses(self):
         return import_enriched_addresses(logger=self.logger)
+
+    @db.transaction.atomic
+    def import_divisions(self):
+        return import_divisions(logger=self.logger)
 
     @db.transaction.atomic
     def import_gas_filling_stations(self):

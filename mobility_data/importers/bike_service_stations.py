@@ -13,13 +13,14 @@ from mobility_data.importers.utils import (
     get_street_name_translations,
     set_translated_field,
 )
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import MobileUnit
 
 logger = logging.getLogger("mobility_data")
 
 SOURCE_DATA_SRID = 3877
 GEOJSON_FILENAME = "Pyorienkorjauspisteet_2022.geojson"
 LANGUAGES = [language[0] for language in settings.LANGUAGES]
+CONTENT_TYPE_NAME = "BikeServiceStation"
 
 
 class BikeServiceStation:
@@ -73,7 +74,7 @@ def get_bike_service_station_objects(geojson_file=None):
     bicycle_repair_points = []
     file_name = None
     if not geojson_file:
-        file_name = get_file_name_from_data_source(ContentType.BIKE_SERVICE_STATION)
+        file_name = get_file_name_from_data_source(CONTENT_TYPE_NAME)
         if not file_name:
             file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
         else:
@@ -90,16 +91,13 @@ def get_bike_service_station_objects(geojson_file=None):
 
 @db.transaction.atomic
 def delete_bike_service_stations():
-    delete_mobile_units(ContentType.BIKE_SERVICE_STATION)
+    delete_mobile_units(CONTENT_TYPE_NAME)
 
 
 @db.transaction.atomic
 def create_bike_service_station_content_type():
     description = "Bike service stations in the Turku region."
-    name = "Bike service station"
-    content_type, _ = get_or_create_content_type(
-        ContentType.BIKE_SERVICE_STATION, name, description
-    )
+    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
     return content_type
 
 

@@ -137,6 +137,7 @@ paths:
         - $ref: "#/components/parameters/srid_param"
         - $ref: "#/components/parameters/latlon_param"
         - $ref: "#/components/parameters/type_name_param"
+        - $ref: "#/components/parameters/extra_param"
       responses:
         200:
           description: "List of MobileUnits."
@@ -281,3 +282,12 @@ components:
       schema:
         type: boolean
       example: true
+
+    extra_param:
+      name: extra__
+      in: query
+      description: Filter with the content of a extra field.
+      required: false
+      schema:
+        type: string
+      example: extra__fieldname=value

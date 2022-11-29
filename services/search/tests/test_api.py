@@ -4,44 +4,132 @@ from rest_framework.reverse import reverse
 
 @pytest.mark.django_db
 def test_search(
-    api_client, units, streets, services, addresses, administrative_division
+    api_client,
+    units,
+    streets,
+    services,
+    service_nodes,
+    addresses,
+    administrative_division,
+    accessibility_shortcoming,
+    municipality,
 ):
-    # Note for yet unkown reasons postgresql trigram extension is
-    # not working under pytest, to overcome all test are made so that
-    # trigram search is not used.
-
-    # Search only units and services, no munigeo data in fixtures
-    url = reverse("search") + "?q=museo&use_trigram=false&extended_serializer=false"
+    # Search for "museo" in entities: units,services and servicenods
+    url = reverse("search") + "?q=museo&type=unit,service,servicenode"
     response = api_client.get(url)
     assert response.status_code == 200
     results = response.json()["results"]
-    assert results[0]["object_type"] == "unit"
-    assert results[0]["name"]["fi"] == "Museo"
-    assert results[2]["object_type"] == "service"
-    assert results[2]["name"]["sv"] == "Museum"
+    # Should find one Unit, one Service and one ServiceNode
+    assert len(results) == 3
+    # Test that all Unit fields are serialized
+    biological_museum_unit = results[0]
+    assert biological_museum_unit["object_type"] == "unit"
+    assert biological_museum_unit["name"]["fi"] == "Biologinen museo"
+    assert biological_museum_unit["name"]["sv"] == "Biologiska museet"
+    assert biological_museum_unit["name"]["en"] == "Biological Museum"
+    assert biological_museum_unit["street_address"] == "Neitsytpolku 1"
+    assert biological_museum_unit["municipality"] == "turku"
+    assert biological_museum_unit["contract_type"]["id"] == "municipal_service"
 
-    # Test that unit Impivara is retrived from service Uimahalli
-    url = reverse("search") + "?q=uimahalli&use_trigram=false&extended_serializer=false"
+    assert (
+        biological_museum_unit["contract_type"]["description"]["fi"]
+        == "municipal_service"
+    )
+    assert (
+        biological_museum_unit["contract_type"]["description"]["sv"]
+        == "municipal_service"
+    )
+    assert (
+        biological_museum_unit["contract_type"]["description"]["en"]
+        == "municipal_service"
+    )
+    assert biological_museum_unit["department"]["name"]["fi"] == "Test Department"
+    assert (
+        biological_museum_unit["department"]["street_address"]["fi"]
+        == "Test Address 42"
+    )
+    assert biological_museum_unit["department"]["municipality"] == "turku"
+    assert biological_museum_unit["accessibility_shortcoming_count"]["rollator"] == 5
+    assert biological_museum_unit["accessibility_shortcoming_count"]["stroller"] == 1
+    assert biological_museum_unit["location"]["type"] == "Point"
+    assert biological_museum_unit["location"]["coordinates"][0] == 22.24
+    assert biological_museum_unit["location"]["coordinates"][1] == 60.44
+    # Test Service fields.
+    museum_service = results[1]
+    assert museum_service
+    assert museum_service["object_type"] == "service"
+    assert museum_service["name"]["fi"] == "Museot"
+    assert museum_service["name"]["sv"] == "Museum"
+    assert museum_service["name"]["en"] == "Museum"
+    assert museum_service["unit_count"]["municipality"]["turku"] == 1
+    assert museum_service["unit_count"]["total"] == 1
+    assert museum_service["root_service_node"]["name"]["fi"] == "Vapaa-aika"
+    assert museum_service["root_service_node"]["name"]["sv"] == "Fritid"
+    assert museum_service["root_service_node"]["name"]["en"] == "Leisure"
+    # Test ServiceNode fields
+    museum_service_node = results[2]
+    assert museum_service_node["object_type"] == "servicenode"
+    assert museum_service_node["ids"] == ["2"]
+    assert museum_service_node["name"]["fi"] == "Museot"
+    assert museum_service_node["name"]["sv"] == "Museer"
+    assert museum_service_node["name"]["en"] == "Museums"
+    assert museum_service_node["root_service_node"]["name"]["fi"] == "Vapaa-aika"
+    assert museum_service_node["root_service_node"]["name"]["sv"] == "Fritid"
+    assert museum_service_node["root_service_node"]["name"]["en"] == "Leisure"
+    assert museum_service_node["unit_count"]["municipality"]["turku"] == 1
+    assert museum_service_node["unit_count"]["total"] == 1
+    # Test that unit "Impivara" is retrieved from service Uimahalli
+    url = reverse("search") + "?q=uimahalli&type=unit"
     response = api_client.get(url)
     results = response.json()["results"]
     assert results[0]["name"]["fi"] == "Impivaara"
-    assert results[1]["name"]["fi"] == "Uimahalli"
-    # Test address search
-    url = reverse("search") + "?q=kurra&use_trigram=false"
+    assert results[0]["object_type"] == "unit"
+    # Test syllables and include parameter by searching "asema"
+    url = reverse("search") + "?q=asema&type=unit&include=unit.www,unit.phone"
     response = api_client.get(url)
     results = response.json()["results"]
-    assert results[0]["name"]["fi"] == "Kurrapolku 1A"
-    assert results[0]["object_type"] == "address"
-    # Test administrative division search
-    url = reverse("search") + "?q=tur&use_trigram=false&extended_serializer=false"
+    assert len(results) == 1
+    assert results[0]["object_type"] == "unit"
+    assert results[0]["name"]["fi"] == "Terveysasema"
+    assert results[0]["www"] == "www.test.com"
+    assert results[0]["phone"] == "02020242"
+    # Test municipality parameter.
+    url = reverse("search") + "?q=museo&type=unit&municipality=raisio"
     response = api_client.get(url)
     results = response.json()["results"]
-    assert results[0]["object_type"] == "administrativedivision"
-    assert results[0]["name"]["fi"] == "Turku"
-    # Test that addresses are sorted by naturalsort
-    url = reverse("search") + "?q=yliopistonkatu"
+    # No results for municipality "Raisio".
+    assert len(results) == 0
+    # Test address search and serialization.
+    url = reverse("search") + "?q=kurra&type=address"
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert len(results) == 1
+    kurrapolku = results[0]
+    assert kurrapolku["object_type"] == "address"
+    assert kurrapolku["name"]["fi"] == "Kurrapolku 1A"
+    assert kurrapolku["name"]["sv"] == "Kurrastigen 1A"
+    assert kurrapolku["name"]["en"] == "Kurrapolku 1A"
+    assert kurrapolku["number"] == "1"
+    assert kurrapolku["number_end"] == "2"
+    assert kurrapolku["letter"] == "A"
+    assert kurrapolku["municipality"]["id"] == "turku"
+    assert kurrapolku["municipality"]["name"]["fi"] == "Turku"
+    assert kurrapolku["municipality"]["name"]["sv"] == "Åbo"
+    assert kurrapolku["street"]["name"]["fi"] == "Kurrapolku"
+    assert kurrapolku["street"]["name"]["sv"] == "Kurrastigen"
+    assert kurrapolku["location"]["type"] == "Point"
+    assert kurrapolku["location"]["coordinates"][0] == 60.479032
+    assert kurrapolku["location"]["coordinates"][1] == 22.25417
+    # Test that addresses are sorted by naturalsort.
+    url = reverse("search") + "?q=yliopistonkatu&type=address"
     response = api_client.get(url)
     results = response.json()["results"]
     assert results[0]["name"]["fi"] == "Yliopistonkatu 5"
     assert results[1]["name"]["fi"] == "Yliopistonkatu 21"
     assert results[2]["name"]["fi"] == "Yliopistonkatu 33"
+    # Test administrative division search.
+    url = reverse("search") + "?q=tur&type=administrativedivision"
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert results[0]["object_type"] == "administrativedivision"
+    assert results[0]["name"]["fi"] == "Turku"

@@ -1,6 +1,10 @@
 import pytest
 from munigeo.models import Municipality
 
+from mobility_data.importers.disabled_and_no_staff_parking import (
+    DISABLED_PARKING_CONTENT_TYPE_NAME,
+    NO_STAFF_PARKING_CONTENT_TYPE_NAME,
+)
 from mobility_data.models import MobileUnit
 
 from .utils import import_command
@@ -8,13 +12,17 @@ from .utils import import_command
 
 @pytest.mark.django_db
 def test_geojson_import(municipality):
-    import_command("import_no_staff_parkings", test_mode="autopysäköinti_eihlö.geojson")
+    import_command(
+        "import_disabled_and_no_staff_parkings",
+        test_mode="autopysäköinti_eihlö.geojson",
+    )
     assert MobileUnit.objects.all().count() == 3
     try:
         turku_muni = Municipality.objects.get(name="Turku")
     except Municipality.DoesNotExist:
         assert turku_muni
     kupittaan_maauimala = MobileUnit.objects.get(name="Kupittaan maauimala")
+    assert kupittaan_maauimala.content_type.name == DISABLED_PARKING_CONTENT_TYPE_NAME
     assert kupittaan_maauimala
     assert kupittaan_maauimala.name_sv == "Kuppis utebad"
     assert kupittaan_maauimala.name_en == "Kupittaa outdoor pool"
@@ -29,6 +37,10 @@ def test_geojson_import(municipality):
     assert kupittaan_maauimala.extra["rajoitustyyppi"]["en"] == "Special area"
 
     kupittaan_seikkailupuisto = MobileUnit.objects.get(name="Kupittaan seikkailupuisto")
+    assert (
+        kupittaan_seikkailupuisto.content_type.name
+        == NO_STAFF_PARKING_CONTENT_TYPE_NAME
+    )
     assert kupittaan_seikkailupuisto
     assert kupittaan_seikkailupuisto.address_sv == "Tahkogränden 5"
     assert kupittaan_seikkailupuisto.extra["paikkoja_y"] == 9
@@ -38,6 +50,9 @@ def test_geojson_import(municipality):
 
     kupittaan_urheiluhalli = MobileUnit.objects.get(name="Kupittaan urheiluhalli")
     assert kupittaan_urheiluhalli
+    assert (
+        kupittaan_urheiluhalli.content_type.name == NO_STAFF_PARKING_CONTENT_TYPE_NAME
+    )
     assert kupittaan_urheiluhalli.name_en == "Kupittaa sports hall"
     assert kupittaan_urheiluhalli.extra["sahkolatauspaikkoja"] == 42
     assert kupittaan_urheiluhalli.extra["tolppapaikkoja"] == 24

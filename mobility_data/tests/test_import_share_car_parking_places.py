@@ -1,5 +1,6 @@
 import pytest
 
+from mobility_data.importers.share_car_parking_places import CONTENT_TYPE_NAME
 from mobility_data.models import ContentType, MobileUnit
 
 from .utils import import_command
@@ -10,18 +11,8 @@ def test_import_car_share_parking_places():
     import_command(
         "import_share_car_parking_places", test_mode="share_car_parking_places.geojson"
     )
-    assert (
-        ContentType.objects.filter(
-            type_name=ContentType.SHARE_CAR_PARKING_PLACE
-        ).count()
-        == 1
-    )
-    assert (
-        MobileUnit.objects.filter(
-            content_type__type_name=ContentType.SHARE_CAR_PARKING_PLACE
-        ).count()
-        == 3
-    )
+    assert ContentType.objects.filter(name=CONTENT_TYPE_NAME).count() == 1
+    assert MobileUnit.objects.filter(content_type__name=CONTENT_TYPE_NAME).count() == 3
     linnankatu = MobileUnit.objects.get(
         name="Yhteiskäyttöautojen pysäköintipaikka, Linnankatu 29"
     )

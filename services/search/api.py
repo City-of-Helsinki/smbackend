@@ -30,7 +30,11 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 from rest_framework.generics import GenericAPIView
 
-from services.api import TranslatedModelSerializer, UnitSerializer
+from services.api import (
+    TranslatedModelSerializer,
+    UnitConnectionSerializer,
+    UnitSerializer,
+)
 from services.models import (
     Department,
     Service,
@@ -114,22 +118,22 @@ class SearchSerializer(serializers.Serializer):
             names["en"] = getattr(obj, "name_en")
             representation["name"] = names
 
-        if self.context["extended_serializer"]:
-            if object_type == "unit":
-                representation["street_address"] = getattr(obj, "street_address")
-                if hasattr(obj.municipality, "id"):
-                    representation["municipality"] = getattr(obj.municipality, "id")
-                try:
-                    shortcomings = obj.accessibility_shortcomings
-                except UnitAccessibilityShortcomings.DoesNotExist:
-                    shortcomings = UnitAccessibilityShortcomings()
-                representation[
-                    "accessibility_shortcoming_count"
-                ] = shortcomings.accessibility_shortcoming_count
-                representation["contract_type"] = UnitSerializer.get_contract_type(
-                    self, obj
-                )
-                representation["department"] = DepartmentSerializer(obj.department).data
+        if object_type == "unit":
+            representation["street_address"] = getattr(obj, "street_address")
+            if hasattr(obj.municipality, "id"):
+                representation["municipality"] = getattr(obj.municipality, "id")
+            try:
+                shortcomings = obj.accessibility_shortcomings
+            except UnitAccessibilityShortcomings.DoesNotExist:
+                shortcomings = UnitAccessibilityShortcomings()
+            representation[
+                "accessibility_shortcoming_count"
+            ] = shortcomings.accessibility_shortcoming_count
+            representation["contract_type"] = UnitSerializer.get_contract_type(
+                self, obj
+            )
+            representation["department"] = DepartmentSerializer(obj.department).data
+            if self.context["geometry"]:
                 if obj.geometry:
                     representation["geometry"] = munigeo_api.geom_to_json(
                         obj.geometry, DEFAULT_SRS
@@ -137,20 +141,42 @@ class SearchSerializer(serializers.Serializer):
                 else:
                     representation["geometry"] = None
 
-            if object_type == "address":
-                set_address_fields(obj, representation)
+        if object_type == "address":
+            set_address_fields(obj, representation)
+        if object_type == "service":
+            set_service_unit_count(obj, representation)
+            representation["root_service_node"] = RootServiceNodeSerializer(
+                obj.root_service_node
+            ).data
+        if object_type == "unit" or object_type == "address":
+            if obj.location:
+                representation["location"] = munigeo_api.geom_to_json(
+                    obj.location, DEFAULT_SRS
+                )
 
-            if object_type == "service":
-                set_service_unit_count(obj, representation)
-                representation["root_service_node"] = RootServiceNodeSerializer(
-                    obj.root_service_node
-                ).data
+        for include in self.context["include"]:
+            try:
+                include_object_type, include_field = include.split(".")
+            except ValueError:
+                raise ParseError(
+                    "'include' list elements must be in format: entity.field, e.g., unit.connections."
+                )
 
-            if object_type == "unit" or object_type == "address":
-                if obj.location:
-                    representation["location"] = munigeo_api.geom_to_json(
-                        obj.location, DEFAULT_SRS
-                    )
+            if object_type == "unit" and include_object_type == "unit":
+                if "connections" in include_field:
+                    representation["connections"] = UnitConnectionSerializer(
+                        obj.connections, many=True
+                    ).data
+                else:
+                    if hasattr(obj, include_field):
+                        representation[include_field] = getattr(
+                            obj, include_field, None
+                        )
+                    else:
+                        raise ParseError(
+                            f"Entity {object_type} does not contain a {include_field} field."
+                        )
+
         return representation
 
 
@@ -161,14 +187,13 @@ class SearchViewSet(GenericAPIView):
         model_limits = {}
         show_only_address = False
         units_order_list = ["provider_type"]
-        extended_serializer = True
         for model in list(QUERY_PARAM_TYPE_NAMES):
             model_limits[model] = DEFAULT_MODEL_LIMIT_VALUE
 
         params = self.request.query_params
-        q_val = params.get("q", "").strip()
+        q_val = params.get("q", "").strip() or params.get("input", "").strip()
         if not q_val:
-            raise ParseError("Supply search terms with 'q=' '")
+            raise ParseError("Supply search terms with 'q=' ' or input=' '")
 
         types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])
         types = params.get("type", types_str).split(",")
@@ -187,11 +212,13 @@ class SearchViewSet(GenericAPIView):
         else:
             trigram_threshold = DEFAULT_TRIGRAM_THRESHOLD
 
-        if "extended_serializer" in params:
+        if "geometry" in params:
             try:
-                extended_serializer = strtobool(params["extended_serializer"])
+                show_geometry = strtobool(params["geometry"])
             except ValueError:
-                raise ParseError("'extended_serializer' needs to be a boolean")
+                raise ParseError("'geometry' needs to be a boolean")
+        else:
+            show_geometry = False
 
         if "order_units_by_num_services" in params:
             try:
@@ -206,6 +233,10 @@ class SearchViewSet(GenericAPIView):
         if order_units_by_num_services:
             units_order_list.append("-num_services")
 
+        if "include" in params:
+            include_fields = params["include"].split(",")
+        else:
+            include_fields = []
         # Limit number of results in searchquery.
         if "sql_query_limit" in params:
             try:
@@ -382,8 +413,9 @@ class SearchViewSet(GenericAPIView):
                 )
                 if len(municipalities) > 0:
                     addresses_qs = addresses_qs.filter(
-                        street__municipality_id__in=municipalities
+                        municipality_id__in=municipalities
                     )
+
             addresses_qs = addresses_qs[: model_limits["address"]]
             # Use naturalsort function that is migrated to munigeo to
             # sort the addresses.
@@ -433,8 +465,9 @@ class SearchViewSet(GenericAPIView):
             page,
             many=True,
             context={
-                "extended_serializer": extended_serializer,
                 "service_node_ids": service_node_ids,
+                "include": include_fields,
+                "geometry": show_geometry,
             },
         )
         return self.get_paginated_response(serializer.data)

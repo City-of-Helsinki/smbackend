@@ -25,12 +25,12 @@ CHARGING_STATION_SERVICE_NAMES = {
     "en": "Car e-charging point",
 }
 
-BICYCLE_STAND_SERVICE_NODE_NAME = "Pyöräpysäköinti"
+BICYCLE_STAND_SERVICE_NODE_NAME = "Pyöräpysäköinnit"
 BICYCLE_STAND_SERVICE_NAME = "Pyöräpysäköinti"
 BICYCLE_STAND_SERVICE_NODE_NAMES = {
     "fi": BICYCLE_STAND_SERVICE_NODE_NAME,
-    "sv": "Cykelparkering",
-    "en": "Bicycle parking",
+    "sv": "Cykelparkeringar",
+    "en": "Bicycle parkings",
 }
 BICYCLE_STAND_SERVICE_NAMES = {
     "fi": BICYCLE_STAND_SERVICE_NAME,

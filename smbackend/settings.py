@@ -48,6 +48,15 @@ env = environ.Env(
     CHARGING_STATIONS_IDS=(dict, {}),
     BICYCLE_STANDS_IDS=(dict, {}),
     BIKE_SERVICE_STATIONS_IDS=(dict, {}),
+    AUTORI_SCOPE=(str, None),
+    AUTORI_CLIENT_ID=(str, None),
+    AUTORI_CLIENT_SECRET=(str, None),
+    AUTORI_EVENTS_URL=(str, None),
+    AUTORI_ROUTES_URL=(str, None),
+    AUTORI_VEHICLES_URL=(str, None),
+    AUTORI_CONTRACTS_URL=(str, None),
+    AUTORI_TOKEN_URL=(str, None),
+    KUNTEC_KEY=(str, None),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -92,6 +101,7 @@ INSTALLED_APPS = [
     "mobility_data.apps.MobilityDataConfig",
     "bicycle_network.apps.BicycleNetworkConfig",
     "iot.apps.IotConfig",
+    "street_maintenance.apps.StreetMaintenanceConfig",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
@@ -275,6 +285,7 @@ LOGGING = {
         "eco_counter": {"handlers": ["console"], "level": "INFO"},
         "mobility_data": {"handlers": ["console"], "level": "INFO"},
         "bicycle_network": {"handlers": ["console"], "level": "INFO"},
+        "street_maintenance": {"handlers": ["console"], "level": "INFO"},
     },
 }
 
@@ -301,6 +312,9 @@ CACHES = {
         "LOCATION": env("CACHE_LOCATION"),
     }
 }
+# Include extended information. i.e. name of the task etc. otherwise the name will be empty in
+# version 2.4.0
+CELERY_RESULT_EXTENDED = True
 
 # Use in tests with override_settings CACHES = settings.TEST_CACHES
 TEST_CACHES = {
@@ -368,3 +382,12 @@ BICYCLE_STANDS_IDS = {k: int(v) for k, v in env("BICYCLE_STANDS_IDS").items()}
 BIKE_SERVICE_STATIONS_IDS = {
     k: int(v) for k, v in env("BIKE_SERVICE_STATIONS_IDS").items()
 }
+AUTORI_SCOPE = env("AUTORI_SCOPE")
+AUTORI_CLIENT_ID = env("AUTORI_CLIENT_ID")
+AUTORI_CLIENT_SECRET = env("AUTORI_CLIENT_SECRET")
+AUTORI_EVENTS_URL = env("AUTORI_EVENTS_URL")
+AUTORI_ROUTES_URL = env("AUTORI_ROUTES_URL")
+AUTORI_VEHICLES_URL = env("AUTORI_VEHICLES_URL")
+AUTORI_CONTRACTS_URL = env("AUTORI_CONTRACTS_URL")
+AUTORI_TOKEN_URL = env("AUTORI_TOKEN_URL")
+KUNTEC_KEY = env("KUNTEC_KEY")

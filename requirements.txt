@@ -8,7 +8,7 @@ amqp==5.0.9
     # via kombu
 appdirs==1.4.4
     # via requests-cache
-asgiref==3.4.1
+asgiref==3.5.2
     # via django
 attrs==21.2.0
     # via
@@ -48,7 +48,7 @@ coverage==5.5
     # via pytest-cov
 deprecated==1.2.13
     # via redis
-django==4.0.7
+django==4.1.2
     # via
     #   -r requirements.in
     #   django-celery-beat
@@ -81,7 +81,7 @@ django-mptt==0.13.4
     # via
     #   -r requirements.in
     #   django-munigeo
-django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.73
+django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.76
     # via -r requirements.in
 django-polymorphic==3.1.0
     # via -r requirements.in
@@ -146,6 +146,8 @@ platformdirs==2.4.0
     # via black
 pluggy==1.0.0
     # via pytest
+polyline==1.4.0
+    # via -r requirements.in
 prompt-toolkit==3.0.26
     # via click-repl
 psycopg2-binary==2.8.6
@@ -160,6 +162,8 @@ pykml==0.2.0
     # via -r requirements.in
 pyparsing==2.4.7
     # via packaging
+pyshp==2.3.1
+    # via -r requirements.in
 pytest==6.2.5
     # via
     #   pytest-cov
@@ -204,6 +208,7 @@ six==1.16.0
     #   click-repl
     #   django-modeltranslation
     #   django-munigeo
+    #   polyline
     #   python-dateutil
     #   requests-mock
     #   url-normalize

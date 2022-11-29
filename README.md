@@ -1,7 +1,6 @@
+[![Service Map API tests](https://github.com/City-of-Turku/smbackend/actions/workflows/run-tests.yml/badge.svg)](https://github.com/City-of-Turku/smbackend/actions/workflows/run-tests.yml)
+[![codecov](https://codecov.io/github/City-of-Turku/smbackend/branch/turku/graph/badge.svg?token=IZJMSFNJB5)](https://codecov.io/github/City-of-Turku/smbackend)
 
-[![Build status](https://api.travis-ci.com/City-of-Helsinki/smbackend.svg?branch=master)](https://travis-ci.org/github/City-of-Helsinki/smbackend)
-[![Codecov](https://codecov.io/gh/City-of-Helsinki/smbackend/branch/master/graph/badge.svg)](https://codecov.io/gh/City-of-Helsinki/smbackend)
-[![Requirements](https://requires.io/github/City-of-Helsinki/smbackend/requirements.svg?branch=master)](https://requires.io/github/City-of-Helsinki/smbackend/requirements/?branch=master)
 
 Service Map Backend
 ===================
@@ -195,3 +194,7 @@ Can be fixed by adding the pg_trgm extension to the database:
 ```
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
 ```
+
+Mobility platform
+-----------------
+The mobility data platform of the service map is being developed as part of European Union Horizon 2020 programme funded SCALE-UP project (grant agreement no. 955332).

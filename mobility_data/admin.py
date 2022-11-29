@@ -4,7 +4,6 @@ from os import listdir, remove
 from django.conf import settings
 from django.contrib import admin, messages
 
-from mobility_data.constants import DATA_SOURCE_IMPORTERS
 from mobility_data.forms import CustomDataSourceForm
 from mobility_data.models import (
     ContentType,
@@ -94,7 +93,8 @@ class MobileUnitGroupAdmin(admin.ModelAdmin):
 
 
 class ContentTypeAdmin(admin.ModelAdmin):
-    readonly_fields = ("id", "type_name", "name", "description")
+    # readonly_fields = ("id", "type_name", "name", "description")
+    readonly_fields = ("id", "name", "description")
 
 
 class GroupTypeAdmin(admin.ModelAdmin):
@@ -105,12 +105,9 @@ class DataSourceAdmin(admin.ModelAdmin):
     form = CustomDataSourceForm
     list_display = (
         "name",
-        "importer_name",
+        "type_name",
         "data_file",
     )
-
-    def importer_name(self, obj):
-        return DATA_SOURCE_IMPORTERS[obj.type_name]["importer_name"]
 
     def delete_queryset(self, request, queryset):
         for obj in queryset:
