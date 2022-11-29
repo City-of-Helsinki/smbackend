@@ -23,7 +23,7 @@ TURKU_BOUNDARY = get_turku_boundary()
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
-            "--infraroad-history-size",
+            "--history-size",
             type=int,
             nargs="+",
             default=False,
@@ -62,7 +62,9 @@ class Command(BaseCommand):
                     event_name = event.lower()
                     if event_name in EVENT_MAPPINGS:
                         for e in EVENT_MAPPINGS[event_name]:
-                            events.append(e)
+                            # If mapping value is None, the event is not used.
+                            if e:
+                                events.append(e)
                     else:
                         logger.warning(f"Found unmapped event: {event}")
                 # If no events found discard the work
@@ -82,8 +84,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         importer_start_time = datetime.now()
         MaintenanceUnit.objects.filter(provider=MaintenanceUnit.INFRAROAD).delete()
-        if options["infraroad_history_size"]:
-            history_size = options["infraroad_history_size"][0]
+        if options["history_size"]:
+            history_size = options["history_size"][0]
         else:
             history_size = INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE
         self.create_infraroad_maintenance_works(history_size)
