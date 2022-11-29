@@ -24,8 +24,8 @@ AURAUS = "auraus"
 LIUKKAUDENTORJUNTA = "liukkaudentorjunta"
 PUHTAANAPITO = "puhtaanapito"
 HIEKANPOISTO = "hiekanpoisto"
-# MUUT is currenlty only for testing purposes, TODO, remove from production
-MUUT = "muut"
+# MUUT is set to None as the events are not currently displayed.
+MUUT = None
 
 # As data providers have different names for their events, they are mapped
 # with this dict, so that every event that does the same has the same name.
@@ -38,6 +38,8 @@ EVENT_MAPPINGS = {
     "auraus ja sohjonpoisto": [AURAUS],
     "lumen poisajo": [AURAUS],
     "lumensiirto": [AURAUS],
+    "etuaura": [AURAUS],
+    "alusterä": [AURAUS],
     "suolas": [LIUKKAUDENTORJUNTA],
     "suolaus (sirotinlaite)": [LIUKKAUDENTORJUNTA],
     "liuossuolaus": [LIUKKAUDENTORJUNTA],
@@ -70,6 +72,9 @@ EVENT_MAPPINGS = {
     "metsätyöt": [MUUT],
     "rikkakasvien torjunta": [MUUT],
     "paikkaus": [MUUT],
+    "lisälaite 1": [MUUT],
+    "lisälaite 2": [MUUT],
+    "lisälaite 3": [MUUT],
 }
 
 # The number of works(point data with timestamp and event) to be fetched for every unit.
