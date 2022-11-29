@@ -30,11 +30,10 @@ For continous (hourly) imports run:
 ./manage.py import_counter_data --counters COUNTERS
 e.g. ./manage.py import_counter_data --counters EC TC
 Counter names are: EC (Eco Counter), TC (Traffic Counter) and LC (Lam Counter).
+Note, Traffic Counter data is updated once a week.
 
 ## Troubleshooting
-
 For reasons unknown, the amount of sensors can sometimes change in the source csv file, e.g. the amount of columns changes. If this happens, run the initial import: ./manage.py import_counter_data --init and after that it is safe to run the importer as normal.
-
 
 ## Testing
 If changes are made to the importer, run tests that verifies the correctness with:
