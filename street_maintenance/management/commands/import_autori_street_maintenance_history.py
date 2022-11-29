@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from django.contrib.gis.geos import LineString, Point
+from django.contrib.gis.geos import LineString
 from django.core.management.base import BaseCommand
 
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
@@ -50,10 +50,11 @@ class Command(BaseCommand):
                     f"Route contains multiple features. {route['geography']['features']}"
                 )
             coordinates = route["geography"]["features"][0]["geometry"]["coordinates"]
-            if is_nested_coordinates(coordinates):
+            if is_nested_coordinates(coordinates) and len(coordinates) > 2:
                 geometry = LineString(coordinates, srid=DEFAULT_SRID)
             else:
-                geometry = Point(coordinates, srid=DEFAULT_SRID)
+                # Remove other data, contains faulty linestrings.
+                continue
 
             if not TURKU_BOUNDARY.covers(geometry):
                 continue
@@ -64,7 +65,9 @@ class Command(BaseCommand):
                 event_name = event_name_mappings[operation].lower()
                 if event_name in EVENT_MAPPINGS:
                     for e in EVENT_MAPPINGS[event_name]:
-                        events.append(e)
+                        # If mapping value is None, the event is not used.
+                        if e:
+                            events.append(e)
                 else:
                     logger.warning(
                         f"Found unmapped event: {event_name_mappings[operation]}"
