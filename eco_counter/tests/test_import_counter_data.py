@@ -31,7 +31,7 @@ from eco_counter.models import (
 )
 
 TEST_EC_STATION_NAME = "Auransilta"
-TEST_TC_STATION_NAME = "Kalevanramppi"
+TEST_TC_STATION_NAME = "Myllysilta"
 TEST_LC_STATION_NAME = "Tie 8 Raisio"
 ECO_COUNTER_TEST_COLUMN_NAMES = [
     "startTime",
@@ -45,17 +45,17 @@ ECO_COUNTER_TEST_COLUMN_NAMES = [
 
 TRAFFIC_COUNTER_TEST_COLUMN_NAMES = [
     "startTime",
-    "Kalevanramppi AK",
-    "Kalevanramppi AP",
-    "Kalevanramppi PK",
-    "Kalevanramppi PP",
-    "Kalevanramppi JK",
-    "Kalevanramppi JP",
-    "Kalevanramppi BK",
-    "Kalevanramppi BP",
-    "Kalevantie 31 BK",
-    "Kalevantie 31 BP",
-    "Hämeentie 22 PK",
+    "Myllysilta AK",
+    "Myllysilta AP",
+    "Myllysilta PK",
+    "Myllysilta PP",
+    "Myllysilta JK",
+    "Myllysilta JP",
+    "Myllysilta BK",
+    "Myllysilta BP",
+    "Kalevantie 65 BK",
+    "Kalevantie 65 BP",
+    "Hämeentie 18 PK",
 ]
 
 LAM_COUNTER_TEST_COLUMN_NAMES = [
