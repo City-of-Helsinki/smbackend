@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     # Ubuntu latest is Ubuntu 20.04 as of 2022/6
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     env:
       # Database for tests
