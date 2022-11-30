@@ -92,7 +92,25 @@ def import_outdoor_trails(name="import_outdoor_trails"):
 
 @shared_task
 def import_traffic_signs(name="import_traffic_signs"):
-    management.call_command("import_wfs", ["CrossWalkSign", "DisabledParkingSign"])
+    management.call_command(
+        "import_wfs",
+        [
+            "CrossWalkSign",
+            "DisabledParkingSign",
+            "ParkingTerminalSign",
+            "LocalTrafficBusStopSign",
+            "LongDistanceBusStopSign",
+            "ParkingForbiddenSign",
+            "ParkingForbiddenAreaSign",
+            "ObligationToUseParkingDiscSign",
+            "PaidParkingSign",
+            "ParkingLotSign",
+            "RailwayLevelCrossingWithoutBoomsSign",
+            "RailwayLevelCrossingWithBoomsSign",
+            "SingleTrackRailwayLevelCrossingSign",
+            "TicketMachineSign",
+        ],
+    )
 
 
 @shared_task
