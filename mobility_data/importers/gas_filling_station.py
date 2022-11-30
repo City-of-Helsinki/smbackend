@@ -1,5 +1,4 @@
 import logging
-import sys
 from functools import lru_cache
 
 from django import db
@@ -64,8 +63,8 @@ class GasFillingStation:
 
 
 # Calling the url 'https://tie.digitraffic.fi/api/v3/data/traffic-messages/area-geometries?id=11&lastUpdated=false'
-# multiple times in a short period of time causes error '429 Too Many Request'. Cache the result when running tests.
-@lru_cache(maxsize=1 if "pytest" in sys.modules else 0)
+# multiple times in a short period of time causes error '429 Too Many Requests'. Cache the result.
+@lru_cache(maxsize=1)
 def get_geometry_data():
     return fetch_json(GEOMETRY_URL)
 
