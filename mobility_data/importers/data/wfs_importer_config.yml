@@ -1,4 +1,95 @@
 features:
+  - content_type_name: TicketMachineSign
+    content_type_description: Ticket machine signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include: 
+      Varustelaji: 990 Lippuautomaatti
+    max_features: 50000 
+
+  - content_type_name: TaxiStandSign
+    content_type_description: Taxi stand signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include: 
+      Varustelaji: 534 Taksiasema
+    max_features: 50000 
+
+  - content_type_name: SingleTrackRailwayLevelCrossingSign
+    content_type_description: Single track railway level crossing with booms signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include: 
+      Varustelaji: 176 Yksiraiteisen rautatien tasoristeys
+    max_features: 50000 
+
+  - content_type_name: RailwayLevelCrossingWithBoomsSign  
+    content_type_description: Railway level crossing with booms signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 172 Rautatien tasoristeys, jossa on puomit
+    max_features: 50000 
+
+  - content_type_name: RailwayLevelCrossingWithoutBoomsSign  
+    content_type_description: Railway level crossing without booms signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 171 Rautatien tasoristeys ilman puomeja
+    max_features: 50000 
+
+  - content_type_name: ParkingLotSign
+    content_type_description: Parking lot signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 521 Pysäköintipaikka
+    max_features: 50000 
+
+  - content_type_name: PaidParkingSign
+    content_type_description: Paid parking signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 855b Maksullinen pysäköinti
+    max_features: 50000 
+
+  - content_type_name: ObligationToUseParkingDiscSign
+    content_type_description: Obligation to use parking disc signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 856b Pysäköintikiekon käyttövelvollisuus
+    max_features: 50000 
+
+  - content_type_name: ParkingForbiddenAreaSign
+    content_type_description: Parking forbidden area signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 373 Pysäköintikieltoalue
+    max_features: 50000
+
+  - content_type_name: ParkingForbiddenSign
+    content_type_description: Parking forbidden signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 372 Pysäköinti kielletty
+    max_features: 50000
+
+  - content_type_name: LongDistanceBusStopSign
+    content_type_description: Long-distance bus stop signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 532 Kaukoliikenteen linja-auton pysäkki
+    max_features: 50000
+
+  - content_type_name: LocalTrafficBusStopSign  
+    content_type_description: Local traffic bus stop signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 531 Paikallisliikenteen linja-auton pysäkki
+    max_features: 50000
+
+  - content_type_name: ParkingTerminalSign
+    content_type_description: Parking terminal signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 991 Pysäköintiautomaatti
+    max_features: 50000
+
   - content_type_name: CrossWalkSign
     content_type_description: Crosswalk signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
