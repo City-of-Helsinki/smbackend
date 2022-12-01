@@ -13,7 +13,6 @@ from mobility_data.importers.utils import (
     locates_in_turku,
     set_translated_field,
 )
-from mobility_data.management.commands._utils import get_test_gdal_data_source
 from mobility_data.models import MobileUnit
 
 DEFAULT_SOURCE_DATA_SRID = 3877
@@ -95,10 +94,9 @@ class MobilityData:
         else:
             source_srid = DEFAULT_SOURCE_DATA_SRID
 
-        if "locates_in_turku" in config:
-            if config["locates_in_turku"]:
-                if not locates_in_turku(feature, source_srid):
-                    return False
+        if config.get("locates_in_turku", False):
+            if not locates_in_turku(feature, source_srid):
+                return False
 
         # If geometry contains multiple polygons and create_multipolygon attribute is True
         # create one multipolygon from the polygons.
@@ -161,7 +159,7 @@ class MobilityData:
         return True
 
 
-def import_wfs_feature(config, test_mode):
+def import_wfs_feature(config, data_file=None):
     max_features = DEFAULT_MAX_FEATURES
     if "content_type_name" not in config:
         logger.warning(f"Skipping feature {config}, 'content_type_name' is required.")
@@ -174,22 +172,18 @@ def import_wfs_feature(config, test_mode):
     wfs_layer = config["wfs_layer"]
     delete_content_type_using_yaml_config(config)
     objects = []
-    if test_mode:
-        if "test_data" not in config:
-            logger.warning(f"'test_data' not defined in config {config}")
-            return False
-        ds = get_test_gdal_data_source(config["test_data"])
+
+    if data_file:
+        ds = DataSource(data_file)
     else:
-        wfs_url = settings.TURKU_WFS_URL
-        if "wfs_url" in config:
-            wfs_url = config["wfs_url"]
+        wfs_url = config.get("wfs_url", settings.TURKU_WFS_URL)
 
         url = WFS_URL.format(
             wfs_url=wfs_url, wfs_layer=wfs_layer, max_features=max_features
         )
         ds = DataSource(url)
-    layer = ds[0]
     assert len(ds) == 1
+    layer = ds[0]
     for feature in layer:
         object = MobilityData()
         if object.add_feature(feature, config):
