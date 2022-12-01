@@ -253,7 +253,6 @@ features:
     srid: 3877
     # If not set, use default value 1000
     max_features: 100
-    test_data: payment_zones.gml
     # If geometry contains multiple polygons create one multipolygon from the polygons
     create_multipolygon: True
     extra_fields:
@@ -280,22 +279,18 @@ features:
   - content_type_name: ScooterParkingArea
     content_type_description: Scooter parking zones in the Turku region.
     wfs_layer: GIS:Sahkopotkulautaparkki
-    test_data: scooter_parkings.gml
   
   - content_type_name: ScooterSpeedLimitArea
     content_type_description: Scooter speed limit zones in the Turku region.
     wfs_layer: GIS:Sahkopotkulauta_nopeusrajoitus
-    test_data: scooter_speed_limits.gml
 
   - content_type_name: ScooterNoParkingArea
     content_type_description: Scooter no parking zones in the Turku region.
     wfs_layer: GIS:Sahkopotkulauta_pysakointikielto
-    test_data: scooter_no_parking_zones.gml
 
   - content_type_name: PublicToilet
     content_type_description: Public toilets in the Turku region.
     wfs_layer: GIS:Varusteet
-    test_data: accessories.gml
     max_features: 10000
     # Default is False, if True include only if geometry locates in Turku.
     locates_in_turku: True
@@ -338,7 +333,6 @@ features:
   - content_type_name: PublicTable
     content_type_description: Public tables in the Turku region.
     wfs_layer: GIS:Varusteet
-    test_data: accessories.gml
     max_features: 10000
     locates_in_turku: True
     include:
@@ -379,7 +373,6 @@ features:
   - content_type_name: PublicBench
     content_type_description: Benches in the Turku region.
     wfs_layer: GIS:Varusteet
-    test_data: accessories.gml
     max_features: 10000
     locates_in_turku: True
     include:
@@ -420,7 +413,6 @@ features:
   - content_type_name: PublicFurnitureGroup
     content_type_description: Furniture groups in the Turku region.
     wfs_layer: GIS:Varusteet
-    test_data: accessories.gml
     max_features: 10000
     locates_in_turku: True
     include:
@@ -471,7 +463,6 @@ features:
     wfs_layer: GIS:Nopeusrajoitusalueet
     # If geometry contains multiple polygons create one multipolygon from the polygons
     create_multipolygon: True
-    test_data: speed_limits.gml
     extra_fields:
       speed_limit:
         wfs_field: voimassa_a
