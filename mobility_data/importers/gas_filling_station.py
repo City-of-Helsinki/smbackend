@@ -1,4 +1,5 @@
 import logging
+from functools import lru_cache
 
 from django import db
 from django.conf import settings
@@ -61,11 +62,18 @@ class GasFillingStation:
         self.lng_cng = attributes.get("LNG_CNG", "")
 
 
+# Calling the url 'https://tie.digitraffic.fi/api/v3/data/traffic-messages/area-geometries?id=11&lastUpdated=false'
+# multiple times in a short period of time causes error '429 Too Many Requests'. Cache the result.
+@lru_cache(maxsize=1)
+def get_geometry_data():
+    return fetch_json(GEOMETRY_URL)
+
+
 def get_filtered_gas_filling_station_objects(json_data=None):
     """
     Returns a list of GasFillingStation objects that are filtered by location.
     """
-    geometry_data = fetch_json(GEOMETRY_URL)
+    geometry_data = get_geometry_data()
     # Polygon used the detect if point intersects. i.e. is in the boundries.
     polygon = Polygon(geometry_data["features"][0]["geometry"]["coordinates"][0])
     if not json_data:
