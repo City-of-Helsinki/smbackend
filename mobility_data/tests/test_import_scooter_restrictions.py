@@ -34,8 +34,8 @@ https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx
 def test_import_scooter_restrictions():
     import_command(
         "import_wfs",
-        ["ScooterParkingArea", "ScooterSpeedLimitArea", "ScooterNoParkingArea"],
-        test_mode=True,
+        "ScooterParkingArea",
+        data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/scooter_parkings.gml",
     )
     # Test scooter parking
     parking_content_type = ContentType.objects.get(name="ScooterParkingArea")
@@ -46,7 +46,11 @@ def test_import_scooter_restrictions():
     parking_unit.content_type == parking_content_type
     point = Point(239576.42, 6711050.26, srid=DEFAULT_SOURCE_DATA_SRID)
     parking_unit.geometry.equals_exact(point, tolerance=0.0001)
-
+    import_command(
+        "import_wfs",
+        "ScooterSpeedLimitArea",
+        data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/scooter_speed_limits.gml",
+    )
     # Test scooter speed limits
     speed_limit_content_type = ContentType.objects.get(name="ScooterSpeedLimitArea")
     assert speed_limit_content_type
@@ -59,7 +63,11 @@ def test_import_scooter_restrictions():
     # Scooter speed limit unit locates in the market square(kauppator)
     assert speed_limit_unit.geometry.contains(market_square) is True
     assert speed_limit_unit.geometry.contains(turku_cathedral) is False
-
+    import_command(
+        "import_wfs",
+        "ScooterNoParkingArea",
+        data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/scooter_no_parking_zones.gml",
+    )
     # Test scooter no parking zones
     no_parking_content_type = ContentType.objects.get(name="ScooterNoParkingArea")
     assert no_parking_content_type

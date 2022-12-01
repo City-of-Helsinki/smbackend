@@ -18,7 +18,11 @@ from .utils import import_command
 
 @pytest.mark.django_db
 def test_import_payment_zones():
-    import_command("import_wfs", "PaymentZone", test_mode=True)
+    import_command(
+        "import_wfs",
+        "PaymentZone",
+        data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/payment_zones.gml",
+    )
     assert ContentType.objects.all().count() == 1
     content_type = ContentType.objects.first()
     assert content_type.name == "PaymentZone"

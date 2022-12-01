@@ -26,7 +26,7 @@ def test_import_accessories(
     import_command(
         "import_wfs",
         ["PublicToilet", "PublicTable", "PublicBench", "PublicFurnitureGroup"],
-        test_mode=True,
+        data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/accessories.gml",
     )
 
     public_toilet_content_type = ContentType.objects.get(name="PublicToilet")
