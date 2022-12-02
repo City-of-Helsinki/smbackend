@@ -106,7 +106,7 @@ pep517==0.13.0
     # via build
 pep8-naming==0.13.2
     # via -r requirements.in
-pip-tools==6.10.0
+pip-tools==6.11.0
     # via -r requirements.in
 platformdirs==2.5.4
     # via black
