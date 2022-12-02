@@ -548,6 +548,12 @@ def _import_unit(
         obj_changed = True
         obj.public = is_public
 
+    # if unit was previously soft-deleted, make it active again
+    if not obj.is_active:
+        obj_changed = True
+        obj.is_active = True
+        obj.deleted_at = None
+
     maintenance_organization = muni_name
     if obj.extensions is None:
         obj.extensions = {}
