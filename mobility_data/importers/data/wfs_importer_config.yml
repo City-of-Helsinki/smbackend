@@ -97,6 +97,13 @@ features:
       Varustelaji: 511 Suojatie
     max_features: 50000
 
+  - content_type_name: RouteForDisabledSign
+    content_type_description: Route for disabled signs in the city of Turku.
+    wfs_layer: GIS:Liikennemerkit
+    include:
+      Varustelaji: 683 Vammaisille tarkoitettu reitti
+    max_features: 50000
+    
   - content_type_name: DisabledParkingSign
     content_type_description: Disabled parking signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
