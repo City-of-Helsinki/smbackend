@@ -109,7 +109,6 @@ def import_traffic_signs(name="import_traffic_signs"):
             "RailwayLevelCrossingWithBoomsSign",
             "SingleTrackRailwayLevelCrossingSign",
             "TicketMachineSign",
-            "RouteForDisabledSign",
         ],
     )
 
