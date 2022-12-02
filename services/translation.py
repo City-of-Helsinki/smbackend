@@ -59,6 +59,7 @@ class UnitTranslationOptions(TranslationOptions):
         "picture_caption",
         "address_postal_full",
         "call_charge_info",
+        "displayed_service_owner",
     )
 
 

@@ -28,12 +28,7 @@ from services.models import (
     UnitIdentifier,
     UnitServiceDetails,
 )
-from services.models.unit import (
-    CONTRACT_TYPES,
-    ORGANIZER_TYPES,
-    PROJECTION_SRID,
-    PROVIDER_TYPES,
-)
+from services.models.unit import ORGANIZER_TYPES, PROJECTION_SRID, PROVIDER_TYPES
 from services.utils import AccessibilityShortcomingCalculator
 
 from .utils import (
@@ -80,105 +75,7 @@ def get_service_ids():
 def _fetch_units():
     if VERBOSITY:
         LOGGER.info("Fetching units")
-    return pk_get("unit", params={"official": "yes"})
-
-
-CONTRACT_TYPE_MAPPINGS = [
-    ("MUNICIPALITY", "SELF_PRODUCED", None, "municipal_service"),
-    ("MUNICIPALITY", "PURCHASED_SERVICE", None, "purchased_service"),
-    ("MUNICIPALITY", "VOUCHER_SERVICE", None, "voucher_service"),
-    ("MUNICIPALITY", "PAYMENT_COMMITMENT", None, "private_service"),
-    ("MUNICIPALITY", "SUPPORTED_OPERATIONS", None, "supported_operations"),
-    ("MUNICIPALITY", "CONTRACT_SCHOOL", None, "private_contract_school"),
-    (
-        "MUNICIPALLY_OWNED_COMPANY",
-        "SELF_PRODUCED",
-        None,
-        "service_by_municipally_owned_company",
-    ),
-    (
-        "MUNICIPAL_ENTERPRISE_GROUP",
-        "SELF_PRODUCED",
-        None,
-        "service_by_municipal_group_entity",
-    ),
-    (
-        "JOINT_MUNICIPAL_AUTHORITY",
-        "SELF_PRODUCED",
-        None,
-        "service_by_joint_municipal_authority",
-    ),
-    (
-        "OTHER_REGIONAL_COOPERATION_ORGANIZATION",
-        "SELF_PRODUCED",
-        None,
-        "service_by_regional_cooperation_organization",
-    ),
-    ("GOVERNMENT", "SELF_PRODUCED", None, "state_service"),
-    ("GOVERNMENT", "CONTRACT_SCHOOL", None, "state_contract_school"),
-    ("GOVERNMENTAL_COMPANY", "SELF_PRODUCED", None, "state_service"),
-    ("ORGANIZATION", "SELF_PRODUCED", None, "private_service"),
-    ("ORGANIZATION", "CONTRACT_SCHOOL", None, "private_contract_school"),
-    ("FOUNDATION", "SELF_PRODUCED", None, "private_service"),
-    ("FOUNDATION", "CONTRACT_SCHOOL", None, "private_contract_school"),
-    ("ASSOCIATION", "SELF_PRODUCED", None, "private_service"),
-    ("ASSOCIATION", "CONTRACT_SCHOOL", None, "private_contract_school"),
-    ("PRIVATE_ENTERPRISE", "SELF_PRODUCED", None, "private_service"),
-    ("PRIVATE_ENTERPRISE", "CONTRACT_SCHOOL", None, "private_contract_school"),
-    (
-        "PRIVATE_ENTERPRICE",
-        "OTHER_PRODUCTION_METHOD",
-        None,
-        "private_service",
-    ),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "MUNICIPALITY",
-        "service_by_other_municipality",
-    ),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "MUNICIPALLY_OWNED_COMPANY",
-        "service_by_other_municipality",
-    ),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "MUNICIPAL_ENTERPRISE_GROUP",
-        "service_by_other_municipality",
-    ),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "JOINT_MUNICIPAL_AUTHORITY",
-        "service_by_joint_municipal_authority",
-    ),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "OTHER_REGIONAL_COOPERATION_ORGANIZATION",
-        "service_by_regional_cooperation_organization",
-    ),
-    ("MUNICIPALITY", "OTHER_PRODUCTION_METHOD", "GOVERNMENT", "state_service"),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "GOVERNMENTAL_COMPANY",
-        "state_service",
-    ),
-    ("MUNICIPALITY", "OTHER_PRODUCTION_METHOD", "ORGANIZATION", "private_service"),
-    ("MUNICIPALITY", "OTHER_PRODUCTION_METHOD", "FOUNDATION", "private_service"),
-    ("MUNICIPALITY", "OTHER_PRODUCTION_METHOD", "ASSOCIATION", "private_service"),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "PRIVATE_ENTERPRISE",
-        "private_service",
-    ),
-    ("MUNICIPALITY", "OTHER_PRODUCTION_METHOD", "UNKNOWN", "private_service"),
-]
+    return pk_get("unit", params={"official": "yes", "newfeatures": "yes"})
 
 
 def import_units(
@@ -246,7 +143,11 @@ def import_units(
 
     if fetch_only_id:
         obj_id = fetch_only_id
-        obj_list = [fetch_resource("unit", obj_id, params={"official": "yes"})]
+        obj_list = [
+            fetch_resource(
+                "unit", obj_id, params={"official": "yes", "newfeatures": "yes"}
+            )
+        ]
         queryset = Unit.objects.filter(id=obj_id)
     else:
         obj_list = fetch_units()
@@ -326,6 +227,7 @@ def _import_unit(
         "picture_caption",
         "address_postal_full",
         "call_charge_info",
+        "displayed_service_owner",
     )
     for field in fields_that_need_translation:
         if save_translated_field(obj, field, info, field):
@@ -431,26 +333,10 @@ def _import_unit(
         "streetview_entrance_url",
         "organizer_name",
         "organizer_business_id",
+        "displayed_service_owner_type",
+        "vtj_prt",
+        "vtj_prt_verified",
     ]
-
-    contract_type = None
-    if dept:
-        organization_type = dept.organization_type
-        for mapping in CONTRACT_TYPE_MAPPINGS:
-            if mapping[0] != organization_type:
-                continue
-            if mapping[1] != info.get("provider_type"):
-                continue
-            if mapping[2] in [None, info.get("organizer_type")]:
-                contract_type = mapping[3]
-                break
-    if contract_type:
-        ctype = next(
-            (val for val, str_val in CONTRACT_TYPES if str_val == contract_type)
-        )
-        if obj.contract_type != ctype:
-            obj.contract_type = ctype
-            obj_changed = True
 
     if info.get("provider_type"):
         info["provider_type"] = [

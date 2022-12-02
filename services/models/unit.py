@@ -46,39 +46,6 @@ ORGANIZER_TYPES = (
     (11, "UNKNOWN"),
 )
 
-CONTRACT_TYPES = (
-    (0, "private_contract_school"),
-    (1, "municipal_service"),
-    (2, "private_service"),
-    (3, "purchased_service"),
-    (4, "service_by_joint_municipal_authority"),
-    (5, "service_by_municipal_group_entity"),
-    (6, "service_by_municipally_owned_company"),
-    (7, "service_by_other_municipality"),
-    (8, "service_by_regional_cooperation_organization"),
-    (9, "state_service"),
-    (10, "supported_operations"),
-    (11, "voucher_service"),
-    (12, "state_contract_school"),
-)
-
-CONTRACT_TYPES_TRANSLATED = (
-    (0, _("private_contract_school")),
-    (1, _("municipal_service")),
-    (2, _("private_service")),
-    (3, _("purchased_service")),
-    (4, _("service_by_joint_municipal_authority")),
-    (5, _("service_by_municipal_group_entity")),
-    (6, _("service_by_municipally_owned_company")),
-    (7, _("service_by_other_municipality")),
-    (8, _("service_by_regional_cooperation_organization")),
-    (9, _("state_service")),
-    (10, _("supported_operations")),
-    (11, _("voucher_service")),
-    (12, _("state_contract_school")),
-)
-
-
 _unit_related_fields = set()
 
 
@@ -146,7 +113,6 @@ class Unit(SoftDeleteModel):
     organizer_business_id = models.CharField(max_length=10, null=True)
 
     provider_type = models.PositiveSmallIntegerField(choices=PROVIDER_TYPES, null=True)
-    contract_type = models.PositiveSmallIntegerField(choices=CONTRACT_TYPES, null=True)
 
     picture_url = models.URLField(max_length=250, null=True)
     picture_entrance_url = models.URLField(max_length=500, null=True)
@@ -160,6 +126,10 @@ class Unit(SoftDeleteModel):
     www = models.URLField(max_length=400, null=True)
     address_postal_full = models.CharField(max_length=100, null=True)
     call_charge_info = models.CharField(max_length=500, null=True)
+    displayed_service_owner = models.CharField(max_length=100, null=True)
+    displayed_service_owner_type = models.CharField(max_length=100, null=True)
+    vtj_prt = models.CharField(max_length=100, null=True)
+    vtj_prt_verified = models.CharField(max_length=100, null=True)
 
     picture_caption = models.TextField(null=True)
 
