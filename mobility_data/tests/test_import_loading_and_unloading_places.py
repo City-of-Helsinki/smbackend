@@ -1,6 +1,7 @@
 import pytest
 from munigeo.models import Municipality
 
+from mobility_data.importers.loading_unloading_places import CONTENT_TYPE_NAME
 from mobility_data.models import ContentType, MobileUnit
 
 from .utils import import_command
@@ -19,26 +20,26 @@ def test_import(municipality):
         turku_muni = Municipality.objects.get(name="Turku")
     except Municipality.DoesNotExist:
         assert turku_muni
-    niuskalankatu = MobileUnit.objects.get(name="Mäntykoti Räntämäki")
-    assert niuskalankatu.content_type.type_name == ContentType.LOADING_UNLOADING_PLACE
-    assert niuskalankatu.name_sv == "Räntämäki äldreboende"
-    assert niuskalankatu.name_en == "Räntämäki nursing home"
-    assert niuskalankatu.address_fi == "Niuskalankatu 7"
-    assert niuskalankatu.address_sv == "Niuskalagatan 7"
-    assert niuskalankatu.address_en == "Niuskalankatu 7"
-    assert niuskalankatu.address_zip == "20380"
-    assert niuskalankatu.municipality == turku_muni
-    assert niuskalankatu.extra["Lastaus"]["fi"] == "Lastauslaituri rakennuksen takana."
-    assert niuskalankatu.extra["Lastaus"]["sv"] == "Lastkaj bakom huset."
-    assert niuskalankatu.extra["Lastaus"]["en"] == "Loading bridge behind the building."
-    assert niuskalankatu.extra["Lisatieto"]["fi"] == "Ei korkeusrajoitusta."
-    assert niuskalankatu.extra["Lisatieto"]["sv"] == "Ingen höjdbegränsning."
-    assert niuskalankatu.extra["Lisatieto"]["en"] == "No height limit."
-    assert niuskalankatu.extra["Muutanimi"]["fi"] == "Pysäköintikielto, pelastustie."
-    assert (
-        niuskalankatu.extra["Muutanimi"]["sv"] == "Parkering förbjuden, räddningsväg."
-    )
-    assert niuskalankatu.extra["Muutanimi"]["en"] == "No parking, rescue road."
-    assert niuskalankatu.extra["Saavutetta"]["fi"] == "Vapaa pääsy"
-    assert niuskalankatu.extra["Saavutetta"]["sv"] == "Öppen tillgång"
-    assert niuskalankatu.extra["Saavutetta"]["en"] == "Free entry"
+    lantinen_rantakatu = MobileUnit.objects.get(name="Läntinen Rantakatu")
+    assert lantinen_rantakatu.content_type.name == CONTENT_TYPE_NAME
+    assert lantinen_rantakatu.name_sv == "Östra Strandgatan"
+    assert lantinen_rantakatu.name_en == "Läntinen Rantakatu"
+    assert lantinen_rantakatu.address_fi == "Läntinen Rantakatu 13"
+    assert lantinen_rantakatu.address_sv == "Östra Strandgatan 13"
+    assert lantinen_rantakatu.address_en == "Läntinen Rantakatu 13"
+    assert lantinen_rantakatu.address_zip == "20700"
+    assert lantinen_rantakatu.municipality == turku_muni
+
+    assert lantinen_rantakatu.extra["lastauspiste"]["fi"] == "Lastausalue"
+    assert lantinen_rantakatu.extra["lastauspiste"]["sv"] == "Lastningsplats"
+    assert lantinen_rantakatu.extra["lastauspiste"]["en"] == "Loading zone"
+
+    assert lantinen_rantakatu.extra["Saavutettavuus"]["fi"] == "Kadunvarsipysäköinti"
+    assert lantinen_rantakatu.extra["Saavutettavuus"]["sv"] == "Parkering på gata"
+    assert lantinen_rantakatu.extra["Saavutettavuus"]["en"] == "On-street parking"
+
+    assert lantinen_rantakatu.extra["rajoitustyyppi"]["fi"] == "Erityisalue"
+    assert lantinen_rantakatu.extra["rajoitustyyppi"]["sv"] == "Specialområde"
+    assert lantinen_rantakatu.extra["rajoitustyyppi"]["en"] == "Special area"
+
+    assert lantinen_rantakatu.extra["paikkoja_y"] == 2

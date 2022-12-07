@@ -9,6 +9,7 @@ has been removed from the test input data, as it causes GDAL
 DataSource to fail when loading data.
 """
 import pytest
+from django.conf import settings
 
 from mobility_data.models import ContentType, MobileUnit
 
@@ -17,11 +18,15 @@ from .utils import import_command
 
 @pytest.mark.django_db
 def test_import_speed_limits():
-    import_command("import_speed_limit_zones", test_mode="speed_limits.gml")
+    import_command(
+        "import_wfs",
+        "SpeedLimitZone",
+        data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/speed_limits.gml",
+    )
 
     assert ContentType.objects.all().count() == 1
     content_type = ContentType.objects.first()
-    assert content_type.type_name == ContentType.SPEED_LIMIT_ZONE
+    assert content_type.name == "SpeedLimitZone"
     assert MobileUnit.objects.all().count() == 3
 
     zone_80 = MobileUnit.objects.all()[0]

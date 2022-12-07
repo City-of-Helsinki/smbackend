@@ -14,6 +14,46 @@ from .serializers import (
     MobileUnitSerializer,
 )
 
+# Mappings, so that deprecated type_names will work.
+# These will be removed when the front end is updated.
+group_name_mappings = {"CRE": "CultureRoute"}
+type_name_mappings = {
+    "FGS": "FishingSpot",
+    "FYR": "FerryRoute",
+    "MSF": "MarinaSouthwestFinland",
+    "SWY": "SlipwaySouthwestFinland",
+    "RCR": "RecreationalRoute",
+    "PTL": "PaddlingTrail",
+    "HTL": "HikingTrail",
+    "NTL": "NatureTrail",
+    "FTL": "FitnessTrail",
+    "PPU": "PaavonPolku",
+    "PAZ": "PaymentZone",
+    "SPG": "ScooterParkingArea",
+    "SSL": "ScooterSpeedLimitArea",
+    "SNP": "ScooterNoParkingArea",
+    "BLB": "BrushSaltedBicycleNetwork",
+    "BND": "BrushSandedBicycleNetwork",
+    "SLZ": "SpeedLimitZone",
+    "APT": "PublicToilet",
+    "ATE": "PublicTable",
+    "ABH": "PublicBench",
+    "AFG": "PublicFurnitureGroup",
+    "BIS": "BicycleStand",
+    "BSS": "BikeServiceStation",
+    "BOK": "BoatParking",
+    "CGS": "ChargingStation",
+    "CRG": "CultureRouteGeometry",
+    "CRU": "CultureRouteUnit",
+    "DSP": "DisabledParking",
+    "GFS": "GasFillingStation",
+    "GMA": "GuestMarina",
+    "SCP": "ShareCarParkingPlace",
+    "MAR": "Marina",
+    "NSP": "NoStaffParking",
+    "LUP": "LoadingUnloadingPlace",
+}
+
 
 def get_srid_and_latlon(filters):
     """
@@ -85,11 +125,14 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
         mobile_units = get_mobile_units(filters)
         if "type_name" in filters:
             type_name = filters["type_name"]
-            if not GroupType.objects.filter(type_name=type_name).exists():
+            # TODO, remove when front end is updated.
+            if type_name in type_name_mappings:
+                type_name = group_name_mappings[type_name]
+            if not GroupType.objects.filter(name=type_name).exists():
                 return Response(
                     "type_name does not exist.", status=status.HTTP_400_BAD_REQUEST
                 )
-            queryset = MobileUnitGroup.objects.filter(group_type__type_name=type_name)
+            queryset = MobileUnitGroup.objects.filter(group_type__name=type_name)
         else:
             queryset = MobileUnitGroup.objects.all()
 
@@ -137,17 +180,44 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         srid, latlon = get_srid_and_latlon(filters)
         if "type_name" in filters:
             type_name = filters["type_name"]
-            if not ContentType.objects.filter(type_name=type_name).exists():
+            # TODO, remove when front end is updated.
+            if type_name in type_name_mappings:
+                type_name = type_name_mappings[type_name]
+            if not ContentType.objects.filter(name=type_name).exists():
                 return Response(
                     "type_name does not exist.", status=status.HTTP_400_BAD_REQUEST
                 )
-            queryset = MobileUnit.objects.filter(content_type__type_name=type_name)
+            queryset = MobileUnit.objects.filter(content_type__name=type_name)
         else:
             queryset = MobileUnit.objects.all()
 
         for filter in filters:
             if filter.startswith("extra__"):
-                queryset = queryset.filter(**{filter: filters[filter].strip()})
+                if "type_name" not in filters:
+                    return Response(
+                        "You must provide a 'type_name' argument when filtering with 'extra__' argument."
+                    )
+                if queryset.count() > 0:
+                    value = filters[filter].strip()
+                    key = filter.split("__")[1]
+                    # Determine the type of the value in jsonfield and typecast argument to int
+                    # or float if required. Assume all fields with same key has same value type.
+                    # If not typecasted, filtering is done with string values and will not work for
+                    # int or float values.
+                    try:
+                        field_value = queryset[0].extra[key]
+                        field_type = type(field_value)
+                    except KeyError:
+                        return Response(
+                            f"extra field '{key}' does not exist",
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                    if field_type == float:
+                        value = float(value)
+                    elif field_type == int:
+                        value = int(value)
+                    queryset = queryset.filter(**{filter: value})
+
         page = self.paginate_queryset(queryset)
         serializer = MobileUnitSerializer(
             page, many=True, context={"srid": srid, "latlon": latlon}

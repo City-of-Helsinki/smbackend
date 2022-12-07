@@ -5,7 +5,7 @@ from django import db
 from django.conf import settings
 from django.contrib.gis.geos import Point
 
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import MobileUnit
 from smbackend_turku.importers.constants import CHARGING_STATION_SERVICE_NAMES
 
 from .utils import (
@@ -24,6 +24,7 @@ logger = logging.getLogger("mobility_data")
 
 SOURCE_DATA_FILE_NAME = "LatauspisteetTurku.csv"
 SOURCE_DATA_SRID = 3877
+CONTENT_TYPE_NAME = "ChargingStation"
 """
 Charging stations are indexed with this column, if multiple rows
 has the same index, they contain multiple chargers.
@@ -114,7 +115,7 @@ def get_charging_station_objects(csv_file=None):
     charging_stations = {}
     column_mappings = {}
     if not csv_file:
-        file_name = get_file_name_from_data_source(ContentType.CHARGING_STATION)
+        file_name = get_file_name_from_data_source(CONTENT_TYPE_NAME)
         if not file_name:
             file_name = f"{get_root_dir()}/mobility_data/data/{SOURCE_DATA_FILE_NAME}"
     else:
@@ -160,16 +161,13 @@ def get_charging_station_objects(csv_file=None):
 
 @db.transaction.atomic
 def delete_charging_stations():
-    delete_mobile_units(ContentType.CHARGING_STATION)
+    delete_mobile_units(CONTENT_TYPE_NAME)
 
 
 @db.transaction.atomic
 def create_charging_station_content_type():
-    description = "Charging stations in province of SouthWest Finland."
-    name = "Charging Station"
-    content_type, _ = get_or_create_content_type(
-        ContentType.CHARGING_STATION, name, description
-    )
+    description = "Charging stations in province of Southwest Finland."
+    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
     return content_type
 
 

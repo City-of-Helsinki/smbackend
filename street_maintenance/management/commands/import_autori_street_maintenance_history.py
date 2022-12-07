@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from django.contrib.gis.geos import LineString, Point
+from django.contrib.gis.geos import LineString
 from django.core.management.base import BaseCommand
 
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
@@ -36,7 +36,7 @@ class Command(BaseCommand):
             help="History size in days.",
         )
 
-    def get_and_create_autori_maintenance_works(self, history_size=None):
+    def create_autori_maintenance_works(self, history_size=None):
         access_token = get_autori_access_token()
         create_autori_maintenance_units(access_token)
         contract = get_autori_contract(access_token)
@@ -50,10 +50,11 @@ class Command(BaseCommand):
                     f"Route contains multiple features. {route['geography']['features']}"
                 )
             coordinates = route["geography"]["features"][0]["geometry"]["coordinates"]
-            if is_nested_coordinates(coordinates):
+            if is_nested_coordinates(coordinates) and len(coordinates) > 2:
                 geometry = LineString(coordinates, srid=DEFAULT_SRID)
             else:
-                geometry = Point(coordinates, srid=DEFAULT_SRID)
+                # Remove other data, contains faulty linestrings.
+                continue
 
             if not TURKU_BOUNDARY.covers(geometry):
                 continue
@@ -61,11 +62,16 @@ class Command(BaseCommand):
             events = []
             operations = route["operations"]
             for operation in operations:
-                event_name = event_name_mappings[operation]
+                event_name = event_name_mappings[operation].lower()
                 if event_name in EVENT_MAPPINGS:
-                    events.append(EVENT_MAPPINGS[event_name])
+                    for e in EVENT_MAPPINGS[event_name]:
+                        # If mapping value is None, the event is not used.
+                        if e:
+                            events.append(e)
                 else:
-                    logger.warning(f"Found unmapped event: {event_name}")
+                    logger.warning(
+                        f"Found unmapped event: {event_name_mappings[operation]}"
+                    )
 
             # If no events found discard the work
             if len(events) == 0:
@@ -102,7 +108,7 @@ class Command(BaseCommand):
                 error_msg = f"Max value for the history size is: {AUTORI_MAX_WORKS_HISTORY_SIZE}"
                 raise ValueError(error_msg)
 
-        self.get_and_create_autori_maintenance_works(history_size=history_size)
+        self.create_autori_maintenance_works(history_size=history_size)
         importer_end_time = datetime.now()
         duration = importer_end_time - importer_start_time
         logger.info(f"Imported Autori(YIT) street maintenance history in: {duration}")

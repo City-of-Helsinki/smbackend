@@ -22,11 +22,16 @@ class MaintenanceUnitSerializer(serializers.ModelSerializer):
 
 
 class MaintenanceWorkSerializer(serializers.ModelSerializer):
+    provider = serializers.PrimaryKeyRelatedField(
+        many=False, source="maintenance_unit.provider", read_only=True
+    )
+
     class Meta:
         model = MaintenanceWork
         fields = [
             "id",
             "maintenance_unit",
+            "provider",
             "geometry",
             "timestamp",
             "events",

@@ -14,7 +14,7 @@ from mobility_data.importers.utils import (
     get_root_dir,
     set_translated_field,
 )
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import MobileUnit
 
 logger = logging.getLogger("mobility_data")
 
@@ -22,6 +22,9 @@ SOURCE_DATA_SRID = 3877
 
 GEOJSON_FILENAME = "autopysäköinti_eihlö.geojson"
 LANGUAGES = [language[0] for language in settings.LANGUAGES]
+
+NO_STAFF_PARKING_CONTENT_TYPE_NAME = "NoStaffParking"
+DISABLED_PARKING_CONTENT_TYPE_NAME = "DisabledParking"
 
 
 class NoStaffParking:
@@ -109,9 +112,9 @@ class NoStaffParking:
             feature[self.PARKING_PLACES].as_int()
             == feature[self.DISABLED_PARKING_PLACES].as_int()
         ):
-            self.content_type = ContentType.DISABLED_PARKING
+            self.content_type = DISABLED_PARKING_CONTENT_TYPE_NAME
         else:
-            self.content_type = ContentType.NO_STAFF_PARKING
+            self.content_type = NO_STAFF_PARKING_CONTENT_TYPE_NAME
 
         for field in feature.fields:
             if field in self.extra_field_mappings:
@@ -143,7 +146,7 @@ def get_no_staff_parking_objects(geojson_file=None):
     file_name = None
 
     if not geojson_file:
-        file_name = get_file_name_from_data_source(ContentType.NO_STAFF_PARKING)
+        file_name = get_file_name_from_data_source(NO_STAFF_PARKING_CONTENT_TYPE_NAME)
         if not file_name:
             file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
     else:
@@ -158,20 +161,19 @@ def get_no_staff_parking_objects(geojson_file=None):
 
 @db.transaction.atomic
 def delete_no_staff_parkings():
-    delete_mobile_units(ContentType.NO_STAFF_PARKING)
+    delete_mobile_units(NO_STAFF_PARKING_CONTENT_TYPE_NAME)
 
 
 @db.transaction.atomic
 def delete_disabled_parkings():
-    delete_mobile_units(ContentType.DISABLED_PARKING)
+    delete_mobile_units(DISABLED_PARKING_CONTENT_TYPE_NAME)
 
 
 @db.transaction.atomic
 def get_and_create_no_staff_parking_content_type():
     description = "No staff parkings in the Turku region."
-    name = "No staff parking"
     content_type, _ = get_or_create_content_type(
-        ContentType.NO_STAFF_PARKING, name, description
+        NO_STAFF_PARKING_CONTENT_TYPE_NAME, description
     )
     return content_type
 
@@ -179,9 +181,8 @@ def get_and_create_no_staff_parking_content_type():
 @db.transaction.atomic
 def get_and_create_disabled_parking_content_type():
     description = "Parkings for disabled in the Turku region."
-    name = "Disabled parking"
     content_type, _ = get_or_create_content_type(
-        ContentType.DISABLED_PARKING, name, description
+        DISABLED_PARKING_CONTENT_TYPE_NAME, description
     )
     return content_type
 
@@ -196,7 +197,7 @@ def save_to_database(objects, delete_tables=True):
     disabled_parking_content_type = get_and_create_disabled_parking_content_type()
 
     for object in objects:
-        if object.content_type == ContentType.NO_STAFF_PARKING:
+        if object.content_type == NO_STAFF_PARKING_CONTENT_TYPE_NAME:
             mobile_unit = MobileUnit.objects.create(
                 content_type=no_staff_parking_content_type,
                 extra=object.extra,

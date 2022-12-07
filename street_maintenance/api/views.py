@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import pytz
 from django.contrib.gis.geos import LineString
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
@@ -14,8 +15,10 @@ from street_maintenance.api.serializers import (
 )
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
-# Default is 30minutes 30*60s
-DEFAULT_MAX_WORK_LENGTH = 1800
+UTC_TIMEZONE = pytz.timezone("UTC")
+
+# Default is 3minutes 3*60s
+DEFAULT_MAX_WORK_LENGTH = 180
 
 
 class ActiveEventsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -37,11 +40,14 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
         if "start_date_time" in filters:
             start_date_time = filters["start_date_time"]
             try:
-                datetime.strptime(start_date_time, "%Y-%m-%d %H:%M:%S")
+                start_date_time = datetime.strptime(
+                    start_date_time, "%Y-%m-%d %H:%M:%S"
+                )
             except ValueError:
                 raise ParseError(
-                    "'start_date_time' must be in format YYYY-MM-DD HH:MM elem.g.,'2022-09-18 10:00'"
+                    "'start_date_time' must be in format YYYY-MM-DD HH:MM:SS elem.g.,'2022-09-18 10:00:00'"
                 )
+            start_date_time = start_date_time.replace(tzinfo=UTC_TIMEZONE)
             queryset = queryset.filter(timestamp__gte=start_date_time)
         return queryset
 
@@ -97,19 +103,20 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
             qs = queryset.filter(maintenance_unit_id=unit_id).order_by("timestamp")
             prev_timestamp = None
             for elem in qs:
+
                 if prev_timestamp:
                     delta_time = elem.timestamp - prev_timestamp
                     # If delta_time is bigger than the max_work_length, then we can assume
-                    # that the work should not be in the same linestring/point.
+                    # that the work should not be in the same linestring/point .
                     if delta_time.seconds > max_work_length:
                         if len(points) > 1:
                             geometries.append(LineString(points, srid=DEFAULT_SRID))
                         else:
                             geometries.append(elem.geometry)
                         points = []
-
                 points.append(elem.geometry)
                 prev_timestamp = elem.timestamp
+
             if len(points) > 1:
                 geometries.append(LineString(points, srid=DEFAULT_SRID))
             else:
@@ -125,7 +132,6 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
                     elem["name"] = "LineString"
                 else:
                     elem["name"] = "Point"
-
                 elem["coordinates"] = geometry.coords
                 data.append(elem)
         else:

@@ -11,7 +11,7 @@ from mobility_data.importers.utils import (
     get_or_create_content_type,
     set_translated_field,
 )
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import MobileUnit
 
 logger = logging.getLogger("mobility_data")
 
@@ -34,7 +34,7 @@ class MobilityData:
         return True
 
     def add_feature(self, feature, config, srid):
-        # Do not add feature if include value matches.
+        # Do not add feature if include value does not match.
         if "include" in config:
             for attr, value in config["include"].items():
                 if value not in feature.record[attr]:
@@ -98,17 +98,13 @@ def get_and_create_datasource_content_type(config):
     else:
         description = ""
     name = config["content_type_name"]
-    content_type = config["content_type"]
-    ct, _ = get_or_create_content_type(
-        getattr(ContentType, content_type), name, description
-    )
+    ct, _ = get_or_create_content_type(name, description)
     return ct
 
 
 @db.transaction.atomic
 def delete_content_type(config):
-    content_type = config["content_type"]
-    delete_mobile_units(getattr(ContentType, content_type))
+    delete_mobile_units(config["content_type_name"])
 
 
 @db.transaction.atomic
@@ -127,13 +123,15 @@ def save_to_database(objects, config):
 
 
 def import_lounaistieto_data_source(config):
-    if "content_type" not in config or "content_type_name" not in config:
+    if "content_type_name" not in config:
         logger.warning(
-            f"Skipping data source {config}, 'content_type' and 'content_type_name' are required."
+            f"Skipping data source {config}, 'content_type_name' is required."
         )
+        return False
     if "data_url" not in config:
         logger.warning(f"Skipping data source {config}, missing 'data_url'")
-    logger.info(f"Importing {config['content_type']}")
+        return False
+    logger.info(f"Importing {config['content_type_name']}")
 
     if "encoding" in config:
         encoding = config["encoding"]

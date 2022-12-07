@@ -146,6 +146,8 @@ platformdirs==2.4.0
     # via black
 pluggy==1.0.0
     # via pytest
+polyline==1.4.0
+    # via -r requirements.in
 prompt-toolkit==3.0.26
     # via click-repl
 psycopg2-binary==2.8.6
@@ -206,6 +208,7 @@ six==1.16.0
     #   click-repl
     #   django-modeltranslation
     #   django-munigeo
+    #   polyline
     #   python-dateutil
     #   requests-mock
     #   url-normalize

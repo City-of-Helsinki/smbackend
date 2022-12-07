@@ -23,7 +23,7 @@ TURKU_BOUNDARY = get_turku_boundary()
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
-            "--infraroad-history-size",
+            "--history-size",
             type=int,
             nargs="+",
             default=False,
@@ -33,7 +33,7 @@ class Command(BaseCommand):
             ),
         )
 
-    def get_and_create_infraroad_maintenance_works(self, history_size):
+    def create_infraroad_maintenance_works(self, history_size):
         create_infraroad_maintenance_units()
         works = []
         for unit in MaintenanceUnit.objects.filter(provider=MaintenanceUnit.INFRAROAD):
@@ -59,8 +59,12 @@ class Command(BaseCommand):
 
                 events = []
                 for event in work["events"]:
-                    if event in EVENT_MAPPINGS:
-                        events.append(EVENT_MAPPINGS[event])
+                    event_name = event.lower()
+                    if event_name in EVENT_MAPPINGS:
+                        for e in EVENT_MAPPINGS[event_name]:
+                            # If mapping value is None, the event is not used.
+                            if e:
+                                events.append(e)
                     else:
                         logger.warning(f"Found unmapped event: {event}")
                 # If no events found discard the work
@@ -80,11 +84,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         importer_start_time = datetime.now()
         MaintenanceUnit.objects.filter(provider=MaintenanceUnit.INFRAROAD).delete()
-        if options["infraroad_history_size"]:
-            history_size = options["infraroad_history_size"][0]
+        if options["history_size"]:
+            history_size = options["history_size"][0]
         else:
             history_size = INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE
-        self.get_and_create_infraroad_maintenance_works(history_size)
+        self.create_infraroad_maintenance_works(history_size)
         importer_end_time = datetime.now()
         duration = importer_end_time - importer_start_time
         logger.info(f"Imported Infraroad street maintenance history in: {duration}")

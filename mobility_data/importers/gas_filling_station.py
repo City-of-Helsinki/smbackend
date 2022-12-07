@@ -1,10 +1,11 @@
 import logging
+from functools import lru_cache
 
 from django import db
 from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
 
-from mobility_data.models import ContentType, MobileUnit
+from mobility_data.models import MobileUnit
 
 from .utils import (
     delete_mobile_units,
@@ -22,6 +23,8 @@ GAS_FILLING_STATIONS_URL = (
     "https://services1.arcgis.com/rhs5fjYxdOG1Et61/ArcGIS/rest/services/GasFillingStations/FeatureServer/0/query"
     "?f=json&where=1%3D1&outFields=OPERATOR%2CLAT%2CLON%2CSTATION_NAME%2CADDRESS%2CCITY%2CZIP_CODE%2CLNG_CNG%2CObjectId"
 )
+
+CONTENT_TYPE_NAME = "GasFillingStation"
 
 
 class GasFillingStation:
@@ -59,11 +62,18 @@ class GasFillingStation:
         self.lng_cng = attributes.get("LNG_CNG", "")
 
 
+# Calling the url 'https://tie.digitraffic.fi/api/v3/data/traffic-messages/area-geometries?id=11&lastUpdated=false'
+# multiple times in a short period of time causes error '429 Too Many Requests'. Cache the result.
+@lru_cache(maxsize=1)
+def get_geometry_data():
+    return fetch_json(GEOMETRY_URL)
+
+
 def get_filtered_gas_filling_station_objects(json_data=None):
     """
     Returns a list of GasFillingStation objects that are filtered by location.
     """
-    geometry_data = fetch_json(GEOMETRY_URL)
+    geometry_data = get_geometry_data()
     # Polygon used the detect if point intersects. i.e. is in the boundries.
     polygon = Polygon(geometry_data["features"][0]["geometry"]["coordinates"][0])
     if not json_data:
@@ -88,16 +98,13 @@ def get_filtered_gas_filling_station_objects(json_data=None):
 
 @db.transaction.atomic
 def delete_gas_filling_stations():
-    delete_mobile_units(ContentType.GAS_FILLING_STATION)
+    delete_mobile_units(CONTENT_TYPE_NAME)
 
 
 @db.transaction.atomic
 def create_gas_filling_station_content_type():
-    description = "Gas filling stations in province of SouthWest Finland."
-    name = "Gas Filling Stations"
-    content_type, _ = get_or_create_content_type(
-        ContentType.GAS_FILLING_STATION, name, description
-    )
+    description = "Gas filling stations in province of Southwest Finland."
+    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
     return content_type
 
 

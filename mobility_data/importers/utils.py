@@ -67,8 +67,8 @@ def fetch_json(url):
     return response.json()
 
 
-def delete_mobile_units(type_name):
-    ContentType.objects.filter(type_name=type_name).delete()
+def delete_mobile_units(name):
+    ContentType.objects.filter(name=name).delete()
 
 
 def create_mobile_unit_as_unit_reference(unit_id, content_type):
@@ -84,9 +84,9 @@ def create_mobile_unit_as_unit_reference(unit_id, content_type):
     )
 
 
-def get_or_create_content_type(type_name, name, description):
+def get_or_create_content_type(name, description):
     content_type, created = ContentType.objects.get_or_create(
-        type_name=type_name, name=name, description=description
+        name=name, description=description
     )
     return content_type, created
 

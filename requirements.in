@@ -40,3 +40,4 @@ redis
 libvoikko
 numpy>=1.22
 pyshp
+polyline
