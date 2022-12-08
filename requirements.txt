@@ -19,7 +19,7 @@ build==0.9.0
     # via pip-tools
 cattrs==22.2.0
     # via requests-cache
-certifi==2022.9.24
+certifi==2022.12.7
     # via
     #   requests
     #   sentry-sdk
@@ -68,10 +68,6 @@ djangorestframework==3.14.0
     # via -r requirements.in
 djangorestframework-jsonp==1.0.2
     # via -r requirements.in
-exceptiongroup==1.0.4
-    # via
-    #   cattrs
-    #   pytest
 flake8==6.0.0
     # via
     #   -r requirements.in
@@ -156,13 +152,6 @@ six==1.16.0
     #   url-normalize
 sqlparse==0.4.3
     # via django
-tomli==2.0.1
-    # via
-    #   black
-    #   build
-    #   coverage
-    #   pep517
-    #   pytest
 tqdm==4.64.1
     # via -r requirements.in
 typing-extensions==4.4.0
