@@ -74,13 +74,14 @@ def update_service_names_fields(obj, info, obj_changed, update_fields):
         and obj.service_names_sv == service_names_sv
         and obj.service_names_en == service_names_en
     ):
-        return False, update_fields
+        return obj_changed, update_fields
 
     setattr(obj, "service_names_fi", service_names_fi)
     setattr(obj, "service_names_sv", service_names_sv)
     setattr(obj, "service_names_en", service_names_en)
     update_fields.extend(["service_names_fi", "service_names_sv", "service_names_en"])
-    return True, update_fields
+    obj_changed = True
+    return obj_changed, update_fields
 
 
 def convert_to_list(text):
@@ -104,7 +105,7 @@ def update_extra_searchwords(obj, info, obj_changed, update_fields):
         and obj.extra_searchwords_sv == extra_searchwords_sv
         and obj.extra_searchwords_en == extra_searchwords_en
     ):
-        return False, update_fields
+        return obj_changed, update_fields
 
     if extra_searchwords_fi:
         setattr(obj, "extra_searchwords_fi", extra_searchwords_fi)
@@ -115,7 +116,8 @@ def update_extra_searchwords(obj, info, obj_changed, update_fields):
     if extra_searchwords_en:
         setattr(obj, "extra_searchwords_en", extra_searchwords_en)
         update_fields.append("extra_searchwords_en")
-    return True, update_fields
+    obj_changed = True
+    return obj_changed, update_fields
 
 
 def postcodes():
