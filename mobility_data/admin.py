@@ -98,7 +98,7 @@ class ContentTypeAdmin(admin.ModelAdmin):
 
 
 class GroupTypeAdmin(admin.ModelAdmin):
-    readonly_fields = ("id", "type_name", "name", "description")
+    readonly_fields = ("id", "name", "description")
 
 
 class DataSourceAdmin(admin.ModelAdmin):
