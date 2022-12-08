@@ -17,7 +17,7 @@ def get_yaml_config(file):
 
 def get_configured_cotent_type_names(config=None):
     if not config:
-        config = get_yaml_config()
+        config = get_yaml_config(CONFIG_FILE)
     return [f["content_type_name"] for f in config["features"]]
 
 
