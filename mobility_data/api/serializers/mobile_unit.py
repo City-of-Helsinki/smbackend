@@ -28,7 +28,7 @@ class GeometrySerializer(serializers.Serializer):
 class GrouptTypeBasicInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupType
-        fields = ["id", "name", "type_name"]
+        fields = ["id", "name"]
 
 
 class MobileUnitGroupBasicInfoSerializer(serializers.ModelSerializer):
