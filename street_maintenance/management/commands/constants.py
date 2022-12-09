@@ -40,6 +40,8 @@ EVENT_MAPPINGS = {
     "lumensiirto": [AURAUS],
     "etuaura": [AURAUS],
     "alusterä": [AURAUS],
+    "sivuaura": [AURAUS],
+    "höyläys": [AURAUS],
     "suolas": [LIUKKAUDENTORJUNTA],
     "suolaus (sirotinlaite)": [LIUKKAUDENTORJUNTA],
     "liuossuolaus": [LIUKKAUDENTORJUNTA],
