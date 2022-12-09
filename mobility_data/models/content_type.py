@@ -20,9 +20,9 @@ class BaseType(models.Model):
 
 class ContentType(BaseType):
 
-    type_name = models.CharField(max_length=3, null=True)
+    pass
 
 
 class GroupType(BaseType):
 
-    type_name = models.CharField(max_length=3, null=True)
+    pass
