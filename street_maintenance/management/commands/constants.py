@@ -1,5 +1,14 @@
 from django.conf import settings
 
+INFRAROAD = "INFRAROAD"
+AUTORI = "AUTORI"
+KUNTEC = "KUNTEC"
+PROVIDER_CHOICES = (
+    (INFRAROAD, "Infraroad"),
+    (AUTORI, "Autori"),
+    (KUNTEC, "Kuntec"),
+)
+
 AUTORI_EVENTS_URL = settings.AUTORI_EVENTS_URL
 AUTORI_ROUTES_URL = settings.AUTORI_ROUTES_URL
 AUTORI_VEHICLES_URL = settings.AUTORI_VEHICLES_URL
@@ -32,7 +41,7 @@ MUUT = None
 # The value is a list, as there can be events that belong to multiple main groups.
 # e.g., event "Auraus ja hiekanpoisto".
 EVENT_MAPPINGS = {
-    "Laiturin ja asema-alueen auraus": [AURAUS],
+    "laiturin ja asema-alueen auraus": [AURAUS],
     "au": [AURAUS],
     "auraus": [AURAUS],
     "auraus ja sohjonpoisto": [AURAUS],
@@ -54,6 +63,7 @@ EVENT_MAPPINGS = {
     "linjahiekoitus": [LIUKKAUDENTORJUNTA],
     "pistehiekoitus": [LIUKKAUDENTORJUNTA],
     "paannejään poisto": [LIUKKAUDENTORJUNTA],
+    "sirotin": [LIUKKAUDENTORJUNTA],
     # Kadunpesu
     "pe": [PUHTAANAPITO],
     # Harjaus
@@ -77,6 +87,11 @@ EVENT_MAPPINGS = {
     "lisälaite 1": [MUUT],
     "lisälaite 2": [MUUT],
     "lisälaite 3": [MUUT],
+    "pensaiden hoitoleikkaus": [MUUT],
+    "puiden hoitoleikkaukset": [MUUT],
+    "mittaus- ja tarkastustyöt": [MUUT],
+    "siimaleikkurointi tai niittotyö": [MUUT],
+    "liikennemerkkien pesu": [MUUT],
 }
 
 # The number of works(point data with timestamp and event) to be fetched for every unit.
