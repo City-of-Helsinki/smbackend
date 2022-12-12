@@ -11,10 +11,15 @@ from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, Maintenance
 
 from .constants import (
     EVENT_MAPPINGS,
+    INFRAROAD,
     INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE,
     INFRAROAD_WORKS_URL,
 )
-from .utils import create_infraroad_maintenance_units, get_turku_boundary
+from .utils import (
+    create_infraroad_maintenance_units,
+    get_turku_boundary,
+    precalculate_geometry_history,
+)
 
 logger = logging.getLogger("street_maintenance")
 TURKU_BOUNDARY = get_turku_boundary()
@@ -36,7 +41,7 @@ class Command(BaseCommand):
     def create_infraroad_maintenance_works(self, history_size):
         create_infraroad_maintenance_units()
         works = []
-        for unit in MaintenanceUnit.objects.filter(provider=MaintenanceUnit.INFRAROAD):
+        for unit in MaintenanceUnit.objects.filter(provider=INFRAROAD):
             response = requests.get(
                 INFRAROAD_WORKS_URL.format(id=unit.unit_id, history_size=history_size)
             )
@@ -83,12 +88,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         importer_start_time = datetime.now()
-        MaintenanceUnit.objects.filter(provider=MaintenanceUnit.INFRAROAD).delete()
+        MaintenanceUnit.objects.filter(provider=INFRAROAD).delete()
         if options["history_size"]:
             history_size = options["history_size"][0]
         else:
             history_size = INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE
         self.create_infraroad_maintenance_works(history_size)
+        precalculate_geometry_history(INFRAROAD)
         importer_end_time = datetime.now()
         duration = importer_end_time - importer_start_time
         logger.info(f"Imported Infraroad street maintenance history in: {duration}")
