@@ -78,15 +78,23 @@ def precalculate_geometry_history(provider):
     for unit_id in unit_ids:
         # Temporary store points to list for LineString creation
         points = []
-        qs = queryset.filter(maintenance_unit_id=unit_id).order_by("timestamp")
+        qs = queryset.filter(maintenance_unit_id=unit_id).order_by(
+            "events", "timestamp"
+        )
         prev_timestamp = None
+        current_events = None
         for elem in qs:
-
+            if not current_events:
+                current_events = elem.events
             if prev_timestamp:
                 delta_time = elem.timestamp - prev_timestamp
                 # If delta_time is bigger than the MAX_WORK_LENGTH, then we can assume
-                # that the work should not be in the same linestring/point .
-                if delta_time.seconds > MAX_WORK_LENGTH:
+                # that the work should not be in the same linestring/point or the events
+                # has changed.
+                if (
+                    delta_time.seconds > MAX_WORK_LENGTH
+                    or current_events != elem.events
+                ):
                     if len(points) > 1:
                         geometry = LineString(points, srid=DEFAULT_SRID)
                         objects.append(
@@ -100,7 +108,7 @@ def precalculate_geometry_history(provider):
                         )
                     else:
                         discarded_points += 1
-
+                    current_events = elem.events
                     points = []
             points.append(elem.geometry)
             prev_timestamp = elem.timestamp
