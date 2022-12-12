@@ -170,3 +170,6 @@ To import the data type:
 ```
 ./manage import_wfs CONTENT_TYPE_NAME
 ```
+
+For configuration example and documentation see: 
+mobility_data/importers/data/wfs_importer_config_example.yml
