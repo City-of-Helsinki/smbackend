@@ -6,40 +6,56 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.timezone import now
 
-START_YEAR = 2020
-YEAR_CHOICES = [(r, r) for r in range(START_YEAR, datetime.now().year + 1)]
+TRAFFIC_COUNTER_START_YEAR = 2015
+# Manually define the end year, as the source data comes from the page
+# defined in env variable TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL.
+# Change end year when data for the next year is available.
+TRAFFIC_COUNTER_END_YEAR = 2022
+ECO_COUNTER_START_YEAR = 2020
+LAM_COUNTER_START_YEAR = 2010
 
 
-class SingletonModel(models.Model):
-    class Meta:
-        abstract = True
-
-    def save(self, *args, **kwargs):
-        self.pk = 1
-        super(SingletonModel, self).save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        pass
-
-    @classmethod
-    def load(cls):
-        obj, created = cls.objects.get_or_create(pk=1)
-        return obj
+TRAFFIC_COUNTER = "TC"
+ECO_COUNTER = "EC"
+LAM_COUNTER = "LC"
+CSV_DATA_SOURCES = (
+    (TRAFFIC_COUNTER, "TrafficCounter"),
+    (ECO_COUNTER, "EcoCounter"),
+    (LAM_COUNTER, "LamCounter"),
+)
+COUNTER_START_YEARS = {
+    ECO_COUNTER: ECO_COUNTER_START_YEAR,
+    TRAFFIC_COUNTER: TRAFFIC_COUNTER_START_YEAR,
+    LAM_COUNTER: LAM_COUNTER_START_YEAR,
+}
 
 
-class ImportState(SingletonModel):
-    rows_imported = models.PositiveIntegerField(default=0)
+class ImportState(models.Model):
     current_year_number = models.PositiveSmallIntegerField(
-        choices=YEAR_CHOICES, default=START_YEAR
+        default=ECO_COUNTER_START_YEAR
     )
     current_month_number = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(12)], default=1
     )
+    csv_data_source = models.CharField(
+        max_length=2,
+        choices=CSV_DATA_SOURCES,
+        default=ECO_COUNTER,
+    )
 
 
 class Station(models.Model):
-    name = models.CharField(max_length=30)
+
+    name = models.CharField(max_length=64)
     geom = models.PointField(srid=settings.DEFAULT_SRID)
+    csv_data_source = models.CharField(
+        max_length=2,
+        choices=CSV_DATA_SOURCES,
+        default=ECO_COUNTER,
+    )
+    # For lam stations store the LAM station ID, this is
+    # required when fetching data from the API using the ID.
+    lam_id = models.PositiveSmallIntegerField(null=True)
 
     def __str__(self):
         return "%s %s" % (self.name, self.geom)
@@ -58,6 +74,9 @@ class CounterData(models.Model):
     value_jk = models.PositiveIntegerField(default=0)
     value_jp = models.PositiveIntegerField(default=0)
     value_jt = models.PositiveIntegerField(default=0)
+    value_bk = models.PositiveIntegerField(default=0)
+    value_bp = models.PositiveIntegerField(default=0)
+    value_bt = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True
@@ -67,9 +86,7 @@ class Year(models.Model):
     station = models.ForeignKey(
         "Station", on_delete=models.CASCADE, related_name="years", null=True
     )
-    year_number = models.PositiveSmallIntegerField(
-        choices=YEAR_CHOICES, default=datetime.now().year
-    )
+    year_number = models.PositiveSmallIntegerField(default=datetime.now().year)
 
     @property
     def num_days(self):
@@ -212,6 +229,9 @@ class HourData(models.Model):
     values_jk = ArrayField(models.PositiveSmallIntegerField(), default=list)
     values_jp = ArrayField(models.PositiveSmallIntegerField(), default=list)
     values_jt = ArrayField(models.PositiveSmallIntegerField(), default=list)
+    values_bk = ArrayField(models.PositiveSmallIntegerField(), default=list)
+    values_bp = ArrayField(models.PositiveSmallIntegerField(), default=list)
+    values_bt = ArrayField(models.PositiveSmallIntegerField(), default=list)
 
     class Meta:
         ordering = ["-day__date"]

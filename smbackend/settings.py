@@ -41,6 +41,9 @@ env = environ.Env(
     PTV_ID_OFFSET=(int, None),
     ECO_COUNTER_STATIONS_URL=(str, None),
     ECO_COUNTER_OBSERVATIONS_URL=(str, None),
+    TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL=(str, None),
+    LAM_COUNTER_STATIONS_URL=(str, None),
+    LAM_COUNTER_API_BASE_URL=(str, None),
     GAS_FILLING_STATIONS_IDS=(dict, {}),
     CHARGING_STATIONS_IDS=(dict, {}),
     BICYCLE_STANDS_IDS=(dict, {}),
@@ -277,7 +280,7 @@ LOGGING = {
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO"},
         "turku_services_import": {"handlers": ["console"], "level": "DEBUG"},
-        "search": {"handlers": ["console"], "level": "INFO"},
+        "search": {"handlers": ["console"], "level": "DEBUG"},
         "iot": {"handlers": ["console"], "level": "INFO"},
         "eco_counter": {"handlers": ["console"], "level": "INFO"},
         "mobility_data": {"handlers": ["console"], "level": "INFO"},
@@ -367,8 +370,10 @@ GEO_SEARCH_LOCATION = env("GEO_SEARCH_LOCATION")
 GEO_SEARCH_API_KEY = env("GEO_SEARCH_API_KEY")
 ECO_COUNTER_OBSERVATIONS_URL = env("ECO_COUNTER_OBSERVATIONS_URL")
 ECO_COUNTER_STATIONS_URL = env("ECO_COUNTER_STATIONS_URL")
-
-# Typecast the values to int with listcomprehension.
+TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL = env("TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL")
+LAM_COUNTER_STATIONS_URL = env("LAM_COUNTER_STATIONS_URL")
+LAM_COUNTER_API_BASE_URL = env("LAM_COUNTER_API_BASE_URL")
+# Typecast the dicts values to int with comporehension.
 GAS_FILLING_STATIONS_IDS = {
     k: int(v) for k, v in env("GAS_FILLING_STATIONS_IDS").items()
 }
