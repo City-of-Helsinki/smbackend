@@ -65,6 +65,7 @@ EVENT_MAPPINGS = {
     "pistehiekoitus": [LIUKKAUDENTORJUNTA],
     "paannejään poisto": [LIUKKAUDENTORJUNTA],
     "sirotin": [LIUKKAUDENTORJUNTA],
+    "laiturin ja asema-alueen liukkaudentorjunta": [LIUKKAUDENTORJUNTA],
     # Kadunpesu
     "pe": [PUHTAANAPITO],
     # Harjaus
@@ -96,7 +97,10 @@ EVENT_MAPPINGS = {
 }
 
 # The number of works(point data with timestamp and event) to be fetched for every unit.
-INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE = 10000
+INFRAROAD_DEFAULT_WORKS_FETCH_SIZE = 10000
+# In days, Note if value is increased the fetch size should also be increased.
+INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE = 4
+INFRAROAD_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 # Length of Autori history size in days, max value is 31.
 AUTORI_DEFAULT_WORKS_HISTORY_SIZE = 4
 AUTORI_MAX_WORKS_HISTORY_SIZE = 31
