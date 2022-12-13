@@ -15,24 +15,7 @@
 				"x": 2474140.2481851652,
 				"y": 8510545.6499780715
 			}
-		},
-		{
-			"attributes": {
-				"OPERATOR": "Gasum",
-				"LAT": 61.47949,
-				"LON": 23.78243,
-				"STATION_NAME": "Tampere Nekala",
-				"ADDRESS": "Viinikankatu 40abc 42-21",
-				"CITY": "Tampere",
-				"ZIP_CODE": "33800",
-				"LNG_CNG": "CNG",
-				"ObjectId": 43
-			},
-			"geometry": {
-				"x": 2647447.9974266733,
-				"y": 8736762.1002067178
-			}
-		},
+		},		
 		{
 			"attributes": {
 				"OPERATOR": "Gasum",
