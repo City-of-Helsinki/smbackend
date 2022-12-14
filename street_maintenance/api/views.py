@@ -36,7 +36,7 @@ class LargeResultsSetPagination(PageNumberPagination):
     """
 
     page_size_query_param = "page_size"
-    max_page_size = 10_000
+    max_page_size = 50_000
 
 
 class ActiveEventsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
