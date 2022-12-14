@@ -1,7 +1,26 @@
 from django.contrib.gis.geos import LineString, Point
 from rest_framework import serializers
 
-from street_maintenance.models import MaintenanceUnit, MaintenanceWork
+from street_maintenance.models import GeometryHistory, MaintenanceUnit, MaintenanceWork
+
+
+class GeometryHistorySerializer(serializers.ModelSerializer):
+    geometry_type = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GeometryHistory
+        fields = [
+            "id",
+            "geometry_type",
+            "events",
+            "timestamp",
+            "provider",
+            "geometry",
+            "coordinates",
+        ]
+
+    def get_geometry_type(self, obj):
+        return obj.geometry.geom_type
 
 
 class HistoryGeometrySerializer(serializers.Serializer):

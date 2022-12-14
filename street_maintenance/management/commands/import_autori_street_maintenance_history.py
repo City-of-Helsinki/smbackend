@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
 from .constants import (
+    AUTORI,
     AUTORI_DEFAULT_WORKS_HISTORY_SIZE,
     AUTORI_MAX_WORKS_HISTORY_SIZE,
     EVENT_MAPPINGS,
@@ -20,6 +21,7 @@ from .utils import (
     get_autori_routes,
     get_turku_boundary,
     is_nested_coordinates,
+    precalculate_geometry_history,
 )
 
 TURKU_BOUNDARY = get_turku_boundary()
@@ -100,7 +102,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         importer_start_time = datetime.now()
-        MaintenanceUnit.objects.filter(provider=MaintenanceUnit.AUTORI).delete()
+        MaintenanceUnit.objects.filter(provider=AUTORI).delete()
         history_size = AUTORI_DEFAULT_WORKS_HISTORY_SIZE
         if options["history_size"]:
             history_size = int(options["history_size"][0])
@@ -109,6 +111,8 @@ class Command(BaseCommand):
                 raise ValueError(error_msg)
 
         self.create_autori_maintenance_works(history_size=history_size)
+
         importer_end_time = datetime.now()
+        precalculate_geometry_history(AUTORI)
         duration = importer_end_time - importer_start_time
         logger.info(f"Imported Autori(YIT) street maintenance history in: {duration}")

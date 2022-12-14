@@ -15,6 +15,9 @@ router.register(
     "maintenance_units", views.MaintenanceUnitViewSet, basename="maintenance_units"
 )
 
+router.register(
+    "geometry_history", views.GeometryHitoryViewSet, basename="geometry_history"
+)
 
 urlpatterns = [
     # re_path("^street_maintenance/active_events", )
