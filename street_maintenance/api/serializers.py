@@ -15,7 +15,8 @@ class GeometryHistorySerializer(serializers.ModelSerializer):
             "events",
             "timestamp",
             "provider",
-            "geometry",
+            # Removed for permormance issues as it is not currently used
+            # "geometry",
             "coordinates",
         ]
 
