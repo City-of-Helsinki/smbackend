@@ -78,6 +78,7 @@ EVENT_MAPPINGS = {
     "harjaus ja sohjonpoisto": [PUHTAANAPITO],
     "pölynsidonta": [PUHTAANAPITO],
     "hiekanpoisto": [HIEKANPOISTO],
+    "muu": [MUUT],
     "muut työt": [MUUT],
     "muu työ": [MUUT],
     "lisätyö": [MUUT],
@@ -94,6 +95,12 @@ EVENT_MAPPINGS = {
     "mittaus- ja tarkastustyöt": [MUUT],
     "siimaleikkurointi tai niittotyö": [MUUT],
     "liikennemerkkien pesu": [MUUT],
+    "tiestötarkastus": [MUUT],
+    "roskankeräys": [MUUT],
+    "tuntityö": [MUUT],
+    "pinnan tasaus": [MUUT],
+    "lumivallien madaltaminen": [MUUT],
+    "aurausviitoitus ja kinostimet": [MUUT],
 }
 
 # The number of works(point data with timestamp and event) to be fetched for every unit.
