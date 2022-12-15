@@ -228,6 +228,25 @@ class YearDataViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = YearDataSerializer(queryset, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=["get"])
+    def get_year_datas(self, request):
+        start_year_number = request.query_params.get("start_year_number", None)
+        end_year_number = request.query_params.get("end_year_number", None)
+        station_id = request.query_params.get("station_id", None)
+        if start_year_number is None or end_year_number is None or station_id is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            queryset = YearData.objects.filter(
+                station_id=station_id,
+                year__year_number__gte=start_year_number,
+                year__year_number__lte=end_year_number,
+            ).order_by("year__year_number")
+        except YearData.DoesNotExist:
+            return Response(NOT_FOUND_RESPONSE_MSG, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = YearDataSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class DayViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Day.objects.all()
