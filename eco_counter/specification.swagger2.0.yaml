@@ -243,6 +243,11 @@ paths:
   /stations/:
     get:
       summary: "Returns a list of stations."
+      parameters:
+      - in: query
+        description: "The type of the counter EC(Eco Counter), TC(Traffic Counter), LC(LAM Counter)"
+        name: counter_type
+        type: string
       responses:
         200:
           description: "List of stations."
@@ -286,6 +291,10 @@ paths:
     get:
       summary: "Returns a hour_data by id."
       parameters:
+      - in: query
+        description: "YYYY-MM-DD"
+        name: date
+        type: string
       - name: "id"
         in: path
         type: integer
