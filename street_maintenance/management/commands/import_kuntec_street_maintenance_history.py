@@ -71,10 +71,9 @@ class Command(BaseCommand):
                         # If route has mapped event(s) and contains a polyline add work.
                         if len(events) > 0 and "polyline" in route:
                             coords = polyline.decode(route["polyline"], geojson=True)
-                            if len(coords) > 2:
+                            if len(coords) > 1:
                                 geometry = LineString(coords, srid=DEFAULT_SRID)
                             else:
-                                # coords with length 2 or less are faulty.
                                 continue
                             # Note, some works(geometries) might start outside the boundarys
                             # of Turku and are therefore discarded.
@@ -92,6 +91,7 @@ class Command(BaseCommand):
                             )
         MaintenanceWork.objects.bulk_create(works)
         logger.info(f"Imported {len(works)} Kuntec maintenance works.")
+        return len(works)
 
     def handle(self, *args, **options):
         assert settings.KUNTEC_KEY, "KUNTEC_KEY not found in environment."
@@ -104,8 +104,17 @@ class Command(BaseCommand):
                 error_msg = f"Max value for the history size is: {KUNTEC_MAX_WORKS_HISTORY_SIZE}"
                 raise ValueError(error_msg)
         create_kuntec_maintenance_units()
-        self.create_kuntec_maintenance_works(history_size=history_size)
-        precalculate_geometry_history(KUNTEC)
+        works_created = self.create_kuntec_maintenance_works(history_size=history_size)
+
+        # In some unknown(erroneous mapon server?) cases, there are no works with route and/or Unit with io_din
+        # Status 'On'(1) even if in reality there are. In that case we want to store the previeus state of the
+        # precalculated geometry history for Kuntec data.
+        if works_created > 0:
+            precalculate_geometry_history(KUNTEC)
+        else:
+            logger.warning(
+                f"No works created for {KUNTEC}, skipping geometry history population."
+            )
         importer_end_time = datetime.now()
         duration = importer_end_time - importer_start_time
         logger.info(f"Imported Kuntec street maintenance history in: {duration}")
