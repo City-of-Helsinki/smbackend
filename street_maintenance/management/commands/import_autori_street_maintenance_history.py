@@ -52,7 +52,7 @@ class Command(BaseCommand):
                     f"Route contains multiple features. {route['geography']['features']}"
                 )
             coordinates = route["geography"]["features"][0]["geometry"]["coordinates"]
-            if is_nested_coordinates(coordinates) and len(coordinates) > 2:
+            if is_nested_coordinates(coordinates) and len(coordinates) > 1:
                 geometry = LineString(coordinates, srid=DEFAULT_SRID)
             else:
                 # Remove other data, contains faulty linestrings.
@@ -99,6 +99,7 @@ class Command(BaseCommand):
 
         MaintenanceWork.objects.bulk_create(works)
         logger.info(f"Imported {len(works)} Autori(YIT) mainetance works.")
+        return len(works)
 
     def handle(self, *args, **options):
         importer_start_time = datetime.now()
@@ -110,9 +111,16 @@ class Command(BaseCommand):
                 error_msg = f"Max value for the history size is: {AUTORI_MAX_WORKS_HISTORY_SIZE}"
                 raise ValueError(error_msg)
 
-        self.create_autori_maintenance_works(history_size=history_size)
+        works_created = self.create_autori_maintenance_works(history_size=history_size)
+        # In some unknown(erroneous server?) cases no data for works is availale. In that case we want to store
+        # the previeus state of the precalculated geometry history data.
+        if works_created > 0:
+            precalculate_geometry_history(AUTORI)
+        else:
+            logger.warning(
+                f"No works created for {AUTORI}(YIT), skipping geometry history population."
+            )
 
         importer_end_time = datetime.now()
-        precalculate_geometry_history(AUTORI)
         duration = importer_end_time - importer_start_time
         logger.info(f"Imported Autori(YIT) street maintenance history in: {duration}")
