@@ -6,7 +6,7 @@ import numpy as np
 import requests
 from django import db
 from django.conf import settings
-from django.contrib.gis.geos import LineString
+from django.contrib.gis.geos import LineString, Point
 from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry
 
 from street_maintenance.models import (
@@ -33,6 +33,21 @@ from .constants import (
 logger = logging.getLogger("street_maintenance")
 # In seconds
 MAX_WORK_LENGTH = 180
+MAX_POINT_DISTANCE = 0.01
+
+
+def check_linestring_validity(line_string):
+    # The LineString is consider invalid if distance between 2 points is
+    # greater than MAX_POINT_DISTANCE.
+    prev_coord = None
+    for coord in line_string.coords:
+        if prev_coord:
+            p1 = Point(coord, srid=DEFAULT_SRID)
+            p2 = Point(prev_coord, srid=DEFAULT_SRID)
+            if p1.distance(p2) > MAX_POINT_DISTANCE:
+                return False
+        prev_coord = coord
+    return True
 
 
 @db.transaction.atomic
@@ -52,17 +67,21 @@ def precalculate_geometry_history(provider):
     ).order_by("timestamp")
     elements_to_remove = []
     # Add works that are linestrings,
+    discarded_linestrings = 0
     for elem in queryset:
         if isinstance(elem.geometry, LineString):
-            objects.append(
-                GeometryHistory(
-                    provider=provider,
-                    coordinates=elem.geometry.coords,
-                    timestamp=elem.timestamp,
-                    events=elem.events,
-                    geometry=elem.geometry,
+            if check_linestring_validity(elem.geometry):
+                objects.append(
+                    GeometryHistory(
+                        provider=provider,
+                        coordinates=elem.geometry.coords,
+                        timestamp=elem.timestamp,
+                        events=elem.events,
+                        geometry=elem.geometry,
+                    )
                 )
-            )
+            else:
+                discarded_linestrings += 1
             elements_to_remove.append(elem.id)
 
     # Remove the linestring elements, as they are not needed when generaing
@@ -83,17 +102,21 @@ def precalculate_geometry_history(provider):
         )
         prev_timestamp = None
         current_events = None
+        prev_geometry = None
         for elem in qs:
             if not current_events:
                 current_events = elem.events
-            if prev_timestamp:
+            if prev_timestamp and prev_geometry:
                 delta_time = elem.timestamp - prev_timestamp
+
                 # If delta_time is bigger than the MAX_WORK_LENGTH, then we can assume
                 # that the work should not be in the same linestring/point or the events
-                # has changed.
+                # has changed or the distance is greater than 0.003.
+                distance = elem.geometry.distance(prev_geometry)
                 if (
                     delta_time.seconds > MAX_WORK_LENGTH
                     or current_events != elem.events
+                    or distance > 0.003
                 ):
                     if len(points) > 1:
                         geometry = LineString(points, srid=DEFAULT_SRID)
@@ -110,6 +133,7 @@ def precalculate_geometry_history(provider):
                         discarded_points += 1
                     current_events = elem.events
                     points = []
+            prev_geometry = elem.geometry
             points.append(elem.geometry)
             prev_timestamp = elem.timestamp
 
@@ -128,7 +152,9 @@ def precalculate_geometry_history(provider):
             discarded_points += 1
 
     GeometryHistory.objects.bulk_create(objects)
-    logger.info(f"Discarded {discarded_points} points")
+    logger.info(f"Discarded {discarded_points} Points")
+    logger.info(f"Discarded {discarded_linestrings} LineStrings")
+
     logger.info(f"Created {len(objects)} HistoryGeometry rows for provider: {provider}")
 
 
