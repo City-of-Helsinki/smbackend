@@ -101,6 +101,11 @@ EVENT_MAPPINGS = {
     "pinnan tasaus": [MUUT],
     "lumivallien madaltaminen": [MUUT],
     "aurausviitoitus ja kinostimet": [MUUT],
+    "jääkenttien hoito": [MUUT],
+    "leikkipaikkojen tarkastus": [MUUT],
+    "kenttien hoito": [MUUT],
+    "murskeen ajo varastoihin": [MUUT],
+    "huoltoteiden kunnossapito": [MUUT],
 }
 
 # The number of works(point data with timestamp and event) to be fetched for every unit.
