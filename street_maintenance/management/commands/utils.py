@@ -37,7 +37,7 @@ MAX_POINT_DISTANCE = 0.01
 
 
 def check_linestring_validity(line_string):
-    # The LineString is consider invalid if distance between 2 points is
+    # The LineString is considered invalid if distance between two points is
     # greater than MAX_POINT_DISTANCE.
     prev_coord = None
     for coord in line_string.coords:
@@ -108,10 +108,9 @@ def precalculate_geometry_history(provider):
                 current_events = elem.events
             if prev_timestamp and prev_geometry:
                 delta_time = elem.timestamp - prev_timestamp
-
                 # If delta_time is bigger than the MAX_WORK_LENGTH, then we can assume
                 # that the work should not be in the same linestring/point or the events
-                # has changed or the distance is greater than 0.003.
+                # has changed or the distance between current and previous point is greater than 0.003.
                 distance = elem.geometry.distance(prev_geometry)
                 if (
                     delta_time.seconds > MAX_WORK_LENGTH
