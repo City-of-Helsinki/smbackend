@@ -11,13 +11,18 @@ from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, Maintenance
 
 from .constants import (
     EVENT_MAPPINGS,
+    KUNTEC,
     KUNTEC_DATE_TIME_FORMAT,
     KUNTEC_DEFAULT_WORKS_HISTORY_SIZE,
     KUNTEC_KEY,
     KUNTEC_MAX_WORKS_HISTORY_SIZE,
     KUNTEC_WORKS_URL,
 )
-from .utils import create_kuntec_maintenance_units, get_turku_boundary
+from .utils import (
+    create_kuntec_maintenance_units,
+    get_turku_boundary,
+    precalculate_geometry_history,
+)
 
 TURKU_BOUNDARY = get_turku_boundary()
 logger = logging.getLogger("street_maintenance")
@@ -38,7 +43,7 @@ class Command(BaseCommand):
         now = datetime.now()
         start = (now - timedelta(days=history_size)).strftime(KUNTEC_DATE_TIME_FORMAT)
         end = now.strftime(KUNTEC_DATE_TIME_FORMAT)
-        for unit in MaintenanceUnit.objects.filter(provider=MaintenanceUnit.KUNTEC):
+        for unit in MaintenanceUnit.objects.filter(provider=KUNTEC):
             url = KUNTEC_WORKS_URL.format(
                 key=KUNTEC_KEY, start=start, end=end, unit_id=unit.unit_id
             )
@@ -66,16 +71,16 @@ class Command(BaseCommand):
                         # If route has mapped event(s) and contains a polyline add work.
                         if len(events) > 0 and "polyline" in route:
                             coords = polyline.decode(route["polyline"], geojson=True)
-                            if len(coords) > 2:
+                            if len(coords) > 1:
                                 geometry = LineString(coords, srid=DEFAULT_SRID)
                             else:
-                                # coords with length 2 or less are faulty.
                                 continue
                             # Note, some works(geometries) might start outside the boundarys
                             # of Turku and are therefore discarded.
                             if not TURKU_BOUNDARY.covers(geometry):
                                 continue
                             timestamp = route["start"]["time"]
+
                             works.append(
                                 MaintenanceWork(
                                     timestamp=timestamp,
@@ -86,11 +91,12 @@ class Command(BaseCommand):
                             )
         MaintenanceWork.objects.bulk_create(works)
         logger.info(f"Imported {len(works)} Kuntec maintenance works.")
+        return len(works)
 
     def handle(self, *args, **options):
         assert settings.KUNTEC_KEY, "KUNTEC_KEY not found in environment."
         importer_start_time = datetime.now()
-        MaintenanceUnit.objects.filter(provider=MaintenanceUnit.KUNTEC).delete()
+        MaintenanceUnit.objects.filter(provider=KUNTEC).delete()
         history_size = KUNTEC_DEFAULT_WORKS_HISTORY_SIZE
         if options["history_size"]:
             history_size = int(options["history_size"][0])
@@ -98,7 +104,17 @@ class Command(BaseCommand):
                 error_msg = f"Max value for the history size is: {KUNTEC_MAX_WORKS_HISTORY_SIZE}"
                 raise ValueError(error_msg)
         create_kuntec_maintenance_units()
-        self.create_kuntec_maintenance_works(history_size=history_size)
+        works_created = self.create_kuntec_maintenance_works(history_size=history_size)
+
+        # In some unknown(erroneous mapon server?) cases, there are no works with route and/or Unit with io_din
+        # Status 'On'(1) even if in reality there are. In that case we want to store the previeus state of the
+        # precalculated geometry history for Kuntec data.
+        if works_created > 0:
+            precalculate_geometry_history(KUNTEC)
+        else:
+            logger.warning(
+                f"No works created for {KUNTEC}, skipping geometry history population."
+            )
         importer_end_time = datetime.now()
         duration = importer_end_time - importer_start_time
         logger.info(f"Imported Kuntec street maintenance history in: {duration}")

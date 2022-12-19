@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
 from .constants import (
+    AUTORI,
     AUTORI_DEFAULT_WORKS_HISTORY_SIZE,
     AUTORI_MAX_WORKS_HISTORY_SIZE,
     EVENT_MAPPINGS,
@@ -20,6 +21,7 @@ from .utils import (
     get_autori_routes,
     get_turku_boundary,
     is_nested_coordinates,
+    precalculate_geometry_history,
 )
 
 TURKU_BOUNDARY = get_turku_boundary()
@@ -50,7 +52,7 @@ class Command(BaseCommand):
                     f"Route contains multiple features. {route['geography']['features']}"
                 )
             coordinates = route["geography"]["features"][0]["geometry"]["coordinates"]
-            if is_nested_coordinates(coordinates) and len(coordinates) > 2:
+            if is_nested_coordinates(coordinates) and len(coordinates) > 1:
                 geometry = LineString(coordinates, srid=DEFAULT_SRID)
             else:
                 # Remove other data, contains faulty linestrings.
@@ -97,10 +99,11 @@ class Command(BaseCommand):
 
         MaintenanceWork.objects.bulk_create(works)
         logger.info(f"Imported {len(works)} Autori(YIT) mainetance works.")
+        return len(works)
 
     def handle(self, *args, **options):
         importer_start_time = datetime.now()
-        MaintenanceUnit.objects.filter(provider=MaintenanceUnit.AUTORI).delete()
+        MaintenanceUnit.objects.filter(provider=AUTORI).delete()
         history_size = AUTORI_DEFAULT_WORKS_HISTORY_SIZE
         if options["history_size"]:
             history_size = int(options["history_size"][0])
@@ -108,7 +111,16 @@ class Command(BaseCommand):
                 error_msg = f"Max value for the history size is: {AUTORI_MAX_WORKS_HISTORY_SIZE}"
                 raise ValueError(error_msg)
 
-        self.create_autori_maintenance_works(history_size=history_size)
+        works_created = self.create_autori_maintenance_works(history_size=history_size)
+        # In some unknown(erroneous server?) cases no data for works is availale. In that case we want to store
+        # the previeus state of the precalculated geometry history data.
+        if works_created > 0:
+            precalculate_geometry_history(AUTORI)
+        else:
+            logger.warning(
+                f"No works created for {AUTORI}(YIT), skipping geometry history population."
+            )
+
         importer_end_time = datetime.now()
         duration = importer_end_time - importer_start_time
         logger.info(f"Imported Autori(YIT) street maintenance history in: {duration}")

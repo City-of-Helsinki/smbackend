@@ -21,9 +21,7 @@ definitions:
     title: ContentType
     properties:
       id:
-        type: string
-      type_name:
-        type: string
+        type: string     
       name: 
         type: string
       description:
@@ -34,9 +32,7 @@ definitions:
     title: GroupType
     properties:
       id:
-        type: string
-      group_name:
-        type: string
+        type: string     
       name: 
         type: string
       description:

@@ -254,7 +254,7 @@ def get_routes():
 @db.transaction.atomic
 def save_to_database(routes, delete_tables=False):
     if delete_tables:
-        GroupType.objects.filter(type_name=GroupType.CULTURE_ROUTE).delete()
+        GroupType.objects.filter(name=GROUP_CONTENT_TYPE_NAME).delete()
 
     group_type, _ = GroupType.objects.get_or_create(
         name=GROUP_CONTENT_TYPE_NAME,

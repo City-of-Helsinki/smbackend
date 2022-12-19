@@ -10,6 +10,32 @@ schemes:
 - "http"
 
 definitions:
+  geometry_history:
+    type: object
+    title: GeometryHistory
+    description: "Precalculated geometry history."
+    properties:
+      id: 
+        type: integer
+      geometry_type:
+        type: string
+      events:
+        type: array
+        description: "Name of the events."
+        items:
+          type: string
+      timestamp:
+        type: string
+      provider:
+        type: string
+      gemoetry:
+        type: string
+      coordinates:
+        type: array
+        items: 
+          array:
+           type: number
+ 
   maintenance_unit:
     type: object
     title: MaintenanceUnit
@@ -20,6 +46,27 @@ definitions:
       unit_id:
         type: integer
         description: "The id(name) of the unit."
+      geometry_type:
+        type: string
+        description: "The type of the geometry"
+      events:
+        type: array
+        description: "Name of the events."
+        items:
+          type: string
+      timestamp:
+        type: string
+      provider:
+        type: string
+        description: Name of the provider.
+      geometry:
+        type: string 
+      coordinates:
+        description: "Returns if geometry is of type Linestring."
+        type: array
+        items:          
+          type: number
+
   maintenance_work:
     type: object
     title: MaintenanceWork
@@ -27,7 +74,7 @@ definitions:
     properties:
       id:
         type: integer
-     geometry: 
+      geometry: 
         type: string
       timestamp:
         type: string
@@ -41,6 +88,8 @@ definitions:
       coords:
         description: "Returns if geometry is of type Linestring."
         type: array
+        items:
+          type: number
       lat:
         description: "Returns if geometry is of type Point."
         type: number
@@ -49,6 +98,38 @@ definitions:
         type: number
 
 paths:
+  /geometry_history/:
+    get:
+      summary: "Returns list of precalculated geometry historys."
+      parameters:
+        - $ref: "#/components/parameters/provider_param"
+        - $ref: "#/components/parameters/event_param"
+        - $ref: "#/components/parameters/start_date_time_param"
+      responses:
+        200:
+          description: "List of GeometryHistory object"
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/geometry_history"
+
+  /geometry_history/{id}:
+    get:
+      summary: "Return a single precalculated geometry history object."
+      parameters:
+      - name: "id"
+        in: path
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "The geometry history object."
+          schema:
+            $ref: "#/definitions/geometry_history"
+
   /maintenance_units/:
     get:
       summary: "Returns list of maintenance units."
@@ -106,6 +187,7 @@ paths:
           description: "The maintenance work object."
           schema:
             $ref: "#/definitions/maintenance_work"
+
   /maintenance_works/get_geometry_history:
     get:
       summary: "From the given parameters generates linestrings for the event. If two or more points can not be determined to belong to the linestring output a point."
@@ -125,16 +207,20 @@ paths:
   
 components:
   parameters:
+    provider_param:
+      name: provider
+      in: query
+      description: "Return entities of given provider."
     event_param:
       name: event
       in: query
-      description: "Return works of given event. The event name is the mapped name and the active event names can be seen from the active_events endpoint."
+      description: "Return entities of given event. The event name is the mapped name and the active event names can be seen from the active_events endpoint."
       schema:
         type: string
     start_date_time_param:
       name: start_date_time
       in: query
-      description: "The start date and time of the works to fetch. Must be in format YYYY-MM-DD HH:MM e.g.,'2022-09-18 10:00' "
+      description: "The start date and time of the entities to fetch. Must be in format YYYY-MM-DD HH:MM:SS e.g.,'2022-09-18 10:00:00' "
       schema:
         type: string
     unit_id_param:

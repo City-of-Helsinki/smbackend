@@ -17,12 +17,14 @@ def get_yaml_config(file):
 
 def get_configured_cotent_type_names(config=None):
     if not config:
-        config = get_yaml_config()
+        config = get_yaml_config(CONFIG_FILE)
     return [f["content_type_name"] for f in config["features"]]
 
 
 class Command(BaseCommand):
     config = get_yaml_config(CONFIG_FILE)
+    # Read all the defined content types from the config
+    choices = get_configured_cotent_type_names(config)
 
     def add_arguments(self, parser):
 
@@ -36,10 +38,9 @@ class Command(BaseCommand):
             nargs="?",
             help="YAML config file for features.",
         )
-
-        # Read all the defined content types from the config
-        choices = get_configured_cotent_type_names(self.config)
-        parser.add_argument("content_type_names", nargs="*", help=", ".join(choices))
+        parser.add_argument(
+            "content_type_names", nargs="*", help=", ".join(self.choices)
+        )
 
     def handle(self, *args, **options):
         if options["config_file"]:
@@ -48,6 +49,14 @@ class Command(BaseCommand):
         data_file = None
         if options["data_file"]:
             data_file = options["data_file"]
+
+        # Check if ContentTypes given as arguments exists.
+        if options["content_type_names"]:
+            for content_type_name in options["content_type_names"]:
+                if content_type_name not in self.choices:
+                    logger.warning(
+                        f"ContentType {content_type_name} not found in config, discarding..."
+                    )
 
         for feature in self.config["features"]:
             if (

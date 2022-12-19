@@ -1,5 +1,15 @@
 from django.conf import settings
 
+INFRAROAD = "INFRAROAD"
+AUTORI = "AUTORI"
+KUNTEC = "KUNTEC"
+PROVIDER_CHOICES = (
+    (INFRAROAD, "Infraroad"),
+    (AUTORI, "Autori"),
+    (KUNTEC, "Kuntec"),
+)
+PROVIDERS = [INFRAROAD, AUTORI, KUNTEC]
+
 AUTORI_EVENTS_URL = settings.AUTORI_EVENTS_URL
 AUTORI_ROUTES_URL = settings.AUTORI_ROUTES_URL
 AUTORI_VEHICLES_URL = settings.AUTORI_VEHICLES_URL
@@ -32,7 +42,7 @@ MUUT = None
 # The value is a list, as there can be events that belong to multiple main groups.
 # e.g., event "Auraus ja hiekanpoisto".
 EVENT_MAPPINGS = {
-    "Laiturin ja asema-alueen auraus": [AURAUS],
+    "laiturin ja asema-alueen auraus": [AURAUS],
     "au": [AURAUS],
     "auraus": [AURAUS],
     "auraus ja sohjonpoisto": [AURAUS],
@@ -40,6 +50,8 @@ EVENT_MAPPINGS = {
     "lumensiirto": [AURAUS],
     "etuaura": [AURAUS],
     "alusterä": [AURAUS],
+    "sivuaura": [AURAUS],
+    "höyläys": [AURAUS],
     "suolas": [LIUKKAUDENTORJUNTA],
     "suolaus (sirotinlaite)": [LIUKKAUDENTORJUNTA],
     "liuossuolaus": [LIUKKAUDENTORJUNTA],
@@ -52,6 +64,8 @@ EVENT_MAPPINGS = {
     "linjahiekoitus": [LIUKKAUDENTORJUNTA],
     "pistehiekoitus": [LIUKKAUDENTORJUNTA],
     "paannejään poisto": [LIUKKAUDENTORJUNTA],
+    "sirotin": [LIUKKAUDENTORJUNTA],
+    "laiturin ja asema-alueen liukkaudentorjunta": [LIUKKAUDENTORJUNTA],
     # Kadunpesu
     "pe": [PUHTAANAPITO],
     # Harjaus
@@ -64,6 +78,7 @@ EVENT_MAPPINGS = {
     "harjaus ja sohjonpoisto": [PUHTAANAPITO],
     "pölynsidonta": [PUHTAANAPITO],
     "hiekanpoisto": [HIEKANPOISTO],
+    "muu": [MUUT],
     "muut työt": [MUUT],
     "muu työ": [MUUT],
     "lisätyö": [MUUT],
@@ -75,14 +90,33 @@ EVENT_MAPPINGS = {
     "lisälaite 1": [MUUT],
     "lisälaite 2": [MUUT],
     "lisälaite 3": [MUUT],
+    "pensaiden hoitoleikkaus": [MUUT],
+    "puiden hoitoleikkaukset": [MUUT],
+    "mittaus- ja tarkastustyöt": [MUUT],
+    "siimaleikkurointi tai niittotyö": [MUUT],
+    "liikennemerkkien pesu": [MUUT],
+    "tiestötarkastus": [MUUT],
+    "roskankeräys": [MUUT],
+    "tuntityö": [MUUT],
+    "pinnan tasaus": [MUUT],
+    "lumivallien madaltaminen": [MUUT],
+    "aurausviitoitus ja kinostimet": [MUUT],
+    "jääkenttien hoito": [MUUT],
+    "leikkipaikkojen tarkastus": [MUUT],
+    "kenttien hoito": [MUUT],
+    "murskeen ajo varastoihin": [MUUT],
+    "huoltoteiden kunnossapito": [MUUT],
 }
 
 # The number of works(point data with timestamp and event) to be fetched for every unit.
-INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE = 10000
+INFRAROAD_DEFAULT_WORKS_FETCH_SIZE = 10000
+# In days, Note if value is increased the fetch size should also be increased.
+INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE = 4
+INFRAROAD_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 # Length of Autori history size in days, max value is 31.
-AUTORI_DEFAULT_WORKS_HISTORY_SIZE = 5
+AUTORI_DEFAULT_WORKS_HISTORY_SIZE = 4
 AUTORI_MAX_WORKS_HISTORY_SIZE = 31
 AUTORI_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S%z"
-KUNTEC_DEFAULT_WORKS_HISTORY_SIZE = 10
+KUNTEC_DEFAULT_WORKS_HISTORY_SIZE = 4
 KUNTEC_MAX_WORKS_HISTORY_SIZE = 31
 KUNTEC_DATE_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"

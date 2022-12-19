@@ -24,8 +24,8 @@ from mobility_data.models import ContentType, DataSource, MobileUnit
 # 11 = Southwest Finland
 GEOMETRY_ID = 11
 GEOMETRY_URL = (
-    "https://tie.digitraffic.fi/api/v3/data/traffic-messages/area-geometries?"
-    + f"id={GEOMETRY_ID}&lastUpdated=false"
+    "https://tie.digitraffic.fi/api/traffic-message/v1/area-geometries/"
+    + f"{GEOMETRY_ID}?includeGeometry=true"
 )
 LANGUAGES = ["fi", "sv", "en"]
 
