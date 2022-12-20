@@ -16,7 +16,10 @@ from street_maintenance.api.serializers import (
     MaintenanceUnitSerializer,
     MaintenanceWorkSerializer,
 )
-from street_maintenance.management.commands.constants import PROVIDERS
+from street_maintenance.management.commands.constants import (
+    PROVIDERS,
+    START_DATE_TIME_FORMAT,
+)
 from street_maintenance.models import (
     DEFAULT_SRID,
     GeometryHistory,
@@ -59,7 +62,7 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
             start_date_time = filters["start_date_time"]
             try:
                 start_date_time = datetime.strptime(
-                    start_date_time, "%Y-%m-%d %H:%M:%S"
+                    start_date_time, START_DATE_TIME_FORMAT
                 )
             except ValueError:
                 raise ParseError(
@@ -171,17 +174,17 @@ class GeometryHitoryViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = GeometryHistory.objects.all()
         filters = self.request.query_params
+
         if "provider" in filters:
             provider = filters["provider"].upper()
+            queryset = queryset.filter(provider=provider)
             if provider in PROVIDERS:
-                queryset = GeometryHistory.objects.filter(provider=provider)
+                queryset = queryset.filter(provider=provider)
             else:
                 raise ParseError(f"Providers are: {', '.join(PROVIDERS)}")
 
         if "event" in filters:
-            queryset = GeometryHistory.objects.filter(
-                events__contains=[filters["event"]]
-            )
+            queryset = queryset.filter(events__contains=[filters["event"]])
         if "start_date_time" in filters:
             start_date_time = filters["start_date_time"]
             try:
