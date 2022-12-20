@@ -6,9 +6,9 @@ from rest_framework.reverse import reverse
 
 from street_maintenance.management.commands.constants import (
     AURAUS,
-    LIUKKAUDENTORJUNTA,
     INFRAROAD,
     KUNTEC,
+    LIUKKAUDENTORJUNTA,
     START_DATE_TIME_FORMAT,
 )
 
