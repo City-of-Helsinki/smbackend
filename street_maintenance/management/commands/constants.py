@@ -52,6 +52,7 @@ EVENT_MAPPINGS = {
     "alusterä": [AURAUS],
     "sivuaura": [AURAUS],
     "höyläys": [AURAUS],
+    "suolaus": [LIUKKAUDENTORJUNTA],
     "suolas": [LIUKKAUDENTORJUNTA],
     "suolaus (sirotinlaite)": [LIUKKAUDENTORJUNTA],
     "liuossuolaus": [LIUKKAUDENTORJUNTA],
@@ -106,8 +107,11 @@ EVENT_MAPPINGS = {
     "kenttien hoito": [MUUT],
     "murskeen ajo varastoihin": [MUUT],
     "huoltoteiden kunnossapito": [MUUT],
+    "pysäkkikatosten hoito": [MUUT],
+    "liikennemerkkien puhdistus": [MUUT],
+    "siirtoajo": [MUUT],
 }
-
+START_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 # The number of works(point data with timestamp and event) to be fetched for every unit.
 INFRAROAD_DEFAULT_WORKS_FETCH_SIZE = 10000
 # In days, Note if value is increased the fetch size should also be increased.
