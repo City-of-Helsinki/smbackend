@@ -1,11 +1,10 @@
 import logging
-from datetime import datetime
 
 from django.contrib.gis.geos import LineString
-from django.core.management.base import BaseCommand
 
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
+from .base_import_command import BaseImportCommand
 from .constants import (
     AUTORI,
     AUTORI_DEFAULT_WORKS_HISTORY_SIZE,
@@ -28,7 +27,7 @@ TURKU_BOUNDARY = get_turku_boundary()
 logger = logging.getLogger("street_maintenance")
 
 
-class Command(BaseCommand):
+class Command(BaseImportCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--history-size",
@@ -102,7 +101,7 @@ class Command(BaseCommand):
         return len(works)
 
     def handle(self, *args, **options):
-        importer_start_time = datetime.now()
+        super().__init__()
         MaintenanceUnit.objects.filter(provider=AUTORI).delete()
         history_size = AUTORI_DEFAULT_WORKS_HISTORY_SIZE
         if options["history_size"]:
@@ -120,7 +119,4 @@ class Command(BaseCommand):
             logger.warning(
                 f"No works created for {AUTORI}(YIT), skipping geometry history population."
             )
-
-        importer_end_time = datetime.now()
-        duration = importer_end_time - importer_start_time
-        logger.info(f"Imported Autori(YIT) street maintenance history in: {duration}")
+        super().display_duration(AUTORI)
