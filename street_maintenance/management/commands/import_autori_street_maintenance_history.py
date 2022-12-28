@@ -18,6 +18,7 @@ from .utils import (
     get_autori_contract,
     get_autori_event_types,
     get_autori_routes,
+    get_linestring_in_boundary,
     get_turku_boundary,
     is_nested_coordinates,
     precalculate_geometry_history,
@@ -56,8 +57,10 @@ class Command(BaseImportCommand):
             else:
                 # Remove other data, contains faulty linestrings.
                 continue
-
-            if not TURKU_BOUNDARY.covers(geometry):
+            # Create linestring that is inside the boundary of Turku
+            # and discard parts of the geometry if they are outside the boundary.
+            geometry = get_linestring_in_boundary(geometry, TURKU_BOUNDARY)
+            if geometry.num_coords < 2:
                 continue
 
             events = []

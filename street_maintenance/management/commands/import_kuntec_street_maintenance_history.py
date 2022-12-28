@@ -22,6 +22,7 @@ from .constants import (
 )
 from .utils import (
     create_kuntec_maintenance_units,
+    get_linestring_in_boundary,
     get_turku_boundary,
     precalculate_geometry_history,
 )
@@ -77,12 +78,14 @@ class Command(BaseImportCommand):
                                 geometry = LineString(coords, srid=DEFAULT_SRID)
                             else:
                                 continue
-                            # Note, some works(geometries) might start outside the boundarys
-                            # of Turku and are therefore discarded.
-                            if not TURKU_BOUNDARY.covers(geometry):
+                            # Create linestring that is inside the boundary of Turku
+                            # and discard parts of the geometry if they are outside the boundary.
+                            geometry = get_linestring_in_boundary(
+                                geometry, TURKU_BOUNDARY
+                            )
+                            if geometry.num_coords < 2:
                                 continue
                             timestamp = route["start"]["time"]
-
                             works.append(
                                 MaintenanceWork(
                                     timestamp=timestamp,
