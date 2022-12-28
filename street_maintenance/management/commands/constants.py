@@ -1,34 +1,56 @@
 from django.conf import settings
 
+KUNTEC_KEY = settings.KUNTEC_KEY
 INFRAROAD = "INFRAROAD"
 AUTORI = "AUTORI"
 KUNTEC = "KUNTEC"
+DESTIA = "DESTIA"
 PROVIDER_CHOICES = (
     (INFRAROAD, "Infraroad"),
     (AUTORI, "Autori"),
     (KUNTEC, "Kuntec"),
+    (DESTIA, "Destia"),
 )
-PROVIDERS = [INFRAROAD, AUTORI, KUNTEC]
+PROVIDERS = [INFRAROAD, AUTORI, KUNTEC, DESTIA]
 
-AUTORI_EVENTS_URL = settings.AUTORI_EVENTS_URL
-AUTORI_ROUTES_URL = settings.AUTORI_ROUTES_URL
-AUTORI_VEHICLES_URL = settings.AUTORI_VEHICLES_URL
-AUTORI_CONTRACTS_URL = settings.AUTORI_CONTRACTS_URL
-AUTORI_TOKEN_URL = settings.AUTORI_TOKEN_URL
+UNITS = "UNITS"
+WORKS = "WORKS"
+EVENTS = "EVENTS"
+ROUTES = "ROUTES"
+VEHICLES = "VEHICLES"
+CONTRACTS = "CONTRACTS"
+TOKEN = "TOKEN"
 
-INFRAROAD_UNITS_URL = (
-    "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/query?since=72hours"
-)
-INFRAROAD_WORKS_URL = "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/{id}?history={history_size}"
 
-KUNTEC_KEY = settings.KUNTEC_KEY
-KUNTEC_UNITS_URL = (
-    f"https://mapon.com/api/v1/unit/list.json?key={KUNTEC_KEY}&include=io_din"
+URLS = {
+    KUNTEC: {
+        WORKS: "https://mapon.com/api/v1/route/list.json?key={key}&from={start}"
+        "&till={end}&include=polyline&unit_id={unit_id}",
+        UNITS: f"https://mapon.com/api/v1/unit/list.json?key={KUNTEC_KEY}&include=io_din",
+    },
+    AUTORI: {
+        EVENTS: settings.AUTORI_EVENTS_URL,
+        ROUTES: settings.AUTORI_ROUTES_URL,
+        VEHICLES: settings.AUTORI_VEHICLES_URL,
+        CONTRACTS: settings.AUTORI_CONTRACTS_URL,
+        TOKEN: settings.AUTORI_TOKEN_URL,
+    },
+    INFRAROAD: {
+        WORKS: "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/{id}?history={history_size}",
+        UNITS: "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/query?since=72hours",
+    },
+    DESTIA: {
+        WORKS: "https://destia.fluentprogress.fi/KuntoInfraroad/turku/v1/snowplow/{id}?history={history_size}",
+        UNITS: "https://destia.fluentprogress.fi/KuntoDestia/turku/v1/snowplow",
+    },
+}
+
+
+DESTIA_UNITS_URL_BROKEN = (
+    "https://destia.fluentprogress.fi/KuntoDestia/turku/v1/snowplow/query?since=72hours"
 )
-KUNTEC_WORKS_URL = (
-    "https://mapon.com/api/v1/route/list.json?key={key}&from={start}"
-    "&till={end}&include=polyline&unit_id={unit_id}"
-)
+
+
 # Events are categorized into main groups:
 AURAUS = "auraus"
 LIUKKAUDENTORJUNTA = "liukkaudentorjunta"
@@ -42,6 +64,7 @@ MUUT = None
 # The value is a list, as there can be events that belong to multiple main groups.
 # e.g., event "Auraus ja hiekanpoisto".
 EVENT_MAPPINGS = {
+    "käsihiekotus tai käsilumityöt": [AURAUS, LIUKKAUDENTORJUNTA],
     "laiturin ja asema-alueen auraus": [AURAUS],
     "au": [AURAUS],
     "auraus": [AURAUS],
@@ -111,16 +134,23 @@ EVENT_MAPPINGS = {
     "liikennemerkkien puhdistus": [MUUT],
     "siirtoajo": [MUUT],
 }
+DATE_TIME_FORMATS = {
+    INFRAROAD: "%Y-%m-%d %H:%M:%S",
+    KUNTEC: "%Y-%m-%dT%H:%M:%SZ",
+    AUTORI: "%Y-%m-%d %H:%M:%S%z",
+}
+# GeometryHistory API list start_date_time parameter format.
 START_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 # The number of works(point data with timestamp and event) to be fetched for every unit.
 INFRAROAD_DEFAULT_WORKS_FETCH_SIZE = 10000
+DESTIA_DEFAULT_WORKS_FETCH_SIZE = 10000
 # In days, Note if value is increased the fetch size should also be increased.
 INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE = 4
-INFRAROAD_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+DESTIA_DEFAULT_WORKS_HISTORY_SIZE = 4
+
 # Length of Autori history size in days, max value is 31.
 AUTORI_DEFAULT_WORKS_HISTORY_SIZE = 4
 AUTORI_MAX_WORKS_HISTORY_SIZE = 31
-AUTORI_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S%z"
+
 KUNTEC_DEFAULT_WORKS_HISTORY_SIZE = 4
 KUNTEC_MAX_WORKS_HISTORY_SIZE = 31
-KUNTEC_DATE_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
