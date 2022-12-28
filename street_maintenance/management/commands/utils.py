@@ -1,4 +1,5 @@
 import logging
+import re
 import zoneinfo
 from datetime import datetime, timedelta
 
@@ -18,16 +19,18 @@ from street_maintenance.models import (
 
 from .constants import (
     AUTORI,
-    AUTORI_CONTRACTS_URL,
-    AUTORI_DATE_TIME_FORMAT,
-    AUTORI_EVENTS_URL,
-    AUTORI_ROUTES_URL,
-    AUTORI_TOKEN_URL,
-    AUTORI_VEHICLES_URL,
-    INFRAROAD,
-    INFRAROAD_UNITS_URL,
+    CONTRACTS,
+    DATE_TIME_FORMATS,
+    EVENT_MAPPINGS,
+    EVENTS,
     KUNTEC,
-    KUNTEC_UNITS_URL,
+    PROVIDERS,
+    ROUTES,
+    TOKEN,
+    UNITS,
+    URLS,
+    VEHICLES,
+    WORKS,
 )
 
 logger = logging.getLogger("street_maintenance")
@@ -153,7 +156,6 @@ def precalculate_geometry_history(provider):
     GeometryHistory.objects.bulk_create(objects)
     logger.info(f"Discarded {discarded_points} Points")
     logger.info(f"Discarded {discarded_linestrings} LineStrings")
-
     logger.info(f"Created {len(objects)} HistoryGeometry rows for provider: {provider}")
 
 
@@ -166,45 +168,103 @@ def get_turku_boundary():
     return turku_boundary
 
 
-def create_infraroad_maintenance_units():
-    response = requests.get(INFRAROAD_UNITS_URL)
+def create_maintenance_works(provider, history_size, fetch_size):
+    turku_boundary = get_turku_boundary()
+    works = []
+    import_from_date_time = datetime.now() - timedelta(days=history_size)
+    import_from_date_time = import_from_date_time.replace(
+        tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki")
+    )
+    for unit in MaintenanceUnit.objects.filter(provider=provider):
+        response = requests.get(
+            URLS[provider][WORKS].format(id=unit.unit_id, history_size=fetch_size)
+        )
+        if "location_history" in response.json():
+            json_data = response.json()["location_history"]
+        else:
+            logger.warning(f"Location history not found for unit: {unit.unit_id}")
+            continue
+        for work in json_data:
+
+            timestamp = datetime.strptime(
+                work["timestamp"], DATE_TIME_FORMATS[provider]
+            ).replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki"))
+            # Discard events older then import_from_date_time as they will
+            # never be displayed
+            if timestamp < import_from_date_time:
+                continue
+            coords = work["coords"]
+            coords = [float(c) for c in re.sub(r"[()]", "", coords).split(" ")]
+            point = Point(coords[0], coords[1], srid=DEFAULT_SRID)
+            # discard events outside Turku.
+            if not turku_boundary.covers(point):
+                continue
+
+            events = []
+            for event in work["events"]:
+                event_name = event.lower()
+                if event_name in EVENT_MAPPINGS:
+                    for e in EVENT_MAPPINGS[event_name]:
+                        # If mapping value is None, the event is not used.
+                        if e:
+                            events.append(e)
+                else:
+                    logger.warning(f"Found unmapped event: {event}")
+            # If no events found discard the work
+            if len(events) == 0:
+                continue
+            works.append(
+                MaintenanceWork(
+                    timestamp=timestamp,
+                    maintenance_unit=unit,
+                    geometry=point,
+                    events=events,
+                )
+            )
+    MaintenanceWork.objects.bulk_create(works)
+    logger.info(f"Imported {len(works)} {provider} mainetance works.")
+
+
+def create_maintenance_units(provider):
+    assert provider in PROVIDERS
+    response = requests.get(URLS[provider][UNITS])
     assert (
         response.status_code == 200
     ), "Fetching Maintenance Unit {} status code: {}".format(
-        INFRAROAD_UNITS_URL, response.status_code
+        URLS[provider][UNITS], response.status_code
     )
     for unit in response.json():
         # The names of the unit is derived from the events.
         names = [n for n in unit["last_location"]["events"]]
         MaintenanceUnit.objects.create(
-            unit_id=unit["id"], names=names, provider=INFRAROAD
+            unit_id=unit["id"], names=names, provider=provider
         )
     logger.info(
-        f"Imported {MaintenanceUnit.objects.filter(provider=INFRAROAD).count()}"
-        + " Infraroad mainetance Units."
+        f"Imported {MaintenanceUnit.objects.filter(provider=provider).count()}"
+        + f" {provider} mainetance Units."
     )
 
 
 def get_autori_contract(access_token):
     response = requests.get(
-        AUTORI_CONTRACTS_URL, headers={"Authorization": f"Bearer {access_token}"}
+        URLS[AUTORI][CONTRACTS], headers={"Authorization": f"Bearer {access_token}"}
     )
     assert (
         response.status_code == 200
     ), "Fetcing Autori Contract {} failed, status code: {}".format(
-        AUTORI_CONTRACTS_URL, response.status_code
+        URLS[AUTORI][CONTRACTS], response.status_code
     )
     return response.json()[0].get("id", None)
 
 
 def get_autori_event_types(access_token):
     response = requests.get(
-        AUTORI_EVENTS_URL, headers={"Authorization": f"Bearer {access_token}"}
+        URLS[AUTORI][EVENTS], headers={"Authorization": f"Bearer {access_token}"}
     )
     assert (
         response.status_code == 200
     ), " Fetching Autori event types {} failed, status code: {}".format(
-        AUTORI_EVENTS_URL, response.status_code
+        URLS[AUTORI][EVENTS], response.status_code
     )
     return response.json()
 
@@ -217,11 +277,12 @@ def create_dict_from_autori_events(list_of_events):
 
 
 def create_kuntec_maintenance_units():
-    response = requests.get(KUNTEC_UNITS_URL)
+    units_url = URLS[KUNTEC][UNITS]
+    response = requests.get(units_url)
     assert (
         response.status_code == 200
     ), "Fetching Maintenance Unit {} status code: {}".format(
-        KUNTEC_UNITS_URL, response.status_code
+        units_url, response.status_code
     )
     no_io_din = 0
     for unit in response.json()["data"]["units"]:
@@ -252,12 +313,12 @@ def create_kuntec_maintenance_units():
 
 def create_autori_maintenance_units(access_token):
     response = requests.get(
-        AUTORI_VEHICLES_URL, headers={"Authorization": f"Bearer {access_token}"}
+        URLS[AUTORI][VEHICLES], headers={"Authorization": f"Bearer {access_token}"}
     )
     assert (
         response.status_code == 200
     ), " Fetching Autori vehicles {} failed, status code: {}".format(
-        AUTORI_VEHICLES_URL, response.status_code
+        URLS[AUTORI][VEHICLES], response.status_code
     )
     for unit in response.json():
         names = [unit["vehicleTypeName"]]
@@ -271,12 +332,12 @@ def create_autori_maintenance_units(access_token):
 def get_autori_routes(access_token, contract, history_size):
     now = datetime.now()
     end = now.replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki")).strftime(
-        AUTORI_DATE_TIME_FORMAT
+        DATE_TIME_FORMATS[AUTORI]
     )
     start = (
         (now - timedelta(days=history_size))
         .replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki"))
-        .strftime(AUTORI_DATE_TIME_FORMAT)
+        .strftime(DATE_TIME_FORMATS[AUTORI])
     )
     params = {
         "contract": contract,
@@ -284,14 +345,14 @@ def get_autori_routes(access_token, contract, history_size):
         "end": end,
     }
     response = requests.get(
-        AUTORI_ROUTES_URL,
+        URLS[AUTORI][ROUTES],
         headers={"Authorization": f"Bearer {access_token}"},
         params=params,
     )
     assert (
         response.status_code == 200
     ), "Fetching Autori routes {}, failed, status code: {}".format(
-        AUTORI_ROUTES_URL, response.status_code
+        URLS[AUTORI][ROUTES], response.status_code
     )
     return response.json()
 
@@ -308,11 +369,11 @@ def get_autori_access_token():
         "client_id": settings.AUTORI_CLIENT_ID,
         "client_secret": settings.AUTORI_CLIENT_SECRET,
     }
-    response = requests.post(AUTORI_TOKEN_URL, data=data)
+    response = requests.post(URLS[AUTORI][TOKEN], data=data)
     assert (
         response.status_code == 200
     ), "Fetchin oauth2 token from Autori {} failed, status code: {}".format(
-        AUTORI_TOKEN_URL, response.status_code
+        URLS[AUTORI][TOKEN], response.status_code
     )
     access_token = response.json().get("access_token", None)
     return access_token
