@@ -168,6 +168,20 @@ def get_turku_boundary():
     return turku_boundary
 
 
+def get_linestring_in_boundary(linestring, boundary):
+    """
+    Returns a linestring from the input linestring where all the coordinates
+    are inside the boundary.
+    """
+    coords = [
+        coord
+        for coord in linestring.coords
+        if boundary.covers(Point(coord, srid=DEFAULT_SRID))
+    ]
+    linestring = LineString(coords, srid=DEFAULT_SRID)
+    return linestring
+
+
 def create_maintenance_works(provider, history_size, fetch_size):
     turku_boundary = get_turku_boundary()
     works = []
