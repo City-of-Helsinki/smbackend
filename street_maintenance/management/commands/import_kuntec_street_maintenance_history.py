@@ -11,12 +11,12 @@ from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, Maintenance
 # from django.core.management.base import BaseCommand
 from .base_import_command import BaseImportCommand
 from .constants import (
-    DATE_TIME_FORMATS,
     EVENT_MAPPINGS,
     KUNTEC,
     KUNTEC_DEFAULT_WORKS_HISTORY_SIZE,
     KUNTEC_KEY,
     KUNTEC_MAX_WORKS_HISTORY_SIZE,
+    TIMESTAMP_FORMATS,
     URLS,
     WORKS,
 )
@@ -44,8 +44,8 @@ class Command(BaseImportCommand):
     def create_kuntec_maintenance_works(self, history_size=None):
         works = []
         now = datetime.now()
-        start = (now - timedelta(days=history_size)).strftime(DATE_TIME_FORMATS[KUNTEC])
-        end = now.strftime(DATE_TIME_FORMATS[KUNTEC])
+        start = (now - timedelta(days=history_size)).strftime(TIMESTAMP_FORMATS[KUNTEC])
+        end = now.strftime(TIMESTAMP_FORMATS[KUNTEC])
         for unit in MaintenanceUnit.objects.filter(provider=KUNTEC):
             url = URLS[KUNTEC][WORKS].format(
                 key=KUNTEC_KEY, start=start, end=end, unit_id=unit.unit_id
