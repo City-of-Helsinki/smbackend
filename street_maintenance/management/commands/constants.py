@@ -134,7 +134,7 @@ EVENT_MAPPINGS = {
     "liikennemerkkien puhdistus": [MUUT],
     "siirtoajo": [MUUT],
 }
-DATE_TIME_FORMATS = {
+TIMESTAMP_FORMATS = {
     INFRAROAD: "%Y-%m-%d %H:%M:%S",
     KUNTEC: "%Y-%m-%dT%H:%M:%SZ",
     AUTORI: "%Y-%m-%d %H:%M:%S%z",
