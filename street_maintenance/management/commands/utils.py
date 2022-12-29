@@ -20,12 +20,12 @@ from street_maintenance.models import (
 from .constants import (
     AUTORI,
     CONTRACTS,
-    DATE_TIME_FORMATS,
     EVENT_MAPPINGS,
     EVENTS,
     KUNTEC,
     PROVIDERS,
     ROUTES,
+    TIMESTAMP_FORMATS,
     TOKEN,
     UNITS,
     URLS,
@@ -201,7 +201,7 @@ def create_maintenance_works(provider, history_size, fetch_size):
         for work in json_data:
 
             timestamp = datetime.strptime(
-                work["timestamp"], DATE_TIME_FORMATS[provider]
+                work["timestamp"], TIMESTAMP_FORMATS[provider]
             ).replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki"))
             # Discard events older then import_from_date_time as they will
             # never be displayed
@@ -346,12 +346,12 @@ def create_autori_maintenance_units(access_token):
 def get_autori_routes(access_token, contract, history_size):
     now = datetime.now()
     end = now.replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki")).strftime(
-        DATE_TIME_FORMATS[AUTORI]
+        TIMESTAMP_FORMATS[AUTORI]
     )
     start = (
         (now - timedelta(days=history_size))
         .replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki"))
-        .strftime(DATE_TIME_FORMATS[AUTORI])
+        .strftime(TIMESTAMP_FORMATS[AUTORI])
     )
     params = {
         "contract": contract,
