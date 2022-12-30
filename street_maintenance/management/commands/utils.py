@@ -39,14 +39,15 @@ MAX_WORK_LENGTH = 60
 VALID_LINESTRING_MAX_POINT_DISTANCE = 0.01
 
 
-def check_linestring_validity(linestring, threshold=None):
+def check_linestring_validity(
+    linestring, threshold=VALID_LINESTRING_MAX_POINT_DISTANCE
+):
     """
     The LineString is considered invalid if distance between two points is
     greater than VALID_LINESTRING_MAX_POINT_DISTANCE.
-    The lower the threshold value the more serve the validating will be
+    The lower the threshold value the more serve the validating will be.
     """
-    if not threshold:
-        threshold = VALID_LINESTRING_MAX_POINT_DISTANCE
+
     prev_coord = None
     for coord in linestring.coords:
         if prev_coord:
@@ -57,13 +58,14 @@ def check_linestring_validity(linestring, threshold=None):
         prev_coord = coord
     return True
 
+
 def add_geometry_history_objects(objects, points, elem, provider):
     """
-    A GeometryHistory instance is added to objects that is passed by reference. 
+    A GeometryHistory instance is added to objects that is passed by reference.
     Returns number of discarded linestring.
     """
-    geometry = LineString(points, srid=DEFAULT_SRID)                       
-    if check_linestring_validity(geometry,0.005):
+    geometry = LineString(points, srid=DEFAULT_SRID)
+    if check_linestring_validity(geometry, 0.005):
         objects.append(
             GeometryHistory(
                 provider=provider,
@@ -77,12 +79,46 @@ def add_geometry_history_objects(objects, points, elem, provider):
     else:
         return 1
 
+
+def get_valid_linestrings(linestring, threshold=VALID_LINESTRING_MAX_POINT_DISTANCE):
+    """
+    TODO, fix this!
+    """
+    prev_coord = None
+    coords = []
+    geometries = []
+    for coord in linestring.coords:
+        if prev_coord:
+            p1 = Point(coord, srid=DEFAULT_SRID)
+            p2 = Point(prev_coord, srid=DEFAULT_SRID)
+            if p1.distance(p2) > threshold:
+                if len(coords) > 1:
+                    geometries.append(LineString(coords, srid=DEFAULT_SRID))
+                    coords = [prev_coord]
+                else:
+                    coords = []
+
+        coords.append(coord)
+        prev_coord = coord
+
+    if len(coords) > 1:
+        geometry = LineString(coords, srid=DEFAULT_SRID)
+        if check_linestring_validity(geometry, threshold):
+            geometries.append(geometry)
+    # geoms = []
+    # for geom in geometries:
+    #     if check_linestring_validity(geom):
+    #         geoms.append(geom)
+
+    return geometries
+
+
 def get_linestrings_from_points(objects, queryset, provider):
     """
     Point data is generated into LineStrings. This is done by iterating the
-    point data for every MaintenanceUnit for the given provider.   
+    point data for every MaintenanceUnit for the given provider.
     """
-    #objects = []
+    # objects = []
     unit_ids = (
         queryset.order_by("maintenance_unit_id")
         .values_list("maintenance_unit_id", flat=True)
@@ -99,7 +135,7 @@ def get_linestrings_from_points(objects, queryset, provider):
         prev_timestamp = None
         current_events = None
         prev_geometry = None
-        
+
         for elem in qs:
             if not current_events:
                 current_events = elem.events
@@ -113,7 +149,9 @@ def get_linestrings_from_points(objects, queryset, provider):
                     or current_events != elem.events
                 ):
                     if len(points) > 1:
-                        discarded_linestrings += add_geometry_history_objects(objects, points, elem, provider)                        
+                        discarded_linestrings += add_geometry_history_objects(
+                            objects, points, elem, provider
+                        )
                     else:
                         discarded_points += 1
                     current_events = elem.events
@@ -123,8 +161,10 @@ def get_linestrings_from_points(objects, queryset, provider):
             prev_timestamp = elem.timestamp
 
         if len(points) > 1:
-            discarded_linestrings += add_geometry_history_objects(objects, points, elem, provider)                        
-        
+            discarded_linestrings += add_geometry_history_objects(
+                objects, points, elem, provider
+            )
+
     return discarded_linestrings, discarded_points
 
 
@@ -132,7 +172,7 @@ def get_linestrings_from_points(objects, queryset, provider):
 def precalculate_geometry_history(provider):
     """
     Function that populates the GeometryHistory model for a provider.
-    LineString geometrys in MaintenanceWorks will be added as they are.   
+    LineString geometrys in MaintenanceWorks will be added as they are.
     """
     GeometryHistory.objects.filter(provider=provider).delete()
     objects = []
@@ -145,6 +185,19 @@ def precalculate_geometry_history(provider):
     discarded_points = 0
     for elem in queryset:
         if isinstance(elem.geometry, LineString):
+            # geometries = get_valid_linestrings(elem.geometry, 0.005)
+            # print(len(geometries))
+            # for geometry in geometries:
+            #     # if check_linestring_validity(elem.geometry):
+            #     objects.append(
+            #         GeometryHistory(
+            #             provider=provider,
+            #             coordinates=geometry.coords,
+            #             timestamp=elem.timestamp,
+            #             events=elem.events,
+            #             geometry=geometry,
+            #         )
+            #     )
             if check_linestring_validity(elem.geometry):
                 objects.append(
                     GeometryHistory(
@@ -165,7 +218,7 @@ def precalculate_geometry_history(provider):
 
     results = get_linestrings_from_points(objects, queryset, provider)
     discarded_linestrings += results[0]
-    discarded_points += results[1] 
+    discarded_points += results[1]
     GeometryHistory.objects.bulk_create(objects)
     logger.info(f"Discarded {discarded_points} Points")
     logger.info(f"Discarded {discarded_linestrings} LineStrings")
@@ -229,7 +282,7 @@ def create_maintenance_works(provider, history_size, fetch_size):
 
             events = []
             for event in work["events"]:
-                event_name = event.lower()             
+                event_name = event.lower()
                 if event_name in EVENT_MAPPINGS:
                     for e in EVENT_MAPPINGS[event_name]:
                         # If mapping value is None, the event is not used.
