@@ -339,13 +339,19 @@ def _import_unit(
     ]
 
     if info.get("provider_type"):
-        info["provider_type"] = [
+        provider_types = [
             val for val, str_val in PROVIDER_TYPES if str_val == info["provider_type"]
-        ][0]
+        ]
+        info["provider_type"] = (
+            provider_types[0] if provider_types else 7
+        )  # 7 is unknown value
     if info.get("organizer_type"):
-        info["organizer_type"] = [
+        organizer_types = [
             val for val, str_val in ORGANIZER_TYPES if str_val == info["organizer_type"]
-        ][0]
+        ]
+        info["organizer_type"] = (
+            organizer_types[0] if organizer_types else 11
+        )  # 11 is unknown value
 
     for field in fields:
         if field not in info or clean_text(info[field]) == "":
