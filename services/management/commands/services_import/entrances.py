@@ -134,4 +134,4 @@ def _import_unit_entrance(
             LOGGER.error("Importing failed for unit entrance {}".format(str(obj)))
             raise e
 
-    syncher.mark(obj)
+    syncher.mark(obj, True)
