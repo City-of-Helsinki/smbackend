@@ -126,7 +126,7 @@ class Unit(SoftDeleteModel):
     www = models.URLField(max_length=400, null=True)
     address_postal_full = models.CharField(max_length=100, null=True)
     call_charge_info = models.CharField(max_length=500, null=True)
-    displayed_service_owner = models.CharField(max_length=100, null=True)
+    displayed_service_owner = models.CharField(max_length=120, null=True)
     displayed_service_owner_type = models.CharField(max_length=100, null=True)
     vtj_prt = models.CharField(max_length=100, null=True)
     vtj_prt_verified = models.CharField(max_length=100, null=True)
