@@ -47,7 +47,6 @@ def check_linestring_validity(
     greater than VALID_LINESTRING_MAX_POINT_DISTANCE.
     The lower the threshold value the more serve the validating will be.
     """
-
     prev_coord = None
     for coord in linestring.coords:
         if prev_coord:
@@ -81,9 +80,6 @@ def add_geometry_history_objects(objects, points, elem, provider):
 
 
 def get_valid_linestrings(linestring, threshold=VALID_LINESTRING_MAX_POINT_DISTANCE):
-    """
-    TODO, fix this!
-    """
     prev_coord = None
     coords = []
     geometries = []
@@ -105,11 +101,6 @@ def get_valid_linestrings(linestring, threshold=VALID_LINESTRING_MAX_POINT_DISTA
         geometry = LineString(coords, srid=DEFAULT_SRID)
         if check_linestring_validity(geometry, threshold):
             geometries.append(geometry)
-    # geoms = []
-    # for geom in geometries:
-    #     if check_linestring_validity(geom):
-    #         geoms.append(geom)
-
     return geometries
 
 
@@ -118,7 +109,6 @@ def get_linestrings_from_points(objects, queryset, provider):
     Point data is generated into LineStrings. This is done by iterating the
     point data for every MaintenanceUnit for the given provider.
     """
-    # objects = []
     unit_ids = (
         queryset.order_by("maintenance_unit_id")
         .values_list("maintenance_unit_id", flat=True)
@@ -164,7 +154,6 @@ def get_linestrings_from_points(objects, queryset, provider):
             discarded_linestrings += add_geometry_history_objects(
                 objects, points, elem, provider
             )
-
     return discarded_linestrings, discarded_points
 
 
@@ -185,19 +174,6 @@ def precalculate_geometry_history(provider):
     discarded_points = 0
     for elem in queryset:
         if isinstance(elem.geometry, LineString):
-            # geometries = get_valid_linestrings(elem.geometry, 0.005)
-            # print(len(geometries))
-            # for geometry in geometries:
-            #     # if check_linestring_validity(elem.geometry):
-            #     objects.append(
-            #         GeometryHistory(
-            #             provider=provider,
-            #             coordinates=geometry.coords,
-            #             timestamp=elem.timestamp,
-            #             events=elem.events,
-            #             geometry=geometry,
-            #         )
-            #     )
             if check_linestring_validity(elem.geometry):
                 objects.append(
                     GeometryHistory(
@@ -212,10 +188,9 @@ def precalculate_geometry_history(provider):
                 discarded_linestrings += 1
             elements_to_remove.append(elem.id)
 
-    # Remove the linestring elements, as they are not needed when generaing
+    # Remove the linestring elements, as they are not needed when generating
     # linestrings from point data
     queryset = queryset.exclude(id__in=elements_to_remove)
-
     results = get_linestrings_from_points(objects, queryset, provider)
     discarded_linestrings += results[0]
     discarded_points += results[1]
@@ -237,15 +212,18 @@ def get_turku_boundary():
 def get_linestring_in_boundary(linestring, boundary):
     """
     Returns a linestring from the input linestring where all the coordinates
-    are inside the boundary.
+    are inside the boundary. If linestring creation is not possible return False.
     """
     coords = [
         coord
         for coord in linestring.coords
         if boundary.covers(Point(coord, srid=DEFAULT_SRID))
     ]
-    linestring = LineString(coords, srid=DEFAULT_SRID)
-    return linestring
+    if len(coords) > 1:
+        linestring = LineString(coords, srid=DEFAULT_SRID)
+        return linestring
+    else:
+        return False
 
 
 def create_maintenance_works(provider, history_size, fetch_size):
