@@ -83,7 +83,7 @@ class Command(BaseImportCommand):
                             geometry = get_linestring_in_boundary(
                                 geometry, TURKU_BOUNDARY
                             )
-                            if geometry.num_coords < 2:
+                            if not geometry:
                                 continue
                             timestamp = route["start"]["time"]
                             works.append(

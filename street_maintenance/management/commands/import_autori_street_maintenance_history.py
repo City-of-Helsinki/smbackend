@@ -60,9 +60,8 @@ class Command(BaseImportCommand):
             # Create linestring that is inside the boundary of Turku
             # and discard parts of the geometry if they are outside the boundary.
             geometry = get_linestring_in_boundary(geometry, TURKU_BOUNDARY)
-            if geometry.num_coords < 2:
+            if not geometry:
                 continue
-
             events = []
             operations = route["operations"]
             for operation in operations:
