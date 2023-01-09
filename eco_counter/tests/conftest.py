@@ -19,6 +19,7 @@ from eco_counter.models import (
 )
 
 TEST_TIMESTAMP = dateutil.parser.parse("2020-01-01 00:00:00")
+
 TEST_STATION_NAME = "Auransilta"
 
 
@@ -212,6 +213,7 @@ def year_datas(station, years):
         year_data = YearData.objects.create(station=station, year=years[i])
         year_data.value_ak = 42 + i
         year_data.value_ap = 43 + i
+        year_data.value_at = year_data.value_ak + year_data.value_ap
         year_data.save()
         year_datas.append(year_data)
     return year_datas
