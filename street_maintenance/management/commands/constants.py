@@ -40,7 +40,9 @@ URLS = {
         UNITS: "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/query?since=72hours",
     },
     DESTIA: {
-        WORKS: "https://destia.fluentprogress.fi/KuntoInfraroad/turku/v1/snowplow/{id}?history={history_size}",
+        WORKS: "https://destia.fluentprogress.fi/KuntoDestia/turku/v1/snowplow/{id}?history={history_size}",
+        # TODO, add query?since=72hours when fluentprogress has fixed theird endpoint,
+        # currently(9.1.23) returns server error
         UNITS: "https://destia.fluentprogress.fi/KuntoDestia/turku/v1/snowplow",
     },
 }
@@ -90,6 +92,7 @@ EVENT_MAPPINGS = {
     "paannejään poisto": [LIUKKAUDENTORJUNTA],
     "sirotin": [LIUKKAUDENTORJUNTA],
     "laiturin ja asema-alueen liukkaudentorjunta": [LIUKKAUDENTORJUNTA],
+    "liukkauden torjunta": [LIUKKAUDENTORJUNTA],
     # Kadunpesu
     "pe": [PUHTAANAPITO],
     # Harjaus
@@ -102,6 +105,7 @@ EVENT_MAPPINGS = {
     "harjaus ja sohjonpoisto": [PUHTAANAPITO],
     "pölynsidonta": [PUHTAANAPITO],
     "hiekanpoisto": [HIEKANPOISTO],
+    "lakaisu": [HIEKANPOISTO],
     "muu": [MUUT],
     "muut työt": [MUUT],
     "muu työ": [MUUT],
@@ -136,6 +140,7 @@ EVENT_MAPPINGS = {
 }
 TIMESTAMP_FORMATS = {
     INFRAROAD: "%Y-%m-%d %H:%M:%S",
+    DESTIA: "%Y-%m-%d %H:%M:%S",
     KUNTEC: "%Y-%m-%dT%H:%M:%SZ",
     AUTORI: "%Y-%m-%d %H:%M:%S%z",
 }
