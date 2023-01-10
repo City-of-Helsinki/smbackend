@@ -16,6 +16,12 @@ Django app for importing and serving street maintenance data.
 ```
 ./manage.py import_kuntec_street_maintenance_history
 ```
+
+### Destia
+```
+./manage.py import_destia_street_maintenance_history
+```
+
 ### Periodically imorting
 To periodically import data use Celery, for more information [see](https://github.com/City-of-Turku/smbackend/wiki/Celery-Tasks#street-maintenance-history-street_maintenancetasksimport_street_maintenance_history).
 
@@ -27,6 +33,8 @@ e.g., would import the Autori data for the last 30 days.
 ```
 ### Infraroad
 The default history size for a infraroad maintenance unit is 10000. That is works per unit. A work contains the timestamp, point data and events.
+### Destia
+The default history size for a Destia maintenance unit is 10000. 
 ### Autori
 The history size is in days. The default is 5.
 Note, the max size for Autori history is 31 days.

@@ -24,13 +24,6 @@ class GeometryHistorySerializer(serializers.ModelSerializer):
         return obj.geometry.geom_type
 
 
-class HistoryGeometrySerializer(serializers.Serializer):
-    def to_representation(self, obj):
-        representation = super().to_representation(obj)
-        representation["geometry"] = obj
-        return representation
-
-
 class ActiveEventSerializer(serializers.Serializer):
     events = serializers.CharField(max_length=64)
 

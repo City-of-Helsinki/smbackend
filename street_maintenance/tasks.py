@@ -36,3 +36,15 @@ def import_kuntec_street_maintenance_history(
         )
     else:
         management.call_command("import_kuntec_street_maintenance_history")
+
+
+@shared_task
+def import_destia_street_maintenance_history(
+    args=None, name="import_destia_street_maintenance_history"
+):
+    if args:
+        management.call_command(
+            "import_destia_maintenance_history", "--history-size", args
+        )
+    else:
+        management.call_command("import_destia_street_maintenance_history")

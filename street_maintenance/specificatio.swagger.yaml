@@ -187,17 +187,7 @@ paths:
           description: "The maintenance work object."
           schema:
             $ref: "#/definitions/maintenance_work"
-
-  /maintenance_works/get_geometry_history:
-    get:
-      summary: "From the given parameters generates linestrings for the event. If two or more points can not be determined to belong to the linestring output a point."
-      parameters:
-        - $ref: "#/components/parameters/event_param"
-        - $ref: "#/components/parameters/start_date_time_param"
-        - $ref: "#/components/parameters/max_work_length_param"
-      responses:
-        200:
-          description: "Returns Linestrings and Points of works of given event from given start date and time."
+ 
   /active_events/:
     get:
       summary: "Returns a list of active events with their mapped names. i.e., event names that are shown in the front end, not the names that are in the source data."
