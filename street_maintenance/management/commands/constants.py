@@ -41,16 +41,9 @@ URLS = {
     },
     DESTIA: {
         WORKS: "https://destia.fluentprogress.fi/KuntoDestia/turku/v1/snowplow/{id}?history={history_size}",
-        # TODO, add query?since=72hours when fluentprogress has fixed theird endpoint,
-        # currently(9.1.23) returns server error
-        UNITS: "https://destia.fluentprogress.fi/KuntoDestia/turku/v1/snowplow",
+        UNITS: "https://destia.fluentprogress.fi/KuntoDestia/turku/v1/snowplow/query?since=72hours",
     },
 }
-
-
-DESTIA_UNITS_URL_BROKEN = (
-    "https://destia.fluentprogress.fi/KuntoDestia/turku/v1/snowplow/query?since=72hours"
-)
 
 
 # Events are categorized into main groups:
