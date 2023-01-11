@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
@@ -86,7 +84,7 @@ class Year(models.Model):
     station = models.ForeignKey(
         "Station", on_delete=models.CASCADE, related_name="years", null=True
     )
-    year_number = models.PositiveSmallIntegerField(default=datetime.now().year)
+    year_number = models.PositiveSmallIntegerField(default=2023)
 
     @property
     def num_days(self):
