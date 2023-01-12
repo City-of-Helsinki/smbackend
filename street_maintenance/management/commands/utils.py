@@ -281,6 +281,7 @@ def create_maintenance_works(provider, history_size, fetch_size):
             )
     MaintenanceWork.objects.bulk_create(works)
     logger.info(f"Imported {len(works)} {provider} mainetance works.")
+    return len(works)
 
 
 def create_maintenance_units(provider):
@@ -297,10 +298,9 @@ def create_maintenance_units(provider):
         MaintenanceUnit.objects.create(
             unit_id=unit["id"], names=names, provider=provider
         )
-    logger.info(
-        f"Imported {MaintenanceUnit.objects.filter(provider=provider).count()}"
-        + f" {provider} mainetance Units."
-    )
+    num_units_imported = MaintenanceUnit.objects.filter(provider=provider).count()
+    logger.info(f"Imported {num_units_imported} {provider} mainetance Units.")
+    return num_units_imported
 
 
 def get_autori_contract(access_token):
