@@ -2,6 +2,7 @@ from datetime import datetime
 from functools import lru_cache
 
 import pytz
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from rest_framework import mixins, viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.pagination import PageNumberPagination
@@ -22,6 +23,34 @@ UTC_TIMEZONE = pytz.timezone("UTC")
 
 # Default is 3minutes 3*60s
 DEFAULT_MAX_WORK_LENGTH = 180
+EVENT_PARAM = OpenApiParameter(
+    name="event",
+    location=OpenApiParameter.QUERY,
+    description=(
+        "Return objects of given event. "
+        'Event choices are: "auraus", "liukkaudentorjunta", "hiekanpoisto", "puhtaanapito", '
+        'E.g. "auraus".'
+    ),
+    required=False,
+    type=str,
+)
+PROVIDER_PARAM = OpenApiParameter(
+    name="provider",
+    location=OpenApiParameter.QUERY,
+    description=("Return objects of given provider. " 'E.g. "INFRAROAD".'),
+    required=False,
+    type=str,
+)
+START_DATE_TIME_PARAM = OpenApiParameter(
+    name="start_date_time",
+    location=OpenApiParameter.QUERY,
+    description=(
+        "Get objects with timestamp newer than the start_date_time. "
+        'E.g. "2022-09-18 10:00:00".'
+    ),
+    required=False,
+    type=str,
+)
 
 
 class LargeResultsSetPagination(PageNumberPagination):
@@ -38,6 +67,20 @@ class ActiveEventsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = ActiveEventSerializer
 
 
+_list_parameters = [
+    EVENT_PARAM,
+    PROVIDER_PARAM,
+    START_DATE_TIME_PARAM,
+]
+
+
+@extend_schema_view(
+    list=extend_schema(
+        parameters=_list_parameters,
+        description="A maintenance_work is a single work performed by a provider. "
+        "The geometry can be a point or a linestring.",
+    )
+)
 class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = MaintenanceWorkSerializer
 
@@ -45,10 +88,15 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = MaintenanceWork.objects.all()
         filters = self.request.query_params
 
+        if "provider" in filters:
+            provider = filters["provider"].upper()
+            if provider in PROVIDERS:
+                queryset = queryset.filter(maintenance_unit__provider=provider)
+            else:
+                raise ParseError(f"Providers are: {', '.join(PROVIDERS)}")
+
         if "event" in filters:
-            queryset = MaintenanceWork.objects.filter(
-                events__contains=[filters["event"]]
-            )
+            queryset = queryset.filter(events__contains=[filters["event"]])
         if "start_date_time" in filters:
             start_date_time = filters["start_date_time"]
             try:
@@ -75,11 +123,36 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
         return self.get_paginated_response(serializer.data)
 
 
+_list_parameters = [
+    PROVIDER_PARAM,
+    EVENT_PARAM,
+    START_DATE_TIME_PARAM,
+]
+
+
+@extend_schema_view(
+    list=extend_schema(
+        description="Maintanance units from where the works are derived.",
+    )
+)
 class MaintenanceUnitViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = MaintenanceUnit.objects.all()
     serializer_class = MaintenanceUnitSerializer
 
 
+_list_parameters = [
+    PROVIDER_PARAM,
+    EVENT_PARAM,
+    START_DATE_TIME_PARAM,
+]
+
+
+@extend_schema_view(
+    list=extend_schema(
+        parameters=_list_parameters,
+        description="Returns objects where geometries are precalculated/processed from point data or linestrings.",
+    )
+)
 class GeometryHitoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = GeometryHistorySerializer
     pagination_class = LargeResultsSetPagination
@@ -90,7 +163,6 @@ class GeometryHitoryViewSet(viewsets.ReadOnlyModelViewSet):
 
         if "provider" in filters:
             provider = filters["provider"].upper()
-            queryset = queryset.filter(provider=provider)
             if provider in PROVIDERS:
                 queryset = queryset.filter(provider=provider)
             else:
