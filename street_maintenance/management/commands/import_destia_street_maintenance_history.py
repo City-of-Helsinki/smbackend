@@ -52,6 +52,11 @@ class Command(BaseImportCommand):
         else:
             fetch_size = DESTIA_DEFAULT_WORKS_FETCH_SIZE
         create_maintenance_units(DESTIA)
-        create_maintenance_works(DESTIA, history_size, fetch_size)
-        precalculate_geometry_history(DESTIA)
+        num_works_created = create_maintenance_works(DESTIA, history_size, fetch_size)
+        if num_works_created > 0:
+            precalculate_geometry_history(DESTIA)
+        else:
+            logger.warning(
+                f"No works created for {DESTIA}, skipping geometry history population."
+            )
         super().display_duration(DESTIA)
