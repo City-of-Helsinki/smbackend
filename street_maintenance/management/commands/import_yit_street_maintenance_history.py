@@ -6,20 +6,20 @@ from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, Maintenance
 
 from .base_import_command import BaseImportCommand
 from .constants import (
+    EVENT_MAPPINGS,
     YIT,
     YIT_DEFAULT_WORKS_HISTORY_SIZE,
     YIT_MAX_WORKS_HISTORY_SIZE,
-    EVENT_MAPPINGS,
 )
 from .utils import (
-    create_yit_maintenance_units,
     create_dict_from_yit_events,
+    create_yit_maintenance_units,
+    get_linestring_in_boundary,
+    get_turku_boundary,
     get_yit_access_token,
     get_yit_contract,
     get_yit_event_types,
     get_yit_routes,
-    get_linestring_in_boundary,
-    get_turku_boundary,
     is_nested_coordinates,
     precalculate_geometry_history,
 )
@@ -109,7 +109,9 @@ class Command(BaseImportCommand):
         if options["history_size"]:
             history_size = int(options["history_size"][0])
             if history_size > YIT_MAX_WORKS_HISTORY_SIZE:
-                error_msg = f"Max value for the history size is: {YIT_MAX_WORKS_HISTORY_SIZE}"
+                error_msg = (
+                    f"Max value for the history size is: {YIT_MAX_WORKS_HISTORY_SIZE}"
+                )
                 raise ValueError(error_msg)
 
         works_created = self.create_yit_maintenance_works(history_size=history_size)
