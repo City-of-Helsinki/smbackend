@@ -48,14 +48,14 @@ env = environ.Env(
     CHARGING_STATIONS_IDS=(dict, {}),
     BICYCLE_STANDS_IDS=(dict, {}),
     BIKE_SERVICE_STATIONS_IDS=(dict, {}),
-    AUTORI_SCOPE=(str, None),
-    AUTORI_CLIENT_ID=(str, None),
-    AUTORI_CLIENT_SECRET=(str, None),
-    AUTORI_EVENTS_URL=(str, None),
-    AUTORI_ROUTES_URL=(str, None),
-    AUTORI_VEHICLES_URL=(str, None),
-    AUTORI_CONTRACTS_URL=(str, None),
-    AUTORI_TOKEN_URL=(str, None),
+    YIT_SCOPE=(str, None),
+    YIT_CLIENT_ID=(str, None),
+    YIT_CLIENT_SECRET=(str, None),
+    YIT_EVENTS_URL=(str, None),
+    YIT_ROUTES_URL=(str, None),
+    YIT_VEHICLES_URL=(str, None),
+    YIT_CONTRACTS_URL=(str, None),
+    YIT_TOKEN_URL=(str, None),
     KUNTEC_KEY=(str, None),
 )
 
@@ -94,6 +94,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django_celery_beat",
     "django_celery_results",
+    "drf_spectacular",
     "munigeo",
     "services.apps.ServicesConfig",
     "observations",
@@ -242,12 +243,14 @@ REST_FRAMEWORK = {
         "rest_framework_jsonp.renderers.JSONPRenderer",
     ),
     "EXCEPTION_HANDLER": "services.exceptions.api_exception_handler",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+
 }
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR + "/templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -260,7 +263,6 @@ TEMPLATES = [
         },
     },
 ]
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -289,6 +291,29 @@ LOGGING = {
     },
 }
 
+# Define the endpoints for API documentation with drf-spectacular.
+DOC_ENDPOINTS = [
+    "/street_maintenance/geometry_history/",
+    "/street_maintenance/maintenance_works/",
+    "/street_maintenance/maintenance_units/",
+ 
+]
+def preprocessing_filter_spec(endpoints):
+    filtered = []
+    for endpoint in DOC_ENDPOINTS:
+        for (path, path_regex, method, callback) in endpoints:
+            if path.startswith(endpoint):
+                filtered.append((path, path_regex, method, callback))
+    return filtered
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Servicemap API",
+    "DESCRIPTION": "",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "PREPROCESSING_HOOKS": ["smbackend.settings.preprocessing_filter_spec"],
+    "ENUM_ADD_EXPLICIT_BLANK_NULL_CHOICE": False,
+}
 KML_TRANSLATABLE_FIELDS = ["name", "street_address", "www"]
 KML_REGEXP = r"application/vnd.google-earth\.kml"
 
@@ -382,12 +407,12 @@ BICYCLE_STANDS_IDS = {k: int(v) for k, v in env("BICYCLE_STANDS_IDS").items()}
 BIKE_SERVICE_STATIONS_IDS = {
     k: int(v) for k, v in env("BIKE_SERVICE_STATIONS_IDS").items()
 }
-AUTORI_SCOPE = env("AUTORI_SCOPE")
-AUTORI_CLIENT_ID = env("AUTORI_CLIENT_ID")
-AUTORI_CLIENT_SECRET = env("AUTORI_CLIENT_SECRET")
-AUTORI_EVENTS_URL = env("AUTORI_EVENTS_URL")
-AUTORI_ROUTES_URL = env("AUTORI_ROUTES_URL")
-AUTORI_VEHICLES_URL = env("AUTORI_VEHICLES_URL")
-AUTORI_CONTRACTS_URL = env("AUTORI_CONTRACTS_URL")
-AUTORI_TOKEN_URL = env("AUTORI_TOKEN_URL")
+YIT_SCOPE = env("YIT_SCOPE")
+YIT_CLIENT_ID = env("YIT_CLIENT_ID")
+YIT_CLIENT_SECRET = env("YIT_CLIENT_SECRET")
+YIT_EVENTS_URL = env("YIT_EVENTS_URL")
+YIT_ROUTES_URL = env("YIT_ROUTES_URL")
+YIT_VEHICLES_URL = env("YIT_VEHICLES_URL")
+YIT_CONTRACTS_URL = env("YIT_CONTRACTS_URL")
+YIT_TOKEN_URL = env("YIT_TOKEN_URL")
 KUNTEC_KEY = env("KUNTEC_KEY")
