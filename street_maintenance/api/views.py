@@ -46,7 +46,7 @@ START_DATE_TIME_PARAM = OpenApiParameter(
     location=OpenApiParameter.QUERY,
     description=(
         "Get objects with timestamp newer than the start_date_time. "
-        'E.g. "2022-09-18 10:00:00".'
+        'The format for the timestamp is: YYYY-MM-DD HH:MM:SS, e.g. "2022-09-18 10:00:00".'
     ),
     required=False,
     type=str,
@@ -67,7 +67,7 @@ class ActiveEventsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = ActiveEventSerializer
 
 
-_list_parameters = [
+_maintenance_works_list_parameters = [
     EVENT_PARAM,
     PROVIDER_PARAM,
     START_DATE_TIME_PARAM,
@@ -76,9 +76,10 @@ _list_parameters = [
 
 @extend_schema_view(
     list=extend_schema(
-        parameters=_list_parameters,
-        description="A maintenance_work is a single work performed by a provider. "
-        "The geometry can be a point or a linestring.",
+        parameters=_maintenance_works_list_parameters,
+        description="A maintenance work is a single work performed by a provider. The geometry can be a point or a "
+        "linestring. Note, if the geometry is a point, the latitude and longitude will be separately serialized."
+        " If the geometry is a linestring a separate list of coordinates will be serialized.",
     )
 )
 class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
@@ -123,13 +124,6 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
         return self.get_paginated_response(serializer.data)
 
 
-_list_parameters = [
-    PROVIDER_PARAM,
-    EVENT_PARAM,
-    START_DATE_TIME_PARAM,
-]
-
-
 @extend_schema_view(
     list=extend_schema(
         description="Maintanance units from where the works are derived.",
@@ -140,7 +134,7 @@ class MaintenanceUnitViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = MaintenanceUnitSerializer
 
 
-_list_parameters = [
+_geometry_history_list_parameters = [
     PROVIDER_PARAM,
     EVENT_PARAM,
     START_DATE_TIME_PARAM,
@@ -149,8 +143,9 @@ _list_parameters = [
 
 @extend_schema_view(
     list=extend_schema(
-        parameters=_list_parameters,
-        description="Returns objects where geometries are precalculated/processed from point data or linestrings.",
+        parameters=_geometry_history_list_parameters,
+        description="Returns objects where geometries are precalculated/processed from point data or linestrings."
+        "The coordinates are in SRID 4326.",
     )
 )
 class GeometryHitoryViewSet(viewsets.ReadOnlyModelViewSet):
