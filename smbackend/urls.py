@@ -1,10 +1,9 @@
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, re_path,path
+from django.urls import include, re_path
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from munigeo.api import all_views as munigeo_views
 from rest_framework import routers
 
@@ -49,8 +48,10 @@ urlpatterns = [
     re_path("^schema/", SpectacularAPIView.as_view(), name="schema"),
     re_path(
         "^docs/",
-        SpectacularSwaggerView.as_view(template_name="swagger-ui.html", url_name="schema"),
-        name="swagger-ui"
+        SpectacularSwaggerView.as_view(
+            template_name="swagger-ui.html", url_name="schema"
+        ),
+        name="swagger-ui",
     ),
     re_path("^api/v2/search", SearchViewSet.as_view(), name="search"),
     re_path("^iot", IoTViewSet.as_view(), name="iot"),

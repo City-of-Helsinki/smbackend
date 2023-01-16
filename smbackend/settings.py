@@ -244,7 +244,6 @@ REST_FRAMEWORK = {
     ),
     "EXCEPTION_HANDLER": "services.exceptions.api_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-
 }
 
 TEMPLATES = [
@@ -296,8 +295,9 @@ DOC_ENDPOINTS = [
     "/street_maintenance/geometry_history/",
     "/street_maintenance/maintenance_works/",
     "/street_maintenance/maintenance_units/",
- 
 ]
+
+
 def preprocessing_filter_spec(endpoints):
     filtered = []
     for endpoint in DOC_ENDPOINTS:
@@ -305,6 +305,7 @@ def preprocessing_filter_spec(endpoints):
             if path.startswith(endpoint):
                 filtered.append((path, path_regex, method, callback))
     return filtered
+
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Servicemap API",
