@@ -619,5 +619,32 @@ paths:
             $ref: "#/definitions/year_data"
         400:
           description: "Invalid year number or station_id." 
-        
+  /year_data/get_year_datas:
+    get:
+      summary: "Returns year_datas for  span of year numbers and station_id"
+      parameters:     
+      - in: query
+        name: start_year_number
+        type: integer
+        required: true
+      - in: query
+        name: end_year_number
+        type: integer
+        required: true
+      - in: query
+        name: station_id
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "List of year_datas for the given span."
+          schema:
+            type: object
+            properties:
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/year_data"
+        400:
+          description: "Invalid start_year_number, end_year_number or station_id."        
   

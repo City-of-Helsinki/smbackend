@@ -146,6 +146,35 @@ def test__get_month_data(api_client, month_datas, station_id, test_timestamp):
 
 
 @pytest.mark.django_db
+def test__get_year_datas(api_client, year_datas, station_id, test_timestamp):
+    end_year_number = test_timestamp.replace(year=test_timestamp.year + 1).year
+    url = reverse(
+        "eco_counter:year_data-get-year-datas"
+    ) + "?station_id={}&start_year_number={}&end_year_number={}".format(
+        station_id, test_timestamp.year, end_year_number
+    )
+    response = api_client.get(url)
+    assert response.status_code == 200
+    json_data = response.json()
+    index = 0
+    assert json_data[index]["year_info"]["year_number"] == 2020
+    assert json_data[index]["value_ak"] == 42
+    assert json_data[index]["value_ap"] == 43
+    assert (
+        json_data[index]["value_at"]
+        == json_data[index]["value_ak"] + json_data[index]["value_ap"]
+    )
+    index = 1
+    assert json_data[index]["year_info"]["year_number"] == 2021
+    assert json_data[index]["value_ak"] == 43
+    assert json_data[index]["value_ap"] == 44
+    assert (
+        json_data[index]["value_at"]
+        == json_data[index]["value_ak"] + json_data[index]["value_ap"]
+    )
+
+
+@pytest.mark.django_db
 def test__get_month_datas(api_client, month_datas, station_id, test_timestamp):
     url = reverse(
         "eco_counter:month_data-get-month-datas"

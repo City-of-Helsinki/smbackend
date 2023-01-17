@@ -5,21 +5,24 @@ import polyline
 import requests
 from django.conf import settings
 from django.contrib.gis.geos import LineString
-from django.core.management.base import BaseCommand
 
 from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, MaintenanceWork
 
+# from django.core.management.base import BaseCommand
+from .base_import_command import BaseImportCommand
 from .constants import (
     EVENT_MAPPINGS,
     KUNTEC,
-    KUNTEC_DATE_TIME_FORMAT,
     KUNTEC_DEFAULT_WORKS_HISTORY_SIZE,
     KUNTEC_KEY,
     KUNTEC_MAX_WORKS_HISTORY_SIZE,
-    KUNTEC_WORKS_URL,
+    TIMESTAMP_FORMATS,
+    URLS,
+    WORKS,
 )
 from .utils import (
     create_kuntec_maintenance_units,
+    get_linestring_in_boundary,
     get_turku_boundary,
     precalculate_geometry_history,
 )
@@ -28,7 +31,7 @@ TURKU_BOUNDARY = get_turku_boundary()
 logger = logging.getLogger("street_maintenance")
 
 
-class Command(BaseCommand):
+class Command(BaseImportCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--history-size",
@@ -41,10 +44,10 @@ class Command(BaseCommand):
     def create_kuntec_maintenance_works(self, history_size=None):
         works = []
         now = datetime.now()
-        start = (now - timedelta(days=history_size)).strftime(KUNTEC_DATE_TIME_FORMAT)
-        end = now.strftime(KUNTEC_DATE_TIME_FORMAT)
+        start = (now - timedelta(days=history_size)).strftime(TIMESTAMP_FORMATS[KUNTEC])
+        end = now.strftime(TIMESTAMP_FORMATS[KUNTEC])
         for unit in MaintenanceUnit.objects.filter(provider=KUNTEC):
-            url = KUNTEC_WORKS_URL.format(
+            url = URLS[KUNTEC][WORKS].format(
                 key=KUNTEC_KEY, start=start, end=end, unit_id=unit.unit_id
             )
             response = requests.get(url)
@@ -75,12 +78,14 @@ class Command(BaseCommand):
                                 geometry = LineString(coords, srid=DEFAULT_SRID)
                             else:
                                 continue
-                            # Note, some works(geometries) might start outside the boundarys
-                            # of Turku and are therefore discarded.
-                            if not TURKU_BOUNDARY.covers(geometry):
+                            # Create linestring that is inside the boundary of Turku
+                            # and discard parts of the geometry if they are outside the boundary.
+                            geometry = get_linestring_in_boundary(
+                                geometry, TURKU_BOUNDARY
+                            )
+                            if not geometry:
                                 continue
                             timestamp = route["start"]["time"]
-
                             works.append(
                                 MaintenanceWork(
                                     timestamp=timestamp,
@@ -94,8 +99,8 @@ class Command(BaseCommand):
         return len(works)
 
     def handle(self, *args, **options):
+        super().__init__()
         assert settings.KUNTEC_KEY, "KUNTEC_KEY not found in environment."
-        importer_start_time = datetime.now()
         MaintenanceUnit.objects.filter(provider=KUNTEC).delete()
         history_size = KUNTEC_DEFAULT_WORKS_HISTORY_SIZE
         if options["history_size"]:
@@ -115,6 +120,4 @@ class Command(BaseCommand):
             logger.warning(
                 f"No works created for {KUNTEC}, skipping geometry history population."
             )
-        importer_end_time = datetime.now()
-        duration = importer_end_time - importer_start_time
-        logger.info(f"Imported Kuntec street maintenance history in: {duration}")
+        super().display_duration(KUNTEC)
