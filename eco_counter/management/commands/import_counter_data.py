@@ -287,7 +287,7 @@ class Command(BaseCommand):
                 years__year_number=current_year_number,
                 station__csv_data_source=csv_data_source,
             ).delete()
-
+        # Set the references to the current state.
         for station in stations:
             current_years[station] = Year.objects.get_or_create(
                 station=stations[station], year_number=current_year_number
