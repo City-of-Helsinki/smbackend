@@ -264,18 +264,30 @@ class Command(BaseCommand):
         year_has_changed = False
         changed_daylight_saving_to_summer = False
         # All Hourly, daily and weekly data that are past the current_week_number
-        # are delete thus they are repopulated.  HourData and DayData are deleted
+        # are delete thus they are repopulated. HourData and DayData are deleted
         # thus their on_delete is set to models.CASCADE.
         Day.objects.filter(
             month__month_number=current_month_number,
             month__year__year_number=current_year_number,
+            station__csv_data_source=csv_data_source,
         ).delete()
-        for week_number in range(current_week_number + 1, current_week_number + 5):
+        # If week number >= 52 then do not delete the week as it has been created
+        # in the previous year.
+        if current_week_number >= 52:
+            # Set to 0 as we want to delete the first week, as it is not the first week
+            # of the year if week number is >=52.
+            start_week_number = 0
+        else:
+            # Add by one, i.e., do not delete the current_week.
+            start_week_number = current_week_number + 1
+
+        for week_number in range(start_week_number, start_week_number + 5):
             Week.objects.filter(
-                week_number=week_number, years__year_number=current_year_number
+                week_number=week_number,
+                years__year_number=current_year_number,
+                station__csv_data_source=csv_data_source,
             ).delete()
 
-        # Set the references to the current state.
         for station in stations:
             current_years[station] = Year.objects.get_or_create(
                 station=stations[station], year_number=current_year_number
@@ -592,7 +604,6 @@ class Command(BaseCommand):
                 elif counter == TRAFFIC_COUNTER:
                     csv_data = get_traffic_counter_csv(
                         start_year=import_state.current_year_number
-                        # start_year=2022
                     )
                 start_time = "{year}-{month}-1T00:00".format(
                     year=import_state.current_year_number,
