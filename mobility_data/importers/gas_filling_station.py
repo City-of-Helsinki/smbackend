@@ -1,6 +1,4 @@
 import logging
-import sys
-from functools import lru_cache
 
 from django import db
 from django.conf import settings
@@ -8,10 +6,10 @@ from django.contrib.gis.geos import Point, Polygon
 
 from mobility_data.models import MobileUnit
 
+from .constants import SOUTHWEST_FINLAND_BOUNDARY, SOUTHWEST_FINLAND_BOUNDARY_SRID
 from .utils import (
     delete_mobile_units,
     fetch_json,
-    GEOMETRY_URL,
     get_or_create_content_type,
     get_street_name_and_number,
     get_street_name_translations,
@@ -63,16 +61,11 @@ class GasFillingStation:
         self.lng_cng = attributes.get("LNG_CNG", "")
 
 
-# Calling the url 'https://tie.digitraffic.fi/api/v3/data/traffic-messages/area-geometries?id=11&lastUpdated=false'
-# multiple times in a short period of time causes error '429 Too Many Requests'. Cache the result.
-@lru_cache(maxsize=1)
-def get_geometry_data():
-    return fetch_json(GEOMETRY_URL)
-
-
 def get_filtered_gas_filling_station_objects(json_data=None):
     """
     Returns a list of GasFillingStation objects that are filtered by location.
+    Stations inside boundarys of Southwest Finland are included, the rest
+    are discarded.
     """
 
     if not json_data:
@@ -80,25 +73,18 @@ def get_filtered_gas_filling_station_objects(json_data=None):
     # srid = json_data["spatialReference"]["wkid"]
     # NOTE, hack to fix srid 102100 in source data causes "crs not found"
     srid = 4326
-    # Create list of GasFillingStation objects
+    # Create list of all GasFillingStation objects
     objects = [GasFillingStation(data, srid=srid) for data in json_data["features"]]
-    if "pytest" not in sys.modules:
-        filtered_objects = []
-        # Filter objects by their location
-        geometry_data = get_geometry_data()
-        # Polygon used the detect if point intersects. i.e. is in the boundries.
-        polygon = Polygon(geometry_data["features"][0]["geometry"]["coordinates"][0])
-        for object in objects:
-            if polygon.intersects(object.point):
-                filtered_objects.append(object)
-        logger.info(
-            "Filtered: {} gas filling stations by location to: {}.".format(
-                len(json_data["features"]), len(filtered_objects)
-            )
+    # Filter objects by their location
+    # Polygon used the detect if point intersects. i.e. is in the boundries of SouthWest Finland.
+    polygon = Polygon(SOUTHWEST_FINLAND_BOUNDARY, srid=SOUTHWEST_FINLAND_BOUNDARY_SRID)
+    filtered_objects = [o for o in objects if polygon.intersects(o.point)]
+    logger.info(
+        "Filtered: {} gas filling stations by location to: {}.".format(
+            len(json_data["features"]), len(filtered_objects)
         )
-        return filtered_objects
-    else:
-        return objects
+    )
+    return filtered_objects
 
 
 @db.transaction.atomic
@@ -135,4 +121,4 @@ def save_to_database(objects, delete_tables=True):
         )
         set_translated_field(mobile_unit, "address", object.address)
         mobile_unit.save()
-    logger.info("Saved gas filling stations to database.")
+    logger.info(f"Saved {len(objects)} gas filling stations to database.")
