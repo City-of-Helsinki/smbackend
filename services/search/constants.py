@@ -16,5 +16,4 @@ DEFAULT_MODEL_LIMIT_VALUE = None
 # The limit value for the search query that search the search_view. "NULL" = no limit
 DEFAULT_SEARCH_SQL_LIMIT_VALUE = "NULL"
 DEFAULT_TRIGRAM_THRESHOLD = 0.15
-# If word length is greater or equal then hyphenate word.
-LENGTH_OF_HYPHENATED_WORDS = 8
+DEFAULT_RANK_THRESHOLD = 1

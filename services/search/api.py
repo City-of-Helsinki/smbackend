@@ -45,6 +45,7 @@ from services.utils import strtobool
 
 from .constants import (
     DEFAULT_MODEL_LIMIT_VALUE,
+    DEFAULT_RANK_THRESHOLD,
     DEFAULT_SEARCH_SQL_LIMIT_VALUE,
     DEFAULT_SRS,
     DEFAULT_TRIGRAM_THRESHOLD,
@@ -215,9 +216,17 @@ class SearchViewSet(GenericAPIView):
             try:
                 trigram_threshold = float(params.get("trigram_threshold"))
             except ValueError:
-                raise ParseError("'trigram_threshold' need to be of type float.")
+                raise ParseError("'trigram_threshold' needs to be of type float.")
         else:
             trigram_threshold = DEFAULT_TRIGRAM_THRESHOLD
+
+        if "rank_threshold" in params:
+            try:
+                rank_threshold = float(params.get("rank_threshold"))
+            except ValueError:
+                raise ParseError("'rank_threshold' needs to be of type float.")
+        else:
+            rank_threshold = DEFAULT_RANK_THRESHOLD
 
         if "geometry" in params:
             try:
@@ -290,10 +299,12 @@ class SearchViewSet(GenericAPIView):
         # This is ~100 times faster than using Djangos SearchRank and allows searching using wildard "|*"
         # and by rankig gives better results, e.g. extra fields weight is counted.
         sql = f"""
-        SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
-        AS rank FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
-        WHERE search_query @@ search_column_{language_short}
-        ORDER BY rank DESC LIMIT {sql_query_limit};
+            SELECT * from (
+                SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
+                AS rank FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
+                WHERE search_query @@ search_column_{language_short}
+                ORDER BY rank DESC LIMIT {sql_query_limit}
+            ) AS sub_query where sub_query.rank >= {rank_threshold};
         """
 
         cursor = connection.cursor()
