@@ -38,9 +38,9 @@ six==1.16.0
     # via asttokens
 stack-data==0.6.2
     # via ipython
-traitlets==5.8.0
+traitlets==5.8.1
     # via
     #   ipython
     #   matplotlib-inline
-wcwidth==0.2.5
+wcwidth==0.2.6
     # via prompt-toolkit
