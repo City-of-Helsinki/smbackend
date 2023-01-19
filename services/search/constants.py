@@ -16,4 +16,4 @@ DEFAULT_MODEL_LIMIT_VALUE = None
 # The limit value for the search query that search the search_view. "NULL" = no limit
 DEFAULT_SEARCH_SQL_LIMIT_VALUE = "NULL"
 DEFAULT_TRIGRAM_THRESHOLD = 0.15
-DEFAULT_RANK_THRESHOLD = 1
+DEFAULT_RANK_THRESHOLD = 0
