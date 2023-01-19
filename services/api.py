@@ -1,7 +1,6 @@
 import logging
 import re
 import uuid
-from distutils.util import strtobool
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
@@ -42,7 +41,7 @@ from services.models import (
     UnitServiceDetails,
 )
 from services.models.unit import ORGANIZER_TYPES, PROVIDER_TYPES
-from services.utils import check_valid_concrete_field
+from services.utils import check_valid_concrete_field, strtobool
 
 if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"]:
     DEFAULT_RENDERERS = [
