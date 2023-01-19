@@ -76,7 +76,7 @@ def get_filtered_gas_filling_station_objects(json_data=None):
     # Create list of all GasFillingStation objects
     objects = [GasFillingStation(data, srid=srid) for data in json_data["features"]]
     # Filter objects by their location
-    # Polygon used the detect if point intersects. i.e. is in the boundries of SouthWest Finland.
+    # Polygon used the detect if point intersects. i.e. is in the boundaries of SouthWest Finland.
     polygon = Polygon(SOUTHWEST_FINLAND_BOUNDARY, srid=SOUTHWEST_FINLAND_BOUNDARY_SRID)
     filtered_objects = [o for o in objects if polygon.intersects(o.point)]
     logger.info(
