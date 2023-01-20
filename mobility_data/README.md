@@ -155,7 +155,7 @@ To import data type:
 ```
 
 ### Outdoor gym devices
-Imports the outdoor gym devices from services.unit model. i.e., sets refrences by id to the services.unit model. The data is serialized from the services.unit model.
+Imports the outdoor gym devices from the services.unit model. i.e., sets references by id to the services.unit model. The data is then serialized from the services.unit model.
 ```
 ./manage.py import_outdoor_gym_devices
 ```
