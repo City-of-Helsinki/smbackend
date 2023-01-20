@@ -309,7 +309,8 @@ def preprocessing_filter_spec(endpoints):
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Servicemap API",
-    "DESCRIPTION": "",
+    "DESCRIPTION": "The mobility data platform of the service map is being developed as part of European Union Horizon"
+    " 2020 programme funded SCALE-UP project (grant agreement no. 955332)",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "PREPROCESSING_HOOKS": ["smbackend.settings.preprocessing_filter_spec"],
