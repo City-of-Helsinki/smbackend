@@ -153,6 +153,13 @@ To import data type:
 ```
 ./manage.py import_wfs DisabledParkingSign
 ```
+
+### Outdoor gym devices
+Imports the outdoor gym devices from services.unit model. i.e., sets refrences by id to the services.unit model. The data is serialized from the services.unit model.
+```
+./manage.py import_outdoor_gym_devices
+```
+
 ## Deletion
 To delete mobile units for a content type.
 ```
