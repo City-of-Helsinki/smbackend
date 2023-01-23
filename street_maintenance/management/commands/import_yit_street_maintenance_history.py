@@ -6,20 +6,20 @@ from street_maintenance.models import DEFAULT_SRID, MaintenanceUnit, Maintenance
 
 from .base_import_command import BaseImportCommand
 from .constants import (
-    AUTORI,
-    AUTORI_DEFAULT_WORKS_HISTORY_SIZE,
-    AUTORI_MAX_WORKS_HISTORY_SIZE,
     EVENT_MAPPINGS,
+    YIT,
+    YIT_DEFAULT_WORKS_HISTORY_SIZE,
+    YIT_MAX_WORKS_HISTORY_SIZE,
 )
 from .utils import (
-    create_autori_maintenance_units,
-    create_dict_from_autori_events,
-    get_autori_access_token,
-    get_autori_contract,
-    get_autori_event_types,
-    get_autori_routes,
+    create_dict_from_yit_events,
+    create_yit_maintenance_units,
     get_linestring_in_boundary,
     get_turku_boundary,
+    get_yit_access_token,
+    get_yit_contract,
+    get_yit_event_types,
+    get_yit_routes,
     is_nested_coordinates,
     precalculate_geometry_history,
 )
@@ -38,13 +38,13 @@ class Command(BaseImportCommand):
             help="History size in days.",
         )
 
-    def create_autori_maintenance_works(self, history_size=None):
-        access_token = get_autori_access_token()
-        create_autori_maintenance_units(access_token)
-        contract = get_autori_contract(access_token)
-        list_of_events = get_autori_event_types(access_token)
-        event_name_mappings = create_dict_from_autori_events(list_of_events)
-        routes = get_autori_routes(access_token, contract, history_size)
+    def create_yit_maintenance_works(self, history_size=None):
+        access_token = get_yit_access_token()
+        create_yit_maintenance_units(access_token)
+        contract = get_yit_contract(access_token)
+        list_of_events = get_yit_event_types(access_token)
+        event_name_mappings = create_dict_from_yit_events(list_of_events)
+        routes = get_yit_routes(access_token, contract, history_size)
         works = []
         for route in routes:
             if len(route["geography"]["features"]) > 1:
@@ -99,26 +99,28 @@ class Command(BaseImportCommand):
             )
 
         MaintenanceWork.objects.bulk_create(works)
-        logger.info(f"Imported {len(works)} Autori(YIT) mainetance works.")
+        logger.info(f"Imported {len(works)} YIT mainetance works.")
         return len(works)
 
     def handle(self, *args, **options):
         super().__init__()
-        MaintenanceUnit.objects.filter(provider=AUTORI).delete()
-        history_size = AUTORI_DEFAULT_WORKS_HISTORY_SIZE
+        MaintenanceUnit.objects.filter(provider=YIT).delete()
+        history_size = YIT_DEFAULT_WORKS_HISTORY_SIZE
         if options["history_size"]:
             history_size = int(options["history_size"][0])
-            if history_size > AUTORI_MAX_WORKS_HISTORY_SIZE:
-                error_msg = f"Max value for the history size is: {AUTORI_MAX_WORKS_HISTORY_SIZE}"
+            if history_size > YIT_MAX_WORKS_HISTORY_SIZE:
+                error_msg = (
+                    f"Max value for the history size is: {YIT_MAX_WORKS_HISTORY_SIZE}"
+                )
                 raise ValueError(error_msg)
 
-        works_created = self.create_autori_maintenance_works(history_size=history_size)
+        works_created = self.create_yit_maintenance_works(history_size=history_size)
         # In some unknown(erroneous server?) cases no data for works is availale. In that case we want to store
         # the previeus state of the precalculated geometry history data.
         if works_created > 0:
-            precalculate_geometry_history(AUTORI)
+            precalculate_geometry_history(YIT)
         else:
             logger.warning(
-                f"No works created for {AUTORI}(YIT), skipping geometry history population."
+                f"No works created for {YIT}, skipping geometry history population."
             )
-        super().display_duration(AUTORI)
+        super().display_duration(YIT)

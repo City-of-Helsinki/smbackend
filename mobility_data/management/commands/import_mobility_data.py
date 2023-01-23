@@ -23,6 +23,7 @@ importers = [
     "loading_and_unloading_places",
     "lounaistieto_shapefiles",
     "foli_stops",
+    "outdoor_gym_devices",
 ]
 # Read the content type names to be imported
 wfs_content_type_names = get_configured_cotent_type_names()
