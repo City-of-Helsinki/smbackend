@@ -59,6 +59,11 @@ def import_marinas(name="import_marinas"):
 
 
 @shared_task
+def import_foli_stops(name="import_foli_stops"):
+    management.call_command("import_foli_stops")
+
+
+@shared_task
 def import_disabled_and_no_staff_parkings(name="import_disabled_and_no_staff_parkings"):
     management.call_command("import_disabled_and_no_staff_parkings")
 
