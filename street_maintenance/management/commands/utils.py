@@ -18,7 +18,6 @@ from street_maintenance.models import (
 )
 
 from .constants import (
-    AUTORI,
     CONTRACTS,
     EVENT_MAPPINGS,
     EVENTS,
@@ -31,6 +30,7 @@ from .constants import (
     URLS,
     VEHICLES,
     WORKS,
+    YIT,
 )
 
 logger = logging.getLogger("street_maintenance")
@@ -303,31 +303,31 @@ def create_maintenance_units(provider):
     return num_units_imported
 
 
-def get_autori_contract(access_token):
+def get_yit_contract(access_token):
     response = requests.get(
-        URLS[AUTORI][CONTRACTS], headers={"Authorization": f"Bearer {access_token}"}
+        URLS[YIT][CONTRACTS], headers={"Authorization": f"Bearer {access_token}"}
     )
     assert (
         response.status_code == 200
-    ), "Fetcing Autori Contract {} failed, status code: {}".format(
-        URLS[AUTORI][CONTRACTS], response.status_code
+    ), "Fetcing YIT Contract {} failed, status code: {}".format(
+        URLS[YIT][CONTRACTS], response.status_code
     )
     return response.json()[0].get("id", None)
 
 
-def get_autori_event_types(access_token):
+def get_yit_event_types(access_token):
     response = requests.get(
-        URLS[AUTORI][EVENTS], headers={"Authorization": f"Bearer {access_token}"}
+        URLS[YIT][EVENTS], headers={"Authorization": f"Bearer {access_token}"}
     )
     assert (
         response.status_code == 200
-    ), " Fetching Autori event types {} failed, status code: {}".format(
-        URLS[AUTORI][EVENTS], response.status_code
+    ), " Fetching YIT event types {} failed, status code: {}".format(
+        URLS[YIT][EVENTS], response.status_code
     )
     return response.json()
 
 
-def create_dict_from_autori_events(list_of_events):
+def create_dict_from_yit_events(list_of_events):
     events = {}
     for event in list_of_events:
         events[event["id"]] = event["operationName"]
@@ -369,33 +369,33 @@ def create_kuntec_maintenance_units():
     )
 
 
-def create_autori_maintenance_units(access_token):
+def create_yit_maintenance_units(access_token):
     response = requests.get(
-        URLS[AUTORI][VEHICLES], headers={"Authorization": f"Bearer {access_token}"}
+        URLS[YIT][VEHICLES], headers={"Authorization": f"Bearer {access_token}"}
     )
     assert (
         response.status_code == 200
-    ), " Fetching Autori vehicles {} failed, status code: {}".format(
-        URLS[AUTORI][VEHICLES], response.status_code
+    ), " Fetching YIT vehicles {} failed, status code: {}".format(
+        URLS[YIT][VEHICLES], response.status_code
     )
     for unit in response.json():
         names = [unit["vehicleTypeName"]]
-        MaintenanceUnit.objects.create(unit_id=unit["id"], names=names, provider=AUTORI)
+        MaintenanceUnit.objects.create(unit_id=unit["id"], names=names, provider=YIT)
     logger.info(
-        f"Imported {MaintenanceUnit.objects.filter(provider=AUTORI).count()}"
-        + " Autori(YIT) mainetance Units."
+        f"Imported {MaintenanceUnit.objects.filter(provider=YIT).count()}"
+        + " YIT mainetance Units."
     )
 
 
-def get_autori_routes(access_token, contract, history_size):
+def get_yit_routes(access_token, contract, history_size):
     now = datetime.now()
     end = now.replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki")).strftime(
-        TIMESTAMP_FORMATS[AUTORI]
+        TIMESTAMP_FORMATS[YIT]
     )
     start = (
         (now - timedelta(days=history_size))
         .replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki"))
-        .strftime(TIMESTAMP_FORMATS[AUTORI])
+        .strftime(TIMESTAMP_FORMATS[YIT])
     )
     params = {
         "contract": contract,
@@ -403,35 +403,33 @@ def get_autori_routes(access_token, contract, history_size):
         "end": end,
     }
     response = requests.get(
-        URLS[AUTORI][ROUTES],
+        URLS[YIT][ROUTES],
         headers={"Authorization": f"Bearer {access_token}"},
         params=params,
     )
     assert (
         response.status_code == 200
-    ), "Fetching Autori routes {}, failed, status code: {}".format(
-        URLS[AUTORI][ROUTES], response.status_code
+    ), "Fetching YIT routes {}, failed, status code: {}".format(
+        URLS[YIT][ROUTES], response.status_code
     )
     return response.json()
 
 
-def get_autori_access_token():
-    assert settings.AUTORI_SCOPE, "AUTOR_SCOPE not defined in environment."
-    assert settings.AUTORI_CLIENT_ID, "AUTOR_CLIENT_ID not defined in environment."
-    assert (
-        settings.AUTORI_CLIENT_SECRET
-    ), "AUTOR_CLIENT_SECRET not defined in environment."
+def get_yit_access_token():
+    assert settings.YIT_SCOPE, "YIT_SCOPE not defined in environment."
+    assert settings.YIT_CLIENT_ID, "YIT_CLIENT_ID not defined in environment."
+    assert settings.YIT_CLIENT_SECRET, "YIT_CLIENT_SECRET not defined in environment."
     data = {
         "grant_type": "client_credentials",
-        "scope": settings.AUTORI_SCOPE,
-        "client_id": settings.AUTORI_CLIENT_ID,
-        "client_secret": settings.AUTORI_CLIENT_SECRET,
+        "scope": settings.YIT_SCOPE,
+        "client_id": settings.YIT_CLIENT_ID,
+        "client_secret": settings.YIT_CLIENT_SECRET,
     }
-    response = requests.post(URLS[AUTORI][TOKEN], data=data)
+    response = requests.post(URLS[YIT][TOKEN], data=data)
     assert (
         response.status_code == 200
-    ), "Fetchin oauth2 token from Autori {} failed, status code: {}".format(
-        URLS[AUTORI][TOKEN], response.status_code
+    ), "Fetchin oauth2 token from YIT {} failed, status code: {}".format(
+        URLS[YIT][TOKEN], response.status_code
     )
     access_token = response.json().get("access_token", None)
     return access_token

@@ -1,4 +1,6 @@
 from django.contrib.gis.geos import LineString, Point
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from street_maintenance.models import GeometryHistory, MaintenanceUnit, MaintenanceWork
@@ -20,6 +22,7 @@ class GeometryHistorySerializer(serializers.ModelSerializer):
             "coordinates",
         ]
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_geometry_type(self, obj):
         return obj.geometry.geom_type
 

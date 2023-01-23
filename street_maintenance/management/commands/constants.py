@@ -2,16 +2,16 @@ from django.conf import settings
 
 KUNTEC_KEY = settings.KUNTEC_KEY
 INFRAROAD = "INFRAROAD"
-AUTORI = "AUTORI"
+YIT = "YIT"
 KUNTEC = "KUNTEC"
 DESTIA = "DESTIA"
 PROVIDER_CHOICES = (
     (INFRAROAD, "Infraroad"),
-    (AUTORI, "Autori"),
+    (YIT, "YIT"),
     (KUNTEC, "Kuntec"),
     (DESTIA, "Destia"),
 )
-PROVIDERS = [INFRAROAD, AUTORI, KUNTEC, DESTIA]
+PROVIDERS = [INFRAROAD, YIT, KUNTEC, DESTIA]
 
 UNITS = "UNITS"
 WORKS = "WORKS"
@@ -28,12 +28,12 @@ URLS = {
         "&till={end}&include=polyline&unit_id={unit_id}",
         UNITS: f"https://mapon.com/api/v1/unit/list.json?key={KUNTEC_KEY}&include=io_din",
     },
-    AUTORI: {
-        EVENTS: settings.AUTORI_EVENTS_URL,
-        ROUTES: settings.AUTORI_ROUTES_URL,
-        VEHICLES: settings.AUTORI_VEHICLES_URL,
-        CONTRACTS: settings.AUTORI_CONTRACTS_URL,
-        TOKEN: settings.AUTORI_TOKEN_URL,
+    YIT: {
+        EVENTS: settings.YIT_EVENTS_URL,
+        ROUTES: settings.YIT_ROUTES_URL,
+        VEHICLES: settings.YIT_VEHICLES_URL,
+        CONTRACTS: settings.YIT_CONTRACTS_URL,
+        TOKEN: settings.YIT_TOKEN_URL,
     },
     INFRAROAD: {
         WORKS: "https://infraroad.fluentprogress.fi/KuntoInfraroad/v1/snowplow/{id}?history={history_size}",
@@ -135,7 +135,7 @@ TIMESTAMP_FORMATS = {
     INFRAROAD: "%Y-%m-%d %H:%M:%S",
     DESTIA: "%Y-%m-%d %H:%M:%S",
     KUNTEC: "%Y-%m-%dT%H:%M:%SZ",
-    AUTORI: "%Y-%m-%d %H:%M:%S%z",
+    YIT: "%Y-%m-%d %H:%M:%S%z",
 }
 # GeometryHistory API list start_date_time parameter format.
 START_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -146,9 +146,9 @@ DESTIA_DEFAULT_WORKS_FETCH_SIZE = 10000
 INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE = 4
 DESTIA_DEFAULT_WORKS_HISTORY_SIZE = 4
 
-# Length of Autori history size in days, max value is 31.
-AUTORI_DEFAULT_WORKS_HISTORY_SIZE = 4
-AUTORI_MAX_WORKS_HISTORY_SIZE = 31
+# Length of YIT history size in days, max value is 31.
+YIT_DEFAULT_WORKS_HISTORY_SIZE = 4
+YIT_MAX_WORKS_HISTORY_SIZE = 31
 
 KUNTEC_DEFAULT_WORKS_HISTORY_SIZE = 4
 KUNTEC_MAX_WORKS_HISTORY_SIZE = 31
