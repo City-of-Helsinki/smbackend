@@ -148,11 +148,18 @@ To import data type:
 ### Crosswalk signs
 ```
 ./manage.py import_wfs CrossWalkSign
+
 ```
 ### Disabled parking signs
 ```
 ./manage.py import_wfs DisabledParkingSign
 ```
+
+### Föli stops
+```
+./manage.py import_foli_stops
+```
+
 ## Deletion
 To delete mobile units for a content type.
 ```
