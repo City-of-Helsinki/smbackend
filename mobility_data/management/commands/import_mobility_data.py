@@ -22,6 +22,7 @@ importers = [
     "disabled_and_no_staff_parkings",
     "loading_and_unloading_places",
     "lounaistieto_shapefiles",
+    "foli_stops",
     "outdoor_gym_devices",
 ]
 # Read the content type names to be imported
