@@ -1,0 +1,41 @@
+{
+    "1": {
+        "stop_code": "1",
+        "stop_name": "Turun satama (Silja)",
+        "stop_desc": "",
+        "stop_lat": 60.43497,
+        "stop_lon": 22.21966,
+        "zone_id": "F\u00d6LI",
+        "stop_url": "",
+        "location_type": 0,
+        "parent_station": 0,
+        "stop_timezone": "Europe\/Helsinki",
+        "wheelchair_boarding": 0
+    },
+    "10": {
+        "stop_code": "10",
+        "stop_name": "Sairashuoneenpuisto",
+        "stop_desc": "",
+        "stop_lat": 60.44419,
+        "stop_lon": 22.25233,
+        "zone_id": "F\u00d6LI",
+        "stop_url": "",
+        "location_type": 0,
+        "parent_station": 0,
+        "stop_timezone": "Europe\/Helsinki",
+        "wheelchair_boarding": 0
+    },
+    "100": {
+        "stop_code": "100",
+        "stop_name": "W\u00e4rtsil\u00e4npolku",
+        "stop_desc": "",
+        "stop_lat": 60.43482,
+        "stop_lon": 22.24423,
+        "zone_id": "F\u00d6LI",
+        "stop_url": "",
+        "location_type": 0,
+        "parent_station": 0,
+        "stop_timezone": "Europe\/Helsinki",
+        "wheelchair_boarding": 0
+    }
+}
