@@ -9,11 +9,11 @@ from .utils import get_json_data
 
 
 @pytest.mark.django_db
-@patch("mobility_data.importers.foli_stops.get_json_data")
-def test_import_foli_stops(get_json_data_mock):
+@patch("mobility_data.importers.utils.fetch_json")
+def test_import_foli_stops(fetch_json_mock):
     from mobility_data.importers import foli_stops
 
-    get_json_data_mock.return_value = get_json_data("foli_stops.json")
+    fetch_json_mock.return_value = get_json_data("foli_stops.json")
     objects = foli_stops.get_foli_stops()
     foli_stops.save_to_database(objects)
     assert ContentType.objects.count() == 1
