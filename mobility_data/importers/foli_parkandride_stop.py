@@ -1,4 +1,5 @@
 from django import db
+from django.conf import settings
 from django.contrib.gis.geos import Point
 from munigeo.models import Municipality
 
@@ -38,16 +39,16 @@ class ParkAndRideStop:
             self.municipality = Municipality.objects.get(name=properties["city"])
         except Municipality.DoesNotExist:
             self.municipality = None
-
         geometry = feature["geometry"]
         self.geometry = Point(
             geometry["coordinates"][0],
             geometry["coordinates"][1],
             srid=SOURCE_DATA_SRID,
         )
+        self.geometry.transform(settings.DEFAULT_SRID)
 
 
-def get_objects():
+def get_parkandride_stop_objects():
     json_data = fetch_json(URL)
     car_stops = []
     bike_stops = []
@@ -98,6 +99,7 @@ def save_to_database(objects, content_type_name, delete_tables=True):
             geometry=object.geometry,
             address_zip=object.address_zip,
             description=object.description,
+            municipality=object.municipality,
         )
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "address", object.address)
