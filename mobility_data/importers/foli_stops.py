@@ -1,6 +1,7 @@
 import logging
 
 from django import db
+from django.conf import settings
 from django.contrib.gis.geos import Point
 
 from mobility_data.models import MobileUnit
@@ -21,6 +22,7 @@ class FoliStop:
         lon = stop_data["stop_lon"]
         lat = stop_data["stop_lat"]
         self.geometry = Point(lon, lat, srid=SOURCE_DATA_SRID)
+        self.geometry.transform(settings.DEFAULT_SRID)
         self.extra["stop_code"] = stop_data["stop_code"]
         self.extra["wheelchair_boarding"] = stop_data["wheelchair_boarding"]
 
