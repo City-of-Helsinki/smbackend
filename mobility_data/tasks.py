@@ -64,6 +64,11 @@ def import_foli_stops(name="import_foli_stops"):
 
 
 @shared_task
+def import_foli_parkandride_stops(name="import_foli_parkandride_stops"):
+    management.call_command("import_foli_parkandride_stops")
+
+
+@shared_task
 def import_outdoor_gym_devices(name="import_outdoor_gym_devices"):
     management.call_command("import_outdoor_gym_devices")
 
