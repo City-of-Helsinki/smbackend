@@ -1,5 +1,5 @@
 """
-Main importer for mobility data sources.
+Imports all mobility data sources.
 """
 import logging
 
@@ -24,6 +24,7 @@ importers = [
     "lounaistieto_shapefiles",
     "foli_stops",
     "outdoor_gym_devices",
+    "foli_parkandride_stops",
 ]
 # Read the content type names to be imported
 wfs_content_type_names = get_configured_cotent_type_names()
