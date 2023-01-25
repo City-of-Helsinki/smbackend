@@ -11,7 +11,7 @@ from .utils import import_command
 
 
 @pytest.mark.django_db
-def test_geojson_import(municipality):
+def test_geojson_import(municipalities):
     import_command(
         "import_disabled_and_no_staff_parkings",
         test_mode="autopysäköinti_eihlö.geojson",
