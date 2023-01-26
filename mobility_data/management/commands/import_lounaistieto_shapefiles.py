@@ -7,7 +7,6 @@ from mobility_data.importers.lounaistieto_shapefiles import (
     import_lounaistieto_data_source,
 )
 from mobility_data.importers.utils import delete_mobile_units, get_root_dir
-from mobility_data.models import ContentType
 
 from ._base_import_command import BaseImportCommand
 
@@ -31,7 +30,8 @@ class Command(BaseImportCommand):
             content_type = options["delete_data_source"]
             if len(content_type) == 0:
                 logger.warning("Specify the content type to delete.")
-            delete_mobile_units(getattr(ContentType, content_type[0]))
+            delete_mobile_units(content_type[0])
+            logger.info(f"Deleted MobileUnit and ContenType for {content_type[0]}")
         else:
             config_path = f"{get_root_dir()}/mobility_data/importers/data/"
             path = os.path.join(config_path, CONFIG_FILE)
