@@ -13,8 +13,10 @@ from mobility_data.importers.utils import (
 )
 from mobility_data.models import MobileUnit
 
-logger = logging.getLogger("mobility_data")
+from .constants import SOUTHWEST_FINLAND_GEOMETRY
 
+logger = logging.getLogger("mobility_data")
+SOUTHWEST_FINLAND_GEOMETRY.transform(settings.DEFAULT_SRID)
 DEFAULT_ENCODING = "utf-8"
 
 
@@ -70,6 +72,11 @@ class MobilityData:
         except Exception as e:
             logger.warning(f"Skipping feature {feature.geom}, invalid geom {e}")
             return False
+
+        if config.get("filter_by_southwest_finland", False):
+            if not SOUTHWEST_FINLAND_GEOMETRY.covers(geometry):
+                return False
+
         if "municipality" in config:
             municipality = feature.record[config["municipality"]]
             if municipality:
