@@ -1,4 +1,19 @@
 data_sources:
+  - content_type_name: FerryDock
+    content_type_description: "Ferry docks in Southwest Finland."
+    data_url: "https://data.lounaistieto.fi/data/dataset/ea4dcae2-5832-403c-bf7e-b19783ee9a70/resource/faa02c52-2da8-4603-b8bf-4afca42d39a5/download/yhteysalusreitit_laiturit.zip/Laiturit.shp"
+    encoding: latin_1
+    filter_by_southwest_finland: True
+    fields:
+      name:
+        fi: NIMI_
+    municipality: KUNTA_1
+    extra_fields:
+      nro: NRO
+      luokitus: LUOKITUS
+      alue: alue
+      reittialue: REITTIALUE    
+
   - content_type_name: CommonFerryRoute
     content_type_description: "Common ferry routes(yhteysalusreitti) in Southwest Finland."
     data_url: "https://data.lounaistieto.fi/data/dataset/ea4dcae2-5832-403c-bf7e-b19783ee9a70/resource/faa02c52-2da8-4603-b8bf-4afca42d39a5/download/yhteysalusreitit_laiturit.zip/Yhteysalusreitit.shp"
