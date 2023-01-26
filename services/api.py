@@ -454,6 +454,12 @@ class DepartmentViewSet(JSONAPIViewSet):
         if "organization_type" in query_params:
             organization_types = query_params["organization_type"].split(",")
             queryset = queryset.filter(organization_type__in=organization_types)
+        if "level" in query_params:
+            try:
+                level = int(query_params["level"])
+            except ValueError:
+                raise ParseError("'level' needs to be integer")
+            queryset = queryset.filter(level=level)
         return queryset
 
     def retrieve(self, request, pk=None):
