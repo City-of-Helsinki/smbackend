@@ -13,6 +13,7 @@ asgiref==3.5.2
 attrs==21.2.0
     # via
     #   cattrs
+    #   jsonschema
     #   pytest
     #   requests-cache
 billiard==3.6.4.0
@@ -59,6 +60,7 @@ django==4.1.2
     #   django-munigeo
     #   django-polymorphic
     #   djangorestframework
+    #   drf-spectacular
 django-celery-beat @ git+https://github.com/celery/django-celery-beat.git
     # via -r requirements.in
 django-celery-results==2.4.0
@@ -88,8 +90,12 @@ django-polymorphic==3.1.0
 django-timezone-field==5.0
     # via django-celery-beat
 djangorestframework==3.12.4
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   drf-spectacular
 djangorestframework-jsonp==1.0.2
+    # via -r requirements.in
+drf-spectacular==0.25.1
     # via -r requirements.in
 flake8==3.9.2
     # via
@@ -100,12 +106,16 @@ flake8-polyfill==1.0.2
     # via pep8-naming
 idna==3.2
     # via requests
+inflection==0.5.1
+    # via drf-spectacular
 iniconfig==1.1.1
     # via pytest
 isort==5.9.3
     # via -r requirements.in
 jedi==0.18.0
     # via -r requirements.in
+jsonschema==4.17.3
+    # via drf-spectacular
 kombu==5.2.3
     # via celery
 libvoikko==4.3
@@ -162,6 +172,8 @@ pykml==0.2.0
     # via -r requirements.in
 pyparsing==2.4.7
     # via packaging
+pyrsistent==0.19.3
+    # via jsonschema
 pyshp==2.3.1
     # via -r requirements.in
 pytest==6.2.5
@@ -186,7 +198,9 @@ pytz==2021.3
     #   django-timezone-field
     #   pandas
 pyyaml==5.4.1
-    # via django-munigeo
+    # via
+    #   django-munigeo
+    #   drf-spectacular
 raven==6.10.0
     # via -r requirements.in
 redis==4.1.3
@@ -219,11 +233,15 @@ toml==0.10.2
     #   pytest
     #   pytest-cov
 tomli==1.2.1
-    # via pep517
+    # via
+    #   black
+    #   pep517
 tqdm==4.62.3
     # via -r requirements.in
 tzdata==2022.1
     # via django-celery-beat
+uritemplate==4.1.1
+    # via drf-spectacular
 url-normalize==1.4.3
     # via requests-cache
 urllib3==1.26.7
