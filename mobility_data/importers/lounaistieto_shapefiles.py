@@ -78,11 +78,12 @@ class MobilityData:
                     id=municipality_id
                 ).first()
 
-        for attr, field in config["fields"].items():
-            for lang, field_name in field.items():
-                # attr can have  fallback definitons if None
-                if getattr(self, attr)[lang] is None:
-                    getattr(self, attr)[lang] = feature.record[field_name]
+        if "fields" in config:
+            for attr, field in config["fields"].items():
+                for lang, field_name in field.items():
+                    # attr can have  fallback definitons if None
+                    if getattr(self, attr)[lang] is None:
+                        getattr(self, attr)[lang] = feature.record[field_name]
 
         if "extra_fields" in config:
             for attr, field in config["extra_fields"].items():
