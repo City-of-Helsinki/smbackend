@@ -370,6 +370,12 @@ class SearchViewSet(GenericAPIView):
                 )
                 if len(municipalities) > 0:
                     units_qs = units_qs.filter(municipality_id__in=municipalities)
+            if "organization" in self.request.query_params:
+                organizations = (
+                    self.request.query_params["organization"].lower().strip().split(",")
+                )
+                if len(organizations) > 0:
+                    units_qs = units_qs.filter(department__uuid__in=organizations)
             if "service" in self.request.query_params:
                 services = self.request.query_params["service"].strip().split(",")
                 if services[0]:
