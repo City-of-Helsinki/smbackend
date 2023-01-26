@@ -448,6 +448,14 @@ class DepartmentViewSet(JSONAPIViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
 
+    def get_queryset(self):
+        queryset = super(DepartmentViewSet, self).get_queryset()
+        query_params = self.request.query_params
+        if "organization_type" in query_params:
+            organization_types = query_params["organization_type"].split(",")
+            queryset = queryset.filter(organization_type__in=organization_types)
+        return queryset
+
     def retrieve(self, request, pk=None):
         try:
             uuid.UUID(pk)
