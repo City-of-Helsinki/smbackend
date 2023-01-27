@@ -2,7 +2,7 @@ import logging
 
 from django.core.management import BaseCommand
 
-from mobility_data.importers.parking_machine import (
+from mobility_data.importers.parking_machines import (
     get_parking_machine_objects,
     save_to_database,
 )
