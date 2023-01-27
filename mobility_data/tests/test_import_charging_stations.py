@@ -10,7 +10,7 @@ from .utils import import_command
 
 @pytest.mark.django_db
 def test_import_charging_stations(
-    municipality,
+    municipalities,
     administrative_division_type,
     administrative_division,
     administrative_division_geometry,

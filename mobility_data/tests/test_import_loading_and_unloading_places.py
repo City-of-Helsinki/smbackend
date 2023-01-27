@@ -9,7 +9,7 @@ from .utils import import_command
 
 @pytest.mark.django_db
 @pytest.mark.django_db
-def test_import(municipality):
+def test_import(municipalities):
     import_command(
         "import_loading_and_unloading_places",
         test_mode="loading_and_unloading_places.geojson",

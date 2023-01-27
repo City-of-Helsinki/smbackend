@@ -20,7 +20,7 @@ def import_command(command, *args, **kwargs):
     )
 
 
-def get_json_data(file_name):
+def get_test_fixture_json_data(file_name):
     data_path = os.path.join(os.path.dirname(__file__), "data")
     file = os.path.join(data_path, file_name)
     with open(file) as f:

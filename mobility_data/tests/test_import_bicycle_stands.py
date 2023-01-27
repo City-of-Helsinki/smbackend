@@ -7,7 +7,7 @@ from .utils import import_command
 
 @pytest.mark.django_db
 def test_geojson_import(
-    municipality,
+    municipalities,
     administrative_division_type,
     administrative_division,
     administrative_division_geometry,
@@ -38,7 +38,7 @@ def test_geojson_import(
 
 @pytest.mark.django_db
 def test_wfs_importer(
-    municipality,
+    municipalities,
     administrative_division_type,
     administrative_division,
     administrative_division_geometry,
