@@ -6,6 +6,7 @@ from functools import lru_cache
 
 import pytz
 import requests
+import yaml
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from munigeo.models import (
@@ -15,12 +16,42 @@ from munigeo.models import (
     Municipality,
 )
 
-from services.models import Service, ServiceNode, Unit
+from mobility_data.importers.utils import (
+    create_mobile_unit_as_unit_reference,
+    delete_mobile_units,
+)
+from services.management.commands.services_import.services import (
+    update_service_counts,
+    update_service_node_counts,
+)
+from services.models import Service, ServiceNode, Unit, UnitServiceDetails
 
 # TODO: Change to production endpoint when available
 TURKU_BASE_URL = "https://digiaurajoki.turku.fi:9443/kuntapalvelut/api/v1/"
 ACCESSIBILITY_BASE_URL = "https://asiointi.hel.fi/kapaesteettomyys/api/v1/"
 UTC_TIMEZONE = pytz.timezone("UTC")
+
+data_path = os.path.join(os.path.dirname(__file__), "data")
+EXTERNAL_SOURCES_CONFIG_FILE = f"{data_path}/external_units_config.yml"
+
+
+def get_external_sources_yaml_config():
+    config = yaml.safe_load(open(EXTERNAL_SOURCES_CONFIG_FILE, "r", encoding="utf-8"))
+    return config["external_data_sources"]
+
+
+def get_external_source_config(external_source_name):
+    config = get_external_sources_yaml_config()
+    for c in config:
+        if c["name"] == external_source_name:
+            return c
+    return None
+
+
+def get_configured_external_sources_names(config=None):
+    if not config:
+        config = get_external_sources_yaml_config()
+    return [f["name"] for f in config]
 
 
 def clean_text(text, default=None):
@@ -315,7 +346,9 @@ def create_service(service_id, service_node_id, service_name, service_names):
 
 
 def delete_external_source(
-    service_id, service_node_id, mobility_data_delete_func=False
+    service_id,
+    service_node_id,
+    mobile_units_content_type_name,
 ):
     """
     Deletes the data source from services list and optionally from mobility_data.
@@ -323,5 +356,72 @@ def delete_external_source(
     Unit.objects.filter(services__id=service_id).delete()
     Service.objects.filter(id=service_id).delete()
     ServiceNode.objects.filter(id=service_node_id).delete()
-    if mobility_data_delete_func:
-        mobility_data_delete_func()
+    delete_mobile_units(mobile_units_content_type_name)
+
+
+class BaseExternalSource:
+    def __init__(self, config):
+        self.config = config
+        self.SERVICE_ID = config["service"]["id"]
+        self.SERVICE_NODE_ID = config["service_node"]["id"]
+        self.UNITS_ID_OFFSET = config["units_offset"]
+        self.SERVICE_NAME = config["service"]["name"]["fi"]
+        self.SERVICE_NAMES = config["service"]["name"]
+        self.SERVICE_NODE_NAME = config["service_node"]["name"]["fi"]
+        self.SERVICE_NODE_NAMES = config["service_node"]["name"]
+        self.delete_external_source()
+        create_service_node(
+            self.config["service_node"]["id"],
+            self.config["service_node"]["name"]["fi"],
+            self.config["root_service_node_name"],
+            self.config["service_node"]["name"],
+        )
+        create_service(
+            self.config["service"]["id"],
+            self.config["service_node"]["id"],
+            self.config["service"]["name"]["fi"],
+            self.config["service"]["name"],
+        )
+
+    def delete_external_source(self):
+        delete_external_source(
+            self.config["service"]["id"],
+            self.config["service_node"]["id"],
+            self.config["mobility_data_content_type_name"],
+        )
+
+    def save_objects_as_units(self, objects, content_type):
+        for i, object in enumerate(objects):
+            unit_id = i + self.UNITS_ID_OFFSET
+            unit = Unit(id=unit_id)
+            set_field(unit, "location", object.geometry)
+            set_tku_translated_field(unit, "name", object.name)
+            set_tku_translated_field(unit, "street_address", object.address)
+            set_tku_translated_field(unit, "description", object.description)
+            set_field(unit, "extra", object.extra)
+            if "provider_type" in self.config:
+                set_syncher_object_field(
+                    unit, "provider_type", self.config["provider_type"]
+                )
+            try:
+                service = Service.objects.get(id=self.SERVICE_ID)
+            except Service.DoesNotExist:
+                self.logger.warning(
+                    'Service "{}" does not exist!'.format(self.SERVICE_ID)
+                )
+                continue
+            UnitServiceDetails.objects.get_or_create(unit=unit, service=service)
+            service_nodes = ServiceNode.objects.filter(related_services=service)
+            unit.service_nodes.add(*service_nodes)
+            set_field(unit, "root_service_nodes", unit.get_root_service_nodes()[0])
+            municipality = get_municipality(object.municipality)
+            set_field(unit, "municipality", municipality)
+            set_field(unit, "address_zip", object.zip_code)
+            unit.last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
+            set_service_names_field(unit)
+            unit.save()
+            if self.config.get("create_mobile_unit_as_unit_reference", False):
+                create_mobile_unit_as_unit_reference(unit_id, content_type)
+        update_service_node_counts()
+        update_service_counts()
+        self.logger.info(f"Imported {len(objects)} {self.config['name']}...")
