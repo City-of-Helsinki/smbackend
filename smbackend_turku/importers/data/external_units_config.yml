@@ -1,0 +1,24 @@
+external_data_sources:
+  - name: bike_service_stations
+    importer_name: BikeServiceStationImporter
+    root_service_node_name: Vapaa-aika
+    units_offset: 500000
+    # 1 = self produced
+    provider_type: 1 
+    service:
+      id: 500000
+      name:
+        fi: Pyöränkorjauspiste
+        sv: Cykelservicestation
+        en: Bike service station
+    service_node:
+      id: 500000
+      name:
+        fi: Pyöränkorjauspisteet
+        sv: Cykelservicestationer
+        en: Bike service stations
+    create_mobile_unit_as_unit_reference: True
+    # For deleting
+    mobility_data_content_type_name: BikeServiceStation 
+      
+
