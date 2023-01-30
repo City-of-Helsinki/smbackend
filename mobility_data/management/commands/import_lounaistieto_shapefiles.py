@@ -31,7 +31,7 @@ class Command(BaseImportCommand):
             if len(content_type) == 0:
                 logger.warning("Specify the content type to delete.")
             delete_mobile_units(content_type[0])
-            logger.info(f"Deleted MobileUnit and ContenType for {content_type[0]}")
+            logger.info(f"Deleted MobileUnit and ContentType for {content_type[0]}")
         else:
             config_path = f"{get_root_dir()}/mobility_data/importers/data/"
             path = os.path.join(config_path, CONFIG_FILE)
