@@ -14,7 +14,6 @@ def test_importer(municipalities):
     assert MobileUnit.objects.filter(content_type__name=CONTENT_TYPE_NAME).count() == 2
     assert MobileUnit.objects.get(name="Raisio Kuninkoja")
     unit = MobileUnit.objects.get(name="Turku Satama")
-    assert unit
     assert unit.address == "Tuontiväylä 42 abc 1-2"
     assert unit.address_zip == "20200"
     assert unit.municipality.name == "Turku"
