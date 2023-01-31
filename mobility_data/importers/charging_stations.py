@@ -75,7 +75,7 @@ class ChargingStation:
         self.extra["other"] = values["other"]
         self.extra["payment"] = values["payment"]
         self.municipality = get_municipality_name(self.geometry)
-        self.zip_code = get_postal_code(self.geometry)
+        self.address_zip = get_postal_code(self.geometry)
         tmp = values["address"].split(" ")
         address_number = None
         street_name = tmp[0]
@@ -184,6 +184,7 @@ def save_to_database(objects, delete_tables=True):
             geometry=object.geometry,
             extra=object.extra,
             content_type=content_type,
+            address_zip=object.address_zip,
         )
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "address", object.address)
