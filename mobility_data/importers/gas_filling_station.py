@@ -3,6 +3,7 @@ import logging
 from django import db
 from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
+from munigeo.models import Municipality
 
 from mobility_data.models import MobileUnit
 
@@ -30,35 +31,38 @@ class GasFillingStation:
     def __init__(self, elem, srid=settings.DEFAULT_SRID):
         # Contains the complete address with zip_code and city
         self.address = {}
+        self.extra = {}
+        self.name = {}
         # Contains Only steet_name and number
         self.street_address = {}
         self.is_active = True
         attributes = elem.get("attributes")
         x = attributes.get("LON", 0)
         y = attributes.get("LAT", 0)
-        self.point = Point(x, y, srid=srid)
-        self.name = attributes.get("STATION_NAME", "")
+        self.geometry = Point(x, y, srid=srid)
+        self.name["fi"] = attributes.get("STATION_NAME", "")
         address_field = attributes.get("ADDRESS", "")
         street_name, street_number = get_street_name_and_number(address_field)
-        self.zip_code = attributes.get("ZIP_CODE", "")
-        self.city = attributes.get("CITY", "")
-        translated_street_names = get_street_name_translations(street_name, self.city)
+        self.address_zip = attributes.get("ZIP_CODE", "")
+        municipality_name = attributes.get("CITY", "")
+        translated_street_names = get_street_name_translations(
+            street_name, municipality_name
+        )
+        try:
+            self.municipality = Municipality.objects.get(name=municipality_name)
+        except Municipality.DoesNotExist:
+            self.municipality = None
+
         for lang in LANGUAGES:
             if street_number:
-                self.address[
-                    lang
-                ] = f"{translated_street_names[lang]} {street_number}, "
-                self.address[lang] += f"{self.zip_code} {self.city}"
-                self.street_address[
-                    lang
-                ] = f"{translated_street_names[lang]} {street_number}"
+                self.address[lang] = f"{translated_street_names[lang]} {street_number}"
             else:
-                self.address[lang] = f"{translated_street_names[lang]}, "
-                self.address[lang] += f"{self.zip_code} {self.city}"
-                self.street_address[lang] = f"{translated_street_names[lang]}"
+                self.address[lang] = f"{translated_street_names[lang]}"
 
-            self.operator = attributes.get("OPERATOR", "")
+        self.operator = attributes.get("OPERATOR", "")
         self.lng_cng = attributes.get("LNG_CNG", "")
+        self.extra["operator"] = self.operator
+        self.extra["lng_cng"] = self.lng_cng
 
 
 def get_filtered_gas_filling_station_objects(json_data=None):
@@ -78,7 +82,7 @@ def get_filtered_gas_filling_station_objects(json_data=None):
     # Filter objects by their location
     # Polygon used the detect if point intersects. i.e. is in the boundaries of SouthWest Finland.
     polygon = Polygon(SOUTHWEST_FINLAND_BOUNDARY, srid=SOUTHWEST_FINLAND_BOUNDARY_SRID)
-    filtered_objects = [o for o in objects if polygon.intersects(o.point)]
+    filtered_objects = [o for o in objects if polygon.intersects(o.geometry)]
     logger.info(
         "Filtered: {} gas filling stations by location to: {}.".format(
             len(json_data["features"]), len(filtered_objects)
@@ -107,18 +111,15 @@ def save_to_database(objects, delete_tables=True):
     content_type = create_gas_filling_station_content_type()
     for object in objects:
         is_active = object.is_active
-        name = object.name
-        extra = {}
-        extra["operator"] = object.operator
-        extra["lng_cng"] = object.lng_cng
-
         mobile_unit = MobileUnit.objects.create(
             is_active=is_active,
-            name=name,
-            geometry=object.point,
-            extra=extra,
+            geometry=object.geometry,
+            extra=object.extra,
             content_type=content_type,
+            address_zip=object.address_zip,
+            municipality=object.municipality,
         )
+        set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "address", object.address)
         mobile_unit.save()
     logger.info(f"Saved {len(objects)} gas filling stations to database.")
