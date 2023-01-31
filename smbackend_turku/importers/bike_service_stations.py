@@ -2,10 +2,6 @@ from mobility_data.importers.bike_service_stations import (
     create_bike_service_station_content_type,
     get_bike_service_station_objects,
 )
-from services.management.commands.services_import.services import (
-    update_service_counts,
-    update_service_node_counts,
-)
 from smbackend_turku.importers.utils import BaseExternalSource
 
 
@@ -25,8 +21,6 @@ class BikeServiceStationImporter(BaseExternalSource):
 def delete_bike_service_stations(**kwargs):
     importer = BikeServiceStationImporter(**kwargs)
     importer.delete_external_source()
-    update_service_node_counts()
-    update_service_counts()
 
 
 def import_bike_service_stations(**kwargs):
