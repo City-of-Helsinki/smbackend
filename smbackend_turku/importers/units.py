@@ -24,8 +24,8 @@ from services.models import (
     UnitServiceDetails,
 )
 from services.utils import AccessibilityShortcomingCalculator
-from smbackend_turku.importers.services import EXTERNAL_IMPORTERS
 from smbackend_turku.importers.utils import (
+    get_external_sources_yaml_config,
     get_localized_value,
     get_municipality,
     get_municipality_name_by_point,
@@ -114,11 +114,10 @@ class UnitImporter:
         for unit in units:
             self._handle_unit(unit)
         if not self.delete_external_source:
-            for importer in EXTERNAL_IMPORTERS:
-                self._handle_external_units(importer)
+            for config in get_external_sources_yaml_config():
+                self._handle_external_units(config)
 
         self.unitsyncher.finish()
-
         update_service_node_counts()
         update_service_counts()
         remove_empty_service_nodes(self.logger)
@@ -153,15 +152,15 @@ class UnitImporter:
         self._save_object(obj)
         self.unitsyncher.mark(obj)
 
-    def _handle_external_units(self, importer):
+    def _handle_external_units(self, config):
         """
         Mark units that has been imported from external source.
         If not marked the unitsyncher.finish() will delete the units.
         """
-
+        # breakpoint()
         service = None
         try:
-            service = Service.objects.get(name=importer.SERVICE_NAME)
+            service = Service.objects.get(name=config["service"]["name"]["fi"])
         except Service.DoesNotExist:
             pass
         if service:
