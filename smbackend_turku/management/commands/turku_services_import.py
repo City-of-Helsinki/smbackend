@@ -33,7 +33,18 @@ from smbackend_turku.importers.units import import_units
 from smbackend_turku.importers.utils import get_external_source_config  # noqa: F401
 from smbackend_turku.importers.utils import get_configured_external_sources_names
 
-
+IMPORTER_FUNCTIONS_CODE = """
+@db.transaction.atomic
+def import_{name}(self):
+    config = get_external_source_config("{name}")
+    import_{name}(logger=self.logger, config=config)
+    print('IMPORT')
+@db.transaction.atomic
+def delete_{name}(self):
+    config = get_external_source_config("{name}")
+    delete_{name}(logger=self.logger, config=config)
+    print('DELETE')
+"""
 class Command(BaseCommand):
     help = "Import services from City of Turku APIs and from external sources."
 
@@ -55,18 +66,7 @@ class Command(BaseCommand):
     supported_languages = [lang[0] for lang in settings.LANGUAGES]
 
     for name in external_sources:
-        code = f"""
-@db.transaction.atomic
-def import_{name}(self):
-    config = get_external_source_config("{name}")
-    import_{name}(logger=self.logger, config=config)
-    print('IMPORT')
-@db.transaction.atomic
-def delete_{name}(self):
-    config = get_external_source_config("{name}")
-    delete_{name}(logger=self.logger, config=config)
-    print('DELETE')
-        """
+        code = IMPORTER_FUNCTIONS_CODE.format(name=name)
         exec(code)
 
     def __init__(self):
