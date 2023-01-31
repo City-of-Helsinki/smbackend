@@ -7,6 +7,7 @@ from functools import lru_cache
 import pytz
 import requests
 import yaml
+from django import db
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from munigeo.models import (
@@ -345,6 +346,7 @@ def create_service(service_id, service_node_id, service_name, service_names):
         service.save()
 
 
+@db.transaction.atomic
 def delete_external_source(
     service_id,
     service_node_id,
@@ -357,6 +359,8 @@ def delete_external_source(
     Service.objects.filter(id=service_id).delete()
     ServiceNode.objects.filter(id=service_node_id).delete()
     delete_mobile_units(mobile_units_content_type_name)
+    update_service_node_counts()
+    update_service_counts()
 
 
 class BaseExternalSource:
@@ -390,6 +394,7 @@ class BaseExternalSource:
             self.config["mobility_data_content_type_name"],
         )
 
+    @db.transaction.atomic
     def save_objects_as_units(self, objects, content_type):
         for i, object in enumerate(objects):
             unit_id = i + self.UNITS_ID_OFFSET
@@ -397,8 +402,10 @@ class BaseExternalSource:
             set_field(unit, "location", object.geometry)
             set_tku_translated_field(unit, "name", object.name)
             set_tku_translated_field(unit, "street_address", object.address)
-            set_tku_translated_field(unit, "description", object.description)
-            set_field(unit, "extra", object.extra)
+            if hasattr(object, "description"):
+                set_tku_translated_field(unit, "description", object.description)
+            if hasattr(object, "extra"):
+                set_field(unit, "extra", object.extra)
             if "provider_type" in self.config:
                 set_syncher_object_field(
                     unit, "provider_type", self.config["provider_type"]
@@ -414,13 +421,16 @@ class BaseExternalSource:
             service_nodes = ServiceNode.objects.filter(related_services=service)
             unit.service_nodes.add(*service_nodes)
             set_field(unit, "root_service_nodes", unit.get_root_service_nodes()[0])
-            municipality = get_municipality(object.municipality)
-            set_field(unit, "municipality", municipality)
-            set_field(unit, "address_zip", object.zip_code)
+            if hasattr(object, "municipality"):
+                municipality = get_municipality(object.municipality)
+                set_field(unit, "municipality", municipality)
+
+            if hasattr(object, "address_zip"):
+                set_field(unit, "address_zip", object.address_zip)
             unit.last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
             set_service_names_field(unit)
             unit.save()
-            if self.config.get("create_mobile_unit_as_unit_reference", False):
+            if self.config.get("create_mobile_units_with_unit_reference", False):
                 create_mobile_unit_as_unit_reference(unit_id, content_type)
         update_service_node_counts()
         update_service_counts()
