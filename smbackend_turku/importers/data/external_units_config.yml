@@ -1,5 +1,6 @@
 external_data_sources:
   - name: bike_service_stations
+    # Name of the class
     importer_name: BikeServiceStationImporter
     root_service_node_name: Vapaa-aika
     units_offset: 500000
@@ -17,27 +18,48 @@ external_data_sources:
         fi: Pyöränkorjauspisteet
         sv: Cykelservicestationer
         en: Bike service stations
-    create_mobile_unit_as_unit_reference: True
+    # When importing, create mobile_units that has a reference id to the unit.
+    # The data of the mobile_unit is then serialized from the services_unit table.
+    create_mobile_units_with_unit_reference: True
     # For deleting
     mobility_data_content_type_name: BikeServiceStation 
       
   - name: gas_filling_stations
     importer_name: GasFillingStationImporter
     root_service_node_name: Vapaa-aika
-    units_offset: 300000
+    units_offset: 200000
     service:
-      id: 300000
+      id: 200000
       name:
         fi: Kaasutankkausasema 
         sv: Tankstation med gas
         en: Gas filling station
     service_node:
-      id: 300000
+      id: 200000
       name:
         fi: Kaasutankkausasemat
         sv: Tankstationer med gas
         en: Gas filling stations
-      create_mobile_unit_as_unit_reference: True
+    create_mobile_units_with_unit_reference: True
     # For deleting
     mobility_data_content_type_name: GasFillingStation 
   
+  - name: charging_stations
+    importer_name: ChargingStationImporter
+    root_service_node_name: Vapaa-aika
+    units_offset: 300000
+    service:
+      id: 300000
+      name:
+        fi: Autojen sähkölatauspiste 
+        sv: Elladdningsstation för bilar
+        en: Car e-charging point
+    service_node:
+      id: 300000
+      name:
+        fi: Autojen sähkölatauspisteet
+        sv: Elladdningsstationer för bilar
+        en: Car e-charging points
+    create_mobile_units_with_unit_reference: True
+    # For deleting
+    mobility_data_content_type_name: ChargingStation 
