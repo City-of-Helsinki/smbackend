@@ -63,3 +63,23 @@ external_data_sources:
     create_mobile_units_with_unit_reference: True
     # For deleting
     mobility_data_content_type_name: ChargingStation 
+
+  - name: bicycle_stands
+    importer_name: BicycleStandsImporter
+    root_service_node_name: Vapaa-aika
+    units_offset: 400000
+    service:
+      id: 400000
+      name:
+        fi: Pyöräpysäköinti
+        sv: Cykelparkering
+        en: Bicycle parking
+    service_node:
+      id: 400000
+      name:
+        fi: Pyöräpysäköinnit
+        sv: Cykelparkeringar
+        en: Bicycle parkings
+    create_mobile_units_with_unit_reference: True
+    # For deleting
+    mobility_data_content_type_name: BicycleStand
