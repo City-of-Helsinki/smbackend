@@ -21,4 +21,23 @@ external_data_sources:
     # For deleting
     mobility_data_content_type_name: BikeServiceStation 
       
-
+  - name: gas_filling_stations
+    importer_name: GasFillingStationImporter
+    root_service_node_name: Vapaa-aika
+    units_offset: 300000
+    service:
+      id: 300000
+      name:
+        fi: Kaasutankkausasema 
+        sv: Tankstation med gas
+        en: Gas filling station
+    service_node:
+      id: 300000
+      name:
+        fi: Kaasutankkausasemat
+        sv: Tankstationer med gas
+        en: Gas filling stations
+      create_mobile_unit_as_unit_reference: True
+    # For deleting
+    mobility_data_content_type_name: GasFillingStation 
+  
