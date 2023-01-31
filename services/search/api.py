@@ -72,6 +72,8 @@ class RootServiceNodeSerializer(TranslatedModelSerializer, serializers.ModelSeri
 
 
 class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+    id = serializers.UUIDField(source="uuid")
+
     class Meta:
         model = Department
         fields = ["id", "name", "street_address", "municipality"]
