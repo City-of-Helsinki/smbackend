@@ -98,8 +98,7 @@ class NoStaffParking:
             feature["osoite"].as_string().split("/")[0].strip().split(" ")[-2:]
         )
         try:
-            municipality = Municipality.objects.get(name=municipality)
-            self.municipality = municipality
+            self.municipality = Municipality.objects.get(name=municipality)
         except Municipality.DoesNotExist:
             self.municipality = None
 
