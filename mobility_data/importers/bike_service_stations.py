@@ -29,8 +29,7 @@ class BikeServiceStation:
         self.address = {}
         self.description = {}
         self.extra = {}
-        self.address = {}
-        self.zip_code = None
+        self.address_zip = None
         self.municipality = None
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
@@ -41,7 +40,9 @@ class BikeServiceStation:
         # Addresses are in format:
         # Uudenmaankatu 18, 20700 Turku / Nylandsgatan 18, 20700 Turku
         addresses = feature["Osoite"].as_string().split("/")
-        self.zip_code, self.municipality = addresses[0].split(",")[1].strip().split(" ")
+        self.address_zip, self.municipality = (
+            addresses[0].split(",")[1].strip().split(" ")
+        )
         # remove zip code and municipality
         addresses = [address.split(",")[0].strip() for address in addresses]
         for i, language in enumerate(LANGUAGES):
@@ -109,7 +110,10 @@ def save_to_database(objects, delete_tables=True):
     content_type = create_bike_service_station_content_type()
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
-            content_type=content_type, extra=object.extra, geometry=object.geometry
+            content_type=content_type,
+            extra=object.extra,
+            geometry=object.geometry,
+            address_zip=object.address_zip,
         )
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "description", object.description)
