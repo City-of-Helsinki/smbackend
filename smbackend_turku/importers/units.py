@@ -157,7 +157,6 @@ class UnitImporter:
         Mark units that has been imported from external source.
         If not marked the unitsyncher.finish() will delete the units.
         """
-        # breakpoint()
         service = None
         try:
             service = Service.objects.get(name=config["service"]["name"]["fi"])
