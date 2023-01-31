@@ -10,12 +10,9 @@ from smbackend_turku.importers.utils import BaseExternalSource
 
 
 class BikeServiceStationImporter(BaseExternalSource):
-    def __init__(
-        self, config=None, logger=None, root_service_node_name=None, test_data=None
-    ):
+    def __init__(self, config=None, logger=None, test_data=None):
         super().__init__(config)
         self.logger = logger
-        self.root_service_node_name = root_service_node_name
         self.test_data = test_data
 
     def import_bike_service_stations(self):
