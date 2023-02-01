@@ -135,5 +135,10 @@ def import_wfs(args=None, name="import_wfs"):
 
 
 @shared_task
+def import_parking_machines(name="import_parking_machines"):
+    management.call_command("import_parking_machines")
+
+
+@shared_task
 def delete_deprecated_units(name="delete_deprecated_units"):
     management.call_command("delete_deprecated_units")

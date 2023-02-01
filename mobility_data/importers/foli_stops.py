@@ -29,10 +29,7 @@ class FoliStop:
 
 def get_foli_stops():
     json_data = fetch_json(URL)
-    objects = []
-    for stop_code in json_data:
-        objects.append(FoliStop(json_data[stop_code]))
-    return objects
+    return [FoliStop(json_data[stop_code]) for stop_code in json_data]
 
 
 @db.transaction.atomic

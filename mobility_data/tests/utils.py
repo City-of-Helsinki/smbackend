@@ -2,6 +2,7 @@ import json
 import os
 from io import StringIO
 
+from django.contrib.gis.gdal import DataSource
 from django.core.management import call_command
 
 
@@ -26,3 +27,11 @@ def get_test_fixture_json_data(file_name):
     with open(file) as f:
         data = json.load(f)
     return data
+
+
+def get_test_fixture_data_layer(file_name):
+    data_path = os.path.join(os.path.dirname(__file__), "data")
+    file = os.path.join(data_path, file_name)
+    ds = DataSource(file)
+    assert len(ds) == 1
+    return ds[0]
