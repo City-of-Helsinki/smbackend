@@ -1,9 +1,11 @@
 import pytest
 from munigeo.models import Address
 
-from mobility_data.importers.charging_stations import CONTENT_TYPE_NAME
+from mobility_data.importers.charging_stations import (
+    CHARGING_STATION_SERVICE_NAMES,
+    CONTENT_TYPE_NAME,
+)
 from mobility_data.models import ContentType, MobileUnit
-from smbackend_turku.importers.constants import CHARGING_STATION_SERVICE_NAMES
 
 from .utils import import_command
 
