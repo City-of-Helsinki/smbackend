@@ -33,7 +33,7 @@ ACCESSIBILITY_BASE_URL = "https://asiointi.hel.fi/kapaesteettomyys/api/v1/"
 UTC_TIMEZONE = pytz.timezone("UTC")
 
 data_path = os.path.join(os.path.dirname(__file__), "data")
-EXTERNAL_SOURCES_CONFIG_FILE = f"{data_path}/external_units_config.yml"
+EXTERNAL_SOURCES_CONFIG_FILE = f"{data_path}/external_sources_config.yml"
 
 
 def get_external_sources_yaml_config():
