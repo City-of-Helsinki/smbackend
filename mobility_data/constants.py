@@ -12,6 +12,9 @@ from mobility_data.importers.disabled_and_no_staff_parking import (
 from mobility_data.importers.loading_unloading_places import (
     CONTENT_TYPE_NAME as LOADING_UNLOADING_PLACE,
 )
+from mobility_data.importers.parking_machines import (
+    CONTENT_TYPE_NAME as PARKING_MACHINE,
+)
 from mobility_data.importers.share_car_parking_places import (
     CONTENT_TYPE_NAME as SHARE_CAR_PARKING_PLACE,
 )
@@ -46,6 +49,10 @@ DATA_SOURCE_IMPORTERS = {
         # Uses the marinas importer, but the data contains berths so define
         # optional display_name that is shown to the user instead of the importer name.
         "display_name": "berths",
+        "to_services_list": False,
+    },
+    PARKING_MACHINE: {
+        "importer_name": "parking_machines",
         "to_services_list": False,
     },
 }

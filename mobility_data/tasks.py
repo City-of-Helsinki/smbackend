@@ -69,6 +69,11 @@ def import_foli_stops(name="import_foli_stops"):
 
 
 @shared_task
+def import_foli_parkandride_stops(name="import_foli_parkandride_stops"):
+    management.call_command("import_foli_parkandride_stops")
+
+
+@shared_task
 def import_outdoor_gym_devices(name="import_outdoor_gym_devices"):
     management.call_command("import_outdoor_gym_devices")
 
@@ -132,6 +137,11 @@ def import_traffic_signs(name="import_traffic_signs"):
 @shared_task
 def import_wfs(args=None, name="import_wfs"):
     management.call_command("import_wfs", args)
+
+
+@shared_task
+def import_parking_machines(name="import_parking_machines"):
+    management.call_command("import_parking_machines")
 
 
 @shared_task

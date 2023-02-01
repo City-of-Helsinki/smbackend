@@ -1,13 +1,13 @@
 import logging
 
-from mobility_data.importers.foli_stops import get_foli_stops, save_to_database
+from django.core.management import BaseCommand
 
-from ._base_import_command import BaseImportCommand
+from mobility_data.importers.foli_stops import get_foli_stops, save_to_database
 
 logger = logging.getLogger("mobility_data")
 
 
-class Command(BaseImportCommand):
+class Command(BaseCommand):
     def handle(self, *args, **options):
         logger.info("Importing Föli stops")
         objects = get_foli_stops()
