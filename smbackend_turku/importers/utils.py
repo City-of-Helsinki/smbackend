@@ -290,19 +290,20 @@ def get_turku_boundary():
         return None
 
 
-def create_service_node(service_node_id, name, parent_name, service_node_names):
+def create_service_node(service_node_id, parent_name, service_node_names):
     """
     Creates service_node with given name and id if it does not exist.
     Sets the parent service_node and name fields.
     :param service_node_id: the id of the service_node to be created.
-    :param name: name of the service_node.
     :param parent_name: name of the parent service_node, if None the service_node will be
      topmost in the tree hierarchy.
     :param service_node_names: dict with names in all languages
     """
     service_node = None
     try:
-        service_node = ServiceNode.objects.get(id=service_node_id, name=name)
+        service_node = ServiceNode.objects.get(
+            id=service_node_id, name=service_node_names["fi"]
+        )
     except ServiceNode.DoesNotExist:
         service_node = ServiceNode(id=service_node_id)
 
@@ -323,18 +324,17 @@ def create_service_node(service_node_id, name, parent_name, service_node_names):
     service_node.save()
 
 
-def create_service(service_id, service_node_id, service_name, service_names):
+def create_service(service_id, service_node_id, service_names):
     """
     Creates service with given service_id and name if it does not exist.
     Adds the service to the given service_node and sets the name fields.
     :param service_id: the id of the service.
     :param service_node_id: the id of the service_node to which the service will have a relation
-    :param service_name: name of the service
     :param service_names: dict with names in all languages
     """
     service = None
     try:
-        service = Service.objects.get(id=service_id, name=service_name)
+        service = Service.objects.get(id=service_id, name=service_names["fi"])
     except Service.DoesNotExist:
         service = Service(
             id=service_id, clarification_enabled=False, period_enabled=False
@@ -376,14 +376,12 @@ class BaseExternalSource:
         self.delete_external_source()
         create_service_node(
             self.config["service_node"]["id"],
-            self.config["service_node"]["name"]["fi"],
             self.config["root_service_node_name"],
             self.config["service_node"]["name"],
         )
         create_service(
             self.config["service"]["id"],
             self.config["service_node"]["id"],
-            self.config["service"]["name"]["fi"],
             self.config["service"]["name"],
         )
 
