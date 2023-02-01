@@ -9,7 +9,11 @@ from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
-from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry
+from munigeo.models import (
+    AdministrativeDivision,
+    AdministrativeDivisionGeometry,
+    Municipality,
+)
 
 from mobility_data.models import MobileUnit
 from services.models import Unit
@@ -65,7 +69,7 @@ class BicyleStand:
 
     def __init__(self):
         self.geometry = None
-        self.city = None
+        self.municipality = None
         self.name = {}
         self.prefix_name = {}
         self.address = {}
@@ -106,7 +110,12 @@ class BicyleStand:
             else:
                 self.extra["covered"] = False
 
-        self.city = get_municipality_name(self.geometry)
+        municipality_name = get_municipality_name(self.geometry)
+        try:
+            self.municipality = Municipality.objects.get(name=municipality_name)
+        except Municipality.DoesNotExist:
+            self.municipality = None
+
         self.name["fi"] = name
         # If related unit is known, use its translated names
         if self.related_unit:
@@ -130,7 +139,9 @@ class BicyleStand:
         else:
             # The last part is always the number
             address_number = address[-1]
-        translated_street_names = get_street_name_translations(street_name, self.city)
+        translated_street_names = get_street_name_translations(
+            street_name, municipality_name
+        )
         self.address["fi"] = f"{translated_street_names['fi']} {address_number}"
         self.address["sv"] = f"{translated_street_names['sv']} {address_number}"
         self.address["en"] = f"{translated_street_names['en']} {address_number}"
@@ -180,7 +191,12 @@ class BicyleStand:
                 self.extra["covered"] = True
             else:
                 self.extra["covered"] = False
-        self.city = get_municipality_name(self.geometry)
+        try:
+            self.municipality = Municipality.objects.get(
+                name=get_municipality_name(self.geometry)
+            )
+        except Municipality.DoesNotExist:
+            self.municipality = None
         full_names = get_closest_address_full_name(self.geometry)
         self.name[FI_KEY] = full_names[FI_KEY]
         self.name[SV_KEY] = full_names[SV_KEY]
@@ -261,6 +277,7 @@ def save_to_database(objects, delete_tables=True):
         mobile_unit = MobileUnit.objects.create(
             content_type=content_type,
             extra=object.extra,
+            municipality=object.municipality,
         )
 
         mobile_unit.geometry = object.geometry
