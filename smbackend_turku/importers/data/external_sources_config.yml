@@ -1,0 +1,84 @@
+external_data_sources:
+    # The name must be equal(excluding the 'import_' prefix) to the name of function 
+    # that creates the importer instance add calls its importer function 
+  - name: bike_service_stations    
+    root_service_node_name: Vapaa-aika
+    # The offset of the ids of the units to be created. As the ids of the units comes
+    # from the source data, an offset must be given to avoid id collision.
+    units_offset: 500000
+    # 1 = self produced, see units model for more details of provider types.
+    provider_type: 1 
+    # ID and name of the service that will be created for the units
+    service:
+      id: 500000
+      name:
+        fi: Pyöränkorjauspiste
+        sv: Cykelservicestation
+        en: Bike service station
+    # ID and name of the service node that will be created.
+    service_node:
+      id: 500000
+      name:
+        fi: Pyöränkorjauspisteet
+        sv: Cykelservicestationer
+        en: Bike service stations
+    # When importing, create mobile_units that has a reference id to the unit.
+    # The data of the mobile_unit is then serialized from the services_unit table.
+    create_mobile_units_with_unit_reference: True
+    # If mobile units area created, the name of the content type that is 
+    # created during import must be given.    
+    mobility_data_content_type_name: BikeServiceStation 
+      
+  - name: gas_filling_stations
+    root_service_node_name: Vapaa-aika
+    units_offset: 200000
+    service:
+      id: 200000
+      name:
+        fi: Kaasutankkausasema 
+        sv: Tankstation med gas
+        en: Gas filling station
+    service_node:
+      id: 200000
+      name:
+        fi: Kaasutankkausasemat
+        sv: Tankstationer med gas
+        en: Gas filling stations
+    create_mobile_units_with_unit_reference: True
+    mobility_data_content_type_name: GasFillingStation 
+  
+  - name: charging_stations
+    root_service_node_name: Vapaa-aika
+    units_offset: 300000
+    service:
+      id: 300000
+      name:
+        fi: Autojen sähkölatauspiste 
+        sv: Elladdningsstation för bilar
+        en: Car e-charging point
+    service_node:
+      id: 300000
+      name:
+        fi: Autojen sähkölatauspisteet
+        sv: Elladdningsstationer för bilar
+        en: Car e-charging points
+    create_mobile_units_with_unit_reference: True
+    mobility_data_content_type_name: ChargingStation 
+
+  - name: bicycle_stands
+    root_service_node_name: Vapaa-aika
+    units_offset: 400000
+    service:
+      id: 400000
+      name:
+        fi: Pyöräpysäköinti
+        sv: Cykelparkering
+        en: Bicycle parking
+    service_node:
+      id: 400000
+      name:
+        fi: Pyöräpysäköinnit
+        sv: Cykelparkeringar
+        en: Bicycle parkings
+    create_mobile_units_with_unit_reference: True
+    mobility_data_content_type_name: BicycleStand
