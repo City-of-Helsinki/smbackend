@@ -50,7 +50,7 @@ class MobilityData:
         match feature.shape.shapeTypeName:
             case "POLYLINE":
                 geometry = LineString(feature.shape.points, srid=srid)
-            case "POINT":
+            case "POINT" | "MULTIPOINTZ":
                 points = feature.shape.points[0]
                 assert len(points) == 2
                 geometry = Point(points[0], points[1], srid=srid)
