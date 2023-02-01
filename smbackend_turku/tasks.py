@@ -82,5 +82,5 @@ def import_charging_stations(name="import_charging_stations"):
 
 
 @shared_task
-def import_mobility_data(name="import_mobility_data"):
-    management.call_command("turku_services_import", "mobility_data")
+def import_external_sources(name="import_external_sources"):
+    management.call_command("turku_services_import", "external_sources")
