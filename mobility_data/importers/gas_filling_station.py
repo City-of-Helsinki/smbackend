@@ -2,11 +2,11 @@ import logging
 
 from django import db
 from django.conf import settings
-from django.contrib.gis.geos import Point, Polygon
+from django.contrib.gis.geos import Point
 
 from mobility_data.models import MobileUnit
 
-from .constants import SOUTHWEST_FINLAND_BOUNDARY, SOUTHWEST_FINLAND_BOUNDARY_SRID
+from .constants import SOUTHWEST_FINLAND_GEOMETRY
 from .utils import (
     delete_mobile_units,
     fetch_json,
@@ -75,10 +75,11 @@ def get_filtered_gas_filling_station_objects(json_data=None):
     srid = 4326
     # Create list of all GasFillingStation objects
     objects = [GasFillingStation(data, srid=srid) for data in json_data["features"]]
-    # Filter objects by their location
-    # Polygon used the detect if point intersects. i.e. is in the boundaries of SouthWest Finland.
-    polygon = Polygon(SOUTHWEST_FINLAND_BOUNDARY, srid=SOUTHWEST_FINLAND_BOUNDARY_SRID)
-    filtered_objects = [o for o in objects if polygon.intersects(o.point)]
+    # Filter objects by their location. Polygon(SOUTHWEST_FINLAND_GEOMETRY) used the detect if point intersects. i.e.
+    # is in the boundaries of SouthWest Finland.
+    filtered_objects = [
+        o for o in objects if SOUTHWEST_FINLAND_GEOMETRY.intersects(o.point)
+    ]
     logger.info(
         "Filtered: {} gas filling stations by location to: {}.".format(
             len(json_data["features"]), len(filtered_objects)
