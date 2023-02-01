@@ -6,7 +6,6 @@ from django.conf import settings
 from django.contrib.gis.geos import Point
 
 from mobility_data.models import MobileUnit
-from smbackend_turku.importers.constants import CHARGING_STATION_SERVICE_NAMES
 
 from .utils import (
     delete_mobile_units,
@@ -22,6 +21,11 @@ from .utils import (
 
 logger = logging.getLogger("mobility_data")
 
+CHARGING_STATION_SERVICE_NAMES = {
+    "fi": "Autojen sähkölatauspiste",
+    "sv": "Elladdningsstation för bilar",
+    "en": "Car e-charging point",
+}
 SOURCE_DATA_FILE_NAME = "LatauspisteetTurku.csv"
 SOURCE_DATA_SRID = 3877
 CONTENT_TYPE_NAME = "ChargingStation"
