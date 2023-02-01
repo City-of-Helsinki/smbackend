@@ -38,18 +38,18 @@ IMPORTER_FUNCTIONS_CODE = """
 def import_{name}(self):
     config = get_external_source_config("{name}")
     import_{name}(logger=self.logger, config=config)
-    print('IMPORT')
 @db.transaction.atomic
 def delete_{name}(self):
     config = get_external_source_config("{name}")
     delete_{name}(logger=self.logger, config=config)
-    print('DELETE')
 """
+
+
 class Command(BaseCommand):
     help = "Import services from City of Turku APIs and from external sources."
 
     # Umbrella source that imports all external_sources
-    MOBILITY_DATA = "mobility_data"
+    EXTERNAL_SOURCES = "external_sources"
 
     external_sources = get_configured_external_sources_names()
     importer_types = [
@@ -60,7 +60,7 @@ class Command(BaseCommand):
         "geo_search_addresses",
         "enriched_addresses",
         "divisions",
-        MOBILITY_DATA,
+        EXTERNAL_SOURCES,
     ] + external_sources
 
     supported_languages = [lang[0] for lang in settings.LANGUAGES]
@@ -147,10 +147,10 @@ class Command(BaseCommand):
         return import_divisions(logger=self.logger)
 
     @db.transaction.atomic
-    def import_mobility_data(self):
-        # TODO fix this
-        self.import_bicycle_stands()
-        self.import_gas_filling_stations()
+    def import_external_sources(self):
+        for name in self.external_sources:
+            method = getattr(self, "import_%s" % name)
+            method()
 
     # Activate the default language for the duration of the import
     # to make sure translated fields are populated correctly.
@@ -179,12 +179,12 @@ class Command(BaseCommand):
                 sys.stderr.write("Nothing to delete.\n")
         else:
             importers = self.options["import_types"]
-            if self.MOBILITY_DATA in self.options["import_types"]:
-                # Add external sources and by creating a set ensure there are no duplicates
-                # as the user can add args as mobility_data charging_stations
+            if self.EXTERNAL_SOURCES in self.options["import_types"]:
+                # Add EXTERNAL_SOURCES by creating a set to ensure there are no duplicates
+                # as the user can add args as EXTERNAL_SOURCES charging_stations
                 importers = set(importers + self.external_sources)
-                # remove the mobility_data source as it has no function attached to it.
-                importers.remove(self.MOBILITY_DATA)
+                # remove the EXTERNAL_SOURCES source as it has no function attached to it.
+                importers.remove(self.EXTERNAL_SOURCES)
 
             import_count = 0
             for imp in self.importer_types:
