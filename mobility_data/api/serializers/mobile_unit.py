@@ -71,6 +71,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             "geometry",
             "geometry_coords",
             "extra",
+            "unit_id",
         ]
 
     # Contains the corresponding field names of the MobileUnit model if they differs
@@ -102,7 +103,9 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                         representation[field] = unit.municipality.id
                     else:
                         representation[field] = getattr(unit, key)
-
+                # Serialize the MobileUnit id, otherwise would serialize the serivce_unit id.
+                if field == "id":
+                    representation["id"] = obj.id
             # The location field must be serialized with its wkt value.
             if unit.location:
                 representation["geometry"] = unit.location.wkt

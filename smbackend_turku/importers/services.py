@@ -8,14 +8,9 @@ from services.management.commands.services_import.services import (
     update_service_root_service_nodes,
 )
 from services.models import Service, ServiceNode
-from smbackend_turku.importers.bicycle_stands import BicycleStandImporter
-from smbackend_turku.importers.bike_service_stations import BikeServiceStationImporter
-from smbackend_turku.importers.stations import (
-    ChargingStationImporter,
-    GasFillingStationImporter,
-)
 from smbackend_turku.importers.utils import (
     convert_code_to_int,
+    get_external_sources_yaml_config,
     get_turku_resource,
     set_syncher_object_field,
     set_syncher_tku_translated_field,
@@ -24,17 +19,6 @@ from smbackend_turku.importers.utils import (
 UTC_TIMEZONE = pytz.timezone("UTC")
 
 SERVICE_AS_SERVICE_NODE_PREFIX = "service_"
-"""
-List of All external importers that imports data to the services list.
-If importer is not added to the list, its imported data will be deleted during importing of Units and Services.
-"""
-EXTERNAL_IMPORTERS = [
-    GasFillingStationImporter,
-    ChargingStationImporter,
-    BikeServiceStationImporter,
-    BicycleStandImporter,
-]
-
 BLACKLISTED_SERVICE_NODES = [
     "2_1",
     "2_2",
@@ -65,18 +49,20 @@ class ServiceImporter:
             self._handle_service_node(parent_node, keyword_handler)
 
         if not self.delete_external_sources:
-            for importer in EXTERNAL_IMPORTERS:
-                self._handle_external_service_node(importer)
+            for config in get_external_sources_yaml_config():
+                self._handle_external_service_node(config)
 
         self.nodesyncher.finish()
 
-    def _handle_external_service_node(self, importer):
+    def _handle_external_service_node(self, config):
         """
         Mark service_node that has been imported from external source.
         If not marked the nodesyncher.finish() will delete the service node.
         """
         try:
-            service_node = ServiceNode.objects.get(name=importer.SERVICE_NODE_NAME)
+            service_node = ServiceNode.objects.get(
+                name=config["service_node"]["name"]["fi"]
+            )
             service_node = self.nodesyncher.get(service_node.id)
             self.nodesyncher.mark(service_node)
         except ServiceNode.DoesNotExist:
@@ -89,18 +75,18 @@ class ServiceImporter:
             self._handle_service(service, keyword_handler)
 
         if not self.delete_external_sources:
-            for importer in EXTERNAL_IMPORTERS:
-                self._handle_external_service(importer)
+            for config in get_external_sources_yaml_config():
+                self._handle_external_service(config)
 
         self.servicesyncher.finish()
 
-    def _handle_external_service(self, importer):
+    def _handle_external_service(self, config):
         """
         Mark service that has been imported from external source.
         If not marked the servicesyncher.finish() will delete the service.
         """
         try:
-            service = Service.objects.get(name=importer.SERVICE_NAME)
+            service = Service.objects.get(name=config["service"]["name"]["fi"])
             service = self.servicesyncher.get(service.id)
             self.servicesyncher.mark(service)
         except Service.DoesNotExist:
