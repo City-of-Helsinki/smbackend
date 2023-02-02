@@ -263,8 +263,9 @@ def test__months_multiple_years(api_client, years, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__station(api_client, station):
+def test__station(api_client, station, year_datas):
     url = reverse("eco_counter:stations-list")
     response = api_client.get(url)
     assert response.status_code == 200
     assert response.json()["results"][0]["name"] == station.name
+    assert response.json()["results"][0]["sensor_types"] == ["at"]
