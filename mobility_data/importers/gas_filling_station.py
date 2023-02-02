@@ -5,9 +5,10 @@ from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
 from munigeo.models import Municipality
 
+
 from mobility_data.models import MobileUnit
 
-from .constants import SOUTHWEST_FINLAND_BOUNDARY, SOUTHWEST_FINLAND_BOUNDARY_SRID
+from .constants import SOUTHWEST_FINLAND_GEOMETRY
 from .utils import (
     delete_mobile_units,
     fetch_json,

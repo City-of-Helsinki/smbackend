@@ -42,6 +42,11 @@ def import_accessories(name="import_accessories"):
 
 
 @shared_task
+def import_barbecue_places(name="import_barbecue_places"):
+    management.call_command("import_wfs", ["BarbecuePlace"])
+
+
+@shared_task
 def import_share_car_parking_places(name="impor_share_car_parking_places"):
     management.call_command("import_share_car_parking_places")
 
@@ -132,6 +137,11 @@ def import_traffic_signs(name="import_traffic_signs"):
 @shared_task
 def import_wfs(args=None, name="import_wfs"):
     management.call_command("import_wfs", args)
+
+
+@shared_task
+def import_parking_machines(name="import_parking_machines"):
+    management.call_command("import_parking_machines")
 
 
 @shared_task

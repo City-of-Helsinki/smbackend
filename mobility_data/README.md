@@ -159,15 +159,27 @@ To import data type:
 ```
 ./manage.py import_foli_stops
 ```
+
+### Barbecue places
+```
+./manage.py import_wfs BarbecuePlace
+```
+
 ### Föli park and ride stop
 Imports park and ride stops for bikes and cars.
 ```
 ./manage.py import_foli_parkandride_stops
 ```
+
 ### Outdoor gym devices
 Imports the outdoor gym devices from the services.unit model. i.e., sets references by id to the services.unit model. The data is then serialized from the services.unit model.
 ```
 ./manage.py import_outdoor_gym_devices
+```
+
+### Parking machines
+```
+./manage.py import_parking_machines
 ```
 
 ## Deletion
