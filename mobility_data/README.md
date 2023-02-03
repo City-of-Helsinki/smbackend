@@ -165,6 +165,12 @@ To import data type:
 ./manage.py import_wfs BarbecuePlace
 ```
 
+
+### Playgrounds
+```
+./manage.py import_wfs PlayGround
+```
+
 ### Föli park and ride stop
 Imports park and ride stops for bikes and cars.
 ```

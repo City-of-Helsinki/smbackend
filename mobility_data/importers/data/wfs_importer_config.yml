@@ -1,4 +1,40 @@
 features:
+  - content_type_name: PlayGround
+    content_type_description: Playgrounds in the city of Turku.
+    wfs_layer: GIS:Viheralueet
+    max_features: 50000
+    include:
+      Kayttotyyppi: Leikkipaikka
+    fields:
+      name:
+        fi: Tunnus
+    extra_fields:
+      kayttotyyppi:
+        wfs_field: Kayttotyyppi
+      omistaja:
+        wfs_field: Omistaja
+      haltija:
+        wfs_field: Haltija
+      kunnossapitaja:
+        wfs_field: Kunnossapitaja
+      hoitaja:
+        wfs_field: Hoitaja
+      alueUrakkaAlue: 
+        wfs_field: AlueUrakkaAlue
+      kunnossapitoluokka:
+        wfs_field: Kunnossapitoluokka
+      talvikunnossapito:
+        wfs_field: Talvikunnossapito
+      pintamateriaali:
+        wfs_field: Pintamateriaali
+      laskettuPintaAla:
+        wfs_field: LaskettuPintaAla
+        wfs_type: double
+      valmistusvuosi:
+        wfs_field: Valmistusvuosi
+      peruskorjausvuosi:
+        wfs_field: Peruskorjausvuosi
+
   - content_type_name: BarbecuePlace
     content_type_description: Barbecue places in the city of Turku.
     wfs_layer: GIS:Varusteet

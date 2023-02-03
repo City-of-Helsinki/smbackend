@@ -47,6 +47,11 @@ def import_barbecue_places(name="import_barbecue_places"):
 
 
 @shared_task
+def import_playgrounds(name="import_playgrounds"):
+    management.call_command("import_wfs", ["PlayGround"])
+
+
+@shared_task
 def import_share_car_parking_places(name="impor_share_car_parking_places"):
     management.call_command("import_share_car_parking_places")
 
