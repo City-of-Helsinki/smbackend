@@ -11,9 +11,10 @@ divisions:
     wfs_layer: 'GIS:Palveluverkko_suuralueet'
     fields:
         name:
-            fi: Tunnus
-        origin_id: Tunnus
-        ocd_id: Tunnus
+            fi: Tunnus_FIN
+            sv: Tunnus_FIN
+        origin_id: Tunnus_FIN
+        ocd_id: Tunnus_FIN
 
   - type: district
     name: Kaupunginosa
