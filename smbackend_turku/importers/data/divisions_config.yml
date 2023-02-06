@@ -23,9 +23,10 @@ divisions:
     wfs_layer: 'GIS:Kaupunginosat'
     fields:
         name:
-            fi: Kaupunginosan_Nimi
-        origin_id: Kaupunginosan_Nimi
-        ocd_id: Kaupunginosan_Nimi
+            fi: nimi_FIN
+            sv: nimi_SVE
+        origin_id: nimi_FIN
+        ocd_id: nimi_FIN
 
   - type: sub_district
     name: Pienalue
@@ -35,6 +36,8 @@ divisions:
     fields:
         name:
             fi: Numero
+            sv: Numero
+            en: Numero
         origin_id: Numero
         ocd_id: Numero
 
@@ -56,7 +59,9 @@ divisions:
     check_turku_boundary: False
     fields:
         name:
-            fi: Tunnus           
+            fi: Tunnus
+            sv: Tunnus 
+            en: Tunnus            
         origin_id: Tunnus
         ocd_id: Tunnus
 
@@ -89,14 +94,4 @@ divisions:
         sv: Oppilasalueen_kuvaus
       origin_id: Oppilasalueen_kuvaus
       ocd_id: Oppilasalueen_kuvaus
-
-  - type: parish
-    name: "Seurakunta"  
-    ocd_id: seurakunta
-    wfs_layer: 'GIS:Seurakunnat'
-    fields:
-      name:
-        fi: Numero
-      origin_id: Numero
-      ocd_id: Numero
-      
+    
