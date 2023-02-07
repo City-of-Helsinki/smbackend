@@ -57,6 +57,11 @@ env = environ.Env(
     YIT_CONTRACTS_URL=(str, None),
     YIT_TOKEN_URL=(str, None),
     KUNTEC_KEY=(str, None),
+    EMAIL_BACKEND=(str, None),
+    EMAIL_HOST=(str, None),
+    EMAIL_HOST_USER=(str, None),
+    EMAIL_PORT=(int, None),
+    EMAIL_USE_TLS=(bool, None),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -217,11 +222,13 @@ OPEN311 = {
 # Shortcut generation URL template
 SHORTCUTTER_UNIT_URL = env("SHORTCUTTER_UNIT_URL")
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.turku.fi"
-EMAIL_HOST_USER = "varaamo@turku.fi"
-EMAIL_PORT = 25
-EMAIL_USE_TLS = True
+
+EMAIL_BACKEND = env("EMAIL_BACKEND")
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+
 # Static & Media files
 STATIC_ROOT = env("STATIC_ROOT")
 STATIC_URL = env("STATIC_URL")
