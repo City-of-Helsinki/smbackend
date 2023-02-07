@@ -36,7 +36,7 @@ def shared_task_email(func):
                 send_mail(
                     subject,
                     message,
-                    "varaamo@turku.fi",
+                    settings.EMAIL_HOST_USER,
                     notify_emails,
                     fail_silently=False,
                 )
