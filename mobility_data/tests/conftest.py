@@ -66,11 +66,13 @@ def group_type():
 @pytest.fixture
 def mobile_unit(content_type):
     extra = {"test_int": 4242, "test_float": 42.42, "test_string": "4242"}
+    geometry = Point(22.21, 60.3, srid=4326)
+    geometry.transform(settings.DEFAULT_SRID)
     mobile_unit = MobileUnit.objects.create(
         name="Test mobileunit",
         description="Test description",
         content_type=content_type,
-        geometry=Point(42.42, 21.21, srid=settings.DEFAULT_SRID),
+        geometry=geometry,
         extra=extra,
     )
     return mobile_unit
