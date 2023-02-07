@@ -36,7 +36,9 @@ def test_mobile_unit(api_client, mobile_unit, content_type):
     assert results["extra"]["test_string"] == "4242"
     assert results["extra"]["test_int"] == 4242
     assert results["extra"]["test_float"] == 42.42
-    assert results["geometry"] == Point(42.42, 21.21, srid=settings.DEFAULT_SRID)
+    assert results["geometry"] == Point(
+        235404.6706163187, 6694437.919005549, srid=settings.DEFAULT_SRID
+    )
     url = (
         reverse("mobility_data:mobile_units-list")
         + "?type_name=Test?extra__test_string=4242"
@@ -63,6 +65,17 @@ def test_mobile_unit(api_client, mobile_unit, content_type):
     assert response.status_code == 200
     results = response.json()["results"][0]
     assert results["name"] == "Test mobileunit"
+    # Test that we get a mobile unit inside bbox.
+    url = (
+        reverse("mobility_data:mobile_units-list")
+        + "?bbox=21.1,59.2,22.3,61.4&bbox_srid=4326"
+    )
+    response = api_client.get(url)
+    assert len(response.json()["results"]) == 1
+    # Test bbox where no mobile units are inside.
+    url = reverse("mobility_data:mobile_units-list") + "?bbox=22.1,60.2,2.3,60.4"
+    response = api_client.get(url)
+    assert len(response.json()["results"]) == 0
 
 
 @pytest.mark.django_db
