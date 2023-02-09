@@ -46,11 +46,15 @@ def api_client():
 
 @pytest.mark.django_db
 @pytest.fixture
-def content_type():
-    content_type = ContentType.objects.create(
-        name="Test", description="test content type"
+def content_types():
+    content_types = [
+        ContentType.objects.create(name="Test", description="test content type")
+    ]
+    content_types.append(
+        ContentType.objects.create(name="Test2", description="test content type2")
     )
-    return content_type
+
+    return content_types
 
 
 @pytest.mark.django_db
@@ -64,16 +68,26 @@ def group_type():
 
 @pytest.mark.django_db
 @pytest.fixture
-def mobile_unit(content_type):
+def mobile_units(content_types):
+    mobile_units = []
     extra = {"test_int": 4242, "test_float": 42.42, "test_string": "4242"}
     mobile_unit = MobileUnit.objects.create(
         name="Test mobileunit",
         description="Test description",
-        content_type=content_type,
         geometry=Point(42.42, 21.21, srid=settings.DEFAULT_SRID),
         extra=extra,
     )
-    return mobile_unit
+    mobile_unit.content_types.add(content_types[0])
+    mobile_units.append(mobile_units)
+    mobile_unit = MobileUnit.objects.create(
+        name="Test2 mobileunit",
+        description="Test2 description",
+        geometry=Point(43.43, 22.22, srid=settings.DEFAULT_SRID),
+    )
+    mobile_unit.content_types.add(content_types[0])
+    mobile_unit.content_types.add(content_types[1])
+    mobile_units.append(mobile_units)
+    return mobile_units
 
 
 @pytest.mark.django_db
