@@ -187,7 +187,7 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
                 return Response(
                     "type_name does not exist.", status=status.HTTP_400_BAD_REQUEST
                 )
-            queryset = MobileUnit.objects.filter(content_type__name=type_name)
+            queryset = MobileUnit.objects.filter(content_types__name=type_name)
         else:
             queryset = MobileUnit.objects.all()
 
