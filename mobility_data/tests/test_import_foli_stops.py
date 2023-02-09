@@ -20,7 +20,8 @@ def test_import_foli_stops(fetch_json_mock):
     assert ContentType.objects.first().name == foli_stops.CONTENT_TYPE_NAME
     assert MobileUnit.objects.count() == 3
     turun_satama = MobileUnit.objects.get(name="Turun satama (Silja)")
-    assert turun_satama.content_type == ContentType.objects.first()
+    assert turun_satama.content_types.all().count() == 1
+    assert turun_satama.content_types.first() == ContentType.objects.first()
     assert turun_satama.extra["stop_code"] == "1"
     assert turun_satama.extra["wheelchair_boarding"] == 0
     point_turun_satama = turun_satama.geometry

@@ -11,7 +11,7 @@ def test_importer(municipalities):
     import_command("import_gas_filling_stations", test_mode="gas_filling_stations.json")
 
     assert ContentType.objects.filter(name=CONTENT_TYPE_NAME).count() == 1
-    assert MobileUnit.objects.filter(content_type__name=CONTENT_TYPE_NAME).count() == 2
+    assert MobileUnit.objects.filter(content_types__name=CONTENT_TYPE_NAME).count() == 2
     assert MobileUnit.objects.get(name="Raisio Kuninkoja")
     unit = MobileUnit.objects.get(name="Turku Satama")
     assert unit.address == "Tuontiväylä 42 abc 1-2"
