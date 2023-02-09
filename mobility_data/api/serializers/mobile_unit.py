@@ -42,7 +42,7 @@ class MobileUnitGroupBasicInfoSerializer(serializers.ModelSerializer):
 
 class MobileUnitSerializer(serializers.ModelSerializer):
 
-    content_type = ContentTypeSerializer(many=False, read_only=True)
+    content_types = ContentTypeSerializer(many=True, read_only=True)
     mobile_unit_group = MobileUnitGroupBasicInfoSerializer(many=False, read_only=True)
     geometry_coords = serializers.SerializerMethodField(read_only=True)
 
@@ -64,7 +64,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             "description_fi",
             "description_sv",
             "description_en",
-            "content_type",
+            "content_types",
             "mobile_unit_group",
             "is_active",
             "created_time",
@@ -133,7 +133,6 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 pos["lon"] = geometry.x
                 pos["lat"] = geometry.y
             return pos
-
         elif isinstance(geometry, LineString):
             if self.context["latlon"]:
                 # Return LineString coordinates in (lat,lon) format
@@ -145,7 +144,6 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 return coords
             else:
                 return geometry.coords
-
         elif isinstance(geometry, Polygon):
             if self.context["latlon"]:
                 # Return Polygon coordinates in (lat,lon) format
@@ -192,6 +190,5 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 return coords
             else:
                 return geometry.coords
-
         else:
             return ""
