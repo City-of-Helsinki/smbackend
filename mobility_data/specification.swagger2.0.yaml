@@ -60,7 +60,7 @@ definitions:
         type: string
       description_en:
         type: string
-      content_type:
+      content_types:
         $ref: "#/definitions/content_type"
       mobile_unit_group:
         $ref: "#/definitions/mobile_unit_group"
