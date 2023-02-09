@@ -47,8 +47,9 @@ def save_to_database_using_yaml_config(objects, config):
         return
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
-            content_type=content_type, extra=object.extra, geometry=object.geometry
+            extra=object.extra, geometry=object.geometry
         )
+        mobile_unit.content_types.add(content_type)
         mobile_unit.municipality = object.municipality
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "address", object.address)

@@ -290,10 +290,10 @@ def save_to_database(routes, delete_tables=False):
                 content_type = geometry_type
 
             mobile_unit, created = MobileUnit.objects.get_or_create(
-                content_type=content_type,
                 mobile_unit_group=group,
                 geometry=placemark.geometry,
             )
+            mobile_unit.content_types.add(content_type)
             if created:
                 mobile_unit.is_active = True
                 set_translated_field(mobile_unit, "name", placemark.name)

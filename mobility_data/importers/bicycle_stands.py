@@ -275,11 +275,10 @@ def save_to_database(objects, delete_tables=True):
     content_type = create_bicycle_stand_content_type()
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
-            content_type=content_type,
             extra=object.extra,
             municipality=object.municipality,
         )
-
+        mobile_unit.content_types.add(content_type)
         mobile_unit.geometry = object.geometry
         set_translated_field(mobile_unit, "name", object.name)
         if object.address:

@@ -78,10 +78,10 @@ def create_mobile_unit_as_unit_reference(unit_id, content_type):
     serialize the data from the services_unit table in the mobile_unit endpoint.
     """
 
-    MobileUnit.objects.create(
+    mobile_unit = MobileUnit.objects.create(
         unit_id=unit_id,
-        content_type=content_type,
     )
+    mobile_unit.content_types.add(content_type)
 
 
 def get_or_create_content_type(name, description):

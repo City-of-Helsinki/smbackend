@@ -78,9 +78,9 @@ def save_to_database(objects, delete_tables=True):
 
     content_type = get_and_create_parking_machine_content_type()
     for object in objects:
-        MobileUnit.objects.create(
-            content_type=content_type,
+        mobile_unit = MobileUnit.objects.create(
             address=object.address,
             geometry=object.geometry,
             extra=object.extra,
         )
+        mobile_unit.content_types.add(content_type)

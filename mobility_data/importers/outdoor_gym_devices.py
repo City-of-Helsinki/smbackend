@@ -37,5 +37,7 @@ def save_outdoor_gym_devices():
     content_type = create_content_type()
     units_qs = Unit.objects.filter(services=service)
     for unit in units_qs:
-        MobileUnit.objects.create(content_type=content_type, unit_id=unit.id)
+        mobile_unit = MobileUnit.objects.create(unit_id=unit.id)
+        mobile_unit.content_types.add(content_type)
+        mobile_unit.save()
     return units_qs.count()
