@@ -44,32 +44,42 @@ def test_mobile_unit(api_client, mobile_units, content_types):
     assert len(result["content_types"]) == 2
     assert result["content_types"][0]["name"] == "Test"
     assert result["content_types"][1]["name"] == "Test2"
+    # Test string in extra field
     url = (
         reverse("mobility_data:mobile_units-list")
-        + "?type_name=Test?extra__test_string=4242"
+        + "?type_name=Test&extra__test_string=4242"
     )
     response = api_client.get(url)
     assert response.status_code == 200
-    result = response.json()["results"][1]
-    assert result["name"] == "Test mobileunit"
+    assert len(response.json()["results"]) == 1
+    assert response.json()["results"][0]["name"] == "Test mobileunit"
     # Test int value in extra field
     url = (
         reverse("mobility_data:mobile_units-list")
-        + "?type_name=Test?extra__test_int=4242"
+        + "?type_name=Test&extra__test_int=4242"
     )
     response = api_client.get(url)
     assert response.status_code == 200
-    result = response.json()["results"][1]
-    assert result["name"] == "Test mobileunit"
+    assert len(response.json()["results"]) == 1
+    assert response.json()["results"][0]["name"] == "Test mobileunit"
     # Test float value in extra field
     url = (
         reverse("mobility_data:mobile_units-list")
-        + "?type_name=Test?extra__test_float=42.42"
+        + "?type_name=Test&extra__test_float=42.42"
     )
     response = api_client.get(url)
     assert response.status_code == 200
-    result = response.json()["results"][1]
-    assert result["name"] == "Test mobileunit"
+    assert len(response.json()["results"]) == 1
+    assert response.json()["results"][0]["name"] == "Test mobileunit"
+    # Test vool value in extra field
+    url = (
+        reverse("mobility_data:mobile_units-list")
+        + "?type_name=Test&extra__test_bool=True"
+    )
+    response = api_client.get(url)
+    assert response.status_code == 200
+    assert len(response.json()["results"]) == 1
+    assert response.json()["results"][0]["name"] == "Test2 mobileunit"
     # Test that we get a mobile unit inside bbox.
     url = (
         reverse("mobility_data:mobile_units-list")
