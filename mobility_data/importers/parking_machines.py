@@ -1,7 +1,6 @@
 from django import db
 from django.conf import settings
-from django.contrib.gis.gdal import DataSource as GDALDataSource
-from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.geos import Point
 
 from mobility_data.models import MobileUnit
 
@@ -11,62 +10,128 @@ from .utils import (
     get_file_name_from_data_source,
     get_or_create_content_type,
     get_root_dir,
+    set_translated_field,
 )
 
 SOURCE_DATA_SRID = 4326
 GEOJSON_FILENAME = "parking_machines.geojson"
 CONTENT_TYPE_NAME = "ParkingMachine"
+LANGUAGES = ["fi", "sv", "en"]
 
 
 class ParkingMachine:
+
     extra_field_mappings = {
-        "Sijainti": {"type": FieldTypes.STRING},
-        "Valmistaja": {"type": FieldTypes.STRING},
-        "Malli": {"type": FieldTypes.STRING},
-        "Asennettu": {"type": FieldTypes.STRING},
-        "Virta": {"type": FieldTypes.STRING},
-        "Maksutapa": {"type": FieldTypes.STRING},
-        "Näyttö": {"type": FieldTypes.STRING},
+        "Sijainti": {
+            "type": FieldTypes.MULTILANG_STRING,
+            "fi": "Sijainti",
+            "sv": "Plats",
+            "en": "Location",
+        },
+        "Virta": {
+            "type": FieldTypes.MULTILANG_STRING,
+            "fi": "Virta",
+            "sv": "Ström",
+            "en": "Power",
+        },
+        "Maksutapa": {
+            "type": FieldTypes.MULTILANG_STRING,
+            "fi": "Maksutapa",
+            "sv": "Betalningssätt",
+            # The source data contains Payment method with method starting with
+            # uppercase M and lowercase m.
+            "en": ["Payment method", "Payment Method"],
+        },
+        "Näyttö": {
+            "type": FieldTypes.MULTILANG_STRING,
+            "fi": "Näyttö",
+            "sv": "Skärm",
+            "en": "Screen",
+        },
+        "Omistaja": {
+            "type": FieldTypes.MULTILANG_STRING,
+            "fi": "Omistaja",
+            "sv": "Ägare",
+            "en": "Owner",
+        },
+        "Maksuvyöhyke": {
+            "type": FieldTypes.MULTILANG_STRING,
+            "fi": "Maksuvyöhyke",
+            "sv": "Zon",
+            "en": "Zone",
+        },
         "Muuta": {"type": FieldTypes.STRING},
-        "Omistaja": {"type": FieldTypes.STRING},
         "Taksa/h": {"type": FieldTypes.FLOAT},
         "Max.aika": {"type": FieldTypes.FLOAT},
-        "Maksuvyöhyke": {"type": FieldTypes.STRING},
+        "Malli": {"type": FieldTypes.STRING},
+        "Asennettu": {"type": FieldTypes.STRING},
+        "Valmistaja": {
+            "type": FieldTypes.STRING,
+        },
     }
 
     def __init__(self, feature):
+        properties = feature["properties"]
+        geometry = feature["geometry"]
         self.extra = {}
-        self.address = feature["Osoite"].as_string()
-        self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
+        self.address = {"fi": properties["Osoite"]}
+        self.address["sv"] = properties["Adress"]
+        self.address["en"] = properties["Address"]
+        self.geometry = Point(
+            geometry["coordinates"][0],
+            geometry["coordinates"][1],
+            srid=SOURCE_DATA_SRID,
+        )
         self.geometry.transform(settings.DEFAULT_SRID)
-        for field in feature.fields:
+
+        for field in properties.keys():
             if field in self.extra_field_mappings:
                 match self.extra_field_mappings[field]["type"]:
+                    case FieldTypes.MULTILANG_STRING:
+                        self.extra[field] = {}
+                        for lang in LANGUAGES:
+                            key = self.extra_field_mappings[field][lang]
+                            # Support multiple keys for same field, e.g.,
+                            # 'Payment method' and 'Payment Method'
+                            if type(key) == list:
+                                for k in key:
+                                    val = properties.get(k, None)
+                                    if val:
+                                        self.extra[field][lang] = val
+                                        break
+                            else:
+                                self.extra[field][lang] = properties[key]
+
                     case FieldTypes.STRING:
-                        self.extra[field] = feature[field].as_string()
+                        self.extra[field] = properties[field]
                     case FieldTypes.INTEGER:
-                        self.extra[field] = feature[field].as_int()
+                        val = properties[field]
+                        self.extra[field] = int(val) if val else None
                     case FieldTypes.FLOAT:
-                        self.extra[field] = feature[field].as_double()
+                        val = properties[field]
+                        self.extra[field] = float(val) if val else None
 
 
-def get_data_layer():
+def get_json_data():
     file_name = get_file_name_from_data_source(CONTENT_TYPE_NAME)
     if not file_name:
         file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
-    ds = GDALDataSource(file_name)
-    assert len(ds) == 1
-    return ds[0]
+    json_data = None
+    import json
+
+    with open(file_name, "r") as json_file:
+        json_data = json.loads(json_file.read())
+    return json_data
 
 
 def get_parking_machine_objects():
-    data_layer = get_data_layer()
-    return [ParkingMachine(feature) for feature in data_layer]
+    json_data = get_json_data()["features"]
+    return [ParkingMachine(feature) for feature in json_data]
 
 
 @db.transaction.atomic
 def get_and_create_parking_machine_content_type():
-    description = "Parking machines in the city of Turku."
+    description = "Parking machines in the City of Turku."
     content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
     return content_type
 
@@ -75,12 +140,12 @@ def get_and_create_parking_machine_content_type():
 def save_to_database(objects, delete_tables=True):
     if delete_tables:
         delete_mobile_units(CONTENT_TYPE_NAME)
-
     content_type = get_and_create_parking_machine_content_type()
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
-            address=object.address,
             geometry=object.geometry,
             extra=object.extra,
         )
         mobile_unit.content_types.add(content_type)
+        set_translated_field(mobile_unit, "address", object.address)
+        mobile_unit.save()
