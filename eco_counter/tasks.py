@@ -1,12 +1,13 @@
-from celery import shared_task
 from django.core import management
 
+from smbackend.utils import shared_task_email
 
-@shared_task
+
+@shared_task_email
 def import_counter_data(args, name="import_counter_data"):
     management.call_command("import_counter_data", "--counters", args)
 
 
-@shared_task
+@shared_task_email
 def initial_import_counter_data(args, name="initial_import_counter_data"):
     management.call_command("import_counter_data", "--init", args)
