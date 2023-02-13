@@ -99,12 +99,12 @@ def import_marinas(delete=True):
         marinas.append(Marina(feature))
     content_type = create_marina_content_type()
     for marina in marinas:
-        MobileUnit.objects.create(
-            content_type=content_type,
+        mobile_unit = MobileUnit.objects.create(
             geometry=marina.geometry,
             name=marina.name,
             extra=marina.extra,
         )
+        mobile_unit.content_types.add(content_type)
     return len(marinas)
 
 
@@ -128,4 +128,5 @@ def import_guest_marina_and_boat_parking(delete=True):
         elif type_name == BOAT_PARKING:
             content_type = create_boat_parking_content_type()
 
-        MobileUnit.objects.create(content_type=content_type, geometry=geometry)
+        mobile_unit = MobileUnit.objects.create(geometry=geometry)
+        mobile_unit.content_types.add(content_type)

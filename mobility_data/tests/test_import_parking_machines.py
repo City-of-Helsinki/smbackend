@@ -20,7 +20,8 @@ def test_import_parking_machines(get_data_layer_mock):
     assert ContentType.objects.first().name == parking_machines.CONTENT_TYPE_NAME
     assert MobileUnit.objects.count() == 3
     satamakatu = MobileUnit.objects.first()
-    assert satamakatu.content_type == ContentType.objects.first()
+    assert satamakatu.content_types.all().count() == 1
+    assert satamakatu.content_types.first() == ContentType.objects.first()
     assert satamakatu.address == "Satamakatu 18 vp"
     assert satamakatu.extra["Malli"] == "CWT-C Touch"
     assert satamakatu.extra["Muuta"] == "16 € / 26 h"

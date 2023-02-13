@@ -42,5 +42,5 @@ def test_gas_filling_stations_import():
     assert unit.extra["operator"] == "Gasum"
     assert unit.service_nodes.all().count() == 1
     assert unit.services.all().count() == 1
-    assert unit.services.all()[0].name == config["service"]["name"]["fi"]
-    assert unit.service_nodes.all()[0].name == config["service_node"]["name"]["fi"]
+    assert unit.services.first().name == config["service"]["name"]["fi"]
+    assert unit.service_nodes.first().name == config["service_node"]["name"]["fi"]

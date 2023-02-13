@@ -95,9 +95,8 @@ def save_to_database(objects, delete_tables=True):
         delete_car_share_parking_places()
     content_type = create_car_share_parking_place_content_type()
     for object in objects:
-        mobile_unit = MobileUnit.objects.create(
-            content_type=content_type, extra=object.extra
-        )
+        mobile_unit = MobileUnit.objects.create(extra=object.extra)
+        mobile_unit.content_types.add(content_type)
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "address", object.address)
         mobile_unit.save()

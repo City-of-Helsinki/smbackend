@@ -54,7 +54,7 @@ Importing from external data sources should always be done after importing the s
 smbackend_turku/importers/data/external_sources_config.yml
 
 ```
-./manage.py turku_services_import external_sorce
+./manage.py turku_services_import external_sources
 ```
 To delete all data imported from external sources:
 ```

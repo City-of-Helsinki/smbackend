@@ -21,7 +21,7 @@ def test_import_charging_stations(
 ):
     import_command("import_charging_stations", test_mode="charging_stations.csv")
     assert ContentType.objects.filter(name=CONTENT_TYPE_NAME).count() == 1
-    assert MobileUnit.objects.filter(content_type__name=CONTENT_TYPE_NAME).count() == 3
+    assert MobileUnit.objects.filter(content_types__name=CONTENT_TYPE_NAME).count() == 3
     aimopark = MobileUnit.objects.get(name="Aimopark, Yliopistonkatu 29")
     assert aimopark.address == "Yliopistonkatu 29"
     assert aimopark.address_sv == "Universitetsgatan 29"

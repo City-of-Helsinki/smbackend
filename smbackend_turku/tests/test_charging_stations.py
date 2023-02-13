@@ -34,7 +34,7 @@ def test_charging_stations_import(
     )
     assert Unit.objects.all().count() == 3
     Service.objects.all().count() == 1
-    service = Service.objects.all()[0]
+    service = Service.objects.first()
     assert service.name == config["service"]["name"]["fi"]
     assert service.name_sv == config["service"]["name"]["sv"]
     assert service.name_en == config["service"]["name"]["en"]
@@ -49,4 +49,4 @@ def test_charging_stations_import(
     assert aimopark.address_zip == "20100"
     assert aimopark.root_service_nodes == "42"
     assert aimopark.services.count() == 1
-    assert aimopark.services.all()[0] == service
+    assert aimopark.services.first() == service

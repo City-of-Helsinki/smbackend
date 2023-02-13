@@ -95,12 +95,12 @@ def save_to_database(objects, content_type_name, delete_tables=True):
 
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
-            content_type=content_type,
             geometry=object.geometry,
             address_zip=object.address_zip,
             description=object.description,
             municipality=object.municipality,
         )
+        mobile_unit.content_types.add(content_type)
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "address", object.address)
         mobile_unit.save()

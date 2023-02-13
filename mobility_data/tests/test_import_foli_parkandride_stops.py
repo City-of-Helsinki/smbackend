@@ -30,15 +30,15 @@ def test_import_foli_stops(fetch_json_mock, municipalities):
     bikes_stops_content_type = ContentType.objects.get(
         name=FOLI_PARKANDRIDE_BIKES_STOP_CONTENT_TYPE_NAME
     )
-
-    assert cars_stops_content_type
-    assert bikes_stops_content_type
     # Fixture data contains two park and ride stops for cars and bikes.
-    assert MobileUnit.objects.filter(content_type=cars_stops_content_type).count() == 2
-    assert MobileUnit.objects.filter(content_type=bikes_stops_content_type).count() == 2
+    assert MobileUnit.objects.filter(content_types=cars_stops_content_type).count() == 2
+    assert (
+        MobileUnit.objects.filter(content_types=bikes_stops_content_type).count() == 2
+    )
     # Test Föli park and ride cars stop
     lieto_centre = MobileUnit.objects.get(name_en="Lieto centre, K-Supermarket Lietori")
-    assert lieto_centre.content_type == cars_stops_content_type
+    assert lieto_centre.content_types.all().count() == 1
+    assert lieto_centre.content_types.first() == cars_stops_content_type
     assert lieto_centre.name_fi == "Lieto Keskusta, K-Supermarket Lietorin piha"
     assert lieto_centre.name_sv == "Lundo centrum, K-Supermarket Lietori"
     assert lieto_centre.address_zip == "21420"
@@ -52,7 +52,7 @@ def test_import_foli_stops(fetch_json_mock, municipalities):
     assert lieto_centre.municipality.name == "Lieto"
     # Test Föli park and ride bikes stop
     raisio_st1 = MobileUnit.objects.get(name_en="St1 Raisio")
-    assert raisio_st1.content_type == bikes_stops_content_type
+    assert raisio_st1.content_types.first() == bikes_stops_content_type
     assert raisio_st1.name_fi == "St1 Raisio"
     assert raisio_st1.name_sv == "St1 Raisio"
     assert raisio_st1.address_zip == "21200"

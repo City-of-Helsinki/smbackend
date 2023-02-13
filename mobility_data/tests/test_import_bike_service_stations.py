@@ -12,7 +12,7 @@ def test_import_bike_service_stations():
         "import_bike_service_stations", test_mode="bike_service_stations.geojson"
     )
     assert ContentType.objects.filter(name=CONTENT_TYPE_NAME).count() == 1
-    assert MobileUnit.objects.filter(content_type__name=CONTENT_TYPE_NAME).count() == 3
+    assert MobileUnit.objects.filter(content_types__name=CONTENT_TYPE_NAME).count() == 3
     kupittaankentta = MobileUnit.objects.get(name="Kupittaankenttä")
     assert kupittaankentta.name_sv == "Kuppisplan"
     assert kupittaankentta.name_en == "Kupittaa court"

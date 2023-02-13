@@ -49,7 +49,7 @@ def test_wfs_importer(
     import_command("import_bicycle_stands", test_mode="bicycle_stands.gml")
     assert MobileUnit.objects.all().count() == 3
     # <GIS:Id>0</GIS:Id> in fixture xml.
-    stand_normal = MobileUnit.objects.all()[0]
+    stand_normal = MobileUnit.objects.first()
     # <GIS:Id>182213917</GIS:Id> in fixture xml.
     stand_covered_hull_lockable = MobileUnit.objects.all()[1]
     # <GIS:Id>319490982</GIS:Id> in fixture xml

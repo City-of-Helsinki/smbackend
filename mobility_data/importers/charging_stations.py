@@ -187,9 +187,9 @@ def save_to_database(objects, delete_tables=True):
             is_active=is_active,
             geometry=object.geometry,
             extra=object.extra,
-            content_type=content_type,
             address_zip=object.address_zip,
         )
+        mobile_unit.content_types.add(content_type)
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "address", object.address)
         mobile_unit.save()

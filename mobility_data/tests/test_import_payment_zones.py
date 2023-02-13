@@ -27,11 +27,11 @@ def test_import_payment_zones():
     content_type = ContentType.objects.first()
     assert content_type.name == "PaymentZone"
     assert MobileUnit.objects.all().count() == 2
-    payment_zone0 = MobileUnit.objects.all()[0]
+    payment_zone0 = MobileUnit.objects.first()
     payment_zone1 = MobileUnit.objects.all()[1]
 
-    payment_zone0.content_type == content_type
-    payment_zone1.content_type == content_type
+    payment_zone0.content_types.first() == content_type
+    payment_zone1.content_types.first() == content_type
     market_square = Point(
         239760.23602773887, 6711049.638094525, srid=settings.DEFAULT_SRID
     )

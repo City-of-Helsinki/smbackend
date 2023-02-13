@@ -30,13 +30,13 @@ def test_import_accessories(
     )
 
     public_toilet_content_type = ContentType.objects.get(name="PublicToilet")
-    assert public_toilet_content_type
     public_toilet_units_qs = MobileUnit.objects.filter(
-        content_type=public_toilet_content_type
+        content_types=public_toilet_content_type
     )
     assert public_toilet_units_qs.count() == 2
     public_toilet_unit = public_toilet_units_qs[0]
-    assert public_toilet_unit.content_type == public_toilet_content_type
+    assert public_toilet_unit.content_types.all().count() == 1
+    assert public_toilet_unit.content_types.first() == public_toilet_content_type
     extra = public_toilet_unit.extra
     assert extra["Kunto"] == "Ei tietoa"
     assert extra["Malli"] == "Testi Vessa"
@@ -52,26 +52,29 @@ def test_import_accessories(
     assert extra["Varustelaji_koodi"] == 4022
 
     bench_content_type = ContentType.objects.get(name="PublicBench")
-    assert bench_content_type
-
-    bench_units_qs = MobileUnit.objects.filter(content_type=bench_content_type)
+    bench_units_qs = MobileUnit.objects.filter(content_types=bench_content_type)
     # Bench id 107620803 locates in Kaarina and therefore is not included.
     assert bench_units_qs.count() == 1
     bench_unit = bench_units_qs.first()
-    assert bench_unit.content_type == bench_content_type
+    assert bench_unit.content_types.all().count() == 1
+    assert bench_unit.content_types.first() == bench_content_type
     point = Point(23464051.217, 6706051.818, srid=DEFAULT_SOURCE_DATA_SRID)
     point.transform(settings.DEFAULT_SRID)
     bench_unit.geometry.equals_exact(point, tolerance=0.0001)
+
     table_content_type = ContentType.objects.get(name="PublicTable")
-    assert table_content_type
-    table_units_qs = MobileUnit.objects.filter(content_type=table_content_type)
+    table_units_qs = MobileUnit.objects.filter(content_types=table_content_type)
     assert table_units_qs.count() == 2
-    assert table_units_qs[0].content_type == table_content_type
+    assert table_units_qs[0].content_types.all().count() == 1
+    assert table_units_qs[0].content_types.first() == table_content_type
 
     furniture_group_content_type = ContentType.objects.get(name="PublicFurnitureGroup")
-    assert furniture_group_content_type
     furniture_group_units_qs = MobileUnit.objects.filter(
-        content_type=furniture_group_content_type
+        content_types=furniture_group_content_type
     )
     assert furniture_group_units_qs.count() == 2
-    assert furniture_group_units_qs[0].content_type == furniture_group_content_type
+    assert furniture_group_units_qs[0].content_types.all().count() == 1
+    assert (
+        furniture_group_units_qs[0].content_types.first()
+        == furniture_group_content_type
+    )

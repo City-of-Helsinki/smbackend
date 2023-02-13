@@ -31,7 +31,7 @@ def test_bike_service_stations_import(
     )
     assert Unit.objects.all().count() == 3
     Service.objects.all().count() == 1
-    service = Service.objects.all()[0]
+    service = Service.objects.first()
     assert service.name == config["service"]["name"]["fi"]
     assert service.name_sv == config["service"]["name"]["sv"]
     assert service.name_en == config["service"]["name"]["en"]

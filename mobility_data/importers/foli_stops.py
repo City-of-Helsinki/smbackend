@@ -46,10 +46,10 @@ def save_to_database(objects, delete_tables=True):
 
     content_type = get_and_create_foli_stop_content_type()
     for object in objects:
-        MobileUnit.objects.create(
-            content_type=content_type,
+        mobile_unit = MobileUnit.objects.create(
             name=object.name,
             geometry=object.geometry,
             extra=object.extra,
         )
+        mobile_unit.content_types.add(content_type)
     logger.info(f"Saved {len(objects)} Föli stops to database.")

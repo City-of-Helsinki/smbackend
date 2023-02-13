@@ -110,11 +110,11 @@ def save_to_database(objects, delete_tables=True):
     content_type = create_bike_service_station_content_type()
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
-            content_type=content_type,
             extra=object.extra,
             geometry=object.geometry,
             address_zip=object.address_zip,
         )
+        mobile_unit.content_types.add(content_type)
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "description", object.description)
         set_translated_field(mobile_unit, "address", object.address)
