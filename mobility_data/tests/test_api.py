@@ -36,7 +36,7 @@ def test_mobile_unit(api_client, mobile_units, content_types):
     assert result["extra"]["test_string"] == "4242"
     assert result["extra"]["test_int"] == 4242
     assert result["extra"]["test_float"] == 42.42
-    assert results["geometry"] == Point(
+    assert result["geometry"] == Point(
         235404.6706163187, 6694437.919005549, srid=settings.DEFAULT_SRID
     )
     # Test multiple content types
@@ -68,8 +68,8 @@ def test_mobile_unit(api_client, mobile_units, content_types):
     )
     response = api_client.get(url)
     assert response.status_code == 200
-    result = response.json()["results"][1] 
-    assert results["name"] == "Test mobileunit"
+    result = response.json()["results"][1]
+    assert result["name"] == "Test mobileunit"
     # Test that we get a mobile unit inside bbox.
     url = (
         reverse("mobility_data:mobile_units-list")
