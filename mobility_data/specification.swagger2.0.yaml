@@ -134,6 +134,9 @@ paths:
         - $ref: "#/components/parameters/latlon_param"
         - $ref: "#/components/parameters/type_name_param"
         - $ref: "#/components/parameters/extra_param"
+        - $ref: "#/components/parameters/bbox_param"
+        - $ref: "#/components/parameters/bbox_srid_param"
+
       responses:
         200:
           description: "List of MobileUnits."
@@ -287,3 +290,24 @@ components:
       schema:
         type: string
       example: extra__fieldname=value
+
+    bbox_param:
+      name: bbox
+      in: query
+      description: Search for mobile units that are within this bounding box. Decimal coordinates
+        are given in order west, south, east, north. Period is used as decimal
+        separator. Default srid is 4326.
+      schema:
+        type: array
+        items:
+          type: number
+      example: 24.9405559,60.1695096,24.9805559,60.1895096
+    
+    bbox_srid_param:
+      name: bbox_srid
+        in: query
+        description: An SRID coordinate reference system identifier which specifies the
+          coordinate system used in the bbox parameter. 
+        schema:
+          type: integer
+        example: 3046
