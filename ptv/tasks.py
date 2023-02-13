@@ -1,8 +1,9 @@
-from celery import shared_task
 from django.core import management
 
+from smbackend.utils import shared_task_email
 
-@shared_task
+
+@shared_task_email
 def import_ptv_data(name="import_ptv_data"):
     # Note, Aura=19 has been removed, thus it is not found in palvelutietovaranto.
     management.call_command(

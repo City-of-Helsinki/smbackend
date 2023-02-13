@@ -71,10 +71,12 @@ def group_type():
 def mobile_units(content_types):
     mobile_units = []
     extra = {"test_int": 4242, "test_float": 42.42, "test_string": "4242"}
+    geometry = Point(22.21, 60.3, srid=4326)
+    geometry.transform(settings.DEFAULT_SRID)
     mobile_unit = MobileUnit.objects.create(
         name="Test mobileunit",
         description="Test description",
-        geometry=Point(42.42, 21.21, srid=settings.DEFAULT_SRID),
+        geometry=geometry,
         extra=extra,
     )
     mobile_unit.content_types.add(content_types[0])

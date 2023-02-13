@@ -1,6 +1,9 @@
 from distutils.util import strtobool
 
+from django.contrib.gis.gdal import SpatialReference
 from django.core.exceptions import ValidationError
+from django.db.models import Q
+from munigeo import api as munigeo_api
 from rest_framework import status, viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
@@ -190,6 +193,15 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = MobileUnit.objects.filter(content_types__name=type_name)
         else:
             queryset = MobileUnit.objects.all()
+
+        if "bbox" in filters:
+            val = filters.get("bbox", None)
+            if val:
+                ref = SpatialReference(filters.get("bbox_srid", 4326))
+                bbox_geometry_filter = munigeo_api.build_bbox_filter(
+                    ref, val, "geometry"
+                )
+                queryset = queryset.filter(Q(**bbox_geometry_filter))
 
         for filter in filters:
             if filter.startswith("extra__"):
