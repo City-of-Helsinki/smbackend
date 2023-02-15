@@ -24,7 +24,6 @@ def add_health_station_redirects(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("services", "0037_add_ordering_to_ontologymodels"),
     ]

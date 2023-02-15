@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("observations", "0007_protect_historical_observations_on_delete"),
     ]

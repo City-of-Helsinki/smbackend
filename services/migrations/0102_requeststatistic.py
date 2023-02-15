@@ -6,7 +6,6 @@ import services.models.statistic
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("services", "0101_alter_unitconnection_section_type"),
     ]

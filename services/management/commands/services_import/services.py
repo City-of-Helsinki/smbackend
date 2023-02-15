@@ -31,7 +31,6 @@ def import_services(
     ontologytrees=pk_get("ontologytree"),
     ontologywords=pk_get("ontologyword"),
 ):
-
     nodesyncher = ModelSyncher(ServiceNode.objects.all(), lambda obj: obj.id)
     servicesyncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
 

@@ -11,7 +11,6 @@ UTC_TIMEZONE = pytz.timezone("UTC")
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("services", "0029_order_units_by_id"),
     ]

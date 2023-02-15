@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("munigeo", "0004_building"),
         ("services", "0057_remove_service_unit_count"),

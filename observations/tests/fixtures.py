@@ -181,7 +181,6 @@ def unit_latest_observation_both_expired_and_not_expirable(
     unit,
     unit_latest_observation_expired,
 ):
-
     latest_observation = UnitLatestObservation.objects.create(
         observation=descriptive_observations[0],
         property=descriptive_property,

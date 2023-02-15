@@ -211,7 +211,6 @@ def _import_unit(
     target_srid,
     department_id_to_uuid,
 ):
-
     obj = syncher.get(info["id"])
     obj_changed = False
     obj_created = False
