@@ -29,11 +29,10 @@ COUNTER_START_YEARS = {
 
 
 class ImportState(models.Model):
-    current_year_number = models.PositiveSmallIntegerField(
-        default=ECO_COUNTER_START_YEAR
-    )
+    current_year_number = models.PositiveSmallIntegerField(null=True)
     current_month_number = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(12)], default=1
+        validators=[MinValueValidator(1), MaxValueValidator(12)],
+        null=True,  # , default=1
     )
     csv_data_source = models.CharField(
         max_length=2,
@@ -88,7 +87,7 @@ class Year(models.Model):
 
     @property
     def num_days(self):
-        return self.days.all().count()
+        return self.days.count()
 
     def __str__(self):
         return "%s" % (self.year_number)
@@ -108,7 +107,7 @@ class Month(models.Model):
 
     @property
     def num_days(self):
-        return self.days.all().count()
+        return self.days.count()
 
     def __str__(self):
         return "%s" % (self.month_number)
@@ -128,7 +127,7 @@ class Week(models.Model):
 
     @property
     def num_days(self):
-        return self.days.all().count()
+        return self.days.count()
 
     def __str__(self):
         return "%s" % (self.week_number)
