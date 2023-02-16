@@ -212,7 +212,7 @@ class SearchViewSet(GenericAPIView):
                 self.request.query_params["use_trigram"].lower().strip().split(",")
             )
         else:
-            use_trigram = "unit"
+            use_trigram = ""
 
         if "trigram_threshold" in params:
             try:
@@ -298,8 +298,8 @@ class SearchViewSet(GenericAPIView):
             else:
                 search_query_str = f"{q}:*"
 
-        # This is ~100 times faster than using Djangos SearchRank and allows searching using wildard "|*"
-        # and by rankig gives better results, e.g. extra fields weight is counted.
+        # This is ~100 times faster than using Djangos SearchRank and allows searching using wildcard "|*"
+        # and by ranking gives better results, e.g. extra fields weight is counted.
         sql = f"""
             SELECT * from (
                 SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
