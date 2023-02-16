@@ -501,9 +501,6 @@ class Command(BaseCommand):
 
     def save_values(self, values, dst_obj):
         for station_types in self.STATION_TYPES:
-            # setattr(dst_obj, f"value_{station_types[0]}", 0)
-            # setattr(dst_obj, f"value_{station_types[1]}", 0)
-            # setattr(dst_obj, f"value_{station_types[2]}", 0)
             setattr(dst_obj, f"value_{station_types[0]}", values[station_types[0]])
             setattr(dst_obj, f"value_{station_types[1]}", values[station_types[1]])
             setattr(
@@ -513,6 +510,23 @@ class Command(BaseCommand):
             )
         dst_obj.save()
 
+    def add_values(self, values, dst_obj):
+        for station_types in self.STATION_TYPES:
+            key = f"value_{station_types[0]}"
+            k_val = getattr(dst_obj, key) + values[station_types[0]]
+            setattr(dst_obj, key, k_val)
+            key = f"value_{station_types[1]}"
+            p_val = getattr(dst_obj, key) + values[station_types[1]]
+            setattr(dst_obj, key, p_val)
+            key = f"value_{station_types[2]}"
+            t_val = (
+                getattr(dst_obj, key)
+                + values[station_types[0]]
+                + values[station_types[1]]
+            )
+            setattr(dst_obj, key, t_val)
+        dst_obj.save()
+
     def get_values(self, sum_series, station_name):
         values = {}
         for type_dir in self.TYPE_DIRS:
@@ -520,19 +534,23 @@ class Command(BaseCommand):
             values[type_dir.lower()] = sum_series[key]
         return values
 
-    def save_years(self, df, stations):
+    def save_years(self, df, stations, start_time):
         # Save year data
+        # slice from current time.
+        # df = df.loc[str(start_time):]
         years = df.groupby(df.index.year)
         for index, row in years:
             sum_series = row.sum()
-            # breakpoint()
             for station in stations:
                 year, _ = Year.objects.get_or_create(station=station, year_number=index)
                 values = self.get_values(sum_series, station.name)
-                year_data, _ = YearData.objects.get_or_create(
+                year_data, created = YearData.objects.get_or_create(
                     year=year, station=station
                 )
+                # if created:
                 self.save_values(values, year_data)
+                # else:
+                #    self.add_values(values, year_data)
 
     def save_months(self, df, stations):
         # Save month data
@@ -541,7 +559,9 @@ class Command(BaseCommand):
             year_number, month_number = index
             sum_series = row.sum()
             for station in stations:
-                year = Year.objects.get(station=station, year_number=year_number)
+                year, _ = Year.objects.get_or_create(
+                    station=station, year_number=year_number
+                )
                 month, _ = Month.objects.get_or_create(
                     station=station, year=year, month_number=month_number
                 )
@@ -551,17 +571,52 @@ class Command(BaseCommand):
                 )
                 self.save_values(values, month_data)
 
+    def save_current_year(self, stations, year_number, end_month_number):
+
+        for station in stations:
+            year, _ = Year.objects.get_or_create(
+                station=station, year_number=year_number
+            )
+            year_data, _ = YearData.objects.get_or_create(station=station, year=year)
+
+            for station_types in self.STATION_TYPES:
+                setattr(year_data, f"value_{station_types[0]}", 0)
+                setattr(year_data, f"value_{station_types[1]}", 0)
+                setattr(year_data, f"value_{station_types[2]}", 0)
+
+            for month_number in range(1, end_month_number + 1):
+                month, _ = Month.objects.get_or_create(
+                    station=station, year=year, month_number=month_number
+                )
+                month_data, _ = MonthData.objects.get_or_create(
+                    station=station, month=month, year=year
+                )
+                for station_types in self.STATION_TYPES:
+                    for i in range(3):
+                        key = f"value_{station_types[i]}"
+                        m_val = getattr(month_data, key)
+                        y_val = getattr(year_data, key)
+                        setattr(year_data, key, m_val + y_val)
+            year_data.save()
+
     def save_weeks(self, df, stations):
         weeks = df.groupby([df.index.year, df.index.week])
+
         for index, row in weeks:
+            year_number, week_number = index
             sum_series = row.sum()
             for station in stations:
-                year_number, week_number = index
                 year = Year.objects.get(station=station, year_number=year_number)
                 week, _ = Week.objects.get_or_create(
-                    station=station, week_number=week_number
+                    station=station,
+                    week_number=week_number,
+                    years__year_number=year_number,
                 )
-                week.years.add(year)
+                # TODO add logic when to add year.
+                if week.years.count() == 0:
+
+                    week.years.add(year)
+
                 values = self.get_values(sum_series, station.name)
                 week_data, _ = WeekData.objects.get_or_create(
                     station=station, week=week
@@ -572,6 +627,7 @@ class Command(BaseCommand):
         days = df.groupby([df.index.year, df.index.month, df.index.week, df.index.day])
         for index, row in days:
             year_number, month_number, week_number, day_number = index
+
             date = datetime(year_number, month_number, day_number)
             sum_series = row.sum()
             for station in stations:
@@ -579,6 +635,7 @@ class Command(BaseCommand):
                 month = Month.objects.get(
                     station=station, year=year, month_number=month_number
                 )
+
                 week = Week.objects.get(
                     station=station, years=year, week_number=week_number
                 )
@@ -590,6 +647,8 @@ class Command(BaseCommand):
                     month=month,
                     week=week,
                 )
+                # if year_number==2021 and month_number==1:
+                #     breakpoint()
                 values = self.get_values(sum_series, station.name)
                 day_data, _ = DayData.objects.get_or_create(station=station, day=day)
                 self.save_values(values, day_data)
@@ -642,6 +701,8 @@ class Command(BaseCommand):
     def save_observations(
         self, csv_data, start_time, column_names, csv_data_source=ECO_COUNTER
     ):
+        import_state = ImportState.objects.get(csv_data_source=csv_data_source)
+        # breakpoint()
         # Populate stations dict, used to lookup station relations
         stations = [
             station
@@ -652,21 +713,25 @@ class Command(BaseCommand):
         df["Date"] = pd.to_datetime(df["startTime"], format="%Y-%m-%d %H:%M:%S")
         df = df.drop("startTime", axis=1)
         df = df.set_index("Date")
-        # TODO Fix negative numbers
         df = df.fillna(0)
+        # Test negative numbers to 0
         df = df.clip(lower=0)
-        self.save_years(df, stations)
+        if not import_state.current_year_number:
+            self.save_years(df, stations, start_time)
+
         self.save_months(df, stations)
+        if import_state.current_year_number:
+            end_month_number = df.index[-1].month
+            self.save_current_year(stations, start_time.year, end_month_number)
+
         self.save_weeks(df, stations)
         self.save_days(df, stations)
         self.save_hours(df, stations)
 
-        import_state = ImportState.objects.get(csv_data_source=csv_data_source)
         end_date = df.index[-1]
         import_state.current_year_number = end_date.year
         import_state.current_month_number = end_date.month
         import_state.save()
-        # breakpoint()
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -715,7 +780,7 @@ class Command(BaseCommand):
                 for counter in initial_import_counters:
                     import_state = ImportState.objects.create(
                         csv_data_source=counter,
-                        current_year_number=COUNTER_START_YEARS[counter],
+                        # current_year_number=COUNTER_START_YEARS[counter],
                     )
                     logger.info(f"Retrieving stations for {counter}.")
                     if counter == ECO_COUNTER:
@@ -733,10 +798,10 @@ class Command(BaseCommand):
             import_state, created = ImportState.objects.get_or_create(
                 csv_data_source=counter
             )
-            if created:
-                import_state.current_year_number = start_time.year
-                import_state.current_month_number = start_time.month
-                import_state.save()
+            # if created:
+            #     import_state.current_year_number = start_time.year
+            #     import_state.current_month_number = start_time.month
+            #     import_state.save()
             # if counter == ECO_COUNTER:
             #     save_eco_counter_stations()
             # elif counter == TRAFFIC_COUNTER:
