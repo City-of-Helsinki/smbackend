@@ -63,7 +63,7 @@ from .utils import (
     set_service_unit_count,
 )
 
-logger = logging.getLogger("search")
+logger = logging.getLogger("services.search")
 
 
 class RootServiceNodeSerializer(TranslatedModelSerializer, serializers.ModelSerializer):

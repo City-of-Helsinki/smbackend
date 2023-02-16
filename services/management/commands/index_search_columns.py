@@ -7,7 +7,7 @@ from munigeo.models import Address, AdministrativeDivision
 from services.models import Service, ServiceNode, Unit
 from services.search.utils import hyphenate
 
-logger = logging.getLogger("search")
+logger = logging.getLogger("services.management")
 
 
 def get_search_column(model, lang):

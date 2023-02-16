@@ -10,7 +10,7 @@ import requests
 from django.core.management.base import BaseCommand
 from munigeo.models import AdministrativeDivision, Municipality
 
-logger = logging.getLogger("import")
+logger = logging.getLogger("services.management")
 
 OCD_ID_STATISTICS_BASE = "ocd-division/country:fi/tilastoalue:"
 
