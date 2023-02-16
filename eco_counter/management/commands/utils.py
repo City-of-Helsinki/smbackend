@@ -283,15 +283,14 @@ def save_lam_counter_stations():
     for feature in data_layer:
         if feature["municipality"].as_string() in LAM_STATION_MUNICIPALITIES:
             station_obj = LAMStation(feature)
-            if Station.objects.filter(name=station_obj.name).exists():
-                continue
-            station = Station()
-            station.lam_id = station_obj.lam_id
-            station.name = station_obj.name
+            station, _ = Station.objects.get_or_create(
+                name=station_obj.name,
+                csv_data_source=LAM_COUNTER,
+                lam_id=station_obj.lam_id,
+                geom=station_obj.geom,
+            )
             station.name_sv = station_obj.name_sv
             station.name_en = station_obj.name_en
-            station.csv_data_source = LAM_COUNTER
-            station.geom = station_obj.geom
             station.save()
             saved += 1
     logger.info(f"Saved {saved} LAM Counter stations.")
@@ -358,20 +357,36 @@ def get_test_dataframe(counter):
     return pd.DataFrame(columns=TEST_COLUMN_NAMES[counter])
 
 
-def gen_eco_counter_test_csv(keys, start_time, end_time):
+# def gen_eco_counter_test_csv(keys, start_time, end_time):
+#     """
+#     Generates test data for a given timespan,
+#     for every row (15min) the value 1 is set.
+#     """
+#     df = pd.DataFrame(columns=keys)
+#     df.keys = keys
+#     cur_time = start_time
+#     c = 0
+#     while cur_time <= end_time:
+#         # Add value to all keys(sensor stations)
+#         vals = [1 for x in range(len(keys) - 1)]
+#         vals.insert(0, str(cur_time))
+#         df.loc[c] = vals
+#         cur_time = cur_time + timedelta(minutes=15)
+#         c += 1
+#     return df
+
+
+def gen_eco_counter_test_csv(
+    columns, start_time, end_time, time_stamp_column="startTime"
+):
     """
     Generates test data for a given timespan,
     for every row (15min) the value 1 is set.
     """
-    df = pd.DataFrame(columns=keys)
-    df.keys = keys
-    cur_time = start_time
-    c = 0
-    while cur_time <= end_time:
-        # Add value to all keys(sensor stations)
-        vals = [1 for x in range(len(keys) - 1)]
-        vals.insert(0, str(cur_time))
-        df.loc[c] = vals
-        cur_time = cur_time + timedelta(minutes=15)
-        c += 1
+    df = pd.DataFrame()
+    timestamps = pd.date_range(start=start_time, end=end_time, freq="15min")
+    for col in columns:
+        vals = [1 for i in range(len(timestamps))]
+        df.insert(0, col, vals)
+    df.insert(0, time_stamp_column, timestamps)
     return df
