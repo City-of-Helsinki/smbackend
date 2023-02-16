@@ -36,6 +36,7 @@ from services.api import (
 )
 from services.models import (
     Department,
+    ExclusionRule,
     Service,
     ServiceNode,
     Unit,
@@ -230,6 +231,14 @@ class SearchViewSet(GenericAPIView):
         else:
             rank_threshold = DEFAULT_RANK_THRESHOLD
 
+        if "use_websearch" in params:
+            try:
+                use_websearch = strtobool(params["use_websearch"])
+            except ValueError:
+                raise ParseError("'use_websearch' needs to be a boolean")
+        else:
+            use_websearch = True
+
         if "geometry" in params:
             try:
                 show_geometry = strtobool(params["geometry"])
@@ -284,7 +293,7 @@ class SearchViewSet(GenericAPIView):
         config_language = LANGUAGES[language_short]
         search_query_str = None  # Used in the raw sql
         # Build conditional query string that is used in the SQL query.
-        # split my "," or whitespace
+        # split by "," or whitespace
         q_vals = re.split(r",\s+|\s+", q_val)
         q_vals = [s.strip().replace("'", "") for s in q_vals]
         for q in q_vals:
@@ -298,12 +307,19 @@ class SearchViewSet(GenericAPIView):
             else:
                 search_query_str = f"{q}:*"
 
+        search_fn = "to_tsquery"
+        if use_websearch:
+            exclusions = self.get_search_exclusions(q)
+            if exclusions:
+                search_fn = "websearch_to_tsquery"
+                search_query_str += f" {exclusions}"
+
         # This is ~100 times faster than using Djangos SearchRank and allows searching using wildcard "|*"
         # and by ranking gives better results, e.g. extra fields weight is counted.
         sql = f"""
             SELECT * from (
                 SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
-                AS rank FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
+                AS rank FROM search_view, {search_fn}('{config_language}','{search_query_str}') search_query
                 WHERE search_query @@ search_column_{language_short}
                 ORDER BY rank DESC LIMIT {sql_query_limit}
             ) AS sub_query where sub_query.rank >= {rank_threshold};
@@ -314,6 +330,7 @@ class SearchViewSet(GenericAPIView):
         # Note, fetchall() consumes the results and once called returns None.
         all_results = cursor.fetchall()
         all_ids = get_all_ids_from_sql_results(all_results)
+
         unit_ids = all_ids["Unit"]
         service_ids = all_ids["Service"]
         service_node_ids = get_service_node_results(all_results)
@@ -496,3 +513,9 @@ class SearchViewSet(GenericAPIView):
             },
         )
         return self.get_paginated_response(serializer.data)
+
+    def get_search_exclusions(self, q):
+        rule = ExclusionRule.objects.filter(word__iexact=q).first()
+        if rule:
+            return rule.exclusion
+        return ""
