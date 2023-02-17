@@ -19,6 +19,8 @@ class MaintenanceUnit(models.Model):
 class MaintenanceWork(models.Model):
     geometry = models.GeometryField(srid=DEFAULT_SRID, null=True)
     events = ArrayField(models.CharField(max_length=64), default=list)
+    original_event_names = ArrayField(models.CharField(max_length=64), default=list)
+
     timestamp = models.DateTimeField()
     maintenance_unit = models.ForeignKey(
         "MaintenanceUnit",
