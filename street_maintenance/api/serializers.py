@@ -51,6 +51,7 @@ class MaintenanceWorkSerializer(serializers.ModelSerializer):
             "geometry",
             "timestamp",
             "events",
+            "original_event_names",
         ]
 
     def to_representation(self, obj):
