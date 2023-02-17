@@ -42,10 +42,13 @@ class Command(BaseImportCommand):
         )
 
     def create_kuntec_maintenance_works(self, history_size=None):
-        works = []
+        num_created = 0
         now = datetime.now()
         start = (now - timedelta(days=history_size)).strftime(TIMESTAMP_FORMATS[KUNTEC])
         end = now.strftime(TIMESTAMP_FORMATS[KUNTEC])
+        ids_to_delete = list(
+            MaintenanceUnit.objects.filter(provider=KUNTEC).values_list("id", flat=True)
+        )
         for unit in MaintenanceUnit.objects.filter(provider=KUNTEC):
             url = URLS[KUNTEC][WORKS].format(
                 key=KUNTEC_KEY, start=start, end=end, unit_id=unit.unit_id
@@ -57,6 +60,7 @@ class Command(BaseImportCommand):
                 for units in response.json()["data"]["units"]:
                     for route in units["routes"]:
                         events = []
+                        original_event_names = []
                         # Routes of type 'stop' are discarded.
                         if route["type"] == "route":
                             # Check for mapped events to include as works.
@@ -67,6 +71,7 @@ class Command(BaseImportCommand):
                                         # If mapping value is None, the event is not used.
                                         if e:
                                             events.append(e)
+                                            original_event_names.append(name)
                                 else:
                                     logger.warning(
                                         f"Found unmapped event: {event_name}"
@@ -86,22 +91,35 @@ class Command(BaseImportCommand):
                             if not geometry:
                                 continue
                             timestamp = route["start"]["time"]
-                            works.append(
-                                MaintenanceWork(
-                                    timestamp=timestamp,
-                                    maintenance_unit=unit,
-                                    events=events,
-                                    geometry=geometry,
-                                )
+
+                            obj, created = MaintenanceWork.get_or_create(
+                                timestamp=timestamp,
+                                maintenance_unit=unit,
+                                events=events,
+                                original_event_names=original_event_names,
+                                geometry=geometry,
                             )
-        MaintenanceWork.objects.bulk_create(works)
-        logger.info(f"Imported {len(works)} Kuntec maintenance works.")
-        return len(works)
+                            if obj.id in ids_to_delete:
+                                ids_to_delete.remove(obj.id)
+                            if created:
+                                num_created += 1
+
+        MaintenanceWork.objects.filter(id__in=ids_to_delete).delete()
+        num_works = MaintenanceWork.objects.filter(
+            maintenance_unit__provider=KUNTEC
+        ).count()
+        logger.info(
+            f"Deleted {len(ids_to_delete)} obsolete Works for provider {KUNTEC}"
+        )
+        logger.info(
+            f"Created {num_created} Works of total {num_works} Works for provider {KUNTEC}."
+        )
+        return num_created
 
     def handle(self, *args, **options):
         super().__init__()
         assert settings.KUNTEC_KEY, "KUNTEC_KEY not found in environment."
-        MaintenanceUnit.objects.filter(provider=KUNTEC).delete()
+        MaintenanceWork.objects.filter(maintenance_unit__provider=KUNTEC).delete()
         history_size = KUNTEC_DEFAULT_WORKS_HISTORY_SIZE
         if options["history_size"]:
             history_size = int(options["history_size"][0])
