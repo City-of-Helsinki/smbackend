@@ -228,7 +228,8 @@ def get_linestring_in_boundary(linestring, boundary):
 
 def create_maintenance_works(provider, history_size, fetch_size):
     turku_boundary = get_turku_boundary()
-    works = []
+    num_created = 0
+
     import_from_date_time = datetime.now() - timedelta(days=history_size)
     import_from_date_time = import_from_date_time.replace(
         tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki")
@@ -242,6 +243,11 @@ def create_maintenance_works(provider, history_size, fetch_size):
         else:
             logger.warning(f"Location history not found for unit: {unit.unit_id}")
             continue
+        ids_to_delete = list(
+            MaintenanceUnit.objects.filter(provider=provider).values_list(
+                "id", flat=True
+            )
+        )
         for work in json_data:
 
             timestamp = datetime.strptime(
@@ -259,6 +265,7 @@ def create_maintenance_works(provider, history_size, fetch_size):
                 continue
 
             events = []
+            original_event_names = []
             for event in work["events"]:
                 event_name = event.lower()
                 if event_name in EVENT_MAPPINGS:
@@ -266,23 +273,32 @@ def create_maintenance_works(provider, history_size, fetch_size):
                         # If mapping value is None, the event is not used.
                         if e:
                             events.append(e)
+                            original_event_names.append(event)
                 else:
                     logger.warning(f"Found unmapped event: {event}")
             # If no events found discard the work
             if len(events) == 0:
                 continue
-            works.append(
-                MaintenanceWork(
-                    timestamp=timestamp,
-                    maintenance_unit=unit,
-                    geometry=point,
-                    events=events,
-                    original_event_names=work["events"],
-                )
+            obj, created = MaintenanceWork.objects.get_or_create(
+                timestamp=timestamp,
+                maintenance_unit=unit,
+                geometry=point,
+                events=events,
+                original_event_names=original_event_names,
             )
-    MaintenanceWork.objects.bulk_create(works)
-    logger.info(f"Imported {len(works)} {provider} mainetance works.")
-    return len(works)
+            if obj.id in ids_to_delete:
+                ids_to_delete.remove(obj.id)
+            if created:
+                num_created += 1
+    MaintenanceWork.objects.filter(id__in=ids_to_delete).delete()
+    num_works = MaintenanceWork.objects.filter(
+        maintenance_unit__provider=provider
+    ).count()
+    logger.info(f"Deleted {len(ids_to_delete)} obsolete Works for provider {provider}")
+    logger.info(
+        f"Created {num_created} Works of total {num_works} Works for provider {provider}."
+    )
+    return num_created
 
 
 def create_maintenance_units(provider):
@@ -312,7 +328,7 @@ def create_maintenance_units(provider):
     num_units = MaintenanceUnit.objects.filter(provider=provider).count()
     logger.info(f"Deleted {len(ids_to_delete)} obsolete Units for provider {provider}")
     logger.info(
-        f"Created {num_created} units of total {num_units} units for provied {provider}."
+        f"Created {num_created} units of total {num_units} units for provider {provider}."
     )
     return num_units
 
@@ -391,7 +407,7 @@ def create_kuntec_maintenance_units():
     )
     num_units = MaintenanceUnit.objects.filter(provider=KUNTEC).count()
     logger.info(
-        f"Created {num_created} units of total {num_units} units for provied {KUNTEC}."
+        f"Created {num_created} units of total {num_units} units for provider {KUNTEC}."
     )
 
 
@@ -421,7 +437,7 @@ def create_yit_maintenance_units(access_token):
     logger.info(f"Deleted {len(ids_to_delete)} obsolete Units for provider {YIT}")
     num_units = MaintenanceUnit.objects.filter(provider=YIT).count()
     logger.info(
-        f"Created {num_created} units of total {num_units} units for provied {YIT}."
+        f"Created {num_created} units of total {num_units} units for provider {YIT}."
     )
 
 
