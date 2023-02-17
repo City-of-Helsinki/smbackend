@@ -1,6 +1,6 @@
 import logging
 
-from street_maintenance.models import MaintenanceUnit
+from street_maintenance.models import MaintenanceWork
 
 from .base_import_command import BaseImportCommand
 from .constants import (
@@ -41,7 +41,7 @@ class Command(BaseImportCommand):
 
     def handle(self, *args, **options):
         super().__init__()
-        MaintenanceUnit.objects.filter(provider=DESTIA).delete()
+        MaintenanceWork.objects.filter(maintenance_unit__provider=DESTIA).delete()
         if options["history_size"]:
             history_size = options["history_size"][0]
         else:
