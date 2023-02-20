@@ -4,28 +4,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.timezone import now
 
-TRAFFIC_COUNTER_START_YEAR = 2015
-# Manually define the end year, as the source data comes from the page
-# defined in env variable TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL.
-# Change end year when data for the next year is available.
-TRAFFIC_COUNTER_END_YEAR = 2022
-ECO_COUNTER_START_YEAR = 2020
-LAM_COUNTER_START_YEAR = 2010
-
-
-TRAFFIC_COUNTER = "TC"
-ECO_COUNTER = "EC"
-LAM_COUNTER = "LC"
-CSV_DATA_SOURCES = (
-    (TRAFFIC_COUNTER, "TrafficCounter"),
-    (ECO_COUNTER, "EcoCounter"),
-    (LAM_COUNTER, "LamCounter"),
-)
-COUNTER_START_YEARS = {
-    ECO_COUNTER: ECO_COUNTER_START_YEAR,
-    TRAFFIC_COUNTER: TRAFFIC_COUNTER_START_YEAR,
-    LAM_COUNTER: LAM_COUNTER_START_YEAR,
-}
+from eco_counter.constants import CSV_DATA_SOURCES, ECO_COUNTER
 
 
 class ImportState(models.Model):
