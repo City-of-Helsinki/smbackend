@@ -10,14 +10,14 @@ from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry, Point
 
-from eco_counter.models import (
+from eco_counter.constants import (
     ECO_COUNTER,
     LAM_COUNTER,
-    Station,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_END_YEAR,
     TRAFFIC_COUNTER_START_YEAR,
 )
+from eco_counter.models import Station
 from eco_counter.tests.test_import_counter_data import TEST_COLUMN_NAMES
 from mobility_data.importers.utils import get_root_dir
 
