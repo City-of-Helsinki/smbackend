@@ -70,7 +70,12 @@ def group_type():
 @pytest.fixture
 def mobile_units(content_types):
     mobile_units = []
-    extra = {"test_int": 4242, "test_float": 42.42, "test_string": "4242"}
+    extra = {
+        "test_int": 4242,
+        "test_float": 42.42,
+        "test_string": "4242",
+        "test_bool": False,
+    }
     geometry = Point(22.21, 60.3, srid=4326)
     geometry.transform(settings.DEFAULT_SRID)
     mobile_unit = MobileUnit.objects.create(
@@ -81,10 +86,17 @@ def mobile_units(content_types):
     )
     mobile_unit.content_types.add(content_types[0])
     mobile_units.append(mobile_units)
+    extra = {
+        "test_int": 14,
+        "test_float": 2.4,
+        "test_string": "hello",
+        "test_bool": True,
+    }
     mobile_unit = MobileUnit.objects.create(
         name="Test2 mobileunit",
         description="Test2 description",
         geometry=Point(43.43, 22.22, srid=settings.DEFAULT_SRID),
+        extra=extra,
     )
     mobile_unit.content_types.add(content_types[0])
     mobile_unit.content_types.add(content_types[1])

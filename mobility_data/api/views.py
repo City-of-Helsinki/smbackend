@@ -224,10 +224,14 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
                             f"extra field '{key}' does not exist",
                             status=status.HTTP_400_BAD_REQUEST,
                         )
+
                     if field_type == float:
                         value = float(value)
                     elif field_type == int:
                         value = int(value)
+                    elif field_type == bool:
+                        value = strtobool(value)
+                        value = bool(value)
                     queryset = queryset.filter(**{filter: value})
 
         page = self.paginate_queryset(queryset)
