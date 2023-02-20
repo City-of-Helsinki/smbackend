@@ -275,7 +275,7 @@ class Command(BaseCommand):
                 year_number, month_number, day_number, _ = index
                 if day_number % 20 == 0:
                     logger.info(
-                        f"Saved hour data for {day_number-1} {day_number} days of year {year_number}"
+                        f"Saved hour data for {day_number-1} days of year {year_number}"
                     )
                 if not prev_day:
                     prev_day = day_number
@@ -417,7 +417,6 @@ class Command(BaseCommand):
             csv_data = gen_eco_counter_test_csv(
                 test_dataframe.keys(), start_time, end_time
             )
-            breakpoint()
             self.save_observations(
                 csv_data,
                 start_time,
@@ -476,7 +475,6 @@ class Command(BaseCommand):
                 self.save_observations(
                     csv_data,
                     start_time,
-                    # csv_data.keys(),
                     csv_data_source=counter,
                 )
                 # Try to Free memory
