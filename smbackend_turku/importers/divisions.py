@@ -46,9 +46,7 @@ class DivisionImporter:
         self.muni_data_path = "data"
 
     def _import_division(self, muni, div, type_obj, syncher, parent_dict, feat):
-        check_turku_boundary = True
-        if "check_turku_boundary" in div:
-            check_turku_boundary = div["check_turku_boundary"]
+        check_turku_boundary = div.get("check_turku_boundary", True)
         geom = feat.geom
         if not geom.srid:
             geom.srid = SOURCE_DATA_SRID
