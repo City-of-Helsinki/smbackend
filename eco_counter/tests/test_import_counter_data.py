@@ -11,64 +11,31 @@ from io import StringIO
 
 import dateutil.parser
 import pytest
-from django.contrib.gis.geos import Point
 from django.core.management import call_command
 
+from eco_counter.constants import ECO_COUNTER, LAM_COUNTER, TRAFFIC_COUNTER
 from eco_counter.models import (
     Day,
     DayData,
-    ECO_COUNTER,
     HourData,
     ImportState,
-    LAM_COUNTER,
     Month,
     MonthData,
     Station,
-    TRAFFIC_COUNTER,
     Week,
     WeekData,
     Year,
     YearData,
 )
 
-TEST_EC_STATION_NAME = "Auransilta"
-TEST_TC_STATION_NAME = "Myllysilta"
-TEST_LC_STATION_NAME = "Tie 8 Raisio"
-ECO_COUNTER_TEST_COLUMN_NAMES = [
-    "Auransilta AK",
-    "Auransilta AP",
-    "Auransilta JK",
-    "Auransilta JP",
-    "Auransilta PK",
-    "Auransilta PP",
-    "Auransilta BK",
-    "Auransilta BP",
-]
-
-TRAFFIC_COUNTER_TEST_COLUMN_NAMES = [
-    "Myllysilta AK",
-    "Myllysilta AP",
-    "Myllysilta PK",
-    "Myllysilta PP",
-    "Myllysilta JK",
-    "Myllysilta JP",
-    "Myllysilta BK",
-    "Myllysilta BP",
-    "Kalevantie 65 BK",
-    "Kalevantie 65 BP",
-    "Hämeentie 18 PK",
-]
-
-LAM_COUNTER_TEST_COLUMN_NAMES = [
-    "Tie 8 Raisio AP",
-    "Tie 8 Raisio AK",
-    "Tie 8 Raisio PP",
-    "Tie 8 Raisio PK",
-    "Tie 8 Raisio JP",
-    "Tie 8 Raisio JK",
-    "Tie 8 Raisio BP",
-    "Tie 8 Raisio BK",
-]
+from .constants import (
+    ECO_COUNTER_TEST_COLUMN_NAMES,
+    LAM_COUNTER_TEST_COLUMN_NAMES,
+    TEST_EC_STATION_NAME,
+    TEST_LC_STATION_NAME,
+    TEST_TC_STATION_NAME,
+    TRAFFIC_COUNTER_TEST_COLUMN_NAMES,
+)
 
 TEST_COLUMN_NAMES = {
     ECO_COUNTER: ECO_COUNTER_TEST_COLUMN_NAMES,
@@ -91,19 +58,14 @@ def import_command(*args, **kwargs):
 
 @pytest.mark.test_import_counter_data
 @pytest.mark.django_db
-def test_import_counter_data():
+def test_import_eco_counter_data(stations):
     """
     In test data, for every 15min the value 1 is set, so the sum for an hour is 4.
     For a day the sum is 96(24*4) and for a week 682(96*7).
     The month sum depends on how  many days the month has,~3000
-    1.1.2020 is used as the starting point thus it is the same
-    starting point as in the real data.
+    1.1.2020 is used as the starting point.
     """
-    Station.objects.create(name="Auransilta", geom=Point(0, 0))
 
-    # for name in ECO_COUNTER_TEST_COLUMN_NAMES:
-    #     if name not in "startTime":
-    #         Station.objects.create(name=name, geom=Point(0,0))
     start_time = dateutil.parser.parse("2020-01-01T00:00")
     end_time = dateutil.parser.parse("2020-02-29T23:45")
     import_command(test_counter=(ECO_COUNTER, start_time, end_time))
@@ -142,7 +104,6 @@ def test_import_counter_data():
     assert day.weekday_number == 0  # First day in week 2 in 2020 is monday
 
     # Test week data
-
     week_data = WeekData.objects.filter(
         week__week_number=1, station__name=TEST_EC_STATION_NAME
     )[0]
@@ -251,9 +212,6 @@ def test_import_counter_data():
     assert year_data.value_pp == (
         jan_month_days * 96 + feb_month_days * 96 + mar_month_days * 96
     )
-    # Test the day has 24hours stored even though in reality it has 23hours.
-    # assert len(HourData.objects.get(day_id=day.id).values_ak) == 24
-
     # Test new year and daylight saving change to "winter time".
     start_time = dateutil.parser.parse("2021-10-01T00:00")
     end_time = dateutil.parser.parse("2021-10-31T23:45")
@@ -317,7 +275,6 @@ def test_import_counter_data():
     start_time = dateutil.parser.parse("2020-12-26T00:00")
     end_time = dateutil.parser.parse("2021-01-17T23:45")
     import_command(test_counter=(ECO_COUNTER, start_time, end_time))
-
     weeks = Week.objects.filter(week_number=53, years__year_number=2020)
     assert len(weeks) == num_ec_stations
     # 4 days in 2020
@@ -327,12 +284,17 @@ def test_import_counter_data():
     assert weeks[0].days.count() == 3
     weeks = Week.objects.filter(week_number=1, years__year_number=2021)
     assert len(weeks) == num_ec_stations
-
     assert weeks[0].days.count() == 7
     weeks = Week.objects.filter(week_number=2, years__year_number=2021)
     assert len(weeks) == num_ec_stations
     assert weeks[0].days.count() == 7
+    # Test that exacly one year object is created for every station in 2020
+    assert Year.objects.filter(year_number=2020).count() == num_ec_stations
 
+
+@pytest.mark.test_import_counter_data
+@pytest.mark.django_db
+def test_import_traffic_counter_data(stations):
     # Test importing of Traffic Counter
     start_time = dateutil.parser.parse("2020-01-01T00:00")
     end_time = dateutil.parser.parse("2020-02-29T23:45")
@@ -342,7 +304,6 @@ def test_import_counter_data():
     assert state.current_year_number == 2020
     assert state.current_month_number == 2
     test_station = Station.objects.get(name=TEST_TC_STATION_NAME)
-    assert test_station
     hour_data = HourData.objects.get(
         station__name=TEST_TC_STATION_NAME, day__date=start_time
     )
@@ -389,6 +350,7 @@ def test_import_counter_data():
     month = Month.objects.get(
         station__name=TEST_TC_STATION_NAME, month_number=2, year__year_number=2020
     )
+
     num_month_days = month.days.count()
     feb_month_days = calendar.monthrange(month.year.year_number, month.month_number)[1]
     assert num_month_days == feb_month_days
@@ -397,6 +359,8 @@ def test_import_counter_data():
     assert month_data.value_pk == feb_month_days * 96
     assert month_data.value_pt == feb_month_days * 96 * 2
     # Test traffic counter year data
+    jan_month_days = calendar.monthrange(month.year.year_number, month.month_number)[1]
+
     year_data = YearData.objects.get(
         station__name=TEST_TC_STATION_NAME, year__year_number=2020
     )
@@ -490,8 +454,7 @@ def test_import_counter_data():
         == 1
     )
 
-    # Test that exacly one year object is created for every station in 2020
     assert (
         Year.objects.filter(year_number=2020).count()
-        == num_ec_stations + num_tc_stations + num_lc_stations
+        == num_tc_stations + num_lc_stations
     )
