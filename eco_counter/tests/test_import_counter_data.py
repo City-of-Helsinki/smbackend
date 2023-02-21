@@ -303,7 +303,6 @@ def test_import_traffic_counter_data(stations):
     state = ImportState.objects.get(csv_data_source=TRAFFIC_COUNTER)
     assert state.current_year_number == 2020
     assert state.current_month_number == 2
-    test_station = Station.objects.get(name=TEST_TC_STATION_NAME)
     hour_data = HourData.objects.get(
         station__name=TEST_TC_STATION_NAME, day__date=start_time
     )
@@ -347,20 +346,25 @@ def test_import_traffic_counter_data(stations):
     assert week_data.value_bk == 672  # 96*7
     assert week_data.value_bt == 672 * 2
     # Test traffic counter month data
-    month = Month.objects.get(
+    feb_month = Month.objects.get(
         station__name=TEST_TC_STATION_NAME, month_number=2, year__year_number=2020
     )
-
-    num_month_days = month.days.count()
-    feb_month_days = calendar.monthrange(month.year.year_number, month.month_number)[1]
+    num_month_days = feb_month.days.count()
+    feb_month_days = calendar.monthrange(
+        feb_month.year.year_number, feb_month.month_number
+    )[1]
     assert num_month_days == feb_month_days
-    month_data = MonthData.objects.get(month=month)
+    month_data = MonthData.objects.get(month=feb_month)
     assert month_data.value_pp == feb_month_days * 96
     assert month_data.value_pk == feb_month_days * 96
     assert month_data.value_pt == feb_month_days * 96 * 2
     # Test traffic counter year data
-    jan_month_days = calendar.monthrange(month.year.year_number, month.month_number)[1]
-
+    jan_month = Month.objects.get(
+        station__name=TEST_TC_STATION_NAME, month_number=1, year__year_number=2020
+    )
+    jan_month_days = calendar.monthrange(
+        jan_month.year.year_number, jan_month.month_number
+    )[1]
     year_data = YearData.objects.get(
         station__name=TEST_TC_STATION_NAME, year__year_number=2020
     )
