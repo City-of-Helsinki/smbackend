@@ -13,50 +13,19 @@ from django.contrib.gis.geos import GEOSGeometry, Point
 from eco_counter.constants import (
     ECO_COUNTER,
     LAM_COUNTER,
+    LAM_STATION_MUNICIPALITIES,
+    LAM_STATIONS_API_FETCH_URL,
+    LAM_STATIONS_DIRECTION_MAPPINGS,
+    TIMESTAMP_COL_NAME,
     TRAFFIC_COUNTER,
-    TRAFFIC_COUNTER_END_YEAR,
-    TRAFFIC_COUNTER_START_YEAR,
+    TRAFFIC_COUNTER_CSV_URLS,
+    TRAFFIC_COUNTER_METADATA_GEOJSON,
 )
 from eco_counter.models import Station
 from eco_counter.tests.test_import_counter_data import TEST_COLUMN_NAMES
 from mobility_data.importers.utils import get_root_dir
 
 logger = logging.getLogger("eco_counter")
-TIMESTAMP_COL_NAME = "startTime"
-TRAFFIC_COUNTER_METADATA_GEOJSON = "traffic_counter_metadata.geojson"
-# LAM stations located in the municipalities list are included.
-LAM_STATION_MUNICIPALITIES = ["Turku", "Raisio", "Kaarina", "Lieto"]
-
-LAM_STATIONS_API_FETCH_URL = (
-    settings.LAM_COUNTER_API_BASE_URL
-    + "?api=liikennemaara&tyyppi=h&pvm={start_date}&loppu={end_date}"
-    + "&lam_type=option1&piste={id}&luokka=kaikki&suunta={direction}&sisallytakaistat=0"
-)
-LAM_STATIONS_DIRECTION_MAPPINGS = {
-    "1_Piikkiö": "P",
-    "1_Naantali": "P",
-    "2_Naantali": "K",
-    "1_Turku": "K",
-    "2_Turku": "K",
-    "2_Helsinki": "P",
-    "1_Suikkila.": "K",
-    "2_Artukainen.": "P",
-    "1_Vaasa": "P",
-    "1_Kuusisto": "P",
-    "2_Kaarina": "K",
-    "1_Tampere": "P",
-    "1_Hämeenlinna": "P",
-}
-
-keys = [k for k in range(TRAFFIC_COUNTER_START_YEAR, TRAFFIC_COUNTER_END_YEAR + 1)]
-# Create a dict where the years to be importer are keys and the value is the url of the csv data.
-# e.g. {2015, "https://data.turku.fi/2yxpk2imqi2mzxpa6e6knq/2015_laskenta_juha.csv"}
-TRAFFIC_COUNTER_CSV_URLS = dict(
-    [
-        (k, f"{settings.TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL}{k}_laskenta_juha.csv")
-        for k in keys
-    ]
-)
 
 
 class LAMStation:
