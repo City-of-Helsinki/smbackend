@@ -1,26 +1,6 @@
 """
 Usage:
 see README.md
-
-Brief explanation of the import alogithm:
-1. Import the stations.
-2. Read the csv file as a pandas DataFrame.
-3. Reads the year and month from the ImportState.
-4. Set the import to start from that year and month, the import always begins
- from the first day and time 00:00:00 of the month in state, i.e. the longest
- timespan that is imported is one month and the shortest is 15min, depending
- on the import state.
-5. Delete tables(HourData, Day, DayData and Week) that will be repopulated. *
-6. Set the current state to state variables: current_years, currents_months,
- current_weeks, these dictionaries holds references to the model instances.
- Every station has its own state variables and the key is the name of the station.
-9. Finally store all data in states that has not been saved.
-10. Save import state.
-
-* If executed with the --init-tables flag, the imports will start from the beginning
-of the .csv file, 1.1.2020. for the eco counter , 1.1.2015 for the traffic counter and
-1.1.2010 for the lam counter.
-
 """
 
 import gc
@@ -147,6 +127,7 @@ class Command(BaseCommand):
         return values
 
     def save_years(self, df, stations):
+        logger.info("Saving years...")
         years = df.groupby(df.index.year)
         for index, row in years:
             logger.info(f"Saving year {index}")
@@ -160,7 +141,7 @@ class Command(BaseCommand):
                 self.save_values(values, year_data)
 
     def save_months(self, df, stations):
-        # Save month data
+        logger.info("Saving months...")
         months = df.groupby([df.index.year, df.index.month])
         for index, row in months:
             year_number, month_number = index
@@ -186,12 +167,10 @@ class Command(BaseCommand):
                 station=station, year_number=year_number
             )
             year_data, _ = YearData.objects.get_or_create(station=station, year=year)
-
             for station_types in self.STATION_TYPES:
                 setattr(year_data, f"value_{station_types[0]}", 0)
                 setattr(year_data, f"value_{station_types[1]}", 0)
                 setattr(year_data, f"value_{station_types[2]}", 0)
-
             for month_number in range(1, end_month_number + 1):
                 month, _ = Month.objects.get_or_create(
                     station=station, year=year, month_number=month_number
@@ -208,11 +187,11 @@ class Command(BaseCommand):
             year_data.save()
 
     def save_weeks(self, df, stations):
-
+        logger.info("Saving weeks...")
         weeks = df.groupby([df.index.year, df.index.isocalendar().week])
         for index, row in weeks:
             year_number, week_number = index
-            logger.info(f"Saving week {week_number} of year {year_number}")
+            logger.info(f"Saving week number {week_number} of year {year_number}")
             sum_series = row.sum()
             for station in stations:
                 year = Year.objects.get(station=station, year_number=year_number)
@@ -231,14 +210,14 @@ class Command(BaseCommand):
                 self.save_values(values, week_data)
 
     def save_days(self, df, stations):
+        logger.info("Saving days...")
         days = df.groupby(
             [df.index.year, df.index.month, df.index.isocalendar().week, df.index.day]
         )
-        logger.info("Saving days")
+        prev_week_number = None
         for index, row in days:
             year_number, month_number, week_number, day_number = index
-            if day_number % 20 == 0:
-                logger.info(f"Saved {day_number-1} days of year {year_number}")
+
             date = datetime(year_number, month_number, day_number)
             sum_series = row.sum()
             for station in stations:
@@ -246,7 +225,6 @@ class Command(BaseCommand):
                 month = Month.objects.get(
                     station=station, year=year, month_number=month_number
                 )
-
                 week = Week.objects.get(
                     station=station, years=year, week_number=week_number
                 )
@@ -258,34 +236,36 @@ class Command(BaseCommand):
                     month=month,
                     week=week,
                 )
-
                 values = self.get_values(sum_series, station.name)
                 day_data, _ = DayData.objects.get_or_create(station=station, day=day)
                 self.save_values(values, day_data)
+            if not prev_week_number or prev_week_number != week_number:
+                prev_week_number = week_number
+                logger.info(f"Saved days for week {week_number} of year {year_number}")
 
     def save_hours(self, df, stations):
-        # Save hour data
+        logger.info("Saving hours...")
         hours = df.groupby([df.index.year, df.index.month, df.index.day, df.index.hour])
-        for station in stations:
-            prev_day = None
-            prev_month = None
+        for i_station, station in enumerate(stations):
+            prev_day_number = None
+            prev_month_number = None
             values = {k: [] for k in self.ALL_TYPE_DIRS}
             for index, row in hours:
                 sum_series = row.sum()
                 year_number, month_number, day_number, _ = index
-                if day_number % 20 == 0:
-                    logger.info(
-                        f"Saved hour data for {day_number-1} days of year {year_number}"
-                    )
-                if not prev_day:
-                    prev_day = day_number
-                if not prev_month:
-                    prev_month = month_number
-                if day_number != prev_day or month_number != prev_month:
-                    if month_number != prev_month:
-                        prev_day = day_number
+                if not prev_day_number:
+                    prev_day_number = day_number
+                if not prev_month_number:
+                    prev_month_number = month_number
+
+                if day_number != prev_day_number or month_number != prev_month_number:
+                    """
+                    If day or month changed. Save the hours for the day and clear the values dict.
+                    """
+                    if month_number != prev_month_number:
+                        prev_day_number = day_number
                     day = Day.objects.get(
-                        date=datetime(year_number, month_number, prev_day),
+                        date=datetime(year_number, month_number, prev_day_number),
                         station=station,
                     )
                     hour_data, _ = HourData.objects.get_or_create(
@@ -295,9 +275,15 @@ class Command(BaseCommand):
                         setattr(hour_data, f"values_{td.lower()}", values[td])
                     hour_data.save()
                     values = {k: [] for k in self.ALL_TYPE_DIRS}
-                    prev_day = day_number
-                    prev_month = month_number
+                    # output logger only when last station is saved
+                    if i_station == len(stations) - 1:
+                        logger.info(
+                            f"Saved hour data for day {prev_day_number}, month {prev_month_number} year {year_number}"
+                        )
+                    prev_day_number = day_number
+                    prev_month_number = month_number
                 else:
+                    # Add data to values dict for an hour
                     for station_types in self.STATION_TYPES:
                         for i in range(3):
                             if i < 2:
@@ -309,9 +295,9 @@ class Command(BaseCommand):
                                 val = sum_series.get(p_key, 0) + sum_series.get(
                                     k_key, 0
                                 )
-
                             values_key = station_types[i].upper()
                             values[values_key].append(val)
+        breakpoint()
 
     def save_observations(self, csv_data, start_time, csv_data_source=ECO_COUNTER):
         import_state = ImportState.objects.get(csv_data_source=csv_data_source)
@@ -320,15 +306,15 @@ class Command(BaseCommand):
             station
             for station in Station.objects.filter(csv_data_source=csv_data_source)
         ]
-
         df = csv_data
         df["Date"] = pd.to_datetime(df["startTime"], format="%Y-%m-%dT%H:%M")
         df = df.drop("startTime", axis=1)
         df = df.set_index("Date")
+        # Fill missing cells with the value 0
         df = df.fillna(0)
         # Set negative numbers to 0
         df = df.clip(lower=0)
-
+        # Set values higher than ERRORNEOUS_VALUES_THRESHOLD to 0
         df[df > ERRORNEOUS_VALUE_THRESHOLD] = 0
         if not import_state.current_year_number:
             self.save_years(df, stations)
@@ -340,12 +326,10 @@ class Command(BaseCommand):
         self.save_weeks(df, stations)
         self.save_days(df, stations)
         self.save_hours(df, stations)
-
         end_date = df.index[-1]
         import_state.current_year_number = end_date.year
         import_state.current_month_number = end_date.month
         import_state.save()
-
         logger.info(f"Imported observations until:{str(end_date)}")
 
     def add_arguments(self, parser):
@@ -436,17 +420,6 @@ class Command(BaseCommand):
                 import_state = ImportState.objects.filter(
                     csv_data_source=counter
                 ).first()
-                if counter == LAM_COUNTER:
-                    if not import_state.current_year_number:
-                        start_time = f"{COUNTER_START_YEARS[counter]}-01-01"
-                    csv_data = get_lam_counter_csv(start_time)
-                elif counter == ECO_COUNTER:
-                    csv_data = get_eco_counter_csv()
-                elif counter == TRAFFIC_COUNTER:
-                    csv_data = get_traffic_counter_csv(
-                        start_year=import_state.current_year_number
-                    )
-                # If state override start_time
                 if (
                     import_state.current_year_number
                     and import_state.current_month_number
@@ -455,11 +428,24 @@ class Command(BaseCommand):
                         year=import_state.current_year_number,
                         month=import_state.current_month_number,
                     )
+                else:
+                    start_time = f"{COUNTER_START_YEARS[counter]}-01-01"
+
                 start_time = dateutil.parser.parse(start_time)
                 start_time = self.TIMEZONE.localize(start_time)
                 # The timeformat for the input data is : 2020-03-01T00:00
                 # Convert starting time to input datas timeformat
                 start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")
+
+                if counter == LAM_COUNTER:
+                    csv_data = get_lam_counter_csv(start_time.date())
+                elif counter == ECO_COUNTER:
+                    csv_data = get_eco_counter_csv()
+                elif counter == TRAFFIC_COUNTER:
+                    csv_data = get_traffic_counter_csv(
+                        start_year=import_state.current_year_number
+                    )
+
                 start_index = csv_data.index[
                     csv_data[TIMESTAMP_COL_NAME] == start_time_string
                 ].values[0]
@@ -467,7 +453,6 @@ class Command(BaseCommand):
                 # show time.
                 if counter == LAM_COUNTER:
                     logger.info(f"Starting saving observations at time:{start_time}")
-
                 else:
                     logger.info(f"Starting saving observations at index:{start_index}")
 
