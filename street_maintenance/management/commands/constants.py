@@ -131,6 +131,7 @@ EVENT_MAPPINGS = {
     "liikennemerkkien puhdistus": [MUUT],
     "siirtoajo": [MUUT],
     "Kelintarkastus": [MUUT],
+    "Sulamisvesien hallinta / höyrytys": [MUUT],
 }
 TIMESTAMP_FORMATS = {
     INFRAROAD: "%Y-%m-%d %H:%M:%S",
