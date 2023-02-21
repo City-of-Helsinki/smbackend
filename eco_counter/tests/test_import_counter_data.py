@@ -367,6 +367,12 @@ def test_import_traffic_counter_data(stations):
     assert year_data.value_bk == (jan_month_days + feb_month_days) * 24 * 4
     assert year_data.value_bp == (jan_month_days + feb_month_days) * 24 * 4
     assert year_data.value_bt == (jan_month_days + feb_month_days) * 24 * 4 * 2
+    assert Year.objects.filter(year_number=2020).count() == num_tc_stations
+
+
+@pytest.mark.test_import_counter_data
+@pytest.mark.django_db
+def test_import_lam_counter_data(stations):
     # Test lam counter data and year change
     start_time = dateutil.parser.parse("2019-12-01T00:00")
     end_time = dateutil.parser.parse("2020-01-31T23:45")
@@ -394,8 +400,8 @@ def test_import_traffic_counter_data(stations):
     assert hour_data.values_bk == res
     assert hour_data.values_bp == res
     assert hour_data.values_bt == res_tot
-    # 2019 December 2019 has 5 weeks and January 2020 has 5 week = 10 weeks
-    assert Week.objects.filter(station__name=TEST_LC_STATION_NAME).count() == 10
+    # 2019 December 2019 has 6 weeks(48,49,50,51,52 and 1) and January 2020 has 5 week = 11 weeks
+    assert Week.objects.filter(station__name=TEST_LC_STATION_NAME).count() == 11
     # 5 days of week 5 in 2020 is imported, e.g. 4*24*5 = 480
     assert (
         WeekData.objects.filter(station__name=TEST_LC_STATION_NAME, week__week_number=5)
@@ -453,8 +459,4 @@ def test_import_traffic_counter_data(stations):
         ).count()
         == 1
     )
-
-    assert (
-        Year.objects.filter(year_number=2020).count()
-        == num_tc_stations + num_lc_stations
-    )
+    assert Year.objects.filter(year_number=2020).count() == num_lc_stations
