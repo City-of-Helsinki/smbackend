@@ -1,7 +1,5 @@
 import logging
 
-from street_maintenance.models import MaintenanceUnit
-
 from .base_import_command import BaseImportCommand
 from .constants import (
     INFRAROAD,
@@ -42,7 +40,6 @@ class Command(BaseImportCommand):
 
     def handle(self, *args, **options):
         super().__init__()
-        MaintenanceUnit.objects.filter(provider=INFRAROAD).delete()
         if options["history_size"]:
             history_size = options["history_size"][0]
         else:

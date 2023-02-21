@@ -45,7 +45,10 @@ class Command(BaseImportCommand):
         list_of_events = get_yit_event_types(access_token)
         event_name_mappings = create_dict_from_yit_events(list_of_events)
         routes = get_yit_routes(access_token, contract, history_size)
-        works = []
+        ids_to_delete = list(
+            MaintenanceUnit.objects.filter(provider=YIT).values_list("id", flat=True)
+        )
+        num_created = 0
         for route in routes:
             if len(route["geography"]["features"]) > 1:
                 logger.warning(
@@ -63,6 +66,7 @@ class Command(BaseImportCommand):
             if not geometry:
                 continue
             events = []
+            original_event_names = []
             operations = route["operations"]
             for operation in operations:
                 event_name = event_name_mappings[operation].lower()
@@ -71,6 +75,7 @@ class Command(BaseImportCommand):
                         # If mapping value is None, the event is not used.
                         if e:
                             events.append(e)
+                            original_event_names.append(event_name_mappings[operation])
                 else:
                     logger.warning(
                         f"Found unmapped event: {event_name_mappings[operation]}"
@@ -89,22 +94,31 @@ class Command(BaseImportCommand):
             except MaintenanceUnit.DoesNotExist:
                 logger.warning(f"Maintenance unit: {unit_id}, not found.")
                 continue
-            works.append(
-                MaintenanceWork(
-                    timestamp=route["startTime"],
-                    maintenance_unit=unit,
-                    events=events,
-                    geometry=geometry,
-                )
-            )
 
-        MaintenanceWork.objects.bulk_create(works)
-        logger.info(f"Imported {len(works)} YIT mainetance works.")
-        return len(works)
+            obj, created = MaintenanceWork.objects.get_or_create(
+                timestamp=route["startTime"],
+                maintenance_unit=unit,
+                events=events,
+                original_event_names=original_event_names,
+                geometry=geometry,
+            )
+            if obj.id in ids_to_delete:
+                ids_to_delete.remove(obj.id)
+            if created:
+                num_created += 1
+        MaintenanceWork.objects.filter(id__in=ids_to_delete).delete()
+        num_works = MaintenanceWork.objects.filter(
+            maintenance_unit__provider=YIT
+        ).count()
+        logger.info(f"Deleted {len(ids_to_delete)} obsolete Works for provider {YIT}")
+        logger.info(
+            f"Created {num_created} Works of total {num_works} Works for provider {YIT}."
+        )
+        return num_created
 
     def handle(self, *args, **options):
         super().__init__()
-        MaintenanceUnit.objects.filter(provider=YIT).delete()
+        MaintenanceWork.objects.filter(maintenance_unit__provider=YIT).delete()
         history_size = YIT_DEFAULT_WORKS_HISTORY_SIZE
         if options["history_size"]:
             history_size = int(options["history_size"][0])

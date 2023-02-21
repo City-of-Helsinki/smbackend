@@ -228,7 +228,8 @@ def get_linestring_in_boundary(linestring, boundary):
 
 def create_maintenance_works(provider, history_size, fetch_size):
     turku_boundary = get_turku_boundary()
-    works = []
+    num_created = 0
+
     import_from_date_time = datetime.now() - timedelta(days=history_size)
     import_from_date_time = import_from_date_time.replace(
         tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki")
@@ -242,6 +243,11 @@ def create_maintenance_works(provider, history_size, fetch_size):
         else:
             logger.warning(f"Location history not found for unit: {unit.unit_id}")
             continue
+        ids_to_delete = list(
+            MaintenanceUnit.objects.filter(provider=provider).values_list(
+                "id", flat=True
+            )
+        )
         for work in json_data:
 
             timestamp = datetime.strptime(
@@ -259,6 +265,7 @@ def create_maintenance_works(provider, history_size, fetch_size):
                 continue
 
             events = []
+            original_event_names = []
             for event in work["events"]:
                 event_name = event.lower()
                 if event_name in EVENT_MAPPINGS:
@@ -266,25 +273,36 @@ def create_maintenance_works(provider, history_size, fetch_size):
                         # If mapping value is None, the event is not used.
                         if e:
                             events.append(e)
+                            original_event_names.append(event)
                 else:
                     logger.warning(f"Found unmapped event: {event}")
             # If no events found discard the work
             if len(events) == 0:
                 continue
-            works.append(
-                MaintenanceWork(
-                    timestamp=timestamp,
-                    maintenance_unit=unit,
-                    geometry=point,
-                    events=events,
-                )
+            obj, created = MaintenanceWork.objects.get_or_create(
+                timestamp=timestamp,
+                maintenance_unit=unit,
+                geometry=point,
+                events=events,
+                original_event_names=original_event_names,
             )
-    MaintenanceWork.objects.bulk_create(works)
-    logger.info(f"Imported {len(works)} {provider} mainetance works.")
-    return len(works)
+            if obj.id in ids_to_delete:
+                ids_to_delete.remove(obj.id)
+            if created:
+                num_created += 1
+    MaintenanceWork.objects.filter(id__in=ids_to_delete).delete()
+    num_works = MaintenanceWork.objects.filter(
+        maintenance_unit__provider=provider
+    ).count()
+    logger.info(f"Deleted {len(ids_to_delete)} obsolete Works for provider {provider}")
+    logger.info(
+        f"Created {num_created} Works of total {num_works} Works for provider {provider}."
+    )
+    return num_created
 
 
 def create_maintenance_units(provider):
+    num_created = 0
     assert provider in PROVIDERS
     response = requests.get(URLS[provider][UNITS])
     assert (
@@ -292,15 +310,27 @@ def create_maintenance_units(provider):
     ), "Fetching Maintenance Unit {} status code: {}".format(
         URLS[provider][UNITS], response.status_code
     )
+    ids_to_delete = list(
+        MaintenanceUnit.objects.filter(provider=provider).values_list("id", flat=True)
+    )
     for unit in response.json():
         # The names of the unit is derived from the events.
         names = [n for n in unit["last_location"]["events"]]
-        MaintenanceUnit.objects.create(
+        obj, created = MaintenanceUnit.objects.get_or_create(
             unit_id=unit["id"], names=names, provider=provider
         )
-    num_units_imported = MaintenanceUnit.objects.filter(provider=provider).count()
-    logger.info(f"Imported {num_units_imported} {provider} mainetance Units.")
-    return num_units_imported
+        if obj.id in ids_to_delete:
+            ids_to_delete.remove(obj.id)
+        if created:
+            num_created += 1
+
+    MaintenanceUnit.objects.filter(id__in=ids_to_delete).delete()
+    num_units = MaintenanceUnit.objects.filter(provider=provider).count()
+    logger.info(f"Deleted {len(ids_to_delete)} obsolete Units for provider {provider}")
+    logger.info(
+        f"Created {num_created} units of total {num_units} units for provider {provider}."
+    )
+    return num_units
 
 
 def get_yit_contract(access_token):
@@ -343,6 +373,11 @@ def create_kuntec_maintenance_units():
         units_url, response.status_code
     )
     no_io_din = 0
+    num_created = 0
+    ids_to_delete = list(
+        MaintenanceUnit.objects.filter(provider=KUNTEC).values_list("id", flat=True)
+    )
+
     for unit in response.json()["data"]["units"]:
         names = []
         if "io_din" in unit:
@@ -355,17 +390,24 @@ def create_kuntec_maintenance_units():
         # If names, we have a unit with at least one io_din with State On.
         if len(names) > 0:
             unit_id = unit["unit_id"]
-            MaintenanceUnit.objects.create(
+            obj, created = MaintenanceUnit.objects.get_or_create(
                 unit_id=unit_id, names=names, provider=KUNTEC
             )
+            if obj.id in ids_to_delete:
+                ids_to_delete.remove(obj.id)
+            if created:
+                num_created += 1
+
         else:
             no_io_din += 1
+    MaintenanceUnit.objects.filter(id__in=ids_to_delete).delete()
+    logger.info(f"Deleted {len(ids_to_delete)} obsolete Units for provider {KUNTEC}")
     logger.info(
         f"Discarding {no_io_din} Kuntec units that do not have a io_din with Status 'On'(1)."
     )
+    num_units = MaintenanceUnit.objects.filter(provider=KUNTEC).count()
     logger.info(
-        f"Imported {MaintenanceUnit.objects.filter(provider=KUNTEC).count()}"
-        + " Kuntec mainetance Units."
+        f"Created {num_created} units of total {num_units} units for provider {KUNTEC}."
     )
 
 
@@ -378,12 +420,24 @@ def create_yit_maintenance_units(access_token):
     ), " Fetching YIT vehicles {} failed, status code: {}".format(
         URLS[YIT][VEHICLES], response.status_code
     )
+    num_created = 0
+    ids_to_delete = list(
+        MaintenanceUnit.objects.filter(provider=YIT).values_list("id", flat=True)
+    )
     for unit in response.json():
         names = [unit["vehicleTypeName"]]
-        MaintenanceUnit.objects.create(unit_id=unit["id"], names=names, provider=YIT)
+        obj, created = MaintenanceUnit.objects.get_or_create(
+            unit_id=unit["id"], names=names, provider=YIT
+        )
+        if obj.id in ids_to_delete:
+            ids_to_delete.remove(obj.id)
+        if created:
+            num_created += 1
+    MaintenanceUnit.objects.filter(id__in=ids_to_delete).delete()
+    logger.info(f"Deleted {len(ids_to_delete)} obsolete Units for provider {YIT}")
+    num_units = MaintenanceUnit.objects.filter(provider=YIT).count()
     logger.info(
-        f"Imported {MaintenanceUnit.objects.filter(provider=YIT).count()}"
-        + " YIT mainetance Units."
+        f"Created {num_created} units of total {num_units} units for provider {YIT}."
     )
 
 
@@ -416,6 +470,10 @@ def get_yit_routes(access_token, contract, history_size):
 
 
 def get_yit_access_token():
+    """
+    Note the IP address of the host calling Autori API (hosts YIT data) must be
+    given for whitelistning.
+    """
     assert settings.YIT_SCOPE, "YIT_SCOPE not defined in environment."
     assert settings.YIT_CLIENT_ID, "YIT_CLIENT_ID not defined in environment."
     assert settings.YIT_CLIENT_SECRET, "YIT_CLIENT_SECRET not defined in environment."
