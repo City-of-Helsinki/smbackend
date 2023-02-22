@@ -1,4 +1,6 @@
 """
+To run test:
+pytest -m test_import_counter_data
 Usage:
 see README.md
 """
@@ -15,9 +17,11 @@ from django.core.management.base import BaseCommand, CommandError
 
 from eco_counter.constants import (
     COUNTER_START_YEARS,
+    COUNTERS,
     ECO_COUNTER,
     LAM_COUNTER,
     TRAFFIC_COUNTER,
+    TRAFFIC_COUNTER_START_YEAR,
 )
 from eco_counter.models import (
     Day,
@@ -39,9 +43,7 @@ from .utils import (
     get_lam_counter_csv,
     get_test_dataframe,
     get_traffic_counter_csv,
-    save_eco_counter_stations,
-    save_lam_counter_stations,
-    save_traffic_counter_stations,
+    save_stations,
     TIMESTAMP_COL_NAME,
 )
 
@@ -65,6 +67,20 @@ class Command(BaseCommand):
     COUNTERS = [ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER]
     COUNTER_CHOICES_STR = f"{ECO_COUNTER}, {TRAFFIC_COUNTER} and {LAM_COUNTER}"
     TIMEZONE = pytz.timezone("Europe/Helsinki")
+    """
+    Movement types:
+    (A)uto, car
+    (P)yörä, bicycle
+    (J)alankulkija, pedestrian
+    (B)ussi, bus
+    Direction types:
+    (K)eskustaan päin, towards the center
+    (P)poispäin keskustasta, away from the center
+    So for the example column with prefix "ap" contains data for cars moving away from the center.
+    The naming convention is derived from the eco-counter source data that was the
+    original data source.
+
+    """
     STATION_TYPES = [
         ("ak", "ap", "at"),
         ("pk", "pp", "pt"),
@@ -72,21 +88,17 @@ class Command(BaseCommand):
         ("bk", "bp", "bt"),
     ]
 
+    TYPE_DIRS = ["AK", "AP", "JK", "JP", "BK", "BP", "PK", "PP"]
+    ALL_TYPE_DIRS = TYPE_DIRS + ["AT", "JT", "BT", "PT"]
+    type_dirs_lower = [TD.lower() for TD in TYPE_DIRS]
+
     def delete_tables(
         self, csv_data_sources=[ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER]
     ):
         for csv_data_source in csv_data_sources:
             for station in Station.objects.filter(csv_data_source=csv_data_source):
                 Year.objects.filter(station=station).delete()
-
             ImportState.objects.filter(csv_data_source=csv_data_source).delete()
-
-    # keskustaan päin
-    # poispäin keskustasta
-    # m molempiin suuntiin
-    TYPE_DIRS = ["AK", "AP", "JK", "JP", "BK", "BP", "PK", "PP"]
-    ALL_TYPE_DIRS = TYPE_DIRS + ["AT", "JT", "BT", "PT"]
-    type_dirs_lower = [TD.lower() for TD in TYPE_DIRS]
 
     def save_values(self, values, dst_obj):
         for station_types in self.STATION_TYPES:
@@ -100,6 +112,9 @@ class Command(BaseCommand):
         dst_obj.save()
 
     def add_values(self, values, dst_obj):
+        """
+        Populate values for all movement types and directions for a station.
+        """
         for station_types in self.STATION_TYPES:
             key = f"value_{station_types[0]}"
             k_val = getattr(dst_obj, key, 0) + values[station_types[0]]
@@ -118,7 +133,7 @@ class Command(BaseCommand):
 
     def get_values(self, sum_series, station_name):
         """
-        Populate values for all movement types and directions for a station.
+        Returns a dict containing the aggregated sum value for every movement type and direction.
         """
         values = {}
         for type_dir in self.TYPE_DIRS:
@@ -135,7 +150,7 @@ class Command(BaseCommand):
             for station in stations:
                 year, _ = Year.objects.get_or_create(station=station, year_number=index)
                 values = self.get_values(sum_series, station.name)
-                year_data, created = YearData.objects.get_or_create(
+                year_data, _ = YearData.objects.get_or_create(
                     year=year, station=station
                 )
                 self.save_values(values, year_data)
@@ -297,11 +312,10 @@ class Command(BaseCommand):
                                 )
                             values_key = station_types[i].upper()
                             values[values_key].append(val)
-        breakpoint()
 
     def save_observations(self, csv_data, start_time, csv_data_source=ECO_COUNTER):
         import_state = ImportState.objects.get(csv_data_source=csv_data_source)
-        # Populate stations list, used to lookup station relations.
+        # Populate stations list, this is used to set/lookup station relations.
         stations = [
             station
             for station in Station.objects.filter(csv_data_source=csv_data_source)
@@ -317,6 +331,7 @@ class Command(BaseCommand):
         # Set values higher than ERRORNEOUS_VALUES_THRESHOLD to 0
         df[df > ERRORNEOUS_VALUE_THRESHOLD] = 0
         if not import_state.current_year_number:
+            # In initial import populate all years.
             self.save_years(df, stations)
         self.save_months(df, stations)
         if import_state.current_year_number:
@@ -382,21 +397,14 @@ class Command(BaseCommand):
                         csv_data_source=counter,
                     )
                     logger.info(f"Retrieving stations for {counter}.")
-                    if counter == ECO_COUNTER:
-                        save_eco_counter_stations()
-                    elif counter == TRAFFIC_COUNTER:
-                        save_traffic_counter_stations()
-                    elif counter == LAM_COUNTER:
-                        save_lam_counter_stations()
+                    save_stations(counter)
 
         if options["test_counter"]:
             logger.info("Testing eco_counter importer.")
             counter = options["test_counter"][0]
             start_time = options["test_counter"][1]
             end_time = options["test_counter"][2]
-            import_state, created = ImportState.objects.get_or_create(
-                csv_data_source=counter
-            )
+            import_state, _ = ImportState.objects.get_or_create(csv_data_source=counter)
             test_dataframe = get_test_dataframe(counter)
             csv_data = gen_eco_counter_test_csv(
                 test_dataframe.keys(), start_time, end_time
@@ -406,7 +414,7 @@ class Command(BaseCommand):
                 start_time,
                 csv_data_source=counter,
             )
-        # Import if counters arg or (initial import).
+        # Import if counters arg or initial import.
         if options["counters"] or initial_import_counters:
             if not initial_import_counters:
                 # run with counters argument
@@ -420,6 +428,7 @@ class Command(BaseCommand):
                 import_state = ImportState.objects.filter(
                     csv_data_source=counter
                 ).first()
+
                 if (
                     import_state.current_year_number
                     and import_state.current_month_number
@@ -436,15 +445,17 @@ class Command(BaseCommand):
                 # The timeformat for the input data is : 2020-03-01T00:00
                 # Convert starting time to input datas timeformat
                 start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")
-
-                if counter == LAM_COUNTER:
-                    csv_data = get_lam_counter_csv(start_time.date())
-                elif counter == ECO_COUNTER:
-                    csv_data = get_eco_counter_csv()
-                elif counter == TRAFFIC_COUNTER:
-                    csv_data = get_traffic_counter_csv(
-                        start_year=import_state.current_year_number
-                    )
+                match counter:
+                    case COUNTERS.LAM_COUNTER:
+                        csv_data = get_lam_counter_csv(start_time.date())
+                    case COUNTERS.ECO_COUNTER:
+                        csv_data = get_eco_counter_csv()
+                    case COUNTERS.TRAFFIC_COUNTER:
+                        if import_state.current_year_number:
+                            start_year = import_state.current_year_number
+                        else:
+                            start_year = TRAFFIC_COUNTER_START_YEAR
+                        csv_data = get_traffic_counter_csv(start_year=start_year)
 
                 start_index = csv_data.index[
                     csv_data[TIMESTAMP_COL_NAME] == start_time_string
