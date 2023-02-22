@@ -294,15 +294,15 @@ def get_lam_counter_stations():
     return stations
 
 
-def get_eco_counter_stations():
+def get_traffic_counter_stations():
     stations = []
     data_layer = get_traffic_counter_metadata_data_layer()
     for feature in data_layer:
-        stations.append(ObservationStation(ECO_COUNTER, feature))
+        stations.append(ObservationStation(TRAFFIC_COUNTER, feature))
     return stations
 
 
-def get_traffic_counter_stations():
+def get_eco_counter_stations():
     stations = []
     response = requests.get(settings.ECO_COUNTER_STATIONS_URL)
     assert (
@@ -313,7 +313,7 @@ def get_traffic_counter_stations():
     response_json = response.json()
     features = response_json["features"]
     for feature in features:
-        stations.append(ObservationStation(TRAFFIC_COUNTER, feature))
+        stations.append(ObservationStation(ECO_COUNTER, feature))
     return stations
 
 
@@ -351,59 +351,8 @@ def save_stations(csv_data_source):
     )
     num_stations = Station.objects.filter(csv_data_source=csv_data_source).count()
     logger.info(
-        f"Created {num_created} Stations of total {num_stations} Station for conter {csv_data_source}."
+        f"Created {num_created} Stations of total {num_stations} Stations for counter {csv_data_source}."
     )
-
-
-# def save_traffic_counter_stations():
-#     """
-#     Saves the stations defined in the metadata to Station table.
-#     """
-#     saved = 0
-#     data_layer = get_traffic_counter_metadata_data_layer()
-#     for feature in data_layer:
-#         name = feature["Osoite_fi"].as_string()
-#         name_sv = feature["Osoite_sv"].as_string()
-#         name_en = feature["Osoite_en"].as_string()
-#         if Station.objects.filter(name=name).exists():
-#             continue
-#         station = Station()
-#         station.name = name
-#         station.name_sv = name_sv
-#         station.name_en = name_en
-#         station.csv_data_source = TRAFFIC_COUNTER
-#         geom = GEOSGeometry(feature.geom.wkt, srid=feature.geom.srid)
-#         geom.transform(settings.DEFAULT_SRID)
-#         station.geom = geom
-#         station.save()
-#         saved += 1
-#     logger.info(f"Saved {saved} Traffic Counter stations.")
-
-
-# def save_eco_counter_stations():
-#     response = requests.get(settings.ECO_COUNTER_STATIONS_URL)
-#     assert (
-#         response.status_code == 200
-#     ), "Fetching stations from {} , status code {}".format(
-#         settings.ECO_COUNTER_STATIONS_URL, response.status_code
-#     )
-#     response_json = response.json()
-#     features = response_json["features"]
-#     saved = 0
-#     for feature in features:
-#         station = Station()
-#         name = feature["properties"]["Nimi"]
-#         if not Station.objects.filter(name=name).exists():
-#             station.name = name
-#             station.csv_data_source = ECO_COUNTER
-#             lon = feature["geometry"]["coordinates"][0]
-#             lat = feature["geometry"]["coordinates"][1]
-#             point = Point(lon, lat, srid=4326)
-#             point.transform(settings.DEFAULT_SRID)
-#             station.geom = point
-#             station.save()
-#             saved += 1
-#     logger.info(f"Saved {saved} Eco Counter stations.")
 
 
 def get_test_dataframe(counter):
