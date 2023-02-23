@@ -79,6 +79,7 @@ divisions:
     name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"   
     ocd_id: oppilaaksiottoalue_alakoulu_sv
     wfs_layer: 'GIS:Oppilasalueet_ruotsi_1-6'
+    check_turku_boundary: False
     fields:
       name:
         sv: Oppilasalueen_kuvaus
@@ -89,6 +90,7 @@ divisions:
     name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"  
     ocd_id: oppilaaksiottoalue_ylakoulu_sv
     wfs_layer: 'GIS:Oppilasalueet_ruotsi_7-9'
+    check_turku_boundary: False
     fields:
       name:
         sv: Oppilasalueen_kuvaus
