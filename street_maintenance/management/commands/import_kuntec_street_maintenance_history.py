@@ -92,7 +92,7 @@ class Command(BaseImportCommand):
                                 continue
                             timestamp = route["start"]["time"]
 
-                            obj, created = MaintenanceWork.get_or_create(
+                            obj, created = MaintenanceWork.objects.get_or_create(
                                 timestamp=timestamp,
                                 maintenance_unit=unit,
                                 events=events,
