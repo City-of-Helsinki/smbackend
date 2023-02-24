@@ -1,57 +1,28 @@
-from celery import shared_task
 from django.core import management
 
+from smbackend.utils import shared_task_email
 
-@shared_task
-def delete_street_maintenance_history(
-    args=None, name="delete_street_maintenance_history"
-):
+
+@shared_task_email
+def delete_street_maintenance_history(args, name="delete_street_maintenance_history"):
     management.call_command("delete_street_maintenance_history", args)
 
 
-@shared_task
-def import_infraroad_street_maintenance_history(
-    args=None, name="import_infraroad_street_maintenance_history"
+@shared_task_email
+def import_street_maintenance_history(
+    name="import_street_maintenance_history", *args, **kwargs
 ):
-    if args:
-        management.call_command(
-            "import_infraroad_street_maintenance_history", "--history-size", args
+    if "providers" not in kwargs:
+        raise Exception(
+            "No 'providers' item in kwargs. e.g., {'providers':['destia', 'infraroad']}"
         )
-    else:
-        management.call_command("import_infraroad_street_maintenance_history")
-
-
-@shared_task
-def import_yit_street_maintenance_history(
-    args=None, name="import_yit_street_maintenance_history"
-):
-    if args:
-        management.call_command(
-            "import_yit_street_maintenance_history", "--history-size", args
-        )
-    else:
-        management.call_command("import_yit_street_maintenance_history")
-
-
-@shared_task
-def import_kuntec_street_maintenance_history(
-    args=None, name="import_kuntec_street_maintenance_history"
-):
-    if args:
-        management.call_command(
-            "import_kuntec_street_maintenance_history", "--history-size", args
-        )
-    else:
-        management.call_command("import_kuntec_street_maintenance_history")
-
-
-@shared_task
-def import_destia_street_maintenance_history(
-    args=None, name="import_destia_street_maintenance_history"
-):
-    if args:
-        management.call_command(
-            "import_destia_maintenance_history", "--history-size", args
-        )
-    else:
-        management.call_command("import_destia_street_maintenance_history")
+    if "fetch-size" not in kwargs:
+        kwargs["fetch-size"] = None
+    if "history-size" not in kwargs:
+        kwargs["history-size"] = None
+    management.call_command(
+        "import_street_maintenance_history",
+        providers=kwargs["providers"],
+        fetch_size=kwargs["fetch-size"],
+        history_size=kwargs["history-size"],
+    )
