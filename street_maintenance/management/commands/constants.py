@@ -146,6 +146,12 @@ TIMESTAMP_FORMATS = {
     KUNTEC: "%Y-%m-%dT%H:%M:%SZ",
     YIT: "%Y-%m-%d %H:%M:%S%z",
 }
+DATE_FORMATS = {
+    INFRAROAD: "%Y-%m-%d",
+    DESTIA: "%Y-%m-%d",
+    KUNTEC: "%Y-%m-%d",
+    YIT: "%Y-%m-%d",
+}
 # GeometryHistory API list start_date_time parameter format.
 START_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 # The number of works(point data with a timestamp and events) to be fetched for every unit.
