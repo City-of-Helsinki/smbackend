@@ -53,6 +53,14 @@ def get_turku_boundary():
 TURKU_BOUNDARY = get_turku_boundary()
 
 
+def get_json_data(url):
+    response = requests.get(url)
+    assert (
+        response.status_code == 200
+    ), "Fetching Maintenance Unit {} status code: {}".format(url, response.status_code)
+    return response.json()
+
+
 def check_linestring_validity(
     linestring, threshold=VALID_LINESTRING_MAX_POINT_DISTANCE
 ):
@@ -385,15 +393,15 @@ def create_maintenance_works(provider, history_size, fetch_size):
         )
     )
     for unit in MaintenanceUnit.objects.filter(provider=provider):
-        response = requests.get(
+        json_data = get_json_data(
             URLS[provider][WORKS].format(id=unit.unit_id, history_size=fetch_size)
         )
-        if "location_history" in response.json():
-            json_data = response.json()["location_history"]
+        if "location_history" in json_data:
+            json_data = json_data["location_history"]
         else:
             logger.warning(f"Location history not found for unit: {unit.unit_id}")
             continue
-
+        breakpoint()
         for work in json_data:
             timestamp = datetime.strptime(
                 work["timestamp"], TIMESTAMP_FORMATS[provider]
@@ -442,17 +450,10 @@ def create_maintenance_works(provider, history_size, fetch_size):
 @db.transaction.atomic
 def create_maintenance_units(provider):
     num_created = 0
-    assert provider in PROVIDERS
-    response = requests.get(URLS[provider][UNITS])
-    assert (
-        response.status_code == 200
-    ), "Fetching Maintenance Unit {} status code: {}".format(
-        URLS[provider][UNITS], response.status_code
-    )
     ids_to_delete = list(
         MaintenanceUnit.objects.filter(provider=provider).values_list("id", flat=True)
     )
-    for unit in response.json():
+    for unit in get_json_data(URLS[provider][UNITS]):
         # The names of the unit is derived from the events.
         names = [n for n in unit["last_location"]["events"]]
         obj, created = MaintenanceUnit.objects.get_or_create(
