@@ -32,6 +32,7 @@ from services.models.unit import ORGANIZER_TYPES, PROJECTION_SRID, PROVIDER_TYPE
 from services.utils import AccessibilityShortcomingCalculator
 
 from .utils import (
+    clean_latin1,
     clean_text,
     pk_get,
     postcodes,
@@ -524,9 +525,7 @@ def _import_unit_service_nodes(obj, info, obj_changed, update_fields):
 def _clean_service_details(info_dict):
     schoolyear = info_dict.get("schoolyear")
     if schoolyear is not None and len(schoolyear) > 0:
-        start = None
-        end = None
-        start, end = schoolyear.split("-")
+        start, end = clean_latin1(schoolyear).split("-")
         info_dict["period_begin_year"] = start
         info_dict["period_end_year"] = end
     return info_dict
