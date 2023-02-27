@@ -326,12 +326,10 @@ def create_kuntec_maintenance_works(history_size):
         url = URLS[KUNTEC][WORKS].format(
             key=KUNTEC_KEY, start=start, end=end, unit_id=unit.unit_id
         )
-        response = requests.get(url)
-        if response.status_code != 200:
-            continue
-        if "data" in response.json():
-            for units in response.json()["data"]["units"]:
-                for route in units["routes"]:
+        json_data = get_json_data(url)
+        if "data" in json_data:
+            for unit_data in json_data["data"]["units"]:
+                for route in unit_data["routes"]:
                     events = []
                     original_event_names = []
                     # Routes of type 'stop' are discarded.
@@ -500,20 +498,13 @@ def create_dict_from_yit_events(list_of_events):
 
 @db.transaction.atomic
 def create_kuntec_maintenance_units():
-    units_url = URLS[KUNTEC][UNITS]
-    response = requests.get(units_url)
-    assert (
-        response.status_code == 200
-    ), "Fetching Maintenance Unit {} status code: {}".format(
-        units_url, response.status_code
-    )
+    json_data = get_json_data(URLS[KUNTEC][UNITS])
     no_io_din = 0
     num_created = 0
     objs_to_delete = list(
         MaintenanceUnit.objects.filter(provider=KUNTEC).values_list("id", flat=True)
     )
-
-    for unit in response.json()["data"]["units"]:
+    for unit in json_data["data"]["units"]:
         names = []
         if "io_din" in unit:
             on_states = 0
