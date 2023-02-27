@@ -289,7 +289,6 @@ def update_service_counts():
                     division_type=municipality_type,
                 )
                 o.save()
-    return
 
 
 @db.transaction.atomic
