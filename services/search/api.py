@@ -19,7 +19,6 @@ and emptied with the empty_search_columns management script.
 """
 import logging
 import re
-from distutils.util import strtobool
 from itertools import chain
 
 from django.db import connection, reset_queries
@@ -37,14 +36,17 @@ from services.api import (
 )
 from services.models import (
     Department,
+    ExclusionRule,
     Service,
     ServiceNode,
     Unit,
     UnitAccessibilityShortcomings,
 )
+from services.utils import strtobool
 
 from .constants import (
     DEFAULT_MODEL_LIMIT_VALUE,
+    DEFAULT_RANK_THRESHOLD,
     DEFAULT_SEARCH_SQL_LIMIT_VALUE,
     DEFAULT_SRS,
     DEFAULT_TRIGRAM_THRESHOLD,
@@ -61,7 +63,7 @@ from .utils import (
     set_service_unit_count,
 )
 
-logger = logging.getLogger("search")
+logger = logging.getLogger("services.search")
 
 
 class RootServiceNodeSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
@@ -71,6 +73,8 @@ class RootServiceNodeSerializer(TranslatedModelSerializer, serializers.ModelSeri
 
 
 class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+    id = serializers.UUIDField(source="uuid")
+
     class Meta:
         model = Department
         fields = ["id", "name", "street_address", "municipality"]
@@ -209,15 +213,31 @@ class SearchViewSet(GenericAPIView):
                 self.request.query_params["use_trigram"].lower().strip().split(",")
             )
         else:
-            use_trigram = "unit"
+            use_trigram = ""
 
         if "trigram_threshold" in params:
             try:
                 trigram_threshold = float(params.get("trigram_threshold"))
             except ValueError:
-                raise ParseError("'trigram_threshold' need to be of type float.")
+                raise ParseError("'trigram_threshold' needs to be of type float.")
         else:
             trigram_threshold = DEFAULT_TRIGRAM_THRESHOLD
+
+        if "rank_threshold" in params:
+            try:
+                rank_threshold = float(params.get("rank_threshold"))
+            except ValueError:
+                raise ParseError("'rank_threshold' needs to be of type float.")
+        else:
+            rank_threshold = DEFAULT_RANK_THRESHOLD
+
+        if "use_websearch" in params:
+            try:
+                use_websearch = strtobool(params["use_websearch"])
+            except ValueError:
+                raise ParseError("'use_websearch' needs to be a boolean")
+        else:
+            use_websearch = True
 
         if "geometry" in params:
             try:
@@ -273,7 +293,7 @@ class SearchViewSet(GenericAPIView):
         config_language = LANGUAGES[language_short]
         search_query_str = None  # Used in the raw sql
         # Build conditional query string that is used in the SQL query.
-        # split my "," or whitespace
+        # split by "," or whitespace
         q_vals = re.split(r",\s+|\s+", q_val)
         q_vals = [s.strip().replace("'", "") for s in q_vals]
         for q in q_vals:
@@ -287,13 +307,22 @@ class SearchViewSet(GenericAPIView):
             else:
                 search_query_str = f"{q}:*"
 
-        # This is ~100 times faster than using Djangos SearchRank and allows searching using wildard "|*"
-        # and by rankig gives better results, e.g. extra fields weight is counted.
+        search_fn = "to_tsquery"
+        if use_websearch:
+            exclusions = self.get_search_exclusions(q)
+            if exclusions:
+                search_fn = "websearch_to_tsquery"
+                search_query_str += f" {exclusions}"
+
+        # This is ~100 times faster than using Djangos SearchRank and allows searching using wildcard "|*"
+        # and by ranking gives better results, e.g. extra fields weight is counted.
         sql = f"""
-        SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
-        AS rank FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
-        WHERE search_query @@ search_column_{language_short}
-        ORDER BY rank DESC LIMIT {sql_query_limit};
+            SELECT * from (
+                SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
+                AS rank FROM search_view, {search_fn}('{config_language}','{search_query_str}') search_query
+                WHERE search_query @@ search_column_{language_short}
+                ORDER BY rank DESC LIMIT {sql_query_limit}
+            ) AS sub_query where sub_query.rank >= {rank_threshold};
         """
 
         cursor = connection.cursor()
@@ -301,6 +330,7 @@ class SearchViewSet(GenericAPIView):
         # Note, fetchall() consumes the results and once called returns None.
         all_results = cursor.fetchall()
         all_ids = get_all_ids_from_sql_results(all_results)
+
         unit_ids = all_ids["Unit"]
         service_ids = all_ids["Service"]
         service_node_ids = get_service_node_results(all_results)
@@ -359,6 +389,12 @@ class SearchViewSet(GenericAPIView):
                 )
                 if len(municipalities) > 0:
                     units_qs = units_qs.filter(municipality_id__in=municipalities)
+            if "organization" in self.request.query_params:
+                organizations = (
+                    self.request.query_params["organization"].lower().strip().split(",")
+                )
+                if len(organizations) > 0:
+                    units_qs = units_qs.filter(department__uuid__in=organizations)
             if "service" in self.request.query_params:
                 services = self.request.query_params["service"].strip().split(",")
                 if services[0]:
@@ -477,3 +513,9 @@ class SearchViewSet(GenericAPIView):
             },
         )
         return self.get_paginated_response(serializer.data)
+
+    def get_search_exclusions(self, q):
+        rule = ExclusionRule.objects.filter(word__iexact=q).first()
+        if rule:
+            return rule.exclusion
+        return ""

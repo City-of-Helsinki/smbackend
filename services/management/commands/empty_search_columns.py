@@ -5,7 +5,7 @@ from munigeo.models import Address, AdministrativeDivision
 
 from services.models import Service, ServiceNode, Unit
 
-logger = logging.getLogger("search")
+logger = logging.getLogger("services.management")
 
 MODELS = [Address, AdministrativeDivision, Unit, Service, ServiceNode]
 

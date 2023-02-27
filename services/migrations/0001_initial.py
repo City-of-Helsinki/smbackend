@@ -8,7 +8,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("munigeo", "0003_add_modified_time_to_address_and_street"),
     ]

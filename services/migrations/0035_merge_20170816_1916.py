@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("services", "0034_make_organizer_type_choicefield"),
         ("services", "0030_restore_origin_last_modified_field"),

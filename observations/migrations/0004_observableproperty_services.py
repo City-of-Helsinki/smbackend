@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("services", "0067_unit_extensions"),
         ("observations", "0003_remove_observableproperty_services"),

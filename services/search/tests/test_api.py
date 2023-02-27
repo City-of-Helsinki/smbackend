@@ -78,8 +78,8 @@ def test_search(
     assert museum_service_node["root_service_node"]["name"]["en"] == "Leisure"
     assert museum_service_node["unit_count"]["municipality"]["helsinki"] == 1
     assert museum_service_node["unit_count"]["total"] == 1
-    # Test that unit "Impivara" is retrieved from service Uimahalli
-    url = reverse("search") + "?q=uimahalli&type=unit"
+    # Test that unit "Impivaara" is retrieved from service Uimahalli
+    url = reverse("search") + "?q=uimahalli&type=unit&rank_threshold=0"
     response = api_client.get(url)
     results = response.json()["results"]
     assert results[0]["name"]["fi"] == "Impivaara"

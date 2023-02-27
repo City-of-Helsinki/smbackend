@@ -1,0 +1,10 @@
+[
+{
+    "model": "services.exclusionrule",
+    "pk": 1,
+    "fields": {
+        "word": "tekojää",
+        "exclusion": "-nurmi"
+    }
+}
+]

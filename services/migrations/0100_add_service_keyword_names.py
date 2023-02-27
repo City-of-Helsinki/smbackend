@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("services", "0099_announcement_outdoor_sports_map_usage_and_more"),
     ]

@@ -1,7 +1,6 @@
 import logging
 import re
 import uuid
-from distutils.util import strtobool
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
@@ -42,7 +41,7 @@ from services.models import (
     UnitServiceDetails,
 )
 from services.models.unit import ORGANIZER_TYPES, PROVIDER_TYPES
-from services.utils import check_valid_concrete_field
+from services.utils import check_valid_concrete_field, strtobool
 
 if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"]:
     DEFAULT_RENDERERS = [
@@ -448,6 +447,20 @@ class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
 class DepartmentViewSet(JSONAPIViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
+
+    def get_queryset(self):
+        queryset = super(DepartmentViewSet, self).get_queryset()
+        query_params = self.request.query_params
+        if "organization_type" in query_params:
+            organization_types = query_params["organization_type"].split(",")
+            queryset = queryset.filter(organization_type__in=organization_types)
+        if "level" in query_params:
+            try:
+                level = int(query_params["level"])
+            except ValueError:
+                raise ParseError("'level' needs to be integer")
+            queryset = queryset.filter(level=level)
+        return queryset
 
     def retrieve(self, request, pk=None):
         try:

@@ -19,9 +19,9 @@ components:
     q_param:
       name: q
       in: query
-      description: The string that will be used when searching in the search view. It searches the search_columns for the given models. Whitspaces and commas between words are interpreted as and operator. Words ending with the "|" sign
+      description: The string that will be used when searching in the search view. It searches the search_columns for the given models. Whitespaces and commas between words are interpreted as and operator. Words ending with the "|" sign
        are interpreted as or operator. Note, if no results are found for the model,
-        trigram search is used if use_trigram=true (default).
+        trigram search is used if use_trigram=true (default is false).
       required: true
       schema:
         type: string
@@ -44,21 +44,27 @@ components:
     use_trigram_param:
       name: use_trigram
       in: query
-      description: A comma-separeted list of resource types that will include trigram results in search if no results are found. Possible values are *service*, *unit*, *servicenode*, *address* and *administrative_division*. If not present, defualts to unit and service. If list is empty trigram  will not be used.
+      description: A comma-separated list of resource types that will include trigram results in search if no results are found. Possible values are *service*, *unit*, *servicenode*, *address* and *administrative_division*. If not present, defaults to empty list. If list is empty trigram will not be used.
       schema:
         type: string
         example: unit,address
-        default: unit
+        default: Empty list
+    rank_threshold_param:
+      name: rank_threshold
+      in: query
+      description: Include results with search rank greater than or equal to the value.
+      type: number
+      default: 1
     trigram_threshold_param:
       name: trigram_threshold
       in: query
-      desription: The threshold value, if trigram similarity is greater-than or equal to this value return the result.
+      description: The threshold value, if trigram similarity is greater than or equal to this value return the result.
       type: number
       default: 0.15
     sql_query_limit_param:
       name: sql_query_limit
       in: query
-      description: Limit value used in the SQL query that searches from the search view. The view contains the searchable data(the content in the search_column) from all models. Note, this limits the number of total results from which the model specific results are dervied. Making the number too small may affect the results in a unvanted way. The value also affects the performance, the smaller the value is the better the performance is.
+      description: Limit value used in the SQL query that searches from the search view. The view contains the searchable data(the content in the search_column) from all models. Note, this limits the number of total results from which the model specific results are derived. Making the number too small may affect the results in a unwanted way. The value also affects the performance, the smaller the value is the better the performance is.
       schema:
         type: integer
         example: 100
@@ -135,7 +141,7 @@ components:
       type: array
       items:
         type: string
-      description: A comma-separated list of enity.field e.g., unit.connections,unit.www.
+      description: A comma-separated list of entity.field e.g., unit.connections,unit.www.
     service_param:
         name: service
         in: query
@@ -168,11 +174,12 @@ components:
 paths:
   /search:
     get:
-      summary: "List of search resluts, paginated"
+      summary: "List of search results, paginated"
       parameters:
         - $ref: "#/components/parameters/q_param"
         - $ref: "#/components/parameters/language_param"
         - $ref: "#/components/parameters/use_trigram_param"
+        - $ref: "#/components/parameters/rank_threshold_param"
         - $ref: "#/components/parameters/trigram_threshold_param"
         - $ref: "#/components/parameters/order_units_by_num_services_param"
         - $ref: "#/components/parameters/geometry_param"
@@ -199,7 +206,7 @@ paths:
                   type: array
                   items:
                     type: object
-                    description: Depending on the results and query parameters the object contains units, services, addresses, and administrativedivision.
+                    description: Depending on the results and query parameters the object contains units, services, addresses and administrative divisions.
 
 definitions:
 

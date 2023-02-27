@@ -211,7 +211,6 @@ def _import_unit(
     target_srid,
     department_id_to_uuid,
 ):
-
     obj = syncher.get(info["id"])
     obj_changed = False
     obj_created = False
@@ -247,11 +246,6 @@ def _import_unit(
     municipality_id = None
     muni_name = None
     org_id = info.get("org_id", None)
-
-    # FIXME: Temporarily skip health district units completely
-    if org_id == "5de91045-92ab-484b-9f96-7010ff7fb35e":
-        LOGGER.info("Temporarily skipping health district unit: %s" % obj)
-        return None
 
     if org_id:
         department_qs = Department.objects.filter(uuid=org_id)

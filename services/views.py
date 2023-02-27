@@ -1,5 +1,4 @@
 import logging
-from distutils.util import strtobool
 
 import requests
 from django.conf import settings
@@ -12,6 +11,7 @@ from rest_framework import status
 
 from services.models import FeedbackMapping, RequestStatistic, Unit
 from services.models.feedback import DEFAULT_SERVICE_CODE
+from services.utils import strtobool
 
 logger = logging.getLogger("django")
 

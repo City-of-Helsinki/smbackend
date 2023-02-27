@@ -1,3 +1,4 @@
+import logging.config
 from pathlib import Path
 
 import sentry_sdk
@@ -136,7 +137,6 @@ MODELTRANSLATION_DEFAULT_LANGUAGE = LANGUAGE_CODE
 
 TIME_ZONE = "Europe/Helsinki"
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
 USE_X_FORWARDED_HOST = env("TRUST_X_FORWARDED_HOST")
@@ -262,10 +262,12 @@ LOGGING = {
     },
     "loggers": {
         "django": {"handlers": ["console"], "level": DJANGO_LOG_LEVEL},
-        "search": {"handlers": ["console"], "level": SEARCH_LOG_LEVEL},
-        "import": {"handlers": ["console"], "level": IMPORT_LOG_LEVEL},
+        "services.search": {"handlers": ["console"], "level": SEARCH_LOG_LEVEL},
+        "services.management": {"handlers": ["console"], "level": IMPORT_LOG_LEVEL},
     },
 }
+
+logging.config.dictConfig(LOGGING)
 
 KML_TRANSLATABLE_FIELDS = ["name", "street_address", "www"]
 KML_REGEXP = r"application/vnd.google-earth\.kml"

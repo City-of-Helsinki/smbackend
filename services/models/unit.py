@@ -266,7 +266,6 @@ class Unit(SoftDeleteModel):
                 ("syllables_fi", "finnish", "A"),
                 ("service_names_fi", "finnish", "B"),
                 ("extra_searchwords_fi", "finnish", "B"),
-                ("extra", None, "C"),
                 ("address_zip", None, "D"),
             ]
         elif lang == "sv":
@@ -274,7 +273,6 @@ class Unit(SoftDeleteModel):
                 ("name_sv", "swedish", "A"),
                 ("service_names_sv", "swedish", "B"),
                 ("extra_searchwords_sv", "swedish", "B"),
-                ("extra", None, "C"),
                 ("address_zip", None, "D"),
             ]
         elif lang == "en":
@@ -282,7 +280,6 @@ class Unit(SoftDeleteModel):
                 ("name_en", "english", "A"),
                 ("service_names_en", "english", "B"),
                 ("extra_searchwords_en", "english", "B"),
-                ("extra", None, "C"),
                 ("address_zip", None, "D"),
             ]
         else:
