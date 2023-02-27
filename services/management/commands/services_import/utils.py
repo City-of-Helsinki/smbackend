@@ -7,6 +7,46 @@ from django.utils.http import urlencode
 
 URL_BASE = "http://www.hel.fi/palvelukarttaws/rest/v4/"
 
+LATIN_1_CHARS = (
+    (b"\xe2\x80\x99", b"'"),
+    (b"\xc3\xa9", b"e"),
+    (b"\xe2\x80\x90", b"-"),
+    (b"\xe2\x80\x91", b"-"),
+    (b"\xe2\x80\x92", b"-"),
+    (b"\xe2\x80\x93", b"-"),
+    (b"\xe2\x80\x94", b"-"),
+    (b"\xe2\x80\x94", b"-"),
+    (b"\xe2\x80\x98", b"'"),
+    (b"\xe2\x80\x9b", b"'"),
+    (b"\xe2\x80\x9c", b'"'),
+    (b"\xe2\x80\x9c", b'"'),
+    (b"\xe2\x80\x9d", b'"'),
+    (b"\xe2\x80\x9e", b'"'),
+    (b"\xe2\x80\x9f", b'"'),
+    (b"\xe2\x80\xa6", b"..."),
+    (b"\xe2\x80\xb2", b"'"),
+    (b"\xe2\x80\xb3", b"'"),
+    (b"\xe2\x80\xb4", b"'"),
+    (b"\xe2\x80\xb5", b"'"),
+    (b"\xe2\x80\xb6", b"'"),
+    (b"\xe2\x80\xb7", b"'"),
+    (b"\xe2\x81\xba", b"+"),
+    (b"\xe2\x81\xbb", b"-"),
+    (b"\xe2\x81\xbc", b"="),
+    (b"\xe2\x81\xbd", b"("),
+    (b"\xe2\x81\xbe", b")"),
+)
+
+
+def clean_latin1(data):
+    try:
+        return data.encode("ISO-8859-1").decode("UTF-8")
+    except UnicodeEncodeError:
+        unicode_data = data.encode("UTF-8")
+        for _hex, _char in LATIN_1_CHARS:
+            unicode_data = unicode_data.replace(_hex, _char)
+        return unicode_data.decode("UTF-8")
+
 
 def pk_get(resource_name, res_id=None, params=None):
     url = "%s%s/" % (URL_BASE, resource_name)
