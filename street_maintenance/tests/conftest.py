@@ -49,7 +49,6 @@ def geometry_historys():
         events=[AURAUS],
     )
     geometry_historys.append(obj)
-
     obj = GeometryHistory.objects.create(
         timestamp=now - timedelta(days=2),
         geometry=geometry,
@@ -58,7 +57,6 @@ def geometry_historys():
         events=[LIUKKAUDENTORJUNTA],
     )
     geometry_historys.append(obj)
-
     obj = GeometryHistory.objects.create(
         timestamp=now - timedelta(days=1),
         geometry=geometry,
@@ -66,7 +64,6 @@ def geometry_historys():
         provider=KUNTEC,
         events=[AURAUS],
     )
-
     geometry_historys.append(obj)
     obj = GeometryHistory.objects.create(
         timestamp=now - timedelta(days=2),
@@ -75,9 +72,10 @@ def geometry_historys():
         provider=KUNTEC,
         events=[AURAUS, LIUKKAUDENTORJUNTA],
     )
-    geometry_historys.append(obj) @ pytest.mark.django_db
-
-
+    geometry_historys.append(obj) 
+    
+    
+@ pytest.mark.django_db
 @pytest.fixture
 def administrative_division_type():
     adm_div_type = AdministrativeDivisionType.objects.create(
