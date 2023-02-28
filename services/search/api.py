@@ -80,6 +80,14 @@ class DepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerialize
         fields = ["id", "name", "street_address", "municipality"]
 
 
+class RootDepartmentSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+    id = serializers.UUIDField(source="uuid")
+
+    class Meta:
+        model = Department
+        fields = ["id", "name"]
+
+
 class SearchSerializer(serializers.Serializer):
     def to_representation(self, obj):
         representation = super().to_representation(obj)
@@ -141,6 +149,9 @@ class SearchSerializer(serializers.Serializer):
                 self, obj
             )
             representation["department"] = DepartmentSerializer(obj.department).data
+            representation["root_department"] = RootDepartmentSerializer(
+                obj.root_department
+            ).data
 
         if object_type == "address":
             set_address_fields(obj, representation)

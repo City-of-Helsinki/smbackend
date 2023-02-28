@@ -5,7 +5,7 @@ import requests
 from django.conf import settings
 from django.utils.http import urlencode
 
-URL_BASE = "http://www.hel.fi/palvelukarttaws/rest/v4/"
+URL_BASE = "https://www.hel.fi/palvelukarttaws/rest/v4/"
 
 LATIN_1_CHARS = (
     (b"\xe2\x80\x99", b"'"),

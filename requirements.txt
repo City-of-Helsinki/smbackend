@@ -60,7 +60,7 @@ django-mptt==0.14.0
     # via
     #   -r requirements.in
     #   django-munigeo
-django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.77
+django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.78
     # via -r requirements.in
 django-polymorphic==3.1.0
     # via -r requirements.in
@@ -145,7 +145,7 @@ requests-cache==0.9.8
     # via -r requirements.in
 requests-mock==1.10.0
     # via -r requirements.in
-sentry-sdk==1.15.0
+sentry-sdk==1.16.0
     # via -r requirements.in
 six==1.16.0
     # via
