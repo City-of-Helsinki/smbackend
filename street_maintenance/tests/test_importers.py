@@ -2,12 +2,12 @@ from unittest.mock import patch
 
 import pytest
 
-from street_maintenance.management.commands.constants import INFRAROAD
+from street_maintenance.management.commands.constants import DESTIA, INFRAROAD
 from street_maintenance.models import MaintenanceUnit, MaintenanceWork
 
 from .utils import (
-    get_infraroad_units_mock_data,
-    get_infraroad_works_mock_data,
+    get_fluentprogress_units_mock_data,
+    get_fluentprogress_works_mock_data,
     get_kuntec_units_mock_data,
     get_kuntec_works_mock_data,
     get_yit_contract_mock_data,
@@ -39,7 +39,7 @@ def test_yit_units(
     assert unit.unit_id == "82260ff7-589e-4cee-a8e0-124b615381f1"
     get_yit_vehicles_mock.return_value = get_yit_vehicles_mock_data(1)
     num_created_units, num_del_units = create_yit_maintenance_units("test_access_token")
-    assert unit.id == unit_id
+    assert unit_id == MaintenanceUnit.objects.first().id
     assert num_created_units == 0
     assert num_del_units == 1
     assert MaintenanceUnit.objects.count() == 1
@@ -88,7 +88,7 @@ def test_yit_works(
     )
     assert num_created_works == 0
     assert num_del_works == 1
-    assert work.id == work_id
+    assert work_id == MaintenanceWork.objects.first().id
     assert MaintenanceWork.objects.count() == 1
 
 
@@ -115,7 +115,7 @@ def test_kuntec(
     assert unit.names == ["Auraus"]
     get_json_data_mock.return_value = get_kuntec_units_mock_data(1)
     num_created_units, num_del_units = create_kuntec_maintenance_units()
-    assert unit.id == unit_id
+    assert unit_id == MaintenanceUnit.objects.first().id
     assert num_created_units == 0
     assert num_del_units == 1
     assert MaintenanceUnit.objects.count() == 1
@@ -132,7 +132,7 @@ def test_kuntec(
     num_created_works, num_del_works = create_kuntec_maintenance_works(3)
     assert num_created_works == 0
     assert num_del_works == 1
-    assert work.id == work_id
+    assert work_id == MaintenanceWork.objects.first().id
     assert MaintenanceWork.objects.count() == 1
 
 
@@ -147,7 +147,7 @@ def test_infraroad(
     )
 
     # Test unit creation
-    get_json_data_mock.return_value = get_infraroad_units_mock_data(2)
+    get_json_data_mock.return_value = get_fluentprogress_units_mock_data(2)
     num_created_units, num_del_units = create_maintenance_units(INFRAROAD)
     assert MaintenanceUnit.objects.count() == 2
     assert num_created_units == 2
@@ -156,13 +156,13 @@ def test_infraroad(
     unit_id = unit.id
     unit.unit_id = "2817625"
     unit.names = ["au"]
-    get_json_data_mock.return_value = get_infraroad_units_mock_data(1)
+    get_json_data_mock.return_value = get_fluentprogress_units_mock_data(1)
     num_created_units, num_del_units = create_maintenance_units(INFRAROAD)
-    assert unit.id == unit_id
+    assert unit_id == MaintenanceUnit.objects.first().id
     assert num_created_units == 0
     assert num_del_units == 1
     assert MaintenanceUnit.objects.count() == 1
-    get_json_data_mock.return_value = get_infraroad_works_mock_data(3)
+    get_json_data_mock.return_value = get_fluentprogress_works_mock_data(3)
     num_created_works, num_del_works = create_maintenance_works(INFRAROAD, 1, 10)
     assert num_created_works == 3
     assert num_del_works == 0
@@ -171,9 +171,56 @@ def test_infraroad(
     work_id = work.id
     work.events = ["auraus"]
     work.original_event_names = ["au"]
-    get_json_data_mock.return_value = get_infraroad_works_mock_data(1)
+    get_json_data_mock.return_value = get_fluentprogress_works_mock_data(1)
     num_created_works, num_del_works = create_maintenance_works(INFRAROAD, 1, 10)
     assert num_created_works == 0
     assert num_del_works == 2
-    assert work.id == work_id
+    assert work_id == MaintenanceWork.objects.first().id
+    assert MaintenanceWork.objects.count() == 1
+
+
+@pytest.mark.django_db
+@patch("street_maintenance.management.commands.utils.get_json_data")
+def test_destia(
+    get_json_data_mock, administrative_division, administrative_division_geometry
+):
+    from street_maintenance.management.commands.utils import (
+        create_maintenance_units,
+        create_maintenance_works,
+    )
+
+    # Test unit creation
+    get_json_data_mock.return_value = get_fluentprogress_units_mock_data(2)
+    num_created_units, num_del_units = create_maintenance_units(DESTIA)
+    assert MaintenanceUnit.objects.count() == 2
+    assert num_created_units == 2
+    assert num_del_units == 0
+    unit = MaintenanceUnit.objects.first()
+    unit_id = unit.id
+    unit.unit_id = "2817625"
+    unit.names = ["au"]
+    get_json_data_mock.return_value = get_fluentprogress_units_mock_data(1)
+    num_created_units, num_del_units = create_maintenance_units(DESTIA)
+    assert unit_id == MaintenanceUnit.objects.first().id
+    assert num_created_units == 0
+    assert num_del_units == 1
+    assert MaintenanceUnit.objects.count() == 1
+    get_json_data_mock.return_value = get_fluentprogress_works_mock_data(3)
+    num_created_works, num_del_works = create_maintenance_works(DESTIA, 1, 10)
+    assert num_created_works == 3
+    assert num_del_works == 0
+    assert MaintenanceWork.objects.count() == 3
+    work = MaintenanceWork.objects.first()
+    work_id = work.id
+    work.events = ["auraus"]
+    work.original_event_names = ["au"]
+    work = MaintenanceWork.objects.get(
+        original_event_names=["au", "sivuaura", "sirotin"]
+    )
+    assert work.events == ["auraus", "auraus", "liukkaudentorjunta"]
+    get_json_data_mock.return_value = get_fluentprogress_works_mock_data(1)
+    num_created_works, num_del_works = create_maintenance_works(DESTIA, 1, 10)
+    assert num_created_works == 0
+    assert num_del_works == 2
+    assert work_id == MaintenanceWork.objects.first().id
     assert MaintenanceWork.objects.count() == 1
