@@ -3,10 +3,115 @@ from datetime import datetime
 from street_maintenance.management.commands.constants import (
     DATE_FORMATS,
     INFRAROAD,
+    YIT,
 )
 
 
-def get_infraroad_works_json_data(num_elements):
+def get_yit_vehicles_mock_data(num_elements):
+    data = [
+        {"id": "82260ff7-589e-4cee-a8e0-124b615381f1", "vehicleTypeName": "Huoltoauto"},
+        {
+            "id": "77396829-6275-4dbe-976f-f9d4f5254653",
+            "vehicleTypeName": "Kuorma-auto",
+        },
+    ]
+    assert num_elements <= len(data)
+    return data[:num_elements]
+
+
+def get_yit_event_types_mock_data():
+    data = [
+        {
+            "id": "a4f6188f-8c25-4f42-89be-f5a1bd7d833a",
+            "operationName": "Auraus ja sohjonpoisto",
+        },
+        {"id": "a51e8e4c-8b16-4132-a882-70f6624c1f2b", "operationName": "Suolaus"},
+    ]
+    return data
+
+
+def get_yit_contract_mock_data():
+    return "d73447e6-df70-4f4a-817d-3387b58aca6c"
+
+
+def get_yit_routes_mock_data(num_elements):
+    current_date = datetime.now().date().strftime(DATE_FORMATS[YIT])
+    data = [
+        {
+            # Note, the MaintenanceUnit is retrieved by the vehicleType
+            "vehicleType": "82260ff7-589e-4cee-a8e0-124b615381f1",
+            "length": 21.0,
+            "geography": {
+                "crs": None,
+                "features": [
+                    {
+                        "geometry": {
+                            "coordinates": [
+                                [22.308685, 60.471465],
+                                [22.308758333333337, 60.47151166666666],
+                                [22.308844999999998, 60.47154999999999],
+                                [22.30887476486449, 60.471557320473416],
+                            ],
+                            "type": "LineString",
+                        },
+                        "properties": {
+                            "streetAddress": "Koroistenkaari, Turku",
+                            "featureType": "StreetAddress",
+                        },
+                        "type": "Feature",
+                    }
+                ],
+                "type": "FeatureCollection",
+            },
+            "created": f"{current_date}T11:50:58.6173037Z",
+            "updated": f"{current_date}T11:50:58.6173037Z",
+            "deleted": False,
+            "id": "aaee2c3b-4296-44b3-aba0-82b859d4eea8",
+            "user": "442a5ab2-d58c-4c22-bae2-bcf55327cde7",
+            "contract": "d73447e6-df70-4f4a-817d-3387b58aca6c",
+            "startTime": f"{current_date}T11:48:44.694Z",
+            "endTime": f"{current_date}T11:48:46.984Z",
+            "operations": ["a51e8e4c-8b16-4132-a882-70f6624c1f2b"],
+        },
+        {
+            "vehicleType": "82260ff7-589e-4cee-a8e0-124b615381f1",
+            "length": 0.0,
+            "geography": {
+                "crs": None,
+                "features": [
+                    {
+                        "geometry": {
+                            "coordinates": [
+                                [22.315554108363656, 60.47901418729062],
+                                [22.31555399713308, 60.47901429688299],
+                            ],
+                            "type": "LineString",
+                        },
+                        "properties": {
+                            "streetAddress": "Polttolaitoksenkatu 13, Turku",
+                            "featureType": "StreetAddress",
+                        },
+                        "type": "Feature",
+                    }
+                ],
+                "type": "FeatureCollection",
+            },
+            "created": f"{current_date}T11:52:00.5136066Z",
+            "updated": f"{current_date}T11:52:00.5136066Z",
+            "deleted": False,
+            "id": "9c566b34-2bb5-46b0-9c0a-99f53eada2d2",
+            "user": "442a5ab2-d58c-4c22-bae2-bcf55327cde7",
+            "contract": "d73447e6-df70-4f4a-817d-3387b58aca6c",
+            "startTime": f"{current_date}T11:50:21.708Z",
+            "endTime": f"{current_date}T11:50:21.709Z",
+            "operations": ["a51e8e4c-8b16-4132-a882-70f6624c1f2b"],
+        },
+    ]
+    assert num_elements <= len(data)
+    return data[:num_elements]
+
+
+def get_infraroad_works_mock_data(num_elements):
     current_date = datetime.now().date().strftime(DATE_FORMATS[INFRAROAD])
     location_history = [
         {
@@ -30,7 +135,7 @@ def get_infraroad_works_json_data(num_elements):
     return data
 
 
-def get_infraroad_units_json_data(num_elements):
+def get_infraroad_units_mock_data(num_elements):
     current_date = datetime.now().date().strftime(DATE_FORMATS[INFRAROAD])
     data = [
         {
@@ -54,7 +159,7 @@ def get_infraroad_units_json_data(num_elements):
     return data[:num_elements]
 
 
-def get_kuntec_works_json_data(num_elements):
+def get_kuntec_works_mock_data(num_elements):
     current_date = datetime.now().date().strftime(DATE_FORMATS[INFRAROAD])
     routes = [
         {
@@ -107,7 +212,7 @@ def get_kuntec_works_json_data(num_elements):
     return data
 
 
-def get_kuntec_units_json_data(num_elements):
+def get_kuntec_units_mock_data(num_elements):
     null = None
     units = [
         {
@@ -148,7 +253,7 @@ def get_kuntec_units_json_data(num_elements):
                 "duration": 151159,
             },
             "fuel_type": "",
-            "avg_fuel_consumption": {"norm": 0, "measurement": "l\/100km"}, # noqa W605
+            "avg_fuel_consumption": {"norm": 0, "measurement": "l\/100km"},  # noqa W605
             "created_at": "2019-11-05T10:10:38Z",
             "io_din": [
                 {"no": 1, "label": "Auraus", "state": 1},
@@ -194,7 +299,7 @@ def get_kuntec_units_json_data(num_elements):
                 "duration": 75995,
             },
             "fuel_type": "",
-            "avg_fuel_consumption": {"norm": 0, "measurement": "l\/100km"}, # noqa W605
+            "avg_fuel_consumption": {"norm": 0, "measurement": "l\/100km"},  # noqa W605
             "created_at": "2019-11-05T10:39:46Z",
             "io_din": [
                 {"no": 1, "label": "Auraus", "state": 1},
@@ -240,7 +345,7 @@ def get_kuntec_units_json_data(num_elements):
                 "duration": 75995,
             },
             "fuel_type": "",
-            "avg_fuel_consumption": {"norm": 0, "measurement": "l\/100km"}, # noqa W605
+            "avg_fuel_consumption": {"norm": 0, "measurement": "l\/100km"},  # noqa W605
             "created_at": "2019-11-05T10:39:46Z",
             "io_din": [
                 {"no": 1, "label": "Auraus", "state": 1},
