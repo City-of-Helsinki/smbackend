@@ -112,7 +112,7 @@ def test_kuntec(
     unit = MaintenanceUnit.objects.first()
     unit_id = unit.id
     assert unit.unit_id == "150635"
-    assert unit.names == ["Auraus"]
+    assert unit.names == ["Auraus", "Hiekoitus"]
     get_json_data_mock.return_value = get_kuntec_units_mock_data(1)
     num_created_units, num_del_units = create_kuntec_maintenance_units()
     assert unit_id == MaintenanceUnit.objects.first().id
@@ -126,8 +126,8 @@ def test_kuntec(
     assert MaintenanceWork.objects.count() == 2
     work = MaintenanceWork.objects.first()
     work_id = work.id
-    work.events = ["auraus"]
-    work.original_event_names = ["Auraus"]
+    work.events = ["auraus", "liukkaudentorjunta"]
+    work.original_event_names = ["Auraus", "Hiekoitus"]
     get_json_data_mock.return_value = get_kuntec_works_mock_data(1)
     num_created_works, num_del_works = create_kuntec_maintenance_works(3)
     assert num_created_works == 0
@@ -217,7 +217,8 @@ def test_destia(
     work = MaintenanceWork.objects.get(
         original_event_names=["au", "sivuaura", "sirotin"]
     )
-    assert work.events == ["auraus", "auraus", "liukkaudentorjunta"]
+    # Test that duplicate events are not included, as "sivuaura" and "au" are mapped to "auraus"
+    assert work.events == ["auraus", "liukkaudentorjunta"]
     get_json_data_mock.return_value = get_fluentprogress_works_mock_data(1)
     num_created_works, num_del_works = create_maintenance_works(DESTIA, 1, 10)
     assert num_created_works == 0
