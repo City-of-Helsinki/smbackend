@@ -24,7 +24,6 @@ from .constants import (
     EVENTS,
     KUNTEC,
     KUNTEC_KEY,
-    PROVIDERS,
     ROUTES,
     TIMESTAMP_FORMATS,
     TOKEN,
@@ -51,6 +50,14 @@ def get_turku_boundary():
 
 
 TURKU_BOUNDARY = get_turku_boundary()
+
+
+def get_json_data(url):
+    response = requests.get(url)
+    assert (
+        response.status_code == 200
+    ), "Fetching Maintenance Unit {} status code: {}".format(url, response.status_code)
+    return response.json()
 
 
 def check_linestring_validity(
@@ -237,7 +244,7 @@ def create_yit_maintenance_works(access_token, history_size):
     list_of_events = get_yit_event_types(access_token)
     event_name_mappings = create_dict_from_yit_events(list_of_events)
     routes = get_yit_routes(access_token, contract, history_size)
-    ids_to_delete = list(
+    objs_to_delete = list(
         MaintenanceWork.objects.filter(maintenance_unit__provider=YIT).values_list(
             "id", flat=True
         )
@@ -249,6 +256,7 @@ def create_yit_maintenance_works(access_token, history_size):
                 f"Route contains multiple features. {route['geography']['features']}"
             )
         coordinates = route["geography"]["features"][0]["geometry"]["coordinates"]
+
         if is_nested_coordinates(coordinates) and len(coordinates) > 1:
             geometry = LineString(coordinates, srid=DEFAULT_SRID)
         else:
@@ -296,12 +304,12 @@ def create_yit_maintenance_works(access_token, history_size):
             original_event_names=original_event_names,
             geometry=geometry,
         )
-        if obj.id in ids_to_delete:
-            ids_to_delete.remove(obj.id)
+        if obj.id in objs_to_delete:
+            objs_to_delete.remove(obj.id)
         if created:
             num_created += 1
-    MaintenanceWork.objects.filter(id__in=ids_to_delete).delete()
-    return num_created, len(ids_to_delete)
+    MaintenanceWork.objects.filter(id__in=objs_to_delete).delete()
+    return num_created, len(objs_to_delete)
 
 
 @db.transaction.atomic
@@ -310,7 +318,7 @@ def create_kuntec_maintenance_works(history_size):
     now = datetime.now()
     start = (now - timedelta(days=history_size)).strftime(TIMESTAMP_FORMATS[KUNTEC])
     end = now.strftime(TIMESTAMP_FORMATS[KUNTEC])
-    ids_to_delete = list(
+    objs_to_delete = list(
         MaintenanceWork.objects.filter(maintenance_unit__provider=KUNTEC).values_list(
             "id", flat=True
         )
@@ -319,12 +327,10 @@ def create_kuntec_maintenance_works(history_size):
         url = URLS[KUNTEC][WORKS].format(
             key=KUNTEC_KEY, start=start, end=end, unit_id=unit.unit_id
         )
-        response = requests.get(url)
-        if response.status_code != 200:
-            continue
-        if "data" in response.json():
-            for units in response.json()["data"]["units"]:
-                for route in units["routes"]:
+        json_data = get_json_data(url)
+        if "data" in json_data:
+            for unit_data in json_data["data"]["units"]:
+                for route in unit_data["routes"]:
                     events = []
                     original_event_names = []
                     # Routes of type 'stop' are discarded.
@@ -361,13 +367,13 @@ def create_kuntec_maintenance_works(history_size):
                             original_event_names=original_event_names,
                             geometry=geometry,
                         )
-                        if obj.id in ids_to_delete:
-                            ids_to_delete.remove(obj.id)
+                        if obj.id in objs_to_delete:
+                            objs_to_delete.remove(obj.id)
                         if created:
                             num_created += 1
 
-    MaintenanceWork.objects.filter(id__in=ids_to_delete).delete()
-    return num_created, len(ids_to_delete)
+    MaintenanceWork.objects.filter(id__in=objs_to_delete).delete()
+    return num_created, len(objs_to_delete)
 
 
 @db.transaction.atomic
@@ -379,21 +385,20 @@ def create_maintenance_works(provider, history_size, fetch_size):
     import_from_date_time = import_from_date_time.replace(
         tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki")
     )
-    ids_to_delete = list(
+    objs_to_delete = list(
         MaintenanceWork.objects.filter(maintenance_unit__provider=provider).values_list(
             "id", flat=True
         )
     )
     for unit in MaintenanceUnit.objects.filter(provider=provider):
-        response = requests.get(
+        json_data = get_json_data(
             URLS[provider][WORKS].format(id=unit.unit_id, history_size=fetch_size)
         )
-        if "location_history" in response.json():
-            json_data = response.json()["location_history"]
+        if "location_history" in json_data:
+            json_data = json_data["location_history"]
         else:
             logger.warning(f"Location history not found for unit: {unit.unit_id}")
             continue
-
         for work in json_data:
             timestamp = datetime.strptime(
                 work["timestamp"], TIMESTAMP_FORMATS[provider]
@@ -431,40 +436,34 @@ def create_maintenance_works(provider, history_size, fetch_size):
                 events=events,
                 original_event_names=original_event_names,
             )
-            if obj.id in ids_to_delete:
-                ids_to_delete.remove(obj.id)
+            if obj.id in objs_to_delete:
+                objs_to_delete.remove(obj.id)
             if created:
                 num_created += 1
-    MaintenanceWork.objects.filter(id__in=ids_to_delete).delete()
-    return num_created, len(ids_to_delete)
+
+    MaintenanceWork.objects.filter(id__in=objs_to_delete).delete()
+    return num_created, len(objs_to_delete)
 
 
 @db.transaction.atomic
 def create_maintenance_units(provider):
     num_created = 0
-    assert provider in PROVIDERS
-    response = requests.get(URLS[provider][UNITS])
-    assert (
-        response.status_code == 200
-    ), "Fetching Maintenance Unit {} status code: {}".format(
-        URLS[provider][UNITS], response.status_code
-    )
-    ids_to_delete = list(
+    objs_to_delete = list(
         MaintenanceUnit.objects.filter(provider=provider).values_list("id", flat=True)
     )
-    for unit in response.json():
+    for unit in get_json_data(URLS[provider][UNITS]):
         # The names of the unit is derived from the events.
         names = [n for n in unit["last_location"]["events"]]
         obj, created = MaintenanceUnit.objects.get_or_create(
             unit_id=unit["id"], names=names, provider=provider
         )
-        if obj.id in ids_to_delete:
-            ids_to_delete.remove(obj.id)
+        if obj.id in objs_to_delete:
+            objs_to_delete.remove(obj.id)
         if created:
             num_created += 1
 
-    MaintenanceUnit.objects.filter(id__in=ids_to_delete).delete()
-    return num_created, len(ids_to_delete)
+    MaintenanceUnit.objects.filter(id__in=objs_to_delete).delete()
+    return num_created, len(objs_to_delete)
 
 
 def get_yit_contract(access_token):
@@ -500,20 +499,13 @@ def create_dict_from_yit_events(list_of_events):
 
 @db.transaction.atomic
 def create_kuntec_maintenance_units():
-    units_url = URLS[KUNTEC][UNITS]
-    response = requests.get(units_url)
-    assert (
-        response.status_code == 200
-    ), "Fetching Maintenance Unit {} status code: {}".format(
-        units_url, response.status_code
-    )
+    json_data = get_json_data(URLS[KUNTEC][UNITS])
     no_io_din = 0
     num_created = 0
-    ids_to_delete = list(
+    objs_to_delete = list(
         MaintenanceUnit.objects.filter(provider=KUNTEC).values_list("id", flat=True)
     )
-
-    for unit in response.json()["data"]["units"]:
+    for unit in json_data["data"]["units"]:
         names = []
         if "io_din" in unit:
             on_states = 0
@@ -528,22 +520,21 @@ def create_kuntec_maintenance_units():
             obj, created = MaintenanceUnit.objects.get_or_create(
                 unit_id=unit_id, names=names, provider=KUNTEC
             )
-            if obj.id in ids_to_delete:
-                ids_to_delete.remove(obj.id)
+            if obj.id in objs_to_delete:
+                objs_to_delete.remove(obj.id)
             if created:
                 num_created += 1
 
         else:
             no_io_din += 1
-    MaintenanceUnit.objects.filter(id__in=ids_to_delete).delete()
+    MaintenanceUnit.objects.filter(id__in=objs_to_delete).delete()
     logger.info(
         f"Discarding {no_io_din} Kuntec units that do not have a io_din with Status 'On'(1)."
     )
-    return num_created, len(ids_to_delete)
+    return num_created, len(objs_to_delete)
 
 
-@db.transaction.atomic
-def create_yit_maintenance_units(access_token):
+def get_yit_vehicles(access_token):
     response = requests.get(
         URLS[YIT][VEHICLES], headers={"Authorization": f"Bearer {access_token}"}
     )
@@ -552,21 +543,27 @@ def create_yit_maintenance_units(access_token):
     ), " Fetching YIT vehicles {} failed, status code: {}".format(
         URLS[YIT][VEHICLES], response.status_code
     )
+    response.json()
+
+
+@db.transaction.atomic
+def create_yit_maintenance_units(access_token):
+    vehicles = get_yit_vehicles(access_token)
     num_created = 0
-    ids_to_delete = list(
+    objs_to_delete = list(
         MaintenanceUnit.objects.filter(provider=YIT).values_list("id", flat=True)
     )
-    for unit in response.json():
+    for unit in vehicles:
         names = [unit["vehicleTypeName"]]
         obj, created = MaintenanceUnit.objects.get_or_create(
             unit_id=unit["id"], names=names, provider=YIT
         )
-        if obj.id in ids_to_delete:
-            ids_to_delete.remove(obj.id)
+        if obj.id in objs_to_delete:
+            objs_to_delete.remove(obj.id)
         if created:
             num_created += 1
-    MaintenanceUnit.objects.filter(id__in=ids_to_delete).delete()
-    return num_created, len(ids_to_delete)
+    MaintenanceUnit.objects.filter(id__in=objs_to_delete).delete()
+    return num_created, len(objs_to_delete)
 
 
 def get_yit_routes(access_token, contract, history_size):
