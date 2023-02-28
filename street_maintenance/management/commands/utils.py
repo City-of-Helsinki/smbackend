@@ -170,7 +170,6 @@ def get_linestrings_from_points(objects, queryset, provider):
             prev_geometry = elem.geometry
             points.append(elem.geometry)
             prev_timestamp = elem.timestamp
-
         if len(points) > 1:
             discarded_linestrings += add_geometry_history_objects(
                 objects, points, elem, provider
@@ -276,7 +275,8 @@ def create_yit_maintenance_works(access_token, history_size):
                 for e in EVENT_MAPPINGS[event_name]:
                     # If mapping value is None, the event is not used.
                     if e:
-                        events.append(e)
+                        if e not in events:
+                            events.append(e)
                         original_event_names.append(event_name_mappings[operation])
             else:
                 logger.warning(
@@ -342,7 +342,8 @@ def create_kuntec_maintenance_works(history_size):
                                 for e in EVENT_MAPPINGS[event_name]:
                                     # If mapping value is None, the event is not used.
                                     if e:
-                                        events.append(e)
+                                        if e not in events:
+                                            events.append(e)
                                         original_event_names.append(name)
                             else:
                                 logger.warning(f"Found unmapped event: {event_name}")
@@ -422,7 +423,8 @@ def create_maintenance_works(provider, history_size, fetch_size):
                     for e in EVENT_MAPPINGS[event_name]:
                         # If mapping value is None, the event is not used.
                         if e:
-                            events.append(e)
+                            if e not in events:
+                                events.append(e)
                             original_event_names.append(event)
                 else:
                     logger.warning(f"Found unmapped event: {event}")
