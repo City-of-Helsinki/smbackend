@@ -256,6 +256,7 @@ def create_yit_maintenance_works(access_token, history_size):
                 f"Route contains multiple features. {route['geography']['features']}"
             )
         coordinates = route["geography"]["features"][0]["geometry"]["coordinates"]
+
         if is_nested_coordinates(coordinates) and len(coordinates) > 1:
             geometry = LineString(coordinates, srid=DEFAULT_SRID)
         else:
@@ -533,8 +534,7 @@ def create_kuntec_maintenance_units():
     return num_created, len(objs_to_delete)
 
 
-@db.transaction.atomic
-def create_yit_maintenance_units(access_token):
+def get_yit_vehicles(access_token):
     response = requests.get(
         URLS[YIT][VEHICLES], headers={"Authorization": f"Bearer {access_token}"}
     )
@@ -543,11 +543,17 @@ def create_yit_maintenance_units(access_token):
     ), " Fetching YIT vehicles {} failed, status code: {}".format(
         URLS[YIT][VEHICLES], response.status_code
     )
+    response.json()
+
+
+@db.transaction.atomic
+def create_yit_maintenance_units(access_token):
+    vehicles = get_yit_vehicles(access_token)
     num_created = 0
     objs_to_delete = list(
         MaintenanceUnit.objects.filter(provider=YIT).values_list("id", flat=True)
     )
-    for unit in response.json():
+    for unit in vehicles:
         names = [unit["vehicleTypeName"]]
         obj, created = MaintenanceUnit.objects.get_or_create(
             unit_id=unit["id"], names=names, provider=YIT
