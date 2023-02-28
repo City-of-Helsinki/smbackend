@@ -75,7 +75,7 @@ def geometry_historys():
     geometry_historys.append(obj) 
     
     
-@ pytest.mark.django_db
+@pytest.mark.django_db
 @pytest.fixture
 def administrative_division_type():
     adm_div_type = AdministrativeDivisionType.objects.create(
