@@ -25,7 +25,7 @@ from services.management.commands.services_import.services import (
 )
 from services.management.commands.services_import.units import import_units
 
-URL_BASE = "http://www.hel.fi/palvelukarttaws/rest/v4/"
+URL_BASE = "https://www.hel.fi/palvelukarttaws/rest/v4/"
 GK25_SRID = 3879
 
 UTC_TIMEZONE = pytz.timezone("UTC")
