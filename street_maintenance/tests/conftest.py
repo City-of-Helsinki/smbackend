@@ -72,9 +72,9 @@ def geometry_historys():
         provider=KUNTEC,
         events=[AURAUS, LIUKKAUDENTORJUNTA],
     )
-    geometry_historys.append(obj) 
-    
-    
+    geometry_historys.append(obj)
+
+
 @pytest.mark.django_db
 @pytest.fixture
 def administrative_division_type():
