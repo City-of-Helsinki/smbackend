@@ -38,6 +38,39 @@ def get_yit_routes_mock_data(num_elements):
     current_date = datetime.now().date().strftime(DATE_FORMATS[YIT])
     data = [
         {
+            "vehicleType": "82260ff7-589e-4cee-a8e0-124b615381f1",
+            "length": 0.0,
+            "geography": {
+                "crs": None,
+                "features": [
+                    {
+                        "geometry": {
+                            "coordinates": [
+                                [22.315554108363656, 60.47901418729062],
+                                [22.31555399713308, 60.47901429688299],
+                            ],
+                            "type": "LineString",
+                        },
+                        "properties": {
+                            "streetAddress": "Polttolaitoksenkatu 13, Turku",
+                            "featureType": "StreetAddress",
+                        },
+                        "type": "Feature",
+                    }
+                ],
+                "type": "FeatureCollection",
+            },
+            "created": f"{current_date}T11:52:00.5136066Z",
+            "updated": f"{current_date}T11:52:00.5136066Z",
+            "deleted": False,
+            "id": "9c566b34-2bb5-46b0-9c0a-99f53eada2d2",
+            "user": "442a5ab2-d58c-4c22-bae2-bcf55327cde7",
+            "contract": "d73447e6-df70-4f4a-817d-3387b58aca6c",
+            "startTime": f"{current_date}T11:50:21.708Z",
+            "endTime": f"{current_date}T11:50:21.709Z",
+            "operations": ["a51e8e4c-8b16-4132-a882-70f6624c1f2b"],
+        },
+        {
             # Note, the MaintenanceUnit is retrieved by the vehicleType
             "vehicleType": "82260ff7-589e-4cee-a8e0-124b615381f1",
             "length": 21.0,
@@ -73,45 +106,13 @@ def get_yit_routes_mock_data(num_elements):
             "endTime": f"{current_date}T11:48:46.984Z",
             "operations": ["a51e8e4c-8b16-4132-a882-70f6624c1f2b"],
         },
-        {
-            "vehicleType": "82260ff7-589e-4cee-a8e0-124b615381f1",
-            "length": 0.0,
-            "geography": {
-                "crs": None,
-                "features": [
-                    {
-                        "geometry": {
-                            "coordinates": [
-                                [22.315554108363656, 60.47901418729062],
-                                [22.31555399713308, 60.47901429688299],
-                            ],
-                            "type": "LineString",
-                        },
-                        "properties": {
-                            "streetAddress": "Polttolaitoksenkatu 13, Turku",
-                            "featureType": "StreetAddress",
-                        },
-                        "type": "Feature",
-                    }
-                ],
-                "type": "FeatureCollection",
-            },
-            "created": f"{current_date}T11:52:00.5136066Z",
-            "updated": f"{current_date}T11:52:00.5136066Z",
-            "deleted": False,
-            "id": "9c566b34-2bb5-46b0-9c0a-99f53eada2d2",
-            "user": "442a5ab2-d58c-4c22-bae2-bcf55327cde7",
-            "contract": "d73447e6-df70-4f4a-817d-3387b58aca6c",
-            "startTime": f"{current_date}T11:50:21.708Z",
-            "endTime": f"{current_date}T11:50:21.709Z",
-            "operations": ["a51e8e4c-8b16-4132-a882-70f6624c1f2b"],
-        },
     ]
     assert num_elements <= len(data)
     return data[:num_elements]
 
 
-def get_infraroad_works_mock_data(num_elements):
+# Both Destia and Infraroad uses the fluentprogress API
+def get_fluentprogress_works_mock_data(num_elements):
     current_date = datetime.now().date().strftime(DATE_FORMATS[INFRAROAD])
     location_history = [
         {
@@ -122,7 +123,7 @@ def get_infraroad_works_mock_data(num_elements):
         {
             "timestamp": f"{current_date} 08:29:28",
             "coords": "(22.24946401 60.49515848)",
-            "events": ["au"],
+            "events": ["au", "sivuaura", "sirotin"],
         },
         {
             "timestamp": f"{current_date} 08:28:32",
@@ -135,7 +136,7 @@ def get_infraroad_works_mock_data(num_elements):
     return data
 
 
-def get_infraroad_units_mock_data(num_elements):
+def get_fluentprogress_units_mock_data(num_elements):
     current_date = datetime.now().date().strftime(DATE_FORMATS[INFRAROAD])
     data = [
         {
@@ -253,7 +254,7 @@ def get_kuntec_units_mock_data(num_elements):
                 "duration": 151159,
             },
             "fuel_type": "",
-            "avg_fuel_consumption": {"norm": 0, "measurement": "l\/100km"},  # noqa W605
+            "avg_fuel_consumption": {"norm": 0, "measurement": "l/100km"},
             "created_at": "2019-11-05T10:10:38Z",
             "io_din": [
                 {"no": 1, "label": "Auraus", "state": 1},
@@ -299,7 +300,7 @@ def get_kuntec_units_mock_data(num_elements):
                 "duration": 75995,
             },
             "fuel_type": "",
-            "avg_fuel_consumption": {"norm": 0, "measurement": "l\/100km"},  # noqa W605
+            "avg_fuel_consumption": {"norm": 0, "measurement": "l/100km"},
             "created_at": "2019-11-05T10:39:46Z",
             "io_din": [
                 {"no": 1, "label": "Auraus", "state": 1},
@@ -345,7 +346,7 @@ def get_kuntec_units_mock_data(num_elements):
                 "duration": 75995,
             },
             "fuel_type": "",
-            "avg_fuel_consumption": {"norm": 0, "measurement": "l\/100km"},  # noqa W605
+            "avg_fuel_consumption": {"norm": 0, "measurement": "l/100km"},
             "created_at": "2019-11-05T10:39:46Z",
             "io_din": [
                 {"no": 1, "label": "Auraus", "state": 1},
