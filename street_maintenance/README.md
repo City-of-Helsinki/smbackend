@@ -1,4 +1,4 @@
-# Street Maintance history
+# Street Maintenance history
 
 Django app for importing and serving street maintenance data.
 
