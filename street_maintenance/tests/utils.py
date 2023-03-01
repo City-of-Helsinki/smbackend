@@ -258,7 +258,7 @@ def get_kuntec_units_mock_data(num_elements):
             "created_at": "2019-11-05T10:10:38Z",
             "io_din": [
                 {"no": 1, "label": "Auraus", "state": 1},
-                {"no": 2, "label": "Hiekoitus", "state": 0},
+                {"no": 2, "label": "Hiekoitus", "state": 1},
                 {"no": 3, "label": "Muu ty\u00f6", "state": 0},
             ],
         },
