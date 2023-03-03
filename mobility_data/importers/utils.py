@@ -68,7 +68,7 @@ def fetch_json(url):
 
 
 def delete_mobile_units(name):
-    ContentType.objects.filter(name=name).delete()
+    MobileUnit.objects.filter(content_types__name=name).delete()
 
 
 def create_mobile_unit_as_unit_reference(unit_id, content_type):
