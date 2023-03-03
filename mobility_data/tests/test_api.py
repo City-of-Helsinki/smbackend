@@ -122,7 +122,7 @@ def test_mobile_unit(api_client, mobile_units, content_types, unit):
 
 
 @pytest.mark.django_db
-def test_mobile_unit_group(api_client, mobile_unit_group, group_type, unit):
+def test_mobile_unit_group(api_client, mobile_unit_group, group_type):
     url = reverse("mobility_data:mobile_unit_groups-list")
     response = api_client.get(url)
     assert response.status_code == 200
