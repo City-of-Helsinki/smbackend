@@ -88,7 +88,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         representation = super().to_representation(obj)
         unit_id = getattr(obj, "unit_id", None)
         # If serializing Unit instance or MobileUnit with unit_id.
-        if self.context.get("services_unit_instance", False) or unit_id:
+        if self.context.get("services_unit_instances", False) or unit_id:
             if unit_id:
                 # When serializing the MobileUnit from the retrieve method
                 try:
@@ -135,7 +135,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             except Unit.DoesNotExist:
                 return None
         # If serializing Unit object retrieved from the view.
-        elif self.context.get("services_unit_instance", False):
+        elif self.context.get("services_unit_instances", False):
             geometry = obj.location
         else:
             geometry = obj.geometry
