@@ -27,7 +27,7 @@ EVENT_PARAM = OpenApiParameter(
     location=OpenApiParameter.QUERY,
     description=(
         "Return objects of given event. "
-        'Event choices are: " ,".join(PROVIDERS).lower(), '
+        f'Event choices are: {", ".join(PROVIDERS).lower()}, '
         'E.g. "auraus".'
     ),
     required=False,
