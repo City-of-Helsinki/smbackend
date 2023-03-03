@@ -44,7 +44,6 @@ class MobileUnitSerializer(serializers.ModelSerializer):
 
     content_types = ContentTypeSerializer(many=True, read_only=True)
     mobile_unit_group = MobileUnitGroupBasicInfoSerializer(many=False, read_only=True)
-    # geometry = serializers.SerializerMethodField(read_only=True)
     geometry_coords = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
