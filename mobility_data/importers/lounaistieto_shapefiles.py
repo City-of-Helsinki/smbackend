@@ -8,7 +8,7 @@ from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
     delete_mobile_units,
-    get_or_create_content_type,
+    get_or_create_content_type_from_config,
     set_translated_field,
 )
 from mobility_data.models import MobileUnit
@@ -100,24 +100,13 @@ class MobilityData:
 
 
 @db.transaction.atomic
-def get_and_create_datasource_content_type(config):
-    if "content_type_description" in config:
-        description = config["content_type_description"]
-    else:
-        description = ""
-    name = config["content_type_name"]
-    ct, _ = get_or_create_content_type(name, description)
-    return ct
-
-
-@db.transaction.atomic
 def delete_content_type(config):
     delete_mobile_units(config["content_type_name"])
 
 
 @db.transaction.atomic
 def save_to_database(objects, config):
-    content_type = get_and_create_datasource_content_type(config)
+    content_type = get_or_create_content_type_from_config(config["content_type_name"])
     if not content_type:
         return
     for object in objects:
