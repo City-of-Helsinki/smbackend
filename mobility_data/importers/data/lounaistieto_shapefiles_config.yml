@@ -1,6 +1,5 @@
 data_sources:
   - content_type_name: BusStopSouthwestFinland
-    content_type_description: "Bus stops in Southwest Finland."
     data_url: "https://data.lounaistieto.fi/data/dataset/ee440090-7303-4453-8639-b5f711669acb/resource/14060749-5215-41af-9312-5393c966f987/download/tieverkkodata.zip/bussipysakit.shp"
     fields:
       name:
@@ -19,7 +18,6 @@ data_sources:
       pystunn196: pystunn196
 
   - content_type_name: FerryDock
-    content_type_description: "Ferry docks in Southwest Finland."
     data_url: "https://data.lounaistieto.fi/data/dataset/ea4dcae2-5832-403c-bf7e-b19783ee9a70/resource/faa02c52-2da8-4603-b8bf-4afca42d39a5/download/yhteysalusreitit_laiturit.zip/Laiturit.shp"
     encoding: latin_1
     filter_by_southwest_finland: True
@@ -34,7 +32,6 @@ data_sources:
       reittialue: REITTIALUE    
 
   - content_type_name: CommonFerryRoute
-    content_type_description: "Common ferry routes(yhteysalusreitti) in Southwest Finland."
     data_url: "https://data.lounaistieto.fi/data/dataset/ea4dcae2-5832-403c-bf7e-b19783ee9a70/resource/faa02c52-2da8-4603-b8bf-4afca42d39a5/download/yhteysalusreitit_laiturit.zip/Yhteysalusreitit.shp"
     encoding: latin_1
     filter_by_southwest_finland: True
@@ -47,7 +44,6 @@ data_sources:
       yhteysalus: Yhteysalus
 
   - content_type_name: FishingSpot
-    content_type_description: "Fishing spots in Soutwest Finland."
     data_url: 'https://data.lounaistieto.fi/data/dataset/50451034-b760-4b39-8f88-701d9c968d88/resource/cd41b91f-f684-4cdc-bbf8-e2c4eaca3a70/download/kalapaikat.zip'
     srid: 3067
     encoding: latin_1
@@ -73,7 +69,6 @@ data_sources:
       tietod: Tiedot
 
   - content_type_name: FerryRoute
-    content_type_description: "Ferry routes in Southwest Finland"
     data_url: 'https://data.lounaistieto.fi/data/dataset/4809cdd7-7d6d-46f7-86b1-5d6f3fbd97aa/resource/a3905406-cb79-465d-927c-1d6b53c0385e/download/lossireitit_euref.zip'
     srid: 3067
     encoding: latin_1
@@ -87,7 +82,6 @@ data_sources:
       pituus: PITUUS
 
   - content_type_name: MarinaSouthwestFinland
-    content_type_description: "Marinas in Southwest Finland, the data contains marinas, moorings, connection piers"
     data_url: 'https://data.lounaistieto.fi/data/dataset/6069c4d5-cbed-4e32-9f21-502688f26192/resource/214e5337-8232-4e02-8324-81285b1a1024/download/venesatamat_kaikki.zip'
     srid: 3067
     encoding: utf-8
@@ -109,7 +103,6 @@ data_sources:
       www: www
 
   - content_type_name: "SlipwaySouthwestFinland"
-    content_type_description: "Slipways for boats."
     data_url: 'https://data.lounaistieto.fi/data/dataset/84116aeb-4ced-48ca-9c93-58edb946ab96/resource/2bf2497e-4ed0-4b38-b1e9-ecd1bbb28856/download/venerampit.zip'
     srid: 3067
     encoding: latin_1
@@ -123,7 +116,6 @@ data_sources:
       päiv_aika: PÄIV_AIKA
 
   - content_type_name: RecreationalRoute
-    content_type_description: 'Recreational routes in Southwest Finland'
     data_url: 'https://data.lounaistieto.fi/data/dataset/3e92c2b6-7b62-49d1-b2fd-ff4917208f2a/resource/f20f006f-7592-45a8-9698-7c6fa09af068/download/virkistysaineisto.zip'
     srid: 3067
     encoding: latin_1
