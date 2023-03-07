@@ -1,0 +1,113 @@
+content_types:
+  - content_type_name: BikeServiceStation
+    name:
+      fi: Pyöränkorjauspiste
+      sv: Cykelservicestation
+      en: Bike service stations
+  - content_type_name: BicycleStand
+    name:
+      fi: Pyöräpysäköinti
+      sv: Cykelparkering
+      en: Bicycle parking
+  - content_type_name: ChargingStation
+    name:
+      fi: Sähkölatauspiste
+      sv: Elladningsstation för bilar
+      en: Car e-charging point
+  - content_type_name: NoStaffParking
+    name:
+      fi: Yleiset pysäköintialueet
+      sv: Allmänna parkeringsplatser
+      en: Public parking spaces
+  - content_type_name: DisabledParking
+    name:
+      fi: Liikkumisesteisen pysäköinti
+      sv: Parkering för rörelsehindrade
+      en: Parking for disabled
+  - content_type_name: FoliParkAndRideCarsStop
+    name:
+      fi: Föli auto liityntäpysäköinti
+      sv: Föli bil infartsparkering
+      en: Föli car park-and-ride stop
+  - content_type_name: FoliParkAndRideBikesStop
+    name:
+      fi: Föli pyörä liityntäpysäköinti
+      sv: Föli cykel infartsparkering
+      en: Föli bicycle park-and-ride stop
+  - content_type_name: FoliStop
+    name:
+      fi: Föli pysäkki
+      sv: Föli busshållplats      
+      en: Föli bus stop
+  - content_type_name: GasFillingStation
+    name:
+      fi: Kaasutankkausasema
+      sv: Tankstation med gas
+      en: Gas filling station
+  - content_type_name: LoadingUnloadingPlace
+    name:
+      fi: Kourmauspaikka
+      sv: Lastningsplats
+      en: Loading place
+  # Content types from lounaistieto shapefiles importer
+  - content_type_name: BusStopSouthwestFinland
+    name:
+      fi: Bussipysäkki
+      sv: Busshållplats
+      en: Bus stop
+    description:
+      fi: Bussipysäkkejä Varsinais-Suomessa.
+      sv: Busshållplatser i Egentliga Finland.
+      en: Bus stops in Southwest Finland.
+  - content_type_name: FerryDock
+    name:
+      fi: Lossi laituri
+      sv: Färjeläge
+      en: Ferry dock
+    description:
+      fi: Lossi laitureita Varsinais-Suomessa.
+      sv: Färjelägen i Egentliga Finland.
+      en: Ferry docks in Southwest Finland.
+  - content_type_name: CommonFerryRoute
+    name:
+      fi: Yhteysalusreitti.
+      sv: Förbindelsefartygsrutt.
+      en: Common ferry route.
+    description:
+      fi: Yhteysalusreittejä Varsinais-Suomessa.
+      sv: Förbindelsefartygsrutter i Egentliga Finland.
+      en: Common ferry routes in Southwest Finland.
+  - content_type_name: FishingSpot
+    name:
+      fi: Kalastuspaikka
+      sv: Fiskeplats
+      en: Fishing spot
+    description:
+      name:
+        fi: Kalastuspaikkoja Varsinais-Suomessa.
+        sv: Fiskeplatser i Egentliga Finland.
+        en: Fishing spots in Southwest Finland.
+  - content_type_name: FerryRoute
+    name:
+      fi: Lossi reittejä Varsinais-Suomessa.
+      sv: Färjerutter i Egentliga Finland.
+      en: Ferry routes(yhteysalusreitti) in Southwest Finland.
+  - content_type_name: SlipwaySouthwestFinland
+    name:
+      fi: Veneenlaskupaikka
+      sv: Sjösättningsplat för båt
+      en: Slipway for boat
+    description:
+      fi: Veneenlaskupaikkoja Varsinais-Suomessa.
+      sv: Sjösättningsplatser för båtar i Egentliga Finland.
+      en: Slipways for boats in Southwest Finland.
+  - content_type_name: RecreationalRoute
+    name:
+      fi: Virkistysreitti
+      sv: Rekreationsrutt 
+      en: Recreational route
+    description:
+      fi: Virkistysreittejä Varsinais-Suomessa.
+      sv: Rekreationsrutter i Egentliga Finland
+      en: Recreational routes in Southwest Finland
+  # End of lounaistieto shapefile importer content types
