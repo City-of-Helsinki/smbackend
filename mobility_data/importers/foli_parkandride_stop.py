@@ -8,7 +8,7 @@ from mobility_data.models import MobileUnit
 from .utils import (
     delete_mobile_units,
     fetch_json,
-    get_or_create_content_type,
+    get_or_create_content_type_from_config,
     set_translated_field,
 )
 
@@ -62,24 +62,6 @@ def get_parkandride_stop_objects():
 
 
 @db.transaction.atomic
-def get_and_create_foli_parkandride_bike_stop_content_type():
-    description = "Föli park and ride bike stop."
-    content_type, _ = get_or_create_content_type(
-        FOLI_PARKANDRIDE_BIKES_STOP_CONTENT_TYPE_NAME, description
-    )
-    return content_type
-
-
-@db.transaction.atomic
-def get_and_create_foli_parkandride_car_stop_content_type():
-    description = "Föli park and ride car stop."
-    content_type, _ = get_or_create_content_type(
-        FOLI_PARKANDRIDE_CARS_STOP_CONTENT_TYPE_NAME, description
-    )
-    return content_type
-
-
-@db.transaction.atomic
 def save_to_database(objects, content_type_name, delete_tables=True):
     assert (
         content_type_name == FOLI_PARKANDRIDE_BIKES_STOP_CONTENT_TYPE_NAME
@@ -88,10 +70,7 @@ def save_to_database(objects, content_type_name, delete_tables=True):
     if delete_tables:
         delete_mobile_units(content_type_name)
 
-    if content_type_name == FOLI_PARKANDRIDE_BIKES_STOP_CONTENT_TYPE_NAME:
-        content_type = get_and_create_foli_parkandride_bike_stop_content_type()
-    elif content_type_name == FOLI_PARKANDRIDE_CARS_STOP_CONTENT_TYPE_NAME:
-        content_type = get_and_create_foli_parkandride_car_stop_content_type()
+    content_type = get_or_create_content_type_from_config(content_type_name)
 
     for object in objects:
         mobile_unit = MobileUnit.objects.create(

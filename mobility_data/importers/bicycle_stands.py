@@ -22,7 +22,7 @@ from .utils import (
     delete_mobile_units,
     get_closest_address_full_name,
     get_municipality_name,
-    get_or_create_content_type,
+    get_or_create_content_type_from_config,
     get_root_dir,
     get_street_name_translations,
     locates_in_turku,
@@ -261,18 +261,11 @@ def delete_bicycle_stands():
 
 
 @db.transaction.atomic
-def create_bicycle_stand_content_type():
-    description = "Bicycle stands in The Turku Region."
-    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
-    return content_type
-
-
-@db.transaction.atomic
 def save_to_database(objects, delete_tables=True):
     if delete_tables:
         delete_bicycle_stands()
 
-    content_type = create_bicycle_stand_content_type()
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
             extra=object.extra,

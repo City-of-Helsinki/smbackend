@@ -6,7 +6,11 @@ from django.contrib.gis.geos import Point
 
 from mobility_data.models import MobileUnit
 
-from .utils import delete_mobile_units, fetch_json, get_or_create_content_type
+from .utils import (
+    delete_mobile_units,
+    fetch_json,
+    get_or_create_content_type_from_config,
+)
 
 URL = "http://data.foli.fi/gtfs/stops"
 CONTENT_TYPE_NAME = "FoliStop"
@@ -33,18 +37,11 @@ def get_foli_stops():
 
 
 @db.transaction.atomic
-def get_and_create_foli_stop_content_type():
-    description = "Föli stops."
-    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
-    return content_type
-
-
-@db.transaction.atomic
 def save_to_database(objects, delete_tables=True):
     if delete_tables:
         delete_mobile_units(CONTENT_TYPE_NAME)
 
-    content_type = get_and_create_foli_stop_content_type()
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
             name=object.name,

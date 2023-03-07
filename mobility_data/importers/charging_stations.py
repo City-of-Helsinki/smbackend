@@ -11,7 +11,7 @@ from .utils import (
     delete_mobile_units,
     get_file_name_from_data_source,
     get_municipality_name,
-    get_or_create_content_type,
+    get_or_create_content_type_from_config,
     get_postal_code,
     get_root_dir,
     get_street_name_translations,
@@ -169,17 +169,10 @@ def delete_charging_stations():
 
 
 @db.transaction.atomic
-def create_charging_station_content_type():
-    description = "Charging stations in province of Southwest Finland."
-    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
-    return content_type
-
-
-@db.transaction.atomic
 def save_to_database(objects, delete_tables=True):
     if delete_tables:
         delete_charging_stations()
-    content_type = create_charging_station_content_type()
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
 
     for object in objects:
         is_active = object.is_active
