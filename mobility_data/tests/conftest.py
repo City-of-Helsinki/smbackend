@@ -1,6 +1,7 @@
 import pytest
 from django.conf import settings
 from django.contrib.gis.geos import GEOSGeometry, Point
+from django.utils import timezone
 from munigeo.models import (
     Address,
     AdministrativeDivision,
@@ -10,6 +11,8 @@ from munigeo.models import (
     Street,
 )
 from rest_framework.test import APIClient
+
+from services.models import Service, Unit, UnitServiceDetails
 
 from ..models import ContentType, GroupType, MobileUnit, MobileUnitGroup
 
@@ -48,12 +51,26 @@ def api_client():
 @pytest.fixture
 def content_types():
     content_types = [
-        ContentType.objects.create(name="Test", description="test content type")
+        ContentType.objects.create(
+            id="aa6c2903-d36f-4c61-b828-19084fc7a64b",
+            name="Test",
+            description="test content type",
+        )
     ]
     content_types.append(
-        ContentType.objects.create(name="Test2", description="test content type2")
+        ContentType.objects.create(
+            id="ba6c2903-d36f-4c61-b828-19084fc7a64b",
+            name="Test2",
+            description="test content type2",
+        )
     )
-
+    content_types.append(
+        ContentType.objects.create(
+            id="ca6c2903-d36f-4c61-b828-19084fc7a64b",
+            name="Test unit",
+            description="test content type3",
+        )
+    )
     return content_types
 
 
@@ -79,6 +96,7 @@ def mobile_units(content_types):
     geometry = Point(22.21, 60.3, srid=4326)
     geometry.transform(settings.DEFAULT_SRID)
     mobile_unit = MobileUnit.objects.create(
+        id="aa6c2903-d36f-4c61-b828-19084fc7a64b",
         name="Test mobileunit",
         description="Test description",
         geometry=geometry,
@@ -93,15 +111,42 @@ def mobile_units(content_types):
         "test_bool": True,
     }
     mobile_unit = MobileUnit.objects.create(
+        id="ba6c2903-d36f-4c61-b828-19084fc7a64b",
         name="Test2 mobileunit",
         description="Test2 description",
-        geometry=Point(43.43, 22.22, srid=settings.DEFAULT_SRID),
+        geometry=Point(23.43, 62.22, srid=settings.DEFAULT_SRID),
         extra=extra,
     )
     mobile_unit.content_types.add(content_types[0])
     mobile_unit.content_types.add(content_types[1])
     mobile_units.append(mobile_units)
+    mobile_unit = MobileUnit.objects.create(
+        id="ca6c2903-d36f-4c61-b828-19084fc7a64b", unit_id=1
+    )
+    mobile_unit.content_types.add(content_types[2])
+    mobile_units.append(mobile_units)
     return mobile_units
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def service():
+    return Service.objects.create(id=1, name="test", last_modified_time=timezone.now())
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def unit(service):
+    unit = Unit.objects.create(
+        id=1,
+        name="Test unit",
+        description="desc",
+        last_modified_time=timezone.now(),
+        provider_type=1,
+        location=Point(24.24, 62.22, srid=settings.DEFAULT_SRID),
+    )
+    UnitServiceDetails(unit=unit, service=service).save()
+    return unit
 
 
 @pytest.mark.django_db

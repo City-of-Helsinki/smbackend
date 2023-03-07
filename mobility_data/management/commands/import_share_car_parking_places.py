@@ -19,4 +19,4 @@ class Command(BaseImportCommand):
 
         objects = get_car_share_parking_place_objects(geojson_file=geojson_file)
         save_to_database(objects)
-        logger.info(f"Imported {len(objects)} char share parking places.")
+        logger.info(f"Imported {len(objects)} car share parking places.")
