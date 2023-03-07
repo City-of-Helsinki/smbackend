@@ -4,51 +4,61 @@ content_types:
       fi: Pyöränkorjauspiste
       sv: Cykelservicestation
       en: Bike service stations
+
   - content_type_name: BicycleStand
     name:
       fi: Pyöräpysäköinti
       sv: Cykelparkering
       en: Bicycle parking
+
   - content_type_name: ChargingStation
     name:
       fi: Sähkölatauspiste
       sv: Elladningsstation för bilar
       en: Car e-charging point
+
   - content_type_name: NoStaffParking
     name:
       fi: Yleiset pysäköintialueet
       sv: Allmänna parkeringsplatser
       en: Public parking spaces
+
   - content_type_name: DisabledParking
     name:
       fi: Liikkumisesteisen pysäköinti
       sv: Parkering för rörelsehindrade
       en: Parking for disabled
+
   - content_type_name: FoliParkAndRideCarsStop
     name:
       fi: Föli auto liityntäpysäköinti
       sv: Föli bil infartsparkering
       en: Föli car park-and-ride stop
+
   - content_type_name: FoliParkAndRideBikesStop
     name:
       fi: Föli pyörä liityntäpysäköinti
       sv: Föli cykel infartsparkering
       en: Föli bicycle park-and-ride stop
+
   - content_type_name: FoliStop
     name:
       fi: Föli pysäkki
       sv: Föli busshållplats      
       en: Föli bus stop
+
   - content_type_name: GasFillingStation
     name:
       fi: Kaasutankkausasema
       sv: Tankstation med gas
       en: Gas filling station
+
   - content_type_name: LoadingUnloadingPlace
     name:
       fi: Kourmauspaikka
       sv: Lastningsplats
       en: Loading place
+
   # Content types from lounaistieto shapefiles importer
   - content_type_name: BusStopSouthwestFinland
     name:
@@ -59,6 +69,7 @@ content_types:
       fi: Bussipysäkkejä Varsinais-Suomessa.
       sv: Busshållplatser i Egentliga Finland.
       en: Bus stops in Southwest Finland.
+
   - content_type_name: FerryDock
     name:
       fi: Lossi laituri
@@ -68,15 +79,17 @@ content_types:
       fi: Lossi laitureita Varsinais-Suomessa.
       sv: Färjelägen i Egentliga Finland.
       en: Ferry docks in Southwest Finland.
+
   - content_type_name: CommonFerryRoute
     name:
-      fi: Yhteysalusreitti.
-      sv: Förbindelsefartygsrutt.
-      en: Common ferry route.
+      fi: Yhteysalusreitti
+      sv: Förbindelsefartygsrutt
+      en: Common ferry route
     description:
       fi: Yhteysalusreittejä Varsinais-Suomessa.
       sv: Förbindelsefartygsrutter i Egentliga Finland.
       en: Common ferry routes in Southwest Finland.
+
   - content_type_name: FishingSpot
     name:
       fi: Kalastuspaikka
@@ -87,11 +100,17 @@ content_types:
         fi: Kalastuspaikkoja Varsinais-Suomessa.
         sv: Fiskeplatser i Egentliga Finland.
         en: Fishing spots in Southwest Finland.
+
   - content_type_name: FerryRoute
     name:
+      fi: Lossi reitti
+      sv: Färjerutte
+      en: Ferry route
+    description:
       fi: Lossi reittejä Varsinais-Suomessa.
       sv: Färjerutter i Egentliga Finland.
       en: Ferry routes(yhteysalusreitti) in Southwest Finland.
+      
   - content_type_name: SlipwaySouthwestFinland
     name:
       fi: Veneenlaskupaikka
@@ -101,6 +120,7 @@ content_types:
       fi: Veneenlaskupaikkoja Varsinais-Suomessa.
       sv: Sjösättningsplatser för båtar i Egentliga Finland.
       en: Slipways for boats in Southwest Finland.
+
   - content_type_name: RecreationalRoute
     name:
       fi: Virkistysreitti
@@ -111,3 +131,39 @@ content_types:
       sv: Rekreationsrutter i Egentliga Finland
       en: Recreational routes in Southwest Finland
   # End of lounaistieto shapefile importer content types
+  
+  - content_type_name: GuestMarina
+    name:
+      fi: Vierasvenesatama
+      sv: Gästhamn
+      en: Guest harbour
+
+  - content_type_name: BoatParking
+    name:
+      fi: Lyhytaikainen veneparkki
+      sv: Båtparkering
+      en: Boat parking
+
+  - content_type_name: Marina
+    name:
+      fi: Veneparkki
+      sv: Båtplatser
+      en: Marina berths
+
+  - content_type_name: OutdoorGymDevice
+    name:
+      fi: Ulkoliikuntalaite
+      sv: Utomhus tränigsredskap
+      en: Outdoor gym device
+
+  - content_type_name: ParkingMachine
+    name:
+      fi: Pysäköintiautomaatti
+      sv: Parkeringsautomat
+      en: Parking machine
+
+  - content_type_name: ShareCarParkingPlace
+    name:
+      fi: Yhteiskäyttöautojen pysäköintipaikka
+      sv: Bilpoolbilars parkeringsplats
+      en: Parking place for car sharing cars
