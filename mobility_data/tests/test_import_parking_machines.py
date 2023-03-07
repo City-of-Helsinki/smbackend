@@ -17,7 +17,7 @@ def test_import_parking_machines(get_json_data_mock):
     )
     objects = parking_machines.get_parking_machine_objects()
     parking_machines.save_to_database(objects)
-    assert ContentType.objects.first().name == parking_machines.CONTENT_TYPE_NAME
+    assert ContentType.objects.first().type_name == parking_machines.CONTENT_TYPE_NAME
     assert MobileUnit.objects.count() == 3
     satamakatu = MobileUnit.objects.first()
     assert satamakatu.content_types.all().count() == 1
