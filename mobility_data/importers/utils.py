@@ -6,6 +6,7 @@ import zipfile
 from enum import Enum
 
 import requests
+import yaml
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.gdal import DataSource as GDALDataSource
@@ -27,6 +28,23 @@ GEOMETRY_URL = (
     "https://tie.digitraffic.fi/api/traffic-message/v1/area-geometries/"
     + f"{GEOMETRY_ID}?includeGeometry=true"
 )
+
+
+def get_root_dir():
+    """
+    Returns the root directory of the project.
+    """
+    if hasattr(settings, "PROJECT_ROOT"):
+        return settings.PROJECT_ROOT
+    else:
+        return settings.BASE_DIR
+
+
+CONTENT_TYPES_CONFIG_FILE = (
+    f"{get_root_dir()}/mobility_data/importers/data/content_types.yml"
+)
+
+
 LANGUAGES = ["fi", "sv", "en"]
 
 
@@ -67,8 +85,8 @@ def fetch_json(url):
     return response.json()
 
 
-def delete_mobile_units(name):
-    MobileUnit.objects.filter(content_types__name=name).delete()
+def delete_mobile_units(type_name):
+    MobileUnit.objects.filter(content_types__type_name=type_name).delete()
 
 
 def create_mobile_unit_as_unit_reference(unit_id, content_type):
@@ -230,16 +248,6 @@ def locates_in_turku(feature, source_data_srid):
     return turku_boundary.contains(geometry)
 
 
-def get_root_dir():
-    """
-    Returns the root directory of the project.
-    """
-    if hasattr(settings, "PROJECT_ROOT"):
-        return settings.PROJECT_ROOT
-    else:
-        return settings.BASE_DIR
-
-
 def get_file_name_from_data_source(content_type):
     """
     Returns the stored file name in the DataSource table for
@@ -252,3 +260,35 @@ def get_file_name_from_data_source(content_type):
         file_name = str(data_source_qs.first().data_file.file)
         return file_name
     return None
+
+
+def get_yaml_config(file):
+    return yaml.safe_load(open(file, "r", encoding="utf-8"))
+
+
+def get_content_type_config(type_name):
+    configs = get_yaml_config(CONTENT_TYPES_CONFIG_FILE)
+    for config in configs.get("content_types", None):
+        if type_name == config.get("content_type_name", None):
+            return config
+    return None
+
+
+def get_or_create_content_type_from_config(type_name):
+    config = get_content_type_config(type_name)
+    if config is None:
+        raise Exception(
+            f"Configuration not found for {type_name} in {CONTENT_TYPES_CONFIG_FILE}"
+        )
+
+    content_type, _ = ContentType.objects.get_or_create(type_name=type_name)
+    for lang in ["fi", "sv", "en"]:
+        setattr(content_type, f"name_{lang}", config["name"].get(lang, None))
+        if "description" in config:
+            setattr(
+                content_type,
+                f"description_{lang}",
+                config["description"].get(lang, None),
+            )
+    content_type.save()
+    return content_type
