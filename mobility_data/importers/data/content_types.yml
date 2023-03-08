@@ -302,5 +302,100 @@ content_types:
       fi: Liikkumisesteisen pysäköinti liikennemerkki
       sv: Parkering för rörelsehindrade trafikmärke
       en: Disabled parking sign
-      
+
+  - content_type_name: PaddlingTrail
+    name:
+      fi: Melontareitti
+      sv: Paddlingrutt
+      en: Paddling trail
+  
+  - content_type_name: HikingTrail
+    name:
+      fi: Retkeilyreitti
+      sv: Vandringsrutt
+      en: Hiking trail
+    
+  - content_type_name: NatureTrail
+    name:
+      fi: Luontopolku
+      sv: Naturstig
+      en: Nature trail
+
+  - content_type_name: FitnessTrail
+    name:
+      fi: Kuntoilureitti
+      sv: Konditionsrutt
+      en: Fitness trail
+
+  - content_type_name: PaavonPolku
+    name:
+      fi: Paavon polku
+      sv: Paavos stig
+      en: Paavo trail
+  
+  - content_type_name: PaymentZone
+    name:
+      fi: Pysäköinnin maksuvyöhyke
+      sv: Parkeringsavgiftszon
+      en: Parking charging zone
+
+  - content_type_name: ScooterParkingArea
+    name:
+      fi: Sähköpotkulaudan pysäköintipaikka
+      sv: Elsparkcykelns parkeringsplats
+      en: Electric scooter parking place
+
+  - content_type_name: ScooterSpeedLimitArea
+    name:
+      fi: Sähköpotkulaudan nopeusrajoitusalue
+      sv: Elsparkscykelns hastighetsbegränsningszon
+      en: Electric scooter speed limit zone
+  
+  - content_type_name: ScooterNoParkingArea
+    name:
+      fi: Sähköpotkulaudan pysäköintikieltoalue
+      sv: Elsparkscykelns parkeringsförbudszon
+      en: Electric scooter no parking zone
+
+  - content_type_name: PublicToilet
+    name:
+      fi: Yleinen vessa
+      sv: Allmän toalet
+      en: Public restroom
+
+  - content_type_name: PublicTable
+    name:
+      fi: Yleinen pöytä
+      sv: Allmän bord
+      eb: Public table
+
+  - content_type_name: PublicBench
+    name:
+      fi: Yleinen penkki
+      sv: Allmän bänk
+      en: Public bench
+
+  - content_type_name: PublicFurnitureGroup
+    name:
+      fi: Yleinen kalusteryhmä
+      sv: Allmän möbelgrupp
+      en: Public furniture group
+
+  - content_type_name: BrushSaltedBicycleNetwork
+    name:
+      fi: Harjasuolattu pyörätie
+      sv: Sopsaltad cykelväg
+      en: Brush salted bicycle road
+
+  - content_type_name: BrushSandedBicycleNetwork
+    name:
+      fi: Harjahiekoitettava pyörätie
+      sv: Sopsandad cykelväg
+      en: Brush sanded bicycle road
+
+  - content_type_name: SpeedLimitZone
+    name:
+      fi: Nopeusrajoitusalue
+      sv: Hastighetsbegränsningszon
+      en: Speed limit zone
   # End of WFS importer content types
