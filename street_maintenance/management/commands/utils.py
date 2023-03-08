@@ -545,7 +545,7 @@ def get_yit_vehicles(access_token):
     ), " Fetching YIT vehicles {} failed, status code: {}".format(
         URLS[YIT][VEHICLES], response.status_code
     )
-    response.json()
+    return response.json()
 
 
 @db.transaction.atomic
