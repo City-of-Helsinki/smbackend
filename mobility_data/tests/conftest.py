@@ -53,21 +53,24 @@ def content_types():
     content_types = [
         ContentType.objects.create(
             id="aa6c2903-d36f-4c61-b828-19084fc7a64b",
-            name="Test",
+            type_name="Test",
+            name_fi="fi",
+            name_sv="sv",
+            name_en="en",
             description="test content type",
         )
     ]
     content_types.append(
         ContentType.objects.create(
             id="ba6c2903-d36f-4c61-b828-19084fc7a64b",
-            name="Test2",
+            type_name="Test2",
             description="test content type2",
         )
     )
     content_types.append(
         ContentType.objects.create(
             id="ca6c2903-d36f-4c61-b828-19084fc7a64b",
-            name="Test unit",
+            type_name="Test unit",
             description="test content type3",
         )
     )
@@ -78,7 +81,7 @@ def content_types():
 @pytest.fixture
 def group_type():
     group_type = GroupType.objects.create(
-        name="TestGroup", description="test group type"
+        type_name="TestGroup", description="test group type"
     )
     return group_type
 
