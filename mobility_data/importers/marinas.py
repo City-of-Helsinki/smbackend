@@ -47,7 +47,6 @@ def delete_guest_marina():
     delete_mobile_units(GUEST_MARINA_CONTENT_TYPE_NAME)
 
 
-
 @db.transaction.atomic
 def delete_boat_parking():
     delete_mobile_units(BOAT_PARKING_CONTENT_TYPE_NAME)
@@ -94,9 +93,13 @@ def import_guest_marina_and_boat_parking(delete=True):
         type_name = feature["Muu_venesatama"].as_string()
         content_type = None
         if type_name == GUEST_MARINA:
-            content_type = get_or_create_content_type_from_config(GUEST_MARINA_CONTENT_TYPE_NAME)
+            content_type = get_or_create_content_type_from_config(
+                GUEST_MARINA_CONTENT_TYPE_NAME
+            )
         elif type_name == BOAT_PARKING:
-            content_type = get_or_create_content_type_from_config(BOAT_PARKING_CONTENT_TYPE_NAME)
+            content_type = get_or_create_content_type_from_config(
+                BOAT_PARKING_CONTENT_TYPE_NAME
+            )
 
         mobile_unit = MobileUnit.objects.create(geometry=geometry)
         mobile_unit.content_types.add(content_type)
