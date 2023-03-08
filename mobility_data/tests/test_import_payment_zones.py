@@ -25,7 +25,7 @@ def test_import_payment_zones():
     )
     assert ContentType.objects.all().count() == 1
     content_type = ContentType.objects.first()
-    assert content_type.name == "PaymentZone"
+    assert content_type.type_name == "PaymentZone"
     assert MobileUnit.objects.all().count() == 2
     payment_zone0 = MobileUnit.objects.first()
     payment_zone1 = MobileUnit.objects.all()[1]
