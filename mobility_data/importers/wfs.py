@@ -9,7 +9,7 @@ from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
     delete_mobile_units,
-    get_or_create_content_type,
+    get_or_create_content_type_from_config,
     locates_in_turku,
     set_translated_field,
 )
@@ -24,17 +24,6 @@ WFS_URL = "{wfs_url}?service=WFS&request=GetFeature&typeName={wfs_layer}&outputF
 
 
 @db.transaction.atomic
-def get_or_create_content_type_using_yaml_config(config):
-    if "content_type_description" in config:
-        description = config["content_type_description"]
-    else:
-        description = ""
-    name = config["content_type_name"]
-    ct, _ = get_or_create_content_type(name, description)
-    return ct
-
-
-@db.transaction.atomic
 def delete_content_type_using_yaml_config(config):
     content_type_name = config["content_type_name"]
     delete_mobile_units(content_type_name)
@@ -42,7 +31,7 @@ def delete_content_type_using_yaml_config(config):
 
 @db.transaction.atomic
 def save_to_database_using_yaml_config(objects, config):
-    content_type = get_or_create_content_type_using_yaml_config(config)
+    content_type = get_or_create_content_type_from_config(config["content_type_name"])
     if not content_type:
         return
     for object in objects:
