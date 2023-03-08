@@ -16,7 +16,9 @@ class BaseType(models.Model):
         ordering = ["type_name"]
 
     def __str__(self):
-        return self.type_name
+        if self.type_name:
+            return self.type_name
+        return str(self.id)
 
 
 class ContentType(BaseType):
