@@ -47,7 +47,7 @@ class Command(BaseCommand):
             type=str,
             nargs="+",
             default=False,
-            help=("History size in days."),
+            help=", ".join(PROVIDERS),
         )
 
     def handle(self, *args, **options):

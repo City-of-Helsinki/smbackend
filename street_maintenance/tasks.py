@@ -4,8 +4,8 @@ from smbackend.utils import shared_task_email
 
 
 @shared_task_email
-def delete_street_maintenance_history(args, name="delete_street_maintenance_history"):
-    management.call_command("delete_street_maintenance_history", args)
+def delete_street_maintenance_history(*args, name="delete_street_maintenance_history"):
+    management.call_command("delete_street_maintenance_history", *args)
 
 
 @shared_task_email
