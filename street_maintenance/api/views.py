@@ -58,7 +58,7 @@ class LargeResultsSetPagination(PageNumberPagination):
     """
 
     page_size_query_param = "page_size"
-    max_page_size = 50_000
+    max_page_size = 200_000
 
 
 class ActiveEventsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -85,6 +85,7 @@ _maintenance_works_list_parameters = [
 )
 class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = MaintenanceWorkSerializer
+    pagination_class = LargeResultsSetPagination
 
     def get_queryset(self):
         queryset = MaintenanceWork.objects.all()
