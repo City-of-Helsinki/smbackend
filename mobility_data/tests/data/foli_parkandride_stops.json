@@ -1,0 +1,123 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "id": "poi_1054",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    22.4579,
+                    60.50413
+                ]
+            },
+            "properties": {
+                "category": "PARKANDRIDE_CARS",
+                "name": "Lieto Keskusta, K-Supermarket Lietorin piha",
+                "name_fi": "Lieto Keskusta, K-Supermarket Lietorin piha",
+                "name_sv": "Lundo centrum, K-Supermarket Lietori",
+                "name_en": "Lieto centre, K-Supermarket Lietori",
+                "popup": "<div class=\"card-header-wrapper\">\n <span class=\"h4\">Lieto Keskusta, K-Supermarket Lietorin piha<\/span>\n <div class=\"card-sub-header\">Hyv\u00e4ttyl\u00e4ntie 2<\/div>\n<\/div>\n",
+                "text": "Lieto Keskusta, K-Supermarket Lietorin piha\nHyv\u00e4ttyl\u00e4ntie 2, 21420",
+                "city": "Lieto",
+                "city_fi": "Lieto",
+                "city_sv": "Lundo",
+                "address": "Hyv\u00e4ttyl\u00e4ntie 2",
+                "address_fi": "Hyv\u00e4ttyl\u00e4ntie 2",
+                "address_sv": "Hyv\u00e4ttyl\u00e4ntie 2",
+                "icon": {
+                    "id": "icon_parkandride_cars",
+                    "svg": "<svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\"\n     xmlns:xlink=\"http:\/\/www.w3.org\/1999\/xlink\"\n     width=\"256\" height=\"256\"\n     viewBox=\"0 0 256 256\"\n     version=\"1.1\">\n  <path stroke=\"#3db7e4\" fill=\"#3db7e4\"\n\td=\"M 236 0 L 20 0 C 8 0 0 8 0 20 L 0 236 C 0 247 8 256 20 256 L 236 256 C 247 256 256 247 256 236 L 256 20 C 256 8 247 0 236 0 Z\"\/>\n  <g stroke=\"white\" fill=\"white\">\n    <path d=\"M 96 26 L 137 26 C 160 26 169 40 169 55 C 169 70 160 85 137 85 L 116 85 L 116 118 L 96 118 Z M 116 69 L 131 69 C 141 69 149 67 149 55 C 149 44 141 42 131 42 L 116 42 Z M 116 69\" \/>\n    <path d=\"M 158 141 C 158 141 158 142 158 142 C 158 143 159 143 159 143 L 195 143 C 196 143 197 143 197 142 C 197 142 197 141 197 140 C 197 140 197 139 197 139 C 197 138 196 138 196 138 L 159 138 C 159 138 158 138 158 139 C 158 140 158 140 158 141 M 142 176 C 142 177 143 178 143 179 C 144 180 145 180 145 180 L 210 180 C 210 180 211 180 211 179 C 212 179 213 179 213 178 L 213 174 C 213 174 212 174 212 172 C 212 170 212 168 211 166 C 211 164 211 161 210 159 C 210 157 210 155 210 153 C 209 153 209 152 209 152 C 209 151 209 151 209 150 C 208 150 208 149 208 149 C 207 149 207 149 207 149 L 149 149 C 148 149 148 149 147 149 C 147 149 147 150 146 150 C 146 151 146 152 146 152 C 146 153 146 153 145 154 C 145 154 145 156 145 158 C 145 160 144 162 144 164 C 144 167 143 169 143 171 C 143 173 143 174 142 175 C 142 175 142 175 142 176 C 142 176 142 176 142 176 Z M 201 201 C 201 203 203 205 205 206 C 207 207 209 206 211 205 C 212 204 213 202 213 201 C 213 199 212 198 211 197 C 209 195 207 194 205 195 C 202 196 201 198 201 201 Z M 142 201 C 142 202 143 204 144 205 C 145 206 147 206 148 206 C 150 206 151 206 152 205 C 153 203 154 202 154 200 C 154 199 153 197 152 196 C 151 195 150 195 148 195 C 147 195 145 195 144 197 C 143 198 142 199 142 201 Z M 142 220 L 135 220 L 135 175 L 139 145 C 139 144 140 142 141 141 C 142 140 143 138 144 138 C 146 137 147 136 149 135 C 150 135 152 134 153 134 C 157 133 161 132 165 131 C 169 131 173 130 178 131 L 183 131 C 184 131 184 131 185 131 L 188 131 C 189 131 190 131 191 131 C 192 132 193 132 193 132 C 194 132 194 132 195 132 L 197 133 C 198 133 199 133 200 133 C 201 134 201 134 202 134 C 203 134 205 135 206 135 C 208 136 209 136 210 137 C 212 138 213 139 214 140 C 215 141 216 143 216 144 L 220 175 L 220 220 L 213 220 L 213 228 C 213 229 213 229 212 230 C 212 231 212 231 211 232 C 210 232 210 232 209 232 C 208 233 208 233 207 233 C 206 233 204 232 203 232 C 202 231 201 230 201 229 C 201 227 200 226 200 224 L 200 220 L 154 220 L 154 228 C 154 229 154 230 154 230 C 153 231 153 231 152 232 C 152 232 151 232 150 233 C 150 233 149 233 148 233 C 147 233 145 232 144 232 C 143 231 143 230 142 229 C 142 227 142 226 142 224 Z M 142 220\" \/>\n    <path d=\"M 109 181 C 108 181 106 181 105 182 C 104 182 104 182 103 182 C 103 182 103 181 103 181 C 101 178 100 176 99 174 C 96 168 92 166 87 166 C 75 164 64 165 53 166 C 49 167 46 168 44 172 C 42 176 40 179 38 182 C 36 182 34 181 32 181 C 29 180 27 181 26 184 L 26 186 C 27 188 28 189 30 189 C 31 189 33 190 34 190 C 32 193 30 196 29 200 C 29 202 29 204 29 207 C 29 209 29 212 29 214 C 29 218 31 221 35 222 L 36 222 C 36 225 36 227 36 229 C 36 231 36 232 38 232 C 41 232 43 232 45 232 C 46 232 47 232 47 231 C 48 231 48 230 48 229 C 48 227 48 226 48 224 C 63 225 78 225 94 224 C 94 226 94 228 94 229 C 94 231 95 232 96 232 L 103 232 C 104 232 105 232 105 231 C 105 231 106 230 106 229 C 106 227 106 225 106 222 C 106 222 107 222 107 222 C 110 221 113 218 112 215 C 112 211 112 207 112 203 C 112 198 111 194 107 190 C 110 189 114 189 116 186 L 116 183 C 114 181 112 180 109 181 Z M 45 209 C 44 210 43 211 41 211 C 40 211 38 210 37 209 C 36 208 35 206 35 205 C 35 203 36 202 37 201 C 38 200 40 199 41 199 C 43 199 44 200 45 201 C 46 202 47 203 47 205 C 47 206 46 208 45 209 Z M 41 188 C 43 186 43 184 44 182 C 46 180 47 177 48 175 C 49 172 51 171 54 171 C 61 169 69 169 77 170 C 81 170 84 170 88 171 C 91 171 93 172 94 175 C 96 179 98 184 100 188 C 81 191 61 191 41 188 Z M 104 209 C 103 210 101 211 100 211 C 98 211 97 210 96 209 C 95 208 94 206 94 205 C 94 203 95 202 96 201 C 97 200 98 199 100 199 C 101 199 103 200 104 201 C 105 202 106 203 106 205 C 106 207 105 208 104 209 Z M 104 209\" \/>\n  <\/g>\n<\/svg>\n"
+                }
+            }
+        },
+        {
+            "type": "Feature",
+            "id": "poi_1057",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    22.3808,
+                    60.50614
+                ]
+            },
+            "properties": {
+                "category": "PARKANDRIDE_CARS",
+                "name": "Lieto Ilmarinen K-Market Ilmarisen piha",
+                "name_fi": "Lieto Ilmarinen K-Market Ilmarisen piha",
+                "name_sv": "Lundo Ilmarinen, K-Market Ilmarinen",
+                "name_en": "Lieto Ilmarinen, K-Market Ilmarinen",
+                "popup": "<div class=\"card-header-wrapper\">\n <span class=\"h4\">Lieto Ilmarinen K-Market Ilmarisen piha<\/span>\n <div class=\"card-sub-header\">Vanha Tampereentie 868<\/div>\n<\/div>\n",
+                "text": "Lieto Ilmarinen K-Market Ilmarisen piha\nVanha Tampereentie 868, 21350",
+                "city": "Lieto",
+                "city_fi": "Lieto",
+                "city_sv": "Lundo",
+                "address": "Vanha Tampereentie 868",
+                "address_fi": "Vanha Tampereentie 868",
+                "address_sv": "Vanha Tampereentie 868",
+                "icon": {
+                    "id": "icon_parkandride_cars"
+                }
+            }
+        },
+        {
+            "type": "Feature",
+            "id": "poi_1059",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    22.17121,
+                    60.48494
+                ]
+            },
+            "properties": {
+                "category": "PARKANDRIDE_BIKES",
+                "name": "St1 Raisio",
+                "name_fi": "St1 Raisio",
+                "name_sv": "St1 Raisio",
+                "name_en": "St1 Raisio",
+                "popup": "<div class=\"card-header-wrapper\">\n <span class=\"h4\">St1 Raisio<\/span>\n <div class=\"card-sub-header\">Kirkkov\u00e4\u00e4rtinkuja 2<\/div>\n<\/div>\n",
+                "text": "St1 Raisio\nKirkkov\u00e4\u00e4rtinkuja 2, 21200",
+                "city": "Raisio",
+                "city_fi": "Raisio",
+                "city_sv": "Reso",
+                "address": "Kirkkov\u00e4\u00e4rtinkuja 2",
+                "address_fi": "Kirkkov\u00e4\u00e4rtinkuja 2",
+                "address_sv": "Kirkkov\u00e4\u00e4rtinkuja 2",
+                "icon": {
+                    "id": "icon_parkandride_bikes",
+                    "svg": "<svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\"\n     xmlns:xlink=\"http:\/\/www.w3.org\/1999\/xlink\"\n     width=\"256\" height=\"256\" viewBox=\"0 0 256 256\"\n     version=\"1.1\">\n  <path stroke=\"#3db7e4\" fill=\"#3db7e4\"\n\td=\"M 236 0 L 20 0 C 8 0 0 8 0 20 L 0 236 C 0 247 8 256 20 256 L 236 256 C 247 256 256 247 256 236 L 256 20 C 256 8 247 0 236 0 Z\"\/>\n  <g stroke=\"white\" fill=\"white\">\n    <path d=\"M 94 25 L 135 25 C 158 25 167 40 167 55 C 167 70 158 84 135 84 L 114 84 L 114 117 L 94 117 Z M 114 69 L 129 69 C 139 69 147 67 147 55 C 147 43 139 41 129 41 L 114 41 Z M 114 69\" \/>\n    <path d=\"M 152 234 C 140 234 131 224 131 213 C 131 201 141 192 152 192 C 164 192 173 201 173 213 C 173 219 171 224 167 228 C 163 232 158 234 152 234 Z M 152 223 C 155 223 157 222 159 220 C 161 218 162 216 162 213 C 162 207 158 203 152 203 C 146 203 142 207 142 213 C 141 219 146 223 152 223 Z M 152 223\" \/>\n    <path d=\"M 95 234 C 83 234 74 225 74 213 C 74 201 83 192 95 192 C 100 192 105 194 109 198 C 113 202 116 207 116 213 C 116 219 114 224 110 228 C 106 232 100 234 95 234 Z M 94 223 C 97 223 100 222 102 220 C 104 218 105 216 105 213 C 105 207 100 203 95 203 C 89 203 84 207 84 213 C 84 216 85 218 87 220 C 89 222 92 223 94 223 Z M 94 223\" \/>\n    <path d=\"M 122 172 L 114 181 L 131 197 L 123 204 L 100 181 L 123 158 C 125 161 128 164 132 167 C 134 169 136 170 139 171 C 143 171 147 171 152 171 L 152 182 C 145 182 138 182 131 181 C 129 181 127 178 125 177 C 124 175 123 174 122 172 Z M 122 172\" \/>\n    <path d=\"M 147 148 C 147 155 141 160 134 160 C 127 160 121 155 121 148 C 121 141 127 135 134 135 C 137 135 140 136 143 139 C 145 141 146 144 147 148 Z M 147 148\" \/>\n  <\/g>\n<\/svg>\n"
+                }
+            }
+        },    
+        {
+            "type": "Feature",
+            "id": "poi_1083",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    22.293,
+                    60.43613
+                ]
+            },
+            "properties": {
+                "category": "PARKANDRIDE_BIKES",
+                "name": "Kurjenm\u00e4ki",
+                "name_fi": "Kurjenm\u00e4ki",
+                "name_sv": "Kurjenm\u00e4ki",
+                "name_en": "Kurjenm\u00e4ki",
+                "popup": "<div class=\"card-header-wrapper\">\n <span class=\"h4\">Kurjenm\u00e4ki<\/span>\n <div class=\"card-sub-header\">Uudenmaankatu<\/div>\n<\/div>\n",
+                "text": "Kurjenm\u00e4ki\nUudenmaankatu, 20720",
+                "city": "Turku",
+                "city_fi": "Turku",
+                "city_sv": "\u00c5bo",
+                "address": "Uudenmaankatu",
+                "address_fi": "Uudenmaankatu",
+                "address_sv": "Uudenmaankatu",
+                "icon": {
+                    "id": "icon_parkandride_bikes"
+                }
+            }
+        }
+    ]
+}

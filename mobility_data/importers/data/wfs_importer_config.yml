@@ -1,4 +1,77 @@
 features:
+  - content_type_name: PlayGround
+    content_type_description: Playgrounds in the city of Turku.
+    wfs_layer: GIS:Viheralueet
+    max_features: 50000
+    include:
+      Kayttotyyppi: Leikkipaikka
+    fields:
+      name:
+        fi: Tunnus
+    extra_fields:
+      kayttotyyppi:
+        wfs_field: Kayttotyyppi
+      omistaja:
+        wfs_field: Omistaja
+      haltija:
+        wfs_field: Haltija
+      kunnossapitaja:
+        wfs_field: Kunnossapitaja
+      hoitaja:
+        wfs_field: Hoitaja
+      alueUrakkaAlue: 
+        wfs_field: AlueUrakkaAlue
+      kunnossapitoluokka:
+        wfs_field: Kunnossapitoluokka
+      talvikunnossapito:
+        wfs_field: Talvikunnossapito
+      pintamateriaali:
+        wfs_field: Pintamateriaali
+      laskettuPintaAla:
+        wfs_field: LaskettuPintaAla
+        wfs_type: double
+      valmistusvuosi:
+        wfs_field: Valmistusvuosi
+      peruskorjausvuosi:
+        wfs_field: Peruskorjausvuosi
+
+  - content_type_name: BarbecuePlace
+    content_type_description: Barbecue places in the city of Turku.
+    wfs_layer: GIS:Varusteet
+    max_features: 100000 
+    include:
+      Tyyppi: Grillipaikka
+    extra_fields:
+      valmistaja:
+        wfs_field: Valmistaja
+      valmistaja_koodi:
+        wfs_field: Valmistaja_koodi
+        wfs_type: int      
+      malli:
+        wfs_field: Malli
+      malli_koodi:
+        wfs_field: Malli_koodi
+        wfs_type: int
+      hankintavuosi:
+        wfs_field: Hankintavuosi
+        wfs_type: int
+      kunto:
+        wfs_field: Kunto
+      kunto_koodi:
+        wfs_field: Kunto_koodi
+        wfs_type: int
+      lukumaara:
+        wfs_field: Lukumaara
+        wfs_type: int
+      pinta-ala:
+        wfs_field: Pinta-ala
+        wfs_type: double
+      pituus:
+        wfs_field: Pituus
+        wfs_type: double
+      asennus:
+        wfs_field: Asennus
+
   - content_type_name: TicketMachineSign
     content_type_description: Ticket machine signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit

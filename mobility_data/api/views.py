@@ -1,9 +1,15 @@
+import types
 from distutils.util import strtobool
 
+from django.contrib.gis.gdal import SpatialReference
 from django.core.exceptions import ValidationError
+from django.db.models import Q
+from munigeo import api as munigeo_api
 from rest_framework import status, viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
+
+from services.models import Unit
 
 from ..models import ContentType, GroupType, MobileUnit, MobileUnitGroup
 from .serializers import (
@@ -14,6 +20,10 @@ from .serializers import (
     MobileUnitSerializer,
 )
 
+FIELD_TYPES = types.SimpleNamespace()
+FIELD_TYPES.FLOAT = float
+FIELD_TYPES.INT = int
+FIELD_TYPES.BOOL = bool
 # Mappings, so that deprecated type_names will work.
 # These will be removed when the front end is updated.
 group_name_mappings = {"CRE": "CultureRoute"}
@@ -176,6 +186,7 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         and transforms to given srid.
         """
         queryset = None
+        unit_ids = []
         filters = self.request.query_params
         srid, latlon = get_srid_and_latlon(filters)
         if "type_name" in filters:
@@ -187,9 +198,28 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
                 return Response(
                     "type_name does not exist.", status=status.HTTP_400_BAD_REQUEST
                 )
-            queryset = MobileUnit.objects.filter(content_type__name=type_name)
+            queryset = MobileUnit.objects.filter(content_types__name=type_name)
+            # If the data locates in the services_unit table (i.e., MobileUnit has a unit_id)
+            # get the unit_ids to retrieve the Units for filtering(bbox and extra)
+            unit_ids = list(
+                queryset.filter(unit_id__isnull=False).values_list("unit_id", flat=True)
+            )
         else:
             queryset = MobileUnit.objects.all()
+
+        services_unit_instances = True if len(unit_ids) > 0 else False
+        if services_unit_instances:
+            queryset = Unit.objects.filter(id__in=unit_ids)
+
+        if "bbox" in filters:
+            val = filters.get("bbox", None)
+            geometry_field_name = "location" if services_unit_instances else "geometry"
+            if val:
+                ref = SpatialReference(filters.get("bbox_srid", 4326))
+                bbox_geometry_filter = munigeo_api.build_bbox_filter(
+                    ref, val, geometry_field_name
+                )
+                queryset = queryset.filter(Q(**bbox_geometry_filter))
 
         for filter in filters:
             if filter.startswith("extra__"):
@@ -212,15 +242,27 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
                             f"extra field '{key}' does not exist",
                             status=status.HTTP_400_BAD_REQUEST,
                         )
-                    if field_type == float:
-                        value = float(value)
-                    elif field_type == int:
-                        value = int(value)
+
+                    match field_type:
+                        case FIELD_TYPES.FLOAT:
+                            value = float(value)
+                        case FIELD_TYPES.INT:
+                            value = int(value)
+                        case FIELD_TYPES.BOOL:
+                            value = strtobool(value)
+                            value = bool(value)
+
                     queryset = queryset.filter(**{filter: value})
 
         page = self.paginate_queryset(queryset)
         serializer = MobileUnitSerializer(
-            page, many=True, context={"srid": srid, "latlon": latlon}
+            page,
+            many=True,
+            context={
+                "srid": srid,
+                "latlon": latlon,
+                "services_unit_instances": services_unit_instances,
+            },
         )
         return self.get_paginated_response(serializer.data)
 

@@ -7,10 +7,7 @@ from munigeo.models import Municipality
 
 from services.models import Service, ServiceNode, Unit
 from smbackend_turku.importers.bike_service_stations import import_bike_service_stations
-from smbackend_turku.importers.constants import (
-    BIKE_SERVICE_STATION_SERVICE_NAMES,
-    BIKE_SERVICE_STATION_SERVICE_NODE_NAMES,
-)
+from smbackend_turku.importers.utils import get_external_source_config
 
 
 @pytest.mark.django_db
@@ -22,26 +19,25 @@ def test_bike_service_stations_import(
 ):
     logger = logging.getLogger(__name__)
     utc_timezone = pytz.timezone("UTC")
+    config = get_external_source_config("bike_service_stations")
     # create root servicenode to which the imported service_node will connect
     ServiceNode.objects.create(
-        id=42, name="TestRoot", last_modified_time=datetime.now(utc_timezone)
+        id=42, name="Vapaa-aika", last_modified_time=datetime.now(utc_timezone)
     )
     import_bike_service_stations(
         logger=logger,
-        root_service_node_name="TestRoot",
+        config=config,
         test_data="bike_service_stations.geojson",
     )
     assert Unit.objects.all().count() == 3
     Service.objects.all().count() == 1
-    service = Service.objects.all()[0]
-    assert service.name == BIKE_SERVICE_STATION_SERVICE_NAMES["fi"]
-    assert service.name_sv == BIKE_SERVICE_STATION_SERVICE_NAMES["sv"]
-    assert service.name_en == BIKE_SERVICE_STATION_SERVICE_NAMES["en"]
-    service_node = ServiceNode.objects.get(
-        name=BIKE_SERVICE_STATION_SERVICE_NODE_NAMES["fi"]
-    )
-    assert service_node.name_sv == BIKE_SERVICE_STATION_SERVICE_NODE_NAMES["sv"]
-    assert service_node.name_en == BIKE_SERVICE_STATION_SERVICE_NODE_NAMES["en"]
+    service = Service.objects.first()
+    assert service.name == config["service"]["name"]["fi"]
+    assert service.name_sv == config["service"]["name"]["sv"]
+    assert service.name_en == config["service"]["name"]["en"]
+    service_node = ServiceNode.objects.get(name=config["service_node"]["name"]["fi"])
+    assert service_node.name_sv == config["service_node"]["name"]["sv"]
+    assert service_node.name_en == config["service_node"]["name"]["en"]
     nauvo = Unit.objects.get(name="Nauvo")
     assert nauvo.name_sv == "Nagu"
     assert nauvo.name_en == "Nauvo"

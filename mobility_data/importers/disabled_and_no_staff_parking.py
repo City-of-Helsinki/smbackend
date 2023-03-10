@@ -98,8 +98,7 @@ class NoStaffParking:
             feature["osoite"].as_string().split("/")[0].strip().split(" ")[-2:]
         )
         try:
-            municipality = Municipality.objects.get(name=municipality)
-            self.municipality = municipality
+            self.municipality = Municipality.objects.get(name=municipality)
         except Municipality.DoesNotExist:
             self.municipality = None
 
@@ -197,18 +196,14 @@ def save_to_database(objects, delete_tables=True):
     disabled_parking_content_type = get_and_create_disabled_parking_content_type()
 
     for object in objects:
+        mobile_unit = MobileUnit.objects.create(
+            extra=object.extra,
+            geometry=object.geometry,
+        )
         if object.content_type == NO_STAFF_PARKING_CONTENT_TYPE_NAME:
-            mobile_unit = MobileUnit.objects.create(
-                content_type=no_staff_parking_content_type,
-                extra=object.extra,
-                geometry=object.geometry,
-            )
+            mobile_unit.content_types.add(no_staff_parking_content_type)
         else:
-            mobile_unit = MobileUnit.objects.create(
-                content_type=disabled_parking_content_type,
-                extra=object.extra,
-                geometry=object.geometry,
-            )
+            mobile_unit.content_types.add(disabled_parking_content_type)
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "address", object.address)
         mobile_unit.address_zip = object.address_zip

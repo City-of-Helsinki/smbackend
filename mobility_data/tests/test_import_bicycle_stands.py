@@ -7,7 +7,7 @@ from .utils import import_command
 
 @pytest.mark.django_db
 def test_geojson_import(
-    municipality,
+    municipalities,
     administrative_division_type,
     administrative_division,
     administrative_division_geometry,
@@ -34,11 +34,12 @@ def test_geojson_import(
     assert kupittaan_palloiluhalli.extra["covered"] is True
     assert turun_amk.extra["hull_lockable"] is True
     assert turun_amk.extra["covered"] is False
+    assert turun_amk.municipality.name == "Turku"
 
 
 @pytest.mark.django_db
 def test_wfs_importer(
-    municipality,
+    municipalities,
     administrative_division_type,
     administrative_division,
     administrative_division_geometry,
@@ -48,20 +49,20 @@ def test_wfs_importer(
     import_command("import_bicycle_stands", test_mode="bicycle_stands.gml")
     assert MobileUnit.objects.all().count() == 3
     # <GIS:Id>0</GIS:Id> in fixture xml.
-    stand_normal = MobileUnit.objects.all()[0]
+    stand_normal = MobileUnit.objects.first()
     # <GIS:Id>182213917</GIS:Id> in fixture xml.
     stand_covered_hull_lockable = MobileUnit.objects.all()[1]
     # <GIS:Id>319490982</GIS:Id> in fixture xml
     stand_external = MobileUnit.objects.all()[2]
     assert stand_normal.name_fi == "Linnanpuisto"
     assert stand_normal.name_sv == "Slottsparken"
+    assert stand_normal.municipality.name == "Turku"
     extra = stand_normal.extra
     assert extra["model"] == "Normaali"
     assert extra["maintained_by_turku"] is True
     assert extra["covered"] is False
     assert extra["hull_lockable"] is False
     assert extra["number_of_places"] == 24
-    assert extra["number_of_stands"] == 2
     assert extra["number_of_stands"] == 2
     assert stand_covered_hull_lockable.name == "Pitkäpellonkatu 7"
     assert stand_covered_hull_lockable.name_sv == "Långåkersgatan 7"

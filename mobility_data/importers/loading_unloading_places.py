@@ -151,10 +151,10 @@ def save_to_database(objects, delete_tables=True):
     content_type = get_and_create_loading_and_unloading_place_content_type()
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
-            content_type=content_type,
             extra=object.extra,
             geometry=object.geometry,
         )
+        mobile_unit.content_types.add(content_type)
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "address", object.address)
         mobile_unit.address_zip = object.address_zip

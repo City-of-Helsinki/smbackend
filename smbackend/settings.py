@@ -57,6 +57,11 @@ env = environ.Env(
     YIT_CONTRACTS_URL=(str, None),
     YIT_TOKEN_URL=(str, None),
     KUNTEC_KEY=(str, None),
+    EMAIL_BACKEND=(str, None),
+    EMAIL_HOST=(str, None),
+    EMAIL_HOST_USER=(str, None),
+    EMAIL_PORT=(int, None),
+    EMAIL_USE_TLS=(bool, None),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -217,6 +222,13 @@ OPEN311 = {
 # Shortcut generation URL template
 SHORTCUTTER_UNIT_URL = env("SHORTCUTTER_UNIT_URL")
 
+
+EMAIL_BACKEND = env("EMAIL_BACKEND")
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+
 # Static & Media files
 STATIC_ROOT = env("STATIC_ROOT")
 STATIC_URL = env("STATIC_URL")
@@ -332,6 +344,9 @@ CELERY_RESULT_BACKEND = "django-db"
 CELERY_CACHE_BACKEND = "default"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_CACHE_BACKEND = "django-cache"
+# User in this group will be notified with failed tasks.
+CELERY_ADMIN_GROUP = "CeleryAdmin"
+
 
 CACHES = {
     "default": {

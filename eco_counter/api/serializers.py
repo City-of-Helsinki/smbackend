@@ -31,6 +31,7 @@ class StationSerializer(serializers.ModelSerializer):
     y = serializers.SerializerMethodField()
     lon = serializers.SerializerMethodField()
     lat = serializers.SerializerMethodField()
+    sensor_types = serializers.SerializerMethodField()
 
     class Meta:
         model = Station
@@ -47,6 +48,7 @@ class StationSerializer(serializers.ModelSerializer):
             "y",
             "lon",
             "lat",
+            "sensor_types",
         ]
 
     def get_y(self, obj):
@@ -62,6 +64,17 @@ class StationSerializer(serializers.ModelSerializer):
     def get_lon(self, obj):
         obj.geom.transform(4326)
         return obj.geom.x
+
+    def get_sensor_types(self, obj):
+        # Return the sensor types(car, bike etc) that has a total year value >0.
+        # i.e., there are sensors for counting the type of data.
+        types = ["at", "pt", "jt", "bt"]
+        result = []
+        for type in types:
+            filter = {"station": obj, f"value_{type}__gt": 0}
+            if YearData.objects.filter(**filter).count() > 0:
+                result.append(type)
+        return result
 
 
 class YearSerializer(serializers.ModelSerializer):

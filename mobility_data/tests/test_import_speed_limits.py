@@ -29,12 +29,12 @@ def test_import_speed_limits():
     assert content_type.name == "SpeedLimitZone"
     assert MobileUnit.objects.all().count() == 3
 
-    zone_80 = MobileUnit.objects.all()[0]
+    zone_80 = MobileUnit.objects.first()
     zone_40 = MobileUnit.objects.all()[1]
     zone_20 = MobileUnit.objects.all()[2]
-    assert zone_80.content_type == content_type
-    assert zone_40.content_type == content_type
-    assert zone_20.content_type == content_type
+    assert zone_80.content_types.first() == content_type
+    assert zone_40.content_types.first() == content_type
+    assert zone_20.content_types.first() == content_type
 
     assert zone_80.extra["speed_limit"] == 80
     assert zone_40.extra["speed_limit"] == 40

@@ -1,4 +1,51 @@
 data_sources:
+  - content_type_name: BusStopSouthwestFinland
+    content_type_description: "Bus stops in Southwest Finland."
+    data_url: "https://data.lounaistieto.fi/data/dataset/ee440090-7303-4453-8639-b5f711669acb/resource/14060749-5215-41af-9312-5393c966f987/download/tieverkkodata.zip/bussipysakit.shp"
+    fields:
+      name:
+        fi: pysnimi
+        sv: stopnamn
+    extra_fields:
+      piiri: piiri
+      tie: tie
+      tiety: tiety
+      puoli: puoli
+      bussity: bussity
+      pikavuo: pikavuo
+      katos: katos
+      korotettu: korotettu
+      pysid: pysid
+      pystunn196: pystunn196
+
+  - content_type_name: FerryDock
+    content_type_description: "Ferry docks in Southwest Finland."
+    data_url: "https://data.lounaistieto.fi/data/dataset/ea4dcae2-5832-403c-bf7e-b19783ee9a70/resource/faa02c52-2da8-4603-b8bf-4afca42d39a5/download/yhteysalusreitit_laiturit.zip/Laiturit.shp"
+    encoding: latin_1
+    filter_by_southwest_finland: True
+    fields:
+      name:
+        fi: NIMI_
+    municipality: KUNTA_1
+    extra_fields:
+      nro: NRO
+      luokitus: LUOKITUS
+      alue: alue
+      reittialue: REITTIALUE    
+
+  - content_type_name: CommonFerryRoute
+    content_type_description: "Common ferry routes(yhteysalusreitti) in Southwest Finland."
+    data_url: "https://data.lounaistieto.fi/data/dataset/ea4dcae2-5832-403c-bf7e-b19783ee9a70/resource/faa02c52-2da8-4603-b8bf-4afca42d39a5/download/yhteysalusreitit_laiturit.zip/Yhteysalusreitit.shp"
+    encoding: latin_1
+    filter_by_southwest_finland: True
+    fields:
+      name:
+        fi: REITTIALUE
+        sv: REITTIALUE
+        en: REITTIALUE
+    extra_fields:
+      yhteysalus: Yhteysalus
+
   - content_type_name: FishingSpot
     content_type_description: "Fishing spots in Soutwest Finland."
     data_url: 'https://data.lounaistieto.fi/data/dataset/50451034-b760-4b39-8f88-701d9c968d88/resource/cd41b91f-f684-4cdc-bbf8-e2c4eaca3a70/download/kalapaikat.zip'

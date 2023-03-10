@@ -82,11 +82,13 @@ class BicycleNetworkPartViewSet(viewsets.ReadOnlyModelViewSet):
             )
         # Return elements that are inside bbox
         if "bbox" in filters:
-            ref = SpatialReference(4326)
-            val = self.request.query_params.get("bbox", None)
-            bbox_filter = munigeo_api.build_bbox_filter(ref, val, "geometry")
-            bbox_geometry_filter = munigeo_api.build_bbox_filter(ref, val, "geometry")
-            queryset = queryset.filter(Q(**bbox_filter) | Q(**bbox_geometry_filter))
+            val = filters.get("bbox", None)
+            if val:
+                ref = SpatialReference(filters.get("bbox_srid", 4326))
+                bbox_geometry_filter = munigeo_api.build_bbox_filter(
+                    ref, val, "geometry"
+                )
+                queryset = queryset.filter(Q(**bbox_geometry_filter))
 
         page = self.paginate_queryset(queryset)
         if only_coords:

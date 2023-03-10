@@ -48,7 +48,7 @@ def test_geometry_history(api_client, geometry_historys):
     geometry_history = response.json()["results"][0]
     assert geometry_history["geometry_type"] == "LineString"
     assert geometry_history["provider"] == INFRAROAD
-    start_date_time = datetime.now(UTC_TIMEZONE) - timedelta(days=1)
+    start_date_time = datetime.now(UTC_TIMEZONE) - timedelta(days=1, hours=2)
     url = (
         reverse("street_maintenance:geometry_history-list")
         + f"?start_date_time={start_date_time.strftime(START_DATE_TIME_FORMAT)}"

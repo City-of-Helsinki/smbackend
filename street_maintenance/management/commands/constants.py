@@ -1,3 +1,5 @@
+import types
+
 from django.conf import settings
 
 KUNTEC_KEY = settings.KUNTEC_KEY
@@ -12,6 +14,11 @@ PROVIDER_CHOICES = (
     (DESTIA, "Destia"),
 )
 PROVIDERS = [INFRAROAD, YIT, KUNTEC, DESTIA]
+PROVIDER_TYPES = types.SimpleNamespace()
+PROVIDER_TYPES.YIT = YIT
+PROVIDER_TYPES.KUNTEC = KUNTEC
+PROVIDER_TYPES.DESTIA = DESTIA
+PROVIDER_TYPES.INFRAROAD = INFRAROAD
 
 UNITS = "UNITS"
 WORKS = "WORKS"
@@ -130,6 +137,8 @@ EVENT_MAPPINGS = {
     "pysäkkikatosten hoito": [MUUT],
     "liikennemerkkien puhdistus": [MUUT],
     "siirtoajo": [MUUT],
+    "Kelintarkastus": [MUUT],
+    "Sulamisvesien hallinta / höyrytys": [MUUT],
 }
 TIMESTAMP_FORMATS = {
     INFRAROAD: "%Y-%m-%d %H:%M:%S",
@@ -137,9 +146,15 @@ TIMESTAMP_FORMATS = {
     KUNTEC: "%Y-%m-%dT%H:%M:%SZ",
     YIT: "%Y-%m-%d %H:%M:%S%z",
 }
+DATE_FORMATS = {
+    INFRAROAD: "%Y-%m-%d",
+    DESTIA: "%Y-%m-%d",
+    KUNTEC: "%Y-%m-%d",
+    YIT: "%Y-%m-%d",
+}
 # GeometryHistory API list start_date_time parameter format.
 START_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-# The number of works(point data with timestamp and event) to be fetched for every unit.
+# The number of works(point data with a timestamp and events) to be fetched for every unit.
 INFRAROAD_DEFAULT_WORKS_FETCH_SIZE = 10000
 DESTIA_DEFAULT_WORKS_FETCH_SIZE = 10000
 # In days, Note if value is increased the fetch size should also be increased.
@@ -152,3 +167,17 @@ YIT_MAX_WORKS_HISTORY_SIZE = 31
 
 KUNTEC_DEFAULT_WORKS_HISTORY_SIZE = 4
 KUNTEC_MAX_WORKS_HISTORY_SIZE = 31
+HISTORY_SIZE = "history_size"
+FETCH_SIZE = "fetch_size"
+HISTORY_SIZES = {
+    INFRAROAD: {
+        HISTORY_SIZE: INFRAROAD_DEFAULT_WORKS_HISTORY_SIZE,
+        FETCH_SIZE: INFRAROAD_DEFAULT_WORKS_FETCH_SIZE,
+    },
+    DESTIA: {
+        HISTORY_SIZE: DESTIA_DEFAULT_WORKS_HISTORY_SIZE,
+        FETCH_SIZE: DESTIA_DEFAULT_WORKS_FETCH_SIZE,
+    },
+    KUNTEC: {HISTORY_SIZE: KUNTEC_DEFAULT_WORKS_HISTORY_SIZE},
+    YIT: {HISTORY_SIZE: YIT_DEFAULT_WORKS_HISTORY_SIZE},
+}

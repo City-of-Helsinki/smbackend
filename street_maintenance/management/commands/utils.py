@@ -4,6 +4,7 @@ import zoneinfo
 from datetime import datetime, timedelta
 
 import numpy as np
+import polyline
 import requests
 from django import db
 from django.conf import settings
@@ -22,7 +23,7 @@ from .constants import (
     EVENT_MAPPINGS,
     EVENTS,
     KUNTEC,
-    PROVIDERS,
+    KUNTEC_KEY,
     ROUTES,
     TIMESTAMP_FORMATS,
     TOKEN,
@@ -37,6 +38,26 @@ logger = logging.getLogger("street_maintenance")
 # In seconds
 MAX_WORK_LENGTH = 60
 VALID_LINESTRING_MAX_POINT_DISTANCE = 0.01
+
+
+def get_turku_boundary():
+    division_turku = AdministrativeDivision.objects.get(name="Turku")
+    turku_boundary = AdministrativeDivisionGeometry.objects.get(
+        division=division_turku
+    ).boundary
+    turku_boundary.transform(DEFAULT_SRID)
+    return turku_boundary
+
+
+TURKU_BOUNDARY = get_turku_boundary()
+
+
+def get_json_data(url):
+    response = requests.get(url)
+    assert (
+        response.status_code == 200
+    ), "Fetching Maintenance Unit {} status code: {}".format(url, response.status_code)
+    return response.json()
 
 
 def check_linestring_validity(
@@ -149,7 +170,6 @@ def get_linestrings_from_points(objects, queryset, provider):
             prev_geometry = elem.geometry
             points.append(elem.geometry)
             prev_timestamp = elem.timestamp
-
         if len(points) > 1:
             discarded_linestrings += add_geometry_history_objects(
                 objects, points, elem, provider
@@ -200,15 +220,6 @@ def precalculate_geometry_history(provider):
     logger.info(f"Created {len(objects)} HistoryGeometry rows for provider: {provider}")
 
 
-def get_turku_boundary():
-    division_turku = AdministrativeDivision.objects.get(name="Turku")
-    turku_boundary = AdministrativeDivisionGeometry.objects.get(
-        division=division_turku
-    ).boundary
-    turku_boundary.transform(DEFAULT_SRID)
-    return turku_boundary
-
-
 def get_linestring_in_boundary(linestring, boundary):
     """
     Returns a linestring from the input linestring where all the coordinates
@@ -226,24 +237,170 @@ def get_linestring_in_boundary(linestring, boundary):
         return False
 
 
+@db.transaction.atomic
+def create_yit_maintenance_works(access_token, history_size):
+    contract = get_yit_contract(access_token)
+    list_of_events = get_yit_event_types(access_token)
+    event_name_mappings = create_dict_from_yit_events(list_of_events)
+    routes = get_yit_routes(access_token, contract, history_size)
+    objs_to_delete = list(
+        MaintenanceWork.objects.filter(maintenance_unit__provider=YIT).values_list(
+            "id", flat=True
+        )
+    )
+    num_created = 0
+    for route in routes:
+        if len(route["geography"]["features"]) > 1:
+            logger.warning(
+                f"Route contains multiple features. {route['geography']['features']}"
+            )
+        coordinates = route["geography"]["features"][0]["geometry"]["coordinates"]
+
+        if is_nested_coordinates(coordinates) and len(coordinates) > 1:
+            geometry = LineString(coordinates, srid=DEFAULT_SRID)
+        else:
+            # Remove other data, contains faulty linestrings.
+            continue
+        # Create linestring that is inside the boundary of Turku
+        # and discard parts of the geometry if they are outside the boundary.
+        geometry = get_linestring_in_boundary(geometry, TURKU_BOUNDARY)
+        if not geometry:
+            continue
+        events = []
+        original_event_names = []
+        operations = route["operations"]
+        for operation in operations:
+            event_name = event_name_mappings[operation].lower()
+            if event_name in EVENT_MAPPINGS:
+                for e in EVENT_MAPPINGS[event_name]:
+                    # If mapping value is None, the event is not used.
+                    if e:
+                        if e not in events:
+                            events.append(e)
+                        original_event_names.append(event_name_mappings[operation])
+            else:
+                logger.warning(
+                    f"Found unmapped event: {event_name_mappings[operation]}"
+                )
+
+        # If no events found discard the work
+        if len(events) == 0:
+            continue
+        if len(route["geography"]["features"]) > 1:
+            logger.warning(
+                f"Route contains multiple features. {route['geography']['features']}"
+            )
+        unit_id = route["vehicleType"]
+        try:
+            unit = MaintenanceUnit.objects.get(unit_id=unit_id)
+        except MaintenanceUnit.DoesNotExist:
+            logger.warning(f"Maintenance unit: {unit_id}, not found.")
+            continue
+
+        obj, created = MaintenanceWork.objects.get_or_create(
+            timestamp=route["startTime"],
+            maintenance_unit=unit,
+            events=events,
+            original_event_names=original_event_names,
+            geometry=geometry,
+        )
+        if obj.id in objs_to_delete:
+            objs_to_delete.remove(obj.id)
+        if created:
+            num_created += 1
+    MaintenanceWork.objects.filter(id__in=objs_to_delete).delete()
+    return num_created, len(objs_to_delete)
+
+
+@db.transaction.atomic
+def create_kuntec_maintenance_works(history_size):
+    num_created = 0
+    now = datetime.now()
+    start = (now - timedelta(days=history_size)).strftime(TIMESTAMP_FORMATS[KUNTEC])
+    end = now.strftime(TIMESTAMP_FORMATS[KUNTEC])
+    objs_to_delete = list(
+        MaintenanceWork.objects.filter(maintenance_unit__provider=KUNTEC).values_list(
+            "id", flat=True
+        )
+    )
+    for unit in MaintenanceUnit.objects.filter(provider=KUNTEC):
+        url = URLS[KUNTEC][WORKS].format(
+            key=KUNTEC_KEY, start=start, end=end, unit_id=unit.unit_id
+        )
+        json_data = get_json_data(url)
+        if "data" in json_data:
+            for unit_data in json_data["data"]["units"]:
+                for route in unit_data["routes"]:
+                    events = []
+                    original_event_names = []
+                    # Routes of type 'stop' are discarded.
+                    if route["type"] == "route":
+                        # Check for mapped events to include as works.
+                        for name in unit.names:
+                            event_name = name.lower()
+                            if event_name in EVENT_MAPPINGS:
+                                for e in EVENT_MAPPINGS[event_name]:
+                                    # If mapping value is None, the event is not used.
+                                    if e:
+                                        if e not in events:
+                                            events.append(e)
+                                        original_event_names.append(name)
+                            else:
+                                logger.warning(f"Found unmapped event: {event_name}")
+                    # If route has mapped event(s) and contains a polyline add work.
+                    if len(events) > 0 and "polyline" in route:
+                        coords = polyline.decode(route["polyline"], geojson=True)
+                        if len(coords) > 1:
+                            geometry = LineString(coords, srid=DEFAULT_SRID)
+                        else:
+                            continue
+                        # Create linestring that is inside the boundary of Turku
+                        # and discard parts of the geometry if they are outside the boundary.
+                        geometry = get_linestring_in_boundary(geometry, TURKU_BOUNDARY)
+                        if not geometry:
+                            continue
+                        timestamp = route["start"]["time"]
+
+                        obj, created = MaintenanceWork.objects.get_or_create(
+                            timestamp=timestamp,
+                            maintenance_unit=unit,
+                            events=events,
+                            original_event_names=original_event_names,
+                            geometry=geometry,
+                        )
+                        if obj.id in objs_to_delete:
+                            objs_to_delete.remove(obj.id)
+                        if created:
+                            num_created += 1
+
+    MaintenanceWork.objects.filter(id__in=objs_to_delete).delete()
+    return num_created, len(objs_to_delete)
+
+
+@db.transaction.atomic
 def create_maintenance_works(provider, history_size, fetch_size):
     turku_boundary = get_turku_boundary()
-    works = []
+    num_created = 0
+
     import_from_date_time = datetime.now() - timedelta(days=history_size)
     import_from_date_time = import_from_date_time.replace(
         tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki")
     )
+    objs_to_delete = list(
+        MaintenanceWork.objects.filter(maintenance_unit__provider=provider).values_list(
+            "id", flat=True
+        )
+    )
     for unit in MaintenanceUnit.objects.filter(provider=provider):
-        response = requests.get(
+        json_data = get_json_data(
             URLS[provider][WORKS].format(id=unit.unit_id, history_size=fetch_size)
         )
-        if "location_history" in response.json():
-            json_data = response.json()["location_history"]
+        if "location_history" in json_data:
+            json_data = json_data["location_history"]
         else:
             logger.warning(f"Location history not found for unit: {unit.unit_id}")
             continue
         for work in json_data:
-
             timestamp = datetime.strptime(
                 work["timestamp"], TIMESTAMP_FORMATS[provider]
             ).replace(tzinfo=zoneinfo.ZoneInfo("Europe/Helsinki"))
@@ -259,48 +416,56 @@ def create_maintenance_works(provider, history_size, fetch_size):
                 continue
 
             events = []
+            original_event_names = []
             for event in work["events"]:
                 event_name = event.lower()
                 if event_name in EVENT_MAPPINGS:
                     for e in EVENT_MAPPINGS[event_name]:
                         # If mapping value is None, the event is not used.
                         if e:
-                            events.append(e)
+                            if e not in events:
+                                events.append(e)
+                            original_event_names.append(event)
                 else:
                     logger.warning(f"Found unmapped event: {event}")
             # If no events found discard the work
             if len(events) == 0:
                 continue
-            works.append(
-                MaintenanceWork(
-                    timestamp=timestamp,
-                    maintenance_unit=unit,
-                    geometry=point,
-                    events=events,
-                )
+            obj, created = MaintenanceWork.objects.get_or_create(
+                timestamp=timestamp,
+                maintenance_unit=unit,
+                geometry=point,
+                events=events,
+                original_event_names=original_event_names,
             )
-    MaintenanceWork.objects.bulk_create(works)
-    logger.info(f"Imported {len(works)} {provider} mainetance works.")
-    return len(works)
+            if obj.id in objs_to_delete:
+                objs_to_delete.remove(obj.id)
+            if created:
+                num_created += 1
+
+    MaintenanceWork.objects.filter(id__in=objs_to_delete).delete()
+    return num_created, len(objs_to_delete)
 
 
+@db.transaction.atomic
 def create_maintenance_units(provider):
-    assert provider in PROVIDERS
-    response = requests.get(URLS[provider][UNITS])
-    assert (
-        response.status_code == 200
-    ), "Fetching Maintenance Unit {} status code: {}".format(
-        URLS[provider][UNITS], response.status_code
+    num_created = 0
+    objs_to_delete = list(
+        MaintenanceUnit.objects.filter(provider=provider).values_list("id", flat=True)
     )
-    for unit in response.json():
+    for unit in get_json_data(URLS[provider][UNITS]):
         # The names of the unit is derived from the events.
         names = [n for n in unit["last_location"]["events"]]
-        MaintenanceUnit.objects.create(
+        obj, created = MaintenanceUnit.objects.get_or_create(
             unit_id=unit["id"], names=names, provider=provider
         )
-    num_units_imported = MaintenanceUnit.objects.filter(provider=provider).count()
-    logger.info(f"Imported {num_units_imported} {provider} mainetance Units.")
-    return num_units_imported
+        if obj.id in objs_to_delete:
+            objs_to_delete.remove(obj.id)
+        if created:
+            num_created += 1
+
+    MaintenanceUnit.objects.filter(id__in=objs_to_delete).delete()
+    return num_created, len(objs_to_delete)
 
 
 def get_yit_contract(access_token):
@@ -334,16 +499,15 @@ def create_dict_from_yit_events(list_of_events):
     return events
 
 
+@db.transaction.atomic
 def create_kuntec_maintenance_units():
-    units_url = URLS[KUNTEC][UNITS]
-    response = requests.get(units_url)
-    assert (
-        response.status_code == 200
-    ), "Fetching Maintenance Unit {} status code: {}".format(
-        units_url, response.status_code
-    )
+    json_data = get_json_data(URLS[KUNTEC][UNITS])
     no_io_din = 0
-    for unit in response.json()["data"]["units"]:
+    num_created = 0
+    objs_to_delete = list(
+        MaintenanceUnit.objects.filter(provider=KUNTEC).values_list("id", flat=True)
+    )
+    for unit in json_data["data"]["units"]:
         names = []
         if "io_din" in unit:
             on_states = 0
@@ -355,21 +519,24 @@ def create_kuntec_maintenance_units():
         # If names, we have a unit with at least one io_din with State On.
         if len(names) > 0:
             unit_id = unit["unit_id"]
-            MaintenanceUnit.objects.create(
+            obj, created = MaintenanceUnit.objects.get_or_create(
                 unit_id=unit_id, names=names, provider=KUNTEC
             )
+            if obj.id in objs_to_delete:
+                objs_to_delete.remove(obj.id)
+            if created:
+                num_created += 1
+
         else:
             no_io_din += 1
+    MaintenanceUnit.objects.filter(id__in=objs_to_delete).delete()
     logger.info(
         f"Discarding {no_io_din} Kuntec units that do not have a io_din with Status 'On'(1)."
     )
-    logger.info(
-        f"Imported {MaintenanceUnit.objects.filter(provider=KUNTEC).count()}"
-        + " Kuntec mainetance Units."
-    )
+    return num_created, len(objs_to_delete)
 
 
-def create_yit_maintenance_units(access_token):
+def get_yit_vehicles(access_token):
     response = requests.get(
         URLS[YIT][VEHICLES], headers={"Authorization": f"Bearer {access_token}"}
     )
@@ -378,13 +545,27 @@ def create_yit_maintenance_units(access_token):
     ), " Fetching YIT vehicles {} failed, status code: {}".format(
         URLS[YIT][VEHICLES], response.status_code
     )
-    for unit in response.json():
-        names = [unit["vehicleTypeName"]]
-        MaintenanceUnit.objects.create(unit_id=unit["id"], names=names, provider=YIT)
-    logger.info(
-        f"Imported {MaintenanceUnit.objects.filter(provider=YIT).count()}"
-        + " YIT mainetance Units."
+    return response.json()
+
+
+@db.transaction.atomic
+def create_yit_maintenance_units(access_token):
+    vehicles = get_yit_vehicles(access_token)
+    num_created = 0
+    objs_to_delete = list(
+        MaintenanceUnit.objects.filter(provider=YIT).values_list("id", flat=True)
     )
+    for unit in vehicles:
+        names = [unit["vehicleTypeName"]]
+        obj, created = MaintenanceUnit.objects.get_or_create(
+            unit_id=unit["id"], names=names, provider=YIT
+        )
+        if obj.id in objs_to_delete:
+            objs_to_delete.remove(obj.id)
+        if created:
+            num_created += 1
+    MaintenanceUnit.objects.filter(id__in=objs_to_delete).delete()
+    return num_created, len(objs_to_delete)
 
 
 def get_yit_routes(access_token, contract, history_size):
@@ -416,6 +597,10 @@ def get_yit_routes(access_token, contract, history_size):
 
 
 def get_yit_access_token():
+    """
+    Note the IP address of the host calling Autori API (hosts YIT data) must be
+    given for whitelistning.
+    """
     assert settings.YIT_SCOPE, "YIT_SCOPE not defined in environment."
     assert settings.YIT_CLIENT_ID, "YIT_CLIENT_ID not defined in environment."
     assert settings.YIT_CLIENT_SECRET, "YIT_CLIENT_SECRET not defined in environment."

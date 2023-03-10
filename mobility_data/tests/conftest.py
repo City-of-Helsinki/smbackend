@@ -1,6 +1,7 @@
 import pytest
 from django.conf import settings
 from django.contrib.gis.geos import GEOSGeometry, Point
+from django.utils import timezone
 from munigeo.models import (
     Address,
     AdministrativeDivision,
@@ -10,6 +11,8 @@ from munigeo.models import (
     Street,
 )
 from rest_framework.test import APIClient
+
+from services.models import Service, Unit, UnitServiceDetails
 
 from ..models import ContentType, GroupType, MobileUnit, MobileUnitGroup
 
@@ -46,11 +49,29 @@ def api_client():
 
 @pytest.mark.django_db
 @pytest.fixture
-def content_type():
-    content_type = ContentType.objects.create(
-        name="Test", description="test content type"
+def content_types():
+    content_types = [
+        ContentType.objects.create(
+            id="aa6c2903-d36f-4c61-b828-19084fc7a64b",
+            name="Test",
+            description="test content type",
+        )
+    ]
+    content_types.append(
+        ContentType.objects.create(
+            id="ba6c2903-d36f-4c61-b828-19084fc7a64b",
+            name="Test2",
+            description="test content type2",
+        )
     )
-    return content_type
+    content_types.append(
+        ContentType.objects.create(
+            id="ca6c2903-d36f-4c61-b828-19084fc7a64b",
+            name="Test unit",
+            description="test content type3",
+        )
+    )
+    return content_types
 
 
 @pytest.mark.django_db
@@ -64,16 +85,68 @@ def group_type():
 
 @pytest.mark.django_db
 @pytest.fixture
-def mobile_unit(content_type):
-    extra = {"test_int": 4242, "test_float": 42.42, "test_string": "4242"}
+def mobile_units(content_types):
+    mobile_units = []
+    extra = {
+        "test_int": 4242,
+        "test_float": 42.42,
+        "test_string": "4242",
+        "test_bool": False,
+    }
+    geometry = Point(22.21, 60.3, srid=4326)
+    geometry.transform(settings.DEFAULT_SRID)
     mobile_unit = MobileUnit.objects.create(
+        id="aa6c2903-d36f-4c61-b828-19084fc7a64b",
         name="Test mobileunit",
         description="Test description",
-        content_type=content_type,
-        geometry=Point(42.42, 21.21, srid=settings.DEFAULT_SRID),
+        geometry=geometry,
         extra=extra,
     )
-    return mobile_unit
+    mobile_unit.content_types.add(content_types[0])
+    mobile_units.append(mobile_units)
+    extra = {
+        "test_int": 14,
+        "test_float": 2.4,
+        "test_string": "hello",
+        "test_bool": True,
+    }
+    mobile_unit = MobileUnit.objects.create(
+        id="ba6c2903-d36f-4c61-b828-19084fc7a64b",
+        name="Test2 mobileunit",
+        description="Test2 description",
+        geometry=Point(23.43, 62.22, srid=settings.DEFAULT_SRID),
+        extra=extra,
+    )
+    mobile_unit.content_types.add(content_types[0])
+    mobile_unit.content_types.add(content_types[1])
+    mobile_units.append(mobile_units)
+    mobile_unit = MobileUnit.objects.create(
+        id="ca6c2903-d36f-4c61-b828-19084fc7a64b", unit_id=1
+    )
+    mobile_unit.content_types.add(content_types[2])
+    mobile_units.append(mobile_units)
+    return mobile_units
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def service():
+    return Service.objects.create(id=1, name="test", last_modified_time=timezone.now())
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def unit(service):
+    unit = Unit.objects.create(
+        id=1,
+        name="Test unit",
+        description="desc",
+        last_modified_time=timezone.now(),
+        provider_type=1,
+        location=Point(24.24, 62.22, srid=settings.DEFAULT_SRID),
+    )
+    UnitServiceDetails(unit=unit, service=service).save()
+    return unit
 
 
 @pytest.mark.django_db
@@ -89,9 +162,12 @@ def mobile_unit_group(group_type):
 
 @pytest.mark.django_db
 @pytest.fixture
-def municipality():
-    muni = Municipality.objects.create(id="turku", name="Turku")
-    return muni
+def municipalities():
+    munis = []
+    munis.append(Municipality.objects.create(id="turku", name="Turku"))
+    munis.append(Municipality.objects.create(id="lieto", name="Lieto"))
+    munis.append(Municipality.objects.create(id="raisio", name="Raisio"))
+    return munis
 
 
 @pytest.mark.django_db
@@ -180,11 +256,12 @@ def streets():
 
 @pytest.mark.django_db
 @pytest.fixture
-def address(streets, municipality):
+def address(streets, municipalities):
+    turku_muni = municipalities[0]
     addresses = []
     location = Point(22.244, 60.4, srid=4326)
     address = Address.objects.create(
-        municipality_id=municipality.id,
+        municipality_id=turku_muni.id,
         id=100,
         location=location,
         street=streets[0],
@@ -195,7 +272,7 @@ def address(streets, municipality):
     addresses.append(address)
     location = Point(22.227168, 60.4350612, srid=4326)
     address = Address.objects.create(
-        municipality_id=municipality.id,
+        municipality_id=turku_muni.id,
         id=101,
         location=location,
         street=streets[1],
@@ -205,7 +282,7 @@ def address(streets, municipality):
     addresses.append(address)
     location = Point(22.264457, 60.448905, srid=4326)
     address = Address.objects.create(
-        municipality_id=municipality.id,
+        municipality_id=turku_muni.id,
         id=102,
         location=location,
         street=streets[2],
@@ -216,7 +293,7 @@ def address(streets, municipality):
     addresses.append(address)
     location = Point(22.2383, 60.411726, srid=4326)
     address = Address.objects.create(
-        municipality_id=municipality.id,
+        municipality_id=turku_muni.id,
         id=103,
         location=location,
         street=streets[3],
@@ -227,7 +304,7 @@ def address(streets, municipality):
     addresses.append(address)
     location = Point(22.2871092678621, 60.44677715747775, srid=4326)
     address = Address.objects.create(
-        municipality_id=municipality.id,
+        municipality_id=turku_muni.id,
         id=104,
         location=location,
         street=streets[4],
@@ -238,7 +315,7 @@ def address(streets, municipality):
     addresses.append(address)
     location = Point(22.26097246971352, 60.45055294118857, srid=4326)
     address = Address.objects.create(
-        municipality_id=municipality.id,
+        municipality_id=turku_muni.id,
         id=105,
         location=location,
         street=streets[5],
@@ -249,7 +326,7 @@ def address(streets, municipality):
     addresses.append(address)
     location = Point(22.247047171564706, 60.45159033848499, srid=4326)
     address = Address.objects.create(
-        municipality_id=municipality.id,
+        municipality_id=turku_muni.id,
         id=106,
         location=location,
         street=streets[6],

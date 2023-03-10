@@ -42,7 +42,7 @@ class MobileUnitGroupBasicInfoSerializer(serializers.ModelSerializer):
 
 class MobileUnitSerializer(serializers.ModelSerializer):
 
-    content_type = ContentTypeSerializer(many=False, read_only=True)
+    content_types = ContentTypeSerializer(many=True, read_only=True)
     mobile_unit_group = MobileUnitGroupBasicInfoSerializer(many=False, read_only=True)
     geometry_coords = serializers.SerializerMethodField(read_only=True)
 
@@ -64,13 +64,14 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             "description_fi",
             "description_sv",
             "description_en",
-            "content_type",
+            "content_types",
             "mobile_unit_group",
             "is_active",
             "created_time",
             "geometry",
             "geometry_coords",
             "extra",
+            "unit_id",
         ]
 
     # Contains the corresponding field names of the MobileUnit model if they differs
@@ -84,10 +85,18 @@ class MobileUnitSerializer(serializers.ModelSerializer):
 
     def to_representation(self, obj):
         representation = super().to_representation(obj)
-        # If mobile_unit has a unit_id we serialize the data from the services_unit table.
-        unit_id = obj.unit_id
-        if unit_id:
-            unit = Unit.objects.get(id=unit_id)
+        unit_id = getattr(obj, "unit_id", None)
+        # If serializing Unit instance or MobileUnit with unit_id.
+        if self.context.get("services_unit_instances", False) or unit_id:
+            if unit_id:
+                # When serializing the MobileUnit from the retrieve method
+                try:
+                    unit = Unit.objects.get(id=unit_id)
+                except Unit.DoesNotExist:
+                    return representation
+            else:
+                # The obj is a Unit instance.
+                unit = obj
             for field in self.fields:
                 # lookup the field name in the service_unit table, as not all field names that contains
                 # similar data has the same name.
@@ -99,19 +108,34 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 if hasattr(unit, key):
                     # unit.municipality is of type munigeo.models.Municipality and not serializable
                     if key == "municipality":
-                        representation[field] = unit.municipality.id
+                        muni = getattr(unit, key, None)
+                        representation[field] = muni.id if muni else None
                     else:
-                        representation[field] = getattr(unit, key)
-
+                        representation[field] = getattr(unit, key, None)
+                # Serialize the MobileUnit id, otherwise would serialize the serivce_unit id.
+                if field == "id":
+                    try:
+                        representation["id"] = MobileUnit.objects.get(
+                            unit_id=unit.id
+                        ).id
+                    except MobileUnit.DoesNotExist:
+                        representation["id"] = unit.id
             # The location field must be serialized with its wkt value.
             if unit.location:
                 representation["geometry"] = unit.location.wkt
         return representation
 
     def get_geometry_coords(self, obj):
-        # If stored to Unit table, retrieve geometry from there.
-        if obj.unit_id:
-            geometry = Unit.objects.get(id=obj.unit_id).location
+        unit_id = getattr(obj, "unit_id", None)
+        if unit_id:
+            # If stored to Unit table, retrieve geometry from there.
+            try:
+                geometry = Unit.objects.get(id=unit_id).location
+            except Unit.DoesNotExist:
+                return None
+        # If serializing Unit object retrieved from the view.
+        elif self.context.get("services_unit_instances", False):
+            geometry = obj.location
         else:
             geometry = obj.geometry
         if isinstance(geometry, GEOSGeometry):
@@ -130,7 +154,6 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 pos["lon"] = geometry.x
                 pos["lat"] = geometry.y
             return pos
-
         elif isinstance(geometry, LineString):
             if self.context["latlon"]:
                 # Return LineString coordinates in (lat,lon) format
@@ -142,7 +165,6 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 return coords
             else:
                 return geometry.coords
-
         elif isinstance(geometry, Polygon):
             if self.context["latlon"]:
                 # Return Polygon coordinates in (lat,lon) format
@@ -189,6 +211,5 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 return coords
             else:
                 return geometry.coords
-
         else:
             return ""

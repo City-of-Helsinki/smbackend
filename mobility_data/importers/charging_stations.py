@@ -6,7 +6,6 @@ from django.conf import settings
 from django.contrib.gis.geos import Point
 
 from mobility_data.models import MobileUnit
-from smbackend_turku.importers.constants import CHARGING_STATION_SERVICE_NAMES
 
 from .utils import (
     delete_mobile_units,
@@ -22,6 +21,11 @@ from .utils import (
 
 logger = logging.getLogger("mobility_data")
 
+CHARGING_STATION_SERVICE_NAMES = {
+    "fi": "Autojen sähkölatauspiste",
+    "sv": "Elladdningsstation för bilar",
+    "en": "Car e-charging point",
+}
 SOURCE_DATA_FILE_NAME = "LatauspisteetTurku.csv"
 SOURCE_DATA_SRID = 3877
 CONTENT_TYPE_NAME = "ChargingStation"
@@ -75,7 +79,7 @@ class ChargingStation:
         self.extra["other"] = values["other"]
         self.extra["payment"] = values["payment"]
         self.municipality = get_municipality_name(self.geometry)
-        self.zip_code = get_postal_code(self.geometry)
+        self.address_zip = get_postal_code(self.geometry)
         tmp = values["address"].split(" ")
         address_number = None
         street_name = tmp[0]
@@ -183,8 +187,9 @@ def save_to_database(objects, delete_tables=True):
             is_active=is_active,
             geometry=object.geometry,
             extra=object.extra,
-            content_type=content_type,
+            address_zip=object.address_zip,
         )
+        mobile_unit.content_types.add(content_type)
         set_translated_field(mobile_unit, "name", object.name)
         set_translated_field(mobile_unit, "address", object.address)
         mobile_unit.save()

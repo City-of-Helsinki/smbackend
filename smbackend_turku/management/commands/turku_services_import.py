@@ -9,11 +9,11 @@ from django.utils import translation
 
 from smbackend_turku.importers.accessibility import import_accessibility
 from smbackend_turku.importers.addresses import import_addresses
-from smbackend_turku.importers.bicycle_stands import (
+from smbackend_turku.importers.bicycle_stands import (  # noqa: F401
     delete_bicycle_stands,
     import_bicycle_stands,
 )
-from smbackend_turku.importers.bike_service_stations import (
+from smbackend_turku.importers.bike_service_stations import (  # noqa: F401
     delete_bike_service_stations,
     import_bike_service_stations,
 )
@@ -23,28 +23,35 @@ from smbackend_turku.importers.geo_search import (
     import_geo_search_addresses,
 )
 from smbackend_turku.importers.services import import_services
-from smbackend_turku.importers.stations import (
+from smbackend_turku.importers.stations import (  # noqa: F401
     delete_charging_stations,
     delete_gas_filling_stations,
     import_charging_stations,
     import_gas_filling_stations,
 )
 from smbackend_turku.importers.units import import_units
+from smbackend_turku.importers.utils import get_external_source_config  # noqa: F401
+from smbackend_turku.importers.utils import get_configured_external_sources_names
+
+IMPORTER_FUNCTIONS_CODE = """
+@db.transaction.atomic
+def import_{name}(self):
+    config = get_external_source_config("{name}")
+    import_{name}(logger=self.logger, config=config)
+@db.transaction.atomic
+def delete_{name}(self):
+    config = get_external_source_config("{name}")
+    delete_{name}(logger=self.logger, config=config)
+"""
 
 
 class Command(BaseCommand):
     help = "Import services from City of Turku APIs and from external sources."
 
     # Umbrella source that imports all external_sources
-    MOBILITY_DATA = "mobility_data"
+    EXTERNAL_SOURCES = "external_sources"
 
-    external_sources = [
-        "gas_filling_stations",
-        "charging_stations",
-        "bicycle_stands",
-        "bike_service_stations",
-    ]
-
+    external_sources = get_configured_external_sources_names()
     importer_types = [
         "services",
         "accessibility",
@@ -53,10 +60,14 @@ class Command(BaseCommand):
         "geo_search_addresses",
         "enriched_addresses",
         "divisions",
-        MOBILITY_DATA,
+        EXTERNAL_SOURCES,
     ] + external_sources
 
     supported_languages = [lang[0] for lang in settings.LANGUAGES]
+
+    for name in external_sources:
+        code = IMPORTER_FUNCTIONS_CODE.format(name=name)
+        exec(code)
 
     def __init__(self):
         super(Command, self).__init__()
@@ -136,55 +147,16 @@ class Command(BaseCommand):
         return import_divisions(logger=self.logger)
 
     @db.transaction.atomic
-    def import_gas_filling_stations(self):
-        import_gas_filling_stations(
-            logger=self.logger, root_service_node_name="Vapaa-aika"
-        )
-
-    @db.transaction.atomic
-    def delete_gas_filling_stations(self):
-        delete_gas_filling_stations(logger=self.logger)
-
-    @db.transaction.atomic
-    def import_charging_stations(self):
-        import_charging_stations(
-            logger=self.logger, root_service_node_name="Vapaa-aika"
-        )
-
-    @db.transaction.atomic
-    def delete_charging_stations(self):
-        delete_charging_stations(logger=self.logger)
-
-    @db.transaction.atomic
-    def import_bicycle_stands(self):
-        import_bicycle_stands(
-            logger=self.logger,
-            root_service_node_name="Vapaa-aika",
-        )
-
-    @db.transaction.atomic
-    def delete_bicycle_stands(self):
-        delete_bicycle_stands(logger=self.logger)
-
-    @db.transaction.atomic
-    def delete_bike_service_stations(self):
-        delete_bike_service_stations(logger=self.logger)
-
-    @db.transaction.atomic
-    def import_bike_service_stations(self):
-        import_bike_service_stations(
-            logger=self.logger, root_service_node_name="Vapaa-aika"
-        )
-
-    @db.transaction.atomic
-    def import_mobility_data(self):
-        self.import_bicycle_stands()
-        self.import_gas_filling_stations()
+    def import_external_sources(self):
+        for name in self.external_sources:
+            method = getattr(self, "import_%s" % name)
+            method()
 
     # Activate the default language for the duration of the import
     # to make sure translated fields are populated correctly.
     @translation.override(settings.LANGUAGES[0][0])
     def handle(self, **options):
+
         self.options = options
         self.verbosity = int(options.get("verbosity", 1))
         self.logger = logging.getLogger("turku_services_import")
@@ -207,12 +179,12 @@ class Command(BaseCommand):
                 sys.stderr.write("Nothing to delete.\n")
         else:
             importers = self.options["import_types"]
-            if self.MOBILITY_DATA in self.options["import_types"]:
-                # Add external sources and by creating a set ensure there are no duplicates
-                # as the user can add args as mobility_data charging_stations
+            if self.EXTERNAL_SOURCES in self.options["import_types"]:
+                # Add EXTERNAL_SOURCES by creating a set to ensure there are no duplicates
+                # as the user can add args as EXTERNAL_SOURCES charging_stations
                 importers = set(importers + self.external_sources)
-                # remove the mobility_data source as it has no function attached to it.
-                importers.remove(self.MOBILITY_DATA)
+                # remove the EXTERNAL_SOURCES source as it has no function attached to it.
+                importers.remove(self.EXTERNAL_SOURCES)
 
             import_count = 0
             for imp in self.importer_types:

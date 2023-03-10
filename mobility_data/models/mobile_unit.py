@@ -53,9 +53,7 @@ class MobileUnit(BaseUnit):
     )
     address_zip = models.CharField(max_length=10, null=True)
 
-    content_type = models.ForeignKey(
-        ContentType, on_delete=models.CASCADE, related_name="units"
-    )
+    content_types = models.ManyToManyField(ContentType, related_name="mobile_units")
     unit_id = models.IntegerField(
         null=True,
         verbose_name="optional id to a unit in the servicemap, if id exist data is serialized from services_unit table",

@@ -9,7 +9,11 @@ from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
-from munigeo.models import AdministrativeDivision, AdministrativeDivisionGeometry
+from munigeo.models import (
+    AdministrativeDivision,
+    AdministrativeDivisionGeometry,
+    Municipality,
+)
 
 from mobility_data.models import MobileUnit
 from services.models import Unit
@@ -54,26 +58,27 @@ class BicyleStand:
     WFS_HULL_LOCKABLE_STR = "runkolukitusmahdollisuus"
     GEOJSON_HULL_LOCKABLE_STR = "runkolukittava"
     COVERED_IN_STR = "katettu"
+    EXTRA_FIELDS = [
+        "maintained_by_turku",
+        "covered",
+        "hull_lockable",
+        "model",
+        "number_of_places",
+        "number_of_stands",
+    ]
 
     def __init__(self):
         self.geometry = None
-        self.model = None
-        self.number_of_stands = None
-        self.number_of_places = None  # The total number of places for bicycles.
-        self.hull_lockable = None
-        self.covered = None
-        self.city = None
-        self.street_address = None
-        self.maintained_by_turku = None
+        self.municipality = None
         self.name = {}
         self.prefix_name = {}
-        self.street_address = {}
+        self.address = {}
         self.related_unit = None
+        self.extra = {f: None for f in self.EXTRA_FIELDS}
 
     def set_geojson_feature(self, feature):
         name = feature["kohde"].as_string().strip()
         unit_name = name.split(",")[0]
-
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=GEOJSON_SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
         units_qs = Unit.objects.filter(name=unit_name)
@@ -84,26 +89,33 @@ class BicyleStand:
                 self.related_unit = unit
                 break
 
-        self.number_of_stands = feature["telineitä"].as_int()
-        self.number_of_places = feature["paikkoja"].as_int()
+        self.extra["number_of_stands"] = feature["telineitä"].as_int()
+        self.extra["number_of_places"] = feature["paikkoja"].as_int()
         model_elem = feature["pys.malli"].as_string()
         if model_elem:
-            self.model = model_elem
+            self.extra["model"] = model_elem
+        else:
+            self.extra["model"] = None
 
         quality_elem = feature["laatutaso"].as_string()
         if quality_elem:
             quality_text = quality_elem.lower()
             if self.GEOJSON_HULL_LOCKABLE_STR in quality_text:
-                self.hull_lockable = True
+                self.extra["hull_lockable"] = True
             else:
-                self.hull_lockable = False
+                self.extra["hull_lockable"] = False
 
             if self.COVERED_IN_STR in quality_text:
-                self.covered = True
+                self.extra["covered"] = True
             else:
-                self.covered = False
+                self.extra["covered"] = False
 
-        self.city = get_municipality_name(self.geometry)
+        municipality_name = get_municipality_name(self.geometry)
+        try:
+            self.municipality = Municipality.objects.get(name=municipality_name)
+        except Municipality.DoesNotExist:
+            self.municipality = None
+
         self.name["fi"] = name
         # If related unit is known, use its translated names
         if self.related_unit:
@@ -127,58 +139,64 @@ class BicyleStand:
         else:
             # The last part is always the number
             address_number = address[-1]
-        translated_street_names = get_street_name_translations(street_name, self.city)
-        self.street_address["fi"] = f"{translated_street_names['fi']} {address_number}"
-        self.street_address["sv"] = f"{translated_street_names['sv']} {address_number}"
-        self.street_address["en"] = f"{translated_street_names['en']} {address_number}"
+        translated_street_names = get_street_name_translations(
+            street_name, municipality_name
+        )
+        self.address["fi"] = f"{translated_street_names['fi']} {address_number}"
+        self.address["sv"] = f"{translated_street_names['sv']} {address_number}"
+        self.address["en"] = f"{translated_street_names['en']} {address_number}"
 
     def set_gml_feature(self, feature):
         object_id = feature["id"].as_string()
         # If ObjectId is set to "0", the bicycle stand is not maintained by Turku
         if object_id == "0":
-            self.maintained_by_turku = False
+            self.extra["maintained_by_turku"] = False
         else:
-            self.maintained_by_turku = True
+            self.extra["maintained_by_turku"] = True
 
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=WFS_SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
 
         model_elem = feature["Malli"]
         if model_elem is not None:
-            self.model = model_elem.as_string()
+            self.extra["model"] = model_elem.as_string()
+        else:
+            self.extra["model"] = None
         num_stands_elem = feature["Lukumaara"]
         if num_stands_elem is not None:
             num = num_stands_elem.as_int()
             # for bicycle stands that are Not maintained by Turku
             # the number of stands is set to 0 in the input data
             # but in reality there is no data so None is set.
-            if num == 0 and not self.maintained_by_turku:
-                self.number_of_stands = None
+            if num == 0 and not self.extra["maintained_by_turku"]:
+                self.extra["number_of_stands"] = None
             else:
-                self.number_of_stands = num
+                self.extra["number_of_stands"] = num
 
         num_places_elem = feature["Pyorapaikkojen_lukumaara"].as_string()
-
         if num_places_elem:
             # Parse the numbers inside the string and finally sum them.
             # The input can contain string such as "8 runkolukittavaa ja 10 ei runkolukittavaa paikkaa"
             numbers = [int(s) for s in num_places_elem.split() if s.isdigit()]
-            self.number_of_places = sum(numbers)
+            self.extra["number_of_places"] = sum(numbers)
 
         quality_elem = feature["Pyorapaikkojen_laatutaso"].as_string()
-
         if quality_elem:
             quality_text = quality_elem.lower()
             if self.WFS_HULL_LOCKABLE_STR in quality_text:
-                self.hull_lockable = True
+                self.extra["hull_lockable"] = True
             else:
-                self.hull_lockable = False
-
+                self.extra["hull_lockable"] = False
             if self.COVERED_IN_STR in quality_text:
-                self.covered = True
+                self.extra["covered"] = True
             else:
-                self.covered = False
-        self.city = get_municipality_name(self.geometry)
+                self.extra["covered"] = False
+        try:
+            self.municipality = Municipality.objects.get(
+                name=get_municipality_name(self.geometry)
+            )
+        except Municipality.DoesNotExist:
+            self.municipality = None
         full_names = get_closest_address_full_name(self.geometry)
         self.name[FI_KEY] = full_names[FI_KEY]
         self.name[SV_KEY] = full_names[SV_KEY]
@@ -226,11 +244,11 @@ def get_bicycle_stand_objects(data_source=None):
                     bicycle_stand.set_geojson_feature(feature)
                 if (
                     bicycle_stand.name[FI_KEY] not in external_stands
-                    and not bicycle_stand.maintained_by_turku
+                    and not bicycle_stand.extra["maintained_by_turku"]
                 ):
                     external_stands[bicycle_stand.name[FI_KEY]] = True
                     bicycle_stands.append(bicycle_stand)
-                elif bicycle_stand.maintained_by_turku:
+                elif bicycle_stand.extra["maintained_by_turku"]:
                     bicycle_stands.append(bicycle_stand)
 
     logger.info(f"Retrieved {len(bicycle_stands)} bicycle stands.")
@@ -257,18 +275,12 @@ def save_to_database(objects, delete_tables=True):
     content_type = create_bicycle_stand_content_type()
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
-            content_type=content_type,
+            extra=object.extra,
+            municipality=object.municipality,
         )
-        extra = {}
-        extra["model"] = object.model
-        extra["maintained_by_turku"] = object.maintained_by_turku
-        extra["number_of_stands"] = object.number_of_stands
-        extra["number_of_places"] = object.number_of_places
-        extra["hull_lockable"] = object.hull_lockable
-        extra["covered"] = object.covered
-        mobile_unit.extra = extra
+        mobile_unit.content_types.add(content_type)
         mobile_unit.geometry = object.geometry
         set_translated_field(mobile_unit, "name", object.name)
-        if object.street_address:
-            set_translated_field(mobile_unit, "address", object.street_address)
+        if object.address:
+            set_translated_field(mobile_unit, "address", object.address)
         mobile_unit.save()

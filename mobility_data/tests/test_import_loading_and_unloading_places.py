@@ -9,19 +9,21 @@ from .utils import import_command
 
 @pytest.mark.django_db
 @pytest.mark.django_db
-def test_import(municipality):
+def test_import(municipalities):
     import_command(
         "import_loading_and_unloading_places",
         test_mode="loading_and_unloading_places.geojson",
     )
     assert ContentType.objects.all().count() == 1
     assert MobileUnit.objects.all().count() == 3
+    turku_muni = None
     try:
         turku_muni = Municipality.objects.get(name="Turku")
     except Municipality.DoesNotExist:
         assert turku_muni
     lantinen_rantakatu = MobileUnit.objects.get(name="Läntinen Rantakatu")
-    assert lantinen_rantakatu.content_type.name == CONTENT_TYPE_NAME
+    assert lantinen_rantakatu.content_types.all().count() == 1
+    assert lantinen_rantakatu.content_types.first().name == CONTENT_TYPE_NAME
     assert lantinen_rantakatu.name_sv == "Östra Strandgatan"
     assert lantinen_rantakatu.name_en == "Läntinen Rantakatu"
     assert lantinen_rantakatu.address_fi == "Läntinen Rantakatu 13"
