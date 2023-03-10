@@ -38,7 +38,7 @@ def test_import_scooter_restrictions():
         data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/scooter_parkings.gml",
     )
     # Test scooter parking
-    parking_content_type = ContentType.objects.get(name="ScooterParkingArea")
+    parking_content_type = ContentType.objects.get(type_name="ScooterParkingArea")
     assert parking_content_type
     parking_units_qs = MobileUnit.objects.filter(content_types=parking_content_type)
     assert parking_units_qs.count() == 3
@@ -53,7 +53,9 @@ def test_import_scooter_restrictions():
         data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/scooter_speed_limits.gml",
     )
     # Test scooter speed limits
-    speed_limit_content_type = ContentType.objects.get(name="ScooterSpeedLimitArea")
+    speed_limit_content_type = ContentType.objects.get(
+        type_name="ScooterSpeedLimitArea"
+    )
     assert speed_limit_content_type
     speed_limits_qs = MobileUnit.objects.filter(content_types=speed_limit_content_type)
     assert speed_limits_qs.count() == 3
@@ -71,7 +73,7 @@ def test_import_scooter_restrictions():
         data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/scooter_no_parking_zones.gml",
     )
     # Test scooter no parking zones
-    no_parking_content_type = ContentType.objects.get(name="ScooterNoParkingArea")
+    no_parking_content_type = ContentType.objects.get(type_name="ScooterNoParkingArea")
     assert no_parking_content_type
     no_parking_qs = MobileUnit.objects.filter(content_types=no_parking_content_type)
     assert no_parking_qs.count() == 3

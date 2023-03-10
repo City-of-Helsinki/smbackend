@@ -8,7 +8,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from mobility_data.importers.utils import (
     delete_mobile_units,
     get_file_name_from_data_source,
-    get_or_create_content_type,
+    get_or_create_content_type_from_config,
     get_root_dir,
     set_translated_field,
 )
@@ -83,17 +83,10 @@ def delete_car_share_parking_places():
 
 
 @db.transaction.atomic
-def create_car_share_parking_place_content_type():
-    description = "Car share parking places in the Turku region."
-    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
-    return content_type
-
-
-@db.transaction.atomic
 def save_to_database(objects, delete_tables=True):
     if delete_tables:
         delete_car_share_parking_places()
-    content_type = create_car_share_parking_place_content_type()
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
     for object in objects:
         mobile_unit = MobileUnit.objects.create(extra=object.extra)
         mobile_unit.content_types.add(content_type)

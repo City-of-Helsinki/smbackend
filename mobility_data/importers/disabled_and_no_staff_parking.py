@@ -10,7 +10,7 @@ from mobility_data.importers.utils import (
     delete_mobile_units,
     FieldTypes,
     get_file_name_from_data_source,
-    get_or_create_content_type,
+    get_or_create_content_type_from_config,
     get_root_dir,
     set_translated_field,
 )
@@ -169,31 +169,17 @@ def delete_disabled_parkings():
 
 
 @db.transaction.atomic
-def get_and_create_no_staff_parking_content_type():
-    description = "No staff parkings in the Turku region."
-    content_type, _ = get_or_create_content_type(
-        NO_STAFF_PARKING_CONTENT_TYPE_NAME, description
-    )
-    return content_type
-
-
-@db.transaction.atomic
-def get_and_create_disabled_parking_content_type():
-    description = "Parkings for disabled in the Turku region."
-    content_type, _ = get_or_create_content_type(
-        DISABLED_PARKING_CONTENT_TYPE_NAME, description
-    )
-    return content_type
-
-
-@db.transaction.atomic
 def save_to_database(objects, delete_tables=True):
     if delete_tables:
         delete_no_staff_parkings()
         delete_disabled_parkings()
 
-    no_staff_parking_content_type = get_and_create_no_staff_parking_content_type()
-    disabled_parking_content_type = get_and_create_disabled_parking_content_type()
+    no_staff_parking_content_type = get_or_create_content_type_from_config(
+        NO_STAFF_PARKING_CONTENT_TYPE_NAME
+    )
+    disabled_parking_content_type = get_or_create_content_type_from_config(
+        DISABLED_PARKING_CONTENT_TYPE_NAME
+    )
 
     for object in objects:
         mobile_unit = MobileUnit.objects.create(

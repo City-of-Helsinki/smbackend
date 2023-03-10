@@ -8,7 +8,7 @@ from .utils import (
     delete_mobile_units,
     FieldTypes,
     get_file_name_from_data_source,
-    get_or_create_content_type,
+    get_or_create_content_type_from_config,
     get_root_dir,
     set_translated_field,
 )
@@ -130,17 +130,10 @@ def get_parking_machine_objects():
 
 
 @db.transaction.atomic
-def get_and_create_parking_machine_content_type():
-    description = "Parking machines in the City of Turku."
-    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
-    return content_type
-
-
-@db.transaction.atomic
 def save_to_database(objects, delete_tables=True):
     if delete_tables:
         delete_mobile_units(CONTENT_TYPE_NAME)
-    content_type = get_and_create_parking_machine_content_type()
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
     for object in objects:
         mobile_unit = MobileUnit.objects.create(
             geometry=object.geometry,

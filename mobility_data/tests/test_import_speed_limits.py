@@ -26,7 +26,7 @@ def test_import_speed_limits():
 
     assert ContentType.objects.all().count() == 1
     content_type = ContentType.objects.first()
-    assert content_type.name == "SpeedLimitZone"
+    assert content_type.type_name == "SpeedLimitZone"
     assert MobileUnit.objects.all().count() == 3
 
     zone_80 = MobileUnit.objects.first()

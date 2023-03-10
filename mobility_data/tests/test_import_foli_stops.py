@@ -17,7 +17,7 @@ def test_import_foli_stops(fetch_json_mock):
     objects = foli_stops.get_foli_stops()
     foli_stops.save_to_database(objects)
     assert ContentType.objects.count() == 1
-    assert ContentType.objects.first().name == foli_stops.CONTENT_TYPE_NAME
+    assert ContentType.objects.first().type_name == foli_stops.CONTENT_TYPE_NAME
     assert MobileUnit.objects.count() == 3
     turun_satama = MobileUnit.objects.get(name="Turun satama (Silja)")
     assert turun_satama.content_types.all().count() == 1

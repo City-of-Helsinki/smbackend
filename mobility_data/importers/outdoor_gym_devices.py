@@ -5,19 +5,11 @@ from django import db
 from mobility_data.models import MobileUnit
 from services.models import Service, Unit
 
-from .utils import delete_mobile_units, get_or_create_content_type
+from .utils import delete_mobile_units, get_or_create_content_type_from_config
 
 logger = logging.getLogger("mobility_data")
 SERVICE_NAME = "Outdoor Gym Devices"
 CONTENT_TYPE_NAME = "OutdoorGymDevice"
-
-db.transaction.atomic
-
-
-def create_content_type():
-    description = "Outdoor gym devices in Turku."
-    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
-    return content_type
 
 
 db.transaction.atomic
@@ -34,7 +26,7 @@ def save_outdoor_gym_devices():
     except Service.DoesNotExist:
         return 0
 
-    content_type = create_content_type()
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
     units_qs = Unit.objects.filter(services=service)
     for unit in units_qs:
         mobile_unit = MobileUnit.objects.create(unit_id=unit.id)
