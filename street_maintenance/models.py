@@ -24,7 +24,7 @@ class MaintenanceWork(models.Model):
     maintenance_unit = models.ForeignKey(
         "MaintenanceUnit",
         on_delete=models.CASCADE,
-        related_name="maintenance_unit",
+        related_name="maintenance_work",
         null=True,
     )
 
