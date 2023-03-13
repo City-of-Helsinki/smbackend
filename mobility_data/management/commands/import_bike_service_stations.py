@@ -1,7 +1,12 @@
 import logging
 
 from mobility_data.importers.bike_service_stations import (
+    CONTENT_TYPE_NAME,
     get_bike_service_station_objects,
+)
+from mobility_data.importers.utils import (
+    get_or_create_content_type_from_config,
+    log_imported_message,
     save_to_database,
 )
 
@@ -18,5 +23,6 @@ class Command(BaseImportCommand):
             geojson_file = options["test_mode"]
 
         objects = get_bike_service_station_objects(geojson_file=geojson_file)
-        save_to_database(objects)
-        logger.info(f"Imported {len(objects)} bike service stations.")
+        content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
+        num_ceated, num_deleted = save_to_database(objects, content_type)
+        log_imported_message(logger, content_type, num_ceated, num_deleted)

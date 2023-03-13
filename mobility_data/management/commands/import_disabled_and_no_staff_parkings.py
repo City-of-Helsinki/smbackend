@@ -4,6 +4,10 @@ from mobility_data.importers.disabled_and_no_staff_parking import (
     DISABLED_PARKING_CONTENT_TYPE_NAME,
     get_no_staff_parking_objects,
     NO_STAFF_PARKING_CONTENT_TYPE_NAME,
+)
+from mobility_data.importers.utils import (
+    get_or_create_content_type_from_config,
+    log_imported_message,
     save_to_database,
 )
 
@@ -18,13 +22,21 @@ class Command(BaseImportCommand):
         geojson_file = None
         if options["test_mode"]:
             geojson_file = options["test_mode"]
-        objects = get_no_staff_parking_objects(geojson_file=geojson_file)
-        save_to_database(objects)
-        num_no_staff_parkings = len(
-            [x for x in objects if x.content_type == NO_STAFF_PARKING_CONTENT_TYPE_NAME]
+        (
+            no_stuff_parking_objects,
+            disabled_parking_objects,
+        ) = get_no_staff_parking_objects(geojson_file=geojson_file)
+        content_type = get_or_create_content_type_from_config(
+            NO_STAFF_PARKING_CONTENT_TYPE_NAME
         )
-        num_disabled_parkings = len(
-            [x for x in objects if x.content_type == DISABLED_PARKING_CONTENT_TYPE_NAME]
+        num_ceated, num_deleted = save_to_database(
+            no_stuff_parking_objects, content_type
         )
-        logger.info(f"Imorted {num_no_staff_parkings} no staff parkings")
-        logger.info(f"Imorted {num_disabled_parkings} disabled parkings")
+        log_imported_message(logger, content_type, num_ceated, num_deleted)
+        content_type = get_or_create_content_type_from_config(
+            DISABLED_PARKING_CONTENT_TYPE_NAME
+        )
+        num_ceated, num_deleted = save_to_database(
+            disabled_parking_objects, content_type
+        )
+        log_imported_message(logger, content_type, num_ceated, num_deleted)
