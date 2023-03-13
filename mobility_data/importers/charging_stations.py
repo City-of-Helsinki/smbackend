@@ -1,22 +1,18 @@
 import csv
 import logging
 
-from django import db
 from django.conf import settings
 from django.contrib.gis.geos import Point
-
-from mobility_data.models import MobileUnit
+from munigeo.models import Municipality
 
 from .utils import (
-    delete_mobile_units,
     get_file_name_from_data_source,
     get_municipality_name,
-    get_or_create_content_type_from_config,
     get_postal_code,
     get_root_dir,
     get_street_name_translations,
     LANGUAGES,
-    set_translated_field,
+    MobileUnitDataBase,
 )
 
 logger = logging.getLogger("mobility_data")
@@ -60,16 +56,12 @@ COLUMN_NAME_MAPPINGS = {
 }
 
 
-class ChargingStation:
+class ChargingStation(MobileUnitDataBase):
     def __init__(self, values):
-        self.is_active = True
-        self.extra = {}
+        super().__init__()
         self.extra["chargers"] = []
         self.extra["administrator"] = {}
-        self.address = {}
-        self.name = {}
         # Contains Only steet_name and number
-        self.street_address = {}
         x = float(values["x"].replace(",", "."))
         y = float(values["y"].replace(",", "."))
         self.geometry = Point(x, y, srid=SOURCE_DATA_SRID)
@@ -78,7 +70,12 @@ class ChargingStation:
         self.extra["method_of_use"] = values["method_of_use"]
         self.extra["other"] = values["other"]
         self.extra["payment"] = values["payment"]
-        self.municipality = get_municipality_name(self.geometry)
+        try:
+            self.municipality = Municipality.objects.get(
+                name=get_municipality_name(self.geometry)
+            )
+        except Municipality.DoesNotExist:
+            self.municipality = None
         self.address_zip = get_postal_code(self.geometry)
         tmp = values["address"].split(" ")
         address_number = None
@@ -161,30 +158,3 @@ def get_charging_station_objects(csv_file=None):
     # create list from dict values.
     objects = [obj for obj in charging_stations.values()]
     return objects
-
-
-@db.transaction.atomic
-def delete_charging_stations():
-    delete_mobile_units(CONTENT_TYPE_NAME)
-
-
-@db.transaction.atomic
-def save_to_database(objects, delete_tables=True):
-    if delete_tables:
-        delete_charging_stations()
-    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
-
-    for object in objects:
-        is_active = object.is_active
-        mobile_unit = MobileUnit.objects.create(
-            is_active=is_active,
-            geometry=object.geometry,
-            extra=object.extra,
-            address_zip=object.address_zip,
-        )
-        mobile_unit.content_types.add(content_type)
-        set_translated_field(mobile_unit, "name", object.name)
-        set_translated_field(mobile_unit, "address", object.address)
-        mobile_unit.save()
-
-    logger.info(f"Saved {len(objects)} charging stations to database.")
