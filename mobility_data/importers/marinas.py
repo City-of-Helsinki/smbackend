@@ -41,8 +41,8 @@ class Marina(MarinaBase):
     def __init__(self, feature):
         super().__init__(feature)
         self.name["fi"] = feature["Venesatamat"].as_string()
-        berths = get_berths(self.name)
-        self.extra = {"berths": berths}
+        berths = get_berths(self.name["fi"])
+        self.extra["berths"] = berths
 
 
 class GuestMarina(MarinaBase):
