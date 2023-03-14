@@ -43,3 +43,5 @@ def test_import_foli_stops(fetch_json_mock):
     assert num_created == 0
     assert num_deleted == 1
     assert MobileUnit.objects.count() == 2
+    # Test that id is preserved
+    assert turun_satama.id == MobileUnit.objects.get(name="Turun satama (Silja)").id

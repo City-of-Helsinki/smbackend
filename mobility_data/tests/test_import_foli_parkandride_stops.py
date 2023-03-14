@@ -101,3 +101,4 @@ def test_import_foli_stops(fetch_json_mock, municipalities):
     assert num_created == 0
     assert num_deleted == 1
     assert MobileUnit.objects.filter(content_types=cars_stops_content_type).count() == 1
+    assert raisio_st1.id == MobileUnit.objects.get(name_en="St1 Raisio").id
