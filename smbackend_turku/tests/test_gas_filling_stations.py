@@ -27,7 +27,7 @@ def test_gas_filling_stations_import():
     import_gas_filling_stations(
         logger=logger,
         config=config,
-        test_data=get_test_resource(resource_name="gas_filling_stations"),
+        test_data=get_test_fixture_json_data("gas_filling_stations.json"),
     )
     service = Service.objects.get(name=config["service"]["name"]["fi"])
     assert service.id == config["service"]["id"]
