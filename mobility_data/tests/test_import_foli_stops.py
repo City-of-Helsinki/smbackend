@@ -4,6 +4,7 @@ import pytest
 from django.contrib.gis.geos import Point
 
 from mobility_data.importers.utils import (
+    delete_mobile_units,
     get_or_create_content_type_from_config,
     save_to_database,
 )
@@ -45,3 +46,18 @@ def test_import_foli_stops(fetch_json_mock):
     assert MobileUnit.objects.count() == 2
     # Test that id is preserved
     assert turun_satama.id == MobileUnit.objects.get(name="Turun satama (Silja)").id
+    # Test deletion
+    delete_mobile_units(content_type)
+    assert (
+        MobileUnit.objects.filter(content_types__type_name=CONTENT_TYPE_NAME).count()
+        == 0
+    )
+    fetch_json_mock.return_value = get_test_fixture_json_data("foli_stops.json")
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
+    objects = get_foli_stops()
+    num_created, num_deleted = save_to_database(objects, content_type)
+    assert num_created == 3
+    assert num_deleted == 0
+    assert ContentType.objects.count() == 1
+    assert ContentType.objects.first().type_name == CONTENT_TYPE_NAME
+    assert MobileUnit.objects.count() == 3
