@@ -292,6 +292,10 @@ def get_content_type_config(type_name):
     configs = get_yaml_config(CONTENT_TYPES_CONFIG_FILE)
     for config in configs.get("content_types", None):
         if type_name == config.get("content_type_name", None):
+            if "name" not in config:
+                raise Exception(
+                    f"Missing name field for {type_name} in {CONTENT_TYPES_CONFIG_FILE}"
+                )
             return config
     return None
 
@@ -303,8 +307,12 @@ def get_or_create_content_type_from_config(type_name):
         raise Exception(
             f"Configuration not found for {type_name} in {CONTENT_TYPES_CONFIG_FILE}"
         )
+    queryset = ContentType.objects.filter(type_name=type_name)
+    if queryset.count() == 0:
+        content_type = ContentType.objects.create(type_name=type_name)
+    else:
+        content_type = queryset.first()
 
-    content_type, _ = ContentType.objects.get_or_create(type_name=type_name)
     for lang in ["fi", "sv", "en"]:
         setattr(content_type, f"name_{lang}", config["name"].get(lang, None))
         if "description" in config:
@@ -354,13 +362,14 @@ def save_to_database(objects, content_types, logger=logger):
             "unit_id": object.unit_id,
         }
         queryset = MobileUnit.objects.filter(**filter)
+        queryset = queryset.filter(content_types__in=content_types_ids)
 
         if queryset.count() == 0:
             mobile_unit = MobileUnit.objects.create(**filter)
             num_created += 1
         else:
             if queryset.count() > 1:
-                logger.warning(f"Found duplicate {filter}")
+                logger.warning(f"Found duplicate MobileUnit {filter}")
 
             mobile_unit = queryset.first()
             id = queryset.first().id
