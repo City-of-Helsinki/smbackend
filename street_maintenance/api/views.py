@@ -58,6 +58,8 @@ class LargeResultsSetPagination(PageNumberPagination):
     """
 
     page_size_query_param = "page_size"
+    # Works are fetched to the remote data storage on a single page, to prevent
+    # duplicates.
     max_page_size = 200_000
 
 
