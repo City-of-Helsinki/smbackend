@@ -1,0 +1,401 @@
+content_types:
+  - content_type_name: BikeServiceStation
+    name:
+      fi: Pyöränkorjauspiste
+      sv: Cykelservicestation
+      en: Bike service stations
+
+  - content_type_name: BicycleStand
+    name:
+      fi: Pyöräpysäköinti
+      sv: Cykelparkering
+      en: Bicycle parking
+
+  - content_type_name: ChargingStation
+    name:
+      fi: Sähkölatauspiste
+      sv: Elladningsstation för bilar
+      en: Car e-charging point
+
+  - content_type_name: NoStaffParking
+    name:
+      fi: Yleiset pysäköintialueet
+      sv: Allmänna parkeringsplatser
+      en: Public parking spaces
+
+  - content_type_name: DisabledParking
+    name:
+      fi: Liikkumisesteisen pysäköinti
+      sv: Parkering för rörelsehindrade
+      en: Parking for disabled
+
+  - content_type_name: FoliParkAndRideCarsStop
+    name:
+      fi: Föli auto liityntäpysäköinti
+      sv: Föli bil infartsparkering
+      en: Föli car park-and-ride stop
+
+  - content_type_name: FoliParkAndRideBikesStop
+    name:
+      fi: Föli pyörä liityntäpysäköinti
+      sv: Föli cykel infartsparkering
+      en: Föli bicycle park-and-ride stop
+
+  - content_type_name: FoliStop
+    name:
+      fi: Föli pysäkki
+      sv: Föli busshållplats      
+      en: Föli bus stop
+
+  - content_type_name: GasFillingStation
+    name:
+      fi: Kaasutankkausasema
+      sv: Tankstation med gas
+      en: Gas filling station
+
+  - content_type_name: LoadingUnloadingPlace
+    name:
+      fi: Kourmauspaikka
+      sv: Lastningsplats
+      en: Loading place
+
+  # Content types from lounaistieto shapefiles importer
+  - content_type_name: BusStopSouthwestFinland
+    name:
+      fi: Bussipysäkki
+      sv: Busshållplats
+      en: Bus stop
+    description:
+      fi: Bussipysäkkejä Varsinais-Suomessa.
+      sv: Busshållplatser i Egentliga Finland.
+      en: Bus stops in Southwest Finland.
+
+  - content_type_name: FerryDock
+    name:
+      fi: Lossi laituri
+      sv: Färjeläge
+      en: Ferry dock
+    description:
+      fi: Lossi laitureita Varsinais-Suomessa.
+      sv: Färjelägen i Egentliga Finland.
+      en: Ferry docks in Southwest Finland.
+
+  - content_type_name: CommonFerryRoute
+    name:
+      fi: Yhteysalusreitti
+      sv: Förbindelsefartygsrutt
+      en: Common ferry route
+    description:
+      fi: Yhteysalusreittejä Varsinais-Suomessa.
+      sv: Förbindelsefartygsrutter i Egentliga Finland.
+      en: Common ferry routes in Southwest Finland.
+
+  - content_type_name: FishingSpot
+    name:
+      fi: Kalastuspaikka
+      sv: Fiskeplats
+      en: Fishing spot
+    description:
+      name:
+        fi: Kalastuspaikkoja Varsinais-Suomessa.
+        sv: Fiskeplatser i Egentliga Finland.
+        en: Fishing spots in Southwest Finland.
+
+  - content_type_name: FerryRoute
+    name:
+      fi: Lossi reitti
+      sv: Färjerutte
+      en: Ferry route
+    description:
+      fi: Lossi reittejä Varsinais-Suomessa.
+      sv: Färjerutter i Egentliga Finland.
+      en: Ferry routes(yhteysalusreitti) in Southwest Finland.
+      
+  - content_type_name: SlipwaySouthwestFinland
+    name:
+      fi: Veneenlaskupaikka
+      sv: Sjösättningsplat för båt
+      en: Slipway for boat
+    description:
+      fi: Veneenlaskupaikkoja Varsinais-Suomessa.
+      sv: Sjösättningsplatser för båtar i Egentliga Finland.
+      en: Slipways for boats in Southwest Finland.
+
+  - content_type_name: RecreationalRoute
+    name:
+      fi: Virkistysreitti
+      sv: Rekreationsrutt 
+      en: Recreational route
+    description:
+      fi: Virkistysreittejä Varsinais-Suomessa.
+      sv: Rekreationsrutter i Egentliga Finland
+      en: Recreational routes in Southwest Finland
+  # End of lounaistieto shapefile importer content types
+  
+  - content_type_name: GuestMarina
+    name:
+      fi: Vierasvenesatama
+      sv: Gästhamn
+      en: Guest harbour
+
+  - content_type_name: BoatParking
+    name:
+      fi: Lyhytaikainen veneparkki
+      sv: Båtparkering
+      en: Boat parking
+
+  - content_type_name: Marina
+    name:
+      fi: Veneparkki
+      sv: Båtplatser
+      en: Marina berths
+
+  - content_type_name: OutdoorGymDevice
+    name:
+      fi: Ulkoliikuntalaite
+      sv: Utomhus tränigsredskap
+      en: Outdoor gym device
+
+  - content_type_name: ParkingMachine
+    name:
+      fi: Pysäköintiautomaatti
+      sv: Parkeringsautomat
+      en: Parking machine
+
+  - content_type_name: ShareCarParkingPlace
+    name:
+      fi: Yhteiskäyttöautojen pysäköintipaikka
+      sv: Bilpoolbilars parkeringsplats
+      en: Parking place for car sharing cars
+  
+  - content_type_name: TrafficSign
+    # Umbrella content type for traffic signs
+    name:
+      fi: Liikennemerkki
+      sv: Trafikmärke
+      en: Traffic sign
+  # WFS importer content types
+  - content_type_name: PlayGround
+    name:
+      fi: Leikkipaikka
+      sv: Lekplats
+      en: Playground
+
+  - content_type_name: BarbecuePlace
+    name:
+      fi: Grillipaikka
+      sv: Grillplats
+      en: Barbecue place
+
+  - content_type_name: TicketMachineSign
+    # Liikennemerkki: 990 Lippuautomaatti
+    name:
+      fi: Lippuautomaatti
+      sv: Biljettautomat
+      en: Ticket machine
+
+  - content_type_name: TaxiStandSign
+    # Liikennemerkki: 534 Taksiasema
+    name:
+      fi: Taksiasema liikennemerkki
+      sv: Taxistation trafikmärke
+      en: Taxi stand sign
+
+  - content_type_name: SingleTrackRailwayLevelCrossingSign
+    # Liikennemerkki: 176 Yksiraiteisen rautatien tasoristeys
+    name:
+      fi: Yksiraiteisen rautatien tasoristeys liikennemerkki
+      sv: Enspårig plankorsning trafikmärke
+      en: Single track railway level crossing sign
+    description:
+      fi:
+      sv:
+      en: Single track railway level crossing with booms signs in the city of Turku.
+  
+  - content_type_name: RailwayLevelCrossingWithBoomsSign  
+    # Liikennemerkki: 172 Rautatien tasoristeys, jossa on puomit
+    name:
+      fi: Rautatieen tasoristeys jossa puomit liikennemerkki
+      sv: Plankorsning med bummar trafikmärke
+      en: Railway level crossing with booms sign
+
+  - content_type_name: RailwayLevelCrossingWithoutBoomsSign
+    # Liikennemerkki: 171 Rautatien tasoristeys ilman puomeja
+    name:
+      fi: Rautatien tasoristeys ilman puomeja liikennemerkki
+      sv: Plankorsning utan bummar trafikmärke
+      en: Railway level crossing without boom sign
+  
+  - content_type_name: ParkingLotSign
+    # Liikennemerkki: 521 Pysäköintipaikka
+    name:
+      fi: Pysäköintipaika liikennemerkki
+      sv: Parkeringsplats trafikmärke
+      en: Parking lot sign
+    
+  - content_type_name: PaidParkingSign
+    # Liikennemerkki: 855b Maksullinen pysäköinti
+    name:
+      fi: Maksullinen pysäköinti liikennemerkki
+      sv: Avgiftsbelagd parkerings trafikmärke
+      en: Paid parking sign
+  
+  - content_type_name: ObligationToUseParkingDiscSign
+    # Liikennemerkki: 856b Pysäköintikiekon käyttövelvollisuus
+    name:
+      fi: Pysäköintikiekon käyttövelvollisuus liikennemerkki
+      sv: Skyldighet att använda parkeringsskiva trafikmärke
+      en: Obligation to use parking disc sign
+
+  - content_type_name: ParkingForbiddenAreaSign
+    # Liikennemerkki: 373 Pysäköintikieltoalue
+    name:
+      fi: Pysäköintikieltoalue liikennemerkki
+      sv: Område för parkeringsförbjud trafikmärke
+      en: Parking forbidden area sign
+
+  - content_type_name: ParkingForbiddenSign
+    # Liikennemerkki: 372 Pysäköinti kielletty
+    name:
+      fi: Pysäköinti kielletty liikennemerkki
+      sv: Parkering förbjudet trafikmärke
+      en: Parking forbidden sign
+
+  - content_type_name: LongDistanceBusStopSign
+    # Liikennemerkki: 532 Kaukoliikenteen linja-auton pysäkki
+    name:
+      fi: Kaukoliikenteen linja-auton pysäkki liikennemerkki
+      sv: Fjärrtrafik busshållplats trafikmärke
+      en: Long distance bus stop sign
+
+  - content_type_name: LocalTrafficBusStopSign  
+    # Liikennemerkki: 531 Paikallisliikenteen linja-auton pysäkki
+    name:
+      fi: Paikallisliikenteen linja-auton pysäkki
+      sv: Busshållsplats för lokaltrafik trafikmärke
+      en: Local traffic bus stop sign
+
+  - content_type_name: ParkingTerminalSign
+    # Liikennemerkki: 991 Pysäköintiautomaatti
+    name:
+      fi: Pysäköintiautomaatti liikennemerkki
+      sv: Parkeringsautomat trafikmärke
+      en: Parking terminal sign
+
+  - content_type_name: CrossWalkSign
+    # Liikennemerkki: 511 Suojatie
+    name:
+      fi: Suojatie liikennemerkki
+      sv: Skyddsväg trafikmärke
+      en: Crosswalk sign
+
+  - content_type_name: RouteForDisabledSign
+    # Liikennemerkki: 683 Vammaisille tarkoitettu reitti
+    name:
+      fi: Liikkkumisesteiselle tarkoitettu reitti liikennemerkki
+      sv: Rutt för röreslehindrade trafikmärke
+      en: Route for disabled sign
+
+  - content_type_name: DisabledParkingSign
+    # Liikennemerkki: 836 Invalidin ajoneuvo
+    name:
+      fi: Liikkumisesteisen pysäköinti liikennemerkki
+      sv: Parkering för rörelsehindrade trafikmärke
+      en: Disabled parking sign
+
+  - content_type_name: PaddlingTrail
+    name:
+      fi: Melontareitti
+      sv: Paddlingrutt
+      en: Paddling trail
+  
+  - content_type_name: HikingTrail
+    name:
+      fi: Retkeilyreitti
+      sv: Vandringsrutt
+      en: Hiking trail
+    
+  - content_type_name: NatureTrail
+    name:
+      fi: Luontopolku
+      sv: Naturstig
+      en: Nature trail
+
+  - content_type_name: FitnessTrail
+    name:
+      fi: Kuntoilureitti
+      sv: Konditionsrutt
+      en: Fitness trail
+
+  - content_type_name: PaavonPolku
+    name:
+      fi: Paavon polku
+      sv: Paavos stig
+      en: Paavo trail
+  
+  - content_type_name: PaymentZone
+    name:
+      fi: Pysäköinnin maksuvyöhyke
+      sv: Parkeringsavgiftszon
+      en: Parking charging zone
+
+  - content_type_name: ScooterParkingArea
+    name:
+      fi: Sähköpotkulaudan pysäköintipaikka
+      sv: Elsparkcykelns parkeringsplats
+      en: Electric scooter parking place
+
+  - content_type_name: ScooterSpeedLimitArea
+    name:
+      fi: Sähköpotkulaudan nopeusrajoitusalue
+      sv: Elsparkscykelns hastighetsbegränsningszon
+      en: Electric scooter speed limit zone
+  
+  - content_type_name: ScooterNoParkingArea
+    name:
+      fi: Sähköpotkulaudan pysäköintikieltoalue
+      sv: Elsparkscykelns parkeringsförbudszon
+      en: Electric scooter no parking zone
+
+  - content_type_name: PublicToilet
+    name:
+      fi: Yleinen vessa
+      sv: Allmän toalet
+      en: Public restroom
+
+  - content_type_name: PublicTable
+    name:
+      fi: Yleinen pöytä
+      sv: Allmän bord
+      eb: Public table
+
+  - content_type_name: PublicBench
+    name:
+      fi: Yleinen penkki
+      sv: Allmän bänk
+      en: Public bench
+
+  - content_type_name: PublicFurnitureGroup
+    name:
+      fi: Yleinen kalusteryhmä
+      sv: Allmän möbelgrupp
+      en: Public furniture group
+
+  - content_type_name: BrushSaltedBicycleNetwork
+    name:
+      fi: Harjasuolattu pyörätie
+      sv: Sopsaltad cykelväg
+      en: Brush salted bicycle road
+
+  - content_type_name: BrushSandedBicycleNetwork
+    name:
+      fi: Harjahiekoitettava pyörätie
+      sv: Sopsandad cykelväg
+      en: Brush sanded bicycle road
+
+  - content_type_name: SpeedLimitZone
+    name:
+      fi: Nopeusrajoitusalue
+      sv: Hastighetsbegränsningszon
+      en: Speed limit zone
+  # End of WFS importer content types

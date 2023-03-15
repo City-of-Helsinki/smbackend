@@ -194,11 +194,11 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
             # TODO, remove when front end is updated.
             if type_name in type_name_mappings:
                 type_name = type_name_mappings[type_name]
-            if not ContentType.objects.filter(name=type_name).exists():
+            if not ContentType.objects.filter(type_name=type_name).exists():
                 return Response(
                     "type_name does not exist.", status=status.HTTP_400_BAD_REQUEST
                 )
-            queryset = MobileUnit.objects.filter(content_types__name=type_name)
+            queryset = MobileUnit.objects.filter(content_types__type_name=type_name)
             # If the data locates in the services_unit table (i.e., MobileUnit has a unit_id)
             # get the unit_ids to retrieve the Units for filtering(bbox and extra)
             unit_ids = list(

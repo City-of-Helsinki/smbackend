@@ -93,12 +93,12 @@ class MobileUnitGroupAdmin(admin.ModelAdmin):
 
 
 class ContentTypeAdmin(admin.ModelAdmin):
-    # readonly_fields = ("id", "type_name", "name", "description")
-    readonly_fields = ("id", "name", "description")
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 class GroupTypeAdmin(admin.ModelAdmin):
-    readonly_fields = ("id", "name", "description")
+    readonly_fields = ("id", "type_name", "description")
 
 
 class DataSourceAdmin(admin.ModelAdmin):

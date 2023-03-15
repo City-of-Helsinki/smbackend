@@ -1,6 +1,6 @@
 from modeltranslation.translator import TranslationOptions, translator
 
-from mobility_data.models import MobileUnit, MobileUnitGroup
+from mobility_data.models import ContentType, MobileUnit, MobileUnitGroup
 
 
 class MobileUnitGroupTranslationOptions(TranslationOptions):
@@ -15,3 +15,10 @@ class MobileUnitTranslationOptions(TranslationOptions):
 
 
 translator.register(MobileUnit, MobileUnitTranslationOptions)
+
+
+class ContentTypeTranslationOptions(TranslationOptions):
+    fields = ("name", "description")
+
+
+translator.register(ContentType, ContentTypeTranslationOptions)

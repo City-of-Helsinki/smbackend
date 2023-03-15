@@ -1,6 +1,5 @@
 features:
   - content_type_name: PlayGround
-    content_type_description: Playgrounds in the city of Turku.
     wfs_layer: GIS:Viheralueet
     max_features: 50000
     include:
@@ -36,7 +35,6 @@ features:
         wfs_field: Peruskorjausvuosi
 
   - content_type_name: BarbecuePlace
-    content_type_description: Barbecue places in the city of Turku.
     wfs_layer: GIS:Varusteet
     max_features: 100000 
     include:
@@ -73,119 +71,102 @@ features:
         wfs_field: Asennus
 
   - content_type_name: TicketMachineSign
-    content_type_description: Ticket machine signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include: 
       Varustelaji: 990 Lippuautomaatti
     max_features: 50000 
 
   - content_type_name: TaxiStandSign
-    content_type_description: Taxi stand signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include: 
       Varustelaji: 534 Taksiasema
     max_features: 50000 
 
   - content_type_name: SingleTrackRailwayLevelCrossingSign
-    content_type_description: Single track railway level crossing with booms signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include: 
       Varustelaji: 176 Yksiraiteisen rautatien tasoristeys
     max_features: 50000 
 
   - content_type_name: RailwayLevelCrossingWithBoomsSign  
-    content_type_description: Railway level crossing with booms signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 172 Rautatien tasoristeys, jossa on puomit
     max_features: 50000 
 
   - content_type_name: RailwayLevelCrossingWithoutBoomsSign  
-    content_type_description: Railway level crossing without booms signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 171 Rautatien tasoristeys ilman puomeja
     max_features: 50000 
 
   - content_type_name: ParkingLotSign
-    content_type_description: Parking lot signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 521 Pysäköintipaikka
     max_features: 50000 
 
   - content_type_name: PaidParkingSign
-    content_type_description: Paid parking signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 855b Maksullinen pysäköinti
     max_features: 50000 
 
   - content_type_name: ObligationToUseParkingDiscSign
-    content_type_description: Obligation to use parking disc signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 856b Pysäköintikiekon käyttövelvollisuus
     max_features: 50000 
 
   - content_type_name: ParkingForbiddenAreaSign
-    content_type_description: Parking forbidden area signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 373 Pysäköintikieltoalue
     max_features: 50000
 
   - content_type_name: ParkingForbiddenSign
-    content_type_description: Parking forbidden signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 372 Pysäköinti kielletty
     max_features: 50000
 
   - content_type_name: LongDistanceBusStopSign
-    content_type_description: Long-distance bus stop signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 532 Kaukoliikenteen linja-auton pysäkki
     max_features: 50000
 
   - content_type_name: LocalTrafficBusStopSign  
-    content_type_description: Local traffic bus stop signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 531 Paikallisliikenteen linja-auton pysäkki
     max_features: 50000
 
   - content_type_name: ParkingTerminalSign
-    content_type_description: Parking terminal signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 991 Pysäköintiautomaatti
     max_features: 50000
 
   - content_type_name: CrossWalkSign
-    content_type_description: Crosswalk signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 511 Suojatie
     max_features: 50000
 
   - content_type_name: RouteForDisabledSign
-    content_type_description: Route for disabled signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 683 Vammaisille tarkoitettu reitti
     max_features: 50000
     
   - content_type_name: DisabledParkingSign
-    content_type_description: Disabled parking signs in the city of Turku.
     wfs_layer: GIS:Liikennemerkit
     include:
       Varustelaji: 836 Invalidin ajoneuvo
     max_features: 50000
 
   - content_type_name: PaddlingTrail
-    content_type_description: Paddling trails in Southwest Finland    
    # if not defined use the Turku WFS url set in environment
     wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
     wfs_layer: virma_reitit_melontareitti
@@ -215,7 +196,6 @@ features:
         wfs_type: double
 
   - content_type_name: HikingTrail
-    content_type_description: Hiking trails in Southwest Finland
     wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
     wfs_layer: virma_reitit_retkeilyreitti
     srid: 3067
@@ -247,7 +227,6 @@ features:
         wfs_type: double
 
   - content_type_name: NatureTrail
-    content_type_description: Nature trails in Southwest Finland
     wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
     wfs_layer: virma_reitit_luontopolku
     srid: 3067
@@ -275,7 +254,6 @@ features:
         wfs_type: double
 
   - content_type_name: FitnessTrail
-    content_type_description: Fitness trails in Southwest Finland
     wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
     wfs_layer: virma_reitit_kuntoreitti
     srid: 3067
@@ -307,7 +285,6 @@ features:
         wfs_type: double
  
   - content_type_name: PaavonPolku
-    content_type_description: Paavo trails are marked trails in the terrain that introduce walkers to the nearby nature and urban environment. Blue signs painted on trees and stones.
     wfs_url: https://geoserver.lounaistieto.fi/geoserver/virma/ows
     wfs_layer: virma_reitit_kuntoreitti
     srid: 3067
@@ -357,19 +334,15 @@ features:
         wfs_field: paatospykala
   
   - content_type_name: ScooterParkingArea
-    content_type_description: Scooter parking zones in the Turku region.
     wfs_layer: GIS:Sahkopotkulautaparkki
   
   - content_type_name: ScooterSpeedLimitArea
-    content_type_description: Scooter speed limit zones in the Turku region.
     wfs_layer: GIS:Sahkopotkulauta_nopeusrajoitus
 
   - content_type_name: ScooterNoParkingArea
-    content_type_description: Scooter no parking zones in the Turku region.
     wfs_layer: GIS:Sahkopotkulauta_pysakointikielto
 
   - content_type_name: PublicToilet
-    content_type_description: Public toilets in the Turku region.
     wfs_layer: GIS:Varusteet
     max_features: 10000
     # Default is False, if True include only if geometry locates in Turku.
@@ -411,7 +384,6 @@ features:
         wfs_type: int
 
   - content_type_name: PublicTable
-    content_type_description: Public tables in the Turku region.
     wfs_layer: GIS:Varusteet
     max_features: 10000
     locates_in_turku: True
@@ -451,7 +423,6 @@ features:
         wfs_type: int
 
   - content_type_name: PublicBench
-    content_type_description: Benches in the Turku region.
     wfs_layer: GIS:Varusteet
     max_features: 10000
     locates_in_turku: True
@@ -491,7 +462,6 @@ features:
         wfs_type: int
 
   - content_type_name: PublicFurnitureGroup
-    content_type_description: Furniture groups in the Turku region.
     wfs_layer: GIS:Varusteet
     max_features: 10000
     locates_in_turku: True
@@ -531,15 +501,12 @@ features:
         wfs_type: int
 
   - content_type_name: BrushSaltedBicycleNetwork
-    content_type_description: Brush salted bicycle network in the region of Turku.
     wfs_layer: GIS:Harjasuolatut_pyoratiet
  
   - content_type_name: BrushSandedBicycleNetwork
-    content_type_description: Brush sanded bicycle network In the region of Turku.
     wfs_layer: GIS:Harjahiekoitetut_pyoratiet
 
   - content_type_name: SpeedLimitZone
-    content_type_description: Speed limit zones in the Turku region.
     wfs_layer: GIS:Nopeusrajoitusalueet
     # If geometry contains multiple polygons create one multipolygon from the polygons
     create_multipolygon: True

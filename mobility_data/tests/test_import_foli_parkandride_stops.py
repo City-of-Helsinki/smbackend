@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
+from mobility_data.importers.utils import get_content_type_config
 from mobility_data.models import ContentType, MobileUnit
 
 from .utils import get_test_fixture_json_data
@@ -25,10 +26,15 @@ def test_import_foli_stops(fetch_json_mock, municipalities):
     save_to_database(bike_stops, FOLI_PARKANDRIDE_BIKES_STOP_CONTENT_TYPE_NAME)
 
     cars_stops_content_type = ContentType.objects.get(
-        name=FOLI_PARKANDRIDE_CARS_STOP_CONTENT_TYPE_NAME
+        type_name=FOLI_PARKANDRIDE_CARS_STOP_CONTENT_TYPE_NAME
     )
+    config = get_content_type_config(FOLI_PARKANDRIDE_CARS_STOP_CONTENT_TYPE_NAME)
+    cars_stops_content_type.name_fi = config["name"]["fi"]
+    cars_stops_content_type.name_sv = config["name"]["sv"]
+    cars_stops_content_type.name_en = config["name"]["en"]
+
     bikes_stops_content_type = ContentType.objects.get(
-        name=FOLI_PARKANDRIDE_BIKES_STOP_CONTENT_TYPE_NAME
+        type_name=FOLI_PARKANDRIDE_BIKES_STOP_CONTENT_TYPE_NAME
     )
     # Fixture data contains two park and ride stops for cars and bikes.
     assert MobileUnit.objects.filter(content_types=cars_stops_content_type).count() == 2
