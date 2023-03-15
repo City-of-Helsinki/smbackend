@@ -4,10 +4,11 @@ from datetime import datetime
 import pytest
 import pytz
 
+from mobility_data.tests.utils import get_test_fixture_json_data
 from services.models import Service, ServiceNode, Unit
 from smbackend_turku.importers.stations import import_gas_filling_stations
 from smbackend_turku.importers.utils import get_external_source_config
-from smbackend_turku.tests.utils import create_municipalities, get_test_resource
+from smbackend_turku.tests.utils import create_municipalities
 
 
 @pytest.mark.django_db
