@@ -11,9 +11,10 @@ from mobility_data.importers.utils import (
     delete_mobile_units,
     get_or_create_content_type_from_config,
     locates_in_turku,
-    set_translated_field,
+    log_imported_message,
+    MobileUnitDataBase,
+    save_to_database,
 )
-from mobility_data.models import MobileUnit
 
 DEFAULT_SOURCE_DATA_SRID = 3877
 DEFAULT_MAX_FEATURES = 1000
@@ -29,30 +30,9 @@ def delete_content_type_using_yaml_config(config):
     delete_mobile_units(content_type_name)
 
 
-@db.transaction.atomic
-def save_to_database_using_yaml_config(objects, config):
-    content_type = get_or_create_content_type_from_config(config["content_type_name"])
-    if not content_type:
-        return
-    for object in objects:
-        mobile_unit = MobileUnit.objects.create(
-            extra=object.extra, geometry=object.geometry
-        )
-        mobile_unit.content_types.add(content_type)
-        mobile_unit.municipality = object.municipality
-        set_translated_field(mobile_unit, "name", object.name)
-        set_translated_field(mobile_unit, "address", object.address)
-        mobile_unit.save()
-
-
-class MobilityData:
+class MobilityData(MobileUnitDataBase):
     def __init__(self):
-        self.extra = {}
-        self.name = {}
-        self.name = {"fi": None, "sv": None, "en": None}
-        self.address = {"fi": None, "sv": None, "en": None}
-        self.geometry = None
-        self.municipality = None
+        super().__init__()
 
     def add_feature(self, feature, config):
         create_multipolygon = False
@@ -160,9 +140,7 @@ def import_wfs_feature(config, data_file=None):
     if "max_features" in config:
         max_features = config["max_features"]
     wfs_layer = config["wfs_layer"]
-    delete_content_type_using_yaml_config(config)
     objects = []
-
     if data_file:
         ds = DataSource(data_file)
     else:
@@ -178,5 +156,6 @@ def import_wfs_feature(config, data_file=None):
         object = MobilityData()
         if object.add_feature(feature, config):
             objects.append(object)
-    save_to_database_using_yaml_config(objects, config)
-    logger.info(f"Saved {len(objects)} {config['content_type_name']} objects.")
+    content_type = get_or_create_content_type_from_config(config["content_type_name"])
+    num_ceated, num_deleted = save_to_database(objects, content_type)
+    log_imported_message(logger, content_type, num_ceated, num_deleted)

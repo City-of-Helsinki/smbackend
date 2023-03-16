@@ -1,15 +1,29 @@
 import pytest
 
-from mobility_data.importers.gas_filling_station import CONTENT_TYPE_NAME
+from mobility_data.importers.utils import (
+    get_or_create_content_type_from_config,
+    save_to_database,
+)
 from mobility_data.models import ContentType, MobileUnit
 
-from .utils import import_command
+from .utils import get_test_fixture_json_data
 
 
 @pytest.mark.django_db
 def test_importer(municipalities):
-    import_command("import_gas_filling_stations", test_mode="gas_filling_stations.json")
 
+    from mobility_data.importers.gas_filling_station import (
+        CONTENT_TYPE_NAME,
+        get_filtered_gas_filling_station_objects,
+    )
+
+    json_data = get_test_fixture_json_data("gas_filling_stations.json")
+    objects = get_filtered_gas_filling_station_objects(json_data=json_data)
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
+    num_created, num_deleted = save_to_database(objects, content_type)
+    # Two will be created as One item in the fixture data locates outside Southwest Finland
+    assert num_created == 2
+    assert num_deleted == 0
     assert ContentType.objects.filter(type_name=CONTENT_TYPE_NAME).count() == 1
     assert (
         MobileUnit.objects.filter(content_types__type_name=CONTENT_TYPE_NAME).count()

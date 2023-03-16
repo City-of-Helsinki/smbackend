@@ -1,35 +1,32 @@
 import logging
 
-from django import db
-
-from mobility_data.models import MobileUnit
 from services.models import Service, Unit
 
-from .utils import delete_mobile_units, get_or_create_content_type_from_config
+from .utils import MobileUnitDataBase
 
 logger = logging.getLogger("mobility_data")
 SERVICE_NAME = "Outdoor Gym Devices"
 CONTENT_TYPE_NAME = "OutdoorGymDevice"
 
 
-db.transaction.atomic
+class OutdoorGymDevice(MobileUnitDataBase):
+    def __init__(self, unit_id):
+        super().__init__()
+        self.unit_id = unit_id
 
 
-def save_outdoor_gym_devices():
+def get_oudoor_gym_devices():
     """
     Save only the ID of the Unit. The data will be serialized
     from the Unit table using this ID.
     """
-    delete_mobile_units(CONTENT_TYPE_NAME)
+    outdoor_gym_devices = []
     try:
         service = Service.objects.get(name_en=SERVICE_NAME)
     except Service.DoesNotExist:
-        return 0
+        return None
 
-    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
     units_qs = Unit.objects.filter(services=service)
     for unit in units_qs:
-        mobile_unit = MobileUnit.objects.create(unit_id=unit.id)
-        mobile_unit.content_types.add(content_type)
-        mobile_unit.save()
-    return units_qs.count()
+        outdoor_gym_devices.append(OutdoorGymDevice(unit.id))
+    return outdoor_gym_devices

@@ -70,6 +70,12 @@ content_types:
       sv: Busshållplatser i Egentliga Finland.
       en: Bus stops in Southwest Finland.
 
+  - content_type_name: MarinaSouthwestFinland
+    name:
+      fi: Marina in Southwest Finland
+      sv: Båt plats i Egentliga Finland
+      en: Marina berth in Southwest Finland    
+
   - content_type_name: FerryDock
     name:
       fi: Lossi laituri
@@ -147,8 +153,8 @@ content_types:
   - content_type_name: Marina
     name:
       fi: Veneparkki
-      sv: Båtplatser
-      en: Marina berths
+      sv: Båtplats
+      en: Marina berth
 
   - content_type_name: OutdoorGymDevice
     name:
@@ -174,6 +180,7 @@ content_types:
       fi: Liikennemerkki
       sv: Trafikmärke
       en: Traffic sign
+      
   # WFS importer content types
   - content_type_name: PlayGround
     name:

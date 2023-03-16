@@ -1,16 +1,11 @@
-from django import db
 from django.conf import settings
 from django.contrib.gis.geos import Point
 
-from mobility_data.models import MobileUnit
-
 from .utils import (
-    delete_mobile_units,
     FieldTypes,
     get_file_name_from_data_source,
-    get_or_create_content_type_from_config,
     get_root_dir,
-    set_translated_field,
+    MobileUnitDataBase,
 )
 
 SOURCE_DATA_SRID = 4326
@@ -19,7 +14,7 @@ CONTENT_TYPE_NAME = "ParkingMachine"
 LANGUAGES = ["fi", "sv", "en"]
 
 
-class ParkingMachine:
+class ParkingMachine(MobileUnitDataBase):
 
     extra_field_mappings = {
         "Sijainti": {
@@ -71,9 +66,9 @@ class ParkingMachine:
     }
 
     def __init__(self, feature):
+        super().__init__()
         properties = feature["properties"]
         geometry = feature["geometry"]
-        self.extra = {}
         self.address = {"fi": properties["Osoite"]}
         self.address["sv"] = properties["Adress"]
         self.address["en"] = properties["Address"]
@@ -127,18 +122,3 @@ def get_json_data():
 def get_parking_machine_objects():
     json_data = get_json_data()["features"]
     return [ParkingMachine(feature) for feature in json_data]
-
-
-@db.transaction.atomic
-def save_to_database(objects, delete_tables=True):
-    if delete_tables:
-        delete_mobile_units(CONTENT_TYPE_NAME)
-    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
-    for object in objects:
-        mobile_unit = MobileUnit.objects.create(
-            geometry=object.geometry,
-            extra=object.extra,
-        )
-        mobile_unit.content_types.add(content_type)
-        set_translated_field(mobile_unit, "address", object.address)
-        mobile_unit.save()

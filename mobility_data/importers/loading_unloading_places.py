@@ -1,21 +1,17 @@
 import logging
 import re
 
-from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource as GDALDataSource
 from django.contrib.gis.geos import GEOSGeometry
 from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
-    delete_mobile_units,
     FieldTypes,
     get_file_name_from_data_source,
-    get_or_create_content_type_from_config,
     get_root_dir,
-    set_translated_field,
+    MobileUnitDataBase,
 )
-from mobility_data.models import MobileUnit
 
 logger = logging.getLogger("mobility_data")
 
@@ -25,7 +21,7 @@ LANGUAGES = [language[0] for language in settings.LANGUAGES]
 CONTENT_TYPE_NAME = "LoadingUnloadingPlace"
 
 
-class LoadingPlace:
+class LoadingPlace(MobileUnitDataBase):
 
     extra_field_mappings = {
         "Saavutettavuus": {
@@ -44,10 +40,8 @@ class LoadingPlace:
     }
 
     def __init__(self, feature):
-        self.address = {}
-        self.name = {}
+        super().__init__()
         municipality = None
-        self.address_zip = None
         addresses = [
             " ".join(a.strip().split(" ")[:-2]).rstrip(",")
             for a in feature["Osoite"].as_string().split("/")
@@ -80,14 +74,12 @@ class LoadingPlace:
                 self.name[lang] = names[i]
             else:
                 self.name[lang] = names[0]
-        if municipality:
-            try:
-                municipality = Municipality.objects.get(name=municipality)
-                self.municipality = municipality
-            except Municipality.DoesNotExist:
-                self.municipality = None
-        else:
+
+        try:
+            self.municipality = Municipality.objects.get(name=municipality)
+        except Municipality.DoesNotExist:
             self.municipality = None
+
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
         self.extra = {}
@@ -129,27 +121,3 @@ def get_loading_and_unloading_objects(geojson_file=None):
     for feature in data_layer:
         objects.append(LoadingPlace(feature))
     return objects
-
-
-@db.transaction.atomic
-def delete_loading_and_unloading_places():
-    delete_mobile_units(CONTENT_TYPE_NAME)
-
-
-@db.transaction.atomic
-def save_to_database(objects, delete_tables=True):
-    if delete_tables:
-        delete_loading_and_unloading_places()
-
-    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
-    for object in objects:
-        mobile_unit = MobileUnit.objects.create(
-            extra=object.extra,
-            geometry=object.geometry,
-        )
-        mobile_unit.content_types.add(content_type)
-        set_translated_field(mobile_unit, "name", object.name)
-        set_translated_field(mobile_unit, "address", object.address)
-        mobile_unit.address_zip = object.address_zip
-        mobile_unit.municipality = object.municipality
-        mobile_unit.save()
