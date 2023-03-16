@@ -24,45 +24,6 @@ FIELD_TYPES = types.SimpleNamespace()
 FIELD_TYPES.FLOAT = float
 FIELD_TYPES.INT = int
 FIELD_TYPES.BOOL = bool
-# Mappings, so that deprecated type_names will work.
-# These will be removed when the front end is updated.
-group_name_mappings = {"CRE": "CultureRoute"}
-type_name_mappings = {
-    "FGS": "FishingSpot",
-    "FYR": "FerryRoute",
-    "MSF": "MarinaSouthwestFinland",
-    "SWY": "SlipwaySouthwestFinland",
-    "RCR": "RecreationalRoute",
-    "PTL": "PaddlingTrail",
-    "HTL": "HikingTrail",
-    "NTL": "NatureTrail",
-    "FTL": "FitnessTrail",
-    "PPU": "PaavonPolku",
-    "PAZ": "PaymentZone",
-    "SPG": "ScooterParkingArea",
-    "SSL": "ScooterSpeedLimitArea",
-    "SNP": "ScooterNoParkingArea",
-    "BLB": "BrushSaltedBicycleNetwork",
-    "BND": "BrushSandedBicycleNetwork",
-    "SLZ": "SpeedLimitZone",
-    "APT": "PublicToilet",
-    "ATE": "PublicTable",
-    "ABH": "PublicBench",
-    "AFG": "PublicFurnitureGroup",
-    "BIS": "BicycleStand",
-    "BSS": "BikeServiceStation",
-    "BOK": "BoatParking",
-    "CGS": "ChargingStation",
-    "CRG": "CultureRouteGeometry",
-    "CRU": "CultureRouteUnit",
-    "DSP": "DisabledParking",
-    "GFS": "GasFillingStation",
-    "GMA": "GuestMarina",
-    "SCP": "ShareCarParkingPlace",
-    "MAR": "Marina",
-    "NSP": "NoStaffParking",
-    "LUP": "LoadingUnloadingPlace",
-}
 
 
 def get_srid_and_latlon(filters):
@@ -135,9 +96,6 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
         mobile_units = get_mobile_units(filters)
         if "type_name" in filters:
             type_name = filters["type_name"]
-            # TODO, remove when front end is updated.
-            if type_name in type_name_mappings:
-                type_name = group_name_mappings[type_name]
             if not GroupType.objects.filter(name=type_name).exists():
                 return Response(
                     "type_name does not exist.", status=status.HTTP_400_BAD_REQUEST
@@ -191,9 +149,6 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         srid, latlon = get_srid_and_latlon(filters)
         if "type_name" in filters:
             type_name = filters["type_name"]
-            # TODO, remove when front end is updated.
-            if type_name in type_name_mappings:
-                type_name = type_name_mappings[type_name]
             if not ContentType.objects.filter(type_name=type_name).exists():
                 return Response(
                     "type_name does not exist.", status=status.HTTP_400_BAD_REQUEST
