@@ -67,7 +67,7 @@ divisions:
 
   - type: school_district_fi
     name: "Oppilaaksiottoalue, suomenkielinen"    
-    ocd_id: oppilaaksiottoalue_alakoulu
+    ocd_id: oppilaaksiottoalue_suomenkielinen
     wfs_layer: 'GIS:Oppilasalueet_suomi'
     fields:
         name:
@@ -75,10 +75,10 @@ divisions:
         origin_id: Oppilasalueen_kuvaus
         ocd_id: Oppilasalueen_kuvaus
 
-  - type: lower_comprehensive_school_district_sv
-    name: "Oppilaaksiottoalue, ruotsinkielinen alakoulu"   
-    ocd_id: oppilaaksiottoalue_alakoulu_sv
-    wfs_layer: 'GIS:Oppilasalueet_ruotsi_1-6'
+  - type: school_district_sv
+    name: "Oppilaaksiottoalue, ruotsinkielinen"   
+    ocd_id: oppilaaksiottoalue_ruotsinkielinen
+    wfs_layer: 'GIS:Oppilasalueet_ruotsi_1-9'
     check_turku_boundary: False
     fields:
       name:
@@ -86,14 +86,4 @@ divisions:
       origin_id: Oppilasalueen_kuvaus
       ocd_id: Oppilasalueen_kuvaus
 
-  - type: upper_comprehensive_school_district_sv
-    name: "Oppilaaksiottoalue, ruotsinkielinen yläkoulu"  
-    ocd_id: oppilaaksiottoalue_ylakoulu_sv
-    wfs_layer: 'GIS:Oppilasalueet_ruotsi_7-9'
-    check_turku_boundary: False
-    fields:
-      name:
-        sv: Oppilasalueen_kuvaus
-      origin_id: Oppilasalueen_kuvaus
-      ocd_id: Oppilasalueen_kuvaus
-    
+  
