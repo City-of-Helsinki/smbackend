@@ -10,6 +10,9 @@ from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
 
 from services.management.commands.services_import.keyword import KeywordHandler
 from services.models import (
+    Department,
+    OrganizationServiceNodeUnitCount,
+    OrganizationServiceUnitCount,
     Service,
     ServiceNode,
     ServiceNodeUnitCount,
@@ -170,6 +173,14 @@ def get_divisions_by_muni():
         )
 
 
+@lru_cache(maxsize=0 if "pytest" in sys.modules else 128)
+def get_organization_by_id(org_id):
+    try:
+        return Department.objects.get(uuid=org_id)
+    except Department.DoesNotExist:
+        return None
+
+
 def update_count_objects(service_node_unit_count_objects, node):
     """
     This is a generator which yields all the objects that need to be saved.
@@ -190,6 +201,29 @@ def update_count_objects(service_node_unit_count_objects, node):
             yield obj
     for node in node.get_children():
         yield from update_count_objects(service_node_unit_count_objects, node)
+
+
+def update_organization_count_objects(service_node_unit_count_objects, node):
+    """
+    This is a generator which yields all the objects that need to be saved.
+    (Objects that didn't exist or whose count field was updated.)
+    """
+    for org_id, count in node._unit_count.items():
+        obj = service_node_unit_count_objects.get((node.id, org_id))
+        if obj is None:
+            obj = OrganizationServiceNodeUnitCount(
+                service_node=node,
+                organization=get_organization_by_id(org_id),
+                count=count,
+            )
+            yield obj
+        elif obj.count != count:
+            obj.count = count
+            yield obj
+        for node in node.get_children():
+            yield from update_organization_count_objects(
+                service_node_unit_count_objects, node
+            )
 
 
 @db.transaction.atomic
@@ -249,8 +283,93 @@ def update_service_node_counts():
     return tree
 
 
+def update_service_node_organization_counts():
+    units_by_service = {}
+    through_values = (
+        Unit.service_nodes.through.objects.filter(
+            unit__public=True, unit__is_active=True
+        )
+        .values_list("servicenode_id", "unit__root_department__uuid", "unit_id")
+        .order_by("servicenode_id", "unit__root_department__uuid")
+        .distinct("servicenode_id", "unit__root_department__uuid")
+    )
+
+    for service_node_id, org_id, unit_id in through_values:
+        unit_set = units_by_service.setdefault(service_node_id, {}).setdefault(
+            org_id, set()
+        )
+        unit_set.add(unit_id)
+        units_by_service[service_node_id][org_id] = unit_set
+
+    unit_counts_to_be_updated = set(
+        ((service_node_id, org_id) for service_node_id, org_id, _ in through_values)
+    )
+
+    for c in OrganizationServiceNodeUnitCount.objects.select_related(
+        "organization"
+    ).all():
+        if (c.service_node_id, c.organization.uuid) not in unit_counts_to_be_updated:
+            c.delete()
+
+    tree = ServiceNode.tree_objects.all().get_cached_trees()
+    for node in tree:
+        update_service_node(node, units_by_service)
+
+    def count_object_pair(x):
+        return ((x.service_node_id, x.organization.uuid), x)
+
+    service_node_unit_count_objects = dict(
+        (
+            count_object_pair(x)
+            for x in OrganizationServiceNodeUnitCount.objects.select_related(
+                "organization"
+            ).all()
+        )
+    )
+
+    objects_to_save = []
+    for node in tree:
+        objects_to_save.extend(
+            update_organization_count_objects(service_node_unit_count_objects, node)
+        )
+
+    rm_list = []
+    unique_pairs = []
+    unique_pairs_with_object = []
+    for o in objects_to_save:
+        if (o.service_node_id, o.organization.uuid) not in unique_pairs:
+            unique_pairs.append((o.service_node_id, o.organization.uuid))
+            unique_pairs_with_object.append(
+                ((o.service_node_id, o.organization.uuid), o)
+            )
+        else:
+            pair = next(
+                (
+                    x
+                    for x in unique_pairs_with_object
+                    if x[0][0] == o.service_node_id and x[0][1] == o.organization.uuid
+                ),
+                None,
+            )
+            count = pair[1].count
+            if count > o.count:
+                rm_list.append(o)
+            else:
+                rm_list.append(pair[1])
+                unique_pairs_with_object.remove(pair)
+                unique_pairs_with_object.append(
+                    ((o.service_node_id, o.organization.uuid), o)
+                )
+
+    objects = [o for o in objects_to_save if o not in rm_list]
+
+    save_objects(objects)
+    return tree
+
+
 @db.transaction.atomic
 def update_service_counts():
+    # Update service counts for municipalities
     values = Service.objects.values("id", "units__municipality__division__id").annotate(
         count=db.models.Count("units")
     )
@@ -260,12 +379,12 @@ def update_service_counts():
         c[row["units__municipality__division__id"]] = row["count"]
 
     municipality_type = AdministrativeDivisionType.objects.get(type="muni")
-    existing_count_objects = ServiceUnitCount.objects.filter(
+    existing_municipality_counts = ServiceUnitCount.objects.filter(
         division_type=municipality_type
     )
 
-    # Step 1: modify existing count objects
-    for o in existing_count_objects:
+    # Step 1: modify existing municipality count objects
+    for o in existing_municipality_counts:
         if (
             o.service_id not in unit_counts
             or o.division_id not in unit_counts[o.service_id]
@@ -287,6 +406,45 @@ def update_service_counts():
                     division_id=division_id,
                     count=count,
                     division_type=municipality_type,
+                )
+                o.save()
+
+
+@db.transaction.atomic
+def update_service_organization_counts():
+    # Update service counts for organizations
+    organization_values = Service.objects.values(
+        "id", "units__root_department__id"
+    ).annotate(count=db.models.Count("units"))
+    organization_unit_counts = dict()
+    for row in organization_values:
+        c = organization_unit_counts.setdefault(row["id"], {})
+        c[row["units__root_department__id"]] = row["count"]
+
+    existing_organization_counts = OrganizationServiceUnitCount.objects.all()
+
+    # Step 1: modify existing department count objects
+    for o in existing_organization_counts:
+        if (
+            o.service_id not in organization_unit_counts
+            or o.organization_id not in organization_unit_counts[o.service_id]
+        ):
+            o.delete()
+            continue
+        count = organization_unit_counts[o.service_id][o.organization_id]
+        if count != o.count:
+            o.count = count
+            o.save()
+        del organization_unit_counts[o.service_id][o.organization_id]
+
+    # Step 2: create new count objects as needed
+    for service_id, c in organization_unit_counts.items():
+        for organization_id, count in c.items():
+            if count > 0:
+                o = OrganizationServiceUnitCount.objects.create(
+                    service_id=service_id,
+                    organization_id=organization_id,
+                    count=count,
                 )
                 o.save()
 
