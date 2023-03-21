@@ -1,7 +1,7 @@
 from django.db import models
 from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
 
-from . import Service, ServiceNode
+from . import Department, Service, ServiceNode
 
 
 class BaseUnitCount(models.Model):
@@ -41,3 +41,43 @@ class ServiceUnitCount(BaseUnitCount):
 
     class Meta:
         unique_together = (("service", "division"),)
+
+
+class OrganizationServiceUnitCount(models.Model):
+    organization = models.ForeignKey(
+        Department,
+        null=True,
+        db_index=True,
+        on_delete=models.CASCADE,
+    )
+    service = models.ForeignKey(
+        Service,
+        null=False,
+        db_index=True,
+        related_name="unit_count_organizations",
+        on_delete=models.CASCADE,
+    )
+    count = models.PositiveIntegerField(null=False)
+
+    class Meta:
+        unique_together = (("service", "organization"),)
+
+
+class OrganizationServiceNodeUnitCount(models.Model):
+    organization = models.ForeignKey(
+        Department,
+        null=True,
+        db_index=True,
+        on_delete=models.CASCADE,
+    )
+    service_node = models.ForeignKey(
+        ServiceNode,
+        null=False,
+        db_index=True,
+        related_name="unit_count_organizations",
+        on_delete=models.CASCADE,
+    )
+    count = models.PositiveIntegerField(null=False)
+
+    class Meta:
+        unique_together = (("service_node", "organization"),)
