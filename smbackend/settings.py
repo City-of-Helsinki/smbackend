@@ -4,16 +4,8 @@ from pathlib import Path
 import sentry_sdk
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.log import DEFAULT_LOGGING
 from environ import Env
 from sentry_sdk.integrations.django import DjangoIntegration
-
-# Enable logging to console from our modules by configuring the root logger
-DEFAULT_LOGGING["loggers"][""] = {
-    "handlers": ["console"],
-    "level": "INFO",
-    "propagate": True,
-}
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -257,8 +249,6 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "timestamped_named",
         },
-        # Just for reference, not used
-        "blackhole": {"class": "logging.NullHandler"},
     },
     "loggers": {
         "django": {"handlers": ["console"], "level": DJANGO_LOG_LEVEL},
