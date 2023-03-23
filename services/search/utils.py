@@ -88,7 +88,7 @@ def set_service_node_unit_count(ids, representation):
                 unit_counts[division] = 1
 
         for unit in units_qs:
-            org_name = unit.organization.name.lower()
+            org_name = unit.root_department.name.lower()
             if not org_name:
                 continue
             if org_name in org_unit_counts:
