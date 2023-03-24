@@ -23,6 +23,7 @@ from munigeo.models import (
 )
 
 from mobility_data.models import ContentType, DataSource, MobileUnit
+from services.models import Unit
 
 logger = logging.getLogger("mobility_data")
 
@@ -109,19 +110,6 @@ def fetch_json(url):
 @db.transaction.atomic
 def delete_mobile_units(type_name):
     MobileUnit.objects.filter(content_types__type_name=type_name).delete()
-
-
-def create_mobile_unit_as_unit_reference(unit_id, content_type):
-    """
-    This function is called by turku_services_importers target that imports both
-    to the services list and mobile view. The created MobileUnit is used to
-    serialize the data from the services_unit table in the mobile_unit endpoint.
-    """
-
-    mobile_unit = MobileUnit.objects.create(
-        unit_id=unit_id,
-    )
-    mobile_unit.content_types.add(content_type)
 
 
 def get_or_create_content_type(name, description):
@@ -384,3 +372,19 @@ def save_to_database(objects, content_types, logger=logger):
 
     MobileUnit.objects.filter(id__in=objs_to_delete).delete()
     return num_created, len(objs_to_delete)
+
+
+def create_mobile_units_as_unit_references(service_id, content_type):
+    """
+    This function is called by turku_services_importers targets that imports both
+    to the services list and mobile view. The created MobileUnits are used to
+    serialize the data from the services_unit table in the mobile_unit endpoint.
+    """
+
+    units = Unit.objects.filter(services__id=service_id)
+    objects = []
+    for unit in units:
+        obj = MobileUnitDataBase()
+        obj.unit_id = unit.id
+        objects.append(obj)
+    save_to_database(objects, content_type)
