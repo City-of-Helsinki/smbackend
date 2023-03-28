@@ -90,5 +90,3 @@ def import_external_sources(name="import_external_sources"):
 @shared_task_email
 def delete_obsolete_external_units(name="delete_obsolete_external_units"):
     management.call_command("delete_obsolete_external_units")
-
-
