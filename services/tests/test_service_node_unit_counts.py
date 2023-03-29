@@ -1,4 +1,5 @@
 import datetime
+import uuid
 
 import pytest
 from munigeo.models import (
@@ -12,7 +13,7 @@ from rest_framework.test import APIClient
 from services.management.commands.services_import.services import (
     update_service_node_counts,
 )
-from services.models import ServiceNode, Unit
+from services.models import Department, ServiceNode, Unit
 
 from .utils import get
 
@@ -37,6 +38,16 @@ def municipalities():
         )
         Municipality.objects.get_or_create(id=muni_name, name_fi=muni_name, division=a)
     return Municipality.objects.all().order_by("pk")
+
+
+@pytest.fixture
+def organization(municipalities):
+    return Department.objects.create(
+        uuid=uuid.uuid4(),
+        name="Test Organization X",
+        street_address="Test Address 123",
+        municipality=municipalities[0],
+    )
 
 
 @pytest.fixture
@@ -69,7 +80,10 @@ def units(service_nodes, municipalities):
     a, b = municipalities
 
     u1, _ = Unit.objects.get_or_create(
-        id=1, name_fi="a", municipality=a, last_modified_time=MOD_TIME
+        id=1,
+        name_fi="a",
+        municipality=a,
+        last_modified_time=MOD_TIME,
     )
     u2, _ = Unit.objects.get_or_create(
         id=2, name_fi="b", municipality=b, last_modified_time=MOD_TIME

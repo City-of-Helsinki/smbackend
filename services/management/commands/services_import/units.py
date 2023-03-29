@@ -245,38 +245,22 @@ def _import_unit(
             LOGGER.warning("%s: coordinates present but no city" % obj)
 
     municipality_id = None
-    muni_name = None
-    org_id = info.get("org_id", None)
 
-    if org_id:
-        department_qs = Department.objects.filter(uuid=org_id)
-        if department_qs:
-            municipality = department_qs.first().municipality
-            if municipality:
-                muni_name = municipality.id
-
-    if not muni_name:
-        muni_name = info.get("address_city_fi", None)
-        if not muni_name and "address_zip" in info:
-            muni_name = "no-city"
-        if muni_name:
-            muni_name = muni_name.lower()
-            if muni_name in ("helsingin kaupunki",):
-                muni_name = "helsinki"
-            elif muni_name in ("vantaan kaupunki",):
-                muni_name = "vantaa"
-            elif muni_name in ("espoon kaupunki",):
-                muni_name = "espoo"
-            if muni_name not in muni_by_name:
-                postcode = info.get("address_zip", None)
-                muni_name = postcodes().get(postcode, None)
-                if muni_name:
-                    if VERBOSITY:
-                        LOGGER.warning(
-                            "%s: municipality to %s based on post code %s (was %s)"
-                            % (obj, muni_name, postcode, info.get("address_city_fi"))
-                        )
-                    muni_name = muni_name.lower()
+    muni_name = info.get("address_city_fi", None)
+    if not muni_name and "address_zip" in info:
+        muni_name = "no-city"
+    if muni_name:
+        muni_name = muni_name.lower()
+        if muni_name not in muni_by_name:
+            postcode = info.get("address_zip", None)
+            muni_name = postcodes().get(postcode, None)
+            if muni_name:
+                if VERBOSITY:
+                    LOGGER.warning(
+                        "%s: municipality to %s based on post code %s (was %s)"
+                        % (obj, muni_name, postcode, info.get("address_city_fi"))
+                    )
+                muni_name = muni_name.lower()
     if muni_name:
         muni = muni_by_name.get(muni_name)
         if muni:

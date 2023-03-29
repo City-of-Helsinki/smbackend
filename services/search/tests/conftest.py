@@ -49,6 +49,7 @@ def units(
         www="www.test.com",
         phone="02020242",
         municipality=municipality,
+        department=department,
     )
     unit.services.add(1)
     unit.save()
@@ -80,6 +81,7 @@ def units(
         service_names_fi=[service.name_fi],
         last_modified_time=now(),
         municipality=municipality,
+        department=department,
     )
     unit.services.add(3)
     unit.save()

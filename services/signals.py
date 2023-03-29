@@ -15,7 +15,7 @@ from services.search.utils import hyphenate
 def unit_on_save(sender, **kwargs):
     obj = kwargs["instance"]
     generate_syllables(obj)
-    # Do transaction after successfull commit.
+    # Do transaction after successful commit.
     transaction.on_commit(populate_search_column(obj))
 
 
@@ -82,7 +82,7 @@ def populate_service_keywords(obj):
 
 
 def populate_search_column(obj):
-    # Get the information of columns and weights to be added to sear from the model
+    # Get the information of columns and weights to be added to search from the model
     columns = {}
     columns["fi"] = obj.get_search_column_indexing("fi")
     columns["sv"] = obj.get_search_column_indexing("sv")

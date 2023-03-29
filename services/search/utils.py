@@ -2,7 +2,12 @@ import libvoikko
 from django.db import connection
 from django.db.models import Case, When
 
-from services.models import ServiceNode, ServiceNodeUnitCount, Unit
+from services.models import (
+    OrganizationServiceNodeUnitCount,
+    ServiceNode,
+    ServiceNodeUnitCount,
+    Unit,
+)
 from services.search.constants import (
     DEFAULT_TRIGRAM_THRESHOLD,
     SEARCHABLE_MODEL_TYPE_NAMES,
@@ -40,6 +45,7 @@ def set_service_node_unit_count(ids, representation):
     set the unit_counts for the service_node.
     """
     unit_counts = {}
+    org_unit_counts = {}
     if len(ids) == 1:
         service_node_count_qs = ServiceNodeUnitCount.objects.filter(
             service_node_id=ids[0]
@@ -54,6 +60,17 @@ def set_service_node_unit_count(ids, representation):
                 unit_counts[division] += count
             else:
                 unit_counts[division] = count
+
+        org_service_node_count_qs = OrganizationServiceNodeUnitCount.objects.filter(
+            service_node_id=ids[0]
+        )
+        for org_service_node_count in org_service_node_count_qs:
+            org_name = org_service_node_count.organization.name.lower()
+            count = org_service_node_count.count
+            if org_name in org_unit_counts:
+                org_unit_counts[org_name] += count
+            else:
+                org_unit_counts[org_name] = count
     else:
         # Handle grouped service_nodes
         units_qs = Unit.objects.none()
@@ -69,7 +86,20 @@ def set_service_node_unit_count(ids, representation):
                 unit_counts[division] += 1
             else:
                 unit_counts[division] = 1
-    representation["unit_count"] = {"municipality": unit_counts}
+
+        for unit in units_qs:
+            org_name = unit.root_department.name.lower()
+            if not org_name:
+                continue
+            if org_name in org_unit_counts:
+                org_unit_counts[org_name] += 1
+            else:
+                org_unit_counts[org_name] = 1
+
+    representation["unit_count"] = {
+        "municipality": unit_counts,
+        "organization": org_unit_counts,
+    }
     representation["unit_count"]["total"] = sum(unit_counts.values())
 
 
@@ -87,7 +117,16 @@ def set_service_unit_count(obj, representation):
                 )
                 for x in obj.unit_counts.all()
             )
-        )
+        ),
+        organization=dict(
+            (
+                (
+                    x.organization.name.lower() if x.organization else "_unknown",
+                    x.count,
+                )
+                for x in obj.unit_count_organizations.all()
+            )
+        ),
     )
     total = 0
     for _, part in representation["unit_count"]["municipality"].items():

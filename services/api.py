@@ -312,7 +312,16 @@ class ServiceNodeSerializer(
                     (x.division.name_fi.lower() if x.division else "_unknown", x.count)
                     for x in obj.unit_counts.all()
                 )
-            )
+            ),
+            organization=dict(
+                (
+                    (
+                        x.organization.name.lower() if x.organization else "_unknown",
+                        x.count,
+                    )
+                    for x in obj.unit_count_organizations.all()
+                )
+            ),
         )
         total = 0
         for _, part in ret["unit_count"]["municipality"].items():
@@ -337,7 +346,7 @@ class ServiceNodeSerializer(
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
         ret = super(ServiceSerializer, self).to_representation(obj)
-        ret["unit_count"] = {"municipality": {}}
+        ret["unit_count"] = {"municipality": {}, "organization": {}}
         total = 0
         for unit_count in obj.unit_counts.filter(division_type__type="muni"):
             div_name = unit_count.division.name.lower() if unit_count.division else None
@@ -346,6 +355,17 @@ class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
             total += unit_count.count
             ret["unit_count"]["municipality"][div_name] = unit_count.count
         ret["unit_count"]["total"] = total
+
+        for organization_unit_count in obj.unit_count_organizations.all():
+            organization_name = (
+                organization_unit_count.organization.name.lower()
+                if organization_unit_count.organization
+                else None
+            )
+            if organization_name:
+                ret["unit_count"]["organization"][
+                    organization_name
+                ] = organization_unit_count.count
 
         divisions = self.context.get("divisions", [])
         include_fields = self.context.get("include", [])
