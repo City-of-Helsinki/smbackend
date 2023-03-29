@@ -406,3 +406,15 @@ content_types:
       sv: Hastighetsbegränsningszon
       en: Speed limit zone
   # End of WFS importer content types
+
+  - content_type_name: Underpass
+    name:
+      fi: Alikulku
+      sv: Underfartsbro
+      en: Underpass
+
+  - content_type_name: Overpass
+    name:
+      fi: Ylikulku
+      sv: Överfartsbro
+      en: Overpass
