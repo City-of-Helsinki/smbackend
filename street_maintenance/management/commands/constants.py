@@ -60,7 +60,7 @@ PUHTAANAPITO = "puhtaanapito"
 HIEKANPOISTO = "hiekanpoisto"
 # MUUT is set to None as the events are not currently displayed.
 MUUT = None
-
+EVENT_CHOICES = [AURAUS, LIUKKAUDENTORJUNTA, PUHTAANAPITO, HIEKANPOISTO]
 # As data providers have different names for their events, they are mapped
 # with this dict, so that every event that does the same has the same name.
 # The value is a list, as there can be events that belong to multiple main groups.
