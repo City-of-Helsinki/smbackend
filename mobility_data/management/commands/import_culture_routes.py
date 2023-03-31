@@ -24,7 +24,7 @@ class Command(BaseCommand):
             routes, delete_tables=delete_tables
         )
         logger.info(
-            "Fetchet {} Culture Routes. Saved {} routes and deleted {} obsolete routes."
+            "Fetched {} Culture Routes. Saved {} routes and deleted {} obsolete routes."
             " Saved {} units and deleted {} obsolete units".format(
                 len(routes), routes_saved, routes_deleted, units_saved, units_deleted
             )
