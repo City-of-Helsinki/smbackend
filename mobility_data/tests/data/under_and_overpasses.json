@@ -1,0 +1,116 @@
+{
+	"wfs:FeatureCollection": {
+		"@xmlns:xs": "http://www.w3.org/2001/XMLSchema",
+		"@xmlns:digiroad": "www.livi_digiroad.fi",
+		"@xmlns:wfs": "http://www.opengis.net/wfs",
+		"@xmlns:gml": "http://www.opengis.net/gml",
+		"@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+		"@numberOfFeatures": "139994",
+		"@timeStamp": "2023-03-29T11:48:44.864+03:00",
+		"@xsi:schemaLocation": "http://www.opengis.net/wfs https://julkinen.vayla.fi/inspirepalvelu/schemas/wfs/1.1.0/wfs.xsd www.livi_digiroad.fi https://julkinen.vayla.fi/inspirepalvelu/digiroad/wfs?service=WFS&version=2.0.0&request=DescribeFeatureType&typeName=digiroad%3Adr_tielinkki_toim_lk",
+		"gml:featureMembers":
+
+		{
+			"digiroad:dr_tielinkki_toim_lk": [{
+				"@gml:id": "dr_tielinkki_toim_lk.4364843",
+				"digiroad:LINK_ID": "4364843",
+				"digiroad:LINK_MMLID": "71182700",
+				"digiroad:HALLINN_LK": "3",
+				"digiroad:TOIMINN_LK": "7",
+				"digiroad:AJOSUUNTA": "2",
+				"digiroad:LINKKITYYP": "12",
+				"digiroad:SILTA_ALIK": "0",
+				"digiroad:TIENIMI_SU": "Nummen mets\u00e4tie",
+				"digiroad:ENS_TALO_V": "263",
+				"digiroad:ENS_TALO_O": "264",
+				"digiroad:VIIM_TAL_V": "251",
+				"digiroad:VIIM_TAL_O": "252",
+				"digiroad:KUNTAKOODI": "636",
+				"digiroad:MUOKKAUSPV": "25.12.2018 01:00:40",
+				"digiroad:SIJ_TARK": "3000",
+				"digiroad:KOR_TARK": "201",
+				"digiroad:GEOM_FLIP": "1",
+				"digiroad:ALKU_PAALU": "0",
+				"digiroad:LOPP_PAALU": "325.688",
+				"digiroad:GEOM_LAHDE": "1",
+				"digiroad:SHAPE": {
+					"gml:LineString": {
+						"@srsName": "http://www.opengis.net/gml/srs/epsg.xml#4326",
+						"@srsDimension": "3",
+						"gml:posList": "22.52851124 60.76362636 73.823 22.52807579 60.76374084 73.908 22.52768355 60.76380312 74.073 22.52719903 60.76398517 74.286 22.52638126 60.76421428 74.051 22.52563276 60.76444342 73.59 22.52485326 60.76468844 74.223 22.52381843 60.76500016 74.74 22.52340543 60.76512753 75.399"
+					}
+				},
+				"digiroad:ALKUSOLMU": "9304724",
+				"digiroad:LOPPUSOLMU": "9298108",
+				"digiroad:MTK_TIE_LK": "12141"
+			},
+            {
+				"@gml:id": "dr_tielinkki_toim_lk.4364843",
+				"digiroad:LINK_ID": "644680",
+				"digiroad:LINK_MMLID": "71182700",
+				"digiroad:HALLINN_LK": "99",
+				"digiroad:TOIMINN_LK": "8",
+				"digiroad:AJOSUUNTA": "2",
+				"digiroad:LINKKITYYP": "12",
+				"digiroad:SILTA_ALIK": "-1",
+				"digiroad:TIENIMI_SU": "Läntinen Rantakatu",
+				"digiroad:ENS_TALO_V": "263",
+				"digiroad:ENS_TALO_O": "264",
+				"digiroad:VIIM_TAL_V": "251",
+				"digiroad:VIIM_TAL_O": "252",
+				"digiroad:KUNTAKOODI": "853",
+				"digiroad:MUOKKAUSPV": "25.12.2018 01:00:40",
+				"digiroad:SIJ_TARK": "3000",
+				"digiroad:KOR_TARK": "201",
+				"digiroad:GEOM_FLIP": "1",
+				"digiroad:ALKU_PAALU": "0",
+				"digiroad:LOPP_PAALU": "325.688",
+				"digiroad:GEOM_LAHDE": "1",
+				"digiroad:SHAPE": {
+					"gml:LineString": {
+						"@srsName": "http://www.opengis.net/gml/srs/epsg.xml#4326",
+						"@srsDimension": "3",
+						"gml:posList": "22.32554152 60.53907714 41.976 22.32535151 60.53944881 41.501"
+					}
+				},
+				"digiroad:ALKUSOLMU": "9304724",
+				"digiroad:LOPPUSOLMU": "9298108",
+				"digiroad:MTK_TIE_LK": "12141"
+			},
+            {
+				"@gml:id": "dr_tielinkki_toim_lk.4364843",
+				"digiroad:LINK_ID": "644680",
+				"digiroad:LINK_MMLID": "71182700",
+				"digiroad:HALLINN_LK": "99",
+				"digiroad:TOIMINN_LK": "8",
+				"digiroad:AJOSUUNTA": "2",
+				"digiroad:LINKKITYYP": "12",
+				"digiroad:SILTA_ALIK": "1",
+				"digiroad:TIENIMI_SU": "Läntinen Testikatu",
+				"digiroad:ENS_TALO_V": "263",
+				"digiroad:ENS_TALO_O": "264",
+				"digiroad:VIIM_TAL_V": "251",
+				"digiroad:VIIM_TAL_O": "252",
+				"digiroad:KUNTAKOODI": "853",
+				"digiroad:MUOKKAUSPV": "25.12.2018 01:00:40",
+				"digiroad:SIJ_TARK": "3000",
+				"digiroad:KOR_TARK": "201",
+				"digiroad:GEOM_FLIP": "1",
+				"digiroad:ALKU_PAALU": "0",
+				"digiroad:LOPP_PAALU": "325.688",
+				"digiroad:GEOM_LAHDE": "1",
+				"digiroad:SHAPE": {
+					"gml:LineString": {
+						"@srsName": "http://www.opengis.net/gml/srs/epsg.xml#4326",
+						"@srsDimension": "3",
+						"gml:posList": "22.3295715 60.54484321 32.318 22.33085745 60.54539151 33.151"
+					}
+				},
+				"digiroad:ALKUSOLMU": "9304724",
+				"digiroad:LOPPUSOLMU": "9298108",
+				"digiroad:MTK_TIE_LK": "12141"
+			}
+        ]
+		}
+	}
+}

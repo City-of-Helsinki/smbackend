@@ -42,3 +42,4 @@ numpy>=1.22
 pyshp
 polyline
 drf-spectacular
+xmltodict
