@@ -128,8 +128,6 @@ def test_mobile_unit(api_client, mobile_units, content_types, unit):
     assert len(response.json()["results"][0]) == 2
     assert len(response.json()["results"][1]) == 2
 
-    breakpoint()
-
 
 @pytest.mark.django_db
 def test_mobile_unit_group(api_client, mobile_unit_group, group_type):
