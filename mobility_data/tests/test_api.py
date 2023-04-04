@@ -122,6 +122,13 @@ def test_mobile_unit(api_client, mobile_units, content_types, unit):
     assert result["geometry"] == "POINT (24.24 62.22)"
     assert result["geometry_coords"]["lon"] == 24.24
     assert result["geometry_coords"]["lat"] == 62.22
+    # Test only param
+    url = reverse("mobility_data:mobile_units-list") + "?only=id,name"
+    response = api_client.get(url)
+    assert len(response.json()["results"][0]) == 2
+    assert len(response.json()["results"][1]) == 2
+
+    breakpoint()
 
 
 @pytest.mark.django_db
