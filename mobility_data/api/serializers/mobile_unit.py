@@ -84,6 +84,16 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         "unit_id": "id",
     }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        context = kwargs.get("context", {})
+        if "only" in context:
+            self.keep_fields = set(context["only"] + ["id"])
+            for field_name in list(self.fields.keys()):
+                if field_name in self.keep_fields:
+                    continue
+                del self.fields[field_name]
+
     def to_representation(self, obj):
         representation = super().to_representation(obj)
         unit_id = getattr(obj, "unit_id", None)
@@ -122,7 +132,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 if field == "unit_id":
                     representation["unit_id"] = mobile_unit.unit_id
             # The location field must be serialized with its wkt value.
-            if unit.location:
+            if unit.location and "geometry" in representation:
                 representation["geometry"] = unit.location.wkt
         return representation
 
