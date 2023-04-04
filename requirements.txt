@@ -51,7 +51,7 @@ cron-descriptor==1.2.35
     # via django-celery-beat
 deprecated==1.2.13
     # via redis
-django==4.1.2
+django==4.1.7
     # via
     #   -r requirements.in
     #   django-celery-beat
@@ -235,9 +235,7 @@ toml==0.10.2
     #   pytest
     #   pytest-cov
 tomli==1.2.1
-    # via
-    #   black
-    #   pep517
+    # via pep517
 tqdm==4.62.3
     # via -r requirements.in
 tzdata==2022.1

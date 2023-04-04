@@ -19,12 +19,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logger.info("Importing culture routes...")
         routes = get_routes()
-        delete_tables = False
-        if options["delete"]:
-            delete_tables = True
-        num_saved = save_to_database(routes, delete_tables=delete_tables)
+        delete_tables = options.get("delete", False)
+        routes_saved, routes_deleted, units_saved, units_deleted = save_to_database(
+            routes, delete_tables=delete_tables
+        )
         logger.info(
-            "Fetched {} Culture Routes and saved {} new Culture Routes to database.".format(
-                len(routes), num_saved
+            "Fetched {} Culture Routes. Saved {} routes and deleted {} obsolete routes."
+            " Saved {} units and deleted {} obsolete units".format(
+                len(routes), routes_saved, routes_deleted, units_saved, units_deleted
             )
         )

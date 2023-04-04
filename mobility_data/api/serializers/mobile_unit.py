@@ -81,6 +81,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         "address_fi": "street_address_fi",
         "address_sv": "street_address_sv",
         "address_en": "street_address_en",
+        "unit_id": "id",
     }
 
     def to_representation(self, obj):
@@ -89,7 +90,6 @@ class MobileUnitSerializer(serializers.ModelSerializer):
         # If serializing Unit instance or MobileUnit with unit_id.
         if self.context.get("services_unit_instances", False) or unit_id:
             if unit_id:
-                # When serializing the MobileUnit from the retrieve method
                 try:
                     unit = Unit.objects.get(id=unit_id)
                 except Unit.DoesNotExist:
@@ -97,6 +97,7 @@ class MobileUnitSerializer(serializers.ModelSerializer):
             else:
                 # The obj is a Unit instance.
                 unit = obj
+            mobile_unit = MobileUnit.objects.filter(unit_id=unit.id).first()
             for field in self.fields:
                 # lookup the field name in the service_unit table, as not all field names that contains
                 # similar data has the same name.
@@ -115,11 +116,11 @@ class MobileUnitSerializer(serializers.ModelSerializer):
                 # Serialize the MobileUnit id, otherwise would serialize the serivce_unit id.
                 if field == "id":
                     try:
-                        representation["id"] = MobileUnit.objects.get(
-                            unit_id=unit.id
-                        ).id
+                        representation["id"] = mobile_unit.id
                     except MobileUnit.DoesNotExist:
                         representation["id"] = unit.id
+                if field == "unit_id":
+                    representation["unit_id"] = mobile_unit.unit_id
             # The location field must be serialized with its wkt value.
             if unit.location:
                 representation["geometry"] = unit.location.wkt

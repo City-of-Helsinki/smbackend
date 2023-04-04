@@ -418,3 +418,15 @@ content_types:
       fi: Ylikulku
       sv: Överfartsbro
       en: Overpass
+      
+  - content_type_name: CultureRouteUnit
+    name:
+      fi: Kultuurikuntoilureitti
+      sv: Kulturväg
+      en: Culture route
+
+  - content_type_name: CultureRouteGeometry
+    name:
+      fi: Kulttuurikuntoilureitin geometria
+      sv: Geometri för kulturväg
+      en: Geometry for culture route
