@@ -224,12 +224,13 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request):
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
-        logger.debug(connection.queries)
-        queries_time = sum([float(s["time"]) for s in connection.queries])
-        logger.debug(
-            f"Search queries total execution time: {queries_time} Num queries: {len(connection.queries)}"
-        )
-        reset_queries()
+        if logger.level <= logging.DEBUG:
+            logger.debug(connection.queries)
+            queries_time = sum([float(s["time"]) for s in connection.queries])
+            logger.debug(
+                f"MobileUnit list queries total execution time: {queries_time} Num queries: {len(connection.queries)}"
+            )
+            reset_queries()
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
