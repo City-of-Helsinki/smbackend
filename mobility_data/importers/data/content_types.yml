@@ -406,3 +406,15 @@ content_types:
       sv: Hastighetsbegränsningszon
       en: Speed limit zone
   # End of WFS importer content types
+
+  - content_type_name: CultureRouteUnit
+    name:
+      fi: Kultuurikuntoilureitti
+      sv: Kulturväg
+      en: Culture route
+
+  - content_type_name: CultureRouteGeometry
+    name:
+      fi: Kulttuurikuntoilureitin geometria
+      sv: Geometri för kulturväg
+      en: Geometry for culture route

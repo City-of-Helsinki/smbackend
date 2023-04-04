@@ -10,7 +10,7 @@ from pykml import parser
 
 from mobility_data.models import GroupType, MobileUnit, MobileUnitGroup
 
-from .utils import get_or_create_content_type, set_translated_field
+from .utils import get_or_create_content_type_from_config, MobileUnitDataBase
 
 logger = logging.getLogger("mobility_data")
 # Regexps used to remove html, & tags and css.
@@ -96,12 +96,11 @@ class Route:
             self.description[lang] = description
 
 
-class Placemark:
+class Placemark(MobileUnitDataBase):
     def __init__(self):
         # Store the name and description for every langue to dictionaries
-        self.name = {}
-        self.description = {}
-        self.geometry = None
+        super().__init__()
+        self.content_type = None
 
     def set_data(self, placemark, lang, add_geometry=False):
         """
@@ -253,50 +252,82 @@ def get_routes():
 
 @db.transaction.atomic
 def save_to_database(routes, delete_tables=False):
-    if delete_tables:
-        GroupType.objects.filter(name=GROUP_CONTENT_TYPE_NAME).delete()
+    routes_created = 0
+    units_created = 0
 
+    if delete_tables:
+        GroupType.objects.filter(type_name=GROUP_CONTENT_TYPE_NAME).delete()
+    units_to_delete = list(
+        MobileUnit.objects.filter(
+            mobile_unit_group__group_type__type_name=GROUP_CONTENT_TYPE_NAME
+        ).values_list("id", flat=True)
+    )
+    routes_to_delete = list(
+        MobileUnitGroup.objects.filter(
+            group_type__type_name=GROUP_CONTENT_TYPE_NAME
+        ).values_list("id", flat=True)
+    )
     group_type, _ = GroupType.objects.get_or_create(
-        name=GROUP_CONTENT_TYPE_NAME,
+        type_name=GROUP_CONTENT_TYPE_NAME,
         description="Culture Routes in Turku",
     )
-    unit_type, _ = get_or_create_content_type(
-        name=ROUTE_CONTENT_TYPE_NAME,
-        description="Contains pointdata, name and description of a place in a Culture Route.",
+    unit_content_type = get_or_create_content_type_from_config(ROUTE_CONTENT_TYPE_NAME)
+    geometry_content_type = get_or_create_content_type_from_config(
+        GEOMETRY_CONTENT_TYPE_NAME
     )
-    geometry_type, _ = get_or_create_content_type(
-        GEOMETRY_CONTENT_TYPE_NAME,
-        "Contains the LineString geometry of the Culture Route.",
-    )
-    routes_saved = 0
+
     # Routes are stored as MobileUnitGroups and Placemarks as MobileUnits
     for route in routes:
-        group, created = MobileUnitGroup.objects.get_or_create(
-            group_type=group_type, name=route.name["fi"]
-        )
-        if created:
-            set_translated_field(group, "name", route.name)
-            set_translated_field(group, "description", route.description)
-            group.save()
-            routes_saved += 1
+        filter = {
+            "name": route.name.get("fi", None),
+            "name_sv": route.name.get("sv", None),
+            "name_en": route.name.get("en", None),
+            "description": route.description.get("fi", None),
+            "description_sv": route.description.get("sv", None),
+            "description_en": route.description.get("en", None),
+            "group_type": group_type,
+        }
+        queryset = MobileUnitGroup.objects.filter(**filter)
+        if queryset.count() == 0:
+            group = MobileUnitGroup.objects.create(**filter)
+            routes_created += 1
+
+        else:
+            group = queryset.first()
+            id = group.id
+            if id in routes_to_delete:
+                routes_to_delete.remove(id)
 
         for placemark in route.placemarks:
             content_type = None
             # If the geometry is a Point the content_type is Culture Route MobileUnit
             if isinstance(placemark.geometry, Point):
-                content_type = unit_type
+                content_type = unit_content_type
             # If the geometry is a LineString we not the content_Type is Culture Route Geometry
             elif isinstance(placemark.geometry, LineString):
-                content_type = geometry_type
+                content_type = geometry_content_type
 
-            mobile_unit, created = MobileUnit.objects.get_or_create(
-                mobile_unit_group=group,
-                geometry=placemark.geometry,
-            )
-            mobile_unit.content_types.add(content_type)
-            if created:
-                mobile_unit.is_active = True
-                set_translated_field(mobile_unit, "name", placemark.name)
-                set_translated_field(mobile_unit, "description", placemark.description)
-                mobile_unit.save()
-    return routes_saved
+            filter = {
+                "name": placemark.name["fi"],
+                "name_sv": placemark.name["sv"],
+                "name_en": placemark.name["en"],
+                "description": placemark.description["fi"],
+                "description_sv": placemark.description["sv"],
+                "description_en": placemark.description["en"],
+                "geometry": placemark.geometry,
+                "mobile_unit_group": group,
+                "is_active": True,
+            }
+
+            queryset = MobileUnit.objects.filter(**filter)
+            if queryset.count() == 0:
+                mobile_unit = MobileUnit.objects.create(**filter)
+                mobile_unit.content_types.add(content_type)
+                units_created += 1
+            else:
+                id = queryset.first().id
+                if id in units_to_delete:
+                    units_to_delete.remove(id)
+    MobileUnit.objects.filter(id__in=units_to_delete).delete()
+    MobileUnitGroup.objects.filter(id__in=routes_to_delete).delete()
+    return routes_created, len(routes_to_delete), units_created, len(units_to_delete)
