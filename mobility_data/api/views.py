@@ -1,8 +1,10 @@
+import logging
 import types
 from distutils.util import strtobool
 
 from django.contrib.gis.gdal import SpatialReference
 from django.core.exceptions import ValidationError
+from django.db import connection, reset_queries
 from django.db.models import Q
 from munigeo import api as munigeo_api
 from rest_framework import status, viewsets
@@ -24,6 +26,8 @@ FIELD_TYPES = types.SimpleNamespace()
 FIELD_TYPES.FLOAT = float
 FIELD_TYPES.INT = int
 FIELD_TYPES.BOOL = bool
+
+logger = logging.getLogger("mobility_data")
 
 
 def get_srid_and_latlon(filters):
@@ -118,7 +122,7 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
 
 class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = MobileUnit.objects.all()
+    queryset = MobileUnit.objects.filter(is_active=True)
     serializer_class = MobileUnitSerializer
 
     def retrieve(self, request, pk=None):
@@ -138,15 +142,19 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def list(self, request):
-        """
-        Lists MobileUnits, optionally list by type_name if given
-        and transforms to given srid.
-        """
-        queryset = None
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["srid"], context["latlon"] = get_srid_and_latlon(
+            self.request.query_params
+        )
+        context["self.services_unit_instances"] = self.services_unit_instances
+        return context
+
+    def get_queryset(self):
+        queryset = MobileUnit.objects.filter(is_active=True)
+        queryset = queryset.prefetch_related("content_types")
         unit_ids = []
         filters = self.request.query_params
-        srid, latlon = get_srid_and_latlon(filters)
         if "type_name" in filters:
             type_name = filters["type_name"]
             if not ContentType.objects.filter(type_name=type_name).exists():
@@ -162,13 +170,15 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             queryset = MobileUnit.objects.all()
 
-        services_unit_instances = True if len(unit_ids) > 0 else False
-        if services_unit_instances:
+        self.services_unit_instances = True if len(unit_ids) > 0 else False
+        if self.services_unit_instances:
             queryset = Unit.objects.filter(id__in=unit_ids)
 
         if "bbox" in filters:
             val = filters.get("bbox", None)
-            geometry_field_name = "location" if services_unit_instances else "geometry"
+            geometry_field_name = (
+                "location" if self.services_unit_instances else "geometry"
+            )
             if val:
                 ref = SpatialReference(filters.get("bbox_srid", 4326))
                 bbox_geometry_filter = munigeo_api.build_bbox_filter(
@@ -209,16 +219,18 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
 
                     queryset = queryset.filter(**{filter: value})
 
+        return queryset
+
+    def list(self, request):
+        queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
-        serializer = MobileUnitSerializer(
-            page,
-            many=True,
-            context={
-                "srid": srid,
-                "latlon": latlon,
-                "services_unit_instances": services_unit_instances,
-            },
+        logger.debug(connection.queries)
+        queries_time = sum([float(s["time"]) for s in connection.queries])
+        logger.debug(
+            f"Search queries total execution time: {queries_time} Num queries: {len(connection.queries)}"
         )
+        reset_queries()
+        serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
 
