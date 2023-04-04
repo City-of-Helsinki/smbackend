@@ -123,10 +123,11 @@ def test_mobile_unit(api_client, mobile_units, content_types, unit):
     assert result["geometry_coords"]["lon"] == 24.24
     assert result["geometry_coords"]["lat"] == 62.22
     # Test only param
-    url = reverse("mobility_data:mobile_units-list") + "?only=id,name"
+    url = reverse("mobility_data:mobile_units-list") + "?only=name,geometry"
     response = api_client.get(url)
-    assert len(response.json()["results"][0]) == 2
-    assert len(response.json()["results"][1]) == 2
+    # 'id' is always serialized, so the length will be 3
+    assert len(response.json()["results"][0]) == 3
+    assert len(response.json()["results"][1]) == 3
 
 
 @pytest.mark.django_db
