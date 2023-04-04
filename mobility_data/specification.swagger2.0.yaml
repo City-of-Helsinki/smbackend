@@ -136,6 +136,7 @@ paths:
         - $ref: "#/components/parameters/extra_param"
         - $ref: "#/components/parameters/bbox_param"
         - $ref: "#/components/parameters/bbox_srid_param"
+        - $ref: "#/components/parameters/only_param"
 
       responses:
         200:
@@ -305,9 +306,21 @@ components:
     
     bbox_srid_param:
       name: bbox_srid
-        in: query
-        description: An SRID coordinate reference system identifier which specifies the
-          coordinate system used in the bbox parameter. 
-        schema:
-          type: integer
-        example: 3046
+      in: query
+      description: An SRID coordinate reference system identifier which specifies the
+        coordinate system used in the bbox parameter. 
+      schema:
+        type: integer
+      example: 3046
+    
+    only_param:
+      name: only
+      in: query
+       style: form
+      explode: false
+      description: Restrict the field returned in the results. Separate field names by
+        commas.
+      schema:
+        type: array
+        items:
+          type: string
