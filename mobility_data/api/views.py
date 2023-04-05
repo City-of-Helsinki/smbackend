@@ -151,7 +151,7 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         context["srid"], context["latlon"] = get_srid_and_latlon(
             self.request.query_params
         )
-        context["self.services_unit_instances"] = self.services_unit_instances
+        context["services_unit_instances"] = self.services_unit_instances
         return context
 
     def get_queryset(self):
@@ -159,20 +159,22 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = queryset.prefetch_related("content_types")
         unit_ids = []
         filters = self.request.query_params
-        if "type_name" in filters:
-            type_name = filters["type_name"]
-            if not ContentType.objects.filter(type_name=type_name).exists():
-                return Response(
-                    "type_name does not exist.", status=status.HTTP_400_BAD_REQUEST
-                )
-            queryset = MobileUnit.objects.filter(content_types__type_name=type_name)
+        if "type_name" in filters or "type_names" in filters:
+            type_name = filters.get("type_name", None)
+            if type_name:
+                queryset = queryset.filter(content_types__type_name=type_name)
+            else:
+                type_names = [
+                    t.strip() for t in filters.get("type_names", "").split(",")
+                ]
+                queryset = queryset.filter(
+                    content_types__type_name__in=type_names
+                ).distinct()
             # If the data locates in the services_unit table (i.e., MobileUnit has a unit_id)
             # get the unit_ids to retrieve the Units for filtering(bbox and extra)
             unit_ids = list(
                 queryset.filter(unit_id__isnull=False).values_list("unit_id", flat=True)
             )
-        else:
-            queryset = MobileUnit.objects.all()
 
         self.services_unit_instances = True if len(unit_ids) > 0 else False
         if self.services_unit_instances:
