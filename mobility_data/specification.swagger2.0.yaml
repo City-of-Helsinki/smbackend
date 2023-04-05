@@ -133,6 +133,7 @@ paths:
         - $ref: "#/components/parameters/srid_param"
         - $ref: "#/components/parameters/latlon_param"
         - $ref: "#/components/parameters/type_name_param"
+        - $ref: "#/components/parameters/type_names_param"
         - $ref: "#/components/parameters/extra_param"
         - $ref: "#/components/parameters/bbox_param"
         - $ref: "#/components/parameters/bbox_srid_param"
@@ -324,3 +325,18 @@ components:
         type: array
         items:
           type: string
+      example: name,geometry
+
+    type_names_param:
+      name: type_names
+      in: query
+       style: form
+      explode: false
+      description: Return MobileUnits from multiple content types. Separate field names by
+        commas. Note, Filtering MobileUnits with ContentTypes containing MobileUnits and MobileUnits 
+        that contains references to services_unit table is not possible.
+      schema:
+        type: array
+        items:
+          type: string
+      example: PublicToilet,HikingTrail
