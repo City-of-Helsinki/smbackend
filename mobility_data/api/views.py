@@ -159,6 +159,8 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = queryset.prefetch_related("content_types")
         unit_ids = []
         filters = self.request.query_params
+        type_names = None
+
         if "type_name" in filters or "type_names" in filters:
             type_name = filters.get("type_name", None)
             if type_name:
@@ -170,11 +172,19 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
                 queryset = queryset.filter(
                     content_types__type_name__in=type_names
                 ).distinct()
+
             # If the data locates in the services_unit table (i.e., MobileUnit has a unit_id)
             # get the unit_ids to retrieve the Units for filtering(bbox and extra)
             unit_ids = list(
                 queryset.filter(unit_id__isnull=False).values_list("unit_id", flat=True)
             )
+        if type_names:
+            mobile_units_qs = queryset.exclude(id__in=unit_ids)
+            if mobile_units_qs.count() > 0 and unit_ids:
+                raise Exception(
+                    "Filtering MobileUnits with ContentTypes containing MobileUnits and MobileUnits that contains"
+                    " references to services_unit table is not possible."
+                )
 
         self.services_unit_instances = True if len(unit_ids) > 0 else False
         if self.services_unit_instances:
