@@ -105,7 +105,7 @@ def test_mobile_unit(api_client, mobile_units, content_types, unit):
     response = api_client.get(url)
     assert len(response.json()["results"]) == 1
     # Test bbox where no mobile units are inside.
-    url = reverse("mobility_data:mobile_units-list") + "?bbox=22.1,60.2,2.3,60.4"
+    url = reverse("mobility_data:mobile_units-list") + "?bbox=22.3,61.4,23,62.4"
     response = api_client.get(url)
     assert len(response.json()["results"]) == 0
     # Test data serialization from services_unit model
