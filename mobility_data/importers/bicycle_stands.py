@@ -15,6 +15,7 @@ from munigeo.models import (
 )
 
 from services.models import Unit
+from smbackend_turku.importers.utils import get_external_source_config
 
 from .utils import (
     get_closest_address_full_name,
@@ -34,7 +35,6 @@ NAME_PREFIX = {
     SV_KEY: "Cykelparkering",
     EN_KEY: "Bicycle parking",
 }
-BICYCLE_STANDS_SERVICE_ID = settings.BICYCLE_STANDS_IDS["service"]
 BICYCLE_STANDS_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
     "?service=WFS&request=GetFeature&typeName=GIS:Polkupyoraparkki&outputFormat=GML3",
@@ -70,6 +70,8 @@ class BicyleStand(MobileUnitDataBase):
         self.extra = {f: None for f in self.EXTRA_FIELDS}
 
     def set_geojson_feature(self, feature):
+        config = get_external_source_config("bicycle_stands")
+        bicycle_stands_service_id = config["service"]["id"]
         name = feature["kohde"].as_string().strip()
         unit_name = name.split(",")[0]
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=GEOJSON_SOURCE_DATA_SRID)
@@ -78,7 +80,7 @@ class BicyleStand(MobileUnitDataBase):
         # Make first unit with same name that is not a Bicycle Stand the related_unit
         for unit in units_qs:
             # Ensure we do not connect to a Bicycle stand unit
-            if not unit.services.filter(id=BICYCLE_STANDS_SERVICE_ID):
+            if not unit.services.filter(id=bicycle_stands_service_id):
                 self.related_unit = unit
                 break
 
