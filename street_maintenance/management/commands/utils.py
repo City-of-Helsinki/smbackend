@@ -54,9 +54,11 @@ TURKU_BOUNDARY = get_turku_boundary()
 
 def get_json_data(url):
     response = requests.get(url)
-    assert (
-        response.status_code == 200
-    ), "Fetching Maintenance Unit {} status code: {}".format(url, response.status_code)
+    if response.status_code != 200:
+        logger.warning(
+            f"Fetching Maintenance Unit {url} status code: {response.status_code} response: {response.content}"
+        )
+        return {}
     return response.json()
 
 
