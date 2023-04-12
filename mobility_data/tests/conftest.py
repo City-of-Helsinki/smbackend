@@ -50,31 +50,25 @@ def api_client():
 @pytest.mark.django_db
 @pytest.fixture
 def content_types():
-    content_types = [
-        ContentType.objects.create(
-            id="aa6c2903-d36f-4c61-b828-19084fc7a64b",
-            type_name="Test",
-            name_fi="fi",
-            name_sv="sv",
-            name_en="en",
-            description="test content type",
-        )
-    ]
-    content_types.append(
-        ContentType.objects.create(
-            id="ba6c2903-d36f-4c61-b828-19084fc7a64b",
-            type_name="Test2",
-            description="test content type2",
-        )
+    ContentType.objects.create(
+        id="aa6c2903-d36f-4c61-b828-19084fc7a64b",
+        type_name="Test",
+        name_fi="fi",
+        name_sv="sv",
+        name_en="en",
+        description="test content type",
     )
-    content_types.append(
-        ContentType.objects.create(
-            id="ca6c2903-d36f-4c61-b828-19084fc7a64b",
-            type_name="Test unit",
-            description="test content type3",
-        )
+    ContentType.objects.create(
+        id="ba6c2903-d36f-4c61-b828-19084fc7a64b",
+        type_name="Test2",
+        description="test content type2",
     )
-    return content_types
+    ContentType.objects.create(
+        id="ca6c2903-d36f-4c61-b828-19084fc7a64b",
+        type_name="TestUnit",
+        description="test content type3",
+    )
+    return ContentType.objects.all()
 
 
 @pytest.mark.django_db
@@ -89,7 +83,6 @@ def group_type():
 @pytest.mark.django_db
 @pytest.fixture
 def mobile_units(content_types):
-    mobile_units = []
     extra = {
         "test_int": 4242,
         "test_float": 42.42,
@@ -105,8 +98,7 @@ def mobile_units(content_types):
         geometry=geometry,
         extra=extra,
     )
-    mobile_unit.content_types.add(content_types[0])
-    mobile_units.append(mobile_units)
+    mobile_unit.content_types.add(ContentType.objects.get(type_name="Test"))
     extra = {
         "test_int": 14,
         "test_float": 2.4,
@@ -120,15 +112,13 @@ def mobile_units(content_types):
         geometry=Point(23.43, 62.22, srid=settings.DEFAULT_SRID),
         extra=extra,
     )
-    mobile_unit.content_types.add(content_types[0])
-    mobile_unit.content_types.add(content_types[1])
-    mobile_units.append(mobile_units)
+    mobile_unit.content_types.add(ContentType.objects.get(type_name="Test"))
+    mobile_unit.content_types.add(ContentType.objects.get(type_name="Test2"))
     mobile_unit = MobileUnit.objects.create(
         id="ca6c2903-d36f-4c61-b828-19084fc7a64b", unit_id=1
     )
-    mobile_unit.content_types.add(content_types[2])
-    mobile_units.append(mobile_units)
-    return mobile_units
+    mobile_unit.content_types.add(ContentType.objects.get(type_name="TestUnit"))
+    return MobileUnit.objects.all()
 
 
 @pytest.mark.django_db
@@ -166,11 +156,10 @@ def mobile_unit_group(group_type):
 @pytest.mark.django_db
 @pytest.fixture
 def municipalities():
-    munis = []
-    munis.append(Municipality.objects.create(id="turku", name="Turku"))
-    munis.append(Municipality.objects.create(id="lieto", name="Lieto"))
-    munis.append(Municipality.objects.create(id="raisio", name="Raisio"))
-    return munis
+    Municipality.objects.create(id="turku", name="Turku")
+    Municipality.objects.create(id="lieto", name="Lieto")
+    Municipality.objects.create(id="raisio", name="Raisio")
+    return Municipality.objects.all()
 
 
 @pytest.mark.django_db
@@ -204,66 +193,57 @@ def administrative_division_geometry(administrative_division):
 @pytest.mark.django_db
 @pytest.fixture
 def streets():
-    streets = []
-    street = Street.objects.create(
+    Street.objects.create(
         name="Test Street",
         name_fi="Test Street",
         name_sv="Test StreetSV",
         municipality_id="turku",
     )
-    streets.append(street)
-    street = Street.objects.create(
+    Street.objects.create(
         name="Linnanpuisto",
         name_fi="Linnanpuisto",
         name_sv="Slottsparken",
         municipality_id="turku",
     )
-    streets.append(street)
-    street = Street.objects.create(
+    Street.objects.create(
         name="Kristiinankatu",
         name_fi="Kristiinankatu",
         name_sv="Kristinegatan",
         municipality_id="turku",
     )
-    streets.append(street)
-    street = Street.objects.create(
+    Street.objects.create(
         name="Pitkäpellonkatu",
         name_fi="Pitkäpellonkatu",
         name_sv="Långåkersgatan",
         municipality_id="turku",
     )
-    streets.append(street)
-    street = Street.objects.create(
+    Street.objects.create(
         name="Kupittaankatu",
         name_fi="Kupittaankatu",
         name_sv="Kuppisgatan",
         municipality_id="turku",
     )
-    streets.append(street)
-    street = Street.objects.create(
+    Street.objects.create(
         name="Yliopistonkatu",
         name_fi="Yliopistonkatu",
         name_sv="Universitetsgatan",
         municipality_id="turku",
     )
-    streets.append(street)
-    street = Street.objects.create(
+    Street.objects.create(
         name="Ratapihankatu",
         name_fi="Ratapihankatu",
         name_sv="Bangårdsgatan",
         municipality_id="turku",
     )
-    streets.append(street)
-    return streets
+    return Street.objects.all()
 
 
 @pytest.mark.django_db
 @pytest.fixture
 def address(streets, municipalities):
-    turku_muni = municipalities[0]
-    addresses = []
+    turku_muni = Municipality.objects.get(id="turku")
     location = Point(22.244, 60.4, srid=4326)
-    address = Address.objects.create(
+    Address.objects.create(
         municipality_id=turku_muni.id,
         id=100,
         location=location,
@@ -272,9 +252,8 @@ def address(streets, municipalities):
         full_name_fi="Test Street 42",
         full_name_sv="Test StreetSV 42",
     )
-    addresses.append(address)
     location = Point(22.227168, 60.4350612, srid=4326)
-    address = Address.objects.create(
+    Address.objects.create(
         municipality_id=turku_muni.id,
         id=101,
         location=location,
@@ -282,9 +261,8 @@ def address(streets, municipalities):
         full_name_fi="Linnanpuisto",
         full_name_sv="Slottsparken",
     )
-    addresses.append(address)
     location = Point(22.264457, 60.448905, srid=4326)
-    address = Address.objects.create(
+    Address.objects.create(
         municipality_id=turku_muni.id,
         id=102,
         location=location,
@@ -293,9 +271,8 @@ def address(streets, municipalities):
         full_name_fi="Kristiinankatu 4",
         full_name_sv="Kristinegata 4",
     )
-    addresses.append(address)
     location = Point(22.2383, 60.411726, srid=4326)
-    address = Address.objects.create(
+    Address.objects.create(
         municipality_id=turku_muni.id,
         id=103,
         location=location,
@@ -304,9 +281,8 @@ def address(streets, municipalities):
         full_name_fi="Pitkäpellonkatu 7",
         full_name_sv="Långåkersgatan 7",
     )
-    addresses.append(address)
     location = Point(22.2871092678621, 60.44677715747775, srid=4326)
-    address = Address.objects.create(
+    Address.objects.create(
         municipality_id=turku_muni.id,
         id=104,
         location=location,
@@ -315,9 +291,8 @@ def address(streets, municipalities):
         full_name_fi="Kupittaankatu 8",
         full_name_sv="Kuppisgatan 8",
     )
-    addresses.append(address)
     location = Point(22.26097246971352, 60.45055294118857, srid=4326)
-    address = Address.objects.create(
+    Address.objects.create(
         municipality_id=turku_muni.id,
         id=105,
         location=location,
@@ -326,9 +301,8 @@ def address(streets, municipalities):
         full_name_fi="Yliopistonkatu 29",
         full_name_sv="Universitetsgatan 29",
     )
-    addresses.append(address)
     location = Point(22.247047171564706, 60.45159033848499, srid=4326)
-    address = Address.objects.create(
+    Address.objects.create(
         municipality_id=turku_muni.id,
         id=106,
         location=location,
@@ -337,4 +311,4 @@ def address(streets, municipalities):
         full_name_fi="Ratapihankatu 53",
         full_name_sv="Bangårdsgatan 53",
     )
-    addresses.append(address)
+    return Address.objects.all()
