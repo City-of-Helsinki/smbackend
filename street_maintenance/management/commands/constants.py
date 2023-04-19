@@ -104,6 +104,7 @@ EVENT_MAPPINGS = {
     "pesu": [PUHTAANAPITO],
     "harjaus ja sohjonpoisto": [PUHTAANAPITO],
     "pölynsidonta": [PUHTAANAPITO],
+    "Imulakaisu": [PUHTAANAPITO],
     "hiekanpoisto": [HIEKANPOISTO],
     "lakaisu": [HIEKANPOISTO],
     "muu": [MUUT],
@@ -139,6 +140,11 @@ EVENT_MAPPINGS = {
     "siirtoajo": [MUUT],
     "Kelintarkastus": [MUUT],
     "Sulamisvesien hallinta / höyrytys": [MUUT],
+    "Sorateiden kunnossapito": [MUUT],
+    "Äkillinen hoitotyö": [MUUT],
+    "KT-valu": [MUUT],
+    "Pintakelirikko": [MUUT],
+    "Liikennemerkkityö": [MUUT],
 }
 TIMESTAMP_FORMATS = {
     INFRAROAD: "%Y-%m-%d %H:%M:%S",
