@@ -110,13 +110,13 @@ class Command(BaseCommand):
                 f"Deleted {num_del_units} obsolete Units for provider {provider}"
             )
             logger.info(
-                f"Created {num_created_units} units of total {tot_num_units} units for provider {provider}."
+                f"Created {num_created_units} units of total {tot_num_units} units for provider {provider}"
             )
             logger.info(
                 f"Deleted {num_del_works} obsolete Works for provider {provider}"
             )
             logger.info(
-                f"Created {num_created_works} Works of total {tot_num_works} Works for provider {provider}."
+                f"Created {num_created_works} Works of total {tot_num_works} Works for provider {provider}"
             )
 
             if num_created_works > 0:

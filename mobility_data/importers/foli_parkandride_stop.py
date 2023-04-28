@@ -1,16 +1,8 @@
-from django import db
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from munigeo.models import Municipality
 
-from mobility_data.models import MobileUnit
-
-from .utils import (
-    delete_mobile_units,
-    fetch_json,
-    get_or_create_content_type,
-    set_translated_field,
-)
+from .utils import fetch_json, MobileUnitDataBase
 
 URL = "https://data.foli.fi/geojson/poi"
 FOLI_PARKANDRIDE_CARS_STOP_CONTENT_TYPE_NAME = "FoliParkAndRideCarsStop"
@@ -20,8 +12,9 @@ PARKANDRIDE_BIKES = "PARKANDRIDE_BIKES"
 SOURCE_DATA_SRID = 4326
 
 
-class ParkAndRideStop:
+class ParkAndRideStop(MobileUnitDataBase):
     def __init__(self, feature):
+        super().__init__()
         properties = feature["properties"]
         self.name = {
             "fi": properties["name_fi"],
@@ -34,7 +27,7 @@ class ParkAndRideStop:
             "en": properties["address_fi"],
         }
         self.address_zip = properties["text"].split(" ")[-1]
-        self.description = properties["text"]
+        self.description["fi"] = properties["text"]
         try:
             self.municipality = Municipality.objects.get(name=properties["city"])
         except Municipality.DoesNotExist:
@@ -48,61 +41,19 @@ class ParkAndRideStop:
         self.geometry.transform(settings.DEFAULT_SRID)
 
 
-def get_parkandride_stop_objects():
+def get_parkandride_car_stop_objects():
     json_data = fetch_json(URL)
     car_stops = []
-    bike_stops = []
     for feature in json_data["features"]:
         if feature["properties"]["category"] == PARKANDRIDE_CARS:
             car_stops.append(ParkAndRideStop(feature))
-        elif feature["properties"]["category"] == PARKANDRIDE_BIKES:
+    return car_stops
+
+
+def get_parkandride_bike_stop_objects():
+    json_data = fetch_json(URL)
+    bike_stops = []
+    for feature in json_data["features"]:
+        if feature["properties"]["category"] == PARKANDRIDE_BIKES:
             bike_stops.append(ParkAndRideStop(feature))
-
-    return car_stops, bike_stops
-
-
-@db.transaction.atomic
-def get_and_create_foli_parkandride_bike_stop_content_type():
-    description = "Föli park and ride bike stop."
-    content_type, _ = get_or_create_content_type(
-        FOLI_PARKANDRIDE_BIKES_STOP_CONTENT_TYPE_NAME, description
-    )
-    return content_type
-
-
-@db.transaction.atomic
-def get_and_create_foli_parkandride_car_stop_content_type():
-    description = "Föli park and ride car stop."
-    content_type, _ = get_or_create_content_type(
-        FOLI_PARKANDRIDE_CARS_STOP_CONTENT_TYPE_NAME, description
-    )
-    return content_type
-
-
-@db.transaction.atomic
-def save_to_database(objects, content_type_name, delete_tables=True):
-    assert (
-        content_type_name == FOLI_PARKANDRIDE_BIKES_STOP_CONTENT_TYPE_NAME
-        or content_type_name == FOLI_PARKANDRIDE_CARS_STOP_CONTENT_TYPE_NAME
-    )
-    if delete_tables:
-        delete_mobile_units(content_type_name)
-
-    if content_type_name == FOLI_PARKANDRIDE_BIKES_STOP_CONTENT_TYPE_NAME:
-        content_type = get_and_create_foli_parkandride_bike_stop_content_type()
-    elif content_type_name == FOLI_PARKANDRIDE_CARS_STOP_CONTENT_TYPE_NAME:
-        content_type = get_and_create_foli_parkandride_car_stop_content_type()
-
-    for object in objects:
-        mobile_unit = MobileUnit.objects.create(
-            geometry=object.geometry,
-            address_zip=object.address_zip,
-            description=object.description,
-            municipality=object.municipality,
-        )
-        mobile_unit.content_types.add(content_type)
-        set_translated_field(mobile_unit, "name", object.name)
-        set_translated_field(mobile_unit, "address", object.address)
-        mobile_unit.save()
-
-    return len(objects)
+    return bike_stops

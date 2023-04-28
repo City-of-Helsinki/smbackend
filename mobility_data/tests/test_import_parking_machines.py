@@ -2,6 +2,10 @@ from unittest.mock import patch
 
 import pytest
 
+from mobility_data.importers.utils import (
+    get_or_create_content_type_from_config,
+    save_to_database,
+)
 from mobility_data.models import ContentType, MobileUnit
 
 from .utils import get_test_fixture_json_data
@@ -10,14 +14,20 @@ from .utils import get_test_fixture_json_data
 @pytest.mark.django_db
 @patch("mobility_data.importers.parking_machines.get_json_data")
 def test_import_parking_machines(get_json_data_mock):
-    from mobility_data.importers import parking_machines
+    from mobility_data.importers.parking_machines import (
+        CONTENT_TYPE_NAME,
+        get_parking_machine_objects,
+    )
 
     get_json_data_mock.return_value = get_test_fixture_json_data(
         "parking_machines.geojson"
     )
-    objects = parking_machines.get_parking_machine_objects()
-    parking_machines.save_to_database(objects)
-    assert ContentType.objects.first().name == parking_machines.CONTENT_TYPE_NAME
+    objects = get_parking_machine_objects()
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
+    num_created, num_deleted = save_to_database(objects, content_type)
+    assert num_created == 3
+    assert num_deleted == 0
+    assert ContentType.objects.first().type_name == CONTENT_TYPE_NAME
     assert MobileUnit.objects.count() == 3
     satamakatu = MobileUnit.objects.first()
     assert satamakatu.content_types.all().count() == 1

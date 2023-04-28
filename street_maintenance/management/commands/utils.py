@@ -54,9 +54,11 @@ TURKU_BOUNDARY = get_turku_boundary()
 
 def get_json_data(url):
     response = requests.get(url)
-    assert (
-        response.status_code == 200
-    ), "Fetching Maintenance Unit {} status code: {}".format(url, response.status_code)
+    if response.status_code != 200:
+        logger.warning(
+            f"Fetching Maintenance Unit {url} status code: {response.status_code} response: {response.content}"
+        )
+        return {}
     return response.json()
 
 
@@ -215,8 +217,8 @@ def precalculate_geometry_history(provider):
     discarded_linestrings += results[0]
     discarded_points += results[1]
     GeometryHistory.objects.bulk_create(objects)
-    logger.info(f"Discarded {discarded_points} Points")
-    logger.info(f"Discarded {discarded_linestrings} LineStrings")
+    logger.info(f"Discarded {discarded_points} points in linestring generation")
+    logger.info(f"Discarded {discarded_linestrings} invalid LineStrings")
     logger.info(f"Created {len(objects)} HistoryGeometry rows for provider: {provider}")
 
 
@@ -235,6 +237,37 @@ def get_linestring_in_boundary(linestring, boundary):
         return linestring
     else:
         return False
+
+
+def handle_unit(filter, objs_to_delete):
+    num_created = 0
+    queryset = MaintenanceUnit.objects.filter(**filter)
+    queryset_count = queryset.count()
+    if queryset_count == 0:
+        MaintenanceUnit.objects.create(**filter)
+        num_created += 1
+    else:
+        # Keep the first element and if duplicates leave them for deletion.
+        id = queryset.first().id
+        if id in objs_to_delete:
+            objs_to_delete.remove(id)
+    return num_created
+
+
+def handle_work(filter, objs_to_delete):
+    num_created = 0
+    queryset = MaintenanceWork.objects.filter(**filter)
+    queryset_count = queryset.count()
+
+    if queryset_count == 0:
+        MaintenanceWork.objects.create(**filter)
+        num_created += 1
+    else:
+        # Keep the first element and if duplicates leave them for deletion.
+        id = queryset.first().id
+        if id in objs_to_delete:
+            objs_to_delete.remove(queryset.first().id)
+    return num_created
 
 
 @db.transaction.atomic
@@ -296,18 +329,15 @@ def create_yit_maintenance_works(access_token, history_size):
         except MaintenanceUnit.DoesNotExist:
             logger.warning(f"Maintenance unit: {unit_id}, not found.")
             continue
+        filter = {
+            "timestamp": route["startTime"],
+            "maintenance_unit": unit,
+            "geometry": geometry,
+            "events": events,
+            "original_event_names": original_event_names,
+        }
+        num_created += handle_work(filter, objs_to_delete)
 
-        obj, created = MaintenanceWork.objects.get_or_create(
-            timestamp=route["startTime"],
-            maintenance_unit=unit,
-            events=events,
-            original_event_names=original_event_names,
-            geometry=geometry,
-        )
-        if obj.id in objs_to_delete:
-            objs_to_delete.remove(obj.id)
-        if created:
-            num_created += 1
     MaintenanceWork.objects.filter(id__in=objs_to_delete).delete()
     return num_created, len(objs_to_delete)
 
@@ -360,18 +390,14 @@ def create_kuntec_maintenance_works(history_size):
                         if not geometry:
                             continue
                         timestamp = route["start"]["time"]
-
-                        obj, created = MaintenanceWork.objects.get_or_create(
-                            timestamp=timestamp,
-                            maintenance_unit=unit,
-                            events=events,
-                            original_event_names=original_event_names,
-                            geometry=geometry,
-                        )
-                        if obj.id in objs_to_delete:
-                            objs_to_delete.remove(obj.id)
-                        if created:
-                            num_created += 1
+                        filter = {
+                            "timestamp": timestamp,
+                            "maintenance_unit": unit,
+                            "geometry": geometry,
+                            "events": events,
+                            "original_event_names": original_event_names,
+                        }
+                        num_created += handle_work(filter, objs_to_delete)
 
     MaintenanceWork.objects.filter(id__in=objs_to_delete).delete()
     return num_created, len(objs_to_delete)
@@ -431,17 +457,14 @@ def create_maintenance_works(provider, history_size, fetch_size):
             # If no events found discard the work
             if len(events) == 0:
                 continue
-            obj, created = MaintenanceWork.objects.get_or_create(
-                timestamp=timestamp,
-                maintenance_unit=unit,
-                geometry=point,
-                events=events,
-                original_event_names=original_event_names,
-            )
-            if obj.id in objs_to_delete:
-                objs_to_delete.remove(obj.id)
-            if created:
-                num_created += 1
+            filter = {
+                "timestamp": timestamp,
+                "maintenance_unit": unit,
+                "geometry": point,
+                "events": events,
+                "original_event_names": original_event_names,
+            }
+            num_created += handle_work(filter, objs_to_delete)
 
     MaintenanceWork.objects.filter(id__in=objs_to_delete).delete()
     return num_created, len(objs_to_delete)
@@ -456,13 +479,12 @@ def create_maintenance_units(provider):
     for unit in get_json_data(URLS[provider][UNITS]):
         # The names of the unit is derived from the events.
         names = [n for n in unit["last_location"]["events"]]
-        obj, created = MaintenanceUnit.objects.get_or_create(
-            unit_id=unit["id"], names=names, provider=provider
-        )
-        if obj.id in objs_to_delete:
-            objs_to_delete.remove(obj.id)
-        if created:
-            num_created += 1
+        filter = {
+            "unit_id": unit["id"],
+            "names": names,
+            "provider": provider,
+        }
+        num_created += handle_unit(filter, objs_to_delete)
 
     MaintenanceUnit.objects.filter(id__in=objs_to_delete).delete()
     return num_created, len(objs_to_delete)
@@ -518,15 +540,12 @@ def create_kuntec_maintenance_units():
                     names.append(io["label"])
         # If names, we have a unit with at least one io_din with State On.
         if len(names) > 0:
-            unit_id = unit["unit_id"]
-            obj, created = MaintenanceUnit.objects.get_or_create(
-                unit_id=unit_id, names=names, provider=KUNTEC
-            )
-            if obj.id in objs_to_delete:
-                objs_to_delete.remove(obj.id)
-            if created:
-                num_created += 1
-
+            filter = {
+                "unit_id": unit["unit_id"],
+                "names": names,
+                "provider": KUNTEC,
+            }
+            num_created += handle_unit(filter, objs_to_delete)
         else:
             no_io_din += 1
     MaintenanceUnit.objects.filter(id__in=objs_to_delete).delete()
@@ -557,13 +576,13 @@ def create_yit_maintenance_units(access_token):
     )
     for unit in vehicles:
         names = [unit["vehicleTypeName"]]
-        obj, created = MaintenanceUnit.objects.get_or_create(
-            unit_id=unit["id"], names=names, provider=YIT
-        )
-        if obj.id in objs_to_delete:
-            objs_to_delete.remove(obj.id)
-        if created:
-            num_created += 1
+        filter = {
+            "unit_id": unit["id"],
+            "names": names,
+            "provider": YIT,
+        }
+        num_created += handle_unit(filter, objs_to_delete)
+
     MaintenanceUnit.objects.filter(id__in=objs_to_delete).delete()
     return num_created, len(objs_to_delete)
 

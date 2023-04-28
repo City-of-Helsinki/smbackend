@@ -23,7 +23,7 @@ def test_import(municipalities):
         assert turku_muni
     lantinen_rantakatu = MobileUnit.objects.get(name="Läntinen Rantakatu")
     assert lantinen_rantakatu.content_types.all().count() == 1
-    assert lantinen_rantakatu.content_types.first().name == CONTENT_TYPE_NAME
+    assert lantinen_rantakatu.content_types.first().type_name == CONTENT_TYPE_NAME
     assert lantinen_rantakatu.name_sv == "Östra Strandgatan"
     assert lantinen_rantakatu.name_en == "Läntinen Rantakatu"
     assert lantinen_rantakatu.address_fi == "Läntinen Rantakatu 13"

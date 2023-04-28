@@ -142,7 +142,6 @@ class Command(BaseCommand):
     def import_enriched_addresses(self):
         return import_enriched_addresses(logger=self.logger)
 
-    @db.transaction.atomic
     def import_divisions(self):
         return import_divisions(logger=self.logger)
 

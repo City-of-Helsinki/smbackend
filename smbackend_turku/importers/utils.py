@@ -17,10 +17,7 @@ from munigeo.models import (
     Municipality,
 )
 
-from mobility_data.importers.utils import (
-    create_mobile_unit_as_unit_reference,
-    delete_mobile_units,
-)
+from mobility_data.importers.utils import create_mobile_units_as_unit_references
 from services.management.commands.services_import.services import (
     update_service_counts,
     update_service_node_counts,
@@ -350,7 +347,6 @@ def create_service(service_id, service_node_id, service_names):
 def delete_external_source(
     service_id,
     service_node_id,
-    mobile_units_content_type_name,
 ):
     """
     Deletes the data source from services list and optionally from mobility_data.
@@ -358,7 +354,6 @@ def delete_external_source(
     Unit.objects.filter(services__id=service_id).delete()
     Service.objects.filter(id=service_id).delete()
     ServiceNode.objects.filter(id=service_node_id).delete()
-    delete_mobile_units(mobile_units_content_type_name)
     update_service_node_counts()
     update_service_counts()
 
@@ -386,10 +381,25 @@ class BaseExternalSource:
         )
 
     def delete_external_source(self):
+
+        # Get ID from name, if ID is changed in config correct ID will be used for deletion
+        try:
+            service_id = Service.objects.get(
+                name=self.config["service"]["name"]["fi"]
+            ).id
+        except Service.DoesNotExist:
+            # If not found get ID from config
+            service_id = self.config["service"]["id"]
+        try:
+            service_node_id = ServiceNode.objects.get(
+                name=self.config["service_node"]["name"]["fi"]
+            ).id
+        except ServiceNode.DoesNotExist:
+            service_node_id = self.config["service_node"]["id"]
+
         delete_external_source(
-            self.config["service"]["id"],
-            self.config["service_node"]["id"],
-            self.config["mobility_data_content_type_name"],
+            service_id,
+            service_node_id,
         )
 
     @db.transaction.atomic
@@ -428,8 +438,9 @@ class BaseExternalSource:
             unit.last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
             set_service_names_field(unit)
             unit.save()
-            if self.config.get("create_mobile_units_with_unit_reference", False):
-                create_mobile_unit_as_unit_reference(unit_id, content_type)
+
+        if self.config.get("create_mobile_units_with_unit_reference", False):
+            create_mobile_units_as_unit_references(self.SERVICE_ID, content_type)
         update_service_node_counts()
         update_service_counts()
         self.logger.info(f"Imported {len(objects)} {self.config['name']}...")

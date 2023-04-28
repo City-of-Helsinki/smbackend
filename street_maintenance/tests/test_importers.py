@@ -43,6 +43,13 @@ def test_yit_units(
     assert num_created_units == 0
     assert num_del_units == 1
     assert MaintenanceUnit.objects.count() == 1
+    # Test duplicate unit
+    unit_dup = MaintenanceUnit.objects.first()
+    unit_dup.pk = 42
+    unit_dup.save()
+    num_created_units, num_del_units = create_yit_maintenance_units("test_access_token")
+    assert num_created_units == 0
+    assert num_del_units == 1
 
 
 @pytest.mark.django_db
@@ -90,6 +97,15 @@ def test_yit_works(
     assert num_del_works == 1
     assert work_id == MaintenanceWork.objects.first().id
     assert MaintenanceWork.objects.count() == 1
+    # Create duplicate work
+    work_dup = MaintenanceWork.objects.first()
+    work_dup.pk = 42
+    work_dup.save()
+    num_created_works, num_del_works = create_yit_maintenance_works(
+        "test_access_token", 3
+    )
+    assert num_created_works == 0
+    assert num_del_works == 1
 
 
 @pytest.mark.django_db
@@ -134,6 +150,22 @@ def test_kuntec(
     assert num_del_works == 1
     assert work_id == MaintenanceWork.objects.first().id
     assert MaintenanceWork.objects.count() == 1
+    # Test duplicate unit
+    unit_dup = MaintenanceUnit.objects.first()
+    unit_dup.pk = 42
+    unit_dup.save()
+    get_json_data_mock.return_value = get_kuntec_units_mock_data(1)
+    num_created_units, num_del_units = create_kuntec_maintenance_units()
+    assert num_created_units == 0
+    assert num_del_units == 1
+    # Create duplicate work
+    work_dup = MaintenanceWork.objects.first()
+    work_dup.pk = 42
+    work_dup.save()
+    get_json_data_mock.return_value = get_kuntec_works_mock_data(1)
+    num_created_works, num_del_works = create_kuntec_maintenance_works(3)
+    assert num_created_works == 0
+    assert num_del_works == 1
 
 
 @pytest.mark.django_db
@@ -177,6 +209,22 @@ def test_infraroad(
     assert num_del_works == 2
     assert work_id == MaintenanceWork.objects.first().id
     assert MaintenanceWork.objects.count() == 1
+    # Test duplicate Unit
+    unit_dup = MaintenanceUnit.objects.first()
+    unit_dup.pk = 42
+    unit_dup.save()
+    get_json_data_mock.return_value = get_fluentprogress_units_mock_data(1)
+    num_created_units, num_del_units = create_maintenance_units(INFRAROAD)
+    assert num_created_units == 0
+    assert num_del_units == 1
+    # Test duplicate work
+    work_dup = MaintenanceWork.objects.first()
+    work_dup.pk = 42
+    work_dup.save()
+    get_json_data_mock.return_value = get_fluentprogress_works_mock_data(1)
+    num_created_works, num_del_works = create_maintenance_works(INFRAROAD, 1, 10)
+    assert num_created_works == 0
+    assert num_del_works == 1
 
 
 @pytest.mark.django_db

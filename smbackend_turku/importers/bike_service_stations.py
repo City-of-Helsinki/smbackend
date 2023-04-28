@@ -1,7 +1,8 @@
 from mobility_data.importers.bike_service_stations import (
-    create_bike_service_station_content_type,
+    CONTENT_TYPE_NAME,
     get_bike_service_station_objects,
 )
+from mobility_data.importers.utils import get_or_create_content_type_from_config
 from smbackend_turku.importers.utils import BaseExternalSource
 
 
@@ -13,7 +14,7 @@ class BikeServiceStationImporter(BaseExternalSource):
 
     def import_bike_service_stations(self):
         self.logger.info("Importing Bike service stations...")
-        content_type = create_bike_service_station_content_type()
+        content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
         filtered_objects = get_bike_service_station_objects(geojson_file=self.test_data)
         super().save_objects_as_units(filtered_objects, content_type)
 

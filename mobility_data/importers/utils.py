@@ -1,4 +1,5 @@
 import io
+import logging
 import os
 import re
 import tempfile
@@ -6,6 +7,8 @@ import zipfile
 from enum import Enum
 
 import requests
+import yaml
+from django import db
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.gdal import DataSource as GDALDataSource
@@ -20,6 +23,9 @@ from munigeo.models import (
 )
 
 from mobility_data.models import ContentType, DataSource, MobileUnit
+from services.models import Unit
+
+logger = logging.getLogger("mobility_data")
 
 # 11 = Southwest Finland
 GEOMETRY_ID = 11
@@ -27,6 +33,40 @@ GEOMETRY_URL = (
     "https://tie.digitraffic.fi/api/traffic-message/v1/area-geometries/"
     + f"{GEOMETRY_ID}?includeGeometry=true"
 )
+
+
+class MobileUnitDataBase:
+    # Base class for mobile data importers data objects.
+    # By inheriting this class the generic save_to_database function can be used
+    # to save a list containing objects.
+    LANGUAGES = ["fi", "sv", "en"]
+
+    def __init__(self):
+        self.name = {lang: None for lang in LANGUAGES}
+        self.address = {lang: None for lang in LANGUAGES}
+        self.description = {lang: None for lang in LANGUAGES}
+        self.municipality = None
+        self.address_zip = None
+        self.geometry = None
+        self.extra = {}
+        self.unit_id = None
+
+
+def get_root_dir():
+    """
+    Returns the root directory of the project.
+    """
+    if hasattr(settings, "PROJECT_ROOT"):
+        return settings.PROJECT_ROOT
+    else:
+        return settings.BASE_DIR
+
+
+CONTENT_TYPES_CONFIG_FILE = (
+    f"{get_root_dir()}/mobility_data/importers/data/content_types.yml"
+)
+
+
 LANGUAGES = ["fi", "sv", "en"]
 
 
@@ -67,21 +107,9 @@ def fetch_json(url):
     return response.json()
 
 
-def delete_mobile_units(name):
-    MobileUnit.objects.filter(content_types__name=name).delete()
-
-
-def create_mobile_unit_as_unit_reference(unit_id, content_type):
-    """
-    This function is called by turku_services_importers target that imports both
-    to the services list and mobile view. The created MobileUnit is used to
-    serialize the data from the services_unit table in the mobile_unit endpoint.
-    """
-
-    mobile_unit = MobileUnit.objects.create(
-        unit_id=unit_id,
-    )
-    mobile_unit.content_types.add(content_type)
+@db.transaction.atomic
+def delete_mobile_units(type_name):
+    MobileUnit.objects.filter(content_types__type_name=type_name).delete()
 
 
 def get_or_create_content_type(name, description):
@@ -154,7 +182,7 @@ def get_street_name_translations(name, municipality):
     names = {}
     default_attr_name = "name_fi"
     try:
-        street = Street.objects.get(name=name, municipality=municipality.lower())
+        street = Street.objects.get(name=name, municipality=municipality)
         for lang in LANGUAGES:
             attr_name = "name_" + lang
             name = getattr(street, attr_name)
@@ -230,16 +258,6 @@ def locates_in_turku(feature, source_data_srid):
     return turku_boundary.contains(geometry)
 
 
-def get_root_dir():
-    """
-    Returns the root directory of the project.
-    """
-    if hasattr(settings, "PROJECT_ROOT"):
-        return settings.PROJECT_ROOT
-    else:
-        return settings.BASE_DIR
-
-
 def get_file_name_from_data_source(content_type):
     """
     Returns the stored file name in the DataSource table for
@@ -252,3 +270,121 @@ def get_file_name_from_data_source(content_type):
         file_name = str(data_source_qs.first().data_file.file)
         return file_name
     return None
+
+
+def get_yaml_config(file):
+    return yaml.safe_load(open(file, "r", encoding="utf-8"))
+
+
+def get_content_type_config(type_name):
+    configs = get_yaml_config(CONTENT_TYPES_CONFIG_FILE)
+    for config in configs.get("content_types", None):
+        if type_name == config.get("content_type_name", None):
+            if "name" not in config:
+                raise Exception(
+                    f"Missing name field for {type_name} in {CONTENT_TYPES_CONFIG_FILE}"
+                )
+            return config
+    return None
+
+
+@db.transaction.atomic
+def get_or_create_content_type_from_config(type_name):
+    config = get_content_type_config(type_name)
+    if config is None:
+        raise Exception(
+            f"Configuration not found for {type_name} in {CONTENT_TYPES_CONFIG_FILE}"
+        )
+    queryset = ContentType.objects.filter(type_name=type_name)
+    if queryset.count() == 0:
+        content_type = ContentType.objects.create(type_name=type_name)
+    else:
+        content_type = queryset.first()
+
+    for lang in ["fi", "sv", "en"]:
+        setattr(content_type, f"name_{lang}", config["name"].get(lang, None))
+        if "description" in config:
+            setattr(
+                content_type,
+                f"description_{lang}",
+                config["description"].get(lang, None),
+            )
+    content_type.save()
+    return content_type
+
+
+def log_imported_message(logger, content_type, num_created, num_deleted):
+    total_num = MobileUnit.objects.filter(content_types=content_type).count()
+    name = content_type.name_en if content_type.name_en else content_type.name_fi
+    logger.info(f"Imported {num_created} {name} items of total {total_num}")
+    logger.info(f"Deleted {num_deleted} obsolete {name} items")
+
+
+@db.transaction.atomic
+def save_to_database(objects, content_types, logger=logger):
+    if type(content_types) != list:
+        content_types = [content_types]
+
+    content_types_ids = [ct.id for ct in content_types]
+    num_created = 0
+    objs_to_delete = list(
+        MobileUnit.objects.filter(content_types__in=content_types).values_list(
+            "id", flat=True
+        )
+    )
+    for object in objects:
+        filter = {
+            "name": object.name["fi"],
+            "name_sv": object.name["sv"],
+            "name_en": object.name["en"],
+            "description": object.description["fi"],
+            "description_sv": object.description["sv"],
+            "description_en": object.description["en"],
+            "geometry": object.geometry,
+            "address": object.address["fi"],
+            "address_sv": object.address["sv"],
+            "address_en": object.address["en"],
+            "municipality": object.municipality,
+            "address_zip": object.address_zip,
+            "extra": object.extra,
+            "unit_id": object.unit_id,
+        }
+        queryset = MobileUnit.objects.filter(**filter)
+        queryset = queryset.filter(content_types__in=content_types_ids)
+
+        if queryset.count() == 0:
+            mobile_unit = MobileUnit.objects.create(**filter)
+            num_created += 1
+        else:
+            if queryset.count() > 1:
+                logger.warning(f"Found duplicate MobileUnit {filter}")
+
+            mobile_unit = queryset.first()
+            id = queryset.first().id
+            if id in objs_to_delete:
+                objs_to_delete.remove(id)
+
+        if set(mobile_unit.content_types.all()) != set(
+            ContentType.objects.filter(id__in=content_types_ids).all()
+        ):
+            for content_type in content_types:
+                mobile_unit.content_types.add(content_type)
+
+    MobileUnit.objects.filter(id__in=objs_to_delete).delete()
+    return num_created, len(objs_to_delete)
+
+
+def create_mobile_units_as_unit_references(service_id, content_type):
+    """
+    This function is called by turku_services_importers targets that imports both
+    to the services list and mobile view. The created MobileUnits are used to
+    serialize the data from the services_unit table in the mobile_unit endpoint.
+    """
+
+    units = Unit.objects.filter(services__id=service_id)
+    objects = []
+    for unit in units:
+        obj = MobileUnitDataBase()
+        obj.unit_id = unit.id
+        objects.append(obj)
+    save_to_database(objects, content_type)

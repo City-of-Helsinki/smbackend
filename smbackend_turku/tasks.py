@@ -85,3 +85,8 @@ def import_charging_stations(name="import_charging_stations"):
 @shared_task_email
 def import_external_sources(name="import_external_sources"):
     management.call_command("turku_services_import", "external_sources")
+
+
+@shared_task_email
+def delete_obsolete_external_units(name="delete_obsolete_external_units"):
+    management.call_command("delete_obsolete_external_units")

@@ -1,11 +1,12 @@
 from mobility_data.importers.charging_stations import (
-    create_charging_station_content_type,
+    CONTENT_TYPE_NAME as CHARGING_STATION_CONTENT_TYPE_NAME,
     get_charging_station_objects,
 )
 from mobility_data.importers.gas_filling_station import (
-    create_gas_filling_station_content_type,
+    CONTENT_TYPE_NAME as GAS_FILLING_STATION_CONTENT_TYPE_NAME,
     get_filtered_gas_filling_station_objects,
 )
+from mobility_data.importers.utils import get_or_create_content_type_from_config
 from smbackend_turku.importers.utils import BaseExternalSource
 
 
@@ -17,7 +18,9 @@ class GasFillingStationImporter(BaseExternalSource):
 
     def import_gas_filling_stations(self):
         self.logger.info("Importing gas filling stations...")
-        content_type = create_gas_filling_station_content_type()
+        content_type = get_or_create_content_type_from_config(
+            GAS_FILLING_STATION_CONTENT_TYPE_NAME
+        )
         filtered_objects = get_filtered_gas_filling_station_objects(
             json_data=self.test_data
         )
@@ -33,7 +36,9 @@ class ChargingStationImporter(BaseExternalSource):
     def import_charging_stations(self):
         self.logger.info("Importing charging stations...")
         filtered_objects = get_charging_station_objects(csv_file=self.test_data)
-        content_type = create_charging_station_content_type()
+        content_type = get_or_create_content_type_from_config(
+            CHARGING_STATION_CONTENT_TYPE_NAME
+        )
         super().save_objects_as_units(filtered_objects, content_type)
 
 

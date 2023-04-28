@@ -1,21 +1,16 @@
 import logging
 
-from django import db
 from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
 from munigeo.models import Municipality
 
-from mobility_data.models import MobileUnit
-
 from .constants import SOUTHWEST_FINLAND_BOUNDARY, SOUTHWEST_FINLAND_BOUNDARY_SRID
 from .utils import (
-    delete_mobile_units,
     fetch_json,
-    get_or_create_content_type,
     get_street_name_and_number,
     get_street_name_translations,
     LANGUAGES,
-    set_translated_field,
+    MobileUnitDataBase,
 )
 
 logger = logging.getLogger("mobility_data")
@@ -27,15 +22,9 @@ GAS_FILLING_STATIONS_URL = (
 CONTENT_TYPE_NAME = "GasFillingStation"
 
 
-class GasFillingStation:
+class GasFillingStation(MobileUnitDataBase):
     def __init__(self, elem, srid=settings.DEFAULT_SRID):
-        # Contains the complete address with zip_code and city
-        self.address = {}
-        self.extra = {}
-        self.name = {}
-        # Contains Only steet_name and number
-        self.street_address = {}
-        self.is_active = True
+        super().__init__()
         attributes = elem.get("attributes")
         x = attributes.get("LON", 0)
         y = attributes.get("LAT", 0)
@@ -82,44 +71,10 @@ def get_filtered_gas_filling_station_objects(json_data=None):
     # Filter objects by their location
     # Polygon used the detect if point intersects. i.e. is in the boundaries of SouthWest Finland.
     polygon = Polygon(SOUTHWEST_FINLAND_BOUNDARY, srid=SOUTHWEST_FINLAND_BOUNDARY_SRID)
-    filtered_objects = [o for o in objects if polygon.intersects(o.geometry)]
+    filtered_objects = [o for o in objects if polygon.covers(o.geometry)]
     logger.info(
         "Filtered: {} gas filling stations by location to: {}.".format(
             len(json_data["features"]), len(filtered_objects)
         )
     )
     return filtered_objects
-
-
-@db.transaction.atomic
-def delete_gas_filling_stations():
-    delete_mobile_units(CONTENT_TYPE_NAME)
-
-
-@db.transaction.atomic
-def create_gas_filling_station_content_type():
-    description = "Gas filling stations in province of Southwest Finland."
-    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
-    return content_type
-
-
-@db.transaction.atomic
-def save_to_database(objects, delete_tables=True):
-    if delete_tables:
-        delete_gas_filling_stations()
-
-    content_type = create_gas_filling_station_content_type()
-    for object in objects:
-        is_active = object.is_active
-        mobile_unit = MobileUnit.objects.create(
-            is_active=is_active,
-            geometry=object.geometry,
-            extra=object.extra,
-            address_zip=object.address_zip,
-            municipality=object.municipality,
-        )
-        mobile_unit.content_types.add(content_type)
-        set_translated_field(mobile_unit, "name", object.name)
-        set_translated_field(mobile_unit, "address", object.address)
-        mobile_unit.save()
-    logger.info(f"Saved {len(objects)} gas filling stations to database.")

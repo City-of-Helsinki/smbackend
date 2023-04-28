@@ -1,20 +1,16 @@
 import logging
 
-from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource as GDALDataSource
 from django.contrib.gis.geos import GEOSGeometry
 from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
-    delete_mobile_units,
     FieldTypes,
     get_file_name_from_data_source,
-    get_or_create_content_type,
     get_root_dir,
-    set_translated_field,
+    MobileUnitDataBase,
 )
-from mobility_data.models import MobileUnit
 
 logger = logging.getLogger("mobility_data")
 
@@ -27,7 +23,7 @@ NO_STAFF_PARKING_CONTENT_TYPE_NAME = "NoStaffParking"
 DISABLED_PARKING_CONTENT_TYPE_NAME = "DisabledParking"
 
 
-class NoStaffParking:
+class Parking(MobileUnitDataBase):
     PARKING_PLACES = "paikkoja_y"
     DISABLED_PARKING_PLACES = "invapaikkoja"
     extra_field_mappings = {
@@ -74,8 +70,7 @@ class NoStaffParking:
     }
 
     def __init__(self, feature):
-        self.address = {}
-        self.name = {}
+        super().__init__()
         # Addresses are in format e.g.: Kupittaankuja 1, 20520 Turku / Kuppisgränden 1 20520 Åbo
         # Create a list, where every language is a item where trailing spaces, comma, postalcode
         # and municipality are removed. e.g. ["Kupittaankuja 1", "Kuppisgränden 1"]
@@ -142,6 +137,7 @@ class NoStaffParking:
 
 def get_no_staff_parking_objects(geojson_file=None):
     no_staff_parkings = []
+    disabled_parkings = []
     file_name = None
 
     if not geojson_file:
@@ -153,59 +149,11 @@ def get_no_staff_parking_objects(geojson_file=None):
         file_name = f"{get_root_dir()}/mobility_data/tests/data/{geojson_file}"
 
     data_layer = GDALDataSource(file_name)[0]
+
     for feature in data_layer:
-        no_staff_parkings.append(NoStaffParking(feature))
-    return no_staff_parkings
-
-
-@db.transaction.atomic
-def delete_no_staff_parkings():
-    delete_mobile_units(NO_STAFF_PARKING_CONTENT_TYPE_NAME)
-
-
-@db.transaction.atomic
-def delete_disabled_parkings():
-    delete_mobile_units(DISABLED_PARKING_CONTENT_TYPE_NAME)
-
-
-@db.transaction.atomic
-def get_and_create_no_staff_parking_content_type():
-    description = "No staff parkings in the Turku region."
-    content_type, _ = get_or_create_content_type(
-        NO_STAFF_PARKING_CONTENT_TYPE_NAME, description
-    )
-    return content_type
-
-
-@db.transaction.atomic
-def get_and_create_disabled_parking_content_type():
-    description = "Parkings for disabled in the Turku region."
-    content_type, _ = get_or_create_content_type(
-        DISABLED_PARKING_CONTENT_TYPE_NAME, description
-    )
-    return content_type
-
-
-@db.transaction.atomic
-def save_to_database(objects, delete_tables=True):
-    if delete_tables:
-        delete_no_staff_parkings()
-        delete_disabled_parkings()
-
-    no_staff_parking_content_type = get_and_create_no_staff_parking_content_type()
-    disabled_parking_content_type = get_and_create_disabled_parking_content_type()
-
-    for object in objects:
-        mobile_unit = MobileUnit.objects.create(
-            extra=object.extra,
-            geometry=object.geometry,
-        )
-        if object.content_type == NO_STAFF_PARKING_CONTENT_TYPE_NAME:
-            mobile_unit.content_types.add(no_staff_parking_content_type)
+        parking = Parking(feature)
+        if parking.content_type == NO_STAFF_PARKING_CONTENT_TYPE_NAME:
+            no_staff_parkings.append(parking)
         else:
-            mobile_unit.content_types.add(disabled_parking_content_type)
-        set_translated_field(mobile_unit, "name", object.name)
-        set_translated_field(mobile_unit, "address", object.address)
-        mobile_unit.address_zip = object.address_zip
-        mobile_unit.municipality = object.municipality
-        mobile_unit.save()
+            disabled_parkings.append(parking)
+    return no_staff_parkings, disabled_parkings

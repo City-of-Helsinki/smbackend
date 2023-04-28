@@ -1,8 +1,10 @@
+import logging
 import types
 from distutils.util import strtobool
 
 from django.contrib.gis.gdal import SpatialReference
 from django.core.exceptions import ValidationError
+from django.db import connection, reset_queries
 from django.db.models import Q
 from munigeo import api as munigeo_api
 from rest_framework import status, viewsets
@@ -24,45 +26,8 @@ FIELD_TYPES = types.SimpleNamespace()
 FIELD_TYPES.FLOAT = float
 FIELD_TYPES.INT = int
 FIELD_TYPES.BOOL = bool
-# Mappings, so that deprecated type_names will work.
-# These will be removed when the front end is updated.
-group_name_mappings = {"CRE": "CultureRoute"}
-type_name_mappings = {
-    "FGS": "FishingSpot",
-    "FYR": "FerryRoute",
-    "MSF": "MarinaSouthwestFinland",
-    "SWY": "SlipwaySouthwestFinland",
-    "RCR": "RecreationalRoute",
-    "PTL": "PaddlingTrail",
-    "HTL": "HikingTrail",
-    "NTL": "NatureTrail",
-    "FTL": "FitnessTrail",
-    "PPU": "PaavonPolku",
-    "PAZ": "PaymentZone",
-    "SPG": "ScooterParkingArea",
-    "SSL": "ScooterSpeedLimitArea",
-    "SNP": "ScooterNoParkingArea",
-    "BLB": "BrushSaltedBicycleNetwork",
-    "BND": "BrushSandedBicycleNetwork",
-    "SLZ": "SpeedLimitZone",
-    "APT": "PublicToilet",
-    "ATE": "PublicTable",
-    "ABH": "PublicBench",
-    "AFG": "PublicFurnitureGroup",
-    "BIS": "BicycleStand",
-    "BSS": "BikeServiceStation",
-    "BOK": "BoatParking",
-    "CGS": "ChargingStation",
-    "CRG": "CultureRouteGeometry",
-    "CRU": "CultureRouteUnit",
-    "DSP": "DisabledParking",
-    "GFS": "GasFillingStation",
-    "GMA": "GuestMarina",
-    "SCP": "ShareCarParkingPlace",
-    "MAR": "Marina",
-    "NSP": "NoStaffParking",
-    "LUP": "LoadingUnloadingPlace",
-}
+
+logger = logging.getLogger("mobility_data")
 
 
 def get_srid_and_latlon(filters):
@@ -135,9 +100,6 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
         mobile_units = get_mobile_units(filters)
         if "type_name" in filters:
             type_name = filters["type_name"]
-            # TODO, remove when front end is updated.
-            if type_name in type_name_mappings:
-                type_name = group_name_mappings[type_name]
             if not GroupType.objects.filter(name=type_name).exists():
                 return Response(
                     "type_name does not exist.", status=status.HTTP_400_BAD_REQUEST
@@ -160,7 +122,7 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
 
 class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = MobileUnit.objects.all()
+    queryset = MobileUnit.objects.filter(is_active=True)
     serializer_class = MobileUnitSerializer
 
     def retrieve(self, request, pk=None):
@@ -180,40 +142,59 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def list(self, request):
-        """
-        Lists MobileUnits, optionally list by type_name if given
-        and transforms to given srid.
-        """
-        queryset = None
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        only = self.request.query_params.get("only", "")
+        if only:
+            context["only"] = [x.strip() for x in only.split(",") if x]
+
+        context["srid"], context["latlon"] = get_srid_and_latlon(
+            self.request.query_params
+        )
+        context["services_unit_instances"] = self.services_unit_instances
+        return context
+
+    def get_queryset(self):
+        queryset = MobileUnit.objects.filter(is_active=True)
+        queryset = queryset.prefetch_related("content_types")
         unit_ids = []
         filters = self.request.query_params
-        srid, latlon = get_srid_and_latlon(filters)
-        if "type_name" in filters:
-            type_name = filters["type_name"]
-            # TODO, remove when front end is updated.
-            if type_name in type_name_mappings:
-                type_name = type_name_mappings[type_name]
-            if not ContentType.objects.filter(name=type_name).exists():
-                return Response(
-                    "type_name does not exist.", status=status.HTTP_400_BAD_REQUEST
-                )
-            queryset = MobileUnit.objects.filter(content_types__name=type_name)
+        type_names = None
+
+        if "type_name" in filters or "type_names" in filters:
+            type_name = filters.get("type_name", None)
+            if type_name:
+                queryset = queryset.filter(content_types__type_name=type_name)
+            else:
+                type_names = [
+                    t.strip() for t in filters.get("type_names", "").split(",")
+                ]
+                queryset = queryset.filter(
+                    content_types__type_name__in=type_names
+                ).distinct()
+
             # If the data locates in the services_unit table (i.e., MobileUnit has a unit_id)
             # get the unit_ids to retrieve the Units for filtering(bbox and extra)
             unit_ids = list(
                 queryset.filter(unit_id__isnull=False).values_list("unit_id", flat=True)
             )
-        else:
-            queryset = MobileUnit.objects.all()
+        if type_names:
+            mobile_units_qs = queryset.exclude(id__in=unit_ids)
+            if mobile_units_qs.count() > 0 and unit_ids:
+                raise Exception(
+                    "Filtering MobileUnits with ContentTypes containing MobileUnits and MobileUnits that contains"
+                    " references to services_unit table is not possible."
+                )
 
-        services_unit_instances = True if len(unit_ids) > 0 else False
-        if services_unit_instances:
+        self.services_unit_instances = True if len(unit_ids) > 0 else False
+        if self.services_unit_instances:
             queryset = Unit.objects.filter(id__in=unit_ids)
 
         if "bbox" in filters:
             val = filters.get("bbox", None)
-            geometry_field_name = "location" if services_unit_instances else "geometry"
+            geometry_field_name = (
+                "location" if self.services_unit_instances else "geometry"
+            )
             if val:
                 ref = SpatialReference(filters.get("bbox_srid", 4326))
                 bbox_geometry_filter = munigeo_api.build_bbox_filter(
@@ -254,16 +235,19 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
 
                     queryset = queryset.filter(**{filter: value})
 
+        return queryset
+
+    def list(self, request):
+        queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
-        serializer = MobileUnitSerializer(
-            page,
-            many=True,
-            context={
-                "srid": srid,
-                "latlon": latlon,
-                "services_unit_instances": services_unit_instances,
-            },
-        )
+        if logger.level <= logging.DEBUG:
+            logger.debug(connection.queries)
+            queries_time = sum([float(s["time"]) for s in connection.queries])
+            logger.debug(
+                f"MobileUnit list queries total execution time: {queries_time} Num queries: {len(connection.queries)}"
+            )
+            reset_queries()
+        serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
 

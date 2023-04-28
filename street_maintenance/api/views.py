@@ -1,7 +1,7 @@
 from datetime import datetime
 from functools import lru_cache
 
-import pytz
+from django.utils.timezone import make_aware
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from rest_framework import mixins, viewsets
 from rest_framework.exceptions import ParseError
@@ -14,12 +14,12 @@ from street_maintenance.api.serializers import (
     MaintenanceWorkSerializer,
 )
 from street_maintenance.management.commands.constants import (
+    EVENT_CHOICES,
     PROVIDERS,
     START_DATE_TIME_FORMAT,
 )
 from street_maintenance.models import GeometryHistory, MaintenanceUnit, MaintenanceWork
 
-UTC_TIMEZONE = pytz.timezone("UTC")
 EXAMPLE_TIME_FORMAT = "YYYY-MM-DD HH:MM:SS"
 EXAMPLE_TIME = "2022-09-18 10:00:00"
 EVENT_PARAM = OpenApiParameter(
@@ -27,7 +27,7 @@ EVENT_PARAM = OpenApiParameter(
     location=OpenApiParameter.QUERY,
     description=(
         "Return objects of given event. "
-        f'Event choices are: {", ".join(PROVIDERS).lower()}, '
+        f'Event choices are: {", ".join(EVENT_CHOICES).lower()}, '
         'E.g. "auraus".'
     ),
     required=False,
@@ -58,6 +58,8 @@ class LargeResultsSetPagination(PageNumberPagination):
     """
 
     page_size_query_param = "page_size"
+    # Works are fetched to the remote data storage on a single page, to prevent
+    # duplicates.
     max_page_size = 200_000
 
 
@@ -110,8 +112,8 @@ class MaintenanceWorkViewSet(viewsets.ReadOnlyModelViewSet):
                 raise ParseError(
                     f"'start_date_time' must be in format {EXAMPLE_TIME_FORMAT} elem.g.,'{EXAMPLE_TIME}'"
                 )
-            start_date_time = start_date_time.replace(tzinfo=UTC_TIMEZONE)
-            queryset = queryset.filter(timestamp__gte=start_date_time)
+
+            queryset = queryset.filter(timestamp__gte=make_aware(start_date_time))
         return queryset
 
     def list(self, request):
@@ -182,8 +184,7 @@ class GeometryHitoryViewSet(viewsets.ReadOnlyModelViewSet):
                 raise ParseError(
                     f"'start_date_time' must be in format {EXAMPLE_TIME_FORMAT}  elem.g.,'{EXAMPLE_TIME}'"
                 )
-            start_date_time = start_date_time.replace(tzinfo=UTC_TIMEZONE)
-            queryset = queryset.filter(timestamp__gte=start_date_time)
+            queryset = queryset.filter(timestamp__gte=make_aware(start_date_time))
         return queryset
 
     @lru_cache(maxsize=16)

@@ -29,7 +29,7 @@ def test_import_accessories(
         data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/accessories.gml",
     )
 
-    public_toilet_content_type = ContentType.objects.get(name="PublicToilet")
+    public_toilet_content_type = ContentType.objects.get(type_name="PublicToilet")
     public_toilet_units_qs = MobileUnit.objects.filter(
         content_types=public_toilet_content_type
     )
@@ -51,7 +51,7 @@ def test_import_accessories(
     assert extra["Valmistaja_koodi"] == 0
     assert extra["Varustelaji_koodi"] == 4022
 
-    bench_content_type = ContentType.objects.get(name="PublicBench")
+    bench_content_type = ContentType.objects.get(type_name="PublicBench")
     bench_units_qs = MobileUnit.objects.filter(content_types=bench_content_type)
     # Bench id 107620803 locates in Kaarina and therefore is not included.
     assert bench_units_qs.count() == 1
@@ -62,13 +62,15 @@ def test_import_accessories(
     point.transform(settings.DEFAULT_SRID)
     bench_unit.geometry.equals_exact(point, tolerance=0.0001)
 
-    table_content_type = ContentType.objects.get(name="PublicTable")
+    table_content_type = ContentType.objects.get(type_name="PublicTable")
     table_units_qs = MobileUnit.objects.filter(content_types=table_content_type)
     assert table_units_qs.count() == 2
     assert table_units_qs[0].content_types.all().count() == 1
     assert table_units_qs[0].content_types.first() == table_content_type
 
-    furniture_group_content_type = ContentType.objects.get(name="PublicFurnitureGroup")
+    furniture_group_content_type = ContentType.objects.get(
+        type_name="PublicFurnitureGroup"
+    )
     furniture_group_units_qs = MobileUnit.objects.filter(
         content_types=furniture_group_content_type
     )

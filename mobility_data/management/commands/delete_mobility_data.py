@@ -10,7 +10,7 @@ logger = logging.getLogger("mobility_data")
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-        choices = ContentType.objects.all().values_list("name", flat=True)
+        choices = ContentType.objects.all().values_list("type_name", flat=True)
         parser.add_argument(
             "content_type_names",
             nargs="*",

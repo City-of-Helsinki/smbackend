@@ -1,19 +1,16 @@
 import logging
 
-from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource as GDALDataSource
 from django.contrib.gis.geos import GEOSGeometry
+from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
-    delete_mobile_units,
     get_file_name_from_data_source,
-    get_or_create_content_type,
     get_root_dir,
     get_street_name_translations,
-    set_translated_field,
+    MobileUnitDataBase,
 )
-from mobility_data.models import MobileUnit
 
 logger = logging.getLogger("mobility_data")
 
@@ -23,14 +20,9 @@ LANGUAGES = [language[0] for language in settings.LANGUAGES]
 CONTENT_TYPE_NAME = "BikeServiceStation"
 
 
-class BikeServiceStation:
+class BikeServiceStation(MobileUnitDataBase):
     def __init__(self, feature):
-        self.name = {}
-        self.address = {}
-        self.description = {}
-        self.extra = {}
-        self.address_zip = None
-        self.municipality = None
+        super().__init__()
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=SOURCE_DATA_SRID)
         self.geometry.transform(settings.DEFAULT_SRID)
         targets = feature["Kohde"].as_string().split("/")
@@ -40,9 +32,7 @@ class BikeServiceStation:
         # Addresses are in format:
         # Uudenmaankatu 18, 20700 Turku / Nylandsgatan 18, 20700 Turku
         addresses = feature["Osoite"].as_string().split("/")
-        self.address_zip, self.municipality = (
-            addresses[0].split(",")[1].strip().split(" ")
-        )
+        self.address_zip, municipality = addresses[0].split(",")[1].strip().split(" ")
         # remove zip code and municipality
         addresses = [address.split(",")[0].strip() for address in addresses]
         for i, language in enumerate(LANGUAGES):
@@ -62,11 +52,14 @@ class BikeServiceStation:
                     street_name, number = addresses[0].split(" ")
                     self.address[
                         language
-                    ] = f"{get_street_name_translations(street_name, self.municipality)[language]} number"
+                    ] = f"{get_street_name_translations(street_name, municipality)[language]} number"
                 # Source data does not contain English addresses, assign the Finnsh
                 else:
                     self.address[language] = addresses[0]
-
+        try:
+            self.municipality = Municipality.objects.get(name=municipality)
+        except Municipality.DoesNotExist:
+            self.municipality = None
         self.extra["additional_details"] = feature["Lisätieto"].as_string()
         self.extra["in_terrain"] = feature["Maastossa"].as_string()
 
@@ -88,34 +81,3 @@ def get_bike_service_station_objects(geojson_file=None):
     for feature in data_layer:
         bicycle_repair_points.append(BikeServiceStation(feature))
     return bicycle_repair_points
-
-
-@db.transaction.atomic
-def delete_bike_service_stations():
-    delete_mobile_units(CONTENT_TYPE_NAME)
-
-
-@db.transaction.atomic
-def create_bike_service_station_content_type():
-    description = "Bike service stations in the Turku region."
-    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
-    return content_type
-
-
-@db.transaction.atomic
-def save_to_database(objects, delete_tables=True):
-    if delete_tables:
-        delete_bike_service_stations()
-
-    content_type = create_bike_service_station_content_type()
-    for object in objects:
-        mobile_unit = MobileUnit.objects.create(
-            extra=object.extra,
-            geometry=object.geometry,
-            address_zip=object.address_zip,
-        )
-        mobile_unit.content_types.add(content_type)
-        set_translated_field(mobile_unit, "name", object.name)
-        set_translated_field(mobile_unit, "description", object.description)
-        set_translated_field(mobile_unit, "address", object.address)
-        mobile_unit.save()

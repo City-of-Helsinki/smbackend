@@ -1,5 +1,6 @@
 from django.core import management
 
+from mobility_data.models import ContentType, MobileUnit
 from smbackend.utils import shared_task_email
 
 
@@ -148,6 +149,17 @@ def import_wfs(args=None, name="import_wfs"):
 @shared_task_email
 def import_parking_machines(name="import_parking_machines"):
     management.call_command("import_parking_machines")
+
+
+@shared_task_email
+def import_under_and_overpasses(name="import_under_and_overpasses"):
+    management.call_command("import_under_and_overpasses")
+
+
+@shared_task_email
+def delete_obsolete_data(name="delete_obsolete_data"):
+    MobileUnit.objects.filter(content_types__isnull=True).delete()
+    ContentType.objects.filter(mobile_units__content_types__isnull=True).delete()
 
 
 @shared_task_email

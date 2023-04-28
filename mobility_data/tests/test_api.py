@@ -11,7 +11,10 @@ def test_content_type(api_client, content_types):
     assert response.status_code == 200
     assert len(response.json()["results"]) == len(content_types)
     result = response.json()["results"][0]
-    assert result["name"] == "Test"
+    assert result["type_name"] == "Test"
+    assert result["name"] == "fi"
+    assert result["name_sv"] == "sv"
+    assert result["name_en"] == "en"
     assert result["description"] == "test content type"
 
 
@@ -21,7 +24,7 @@ def test_group_type(api_client, group_type):
     response = api_client.get(url)
     assert response.status_code == 200
     result = response.json()["results"][0]
-    assert result["name"] == "TestGroup"
+    assert result["type_name"] == "TestGroup"
     assert result["description"] == "test group type"
 
 
@@ -56,8 +59,8 @@ def test_mobile_unit(api_client, mobile_units, content_types, unit):
     # Test multiple content types
     result = response.json()
     assert len(result["content_types"]) == 2
-    assert result["content_types"][0]["name"] == "Test"
-    assert result["content_types"][1]["name"] == "Test2"
+    assert result["content_types"][0]["type_name"] == "Test"
+    assert result["content_types"][1]["type_name"] == "Test2"
     # Test string in extra field
     url = (
         reverse("mobility_data:mobile_units-list")
@@ -102,7 +105,7 @@ def test_mobile_unit(api_client, mobile_units, content_types, unit):
     response = api_client.get(url)
     assert len(response.json()["results"]) == 1
     # Test bbox where no mobile units are inside.
-    url = reverse("mobility_data:mobile_units-list") + "?bbox=22.1,60.2,2.3,60.4"
+    url = reverse("mobility_data:mobile_units-list") + "?bbox=22.3,61.4,23,62.4"
     response = api_client.get(url)
     assert len(response.json()["results"]) == 0
     # Test data serialization from services_unit model
@@ -115,10 +118,20 @@ def test_mobile_unit(api_client, mobile_units, content_types, unit):
     result = response.json()
     assert result["name"] == "Test unit"
     assert result["description"] == "desc"
-    assert result["content_types"][0]["name"] == "Test unit"
+    assert result["content_types"][0]["type_name"] == "TestUnit"
     assert result["geometry"] == "POINT (24.24 62.22)"
     assert result["geometry_coords"]["lon"] == 24.24
     assert result["geometry_coords"]["lat"] == 62.22
+    # Test only param
+    url = reverse("mobility_data:mobile_units-list") + "?only=name,geometry"
+    response = api_client.get(url)
+    # 'id' is always serialized, so the length will be 3
+    assert len(response.json()["results"][0]) == 3
+    assert len(response.json()["results"][1]) == 3
+    # Test retrieving multiple content types
+    url = reverse("mobility_data:mobile_units-list") + "?type_names=Test,Test2"
+    response = api_client.get(url)
+    assert len(response.json()["results"]) == 2
 
 
 @pytest.mark.django_db

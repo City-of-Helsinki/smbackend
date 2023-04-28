@@ -1,12 +1,9 @@
 import logging
 
-from django import db
 from django.conf import settings
 from django.contrib.gis.geos import Point
 
-from mobility_data.models import MobileUnit
-
-from .utils import delete_mobile_units, fetch_json, get_or_create_content_type
+from .utils import fetch_json, MobileUnitDataBase
 
 URL = "http://data.foli.fi/gtfs/stops"
 CONTENT_TYPE_NAME = "FoliStop"
@@ -15,10 +12,10 @@ logger = logging.getLogger("mobility_data")
 SOURCE_DATA_SRID = 4326
 
 
-class FoliStop:
+class FoliStop(MobileUnitDataBase):
     def __init__(self, stop_data):
-        self.extra = {}
-        self.name = stop_data["stop_name"]
+        super().__init__()
+        self.name["fi"] = stop_data["stop_name"]
         lon = stop_data["stop_lon"]
         lat = stop_data["stop_lat"]
         self.geometry = Point(lon, lat, srid=SOURCE_DATA_SRID)
@@ -30,26 +27,3 @@ class FoliStop:
 def get_foli_stops():
     json_data = fetch_json(URL)
     return [FoliStop(json_data[stop_code]) for stop_code in json_data]
-
-
-@db.transaction.atomic
-def get_and_create_foli_stop_content_type():
-    description = "Föli stops."
-    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
-    return content_type
-
-
-@db.transaction.atomic
-def save_to_database(objects, delete_tables=True):
-    if delete_tables:
-        delete_mobile_units(CONTENT_TYPE_NAME)
-
-    content_type = get_and_create_foli_stop_content_type()
-    for object in objects:
-        mobile_unit = MobileUnit.objects.create(
-            name=object.name,
-            geometry=object.geometry,
-            extra=object.extra,
-        )
-        mobile_unit.content_types.add(content_type)
-    logger.info(f"Saved {len(objects)} Föli stops to database.")

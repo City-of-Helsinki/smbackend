@@ -1,17 +1,16 @@
 import logging
 
 import shapefile
-from django import db
 from django.conf import settings
 from django.contrib.gis.geos import GEOSGeometry, LineString, Point
 from munigeo.models import Municipality
 
 from mobility_data.importers.utils import (
-    delete_mobile_units,
-    get_or_create_content_type,
-    set_translated_field,
+    get_or_create_content_type_from_config,
+    log_imported_message,
+    MobileUnitDataBase,
+    save_to_database,
 )
-from mobility_data.models import MobileUnit
 
 from .constants import SOUTHWEST_FINLAND_GEOMETRY
 
@@ -20,14 +19,9 @@ SOUTHWEST_FINLAND_GEOMETRY.transform(settings.DEFAULT_SRID)
 DEFAULT_ENCODING = "utf-8"
 
 
-class MobilityData:
+class MobilityData(MobileUnitDataBase):
     def __init__(self):
-        self.extra = {}
-        self.name = {}
-        self.name = {"fi": None, "sv": None, "en": None}
-        self.address = {"fi": None, "sv": None, "en": None}
-        self.geometry = None
-        self.municipality = None
+        super().__init__()
 
     def validate_coords(self, coords):
         for coord in coords:
@@ -99,38 +93,6 @@ class MobilityData:
         return True
 
 
-@db.transaction.atomic
-def get_and_create_datasource_content_type(config):
-    if "content_type_description" in config:
-        description = config["content_type_description"]
-    else:
-        description = ""
-    name = config["content_type_name"]
-    ct, _ = get_or_create_content_type(name, description)
-    return ct
-
-
-@db.transaction.atomic
-def delete_content_type(config):
-    delete_mobile_units(config["content_type_name"])
-
-
-@db.transaction.atomic
-def save_to_database(objects, config):
-    content_type = get_and_create_datasource_content_type(config)
-    if not content_type:
-        return
-    for object in objects:
-        mobile_unit = MobileUnit.objects.create(
-            extra=object.extra, geometry=object.geometry
-        )
-        mobile_unit.content_types.add(content_type)
-        mobile_unit.municipality = object.municipality
-        set_translated_field(mobile_unit, "name", object.name)
-        set_translated_field(mobile_unit, "address", object.address)
-        mobile_unit.save()
-
-
 def import_lounaistieto_data_source(config):
     if "content_type_name" not in config:
         logger.warning(
@@ -156,10 +118,10 @@ def import_lounaistieto_data_source(config):
         )
     objects = []
     sf = shapefile.Reader(config["data_url"], encoding=encoding)
-    delete_content_type(config)
     for feature in sf.shapeRecords():
         obj = MobilityData()
         if obj.add_feature(feature, config, srid):
             objects.append(obj)
-    save_to_database(objects, config)
-    logger.info(f"Saved {len(objects)} {config['content_type_name']} objects.")
+    content_type = get_or_create_content_type_from_config(config["content_type_name"])
+    num_ceated, num_deleted = save_to_database(objects, content_type)
+    log_imported_message(logger, content_type, num_ceated, num_deleted)

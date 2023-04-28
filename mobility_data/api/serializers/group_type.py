@@ -6,4 +6,4 @@ from ...models import GroupType
 class GroupTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupType
-        fields = ["id", "name", "description"]
+        fields = "__all__"

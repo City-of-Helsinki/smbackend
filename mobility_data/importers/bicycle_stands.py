@@ -5,7 +5,6 @@ as it needs logic to derive if the stand is hull lockable or covered.
 import logging
 import os
 
-from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
@@ -15,18 +14,16 @@ from munigeo.models import (
     Municipality,
 )
 
-from mobility_data.models import MobileUnit
 from services.models import Unit
+from smbackend_turku.importers.utils import get_external_source_config
 
 from .utils import (
-    delete_mobile_units,
     get_closest_address_full_name,
     get_municipality_name,
-    get_or_create_content_type,
     get_root_dir,
     get_street_name_translations,
     locates_in_turku,
-    set_translated_field,
+    MobileUnitDataBase,
 )
 
 CONTENT_TYPE_NAME = "BicycleStand"
@@ -38,7 +35,6 @@ NAME_PREFIX = {
     SV_KEY: "Cykelparkering",
     EN_KEY: "Bicycle parking",
 }
-BICYCLE_STANDS_SERVICE_ID = settings.BICYCLE_STANDS_IDS["service"]
 BICYCLE_STANDS_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
     "?service=WFS&request=GetFeature&typeName=GIS:Polkupyoraparkki&outputFormat=GML3",
@@ -53,7 +49,7 @@ turku_boundary = AdministrativeDivisionGeometry.objects.get(
 ).boundary
 
 
-class BicyleStand:
+class BicyleStand(MobileUnitDataBase):
 
     WFS_HULL_LOCKABLE_STR = "runkolukitusmahdollisuus"
     GEOJSON_HULL_LOCKABLE_STR = "runkolukittava"
@@ -68,15 +64,14 @@ class BicyleStand:
     ]
 
     def __init__(self):
-        self.geometry = None
-        self.municipality = None
-        self.name = {}
+        super().__init__()
         self.prefix_name = {}
-        self.address = {}
         self.related_unit = None
         self.extra = {f: None for f in self.EXTRA_FIELDS}
 
     def set_geojson_feature(self, feature):
+        config = get_external_source_config("bicycle_stands")
+        bicycle_stands_service_id = config["service"]["id"]
         name = feature["kohde"].as_string().strip()
         unit_name = name.split(",")[0]
         self.geometry = GEOSGeometry(feature.geom.wkt, srid=GEOJSON_SOURCE_DATA_SRID)
@@ -85,7 +80,7 @@ class BicyleStand:
         # Make first unit with same name that is not a Bicycle Stand the related_unit
         for unit in units_qs:
             # Ensure we do not connect to a Bicycle stand unit
-            if not unit.services.filter(id=BICYCLE_STANDS_SERVICE_ID):
+            if not unit.services.filter(id=bicycle_stands_service_id):
                 self.related_unit = unit
                 break
 
@@ -140,7 +135,7 @@ class BicyleStand:
             # The last part is always the number
             address_number = address[-1]
         translated_street_names = get_street_name_translations(
-            street_name, municipality_name
+            street_name, self.municipality
         )
         self.address["fi"] = f"{translated_street_names['fi']} {address_number}"
         self.address["sv"] = f"{translated_street_names['sv']} {address_number}"
@@ -253,34 +248,3 @@ def get_bicycle_stand_objects(data_source=None):
 
     logger.info(f"Retrieved {len(bicycle_stands)} bicycle stands.")
     return bicycle_stands
-
-
-@db.transaction.atomic
-def delete_bicycle_stands():
-    delete_mobile_units(CONTENT_TYPE_NAME)
-
-
-@db.transaction.atomic
-def create_bicycle_stand_content_type():
-    description = "Bicycle stands in The Turku Region."
-    content_type, _ = get_or_create_content_type(CONTENT_TYPE_NAME, description)
-    return content_type
-
-
-@db.transaction.atomic
-def save_to_database(objects, delete_tables=True):
-    if delete_tables:
-        delete_bicycle_stands()
-
-    content_type = create_bicycle_stand_content_type()
-    for object in objects:
-        mobile_unit = MobileUnit.objects.create(
-            extra=object.extra,
-            municipality=object.municipality,
-        )
-        mobile_unit.content_types.add(content_type)
-        mobile_unit.geometry = object.geometry
-        set_translated_field(mobile_unit, "name", object.name)
-        if object.address:
-            set_translated_field(mobile_unit, "address", object.address)
-        mobile_unit.save()
