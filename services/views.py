@@ -74,7 +74,7 @@ def post_service_request(request):
     url = settings.OPEN311["URL_BASE"]
     session = requests.Session()
 
-    r = session.post(url, data=data, verify=False)
+    r = session.post(url, data=data)
     if r.status_code != 200:
         return HttpResponseBadRequest()
 
