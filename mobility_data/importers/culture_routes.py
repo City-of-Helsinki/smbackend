@@ -26,6 +26,11 @@ GROUP_CONTENT_TYPE_NAME = "CultureRoute"
 SOURCE_DATA_SRID = 4326
 # Routes are from https://citynomadi.com/route/?keywords=turku
 URLS = {
+    "Sotiemme Turku": {
+        "fi": "https://citynomadi.com/api/route/fb656ce4fc31868f4b90168ecc3fabdb/kml?lang=fi",
+        "sv": "https://citynomadi.com/api/route/fb656ce4fc31868f4b90168ecc3fabdb/kml?lang=sv",
+        "en": "https://citynomadi.com/api/route/fb656ce4fc31868f4b90168ecc3fabdb/kml?lang=fi",
+    },
     "Stepping it up": {
         "fi": "https://citynomadi.com/api/route/9edfeee48c655d64abfef65fc5081e26/kml?lang=fi",
         "sv": "https://citynomadi.com/api/route/9edfeee48c655d64abfef65fc5081e26/kml?lang=sv_SE",
