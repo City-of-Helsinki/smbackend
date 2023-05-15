@@ -50,7 +50,6 @@ turku_boundary = AdministrativeDivisionGeometry.objects.get(
 
 
 class BicyleStand(MobileUnitDataBase):
-
     WFS_HULL_LOCKABLE_STR = "runkolukitusmahdollisuus"
     GEOJSON_HULL_LOCKABLE_STR = "runkolukittava"
     COVERED_IN_STR = "katettu"

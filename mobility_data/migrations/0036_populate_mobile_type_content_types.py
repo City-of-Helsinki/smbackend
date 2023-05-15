@@ -11,7 +11,6 @@ def make_many_to_many_content_types(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mobility_data", "0035_add_many_to_many_field_content_types_to_mobile_unit"),
     ]

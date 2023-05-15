@@ -321,7 +321,7 @@ def log_imported_message(logger, content_type, num_created, num_deleted):
 
 
 @db.transaction.atomic
-def save_to_database(objects, content_types, logger=logger):
+def save_to_database(objects, content_types, logger=logger, group_type=None):
     if type(content_types) != list:
         content_types = [content_types]
 
