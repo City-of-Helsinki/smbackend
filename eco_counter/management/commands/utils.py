@@ -10,57 +10,29 @@ from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry, Point
 
-from eco_counter.models import (
+from eco_counter.constants import (
+    COUNTERS,
     ECO_COUNTER,
     LAM_COUNTER,
-    Station,
+    LAM_STATION_MUNICIPALITIES,
+    LAM_STATIONS_API_FETCH_URL,
+    LAM_STATIONS_DIRECTION_MAPPINGS,
+    TIMESTAMP_COL_NAME,
     TRAFFIC_COUNTER,
-    TRAFFIC_COUNTER_END_YEAR,
-    TRAFFIC_COUNTER_START_YEAR,
+    TRAFFIC_COUNTER_CSV_URLS,
+    TRAFFIC_COUNTER_METADATA_GEOJSON,
 )
+from eco_counter.models import Station
 from eco_counter.tests.test_import_counter_data import TEST_COLUMN_NAMES
 from mobility_data.importers.utils import get_root_dir
 
 logger = logging.getLogger("eco_counter")
-TIMESTAMP_COL_NAME = "startTime"
-TRAFFIC_COUNTER_METADATA_GEOJSON = "traffic_counter_metadata.geojson"
-# LAM stations located in the municipalities list are included.
-LAM_STATION_MUNICIPALITIES = ["Turku", "Raisio", "Kaarina", "Lieto"]
-
-LAM_STATIONS_API_FETCH_URL = (
-    settings.LAM_COUNTER_API_BASE_URL
-    + "?api=liikennemaara&tyyppi=h&pvm={start_date}&loppu={end_date}"
-    + "&lam_type=option1&piste={id}&luokka=kaikki&suunta={direction}&sisallytakaistat=0"
-)
-LAM_STATIONS_DIRECTION_MAPPINGS = {
-    "1_Piikkiö": "P",
-    "1_Naantali": "P",
-    "2_Naantali": "K",
-    "1_Turku": "K",
-    "2_Turku": "K",
-    "2_Helsinki": "P",
-    "1_Suikkila.": "K",
-    "2_Artukainen.": "P",
-    "1_Vaasa": "P",
-    "1_Kuusisto": "P",
-    "2_Kaarina": "K",
-    "1_Tampere": "P",
-    "1_Hämeenlinna": "P",
-}
-
-keys = [k for k in range(TRAFFIC_COUNTER_START_YEAR, TRAFFIC_COUNTER_END_YEAR + 1)]
-# Create a dict where the years to be importer are keys and the value is the url of the csv data.
-# e.g. {2015, "https://data.turku.fi/2yxpk2imqi2mzxpa6e6knq/2015_laskenta_juha.csv"}
-TRAFFIC_COUNTER_CSV_URLS = dict(
-    [
-        (k, f"{settings.TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL}{k}_laskenta_juha.csv")
-        for k in keys
-    ]
-)
 
 
 class LAMStation:
     def __init__(self, feature):
+        if feature["municipality"].as_string() not in LAM_STATION_MUNICIPALITIES:
+            self.active = False
         self.lam_id = feature["tmsNumber"].as_int()
         names = json.loads(feature["names"].as_string())
         self.name = names["fi"]
@@ -71,6 +43,42 @@ class LAMStation:
         geom.coord_dim = 2
         self.geom = GEOSGeometry(geom.wkt, srid=4326)
         self.geom.transform(settings.DEFAULT_SRID)
+
+
+class EcoCounterStation:
+    def __init__(self, feature):
+        self.name = feature["properties"]["Nimi"]
+        lon = feature["geometry"]["coordinates"][0]
+        lat = feature["geometry"]["coordinates"][1]
+        self.geom = Point(lon, lat, srid=4326)
+        self.geom.transform(settings.DEFAULT_SRID)
+
+
+class TrafficCounterStation:
+    def __init__(self, feature):
+        self.name = feature["Osoite_fi"].as_string()
+        self.name_sv = feature["Osoite_sv"].as_string()
+        self.name_en = feature["Osoite_en"].as_string()
+        geom = GEOSGeometry(feature.geom.wkt, srid=feature.geom.srid)
+        geom.transform(settings.DEFAULT_SRID)
+        self.geom = geom
+
+
+class ObservationStation(LAMStation, EcoCounterStation, TrafficCounterStation):
+    def __init__(self, csv_data_source, feature):
+        self.csv_data_source = csv_data_source
+        self.name = None
+        self.name_sv = None
+        self.name_en = None
+        self.geom = None
+        self.lam_id = None
+        match csv_data_source:
+            case COUNTERS.LAM_COUNTER:
+                LAMStation.__init__(self, feature)
+            case COUNTERS.ECO_COUNTER:
+                EcoCounterStation.__init__(self, feature)
+            case COUNTERS.TRAFFIC_COUNTER:
+                TrafficCounterStation.__init__(self, feature)
 
 
 def get_traffic_counter_metadata_data_layer():
@@ -277,52 +285,25 @@ def get_lam_counter_csv(start_date):
     return data_frame
 
 
-def save_lam_counter_stations():
+def get_lam_counter_stations():
+    stations = []
     data_layer = DataSource(settings.LAM_COUNTER_STATIONS_URL)[0]
-    saved = 0
     for feature in data_layer:
         if feature["municipality"].as_string() in LAM_STATION_MUNICIPALITIES:
-            station_obj = LAMStation(feature)
-            if Station.objects.filter(name=station_obj.name).exists():
-                continue
-            station = Station()
-            station.lam_id = station_obj.lam_id
-            station.name = station_obj.name
-            station.name_sv = station_obj.name_sv
-            station.name_en = station_obj.name_en
-            station.csv_data_source = LAM_COUNTER
-            station.geom = station_obj.geom
-            station.save()
-            saved += 1
-    logger.info(f"Saved {saved} LAM Counter stations.")
+            stations.append(ObservationStation(LAM_COUNTER, feature))
+    return stations
 
 
-def save_traffic_counter_stations():
-    """
-    Saves the stations defined in the metadata to Station table.
-    """
-    saved = 0
+def get_traffic_counter_stations():
+    stations = []
     data_layer = get_traffic_counter_metadata_data_layer()
     for feature in data_layer:
-        name = feature["Osoite_fi"].as_string()
-        name_sv = feature["Osoite_sv"].as_string()
-        name_en = feature["Osoite_en"].as_string()
-        if Station.objects.filter(name=name).exists():
-            continue
-        station = Station()
-        station.name = name
-        station.name_sv = name_sv
-        station.name_en = name_en
-        station.csv_data_source = TRAFFIC_COUNTER
-        geom = GEOSGeometry(feature.geom.wkt, srid=feature.geom.srid)
-        geom.transform(settings.DEFAULT_SRID)
-        station.geom = geom
-        station.save()
-        saved += 1
-    logger.info(f"Saved {saved} Traffic Counter stations.")
+        stations.append(ObservationStation(TRAFFIC_COUNTER, feature))
+    return stations
 
 
-def save_eco_counter_stations():
+def get_eco_counter_stations():
+    stations = []
     response = requests.get(settings.ECO_COUNTER_STATIONS_URL)
     assert (
         response.status_code == 200
@@ -331,21 +312,47 @@ def save_eco_counter_stations():
     )
     response_json = response.json()
     features = response_json["features"]
-    saved = 0
     for feature in features:
-        station = Station()
-        name = feature["properties"]["Nimi"]
-        if not Station.objects.filter(name=name).exists():
-            station.name = name
-            station.csv_data_source = ECO_COUNTER
-            lon = feature["geometry"]["coordinates"][0]
-            lat = feature["geometry"]["coordinates"][1]
-            point = Point(lon, lat, srid=4326)
-            point.transform(settings.DEFAULT_SRID)
-            station.geom = point
-            station.save()
-            saved += 1
-    logger.info(f"Saved {saved} Eco Counter stations.")
+        stations.append(ObservationStation(ECO_COUNTER, feature))
+    return stations
+
+
+def save_stations(csv_data_source):
+    stations = []
+    num_created = 0
+    match csv_data_source:
+        case COUNTERS.LAM_COUNTER:
+            stations = get_lam_counter_stations()
+        case COUNTERS.ECO_COUNTER:
+            station = get_eco_counter_stations()
+        case COUNTERS.TRAFFIC_COUNTER:
+            station = get_traffic_counter_stations()
+    object_ids = list(
+        Station.objects.filter(csv_data_source=csv_data_source).values_list(
+            "id", flat=True
+        )
+    )
+    for station in stations:
+        obj, created = Station.objects.get_or_create(
+            name=station.name,
+            name_sv=station.name_sv,
+            name_en=station.name_en,
+            geom=station.geom,
+            lam_id=station.lam_id,
+        )
+        if obj.id in object_ids:
+            object_ids.remove(obj.id)
+        if created:
+            num_created += 1
+
+    Station.objects.filter(id__in=object_ids).delete()
+    logger.info(
+        f"Deleted {len(object_ids)} obsolete Stations for counter {csv_data_source}"
+    )
+    num_stations = Station.objects.filter(csv_data_source=csv_data_source).count()
+    logger.info(
+        f"Created {num_created} Stations of total {num_stations} Stations for counter {csv_data_source}."
+    )
 
 
 def get_test_dataframe(counter):
@@ -358,20 +365,17 @@ def get_test_dataframe(counter):
     return pd.DataFrame(columns=TEST_COLUMN_NAMES[counter])
 
 
-def gen_eco_counter_test_csv(keys, start_time, end_time):
+def gen_eco_counter_test_csv(
+    columns, start_time, end_time, time_stamp_column="startTime"
+):
     """
     Generates test data for a given timespan,
     for every row (15min) the value 1 is set.
     """
-    df = pd.DataFrame(columns=keys)
-    df.keys = keys
-    cur_time = start_time
-    c = 0
-    while cur_time <= end_time:
-        # Add value to all keys(sensor stations)
-        vals = [1 for x in range(len(keys) - 1)]
-        vals.insert(0, str(cur_time))
-        df.loc[c] = vals
-        cur_time = cur_time + timedelta(minutes=15)
-        c += 1
+    df = pd.DataFrame()
+    timestamps = pd.date_range(start=start_time, end=end_time, freq="15min")
+    for col in columns:
+        vals = [1 for i in range(len(timestamps))]
+        df.insert(0, col, vals)
+    df.insert(0, time_stamp_column, timestamps)
     return df
