@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mobility_data", "0014_add_contenttype_share_car_parking_place"),
     ]

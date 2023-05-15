@@ -15,7 +15,6 @@ LANGUAGES = ["fi", "sv", "en"]
 
 
 class ParkingMachine(MobileUnitDataBase):
-
     extra_field_mappings = {
         "Sijainti": {
             "type": FieldTypes.MULTILANG_STRING,

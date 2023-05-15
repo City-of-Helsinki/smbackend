@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("munigeo", "0013_add_naturalsort_function"),
         ("mobility_data", "0017_add_content_type_no_staff_parking"),

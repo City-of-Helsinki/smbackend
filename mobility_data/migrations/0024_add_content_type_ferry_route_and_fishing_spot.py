@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mobility_data", "0023_add_content_type_recreational_route"),
     ]

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mobility_data", "0039_contentype_and_grouptype_rename_name_to_type_name"),
     ]

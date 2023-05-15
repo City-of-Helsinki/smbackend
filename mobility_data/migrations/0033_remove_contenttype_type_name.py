@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mobility_data", "0032_remove_choices_from_type_name"),
     ]

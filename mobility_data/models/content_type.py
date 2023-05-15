@@ -22,10 +22,8 @@ class BaseType(models.Model):
 
 
 class ContentType(BaseType):
-
     pass
 
 
 class GroupType(BaseType):
-
     pass

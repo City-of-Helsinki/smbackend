@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mobility_data", "0010_alter_mobileunit_unit_id"),
     ]

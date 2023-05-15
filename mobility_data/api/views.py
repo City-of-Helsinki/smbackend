@@ -121,7 +121,6 @@ class MobileUnitGroupViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
-
     queryset = MobileUnit.objects.filter(is_active=True)
     serializer_class = MobileUnitSerializer
 

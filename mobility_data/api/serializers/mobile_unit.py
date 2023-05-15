@@ -17,7 +17,6 @@ from .utils import swap_coords
 
 
 class GeometrySerializer(serializers.Serializer):
-
     x = serializers.FloatField()
     y = serializers.FloatField()
 
@@ -32,7 +31,6 @@ class GrouptTypeBasicInfoSerializer(serializers.ModelSerializer):
 
 
 class MobileUnitGroupBasicInfoSerializer(serializers.ModelSerializer):
-
     group_type = GrouptTypeBasicInfoSerializer(many=False, read_only=True)
 
     class Meta:
@@ -41,7 +39,6 @@ class MobileUnitGroupBasicInfoSerializer(serializers.ModelSerializer):
 
 
 class MobileUnitSerializer(serializers.ModelSerializer):
-
     content_types = ContentTypeSerializer(many=True, read_only=True)
     mobile_unit_group = MobileUnitGroupBasicInfoSerializer(many=False, read_only=True)
     geometry_coords = serializers.SerializerMethodField(read_only=True)
