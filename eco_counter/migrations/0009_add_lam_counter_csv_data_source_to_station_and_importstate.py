@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eco_counter", "0008_remove_importstate_rows_imported"),
     ]
