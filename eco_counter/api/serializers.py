@@ -100,7 +100,6 @@ class YearInfoSerializer(serializers.ModelSerializer):
 
 
 class DaySerializer(serializers.ModelSerializer):
-
     station_name = serializers.PrimaryKeyRelatedField(
         many=False, source="station.name", read_only=True
     )
@@ -207,7 +206,6 @@ class YearInfoSerializer(serializers.ModelSerializer):
 
 
 class HourDataSerializer(serializers.ModelSerializer):
-
     day_info = DayInfoSerializer(source="day")
 
     class Meta:
@@ -229,7 +227,6 @@ class HourDataSerializer(serializers.ModelSerializer):
 
 
 class DayDataSerializer(serializers.ModelSerializer):
-
     day_info = DayInfoSerializer(source="day")
 
     class Meta:
@@ -254,7 +251,6 @@ class WeekDataSerializer(serializers.ModelSerializer):
 
 
 class MonthDataSerializer(serializers.ModelSerializer):
-
     month_info = MonthInfoSerializer(source="month")
 
     class Meta:
@@ -267,7 +263,6 @@ class MonthDataSerializer(serializers.ModelSerializer):
 
 
 class YearDataSerializer(serializers.ModelSerializer):
-
     year_info = YearInfoSerializer(source="year")
 
     class Meta:
