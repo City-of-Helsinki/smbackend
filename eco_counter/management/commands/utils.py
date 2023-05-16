@@ -17,6 +17,9 @@ from eco_counter.constants import (
     LAM_STATION_MUNICIPALITIES,
     LAM_STATIONS_API_FETCH_URL,
     LAM_STATIONS_DIRECTION_MAPPINGS,
+    TELRAAM_COUNTER,
+    TELRAAM_COUNTER_API_BASE_URL,
+    TELRAAM_CSV_FILE_NAME,
     TIMESTAMP_COL_NAME,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_CSV_URLS,
@@ -33,7 +36,7 @@ class LAMStation:
     def __init__(self, feature):
         if feature["municipality"].as_string() not in LAM_STATION_MUNICIPALITIES:
             self.active = False
-        self.lam_id = feature["tmsNumber"].as_int()
+        self.station_id = feature["tmsNumber"].as_int()
         names = json.loads(feature["names"].as_string())
         self.name = names["fi"]
         self.name_sv = names["sv"]
@@ -64,6 +67,15 @@ class TrafficCounterStation:
         self.geom = geom
 
 
+class TelraamCounterStation:
+    def __init__(self, feature):
+        self.name = feature["mac"]
+        self.name_sv = feature["mac"]
+        self.name_en = feature["mac"]
+        self.geom = GEOSGeometry("POINT EMPTY")
+        self.station_id = feature["mac"]
+
+
 class ObservationStation(LAMStation, EcoCounterStation, TrafficCounterStation):
     def __init__(self, csv_data_source, feature):
         self.csv_data_source = csv_data_source
@@ -71,8 +83,10 @@ class ObservationStation(LAMStation, EcoCounterStation, TrafficCounterStation):
         self.name_sv = None
         self.name_en = None
         self.geom = None
-        self.lam_id = None
+        self.station_id = None
         match csv_data_source:
+            case COUNTERS.TELRAAM_COUNTER:
+                TelraamCounterStation.__init__(self, feature)
             case COUNTERS.LAM_COUNTER:
                 LAMStation.__init__(self, feature)
             case COUNTERS.ECO_COUNTER:
@@ -200,7 +214,6 @@ def get_lam_counter_csv(start_date):
     5. Shift the columns with the calculated shift_index, this must be done if there is no data
     for the station from the start_date. This ensures the data matches the timestamps.
     """
-
     drop_columns = [
         "pistetunnus",
         "sijainti",
@@ -223,7 +236,9 @@ def get_lam_counter_csv(start_date):
     for station in Station.objects.filter(csv_data_source=LAM_COUNTER):
         # In the source data the directions are 1 and 2.
         for direction in range(1, 3):
-            df = get_lam_station_dataframe(station.lam_id, direction, start_date, today)
+            df = get_lam_station_dataframe(
+                station.station_id, direction, start_date, today
+            )
             # Read the direction
             direction_name = df["suuntaselite"].iloc[0]
             # From the mappings determine the 'keskustaan päin' or 'poispäin keskustasta' direction.
@@ -317,10 +332,51 @@ def get_eco_counter_stations():
     return stations
 
 
+def get_active_camera(offset=0):
+    """
+    Function that gets pseudo random camera that is actvie for testing data.
+    NOTE, this function will be obsolete when Turku gets its cameras online.
+    """
+    url = f"{TELRAAM_COUNTER_API_BASE_URL}/v1/cameras"
+
+    headers = {
+        "X-Api-Key": settings.TELRAAM_TOKEN,
+    }
+    response = requests.get(url, headers=headers)
+    cameras = response.json()["cameras"]
+    i = 0
+    for camera in cameras:
+        # time_end: null for active instances
+        if camera["status"] == "active" and not camera["time_end"]:
+            if i == offset:
+                return camera
+            i += 1
+    return None
+
+
+def get_telraam_counter_stations():
+    stations = []
+    cameras = []
+    for i in range(2, 5):
+        cameras.append(get_active_camera(offset=i * 3))
+    for feature in cameras:
+        stations.append(ObservationStation(TELRAAM_COUNTER, feature))
+    return stations
+
+
+def get_telraam_counter_csv():
+    csv_file = f"{get_root_dir()}/media/{TELRAAM_CSV_FILE_NAME}"
+    df = pd.read_csv(csv_file)
+    df[TIMESTAMP_COL_NAME] = pd.to_datetime(df[TIMESTAMP_COL_NAME])
+    return df
+
+
 def save_stations(csv_data_source):
     stations = []
     num_created = 0
     match csv_data_source:
+        case COUNTERS.TELRAAM_COUNTER:
+            stations = get_telraam_counter_stations()
         case COUNTERS.LAM_COUNTER:
             stations = get_lam_counter_stations()
         case COUNTERS.ECO_COUNTER:
@@ -338,13 +394,13 @@ def save_stations(csv_data_source):
             name_sv=station.name_sv,
             name_en=station.name_en,
             geom=station.geom,
-            lam_id=station.lam_id,
+            station_id=station.station_id,
+            csv_data_source=csv_data_source,
         )
         if obj.id in object_ids:
             object_ids.remove(obj.id)
         if created:
             num_created += 1
-
     Station.objects.filter(id__in=object_ids).delete()
     logger.info(
         f"Deleted {len(object_ids)} obsolete Stations for counter {csv_data_source}"
