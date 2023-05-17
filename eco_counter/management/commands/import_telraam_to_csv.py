@@ -7,8 +7,12 @@ import requests
 from django.conf import settings
 from django.core.management import BaseCommand
 
-from eco_counter.constants import TELRAAM_CSV_FILE_NAME
-from eco_counter.management.commands.utils import get_active_camera
+from eco_counter.constants import (
+    TELRAAM_COUNTER_START_MONTH,
+    TELRAAM_COUNTER_START_YEAR,
+    TELRAAM_CSV_FILE_NAME,
+)
+from eco_counter.management.commands.utils import get_telraam_cameras
 from mobility_data.importers.utils import get_root_dir
 
 TELRAAM_API_BASE_URL = "https://telraam-api.net"
@@ -22,8 +26,8 @@ FORMAT = "per-hour"
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 DATA_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
-token = settings.TELRAAM_TOKEN
-assert token
+TOKEN = settings.TELRAAM_TOKEN
+assert TOKEN
 csv_file = f"{get_root_dir()}/media/{TELRAAM_CSV_FILE_NAME}"
 logger = logging.getLogger("eco_counter")
 
@@ -61,13 +65,12 @@ def get_mappings(station_name, direction=True):
     mappings = {}
     for field in column_mappings.keys():
         mappings[field] = f"{station_name} {column_mappings[field]}"
-
     return mappings
 
 
-def get_hourly_data(from_date, end_date, camera_id):
+def fetch_traffic_report(from_date: str, end_date: str, camera_id: str):
     headers = {
-        "X-Api-Key": token,
+        "X-Api-Key": TOKEN,
         "Content-Type": "application/json",
     }
     data = {
@@ -78,26 +81,30 @@ def get_hourly_data(from_date, end_date, camera_id):
         "time_end": end_date,
     }
     response = requests.post(TRAFFIC_URL, headers=headers, data=json.dumps(data))
+    return response.json().get("report", [])
 
-    from_date = datetime.strptime(from_date, TIME_FORMAT)
-    end_date = datetime.strptime(end_date, TIME_FORMAT)
+
+def get_delta_hours(from_date: datetime, end_date: datetime) -> datetime:
     delta = end_date - from_date
     delta_hours = int(round(delta.total_seconds() / 3600))
-    logger.info(f"delta hours {delta_hours}")
-    report = response.json().get("report", [])
+    return delta_hours
+
+
+def get_hourly_data(from_date, end_date, camera_id):
+    report = fetch_traffic_report(from_date, end_date, camera_id)
+    from_date = datetime.strptime(from_date, TIME_FORMAT)
+    end_date = datetime.strptime(end_date, TIME_FORMAT)
+    delta_hours = get_delta_hours(from_date, end_date)
+    logger.info(f"Trying to import {delta_hours} hours for camera {camera_id}.")
     if not report:
         report = [{} for a in range(delta_hours)]
-    else:
-        print("Report has data")
-    if len(report) != delta_hours:
-        report = [{} for a in range(delta_hours)]
-        delta_hours = len(report)
+
+    delta_hours = len(report)
     res = []
     start_date = from_date
-    for i in range(delta_hours):
+    for item in report:
         d = {}
         d["date"] = datetime.strftime(start_date, TIME_FORMAT)
-        item = report[i]
         for veh in VEHICLE_TYPES.keys():
             for dir in DIRECTIONS:
                 key = f"{veh}_{dir}"
@@ -108,52 +115,50 @@ def get_hourly_data(from_date, end_date, camera_id):
     return res, delta_hours
 
 
-def get_active_cameras():
-    headers = {
-        "X-Api-Key": token,
-    }
-    active_cameras = []
-    response = requests.get(AVAILABLE_CAMERAS_URL, headers=headers)
-    cameras = response.json()["cameras"]
-    for camera in cameras:
-        if camera["status"] == "active":
-            active_cameras.append(camera)
-    return active_cameras
-
-
 def save_dataframe():
-    test_num_days = 6
-    test_num_cams = 2
-    # cam_off
-    start_date = date(2023, 5, 1)
-    end_date = date(2023, 5, 1 + test_num_days).strftime(TIME_FORMAT)
-    from_date = start_date.strftime(TIME_FORMAT)
     try:
         df = pd.read_csv(csv_file, index_col=INDEX_COLUMN_NAME)
         from_date = df.iloc[-1].name
+        logger.info(f"Found Telraam data until {from_date} in csv file.")
         from_date = datetime.strptime(from_date, TIME_FORMAT) + timedelta(hours=1)
         from_date = datetime.strftime(from_date, TIME_FORMAT)
-        logger.info(f"Read csv data to {from_date}")
     except Exception:
         logger.info("Creating new empty Pandas DataFrame")
         df = pd.DataFrame()
-    # TODO, when Turku cameras online, add them
-    cameras = []
-    for i in range(2, 1 + test_num_cams):
-        cameras.append(get_active_camera(offset=i * 3))
+        from_date = date(TELRAAM_COUNTER_START_YEAR, TELRAAM_COUNTER_START_MONTH, 1)
+        from_date = datetime.strftime(from_date, TIME_FORMAT)
+
+    end_date = datetime.now().strftime(TIME_FORMAT)
+    logger.info(f"Fetching Telraam data from {from_date} to {end_date}")
+
     df_created = pd.DataFrame()
     reports = []
+    min_delta_hours = 1_000_000
+    cameras = get_telraam_cameras()
     for camera in cameras:
         report, delta_hours = get_hourly_data(
             from_date, end_date, camera["instance_id"]
         )
+        if report:
+            logger.info(
+                f"Camera {camera['instance_id']} imported to {report[-1]['date']}"
+            )
+        else:
+            f"Imported empty report for camera {camera['instance_id']}"
+
+        # NOTE, reports length can vary as some have less data.
+        if delta_hours <= min_delta_hours:
+            min_delta_hours = delta_hours
         reports.append({"camera": camera, "report": report})
 
     columns = {}
     columns[INDEX_COLUMN_NAME] = []
-    for hour in range(delta_hours):
-        columns[INDEX_COLUMN_NAME].append(reports[0]["report"][hour]["date"])
-        for report in reports:
+    # NOTE, rows are only populated to that datetime where all cameras has data.
+    delta_hours = min_delta_hours
+    for i, report in enumerate(reports):
+        for hour in range(delta_hours):
+            if i == 0:
+                columns[INDEX_COLUMN_NAME].append(reports[0]["report"][hour]["date"])
             mappings = get_mappings(report["camera"]["mac"])
             for mapping in mappings.items():
                 # key is the name of the column, e.g., name_ak
@@ -167,7 +172,6 @@ def save_dataframe():
                     values_list.append(report["report"][hour][value_key])
                 columns[key] = values_list
     df_created = pd.DataFrame(data=columns, index=columns["startTime"])
-
     df_created = df_created.drop(columns=[INDEX_COLUMN_NAME], axis=1)
     if df.empty:
         df = df_created
@@ -177,6 +181,9 @@ def save_dataframe():
     df = df.fillna(0)
     df = df.astype(int)
     df.to_csv(csv_file)
+    logger.info(
+        f"Telraam data imported until {df.index[-1]} and DataFrame saved to {csv_file}"
+    )
 
 
 class Command(BaseCommand):
