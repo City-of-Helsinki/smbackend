@@ -332,18 +332,22 @@ def get_eco_counter_stations():
     return stations
 
 
-def get_active_camera(offset=0):
-    """
-    Function that gets pseudo random camera that is actvie for testing data.
-    NOTE, this function will be obsolete when Turku gets its cameras online.
-    """
+def fetch_telraam_cameras():
     url = f"{TELRAAM_COUNTER_API_BASE_URL}/v1/cameras"
 
     headers = {
         "X-Api-Key": settings.TELRAAM_TOKEN,
     }
     response = requests.get(url, headers=headers)
-    cameras = response.json()["cameras"]
+    return response.json().get("cameras", None)
+
+
+def get_active_telraam_camera(offset):
+    """
+    Function that gets pseudo random camera that is actvie for testing data.
+    NOTE, this function will be obsolete when Turku gets its cameras online.
+    """
+    cameras = fetch_telraam_cameras()
     i = 0
     for camera in cameras:
         # time_end: null for active instances
@@ -354,11 +358,14 @@ def get_active_camera(offset=0):
     return None
 
 
+def get_telraam_cameras():
+    # TODO, add Turku cameras when they are online
+    return [get_active_telraam_camera(3 + i * 3) for i in range(3)]
+
+
 def get_telraam_counter_stations():
     stations = []
-    cameras = []
-    for i in range(2, 5):
-        cameras.append(get_active_camera(offset=i * 3))
+    cameras = get_telraam_cameras()
     for feature in cameras:
         stations.append(ObservationStation(TELRAAM_COUNTER, feature))
     return stations
