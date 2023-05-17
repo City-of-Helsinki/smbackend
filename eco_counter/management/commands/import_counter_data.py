@@ -21,7 +21,7 @@ from eco_counter.constants import (
     ECO_COUNTER,
     LAM_COUNTER,
     TELRAAM_COUNTER,
-    TELRAAM_START_MONTH,
+    TELRAAM_COUNTER_START_MONTH,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_START_YEAR,
 )
@@ -445,7 +445,9 @@ class Command(BaseCommand):
                     )
                 else:
                     start_month = (
-                        TELRAAM_START_MONTH if counter == TELRAAM_COUNTER else "01"
+                        TELRAAM_COUNTER_START_MONTH
+                        if counter == TELRAAM_COUNTER
+                        else "01"
                     )
                     start_time = f"{COUNTER_START_YEARS[counter]}-{start_month}-01"
 
