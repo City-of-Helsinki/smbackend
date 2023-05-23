@@ -2,6 +2,10 @@ import types
 
 from django.conf import settings
 
+from mobility_data.importers.utils import get_root_dir
+
+INDEX_COLUMN_NAME = "startTime"
+
 TRAFFIC_COUNTER_START_YEAR = 2015
 # Manually define the end year, as the source data comes from the page
 # defined in env variable TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL.
@@ -16,6 +20,7 @@ TRAFFIC_COUNTER = "TC"
 ECO_COUNTER = "EC"
 LAM_COUNTER = "LC"
 TELRAAM_COUNTER = "TR"
+TELRAAM_CSV = "TV"
 
 COUNTERS = types.SimpleNamespace()
 COUNTERS.TRAFFIC_COUNTER = TRAFFIC_COUNTER
@@ -27,6 +32,8 @@ CSV_DATA_SOURCES = (
     (TRAFFIC_COUNTER, "TrafficCounter"),
     (ECO_COUNTER, "EcoCounter"),
     (LAM_COUNTER, "LamCounter"),
+    (TELRAAM_COUNTER, "TelraamCounter"),
+    (TELRAAM_CSV, "TelraamCSV"),
 )
 COUNTER_START_YEARS = {
     ECO_COUNTER: ECO_COUNTER_START_YEAR,
@@ -35,7 +42,6 @@ COUNTER_START_YEARS = {
     TELRAAM_COUNTER: TELRAAM_COUNTER_START_YEAR,
 }
 
-TIMESTAMP_COL_NAME = "startTime"
 TRAFFIC_COUNTER_METADATA_GEOJSON = "traffic_counter_metadata.geojson"
 # LAM stations located in the municipalities list are included.
 LAM_STATION_MUNICIPALITIES = ["Turku", "Raisio", "Kaarina", "Lieto"]
@@ -72,8 +78,14 @@ TRAFFIC_COUNTER_CSV_URLS = dict(
     ]
 )
 TELRAAM_COUNTER_API_BASE_URL = "https://telraam-api.net"
+# Maximum 3 months at a time
+TELRAAM_COUNTER_TRAFFIC_URL = f"{TELRAAM_COUNTER_API_BASE_URL}/v1/reports/traffic"
+TELRAAM_COUNTER_AVAILABLE_CAMERAS_URL = f"{TELRAAM_COUNTER_API_BASE_URL}/v1/cameras"
 # The start month of the start year as telraam data is not available
 # from the beginning of the start tear
 TELRAAM_COUNTER_START_MONTH = 5
-TELRAAM_API_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-TELRAAM_CSV_FILE_NAME = "telraam_data.csv"
+TELRAAM_COUNTER_API_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+TELRAAM_COUNTER_CSV_FILE_PATH = f"{get_root_dir()}/media/telraam_data/"
+TELRAAM_COUNTER_CSV_FILE = (
+    TELRAAM_COUNTER_CSV_FILE_PATH + "telraam_data_{id}_{day}_{month}_{year}.csv"
+)
