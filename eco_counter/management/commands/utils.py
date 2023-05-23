@@ -13,19 +13,23 @@ from django.contrib.gis.geos import GEOSGeometry, Point
 from eco_counter.constants import (
     COUNTERS,
     ECO_COUNTER,
+    INDEX_COLUMN_NAME,
     LAM_COUNTER,
     LAM_STATION_MUNICIPALITIES,
     LAM_STATIONS_API_FETCH_URL,
     LAM_STATIONS_DIRECTION_MAPPINGS,
     TELRAAM_COUNTER,
     TELRAAM_COUNTER_API_BASE_URL,
-    TELRAAM_CSV_FILE_NAME,
-    TIMESTAMP_COL_NAME,
+    TELRAAM_COUNTER_API_TIME_FORMAT,
+    TELRAAM_COUNTER_CSV_FILE,
+    TELRAAM_COUNTER_START_MONTH,
+    TELRAAM_COUNTER_START_YEAR,
+    TELRAAM_CSV,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_CSV_URLS,
     TRAFFIC_COUNTER_METADATA_GEOJSON,
 )
-from eco_counter.models import Station
+from eco_counter.models import ImportState, Station
 from eco_counter.tests.test_import_counter_data import TEST_COLUMN_NAMES
 from mobility_data.importers.utils import get_root_dir
 
@@ -174,7 +178,7 @@ def get_traffic_counter_csv(start_year=2015):
     logger.info(df.info(verbose=False))
     logger.info(f"{ids_not_found} IDs not found in metadata.")
     # Move column 'startTime to first (0) position.
-    df.insert(0, TIMESTAMP_COL_NAME, df.pop(TIMESTAMP_COL_NAME))
+    df.insert(0, INDEX_COLUMN_NAME, df.pop(INDEX_COLUMN_NAME))
     # df.to_csv("tc_out.csv")
     return df
 
@@ -232,7 +236,7 @@ def get_lam_counter_csv(start_date):
     num_15min_freq = dif_time.total_seconds() / 60 / 15
     time_stamps = pd.date_range(start_time, freq="15T", periods=num_15min_freq)
     data_frame = pd.DataFrame()
-    data_frame[TIMESTAMP_COL_NAME] = time_stamps
+    data_frame[INDEX_COLUMN_NAME] = time_stamps
     for station in Station.objects.filter(csv_data_source=LAM_COUNTER):
         # In the source data the directions are 1 and 2.
         for direction in range(1, 3):
@@ -253,7 +257,7 @@ def get_lam_counter_csv(start_date):
             # Calculate shift index, i.e., if data starts from different position that the start_date.
             # then shift the rows to the correct position using the calculated shift_index.
             shift_index = data_frame.index[
-                getattr(data_frame, TIMESTAMP_COL_NAME) == str(start_time)
+                getattr(data_frame, INDEX_COLUMN_NAME) == str(start_time)
             ][0]
             column_name = f"{station.name} A{direction_value}"
             # Drop all unnecessary columns.
@@ -360,7 +364,7 @@ def get_active_telraam_camera(offset):
 
 def get_telraam_cameras():
     # TODO, add Turku cameras when they are online
-    return [get_active_telraam_camera(3 + i * 3) for i in range(3)]
+    return [get_active_telraam_camera(2 + i * 3) for i in range(3)]
 
 
 def get_telraam_counter_stations():
@@ -371,10 +375,45 @@ def get_telraam_counter_stations():
     return stations
 
 
-def get_telraam_counter_csv():
-    csv_file = f"{get_root_dir()}/media/{TELRAAM_CSV_FILE_NAME}"
-    df = pd.read_csv(csv_file)
-    df[TIMESTAMP_COL_NAME] = pd.to_datetime(df[TIMESTAMP_COL_NAME])
+def get_telraam_counter_csv():    
+    df = pd.DataFrame()
+    from_date = date(TELRAAM_COUNTER_START_YEAR, TELRAAM_COUNTER_START_MONTH, 1)
+    try:
+        import_state = ImportState.objects.get(csv_data_source=TELRAAM_CSV)
+    except ImportState.DoesNotExist:
+        return None
+    end_date = date(
+        import_state.current_year_number,
+        import_state.current_month_number,
+        import_state.current_day_number,
+    )
+    for camera in get_telraam_cameras():
+        df_cam = pd.DataFrame()
+        start_date = from_date
+
+        while start_date <= end_date:
+            csv_file = TELRAAM_COUNTER_CSV_FILE.format(
+                id=camera["mac"],
+                day=start_date.day,
+                month=start_date.month,
+                year=start_date.year,
+            )
+            try:
+                df_tmp = pd.read_csv(csv_file, index_col=False)
+            except FileNotFoundError:
+                logger.warning(f"File {csv_file} not found, skipping camera {camera}")
+                break
+            df_cam = pd.concat([df_cam, df_tmp])
+            start_date += timedelta(days=1)
+
+        if df.empty:
+            df = df_cam
+        else:
+            df = pd.merge(df, df_cam, on=INDEX_COLUMN_NAME)
+
+    df[INDEX_COLUMN_NAME] = pd.to_datetime(
+        df[INDEX_COLUMN_NAME], format=TELRAAM_COUNTER_API_TIME_FORMAT
+    )
     return df
 
 
