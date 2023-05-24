@@ -8,7 +8,7 @@ import pandas as pd
 import requests
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
-from django.contrib.gis.geos import GEOSGeometry, Point
+from django.contrib.gis.geos import GEOSGeometry, LineString, MultiLineString, Point
 
 from eco_counter.constants import (
     COUNTERS,
@@ -19,8 +19,9 @@ from eco_counter.constants import (
     LAM_STATIONS_API_FETCH_URL,
     LAM_STATIONS_DIRECTION_MAPPINGS,
     TELRAAM_COUNTER,
-    TELRAAM_COUNTER_API_BASE_URL,
     TELRAAM_COUNTER_API_TIME_FORMAT,
+    TELRAAM_COUNTER_AVAILABLE_CAMERAS_URL,
+    TELRAAM_COUNTER_CAMERA_SEGMENTS_URL,
     TELRAAM_COUNTER_CSV_FILE,
     TELRAAM_COUNTER_START_MONTH,
     TELRAAM_COUNTER_START_YEAR,
@@ -48,8 +49,8 @@ class LAMStation:
         # The source data has a obsolete Z dimension with value 0, remove it.
         geom = feature.geom.clone()
         geom.coord_dim = 2
-        self.geom = GEOSGeometry(geom.wkt, srid=4326)
-        self.geom.transform(settings.DEFAULT_SRID)
+        self.location = GEOSGeometry(geom.wkt, srid=4326)
+        self.location.transform(settings.DEFAULT_SRID)
 
 
 class EcoCounterStation:
@@ -57,8 +58,8 @@ class EcoCounterStation:
         self.name = feature["properties"]["Nimi"]
         lon = feature["geometry"]["coordinates"][0]
         lat = feature["geometry"]["coordinates"][1]
-        self.geom = Point(lon, lat, srid=4326)
-        self.geom.transform(settings.DEFAULT_SRID)
+        self.location = Point(lon, lat, srid=4326)
+        self.location.transform(settings.DEFAULT_SRID)
 
 
 class TrafficCounterStation:
@@ -68,25 +69,56 @@ class TrafficCounterStation:
         self.name_en = feature["Osoite_en"].as_string()
         geom = GEOSGeometry(feature.geom.wkt, srid=feature.geom.srid)
         geom.transform(settings.DEFAULT_SRID)
-        self.geom = geom
+        self.location = geom
 
 
 class TelraamCounterStation:
+    # The Telraam API return the coordinates in EPSGS 31370
+    EPSG = 31370
+
+    def get_location_and_geometry(self, id):
+        url = TELRAAM_COUNTER_CAMERA_SEGMENTS_URL.format(id=id)
+        headers = {
+            "X-Api-Key": settings.TELRAAM_TOKEN,
+        }
+        response = requests.get(url, headers=headers)
+        assert (
+            response.status_code == 200
+        ), "Could not fetch segment for camera {id}".format(id)
+        json_data = response.json()
+        coords = json_data["features"][0]["geometry"]["coordinates"]
+        lss = []
+        for coord in coords:
+            ls = LineString(coord, srid=self.EPSG)
+            lss.append(ls)
+        geometry = MultiLineString(lss, srid=self.EPSG)
+        geometry.transform(settings.DEFAULT_SRID)
+        mid_line = round(len(coords) / 2)
+        mid_point = round(len(coords[mid_line]) / 2)
+        location = Point(coords[mid_line][mid_point], srid=self.EPSG)
+        location.transform(settings.DEFAULT_SRID)
+        return location, geometry
+
     def __init__(self, feature):
         self.name = feature["mac"]
         self.name_sv = feature["mac"]
         self.name_en = feature["mac"]
-        self.geom = GEOSGeometry("POINT EMPTY")
+        self.location, self.geometry = self.get_location_and_geometry(
+            feature["segment_id"]
+        )
         self.station_id = feature["mac"]
 
 
-class ObservationStation(LAMStation, EcoCounterStation, TrafficCounterStation):
+class ObservationStation(
+    LAMStation, EcoCounterStation, TrafficCounterStation, TelraamCounterStation
+):
     def __init__(self, csv_data_source, feature):
         self.csv_data_source = csv_data_source
         self.name = None
         self.name_sv = None
         self.name_en = None
-        self.geom = None
+        self.location = None
+        self.geometry = None
         self.station_id = None
         match csv_data_source:
             case COUNTERS.TELRAAM_COUNTER:
@@ -337,12 +369,10 @@ def get_eco_counter_stations():
 
 
 def fetch_telraam_cameras():
-    url = f"{TELRAAM_COUNTER_API_BASE_URL}/v1/cameras"
-
     headers = {
         "X-Api-Key": settings.TELRAAM_TOKEN,
     }
-    response = requests.get(url, headers=headers)
+    response = requests.get(TELRAAM_COUNTER_AVAILABLE_CAMERAS_URL, headers=headers)
     return response.json().get("cameras", None)
 
 
@@ -364,7 +394,7 @@ def get_active_telraam_camera(offset):
 
 def get_telraam_cameras():
     # TODO, add Turku cameras when they are online
-    return [get_active_telraam_camera(2 + i * 3) for i in range(3)]
+    return [get_active_telraam_camera(13 + i * 3) for i in range(3)]
 
 
 def get_telraam_counter_stations():
@@ -375,7 +405,7 @@ def get_telraam_counter_stations():
     return stations
 
 
-def get_telraam_counter_csv():    
+def get_telraam_counter_csv():
     df = pd.DataFrame()
     from_date = date(TELRAAM_COUNTER_START_YEAR, TELRAAM_COUNTER_START_MONTH, 1)
     try:
@@ -426,9 +456,9 @@ def save_stations(csv_data_source):
         case COUNTERS.LAM_COUNTER:
             stations = get_lam_counter_stations()
         case COUNTERS.ECO_COUNTER:
-            station = get_eco_counter_stations()
+            stations = get_eco_counter_stations()
         case COUNTERS.TRAFFIC_COUNTER:
-            station = get_traffic_counter_stations()
+            stations = get_traffic_counter_stations()
     object_ids = list(
         Station.objects.filter(csv_data_source=csv_data_source).values_list(
             "id", flat=True
@@ -439,7 +469,8 @@ def save_stations(csv_data_source):
             name=station.name,
             name_sv=station.name_sv,
             name_en=station.name_en,
-            geom=station.geom,
+            location=station.location,
+            geometry=station.geometry,
             station_id=station.station_id,
             csv_data_source=csv_data_source,
         )
