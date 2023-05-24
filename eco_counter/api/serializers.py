@@ -31,6 +31,7 @@ class StationSerializer(serializers.ModelSerializer):
     y = serializers.SerializerMethodField()
     lon = serializers.SerializerMethodField()
     lat = serializers.SerializerMethodField()
+    # geom = serializers.SerializerMethodField()
     sensor_types = serializers.SerializerMethodField()
 
     class Meta:
@@ -43,7 +44,9 @@ class StationSerializer(serializers.ModelSerializer):
             "name_sv",
             "name_en",
             "csv_data_source",
-            "geom",
+            "location",
+            "geometry",
+            # "geom",
             "x",
             "y",
             "lon",
@@ -51,19 +54,25 @@ class StationSerializer(serializers.ModelSerializer):
             "sensor_types",
         ]
 
+    # Field geom renamed to location, but the front end stil uses geom
+    # Serialize the geom to keep the functionality. TODO, remove when
+    # front end is updated
+    def get_geom(self, obj):
+        return obj.location
+
     def get_y(self, obj):
-        return obj.geom.y
+        return obj.location.y
 
     def get_lat(self, obj):
-        obj.geom.transform(4326)
-        return obj.geom.y
+        obj.location.transform(4326)
+        return obj.location.y
 
     def get_x(self, obj):
-        return obj.geom.x
+        return obj.location.x
 
     def get_lon(self, obj):
-        obj.geom.transform(4326)
-        return obj.geom.x
+        obj.location.transform(4326)
+        return obj.location.x
 
     def get_sensor_types(self, obj):
         # Return the sensor types(car, bike etc) that has a total year value >0.
