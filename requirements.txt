@@ -139,7 +139,7 @@ pytz==2022.7.1
     #   djangorestframework
 pyyaml==6.0
     # via django-munigeo
-requests==2.28.2
+requests==2.31.0
     # via
     #   -r requirements.in
     #   bmi-arcgis-restapi
