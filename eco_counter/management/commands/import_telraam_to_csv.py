@@ -80,9 +80,7 @@ def fetch_traffic_report(from_date: str, end_date: str, camera_id: str):
     response = requests.post(
         TELRAAM_COUNTER_TRAFFIC_URL, headers=headers, data=json.dumps(data)
     )
-    report = response.json().get("report", [])
-    print(len(report))
-    return report
+    return response.json().get("report", [])
 
 
 def get_delta_hours(from_date: datetime, end_date: datetime) -> datetime:
@@ -201,10 +199,11 @@ def save_dataframe():
     import_state.current_month_number = start_date.month
     import_state.current_day_number = start_date.day
     import_state.save()
-    logger.info(f"Telraam data imported until {str(start_date)}")
+    return start_date
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         logger.info("Importing Telraam data...")
-        save_dataframe()
+        until_date = save_dataframe()
+        logger.info(f"Telraam data imported until {str(until_date)}")
