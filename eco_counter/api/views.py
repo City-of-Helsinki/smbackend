@@ -69,7 +69,6 @@ class StationViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class HourDataViewSet(viewsets.ReadOnlyModelViewSet):
-
     queryset = HourData.objects.all()
     serializer_class = HourDataSerializer
 
@@ -80,7 +79,6 @@ class HourDataViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class DayDataViewSet(viewsets.ReadOnlyModelViewSet):
-
     queryset = DayData.objects.all()
     serializer_class = DayDataSerializer
 
