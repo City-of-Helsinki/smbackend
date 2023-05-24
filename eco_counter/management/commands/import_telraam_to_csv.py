@@ -1,3 +1,9 @@
+"""
+Imports hourly Telraam data for given cameras.
+Saves a CSV file for every camera and every day to PROJECT_ROOT/media/telraam_data/
+
+"""
+
 import json
 import logging
 import os
@@ -21,9 +27,6 @@ from eco_counter.constants import (
 from eco_counter.management.commands.utils import get_telraam_cameras
 from eco_counter.models import ImportState
 
-LEVEL = "instances"  # instance per individual can
-FORMAT = "per-hour"
-
 TOKEN = settings.TELRAAM_TOKEN
 assert TOKEN
 logger = logging.getLogger("eco_counter")
@@ -37,28 +40,32 @@ VEHICLE_TYPES = {
 }
 LEFT = "lft"
 RIGHT = "rgt"
-DIRECTIONS = [LEFT, RIGHT]
+TOTAL = ""  # Total fields have no postfix in names
+DIRECTIONS = [LEFT, RIGHT, TOTAL]
 
 
-def get_mappings(station_name, direction=True):
+def get_mappings(station_name: str, direction: bool = True) -> dict:
     """
+    If direction is true, LEFT (lft) will be K (Keskustaan päin)
     return mappings:
     e.g.,
     "pedestrian_lgt": "station_name KP"
     """
-    dir1, dir2 = "K", "P"
+    dir1, dir2, dir_tot = "K", "P", "T"
     if not direction:
         dir1, dir2 = dir2, dir1
-    dirs = {
-        LEFT: dir1,
-        RIGHT: dir2,
-    }
+    dirs = {LEFT: dir1, RIGHT: dir2, TOTAL: dir_tot}
     column_mappings = {}
     for veh in VEHICLE_TYPES.items():
         for dir in DIRECTIONS:
-            key = f"{veh[0]}_{dir}"
+            if dir == TOTAL:
+                key = f"{veh[0]}{dir}"
+            else:
+                key = f"{veh[0]}_{dir}"
+
             value = f"{veh[1]}{dirs[dir]}"
             column_mappings[key] = value
+
     mappings = {}
     for field in column_mappings.keys():
         mappings[field] = f"{station_name} {column_mappings[field]}"
@@ -70,9 +77,10 @@ def fetch_traffic_report(from_date: str, end_date: str, camera_id: str):
         "X-Api-Key": TOKEN,
         "Content-Type": "application/json",
     }
+
     data = {
-        "level": LEVEL,  # segments
-        "format": FORMAT,
+        "level": "instances",  # Statistics for individual cameras
+        "format": "per-hour",
         "id": camera_id,
         "time_start": from_date,
         "time_end": end_date,
@@ -124,7 +132,11 @@ def get_day_data(
         d["date"] = datetime.strftime(start_date, TELRAAM_COUNTER_API_TIME_FORMAT)
         for veh in VEHICLE_TYPES.keys():
             for dir in DIRECTIONS:
-                key = f"{veh}_{dir}"
+                if dir == TOTAL:
+                    key = f"{veh}{dir}"
+                else:
+                    key = f"{veh}_{dir}"
+
                 val = int(round(item.get(key, 0)))
                 d[key] = val
         res.append(d)
@@ -132,7 +144,7 @@ def get_day_data(
     return res, delta_hours
 
 
-def save_dataframe():
+def save_dataframe() -> datetime:
     if not os.path.exists(TELRAAM_COUNTER_CSV_FILE_PATH):
         os.makedirs(TELRAAM_COUNTER_CSV_FILE_PATH)
         ImportState.objects.filter(csv_data_source=TELRAAM_CSV).delete()
