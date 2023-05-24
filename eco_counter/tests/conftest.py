@@ -41,21 +41,21 @@ def stations():
     stations.append(
         Station.objects.create(
             name=TEST_EC_STATION_NAME,
-            geom="POINT(60.4487578455581 22.269454227550053)",
+            location="POINT(60.4487578455581 22.269454227550053)",
             csv_data_source=ECO_COUNTER,
         )
     )
     stations.append(
         Station.objects.create(
             name=TEST_TC_STATION_NAME,
-            geom="POINT(60.4487578455581 22.269454227550053)",
+            location="POINT(60.4487578455581 22.269454227550053)",
             csv_data_source=TRAFFIC_COUNTER,
         )
     )
     stations.append(
         Station.objects.create(
             name=TEST_LC_STATION_NAME,
-            geom="POINT(60.4487578455581 22.269454227550053)",
+            location="POINT(60.4487578455581 22.269454227550053)",
             csv_data_source=LAM_COUNTER,
         )
     )
