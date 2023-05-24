@@ -13,6 +13,9 @@ class ImportState(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(12)],
         null=True,  # , default=1
     )
+    current_day_number = models.PositiveSmallIntegerField(
+        null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(31)]
+    )
     csv_data_source = models.CharField(
         max_length=2,
         choices=CSV_DATA_SOURCES,
@@ -21,17 +24,17 @@ class ImportState(models.Model):
 
 
 class Station(models.Model):
-
     name = models.CharField(max_length=64)
-    geom = models.PointField(srid=settings.DEFAULT_SRID)
+    location = models.PointField(srid=settings.DEFAULT_SRID)
+    geometry = models.GeometryField(srid=settings.DEFAULT_SRID, null=True)
     csv_data_source = models.CharField(
         max_length=2,
         choices=CSV_DATA_SOURCES,
         default=ECO_COUNTER,
     )
-    # For lam stations store the LAM station ID, this is
-    # required when fetching data from the API using the ID.
-    lam_id = models.PositiveSmallIntegerField(null=True)
+    # Optioal id of the station, used when fetching LAM
+    # and TELRAAM station data
+    station_id = models.CharField(max_length=16, null=True)
 
     def __str__(self):
         return "%s %s" % (self.name, self.geom)
