@@ -19,6 +19,7 @@ from eco_counter.constants import (
     COUNTER_START_YEARS,
     COUNTERS,
     ECO_COUNTER,
+    INDEX_COLUMN_NAME,
     LAM_COUNTER,
     TELRAAM_COUNTER,
     TELRAAM_COUNTER_START_MONTH,
@@ -47,7 +48,6 @@ from .utils import (
     get_test_dataframe,
     get_traffic_counter_csv,
     save_stations,
-    TIMESTAMP_COL_NAME,
 )
 
 logger = logging.getLogger("eco_counter")
@@ -471,7 +471,7 @@ class Command(BaseCommand):
                             start_year = TRAFFIC_COUNTER_START_YEAR
                         csv_data = get_traffic_counter_csv(start_year=start_year)
                 start_index = csv_data.index[
-                    csv_data[TIMESTAMP_COL_NAME] == start_time_string
+                    csv_data[INDEX_COLUMN_NAME] == start_time_string
                 ].values[0]
                 # As LAM data is fetched with a timespan, no index data is available, instead
                 # show time.
