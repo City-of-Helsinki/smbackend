@@ -10,7 +10,7 @@ TRAFFIC_COUNTER_START_YEAR = 2015
 # Manually define the end year, as the source data comes from the page
 # defined in env variable TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL.
 # Change end year when data for the next year is available.
-TRAFFIC_COUNTER_END_YEAR = 2022
+TRAFFIC_COUNTER_END_YEAR = 2023
 ECO_COUNTER_START_YEAR = 2020
 LAM_COUNTER_START_YEAR = 2010
 TELRAAM_COUNTER_START_YEAR = 2023
@@ -81,6 +81,9 @@ TELRAAM_COUNTER_API_BASE_URL = "https://telraam-api.net"
 # Maximum 3 months at a time
 TELRAAM_COUNTER_TRAFFIC_URL = f"{TELRAAM_COUNTER_API_BASE_URL}/v1/reports/traffic"
 TELRAAM_COUNTER_AVAILABLE_CAMERAS_URL = f"{TELRAAM_COUNTER_API_BASE_URL}/v1/cameras"
+TELRAAM_COUNTER_CAMERA_SEGMENTS_URL = (
+    TELRAAM_COUNTER_API_BASE_URL + "/v1/segments/id/{id}"
+)
 # The start month of the start year as telraam data is not available
 # from the beginning of the start tear
 TELRAAM_COUNTER_START_MONTH = 5
