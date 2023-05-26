@@ -31,12 +31,10 @@ class StationSerializer(serializers.ModelSerializer):
     y = serializers.SerializerMethodField()
     lon = serializers.SerializerMethodField()
     lat = serializers.SerializerMethodField()
-    # geom = serializers.SerializerMethodField()
     sensor_types = serializers.SerializerMethodField()
 
     class Meta:
         model = Station
-
         fields = [
             "id",
             "name",
@@ -46,19 +44,12 @@ class StationSerializer(serializers.ModelSerializer):
             "csv_data_source",
             "location",
             "geometry",
-            # "geom",
             "x",
             "y",
             "lon",
             "lat",
             "sensor_types",
         ]
-
-    # Field geom renamed to location, but the front end stil uses geom
-    # Serialize the geom to keep the functionality. TODO, remove when
-    # front end is updated
-    def get_geom(self, obj):
-        return obj.location
 
     def get_y(self, obj):
         return obj.location.y
