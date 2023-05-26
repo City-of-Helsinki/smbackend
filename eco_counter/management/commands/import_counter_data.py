@@ -459,7 +459,7 @@ class Command(BaseCommand):
                 # start_index = None
                 match counter:
                     case COUNTERS.TELRAAM_COUNTER:
-                        csv_data = get_telraam_counter_csv()
+                        csv_data = get_telraam_counter_csv(start_time.date())
                     case COUNTERS.LAM_COUNTER:
                         csv_data = get_lam_counter_csv(start_time.date())
                     case COUNTERS.ECO_COUNTER:
