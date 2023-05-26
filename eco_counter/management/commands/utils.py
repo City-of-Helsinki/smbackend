@@ -22,9 +22,9 @@ from eco_counter.constants import (
     TELRAAM_COUNTER_API_TIME_FORMAT,
     TELRAAM_COUNTER_AVAILABLE_CAMERAS_URL,
     TELRAAM_COUNTER_CAMERA_SEGMENTS_URL,
+    TELRAAM_COUNTER_CAMERAS,
+    TELRAAM_COUNTER_CAMERAS_URL,
     TELRAAM_COUNTER_CSV_FILE,
-    TELRAAM_COUNTER_START_MONTH,
-    TELRAAM_COUNTER_START_YEAR,
     TELRAAM_CSV,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_CSV_URLS,
@@ -74,7 +74,8 @@ class TrafficCounterStation:
 
 class TelraamCounterStation:
     # The Telraam API return the coordinates in EPSGS 31370
-    EPSG = 31370
+    SOURCE_SRID = 4326
+    TARGET_SRID = settings.DEFAULT_SRID
 
     def get_location_and_geometry(self, id):
         url = TELRAAM_COUNTER_CAMERA_SEGMENTS_URL.format(id=id)
@@ -84,19 +85,19 @@ class TelraamCounterStation:
         response = requests.get(url, headers=headers)
         assert (
             response.status_code == 200
-        ), "Could not fetch segment for camera {id}".format(id)
+        ), "Could not fetch segment for camera {id}".format(id=id)
         json_data = response.json()
         coords = json_data["features"][0]["geometry"]["coordinates"]
         lss = []
         for coord in coords:
-            ls = LineString(coord, srid=self.EPSG)
+            ls = LineString(coord, srid=self.SOURCE_SRID)
             lss.append(ls)
-        geometry = MultiLineString(lss, srid=self.EPSG)
-        geometry.transform(settings.DEFAULT_SRID)
+        geometry = MultiLineString(lss, srid=self.SOURCE_SRID)
+        geometry.transform(self.TARGET_SRID)
         mid_line = round(len(coords) / 2)
         mid_point = round(len(coords[mid_line]) / 2)
-        location = Point(coords[mid_line][mid_point], srid=self.EPSG)
-        location.transform(settings.DEFAULT_SRID)
+        location = Point(coords[mid_line][mid_point], srid=self.SOURCE_SRID)
+        location.transform(self.TARGET_SRID)
         return location, geometry
 
     def __init__(self, feature):
@@ -369,11 +370,22 @@ def get_eco_counter_stations():
 
 
 def fetch_telraam_cameras():
+    # NOTE, obsolete after Turku cameras are added
     headers = {
         "X-Api-Key": settings.TELRAAM_TOKEN,
     }
     response = requests.get(TELRAAM_COUNTER_AVAILABLE_CAMERAS_URL, headers=headers)
     return response.json().get("cameras", None)
+
+
+def fetch_telraam_camera(mac_id):
+    headers = {
+        "X-Api-Key": settings.TELRAAM_TOKEN,
+    }
+    url = TELRAAM_COUNTER_CAMERAS_URL.format(mac_id=mac_id)
+    response = requests.get(url, headers=headers)
+    return response.json()["camera"][0]
+    return response.json().get("camera", None)
 
 
 def get_active_telraam_camera(offset):
@@ -393,8 +405,10 @@ def get_active_telraam_camera(offset):
 
 
 def get_telraam_cameras():
-    # TODO, add Turku cameras when they are online
-    return [get_active_telraam_camera(13 + i * 3) for i in range(3)]
+    cameras = []
+    for camera in TELRAAM_COUNTER_CAMERAS.items():
+        cameras.append(fetch_telraam_camera(camera[0]))
+    return cameras
 
 
 def get_telraam_counter_stations():
@@ -405,9 +419,8 @@ def get_telraam_counter_stations():
     return stations
 
 
-def get_telraam_counter_csv():
+def get_telraam_counter_csv(from_date):
     df = pd.DataFrame()
-    from_date = date(TELRAAM_COUNTER_START_YEAR, TELRAAM_COUNTER_START_MONTH, 1)
     try:
         import_state = ImportState.objects.get(csv_data_source=TELRAAM_CSV)
     except ImportState.DoesNotExist:
