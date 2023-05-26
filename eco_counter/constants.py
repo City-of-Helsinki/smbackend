@@ -81,6 +81,8 @@ TELRAAM_COUNTER_API_BASE_URL = "https://telraam-api.net"
 # Maximum 3 months at a time
 TELRAAM_COUNTER_TRAFFIC_URL = f"{TELRAAM_COUNTER_API_BASE_URL}/v1/reports/traffic"
 TELRAAM_COUNTER_AVAILABLE_CAMERAS_URL = f"{TELRAAM_COUNTER_API_BASE_URL}/v1/cameras"
+TELRAAM_COUNTER_CAMERAS_URL = TELRAAM_COUNTER_API_BASE_URL + "/v1/cameras/{mac_id}"
+
 TELRAAM_COUNTER_CAMERA_SEGMENTS_URL = (
     TELRAAM_COUNTER_API_BASE_URL + "/v1/segments/id/{id}"
 )
@@ -92,3 +94,7 @@ TELRAAM_COUNTER_CSV_FILE_PATH = f"{get_root_dir()}/media/telraam_data/"
 TELRAAM_COUNTER_CSV_FILE = (
     TELRAAM_COUNTER_CSV_FILE_PATH + "telraam_data_{id}_{day}_{month}_{year}.csv"
 )
+TELRAAM_COUNTER_CAMERAS = {
+    # Mac id: Direction flag
+    350457790598039: False,  # Kristiinanankatu, Joelle katsottaessa vasemmalle
+}
