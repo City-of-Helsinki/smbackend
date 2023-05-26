@@ -10,6 +10,7 @@ import os
 from datetime import date, datetime, timedelta
 
 import pandas as pd
+import pytz
 import requests
 from django.conf import settings
 from django.core.management import BaseCommand
@@ -17,6 +18,7 @@ from django.core.management import BaseCommand
 from eco_counter.constants import (
     INDEX_COLUMN_NAME,
     TELRAAM_COUNTER_API_TIME_FORMAT,
+    TELRAAM_COUNTER_CAMERAS,
     TELRAAM_COUNTER_CSV_FILE,
     TELRAAM_COUNTER_CSV_FILE_PATH,
     TELRAAM_COUNTER_START_MONTH,
@@ -98,18 +100,20 @@ def get_delta_hours(from_date: datetime, end_date: datetime) -> datetime:
 
 
 def get_day_data(
-    day_date: date, camera_id: str, check_delta_hours: bool = True
-) -> list:
-    from_datetime = datetime(day_date.year, day_date.month, day_date.day, 0, 0, 0)
+    day_date: date, camera_id: str, utf_offset: datetime, check_delta_hours: bool = True
+) -> tuple[list, int]:
+    from_datetime = (
+        datetime(day_date.year, day_date.month, day_date.day, 0, 0, 0) - utf_offset
+    )
     from_datetime_str = from_datetime.strftime(TELRAAM_COUNTER_API_TIME_FORMAT)
     end_datetime = (
         datetime(day_date.year, day_date.month, day_date.day)
         + timedelta(hours=23)
         + timedelta(minutes=59)
-    )
+    ) - utf_offset
+
     end_datetime_str = end_datetime.strftime(TELRAAM_COUNTER_API_TIME_FORMAT)
     report = fetch_traffic_report(from_datetime_str, end_datetime_str, camera_id)
-
     delta_hours = get_delta_hours(from_datetime, end_datetime)
     logger.info(f"Trying to import {delta_hours} hours for camera {camera_id}.")
     if not report:
@@ -136,7 +140,6 @@ def get_day_data(
                     key = f"{veh}{dir}"
                 else:
                     key = f"{veh}_{dir}"
-
                 val = int(round(item.get(key, 0)))
                 d[key] = val
         res.append(d)
@@ -163,18 +166,31 @@ def save_dataframe() -> datetime:
         import_state.current_day_number,
     )
     date_today = date.today()
+    # Source data date time is in UTC. Calculate a utf_offset
+    utc_offset = pytz.timezone("Europe/Helsinki").utcoffset(datetime.now())
     logger.info(f"Fetching Telraam data from {str(from_date)} to {str(date_today)}")
-
     cameras = get_telraam_cameras()
     for camera in cameras:
         start_date = from_date
         while start_date <= date_today:
-            report, delta_hours = get_day_data(start_date, camera["instance_id"])
-            mappings = get_mappings(camera["mac"])
+            report, delta_hours = get_day_data(
+                start_date, camera["instance_id"], utc_offset
+            )
+            mappings = get_mappings(
+                camera["mac"], direction=TELRAAM_COUNTER_CAMERAS[camera["mac"]]
+            )
             columns = {}
             columns[INDEX_COLUMN_NAME] = []
             for hour in range(delta_hours):
-                columns[INDEX_COLUMN_NAME].append(report[hour]["date"])
+                col_date = (
+                    datetime.strptime(
+                        report[hour]["date"], TELRAAM_COUNTER_API_TIME_FORMAT
+                    )
+                    + utc_offset
+                )
+                col_date_str = col_date.strftime(TELRAAM_COUNTER_API_TIME_FORMAT)
+                columns[INDEX_COLUMN_NAME].append(col_date_str)
+
                 for mapping in mappings.items():
                     # key is the name of the column, e.g., name_ak
                     key = mapping[1]
