@@ -20,12 +20,12 @@ from eco_counter.constants import (
     LAM_STATIONS_DIRECTION_MAPPINGS,
     TELRAAM_COUNTER,
     TELRAAM_COUNTER_API_TIME_FORMAT,
-    TELRAAM_COUNTER_AVAILABLE_CAMERAS_URL,
     TELRAAM_COUNTER_CAMERA_SEGMENTS_URL,
     TELRAAM_COUNTER_CAMERAS,
     TELRAAM_COUNTER_CAMERAS_URL,
     TELRAAM_COUNTER_CSV_FILE,
     TELRAAM_CSV,
+    TELRAAM_HTTP,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_CSV_URLS,
     TRAFFIC_COUNTER_METADATA_GEOJSON,
@@ -369,45 +369,28 @@ def get_eco_counter_stations():
     return stations
 
 
-def fetch_telraam_cameras():
-    # NOTE, obsolete after Turku cameras are added
-    headers = {
-        "X-Api-Key": settings.TELRAAM_TOKEN,
-    }
-    response = requests.get(TELRAAM_COUNTER_AVAILABLE_CAMERAS_URL, headers=headers)
-    return response.json().get("cameras", None)
-
-
 def fetch_telraam_camera(mac_id):
     headers = {
         "X-Api-Key": settings.TELRAAM_TOKEN,
     }
     url = TELRAAM_COUNTER_CAMERAS_URL.format(mac_id=mac_id)
-    response = requests.get(url, headers=headers)
-    return response.json()["camera"][0]
-    return response.json().get("camera", None)
-
-
-def get_active_telraam_camera(offset):
-    """
-    Function that gets pseudo random camera that is actvie for testing data.
-    NOTE, this function will be obsolete when Turku gets its cameras online.
-    """
-    cameras = fetch_telraam_cameras()
-    i = 0
-    for camera in cameras:
-        # time_end: null for active instances
-        if camera["status"] == "active" and not camera["time_end"]:
-            if i == offset:
-                return camera
-            i += 1
-    return None
+    response = TELRAAM_HTTP.get(url, headers=headers)
+    cameras = response.json().get("camera", None)
+    if cameras:
+        # Return first camera
+        return cameras[0]
+    else:
+        return None
 
 
 def get_telraam_cameras():
     cameras = []
     for camera in TELRAAM_COUNTER_CAMERAS.items():
-        cameras.append(fetch_telraam_camera(camera[0]))
+        fetched_camera = fetch_telraam_camera(camera[0])
+        if fetched_camera:
+            cameras.append(fetched_camera)
+        else:
+            logger.warning(f"Could not fetch camera {camera[0]}")
     return cameras
 
 
