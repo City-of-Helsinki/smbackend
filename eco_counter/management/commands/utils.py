@@ -82,7 +82,7 @@ class TelraamCounterStation:
         headers = {
             "X-Api-Key": settings.TELRAAM_TOKEN,
         }
-        response = requests.get(url, headers=headers)
+        response = TELRAAM_HTTP.get(url, headers=headers)
         assert (
             response.status_code == 200
         ), "Could not fetch segment for camera {id}".format(id=id)
