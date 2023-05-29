@@ -11,7 +11,6 @@ from datetime import date, datetime, timedelta
 
 import pandas as pd
 import pytz
-import requests
 from django.conf import settings
 from django.core.management import BaseCommand
 
@@ -25,6 +24,7 @@ from eco_counter.constants import (
     TELRAAM_COUNTER_START_YEAR,
     TELRAAM_COUNTER_TRAFFIC_URL,
     TELRAAM_CSV,
+    TELRAAM_HTTP,
 )
 from eco_counter.management.commands.utils import get_telraam_cameras
 from eco_counter.models import ImportState
@@ -87,7 +87,8 @@ def fetch_traffic_report(from_date: str, end_date: str, camera_id: str):
         "time_start": from_date,
         "time_end": end_date,
     }
-    response = requests.post(
+
+    response = TELRAAM_HTTP.post(
         TELRAAM_COUNTER_TRAFFIC_URL, headers=headers, data=json.dumps(data)
     )
     return response.json().get("report", [])
@@ -155,7 +156,7 @@ def save_dataframe() -> datetime:
             csv_data_source=TELRAAM_CSV,
             current_year_number=TELRAAM_COUNTER_START_YEAR,
             current_month_number=TELRAAM_COUNTER_START_MONTH,
-            current_day_number=1,
+            current_day_number=25,
         )
     else:
         import_state = ImportState.objects.filter(csv_data_source=TELRAAM_CSV).first()
