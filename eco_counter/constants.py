@@ -101,6 +101,7 @@ TELRAAM_COUNTER_CAMERAS = {
     350457790598039: False,  # Kristiinanankatu, Joelle katsottaessa vasemmalle
     350457790600975: True,  # Kristiinanankatu, Joelle katsottaessa oikealle
 }
+# For 429 (too many request) TELRAAM need a retry strategy
 retry_strategy = Retry(
     total=10,
     status_forcelist=[429],
