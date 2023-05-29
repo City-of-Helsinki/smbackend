@@ -166,7 +166,7 @@ def save_dataframe() -> datetime:
             csv_data_source=TELRAAM_CSV,
             current_year_number=TELRAAM_COUNTER_START_YEAR,
             current_month_number=TELRAAM_COUNTER_START_MONTH,
-            current_day_number=25,
+            current_day_number=1,
         )
     else:
         import_state = ImportState.objects.filter(csv_data_source=TELRAAM_CSV).first()
