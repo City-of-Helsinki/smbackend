@@ -1,6 +1,9 @@
 import types
 
+import requests
 from django.conf import settings
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 from mobility_data.importers.utils import get_root_dir
 
@@ -80,7 +83,6 @@ TRAFFIC_COUNTER_CSV_URLS = dict(
 TELRAAM_COUNTER_API_BASE_URL = "https://telraam-api.net"
 # Maximum 3 months at a time
 TELRAAM_COUNTER_TRAFFIC_URL = f"{TELRAAM_COUNTER_API_BASE_URL}/v1/reports/traffic"
-TELRAAM_COUNTER_AVAILABLE_CAMERAS_URL = f"{TELRAAM_COUNTER_API_BASE_URL}/v1/cameras"
 TELRAAM_COUNTER_CAMERAS_URL = TELRAAM_COUNTER_API_BASE_URL + "/v1/cameras/{mac_id}"
 
 TELRAAM_COUNTER_CAMERA_SEGMENTS_URL = (
@@ -95,6 +97,17 @@ TELRAAM_COUNTER_CSV_FILE = (
     TELRAAM_COUNTER_CSV_FILE_PATH + "telraam_data_{id}_{day}_{month}_{year}.csv"
 )
 TELRAAM_COUNTER_CAMERAS = {
-    # Mac id: Direction flag
+    # Mac id: Direction flag (True=rgt prefix will be keskustaan päin)
     350457790598039: False,  # Kristiinanankatu, Joelle katsottaessa vasemmalle
+    350457790600975: True,  # Kristiinanankatu, Joelle katsottaessa oikealle
 }
+retry_strategy = Retry(
+    total=10,
+    status_forcelist=[429],
+    method_whitelist=["GET", "POST"],
+    backoff_factor=30,  # 30, 60, 120 , 240, ..seconds
+)
+adapter = HTTPAdapter(max_retries=retry_strategy)
+TELRAAM_HTTP = requests.Session()
+TELRAAM_HTTP.mount("https://", adapter)
+TELRAAM_HTTP.mount("http://", adapter)
