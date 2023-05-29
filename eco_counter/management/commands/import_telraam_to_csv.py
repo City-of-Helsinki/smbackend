@@ -115,21 +115,31 @@ def get_day_data(
 
     end_datetime_str = end_datetime.strftime(TELRAAM_COUNTER_API_TIME_FORMAT)
     report = fetch_traffic_report(from_datetime_str, end_datetime_str, camera_id)
-    delta_hours = get_delta_hours(from_datetime, end_datetime)
-    logger.info(f"Trying to import {delta_hours} hours for camera {camera_id}.")
+    delta_hours = len(report)
     if not report:
-        logger.warning("No report found, populating with empty dicts")
+        logger.warning(
+            f"No report found for camera {camera_id}, populating with empty dicts"
+        )
         report = [{} for a in range(delta_hours)]
     else:
-        logger.info(f"Imorted report with {len(report)} elements")
-    delta_hours = len(report)
+        logger.info(
+            f"Imorted report with {len(report)} elements for camera {camera_id}"
+        )
     if check_delta_hours and delta_hours != 24:
         dif = 24 - delta_hours
-        logger.warning(
-            f"Fetched report with delta_hours not equal to 24, appending missing {dif} elements empty dicts"
-        )
-        report += [{} for a in range(dif)]
+        if day_date == date.today():
+            logger.warning(
+                f"Fetched report with delta_hours not equal to 24, appending missing {dif} empty dicts."
+            )
+            report += [{} for a in range(dif)]
 
+        else:
+            # Case when camera gets turned on in the middle of day.
+            logger.warning(
+                f"Fetched report with delta_hours not equal to 24, adding missing {dif} empty dicts to start of report."
+            )
+            report = [{} for a in range(dif)] + report
+    delta_hours = len(report)
     res = []
     start_date = from_datetime
     for item in report:
