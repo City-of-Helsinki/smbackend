@@ -29,8 +29,11 @@ definitions:
         type: integer
       name:
         type: string
-      geom:
+      location:
         type: string
+      geometry:
+        type: string
+        description: Additional geometry, e.g., Telraam counters have a MultiLineString for its segment.
       lat:
         type: number
       lon:
@@ -245,7 +248,7 @@ paths:
       summary: "Returns a list of stations."
       parameters:
       - in: query
-        description: "The type of the counter EC(Eco Counter), TC(Traffic Counter), LC(LAM Counter)"
+        description: "The type of the counter EC(Eco Counter), TC(Traffic Counter), LC(LAM Counter), TR(Telraam Counter)"
         name: counter_type
         type: string
       responses:

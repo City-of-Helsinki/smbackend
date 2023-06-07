@@ -8,21 +8,29 @@ import pandas as pd
 import requests
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
-from django.contrib.gis.geos import GEOSGeometry, Point
+from django.contrib.gis.geos import GEOSGeometry, LineString, MultiLineString, Point
 
 from eco_counter.constants import (
     COUNTERS,
     ECO_COUNTER,
+    INDEX_COLUMN_NAME,
     LAM_COUNTER,
     LAM_STATION_MUNICIPALITIES,
     LAM_STATIONS_API_FETCH_URL,
     LAM_STATIONS_DIRECTION_MAPPINGS,
-    TIMESTAMP_COL_NAME,
+    TELRAAM_COUNTER,
+    TELRAAM_COUNTER_API_TIME_FORMAT,
+    TELRAAM_COUNTER_CAMERA_SEGMENTS_URL,
+    TELRAAM_COUNTER_CAMERAS,
+    TELRAAM_COUNTER_CAMERAS_URL,
+    TELRAAM_COUNTER_CSV_FILE,
+    TELRAAM_CSV,
+    TELRAAM_HTTP,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_CSV_URLS,
     TRAFFIC_COUNTER_METADATA_GEOJSON,
 )
-from eco_counter.models import Station
+from eco_counter.models import ImportState, Station
 from eco_counter.tests.test_import_counter_data import TEST_COLUMN_NAMES
 from mobility_data.importers.utils import get_root_dir
 
@@ -33,7 +41,7 @@ class LAMStation:
     def __init__(self, feature):
         if feature["municipality"].as_string() not in LAM_STATION_MUNICIPALITIES:
             self.active = False
-        self.lam_id = feature["tmsNumber"].as_int()
+        self.station_id = feature["tmsNumber"].as_int()
         names = json.loads(feature["names"].as_string())
         self.name = names["fi"]
         self.name_sv = names["sv"]
@@ -41,8 +49,8 @@ class LAMStation:
         # The source data has a obsolete Z dimension with value 0, remove it.
         geom = feature.geom.clone()
         geom.coord_dim = 2
-        self.geom = GEOSGeometry(geom.wkt, srid=4326)
-        self.geom.transform(settings.DEFAULT_SRID)
+        self.location = GEOSGeometry(geom.wkt, srid=4326)
+        self.location.transform(settings.DEFAULT_SRID)
 
 
 class EcoCounterStation:
@@ -50,8 +58,8 @@ class EcoCounterStation:
         self.name = feature["properties"]["Nimi"]
         lon = feature["geometry"]["coordinates"][0]
         lat = feature["geometry"]["coordinates"][1]
-        self.geom = Point(lon, lat, srid=4326)
-        self.geom.transform(settings.DEFAULT_SRID)
+        self.location = Point(lon, lat, srid=4326)
+        self.location.transform(settings.DEFAULT_SRID)
 
 
 class TrafficCounterStation:
@@ -61,18 +69,61 @@ class TrafficCounterStation:
         self.name_en = feature["Osoite_en"].as_string()
         geom = GEOSGeometry(feature.geom.wkt, srid=feature.geom.srid)
         geom.transform(settings.DEFAULT_SRID)
-        self.geom = geom
+        self.location = geom
 
 
-class ObservationStation(LAMStation, EcoCounterStation, TrafficCounterStation):
+class TelraamCounterStation:
+    # The Telraam API return the coordinates in EPSGS 31370
+    SOURCE_SRID = 4326
+    TARGET_SRID = settings.DEFAULT_SRID
+
+    def get_location_and_geometry(self, id):
+        url = TELRAAM_COUNTER_CAMERA_SEGMENTS_URL.format(id=id)
+        headers = {
+            "X-Api-Key": settings.TELRAAM_TOKEN,
+        }
+        response = TELRAAM_HTTP.get(url, headers=headers)
+        assert (
+            response.status_code == 200
+        ), "Could not fetch segment for camera {id}".format(id=id)
+        json_data = response.json()
+        coords = json_data["features"][0]["geometry"]["coordinates"]
+        lss = []
+        for coord in coords:
+            ls = LineString(coord, srid=self.SOURCE_SRID)
+            lss.append(ls)
+        geometry = MultiLineString(lss, srid=self.SOURCE_SRID)
+        geometry.transform(self.TARGET_SRID)
+        mid_line = round(len(coords) / 2)
+        mid_point = round(len(coords[mid_line]) / 2)
+        location = Point(coords[mid_line][mid_point], srid=self.SOURCE_SRID)
+        location.transform(self.TARGET_SRID)
+        return location, geometry
+
+    def __init__(self, feature):
+        self.name = feature["mac"]
+        self.name_sv = feature["mac"]
+        self.name_en = feature["mac"]
+        self.location, self.geometry = self.get_location_and_geometry(
+            feature["segment_id"]
+        )
+        self.station_id = feature["mac"]
+
+
+class ObservationStation(
+    LAMStation, EcoCounterStation, TrafficCounterStation, TelraamCounterStation
+):
     def __init__(self, csv_data_source, feature):
         self.csv_data_source = csv_data_source
         self.name = None
         self.name_sv = None
         self.name_en = None
-        self.geom = None
-        self.lam_id = None
+        self.location = None
+        self.geometry = None
+        self.station_id = None
         match csv_data_source:
+            case COUNTERS.TELRAAM_COUNTER:
+                TelraamCounterStation.__init__(self, feature)
             case COUNTERS.LAM_COUNTER:
                 LAMStation.__init__(self, feature)
             case COUNTERS.ECO_COUNTER:
@@ -160,7 +211,7 @@ def get_traffic_counter_csv(start_year=2015):
     logger.info(df.info(verbose=False))
     logger.info(f"{ids_not_found} IDs not found in metadata.")
     # Move column 'startTime to first (0) position.
-    df.insert(0, TIMESTAMP_COL_NAME, df.pop(TIMESTAMP_COL_NAME))
+    df.insert(0, INDEX_COLUMN_NAME, df.pop(INDEX_COLUMN_NAME))
     # df.to_csv("tc_out.csv")
     return df
 
@@ -200,7 +251,6 @@ def get_lam_counter_csv(start_date):
     5. Shift the columns with the calculated shift_index, this must be done if there is no data
     for the station from the start_date. This ensures the data matches the timestamps.
     """
-
     drop_columns = [
         "pistetunnus",
         "sijainti",
@@ -219,11 +269,13 @@ def get_lam_counter_csv(start_date):
     num_15min_freq = dif_time.total_seconds() / 60 / 15
     time_stamps = pd.date_range(start_time, freq="15T", periods=num_15min_freq)
     data_frame = pd.DataFrame()
-    data_frame[TIMESTAMP_COL_NAME] = time_stamps
+    data_frame[INDEX_COLUMN_NAME] = time_stamps
     for station in Station.objects.filter(csv_data_source=LAM_COUNTER):
         # In the source data the directions are 1 and 2.
         for direction in range(1, 3):
-            df = get_lam_station_dataframe(station.lam_id, direction, start_date, today)
+            df = get_lam_station_dataframe(
+                station.station_id, direction, start_date, today
+            )
             # Read the direction
             direction_name = df["suuntaselite"].iloc[0]
             # From the mappings determine the 'keskustaan päin' or 'poispäin keskustasta' direction.
@@ -238,7 +290,7 @@ def get_lam_counter_csv(start_date):
             # Calculate shift index, i.e., if data starts from different position that the start_date.
             # then shift the rows to the correct position using the calculated shift_index.
             shift_index = data_frame.index[
-                getattr(data_frame, TIMESTAMP_COL_NAME) == str(start_time)
+                getattr(data_frame, INDEX_COLUMN_NAME) == str(start_time)
             ][0]
             column_name = f"{station.name} A{direction_value}"
             # Drop all unnecessary columns.
@@ -317,16 +369,92 @@ def get_eco_counter_stations():
     return stations
 
 
+def fetch_telraam_camera(mac_id):
+    headers = {
+        "X-Api-Key": settings.TELRAAM_TOKEN,
+    }
+    url = TELRAAM_COUNTER_CAMERAS_URL.format(mac_id=mac_id)
+    response = TELRAAM_HTTP.get(url, headers=headers)
+    cameras = response.json().get("camera", None)
+    if cameras:
+        # Return first camera
+        return cameras[0]
+    else:
+        return None
+
+
+def get_telraam_cameras():
+    cameras = []
+    for camera in TELRAAM_COUNTER_CAMERAS.items():
+        fetched_camera = fetch_telraam_camera(camera[0])
+        if fetched_camera:
+            cameras.append(fetched_camera)
+        else:
+            logger.warning(f"Could not fetch camera {camera[0]}")
+    return cameras
+
+
+def get_telraam_counter_stations():
+    stations = []
+    cameras = get_telraam_cameras()
+    for feature in cameras:
+        stations.append(ObservationStation(TELRAAM_COUNTER, feature))
+    return stations
+
+
+def get_telraam_counter_csv(from_date):
+    df = pd.DataFrame()
+    try:
+        import_state = ImportState.objects.get(csv_data_source=TELRAAM_CSV)
+    except ImportState.DoesNotExist:
+        return None
+    end_date = date(
+        import_state.current_year_number,
+        import_state.current_month_number,
+        import_state.current_day_number,
+    )
+    for camera in get_telraam_cameras():
+        df_cam = pd.DataFrame()
+        start_date = from_date
+
+        while start_date <= end_date:
+            csv_file = TELRAAM_COUNTER_CSV_FILE.format(
+                id=camera["mac"],
+                day=start_date.day,
+                month=start_date.month,
+                year=start_date.year,
+            )
+            try:
+                df_tmp = pd.read_csv(csv_file, index_col=False)
+            except FileNotFoundError:
+                logger.warning(f"File {csv_file} not found, skipping camera {camera}")
+                break
+            df_cam = pd.concat([df_cam, df_tmp])
+            start_date += timedelta(days=1)
+
+        if df.empty:
+            df = df_cam
+        else:
+            df = pd.merge(df, df_cam, on=INDEX_COLUMN_NAME)
+
+    df[INDEX_COLUMN_NAME] = pd.to_datetime(
+        df[INDEX_COLUMN_NAME], format=TELRAAM_COUNTER_API_TIME_FORMAT
+    )
+    return df
+
+
 def save_stations(csv_data_source):
     stations = []
     num_created = 0
     match csv_data_source:
+        case COUNTERS.TELRAAM_COUNTER:
+            stations = get_telraam_counter_stations()
         case COUNTERS.LAM_COUNTER:
             stations = get_lam_counter_stations()
         case COUNTERS.ECO_COUNTER:
-            station = get_eco_counter_stations()
+            stations = get_eco_counter_stations()
         case COUNTERS.TRAFFIC_COUNTER:
-            station = get_traffic_counter_stations()
+            stations = get_traffic_counter_stations()
     object_ids = list(
         Station.objects.filter(csv_data_source=csv_data_source).values_list(
             "id", flat=True
@@ -337,14 +465,15 @@ def save_stations(csv_data_source):
             name=station.name,
             name_sv=station.name_sv,
             name_en=station.name_en,
-            geom=station.geom,
-            lam_id=station.lam_id,
+            location=station.location,
+            geometry=station.geometry,
+            station_id=station.station_id,
+            csv_data_source=csv_data_source,
         )
         if obj.id in object_ids:
             object_ids.remove(obj.id)
         if created:
             num_created += 1
-
     Station.objects.filter(id__in=object_ids).delete()
     logger.info(
         f"Deleted {len(object_ids)} obsolete Stations for counter {csv_data_source}"

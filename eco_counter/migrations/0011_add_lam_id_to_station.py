@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eco_counter", "0010_alter_max_length_of_station_name_to_64"),
     ]

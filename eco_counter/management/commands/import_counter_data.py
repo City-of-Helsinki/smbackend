@@ -19,7 +19,10 @@ from eco_counter.constants import (
     COUNTER_START_YEARS,
     COUNTERS,
     ECO_COUNTER,
+    INDEX_COLUMN_NAME,
     LAM_COUNTER,
+    TELRAAM_COUNTER,
+    TELRAAM_COUNTER_START_MONTH,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_START_YEAR,
 )
@@ -41,10 +44,10 @@ from .utils import (
     gen_eco_counter_test_csv,
     get_eco_counter_csv,
     get_lam_counter_csv,
+    get_telraam_counter_csv,
     get_test_dataframe,
     get_traffic_counter_csv,
     save_stations,
-    TIMESTAMP_COL_NAME,
 )
 
 logger = logging.getLogger("eco_counter")
@@ -64,8 +67,10 @@ ERRORNEOUS_VALUE_THRESHOLD = 5400
 
 class Command(BaseCommand):
     help = "Imports traffic counter data in the Turku region."
-    COUNTERS = [ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER]
-    COUNTER_CHOICES_STR = f"{ECO_COUNTER}, {TRAFFIC_COUNTER} and {LAM_COUNTER}"
+    COUNTERS = [ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER, TELRAAM_COUNTER]
+    COUNTER_CHOICES_STR = (
+        f"{ECO_COUNTER}, {TRAFFIC_COUNTER}, {TELRAAM_COUNTER} and {LAM_COUNTER}"
+    )
     TIMEZONE = pytz.timezone("Europe/Helsinki")
     """
     Movement types:
@@ -93,7 +98,8 @@ class Command(BaseCommand):
     type_dirs_lower = [TD.lower() for TD in TYPE_DIRS]
 
     def delete_tables(
-        self, csv_data_sources=[ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER]
+        self,
+        csv_data_sources=[ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER, TELRAAM_COUNTER],
     ):
         for csv_data_source in csv_data_sources:
             for station in Station.objects.filter(csv_data_source=csv_data_source):
@@ -438,14 +444,22 @@ class Command(BaseCommand):
                         month=import_state.current_month_number,
                     )
                 else:
-                    start_time = f"{COUNTER_START_YEARS[counter]}-01-01"
+                    start_month = (
+                        TELRAAM_COUNTER_START_MONTH
+                        if counter == TELRAAM_COUNTER
+                        else "01"
+                    )
+                    start_time = f"{COUNTER_START_YEARS[counter]}-{start_month}-01"
 
                 start_time = dateutil.parser.parse(start_time)
                 start_time = self.TIMEZONE.localize(start_time)
                 # The timeformat for the input data is : 2020-03-01T00:00
                 # Convert starting time to input datas timeformat
                 start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")
+                # start_index = None
                 match counter:
+                    case COUNTERS.TELRAAM_COUNTER:
+                        csv_data = get_telraam_counter_csv(start_time.date())
                     case COUNTERS.LAM_COUNTER:
                         csv_data = get_lam_counter_csv(start_time.date())
                     case COUNTERS.ECO_COUNTER:
@@ -456,9 +470,8 @@ class Command(BaseCommand):
                         else:
                             start_year = TRAFFIC_COUNTER_START_YEAR
                         csv_data = get_traffic_counter_csv(start_year=start_year)
-
                 start_index = csv_data.index[
-                    csv_data[TIMESTAMP_COL_NAME] == start_time_string
+                    csv_data[INDEX_COLUMN_NAME] == start_time_string
                 ].values[0]
                 # As LAM data is fetched with a timespan, no index data is available, instead
                 # show time.

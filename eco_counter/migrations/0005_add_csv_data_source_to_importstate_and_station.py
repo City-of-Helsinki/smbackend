@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eco_counter", "0004_add_name_en_name_fi_station_name_sv_to_station"),
     ]

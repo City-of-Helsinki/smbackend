@@ -29,7 +29,7 @@ pep8-naming
 jedi
 parso
 whitenoise
-pandas>1.4
+pandas>=2.0.0
 pykml
 shapely
 celery

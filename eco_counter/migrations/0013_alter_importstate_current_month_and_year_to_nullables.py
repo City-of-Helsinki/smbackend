@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eco_counter", "0012_set_static_default_year_year_number"),
     ]
