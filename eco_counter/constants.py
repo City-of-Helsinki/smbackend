@@ -5,8 +5,6 @@ from django.conf import settings
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-from mobility_data.importers.utils import get_root_dir
-
 INDEX_COLUMN_NAME = "startTime"
 
 TRAFFIC_COUNTER_START_YEAR = 2015
