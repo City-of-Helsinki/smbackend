@@ -158,7 +158,8 @@ def get_day_data(
     return res, delta_hours
 
 
-def save_dataframe() -> datetime:
+def save_dataframe(from_date: date = True) -> datetime:
+    can_overwrite_csv_file = True if from_date else False
     if not os.path.exists(TELRAAM_COUNTER_CSV_FILE_PATH):
         os.makedirs(TELRAAM_COUNTER_CSV_FILE_PATH)
         ImportState.objects.filter(csv_data_source=TELRAAM_CSV).delete()
@@ -170,12 +171,12 @@ def save_dataframe() -> datetime:
         )
     else:
         import_state = ImportState.objects.filter(csv_data_source=TELRAAM_CSV).first()
-
-    from_date = date(
-        import_state.current_year_number,
-        import_state.current_month_number,
-        import_state.current_day_number,
-    )
+    if not from_date:
+        from_date = date(
+            import_state.current_year_number,
+            import_state.current_month_number,
+            import_state.current_day_number,
+        )
     date_today = date.today()
     # Source data date time is in UTC. Calculate a utf_offset
     utc_offset = pytz.timezone("Europe/Helsinki").utcoffset(datetime.now())
@@ -229,7 +230,7 @@ def save_dataframe() -> datetime:
                 # Remove latest csv, as it might not be populated until the end of day
                 if os.path.exists(csv_file):
                     os.remove(csv_file)
-            if not os.path.exists(csv_file):
+            if not os.path.exists(csv_file) or can_overwrite_csv_file:
                 df.to_csv(csv_file)
             start_date += timedelta(days=1)
 
@@ -242,7 +243,24 @@ def save_dataframe() -> datetime:
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        help_msg = (
+            "The date from which the import begins in YYYY-MM-DD format. Note, the date cannot be more than "
+            + "three months in the past, which is the maximum length of history the Telraam API supports."
+        )
+        parser.add_argument("--from-date", type=str, help=help_msg)
+
     def handle(self, *args, **options):
         logger.info("Importing Telraam data...")
-        until_date = save_dataframe()
+        from_date_arg = options.get("from_date", None)
+        from_date = None
+        if from_date_arg:
+            try:
+                from_date = datetime.strptime(from_date_arg, "%Y-%m-%d").date()
+            except ValueError:
+                logger.error("Invalid date argument format. use YYYY-MM-DD.")
+                return
+
+        until_date = save_dataframe(from_date)
+
         logger.info(f"Telraam data imported until {str(until_date)}")
