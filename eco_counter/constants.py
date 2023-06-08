@@ -5,8 +5,6 @@ from django.conf import settings
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-from mobility_data.importers.utils import get_root_dir
-
 INDEX_COLUMN_NAME = "startTime"
 
 TRAFFIC_COUNTER_START_YEAR = 2015
@@ -92,7 +90,7 @@ TELRAAM_COUNTER_CAMERA_SEGMENTS_URL = (
 # from the beginning of the start tear
 TELRAAM_COUNTER_START_MONTH = 5
 TELRAAM_COUNTER_API_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-TELRAAM_COUNTER_CSV_FILE_PATH = f"{get_root_dir()}/media/telraam_data/"
+TELRAAM_COUNTER_CSV_FILE_PATH = f"{settings.MEDIA_ROOT}/telraam_data/"
 TELRAAM_COUNTER_CSV_FILE = (
     TELRAAM_COUNTER_CSV_FILE_PATH + "telraam_data_{id}_{day}_{month}_{year}.csv"
 )

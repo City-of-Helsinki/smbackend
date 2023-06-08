@@ -14,10 +14,13 @@ def initial_import_counter_data(args, name="initial_import_counter_data"):
 
 
 @shared_task_email
-def import_telraam_to_csv(args, name="import_telraam_to_csv"):
-    management.call_command("import_telraam_to_csv", args)
+def delete_all_counter_data(name="delete_all_counter_data"):
+    management.call_command("delete_all_counter_data")
 
 
 @shared_task_email
-def delete_all_counter_data(name="delete_all_counter_data"):
-    management.call_command("delete_all_counter_data")
+def import_telraam_to_csv(*args, name="import_telraam_to_csv"):
+    if args:
+        management.call_command("import_telraam_to_csv", args)
+    else:
+        management.call_command("import_telraam_to_csv")
