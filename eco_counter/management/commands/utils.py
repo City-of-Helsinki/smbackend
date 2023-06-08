@@ -427,10 +427,13 @@ def get_telraam_counter_csv(from_date):
             try:
                 df_tmp = pd.read_csv(csv_file, index_col=False)
             except FileNotFoundError:
-                logger.warning(f"File {csv_file} not found, skipping camera {camera}")
-                break
-            df_cam = pd.concat([df_cam, df_tmp])
-            start_date += timedelta(days=1)
+                logger.warning(
+                    f"File {csv_file} not found, skipping day{str(start_date)} for camera {camera}"
+                )
+            else:
+                df_cam = pd.concat([df_cam, df_tmp])
+            finally:
+                start_date += timedelta(days=1)
 
         if df.empty:
             df = df_cam
