@@ -11,7 +11,7 @@ class ImportState(models.Model):
     current_year_number = models.PositiveSmallIntegerField(null=True)
     current_month_number = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(12)],
-        null=True,  # , default=1
+        null=True,
     )
     current_day_number = models.PositiveSmallIntegerField(
         null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(31)]
@@ -37,7 +37,7 @@ class Station(models.Model):
     station_id = models.CharField(max_length=16, null=True)
 
     def __str__(self):
-        return "%s %s" % (self.name, self.geom)
+        return "%s %s" % (self.name, self.location)
 
     class Meta:
         ordering = ["id"]

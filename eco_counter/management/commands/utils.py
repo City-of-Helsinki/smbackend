@@ -1,5 +1,4 @@
 import io
-import json
 import logging
 from datetime import date, timedelta
 
@@ -15,7 +14,8 @@ from eco_counter.constants import (
     ECO_COUNTER,
     INDEX_COLUMN_NAME,
     LAM_COUNTER,
-    LAM_STATION_MUNICIPALITIES,
+    LAM_STATION_LOCATIONS,
+    LAM_STATION_USER_HEADER,
     LAM_STATIONS_API_FETCH_URL,
     LAM_STATIONS_DIRECTION_MAPPINGS,
     TELRAAM_COUNTER,
@@ -39,13 +39,8 @@ logger = logging.getLogger("eco_counter")
 
 class LAMStation:
     def __init__(self, feature):
-        if feature["municipality"].as_string() not in LAM_STATION_MUNICIPALITIES:
-            self.active = False
         self.station_id = feature["tmsNumber"].as_int()
-        names = json.loads(feature["names"].as_string())
-        self.name = names["fi"]
-        self.name_sv = names["sv"]
-        self.name_en = names["en"]
+        self.name = self.name_sv = self.name_en = feature["name"].as_string()
         # The source data has a obsolete Z dimension with value 0, remove it.
         geom = feature.geom.clone()
         geom.coord_dim = 2
@@ -217,7 +212,7 @@ def get_traffic_counter_csv(start_year=2015):
 
 
 def get_lam_dataframe(csv_url):
-    response = requests.get(csv_url)
+    response = requests.get(csv_url, headers=LAM_STATION_USER_HEADER)
     string_data = response.content
     csv_data = pd.read_csv(io.StringIO(string_data.decode("utf-8")), delimiter=";")
     return csv_data
@@ -276,7 +271,7 @@ def get_lam_counter_csv(start_date):
             df = get_lam_station_dataframe(
                 station.station_id, direction, start_date, today
             )
-            # Read the direction
+            # Read the direction, e.g., Vaasa
             direction_name = df["suuntaselite"].iloc[0]
             # From the mappings determine the 'keskustaan päin' or 'poispäin keskustasta' direction.
             try:
@@ -337,11 +332,20 @@ def get_lam_counter_csv(start_date):
     return data_frame
 
 
+def has_list_elements_in_string(elements, string):
+    for element in elements:
+        if element in string:
+            return True
+    return False
+
+
 def get_lam_counter_stations():
     stations = []
     data_layer = DataSource(settings.LAM_COUNTER_STATIONS_URL)[0]
     for feature in data_layer:
-        if feature["municipality"].as_string() in LAM_STATION_MUNICIPALITIES:
+        if has_list_elements_in_string(
+            LAM_STATION_LOCATIONS, feature["name"].as_string()
+        ):
             stations.append(ObservationStation(LAM_COUNTER, feature))
     return stations
 
@@ -377,7 +381,8 @@ def fetch_telraam_camera(mac_id):
     response = TELRAAM_HTTP.get(url, headers=headers)
     cameras = response.json().get("camera", None)
     if cameras:
-        # Return first camera
+        # Return first camera, as currently only one camera is
+        # returned in Turku by mac_id
         return cameras[0]
     else:
         return None

@@ -1,3 +1,4 @@
+import platform
 import types
 
 import requests
@@ -44,31 +45,54 @@ COUNTER_START_YEARS = {
 }
 
 TRAFFIC_COUNTER_METADATA_GEOJSON = "traffic_counter_metadata.geojson"
-# LAM stations located in the municipalities list are included.
-LAM_STATION_MUNICIPALITIES = ["Turku", "Raisio", "Kaarina", "Lieto"]
-
 LAM_STATIONS_API_FETCH_URL = (
     settings.LAM_COUNTER_API_BASE_URL
     + "?api=liikennemaara&tyyppi=h&pvm={start_date}&loppu={end_date}"
     + "&lam_type=option1&piste={id}&luokka=kaikki&suunta={direction}&sisallytakaistat=0"
 )
-# Maps the direction of the traffic of station, (P)oispäin or (K)eskustaan päin)
-LAM_STATIONS_DIRECTION_MAPPINGS = {
-    "1_Piikkiö": "P",
-    "1_Naantali": "P",
-    "2_Naantali": "K",
-    "1_Turku": "K",
-    "2_Turku": "K",
-    "2_Helsinki": "P",
-    "1_Suikkila.": "K",
-    "2_Artukainen.": "P",
-    "1_Vaasa": "P",
-    "1_Kuusisto": "P",
-    "2_Kaarina": "K",
-    "1_Tampere": "P",
-    "1_Hämeenlinna": "P",
+# LAM stations in the locations list are included.
+LAM_STATION_LOCATIONS = ["Turku", "Raisio", "Kaarina", "Lieto", "Hauninen", "Oriketo"]
+# Header that is added to the request that fetches the LAM data.
+LAM_STATION_USER_HEADER = {
+    "Digitraffic-User": f"{platform.uname()[1]}/Turun Palvelukartta"
 }
-
+# Mappings are derived by the 'suunta' and  the 'suuntaselite' columns in the source data.
+# (P)oispäin or (K)eskustaan päin)
+LAM_STATIONS_DIRECTION_MAPPINGS = {
+    # vt8_Raisio
+    "1_Vaasa": "P",
+    "2_Turku": "K",
+    # vt1_Kaarina_Kirismäki
+    "1_Turku": "K",
+    "2_Helsinki": "P",
+    # vt10_Lieto
+    "1_Hämeenlinna": "P",
+    # "2_Turku": "K", Duplicate
+    # vt1_Turku_Kupittaa
+    # "1_Turku" Duplicate
+    # "2_Helsinki" Duplicate
+    # vt1_Turku_Kurkela_länsi
+    # "1_Turku" Duplicate
+    # "2_Helsinki" Duplicate
+    # vt1_Kaarina_Kurkela_itä
+    # "1_Turku" Duplicate
+    # "2_Helsinki" Duplicate
+    # vt1_Kaarina
+    # "1_Turku" Duplicate
+    # "2_Helsinki" Duplicate
+    # vt1_Kaarina_Piikkiö
+    # "1_Turku" Duplicate
+    # "2_Helsinki" Duplicate
+    # yt1851_Turku_Härkämäki
+    "1_Suikkila": "K",
+    "2_Artukainen": "P",
+    # kt40_Hauninen
+    "1_Piikkiö": "K",
+    "2_Naantali": "P",
+    # kt40_Oriketo
+    # "1_Piikkiö": "K", duplicate
+    # "2_Naantali": "P", dupicate
+}
 keys = [k for k in range(TRAFFIC_COUNTER_START_YEAR, TRAFFIC_COUNTER_END_YEAR + 1)]
 # Create a dict where the years to be importer are keys and the value is the url of the csv data.
 # e.g. {2015, "https://data.turku.fi/2yxpk2imqi2mzxpa6e6knq/2015_laskenta_juha.csv"}
