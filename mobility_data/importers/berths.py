@@ -1,8 +1,9 @@
 import csv
 import os
-from distutils.util import strtobool
 
 from django.contrib.gis.geos import Point
+
+from services.utils import strtobool
 
 from .utils import FieldTypes, get_file_name_from_data_source, get_root_dir
 
