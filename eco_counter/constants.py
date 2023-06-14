@@ -127,7 +127,7 @@ TELRAAM_COUNTER_CAMERAS = {
 retry_strategy = Retry(
     total=10,
     status_forcelist=[429],
-    method_whitelist=["GET", "POST"],
+    allowed_methods=["GET", "POST"],
     backoff_factor=30,  # 30, 60, 120 , 240, ..seconds
 )
 adapter = HTTPAdapter(max_retries=retry_strategy)
