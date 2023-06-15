@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eco_counter", "0005_add_csv_data_source_to_importstate_and_station"),
     ]

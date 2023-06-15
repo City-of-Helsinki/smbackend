@@ -62,6 +62,7 @@ env = environ.Env(
     EMAIL_HOST_USER=(str, None),
     EMAIL_PORT=(int, None),
     EMAIL_USE_TLS=(bool, None),
+    TELRAAM_TOKEN=(str, None),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -313,7 +314,7 @@ DOC_ENDPOINTS = [
 def preprocessing_filter_spec(endpoints):
     filtered = []
     for endpoint in DOC_ENDPOINTS:
-        for (path, path_regex, method, callback) in endpoints:
+        for path, path_regex, method, callback in endpoints:
             if path.startswith(endpoint):
                 filtered.append((path, path_regex, method, callback))
     return filtered
@@ -433,3 +434,4 @@ YIT_VEHICLES_URL = env("YIT_VEHICLES_URL")
 YIT_CONTRACTS_URL = env("YIT_CONTRACTS_URL")
 YIT_TOKEN_URL = env("YIT_TOKEN_URL")
 KUNTEC_KEY = env("KUNTEC_KEY")
+TELRAAM_TOKEN = env("TELRAAM_TOKEN")

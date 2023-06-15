@@ -35,7 +35,6 @@ class StationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Station
-
         fields = [
             "id",
             "name",
@@ -43,7 +42,8 @@ class StationSerializer(serializers.ModelSerializer):
             "name_sv",
             "name_en",
             "csv_data_source",
-            "geom",
+            "location",
+            "geometry",
             "x",
             "y",
             "lon",
@@ -52,18 +52,18 @@ class StationSerializer(serializers.ModelSerializer):
         ]
 
     def get_y(self, obj):
-        return obj.geom.y
+        return obj.location.y
 
     def get_lat(self, obj):
-        obj.geom.transform(4326)
-        return obj.geom.y
+        obj.location.transform(4326)
+        return obj.location.y
 
     def get_x(self, obj):
-        return obj.geom.x
+        return obj.location.x
 
     def get_lon(self, obj):
-        obj.geom.transform(4326)
-        return obj.geom.x
+        obj.location.transform(4326)
+        return obj.location.x
 
     def get_sensor_types(self, obj):
         # Return the sensor types(car, bike etc) that has a total year value >0.
@@ -100,7 +100,6 @@ class YearInfoSerializer(serializers.ModelSerializer):
 
 
 class DaySerializer(serializers.ModelSerializer):
-
     station_name = serializers.PrimaryKeyRelatedField(
         many=False, source="station.name", read_only=True
     )
@@ -207,7 +206,6 @@ class YearInfoSerializer(serializers.ModelSerializer):
 
 
 class HourDataSerializer(serializers.ModelSerializer):
-
     day_info = DayInfoSerializer(source="day")
 
     class Meta:
@@ -229,7 +227,6 @@ class HourDataSerializer(serializers.ModelSerializer):
 
 
 class DayDataSerializer(serializers.ModelSerializer):
-
     day_info = DayInfoSerializer(source="day")
 
     class Meta:
@@ -254,7 +251,6 @@ class WeekDataSerializer(serializers.ModelSerializer):
 
 
 class MonthDataSerializer(serializers.ModelSerializer):
-
     month_info = MonthInfoSerializer(source="month")
 
     class Meta:
@@ -267,7 +263,6 @@ class MonthDataSerializer(serializers.ModelSerializer):
 
 
 class YearDataSerializer(serializers.ModelSerializer):
-
     year_info = YearInfoSerializer(source="year")
 
     class Meta:

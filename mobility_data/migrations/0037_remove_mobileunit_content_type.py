@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mobility_data", "0036_populate_mobile_type_content_types"),
     ]

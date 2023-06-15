@@ -27,7 +27,6 @@ class Command(BaseCommand):
     choices = get_configured_cotent_type_names(config)
 
     def add_arguments(self, parser):
-
         parser.add_argument(
             "--data-file",
             nargs="?",

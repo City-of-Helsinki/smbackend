@@ -18,7 +18,6 @@ FIELDS = [
 
 
 class MobileUnitGroupSerializer(serializers.ModelSerializer):
-
     group_type = GroupTypeSerializer(many=False, read_only=True)
 
     class Meta:
@@ -27,7 +26,6 @@ class MobileUnitGroupSerializer(serializers.ModelSerializer):
 
 
 class MobileUnitGroupUnitsSerializer(serializers.ModelSerializer):
-
     group_type = GroupTypeSerializer(many=False, read_only=True)
     mobile_units = serializers.SerializerMethodField()
 

@@ -4,36 +4,17 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.timezone import now
 
-TRAFFIC_COUNTER_START_YEAR = 2015
-# Manually define the end year, as the source data comes from the page
-# defined in env variable TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL.
-# Change end year when data for the next year is available.
-TRAFFIC_COUNTER_END_YEAR = 2022
-ECO_COUNTER_START_YEAR = 2020
-LAM_COUNTER_START_YEAR = 2010
-
-
-TRAFFIC_COUNTER = "TC"
-ECO_COUNTER = "EC"
-LAM_COUNTER = "LC"
-CSV_DATA_SOURCES = (
-    (TRAFFIC_COUNTER, "TrafficCounter"),
-    (ECO_COUNTER, "EcoCounter"),
-    (LAM_COUNTER, "LamCounter"),
-)
-COUNTER_START_YEARS = {
-    ECO_COUNTER: ECO_COUNTER_START_YEAR,
-    TRAFFIC_COUNTER: TRAFFIC_COUNTER_START_YEAR,
-    LAM_COUNTER: LAM_COUNTER_START_YEAR,
-}
+from eco_counter.constants import CSV_DATA_SOURCES, ECO_COUNTER
 
 
 class ImportState(models.Model):
-    current_year_number = models.PositiveSmallIntegerField(
-        default=ECO_COUNTER_START_YEAR
-    )
+    current_year_number = models.PositiveSmallIntegerField(null=True)
     current_month_number = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(12)], default=1
+        validators=[MinValueValidator(1), MaxValueValidator(12)],
+        null=True,
+    )
+    current_day_number = models.PositiveSmallIntegerField(
+        null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(31)]
     )
     csv_data_source = models.CharField(
         max_length=2,
@@ -43,20 +24,20 @@ class ImportState(models.Model):
 
 
 class Station(models.Model):
-
     name = models.CharField(max_length=64)
-    geom = models.PointField(srid=settings.DEFAULT_SRID)
+    location = models.PointField(srid=settings.DEFAULT_SRID)
+    geometry = models.GeometryField(srid=settings.DEFAULT_SRID, null=True)
     csv_data_source = models.CharField(
         max_length=2,
         choices=CSV_DATA_SOURCES,
         default=ECO_COUNTER,
     )
-    # For lam stations store the LAM station ID, this is
-    # required when fetching data from the API using the ID.
-    lam_id = models.PositiveSmallIntegerField(null=True)
+    # Optioal id of the station, used when fetching LAM
+    # and TELRAAM station data
+    station_id = models.CharField(max_length=16, null=True)
 
     def __str__(self):
-        return "%s %s" % (self.name, self.geom)
+        return "%s %s" % (self.name, self.location)
 
     class Meta:
         ordering = ["id"]
@@ -88,7 +69,7 @@ class Year(models.Model):
 
     @property
     def num_days(self):
-        return self.days.all().count()
+        return self.days.count()
 
     def __str__(self):
         return "%s" % (self.year_number)
@@ -108,7 +89,7 @@ class Month(models.Model):
 
     @property
     def num_days(self):
-        return self.days.all().count()
+        return self.days.count()
 
     def __str__(self):
         return "%s" % (self.month_number)
@@ -128,7 +109,7 @@ class Week(models.Model):
 
     @property
     def num_days(self):
-        return self.days.all().count()
+        return self.days.count()
 
     def __str__(self):
         return "%s" % (self.week_number)

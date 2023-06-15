@@ -22,7 +22,6 @@ CONTENT_TYPE_NAME = "LoadingUnloadingPlace"
 
 
 class LoadingPlace(MobileUnitDataBase):
-
     extra_field_mappings = {
         "Saavutettavuus": {
             "type": FieldTypes.MULTILANG_STRING,

@@ -11,7 +11,6 @@ from .utils import get_test_fixture_json_data
 
 @pytest.mark.django_db
 def test_importer(municipalities):
-
     from mobility_data.importers.gas_filling_station import (
         CONTENT_TYPE_NAME,
         get_filtered_gas_filling_station_objects,

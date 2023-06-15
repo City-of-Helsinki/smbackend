@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mobility_data", "0022_add_content_type_marina_southwest_finland_and_slipway"),
     ]
