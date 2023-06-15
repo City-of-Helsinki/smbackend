@@ -23,6 +23,9 @@ VALUE_FIELDS = [
     "value_jk",
     "value_jp",
     "value_jt",
+    "value_bk",
+    "value_bp",
+    "value_bt",
 ]
 
 
