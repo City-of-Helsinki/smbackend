@@ -115,7 +115,7 @@ platformdirs==3.1.1
     #   requests-cache
 pluggy==1.0.0
     # via pytest
-psycopg2==2.8.6
+psycopg2==2.9.6
     # via -r requirements.in
 pycodestyle==2.10.0
     # via flake8
