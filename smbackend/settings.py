@@ -1,4 +1,5 @@
 import logging.config
+import os
 from pathlib import Path
 
 import sentry_sdk
@@ -6,6 +7,9 @@ from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
 from environ import Env
 from sentry_sdk.integrations.django import DjangoIntegration
+
+GDAL_LIBRARY_PATH = os.environ.get("GDAL_LIBRARY_PATH")
+GEOS_LIBRARY_PATH = os.environ.get("GEOS_LIBRARY_PATH")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
