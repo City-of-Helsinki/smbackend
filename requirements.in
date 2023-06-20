@@ -10,7 +10,7 @@ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.78#egg=django-munige
 pytz
 django-cors-headers
 django-extensions
-psycopg2<2.9
+psycopg2
 django-mptt
 lxml
 sentry-sdk
