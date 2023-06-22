@@ -1,5 +1,3 @@
-from distutils.util import strtobool
-
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.gdal import SpatialReference
 from django.contrib.gis.geos import Point
@@ -10,6 +8,7 @@ from rest_framework import viewsets
 from rest_framework.exceptions import ParseError
 
 from services.api_pagination import Pagination
+from services.utils import strtobool
 
 from ..models import BicycleNetwork, BicycleNetworkPart
 from .serializers import (

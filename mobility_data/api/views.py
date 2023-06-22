@@ -1,6 +1,5 @@
 import logging
 import types
-from distutils.util import strtobool
 
 from django.contrib.gis.gdal import SpatialReference
 from django.core.exceptions import ValidationError
@@ -12,6 +11,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 
 from services.models import Unit
+from services.utils import strtobool
 
 from ..models import ContentType, GroupType, MobileUnit, MobileUnitGroup
 from .serializers import (
