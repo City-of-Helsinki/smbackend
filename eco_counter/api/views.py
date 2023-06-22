@@ -62,7 +62,9 @@ class StationViewSet(viewsets.ReadOnlyModelViewSet):
             if counter_type in str(CSV_DATA_SOURCES):
                 queryset = Station.objects.filter(csv_data_source=counter_type)
             else:
-                raise ParseError("Valid 'counter_type' choices are: 'EC','TC' or 'LC'.")
+                raise ParseError(
+                    "Valid 'counter_type' choices are: 'EC', 'TC', 'TR' or 'LC'."
+                )
         page = self.paginate_queryset(queryset)
         serializer = StationSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
