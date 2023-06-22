@@ -271,3 +271,10 @@ def test__station(api_client, stations, year_datas):
     assert response.status_code == 200
     assert response.json()["results"][0]["name"] == TEST_EC_STATION_NAME
     assert response.json()["results"][0]["sensor_types"] == ["at"]
+    # Test retrieving station by data type
+    url = reverse("eco_counter:stations-list") + "?data_type=a"
+    response = api_client.get(url)
+    assert response.json()["count"] == 1
+    url = reverse("eco_counter:stations-list") + "?data_type=p"
+    response = api_client.get(url)
+    assert response.json()["count"] == 0
