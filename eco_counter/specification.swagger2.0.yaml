@@ -252,7 +252,7 @@ paths:
         name: counter_type
         type: string
       - in: query
-        description: "The data type of the counter: A(car), B(bus), J(pedestrian) or P(bicycle). Returns stations containing data of the specifiec type."
+        description: "The data type of the counter: A(car), B(bus), J(pedestrian) or P(bicycle). Returns stations containing data of the specified type."
         name: data_type
         type: string
       responses:
