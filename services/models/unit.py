@@ -157,6 +157,9 @@ class Unit(SoftDeleteModel):
     )
 
     service_nodes = models.ManyToManyField("ServiceNode", related_name="units")
+    mobility_service_nodes = models.ManyToManyField(
+        "MobilityServiceNode", related_name="units"
+    )
     services = models.ManyToManyField(
         "Service", related_name="units", through="UnitServiceDetails"
     )

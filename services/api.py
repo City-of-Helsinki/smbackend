@@ -29,6 +29,7 @@ from services.models import (
     Announcement,
     Department,
     ErrorMessage,
+    MobilityServiceNode,
     Service,
     ServiceNode,
     Unit,
@@ -343,6 +344,21 @@ class ServiceNodeSerializer(
         )
 
 
+class MobilitySerializer(ServiceNodeSerializer):
+    def __init__(self, *args, **kwargs):
+        super(MobilitySerializer, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = MobilityServiceNode
+        exclude = (
+            "search_column_fi",
+            "search_column_sv",
+            "search_column_en",
+            "syllables_fi",
+            "service_reference",
+        )
+
+
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
         ret = super(ServiceSerializer, self).to_representation(obj)
@@ -601,6 +617,14 @@ class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 
 
 register_view(ServiceNodeViewSet, "service_node")
+
+
+class MobilityViewSet(ServiceNodeViewSet):
+    queryset = MobilityServiceNode.objects.all()
+    serializer_class = MobilitySerializer
+
+
+register_view(MobilityViewSet, "mobility")
 
 
 class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
