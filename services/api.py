@@ -51,8 +51,6 @@ if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES
 else:
     DEFAULT_RENDERERS = ()
 
-# This allows us to find a serializer for Haystack search results
-serializers_by_model = {}
 
 all_views = []
 
@@ -62,14 +60,6 @@ def register_view(klass, name, basename=None):
     if basename is not None:
         entry["basename"] = basename
     all_views.append(entry)
-
-    if (
-        klass.serializer_class
-        and hasattr(klass.serializer_class, "Meta")
-        and hasattr(klass.serializer_class.Meta, "model")
-    ):
-        model = klass.serializer_class.Meta.model
-        serializers_by_model[model] = klass.serializer_class
 
 
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
@@ -1083,52 +1073,6 @@ class UnitViewSet(
 
 
 register_view(UnitViewSet, "unit")
-
-
-class SearchSerializer(serializers.Serializer):
-    def __init__(self, *args, **kwargs):
-        super(SearchSerializer, self).__init__(*args, **kwargs)
-        self.serializer_by_model = {}
-
-    def _strip_context(self, context, model):
-        if model == Unit:
-            key = "unit"
-        elif model == Service:
-            key = "service"
-        else:
-            key = "service_node"
-        for spec in ["include", "only"]:
-            if spec in context:
-                context[spec] = context[spec].get(key, [])
-        if "only" in context and context["only"] == []:
-            context.pop("only")
-        return context
-
-    def get_result_serializer(self, model, instance):
-        ser = self.serializer_by_model.get(model)
-        if not ser:
-            ser_class = serializers_by_model[model]
-            assert model in serializers_by_model, "Serializer for %s not found" % model
-            context = self._strip_context(self.context.copy(), model)
-            ser = ser_class(context=context, many=False)
-            self.serializer_by_model[model] = ser
-        # TODO: another way to serialize with new data without
-        # costly Serializer instantiation
-        ser.instance = instance
-        if hasattr(ser, "_data"):
-            del ser._data
-        return ser
-
-    def to_representation(self, search_result):
-        if not search_result or not search_result.model:
-            return None
-        model = search_result.model
-        serializer = self.get_result_serializer(model, search_result.object)
-        data = serializer.data
-        data["sort_index"] = search_result._sort_index
-        data["object_type"] = model._meta.model_name
-        data["score"] = search_result.score
-        return data
 
 
 class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
