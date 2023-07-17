@@ -65,6 +65,21 @@ class StationViewSet(viewsets.ReadOnlyModelViewSet):
                 raise ParseError(
                     "Valid 'counter_type' choices are: 'EC', 'TC', 'TR' or 'LC'."
                 )
+        if "data_type" in filters:
+            data_type = filters["data_type"].lower()
+            data_types = ["a", "j", "b", "p"]
+            if data_type not in data_types:
+                raise ParseError(
+                    f"Valid 'data_type' choices are: {', '.join(data_types)}"
+                )
+            ids = []
+            data_type = data_type + "t"
+            for station in Station.objects.all():
+                filter = {"station": station, f"value_{data_type}__gt": 0}
+                if YearData.objects.filter(**filter).count() > 0:
+                    ids.append(station.id)
+            queryset = Station.objects.filter(id__in=ids)
+
         page = self.paginate_queryset(queryset)
         serializer = StationSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
