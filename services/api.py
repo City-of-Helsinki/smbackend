@@ -1147,13 +1147,13 @@ register_view(
 class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSerializer):
     def to_representation(self, obj):
         ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
-
         if "request" not in self.context:
             return ret
 
         query_params = self.context["request"].query_params
         unit_include = query_params.get("unit_include", None)
         service_point_id = ret["service_point_id"]
+
         if service_point_id and unit_include:
             try:
                 unit = Unit.objects.get(id=service_point_id)
@@ -1166,6 +1166,19 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
             if unit:
                 ser = UnitSerializer(unit, context={"only": unit_include.split(",")})
                 ret["unit"] = ser.data
+
+        unit_ids = ret["units"]
+        if unit_ids and unit_include:
+            units = Unit.objects.filter(id__in=unit_ids)
+            if units:
+                units_data = []
+                for unit in units:
+                    units_data.append(
+                        UnitSerializer(
+                            unit, context={"only": unit_include.split(",")}
+                        ).data
+                    )
+                ret["units"] = units_data
 
         include_fields = query_params.get("include", [])
         if "centroid" in include_fields and obj.geometry:
