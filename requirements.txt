@@ -51,7 +51,7 @@ coverage==5.5
     # via pytest-cov
 cron-descriptor==1.2.35
     # via django-celery-beat
-django==4.1.7
+django==4.1.10
     # via
     #   -r requirements.in
     #   django-celery-beat
@@ -197,7 +197,7 @@ pytz==2021.3
     #   celery
     #   django-timezone-field
     #   pandas
-pyyaml==5.4.1
+pyyaml==5.3.1
     # via
     #   django-munigeo
     #   drf-spectacular
@@ -233,9 +233,7 @@ toml==0.10.2
     #   pytest
     #   pytest-cov
 tomli==1.2.1
-    # via
-    #   black
-    #   pep517
+    # via pep517
 tqdm==4.62.3
     # via -r requirements.in
 tzdata==2022.1
