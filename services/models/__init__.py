@@ -2,6 +2,7 @@ from .accessibility_variable import AccessibilityVariable
 from .department import Department
 from .keyword import Keyword
 from .notification import Announcement, ErrorMessage
+from .search_rule import ExclusionRule
 from .service import Service, UnitServiceDetails
 from .service_mapping import ServiceMapping
 from .service_node import ServiceNode
