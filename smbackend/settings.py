@@ -1,3 +1,4 @@
+import logging.config
 import os
 from pathlib import Path
 
@@ -330,6 +331,7 @@ LOGGING = {
         },
     },
 }
+logging.config.dictConfig(LOGGING)
 
 # Define the endpoints for API documentation with drf-spectacular.
 DOC_ENDPOINTS = [
