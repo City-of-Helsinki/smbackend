@@ -16,6 +16,8 @@ class UnitConnection(models.Model):
     ESERVICE_LINK_TYPE = 9
     PRICE_TYPE = 10
     SUBGROUP_TYPE = 11
+    OPENING_HOUR_OBJECT = 12
+
     SECTION_TYPES = (
         (PHONE_OR_EMAIL_TYPE, "PHONE_OR_EMAIL"),
         (LINK_TYPE, "LINK"),
@@ -28,6 +30,7 @@ class UnitConnection(models.Model):
         (ESERVICE_LINK_TYPE, "ESERVICE_LINK"),
         (PRICE_TYPE, "PRICE"),
         (SUBGROUP_TYPE, "SUBGROUP"),
+        (OPENING_HOUR_OBJECT, "OPENING_HOUR_OBJECT"),
     )
 
     unit = models.ForeignKey(
