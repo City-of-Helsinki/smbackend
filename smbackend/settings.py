@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import environ
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
@@ -6,13 +7,13 @@ from django.core.exceptions import ImproperlyConfigured
 
 CONFIG_FILE_NAME = "config_dev.env"
 
-
-root = environ.Path(__file__) - 2  # two levels back in hierarchy
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = str(Path(__file__).resolve().parent.parent)
 env = environ.Env(
     DEBUG=(bool, False),
     LANGUAGES=(list, ["fi", "sv", "en"]),
     DATABASE_URL=(str, "postgis:///servicemap"),
-    SECRET_KEY=(str, ""),
+    SECRET_KEY=(str, "temp_key"),
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
     ALLOWED_HOSTS=(list, []),
@@ -21,10 +22,10 @@ env = environ.Env(
     COOKIE_PREFIX=(str, "servicemap"),
     INTERNAL_IPS=(list, []),
     CELERY_BROKER_URL=(str, "amqp://guest:guest@localhost:5672"),
-    MEDIA_ROOT=(environ.Path(), root("media")),
-    STATIC_ROOT=(environ.Path(), root("static")),
-    MEDIA_URL=(str, "/media/"),
+    STATIC_ROOT=(str, BASE_DIR + "/static"),
+    MEDIA_ROOT=(str, BASE_DIR + "/media"),
     STATIC_URL=(str, "/static/"),
+    MEDIA_URL=(str, "/media/"),
     OPEN311_URL_BASE=(str, None),
     OPEN311_API_KEY=(str, None),
     OPEN311_INTERNAL_API_KEY=(str, None),
@@ -64,10 +65,16 @@ env = environ.Env(
     EMAIL_PORT=(int, None),
     EMAIL_USE_TLS=(bool, None),
     TELRAAM_TOKEN=(str, None),
+    DJANGO_LOG_LEVEL=(str, "INFO"),
+    TURKU_SERVICES_IMPORT_LOG_LEVEL=(str, "INFO"),
+    SEARCH_LOG_LEVEL=(str, "INFO"),
+    IOT_LOG_LEVEL=(str, "INFO"),
+    ECO_COUNTER_LOG_LEVEL=(str, "INFO"),
+    MOBILITY_DATA_LOG_LEVEL=(str, "INFO"),
+    BICYCLE_NETWORK_LOG_LEVEL=(str, "INFO"),
+    STREET_MAINTENANCE_LOG_LEVEL=(str, "INFO"),
 )
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = root()
 
 # Django environ has a nasty habit of complanining at level
 # WARN about env file not being preset. Here we pre-empt it.
@@ -81,6 +88,14 @@ DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
 TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+DJANGO_LOG_LEVEL = env("DJANGO_LOG_LEVEL")
+TURKU_SERVICES_IMPORT_LOG_LEVEL = env("TURKU_SERVICES_IMPORT_LOG_LEVEL")
+SEARCH_LOG_LEVEL = env("SEARCH_LOG_LEVEL")
+IOT_LOG_LEVEL = env("IOT_LOG_LEVEL")
+ECO_COUNTER_LOG_LEVEL = env("ECO_COUNTER_LOG_LEVEL")
+MOBILITY_DATA_LOG_LEVEL = env("MOBILITY_DATA_LOG_LEVEL")
+BICYCLE_NETWORK_LOG_LEVEL = env("BICYCLE_NETWORK_LOG_LEVEL")
+STREET_MAINTENANCE_LOG_LEVEL = env("STREET_MAINTENANCE_LOG_LEVEL")
 
 # Application definition
 INSTALLED_APPS = [
@@ -294,14 +309,23 @@ LOGGING = {
         "blackhole": {"class": "logging.NullHandler"},
     },
     "loggers": {
-        "django": {"handlers": ["console"], "level": "INFO"},
-        "turku_services_import": {"handlers": ["console"], "level": "DEBUG"},
-        "search": {"handlers": ["console"], "level": "DEBUG"},
-        "iot": {"handlers": ["console"], "level": "INFO"},
-        "eco_counter": {"handlers": ["console"], "level": "INFO"},
-        "mobility_data": {"handlers": ["console"], "level": "INFO"},
-        "bicycle_network": {"handlers": ["console"], "level": "INFO"},
-        "street_maintenance": {"handlers": ["console"], "level": "INFO"},
+        "django": {"handlers": ["console"], "level": DJANGO_LOG_LEVEL},
+        "turku_services_import": {
+            "handlers": ["console"],
+            "level": TURKU_SERVICES_IMPORT_LOG_LEVEL,
+        },
+        "search": {"handlers": ["console"], "level": SEARCH_LOG_LEVEL},
+        "iot": {"handlers": ["console"], "level": IOT_LOG_LEVEL},
+        "eco_counter": {"handlers": ["console"], "level": ECO_COUNTER_LOG_LEVEL},
+        "mobility_data": {"handlers": ["console"], "level": MOBILITY_DATA_LOG_LEVEL},
+        "bicycle_network": {
+            "handlers": ["console"],
+            "level": BICYCLE_NETWORK_LOG_LEVEL,
+        },
+        "street_maintenance": {
+            "handlers": ["console"],
+            "level": STREET_MAINTENANCE_LOG_LEVEL,
+        },
     },
 }
 
