@@ -380,37 +380,6 @@ if SENTRY_DSN:
 
 COOKIE_PREFIX = env("COOKIE_PREFIX")
 INTERNAL_IPS = env("INTERNAL_IPS")
-
-# NOTE, Helsinki has removed generation of the SECRET_KEY
-if "SECRET_KEY" not in locals():
-    secret_file = os.path.join(BASE_DIR, ".django_secret")
-    try:
-        SECRET_KEY = open(secret_file).read().strip()
-    except IOError:
-        import random
-
-        system_random = random.SystemRandom()
-        try:
-            SECRET_KEY = "".join(
-                [
-                    system_random.choice(
-                        "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"
-                    )
-                    for i in range(64)
-                ]
-            )
-            secret = open(secret_file, "w")
-            import os
-
-            os.chmod(secret_file, 0o0600)
-            secret.write(SECRET_KEY)
-            secret.close()
-        except IOError:
-            raise Exception(
-                "Please create a %s file with random characters to generate your secret key!"
-                % secret_file
-            )
-
 TURKU_WFS_URL = env("TURKU_WFS_URL")
 PTV_ID_OFFSET = env("PTV_ID_OFFSET")
 GEO_SEARCH_LOCATION = env("GEO_SEARCH_LOCATION")
