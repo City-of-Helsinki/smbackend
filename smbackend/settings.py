@@ -2,8 +2,10 @@ import os
 from pathlib import Path
 
 import environ
+import sentry_sdk
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
+from sentry_sdk.integrations.django import DjangoIntegration
 
 CONFIG_FILE_NAME = "config_dev.env"
 
@@ -17,8 +19,8 @@ env = environ.Env(
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
     ALLOWED_HOSTS=(list, []),
-    SENTRY_DSN=(str, None),
-    SENTRY_ENVIRONMENT=(str, "development"),
+    SENTRY_DSN=(str, ""),
+    SENTRY_ENVIRONMENT=(str, ""),
     COOKIE_PREFIX=(str, "servicemap"),
     INTERNAL_IPS=(list, []),
     CELERY_BROKER_URL=(str, "amqp://guest:guest@localhost:5672"),
@@ -107,7 +109,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.gis",
     "django.contrib.postgres",
-    "raven.contrib.django.raven_compat",
     "rest_framework.authtoken",
     "rest_framework",
     "corsheaders",
@@ -359,11 +360,6 @@ KML_REGEXP = r"application/vnd.google-earth\.kml"
 
 LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
 
-SENTRY_DSN = env("SENTRY_DSN")
-SENTRY_ENVIRONMENT = env("SENTRY_ENVIRONMENT")
-
-import raven  # noqa
-
 # Celery
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = "django-db"
@@ -391,15 +387,13 @@ TEST_CACHES = {
     }
 }
 
-
-if SENTRY_DSN:
-    RAVEN_CONFIG = {
-        "dsn": SENTRY_DSN,
-        # Needs to change if settings.py is not in an immediate child of the project
-        "release": raven.fetch_git_sha(os.path.dirname(os.pardir)),
-        "environment": SENTRY_ENVIRONMENT,
-    }
-
+sentry_sdk.init(
+    dsn=env.str("SENTRY_DSN"),
+    environment=env.str("SENTRY_ENVIRONMENT"),
+    traces_sample_rate=1.0,
+    send_default_pii=True,
+    integrations=[DjangoIntegration()],
+)
 
 COOKIE_PREFIX = env("COOKIE_PREFIX")
 INTERNAL_IPS = env("INTERNAL_IPS")
