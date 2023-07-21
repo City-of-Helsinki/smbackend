@@ -31,7 +31,7 @@ class UnitConnection(models.Model):
     unit = models.ForeignKey(
         Unit, db_index=True, related_name="connections", on_delete=models.CASCADE
     )
-    name = models.CharField(max_length=600)
+    name = models.CharField(max_length=2100)
     www = models.URLField(null=True, max_length=400)
     section_type = models.PositiveSmallIntegerField(choices=SECTION_TYPES, null=True)
     email = models.EmailField(max_length=100, null=True)
