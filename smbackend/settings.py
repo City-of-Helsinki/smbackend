@@ -12,6 +12,7 @@ env = environ.Env(
     DEBUG=(bool, False),
     LANGUAGES=(list, ["fi", "sv", "en"]),
     DATABASE_URL=(str, "postgis:///servicemap"),
+    SECRET_KEY=(str, ""),
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
     ALLOWED_HOSTS=(list, []),
@@ -77,6 +78,7 @@ if os.path.exists(env_file_path):
     environ.Env.read_env(env_file_path)
 
 DEBUG = env("DEBUG")
+SECRET_KEY = env("SECRET_KEY")
 TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
@@ -379,6 +381,7 @@ if SENTRY_DSN:
 COOKIE_PREFIX = env("COOKIE_PREFIX")
 INTERNAL_IPS = env("INTERNAL_IPS")
 
+# NOTE, Helsinki has removed generation of the SECRET_KEY
 if "SECRET_KEY" not in locals():
     secret_file = os.path.join(BASE_DIR, ".django_secret")
     try:
@@ -403,10 +406,11 @@ if "SECRET_KEY" not in locals():
             secret.write(SECRET_KEY)
             secret.close()
         except IOError:
-            Exception(
+            raise Exception(
                 "Please create a %s file with random characters to generate your secret key!"
                 % secret_file
             )
+
 TURKU_WFS_URL = env("TURKU_WFS_URL")
 PTV_ID_OFFSET = env("PTV_ID_OFFSET")
 GEO_SEARCH_LOCATION = env("GEO_SEARCH_LOCATION")
