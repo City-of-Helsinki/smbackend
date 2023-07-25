@@ -123,5 +123,5 @@ def import_lounaistieto_data_source(config):
         if obj.add_feature(feature, config, srid):
             objects.append(obj)
     content_type = get_or_create_content_type_from_config(config["content_type_name"])
-    num_ceated, num_deleted = save_to_database(objects, content_type)
-    log_imported_message(logger, content_type, num_ceated, num_deleted)
+    num_created, num_deleted = save_to_database(objects, content_type)
+    log_imported_message(logger, content_type, num_created, num_deleted)
