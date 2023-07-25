@@ -23,11 +23,11 @@ class Command(BaseCommand):
         content_type = get_or_create_content_type_from_config(
             FOLI_PARKANDRIDE_CARS_STOP_CONTENT_TYPE_NAME
         )
-        num_ceated, num_deleted = save_to_database(car_stops, content_type)
-        log_imported_message(logger, content_type, num_ceated, num_deleted)
+        num_created, num_deleted = save_to_database(car_stops, content_type)
+        log_imported_message(logger, content_type, num_created, num_deleted)
         content_type = get_or_create_content_type_from_config(
             FOLI_PARKANDRIDE_BIKES_STOP_CONTENT_TYPE_NAME
         )
         bike_stops = get_parkandride_bike_stop_objects()
-        num_ceated, num_deleted = save_to_database(bike_stops, content_type)
-        log_imported_message(logger, content_type, num_ceated, num_deleted)
+        num_created, num_deleted = save_to_database(bike_stops, content_type)
+        log_imported_message(logger, content_type, num_created, num_deleted)
