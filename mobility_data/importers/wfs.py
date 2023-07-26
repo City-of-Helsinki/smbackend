@@ -132,8 +132,7 @@ class MobilityData(MobileUnitDataBase):
         return True
 
 
-def get_data_source(config):
-    max_features = DEFAULT_MAX_FEATURES
+def get_data_source(config, max_features):
     wfs_url = config.get("wfs_url", settings.TURKU_WFS_URL)
     url = WFS_URL.format(
         wfs_url=wfs_url, wfs_layer=config["wfs_layer"], max_features=max_features
@@ -151,11 +150,13 @@ def import_wfs_feature(config, data_file=None):
         return False
     if "max_features" in config:
         max_features = config["max_features"]
+    else:
+        max_features = DEFAULT_MAX_FEATURES
     objects = []
     if data_file:
         ds = DataSource(data_file)
     else:
-        ds = get_data_source(config)
+        ds = get_data_source(config, max_features)
     assert len(ds) == 1
     layer = ds[0]
     for feature in layer:
