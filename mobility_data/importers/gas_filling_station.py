@@ -54,15 +54,13 @@ class GasFillingStation(MobileUnitDataBase):
         self.extra["lng_cng"] = self.lng_cng
 
 
-def get_filtered_gas_filling_station_objects(json_data=None):
+def get_filtered_gas_filling_station_objects():
     """
     Returns a list of GasFillingStation objects that are filtered by location.
     Stations inside boundarys of Southwest Finland are included, the rest
     are discarded.
     """
-
-    if not json_data:
-        json_data = fetch_json(GAS_FILLING_STATIONS_URL)
+    json_data = fetch_json(GAS_FILLING_STATIONS_URL)
     # srid = json_data["spatialReference"]["wkid"]
     # NOTE, hack to fix srid 102100 in source data causes "crs not found"
     srid = 4326
