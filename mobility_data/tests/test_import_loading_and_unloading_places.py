@@ -1,19 +1,31 @@
+from unittest.mock import patch
+
 import pytest
 from munigeo.models import Municipality
 
-from mobility_data.importers.loading_unloading_places import CONTENT_TYPE_NAME
+from mobility_data.importers.utils import (
+    get_or_create_content_type_from_config,
+    get_root_dir,
+    save_to_database,
+)
 from mobility_data.models import ContentType, MobileUnit
 
-from .utils import import_command
-
 
 @pytest.mark.django_db
-@pytest.mark.django_db
-def test_import(municipalities):
-    import_command(
-        "import_loading_and_unloading_places",
-        test_mode="loading_and_unloading_places.geojson",
+@patch("mobility_data.importers.loading_unloading_places.get_geojson_file_name")
+def test_import(get_geojson_file_name_mock, municipalities):
+    from mobility_data.importers.loading_unloading_places import (
+        CONTENT_TYPE_NAME,
+        get_loading_and_unloading_objects,
     )
+
+    file_name = f"{get_root_dir()}/mobility_data/tests/data/loading_and_unloading_places.geojson"
+    get_geojson_file_name_mock.return_value = file_name
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
+    objects = get_loading_and_unloading_objects()
+    num_created, num_deleted = save_to_database(objects, content_type)
+    assert num_created == 3
+    assert num_deleted == 0
     assert ContentType.objects.all().count() == 1
     assert MobileUnit.objects.all().count() == 3
     turku_muni = None

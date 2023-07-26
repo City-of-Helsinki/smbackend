@@ -1,16 +1,31 @@
+from unittest.mock import patch
+
 import pytest
 
-from mobility_data.importers.share_car_parking_places import CONTENT_TYPE_NAME
+from mobility_data.importers.utils import (
+    get_or_create_content_type_from_config,
+    get_root_dir,
+    save_to_database,
+)
 from mobility_data.models import ContentType, MobileUnit
-
-from .utils import import_command
 
 
 @pytest.mark.django_db
-def test_import_car_share_parking_places():
-    import_command(
-        "import_share_car_parking_places", test_mode="share_car_parking_places.geojson"
+@patch("mobility_data.importers.share_car_parking_places.get_geojson_file_name")
+def test_import_car_share_parking_places(get_geojson_file_name_mock):
+    from mobility_data.importers.share_car_parking_places import (
+        CONTENT_TYPE_NAME,
+        get_car_share_parking_place_objects,
     )
+
+    file_name = (
+        f"{get_root_dir()}/mobility_data/tests/data/share_car_parking_places.geojson"
+    )
+    get_geojson_file_name_mock.return_value = file_name
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
+    objects = get_car_share_parking_place_objects()
+    num_created, num_deleted = save_to_database(objects, content_type)
+    assert num_created == 3
     assert ContentType.objects.filter(type_name=CONTENT_TYPE_NAME).count() == 1
     assert (
         MobileUnit.objects.filter(content_types__type_name=CONTENT_TYPE_NAME).count()
