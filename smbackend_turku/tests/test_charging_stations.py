@@ -1,8 +1,10 @@
 import logging
 from datetime import datetime
+from unittest.mock import patch
 
 import pytest
 import pytz
+from django.conf import settings
 
 from services.models import Service, ServiceNode, Unit
 from smbackend_turku.importers.stations import import_charging_stations
@@ -10,7 +12,9 @@ from smbackend_turku.importers.utils import get_external_source_config
 
 
 @pytest.mark.django_db
+@patch("mobility_data.importers.charging_stations.get_csv_file_name")
 def test_charging_stations_import(
+    get_csv_file_name_mock,
     municipality,
     administrative_division,
     administrative_division_type,
@@ -27,10 +31,11 @@ def test_charging_stations_import(
     ServiceNode.objects.create(
         id=42, name="Vapaa-aika", last_modified_time=datetime.now(utc_timezone)
     )
+    file_name = f"{settings.BASE_DIR}/mobility_data/tests/data/charging_stations.csv"
+    get_csv_file_name_mock.return_value = file_name
     import_charging_stations(
         logger=logger,
         config=config,
-        test_data="charging_stations.csv",
     )
     assert Unit.objects.all().count() == 3
     Service.objects.all().count() == 1
