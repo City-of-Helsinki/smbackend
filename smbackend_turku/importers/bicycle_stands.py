@@ -7,10 +7,9 @@ from smbackend_turku.importers.utils import BaseExternalSource
 
 
 class BicycleStandImporter(BaseExternalSource):
-    def __init__(self, logger=None, config=None, test_data=None):
+    def __init__(self, logger=None, config=None):
         super().__init__(config)
         self.logger = logger
-        self.test_data = test_data
 
     def import_bicycle_stands(self):
         self.logger.info("Importing Bicycle Stands...")
