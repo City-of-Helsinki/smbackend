@@ -12,14 +12,14 @@ from .utils import get_test_fixture_json_data
 
 
 @pytest.mark.django_db
-@patch("mobility_data.importers.utils.fetch_json")
-def test_importer(fetch_json_mock, municipalities):
+@patch("mobility_data.importers.gas_filling_station.get_json_data")
+def test_importer(get_json_data_mock, municipalities):
     from mobility_data.importers.gas_filling_station import (
         CONTENT_TYPE_NAME,
         get_filtered_gas_filling_station_objects,
     )
 
-    fetch_json_mock.return_value = get_test_fixture_json_data(
+    get_json_data_mock.return_value = get_test_fixture_json_data(
         "gas_filling_stations.json"
     )
     objects = get_filtered_gas_filling_station_objects()

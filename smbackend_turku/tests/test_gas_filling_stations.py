@@ -6,20 +6,20 @@ import pytest
 import pytz
 
 from mobility_data.tests.utils import get_test_fixture_json_data
-from services.models import Service, ServiceNode  # , Unit
+from services.models import Service, ServiceNode, Unit
 from smbackend_turku.importers.stations import import_gas_filling_stations
 from smbackend_turku.importers.utils import get_external_source_config
 from smbackend_turku.tests.utils import create_municipalities
 
 
 @pytest.mark.django_db
-@patch("mobility_data.importers.utils.fetch_json")
-def test_gas_filling_stations_import(fetch_json_mock):
+@patch("mobility_data.importers.gas_filling_station.get_json_data")
+def test_gas_filling_stations_import(get_json_data_mock):
 
     logger = logging.getLogger(__name__)
     # For reasons unknown this mock does not work,
     # The return value of the actual function call is used.
-    fetch_json_mock.return_value = get_test_fixture_json_data(
+    get_json_data_mock.return_value = get_test_fixture_json_data(
         "gas_filling_stations.json"
     )
     config = get_external_source_config("gas_filling_stations")
@@ -41,13 +41,13 @@ def test_gas_filling_stations_import(fetch_json_mock):
     assert service_node.id == config["service_node"]["id"]
     assert service_node.parent.id == root_service_node.id
     # See line 20, commented as the mock does not work.
-    # assert Unit.objects.all().count() == 2
-    # assert Unit.objects.all()[1].id == config["units_offset"]
-    # assert Unit.objects.get(name="Raisio Kuninkoja")
-    # unit = Unit.objects.get(name="Turku Satama")
-    # assert pytest.approx(unit.location.x, 0.0000000001) == 236760.1062021295
-    # assert unit.extra["operator"] == "Gasum"
-    # assert unit.service_nodes.all().count() == 1
-    # assert unit.services.all().count() == 1
-    # assert unit.services.first().name == config["service"]["name"]["fi"]
-    # assert unit.service_nodes.first().name == config["service_node"]["name"]["fi"]
+    assert Unit.objects.all().count() == 2
+    assert Unit.objects.all()[1].id == config["units_offset"]
+    assert Unit.objects.get(name="Raisio Kuninkoja")
+    unit = Unit.objects.get(name="Turku Satama")
+    assert pytest.approx(unit.location.x, 0.0000000001) == 236760.1062021295
+    assert unit.extra["operator"] == "Gasum"
+    assert unit.service_nodes.all().count() == 1
+    assert unit.services.all().count() == 1
+    assert unit.services.first().name == config["service"]["name"]["fi"]
+    assert unit.service_nodes.first().name == config["service_node"]["name"]["fi"]
