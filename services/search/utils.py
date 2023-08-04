@@ -2,7 +2,7 @@ import libvoikko
 from django.db import connection
 from django.db.models import Case, When
 
-from services.models import ServiceNode, ServiceNodeUnitCount, Unit
+from services.models import ExclusionRule, ServiceNode, ServiceNodeUnitCount, Unit
 from services.search.constants import (
     DEFAULT_TRIGRAM_THRESHOLD,
     LENGTH_OF_HYPHENATED_WORDS,
@@ -194,3 +194,14 @@ def get_trigram_results(
     ids = [row[0] for row in all_results]
     objs = model.objects.filter(id__in=ids)
     return objs
+
+
+def get_search_exclusions(q):
+    """
+    To add/modify search exclusion rules edit: services/fixtures/exclusion_rules
+    To import rules: ./manage.py loaddata services/fixtures/exclusion_rules.json
+    """
+    rule = ExclusionRule.objects.filter(word__iexact=q).first()
+    if rule:
+        return rule.exclusion
+    return ""

@@ -34,6 +34,16 @@ components:
         type: string
       example: fi
       default: fi
+    use_websearch_param:
+      name: use_websearch
+      in: query
+      schema:
+        type: boolean
+        default: true
+      description: >
+        "websearch_to_tsquery is a simplified version of to_tsquery with an alternative syntax, similar to the one used by web search engines." 
+        If disabled, uses 'to_tsquery' function to convert the query to 'tsquery'.
+        If enabled, exclusion rules are used when generating the query as it support the not "-" operator.
     order_units_by_num_services_param:
       name: order_units_by_num_services
       in: query
@@ -173,6 +183,7 @@ paths:
         - $ref: "#/components/parameters/q_param"
         - $ref: "#/components/parameters/language_param"
         - $ref: "#/components/parameters/use_trigram_param"
+        - $ref: "#/components/parameters/use_websearch_param"
         - $ref: "#/components/parameters/trigram_threshold_param"
         - $ref: "#/components/parameters/order_units_by_num_services_param"
         - $ref: "#/components/parameters/geometry_param"

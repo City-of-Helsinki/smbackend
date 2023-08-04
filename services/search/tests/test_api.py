@@ -13,6 +13,7 @@ def test_search(
     administrative_division,
     accessibility_shortcoming,
     municipality,
+    exclusion_rules,
 ):
     # Search for "museo" in entities: units,services and servicenods
     url = reverse("search") + "?q=museo&type=unit,service,servicenode"
@@ -30,7 +31,6 @@ def test_search(
     assert biological_museum_unit["street_address"] == "Neitsytpolku 1"
     assert biological_museum_unit["municipality"] == "turku"
     assert biological_museum_unit["contract_type"]["id"] == "municipal_service"
-
     assert (
         biological_museum_unit["contract_type"]["description"]["fi"]
         == "municipal_service"
@@ -133,3 +133,23 @@ def test_search(
     results = response.json()["results"]
     assert results[0]["object_type"] == "administrativedivision"
     assert results[0]["name"]["fi"] == "Turku"
+
+    # Test exclusion rules used with websearch. By default (use_websearch=True) should only find Parkin kenttä
+    url = reverse("search") + "?q=tekojää&type=unit,service,servicenode"
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert len(results) == 2
+    parkin_kentta = results[0]
+    assert parkin_kentta["object_type"] == "unit"
+    assert parkin_kentta["name"]["fi"] == "Parkin kenttä"
+    tekojaa_service = results[1]
+    assert tekojaa_service["object_type"] == "service"
+    assert tekojaa_service["name"]["fi"] == "tekojääkentät"
+    # Disabling use_websearch, should return both 'tekojääkentät', 'tekonurmikentät' services and their units.
+    # as syllable 'teko' is indexed from the compound words.
+    url = (
+        reverse("search")
+        + "?q=tekojää&type=unit,service,servicenode&use_websearch=false"
+    )
+    response = api_client.get(url)
+    assert len(response.json()["results"]) == 4

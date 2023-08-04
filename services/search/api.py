@@ -54,6 +54,7 @@ from .constants import (
 from .utils import (
     get_all_ids_from_sql_results,
     get_preserved_order,
+    get_search_exclusions,
     get_service_node_results,
     get_trigram_results,
     set_address_fields,
@@ -212,6 +213,14 @@ class SearchViewSet(GenericAPIView):
         else:
             trigram_threshold = DEFAULT_TRIGRAM_THRESHOLD
 
+        if "use_websearch" in params:
+            try:
+                use_websearch = strtobool(params["use_websearch"])
+            except ValueError:
+                raise ParseError("'use_websearch' needs to be a boolean")
+        else:
+            use_websearch = True
+
         if "geometry" in params:
             try:
                 show_geometry = strtobool(params["geometry"])
@@ -266,7 +275,7 @@ class SearchViewSet(GenericAPIView):
         config_language = LANGUAGES[language_short]
         search_query_str = None  # Used in the raw sql
         # Build conditional query string that is used in the SQL query.
-        # split my "," or whitespace
+        # split by "," or whitespace
         q_vals = re.split(r",\s+|\s+", q_val)
         q_vals = [s.strip().replace("'", "") for s in q_vals]
         for q in q_vals:
@@ -279,12 +288,17 @@ class SearchViewSet(GenericAPIView):
                     search_query_str += f"& {q}:*"
             else:
                 search_query_str = f"{q}:*"
-
+        search_fn = "to_tsquery"
+        if use_websearch:
+            exclusions = get_search_exclusions(q)
+            if exclusions:
+                search_fn = "websearch_to_tsquery"
+                search_query_str += f" {exclusions}"
         # This is ~100 times faster than using Djangos SearchRank and allows searching using wildard "|*"
         # and by rankig gives better results, e.g. extra fields weight is counted.
         sql = f"""
         SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
-        AS rank FROM search_view, to_tsquery('{config_language}','{search_query_str}') search_query
+        AS rank FROM search_view, {search_fn}('{config_language}','{search_query_str}') search_query
         WHERE search_query @@ search_column_{language_short}
         ORDER BY rank DESC LIMIT {sql_query_limit};
         """

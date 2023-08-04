@@ -141,8 +141,12 @@ For Turku specific imports see smbackend_turku/README.md.
 ./manage.py geo_import helsinki --divisions
 ./manage.py index_search_columns
 ```
-
+Import exclude rules fixtures used by the search:
+```
+./manage.py loaddata services/fixtures/exclusion_rules.json
+```
 7. Redis
+
 Redis is used for caching and as a message broker for Celery.
 Install Redis. Ubuntu: `sudo apt-get install redis-server`
 
@@ -198,3 +202,6 @@ psql template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
 Mobility platform
 -----------------
 The mobility data platform of the service map is being developed as part of European Union Horizon 2020 programme funded SCALE-UP project (grant agreement no. 955332).
+
+For more information see: mobility_data/README.mk
+
