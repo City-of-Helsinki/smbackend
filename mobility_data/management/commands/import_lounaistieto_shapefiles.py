@@ -2,19 +2,18 @@ import logging
 import os
 
 import yaml
+from django.core.management import BaseCommand
 
 from mobility_data.importers.lounaistieto_shapefiles import (
     import_lounaistieto_data_source,
 )
 from mobility_data.importers.utils import delete_mobile_units, get_root_dir
 
-from ._base_import_command import BaseImportCommand
-
 logger = logging.getLogger("mobility_data")
 CONFIG_FILE = "lounaistieto_shapefiles_config.yml"
 
 
-class Command(BaseImportCommand):
+class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "-d",

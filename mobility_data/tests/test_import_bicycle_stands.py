@@ -1,12 +1,31 @@
+from unittest.mock import patch
+
 import pytest
 
+from mobility_data.importers.utils import (
+    delete_mobile_units,
+    get_or_create_content_type_from_config,
+    save_to_database,
+)
 from mobility_data.models import MobileUnit
 
-from .utils import import_command
+from .utils import get_test_fixture_data_source
+
+
+def get_geojson_data_source(file_name):
+    ds = get_test_fixture_data_source(file_name)
+    return [("geojson", ds)]
+
+
+def get_gml_data_source(file_name):
+    ds = get_test_fixture_data_source(file_name)
+    return [("gml", ds)]
 
 
 @pytest.mark.django_db
+@patch("mobility_data.importers.bicycle_stands.get_data_sources")
 def test_geojson_import(
+    get_data_sources_mock,
     municipalities,
     administrative_division_type,
     administrative_division,
@@ -14,9 +33,19 @@ def test_geojson_import(
     streets,
     address,
 ):
-    import_command(
-        "import_bicycle_stands", test_mode="bicycle_stands_for_units.geojson"
+    from mobility_data.importers.bicycle_stands import (
+        CONTENT_TYPE_NAME,
+        get_bicycle_stand_objects,
     )
+
+    get_data_sources_mock.return_value = get_geojson_data_source(
+        "bicycle_stands_for_units.geojson"
+    )
+    objects = get_bicycle_stand_objects()
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
+    num_created, num_deleted = save_to_database(objects, content_type)
+    assert num_created == 3
+    assert num_deleted == 0
     assert MobileUnit.objects.all().count() == 3
     kupittaan_maauimala = MobileUnit.objects.get(name="Kupittaan maauimala")
     assert kupittaan_maauimala
@@ -35,10 +64,17 @@ def test_geojson_import(
     assert turun_amk.extra["hull_lockable"] is True
     assert turun_amk.extra["covered"] is False
     assert turun_amk.municipality.name == "Turku"
+    delete_mobile_units(content_type)
+    assert (
+        MobileUnit.objects.filter(content_types__type_name=CONTENT_TYPE_NAME).count()
+        == 0
+    )
 
 
 @pytest.mark.django_db
-def test_wfs_importer(
+@patch("mobility_data.importers.bicycle_stands.get_data_sources")
+def test_gml_importer(
+    get_data_sources_mock,
     municipalities,
     administrative_division_type,
     administrative_division,
@@ -46,7 +82,17 @@ def test_wfs_importer(
     streets,
     address,
 ):
-    import_command("import_bicycle_stands", test_mode="bicycle_stands.gml")
+    from mobility_data.importers.bicycle_stands import (
+        CONTENT_TYPE_NAME,
+        get_bicycle_stand_objects,
+    )
+
+    get_data_sources_mock.return_value = get_gml_data_source("bicycle_stands.gml")
+    objects = get_bicycle_stand_objects()
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
+    num_created, num_deleted = save_to_database(objects, content_type)
+    assert num_created == 3
+    assert num_deleted == 0
     assert MobileUnit.objects.all().count() == 3
     # <GIS:Id>0</GIS:Id> in fixture xml.
     stand_normal = MobileUnit.objects.first()

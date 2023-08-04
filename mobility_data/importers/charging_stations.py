@@ -111,18 +111,18 @@ def get_number_of_rows(file_name):
     return number_of_rows
 
 
-def get_charging_station_objects(csv_file=None):
+def get_csv_file_name():
+    file_name = get_file_name_from_data_source(CONTENT_TYPE_NAME)
+    if file_name:
+        return file_name
+    return f"{get_root_dir()}/mobility_data/data/{SOURCE_DATA_FILE_NAME}"
+
+
+def get_charging_station_objects():
     # Store the imported stations to dict, the index is the key.
+    file_name = get_csv_file_name()
     charging_stations = {}
     column_mappings = {}
-    if not csv_file:
-        file_name = get_file_name_from_data_source(CONTENT_TYPE_NAME)
-        if not file_name:
-            file_name = f"{get_root_dir()}/mobility_data/data/{SOURCE_DATA_FILE_NAME}"
-    else:
-        # Use the test data file
-        file_name = f"{get_root_dir()}/mobility_data/tests/data/{csv_file}"
-
     number_of_rows = get_number_of_rows(file_name)
     with open(file_name, encoding="utf-8-sig") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=";")

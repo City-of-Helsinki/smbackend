@@ -135,19 +135,17 @@ class Parking(MobileUnitDataBase):
                         self.extra[field_name] = feature[field].as_double()
 
 
-def get_no_staff_parking_objects(geojson_file=None):
+def get_geojson_file_name():
+    file_name = get_file_name_from_data_source(NO_STAFF_PARKING_CONTENT_TYPE_NAME)
+    if file_name:
+        return file_name
+    return f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
+
+
+def get_no_staff_parking_objects():
     no_staff_parkings = []
     disabled_parkings = []
-    file_name = None
-
-    if not geojson_file:
-        file_name = get_file_name_from_data_source(NO_STAFF_PARKING_CONTENT_TYPE_NAME)
-        if not file_name:
-            file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
-    else:
-        # Use the test data file
-        file_name = f"{get_root_dir()}/mobility_data/tests/data/{geojson_file}"
-
+    file_name = get_geojson_file_name()
     data_layer = GDALDataSource(file_name)[0]
 
     for feature in data_layer:

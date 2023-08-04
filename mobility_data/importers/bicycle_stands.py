@@ -198,24 +198,24 @@ class BicyleStand(MobileUnitDataBase):
         self.prefix_name = {k: f"{NAME_PREFIX[k]} {v}" for k, v in self.name.items()}
 
 
-def get_bicycle_stand_objects(data_source=None):
+def get_data_sources():
+    data_sources = []
+    # Add the WFS datasource that is in GML format
+    ds = DataSource(BICYCLE_STANDS_URL)
+    data_sources.append(("gml", ds))
+    # Add the GEOJSON datasource which is a file
+    data_path = os.path.join(get_root_dir(), "mobility_data/data")
+    file_path = os.path.join(data_path, GEOJSON_FILENAME)
+    ds = DataSource(file_path)
+    data_sources.append(("geojson", ds))
+    return data_sources
+
+
+def get_bicycle_stand_objects():
     """
     Returns a list containg instances of BicycleStand class.
     """
-    data_sources = []
-
-    if data_source:
-        data_sources.append(data_source)
-    else:
-        # Add the WFS datasource that is in GML format
-        ds = DataSource(BICYCLE_STANDS_URL)
-        data_sources.append(("gml", ds))
-        # Add the GEOJSON datasource which is a file
-        data_path = os.path.join(get_root_dir(), "mobility_data/data")
-        file_path = os.path.join(data_path, GEOJSON_FILENAME)
-        ds = DataSource(file_path)
-        data_sources.append(("geojson", ds))
-
+    data_sources = get_data_sources()
     bicycle_stands = []
     """
     external_stands dict is used to keep track of the names of imported external stands

@@ -1,14 +1,17 @@
+from unittest.mock import patch
+
 import pytest
 from django.conf import settings
 from django.contrib.gis.geos import Point
 
-from mobility_data.importers.wfs import DEFAULT_SOURCE_DATA_SRID
+from mobility_data.importers.wfs import DEFAULT_SOURCE_DATA_SRID, import_wfs_feature
+from mobility_data.management.commands.import_wfs import CONFIG_FILE, get_yaml_config
 from mobility_data.models import ContentType, MobileUnit
 
-from .utils import import_command
+from .utils import get_test_fixture_data_source
 
 """
-Note, namespace declarations has beenremoved from the test input data, as it causes GDAL
+Note, namespace declarations has been removed from the test input data, as it causes GDAL
 DataSource to fail when loading data.
 scooter_parkings.gml:
 xsi:schemaLocation="http://www.opengis.net/wfs
@@ -31,12 +34,16 @@ https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx
 
 
 @pytest.mark.django_db
-def test_import_scooter_restrictions():
-    import_command(
-        "import_wfs",
-        "ScooterParkingArea",
-        data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/scooter_parkings.gml",
+@patch("mobility_data.importers.wfs.get_data_source")
+def test_import_scooter_restrictions(get_data_source_mock):
+    config = get_yaml_config(CONFIG_FILE)
+    get_data_source_mock.return_value = get_test_fixture_data_source(
+        "scooter_parkings.gml"
     )
+    features = ["ScooterParkingArea"]
+    for feature in config["features"]:
+        if feature["content_type_name"] in features:
+            import_wfs_feature(feature)
     # Test scooter parking
     parking_content_type = ContentType.objects.get(type_name="ScooterParkingArea")
     assert parking_content_type
@@ -47,11 +54,13 @@ def test_import_scooter_restrictions():
     parking_unit.content_types.first() == parking_content_type
     point = Point(239576.42, 6711050.26, srid=DEFAULT_SOURCE_DATA_SRID)
     parking_unit.geometry.equals_exact(point, tolerance=0.0001)
-    import_command(
-        "import_wfs",
-        "ScooterSpeedLimitArea",
-        data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/scooter_speed_limits.gml",
+    get_data_source_mock.return_value = get_test_fixture_data_source(
+        "scooter_speed_limits.gml"
     )
+    features = ["ScooterSpeedLimitArea"]
+    for feature in config["features"]:
+        if feature["content_type_name"] in features:
+            import_wfs_feature(feature)
     # Test scooter speed limits
     speed_limit_content_type = ContentType.objects.get(
         type_name="ScooterSpeedLimitArea"
@@ -67,11 +76,13 @@ def test_import_scooter_restrictions():
     # Scooter speed limit unit locates in the market square(kauppator)
     assert speed_limit_unit.geometry.contains(market_square) is True
     assert speed_limit_unit.geometry.contains(turku_cathedral) is False
-    import_command(
-        "import_wfs",
-        "ScooterNoParkingArea",
-        data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/scooter_no_parking_zones.gml",
+    get_data_source_mock.return_value = get_test_fixture_data_source(
+        "scooter_no_parking_zones.gml"
     )
+    features = ["ScooterNoParkingArea"]
+    for feature in config["features"]:
+        if feature["content_type_name"] in features:
+            import_wfs_feature(feature)
     # Test scooter no parking zones
     no_parking_content_type = ContentType.objects.get(type_name="ScooterNoParkingArea")
     assert no_parking_content_type

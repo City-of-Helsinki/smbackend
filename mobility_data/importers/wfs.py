@@ -4,6 +4,7 @@ import django.contrib.gis.gdal.geometries as gdalgeometries
 from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
+from django.contrib.gis.gdal.error import GDALException
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon
 from munigeo.models import Municipality
 
@@ -67,22 +68,24 @@ class MobilityData(MobileUnitDataBase):
         if config.get("locates_in_turku", False):
             if not locates_in_turku(feature, source_srid):
                 return False
-
         # If geometry contains multiple polygons and create_multipolygon attribute is True
         # create one multipolygon from the polygons.
-        if (
-            len(feature.geom.coords) > 1
-            and create_multipolygon
-            and isinstance(feature.geom, gdalgeometries.Polygon)
-        ):
-            polygons = []
-            for coords in feature.geom.coords:
-                polygons.append(Polygon(coords, srid=source_srid))
-            self.geometry = MultiPolygon(polygons, srid=source_srid)
-        else:
-            self.geometry = GEOSGeometry(feature.geom.wkt, srid=source_srid)
-        self.geometry.transform(settings.DEFAULT_SRID)
-
+        try:
+            if (
+                len(feature.geom.coords) > 1
+                and create_multipolygon
+                and isinstance(feature.geom, gdalgeometries.Polygon)
+            ):
+                polygons = []
+                for coords in feature.geom.coords:
+                    polygons.append(Polygon(coords, srid=source_srid))
+                self.geometry = MultiPolygon(polygons, srid=source_srid)
+            else:
+                self.geometry = GEOSGeometry(feature.geom.wkt, srid=source_srid)
+            self.geometry.transform(settings.DEFAULT_SRID)
+        except GDALException as ex:
+            logger.error(ex)
+            return False
         if "municipality" in config:
             municipality = feature[config["municipality"]].as_string()
             if municipality:
@@ -129,8 +132,16 @@ class MobilityData(MobileUnitDataBase):
         return True
 
 
+def get_data_source(config, max_features):
+    wfs_url = config.get("wfs_url", settings.TURKU_WFS_URL)
+    url = WFS_URL.format(
+        wfs_url=wfs_url, wfs_layer=config["wfs_layer"], max_features=max_features
+    )
+    ds = DataSource(url)
+    return ds
+
+
 def import_wfs_feature(config, data_file=None):
-    max_features = DEFAULT_MAX_FEATURES
     if "content_type_name" not in config:
         logger.warning(f"Skipping feature {config}, 'content_type_name' is required.")
         return False
@@ -139,17 +150,13 @@ def import_wfs_feature(config, data_file=None):
         return False
     if "max_features" in config:
         max_features = config["max_features"]
-    wfs_layer = config["wfs_layer"]
+    else:
+        max_features = DEFAULT_MAX_FEATURES
     objects = []
     if data_file:
         ds = DataSource(data_file)
     else:
-        wfs_url = config.get("wfs_url", settings.TURKU_WFS_URL)
-
-        url = WFS_URL.format(
-            wfs_url=wfs_url, wfs_layer=wfs_layer, max_features=max_features
-        )
-        ds = DataSource(url)
+        ds = get_data_source(config, max_features)
     assert len(ds) == 1
     layer = ds[0]
     for feature in layer:
@@ -157,5 +164,5 @@ def import_wfs_feature(config, data_file=None):
         if object.add_feature(feature, config):
             objects.append(object)
     content_type = get_or_create_content_type_from_config(config["content_type_name"])
-    num_ceated, num_deleted = save_to_database(objects, content_type)
-    log_imported_message(logger, content_type, num_ceated, num_deleted)
+    num_created, num_deleted = save_to_database(objects, content_type)
+    log_imported_message(logger, content_type, num_created, num_deleted)

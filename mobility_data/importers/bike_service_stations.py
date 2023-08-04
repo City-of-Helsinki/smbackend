@@ -64,20 +64,18 @@ class BikeServiceStation(MobileUnitDataBase):
         self.extra["in_terrain"] = feature["Maastossa"].as_string()
 
 
-def get_bike_service_station_objects(geojson_file=None):
-    bicycle_repair_points = []
-    file_name = None
-    if not geojson_file:
-        file_name = get_file_name_from_data_source(CONTENT_TYPE_NAME)
-        if not file_name:
-            file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
-        else:
-            file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
+def get_data_layer():
+    file_name = get_file_name_from_data_source(CONTENT_TYPE_NAME)
+    if not file_name:
+        file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
     else:
-        # Use the test data file
-        file_name = f"{get_root_dir()}/mobility_data/tests/data/{geojson_file}"
-
+        file_name = f"{get_root_dir()}/mobility_data/data/{GEOJSON_FILENAME}"
     data_layer = GDALDataSource(file_name)[0]
-    for feature in data_layer:
+    return data_layer
+
+
+def get_bike_service_station_objects():
+    bicycle_repair_points = []
+    for feature in get_data_layer():
         bicycle_repair_points.append(BikeServiceStation(feature))
     return bicycle_repair_points

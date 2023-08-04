@@ -7,28 +7,33 @@ https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?SERVICE=WFS&REQUEST=DescribeFea
 has been removed from the test input data, as it causes GDAL
 DataSource to fail when loading data.
 """
+from unittest.mock import patch
+
 import pytest
 from django.conf import settings
 from django.contrib.gis.geos import Point
 
-from mobility_data.importers.wfs import DEFAULT_SOURCE_DATA_SRID
+from mobility_data.importers.wfs import DEFAULT_SOURCE_DATA_SRID, import_wfs_feature
+from mobility_data.management.commands.import_wfs import CONFIG_FILE, get_yaml_config
 from mobility_data.models import ContentType, MobileUnit
 
-from .utils import import_command
+from .utils import get_test_fixture_data_source
 
 
 @pytest.mark.django_db
+@patch("mobility_data.importers.wfs.get_data_source")
 def test_import_accessories(
+    get_data_source_mock,
     administrative_division,
     administrative_division_type,
     administrative_division_geometry,
 ):
-    import_command(
-        "import_wfs",
-        ["PublicToilet", "PublicTable", "PublicBench", "PublicFurnitureGroup"],
-        data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/accessories.gml",
-    )
-
+    config = get_yaml_config(CONFIG_FILE)
+    get_data_source_mock.return_value = get_test_fixture_data_source("accessories.gml")
+    features = ["PublicToilet", "PublicTable", "PublicBench", "PublicFurnitureGroup"]
+    for feature in config["features"]:
+        if feature["content_type_name"] in features:
+            import_wfs_feature(feature)
     public_toilet_content_type = ContentType.objects.get(type_name="PublicToilet")
     public_toilet_units_qs = MobileUnit.objects.filter(
         content_types=public_toilet_content_type

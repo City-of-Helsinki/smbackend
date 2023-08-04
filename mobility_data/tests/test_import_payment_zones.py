@@ -6,23 +6,30 @@ https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx
 has been removed from the test input data, as it causes GDAL
 DataSource to fail when loading data.
 """
+from unittest.mock import patch
 
 import pytest
 from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
 
+from mobility_data.importers.wfs import import_wfs_feature
+from mobility_data.management.commands.import_wfs import CONFIG_FILE, get_yaml_config
 from mobility_data.models import ContentType, MobileUnit
 
-from .utils import import_command
+from .utils import get_test_fixture_data_source
 
 
 @pytest.mark.django_db
-def test_import_payment_zones():
-    import_command(
-        "import_wfs",
-        "PaymentZone",
-        data_file=f"{settings.BASE_DIR}/mobility_data/tests/data/payment_zones.gml",
+@patch("mobility_data.importers.wfs.get_data_source")
+def test_import_payment_zones(get_data_source_mock):
+    config = get_yaml_config(CONFIG_FILE)
+    get_data_source_mock.return_value = get_test_fixture_data_source(
+        "payment_zones.gml"
     )
+    features = ["PaymentZone"]
+    for feature in config["features"]:
+        if feature["content_type_name"] in features:
+            import_wfs_feature(feature)
     assert ContentType.objects.all().count() == 1
     content_type = ContentType.objects.first()
     assert content_type.type_name == "PaymentZone"

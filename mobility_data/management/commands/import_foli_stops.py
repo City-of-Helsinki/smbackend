@@ -17,5 +17,5 @@ class Command(BaseCommand):
         logger.info("Importing Föli stops")
         objects = get_foli_stops()
         content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
-        num_ceated, num_deleted = save_to_database(objects, content_type)
-        log_imported_message(logger, content_type, num_ceated, num_deleted)
+        num_created, num_deleted = save_to_database(objects, content_type)
+        log_imported_message(logger, content_type, num_created, num_deleted)

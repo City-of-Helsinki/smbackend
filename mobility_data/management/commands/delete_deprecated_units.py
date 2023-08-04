@@ -5,7 +5,7 @@ from mobility_data.models import ContentType, GroupType
 """
 This command removes all units that have a ContentType or
 GroupType where type_name is not Null. This data is deprecated
-as the only the name will be used in future.
+as only the name will be used in future.
 """
 
 

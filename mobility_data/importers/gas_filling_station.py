@@ -1,12 +1,12 @@
 import logging
 
+import requests
 from django.conf import settings
 from django.contrib.gis.geos import Point, Polygon
 from munigeo.models import Municipality
 
 from .constants import SOUTHWEST_FINLAND_BOUNDARY, SOUTHWEST_FINLAND_BOUNDARY_SRID
 from .utils import (
-    fetch_json,
     get_street_name_and_number,
     get_street_name_translations,
     LANGUAGES,
@@ -54,15 +54,21 @@ class GasFillingStation(MobileUnitDataBase):
         self.extra["lng_cng"] = self.lng_cng
 
 
-def get_filtered_gas_filling_station_objects(json_data=None):
+def get_json_data(url):
+    response = requests.get(url)
+    assert response.status_code == 200, "Fetching {} status code: {}".format(
+        url, response.status_code
+    )
+    return response.json()
+
+
+def get_filtered_gas_filling_station_objects():
     """
     Returns a list of GasFillingStation objects that are filtered by location.
     Stations inside boundarys of Southwest Finland are included, the rest
     are discarded.
     """
-
-    if not json_data:
-        json_data = fetch_json(GAS_FILLING_STATIONS_URL)
+    json_data = get_json_data(GAS_FILLING_STATIONS_URL)
     # srid = json_data["spatialReference"]["wkid"]
     # NOTE, hack to fix srid 102100 in source data causes "crs not found"
     srid = 4326
