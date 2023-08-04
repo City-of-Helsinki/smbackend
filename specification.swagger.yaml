@@ -300,7 +300,25 @@ paths:
           schema:
             type: integer
           example: 811
-        - $ref: "#/components/parameters/include_param"
+        - name: include
+          in: query
+          style: form
+          explode: false
+          description: "Enable count service by division with: "include=unit_count_per_division""
+          type: string
+        - name: division
+          in: query
+          style: form
+          explode: false
+          description: A comma-separated list of administrative divisions to be used when unit
+            counting by service and division. Use either full division ids or shorthands of the form
+            muni/type\:id
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          example: ocd-division/country:fi/kunta:raisio
         - $ref: "#/components/parameters/only_param"
         - $ref: "#/components/parameters/geometry_param"
   /service/:
@@ -313,7 +331,7 @@ paths:
         - service
       parameters:
         - $ref: "#/components/parameters/page_param"
-        - $ref: "#/components/parameters/pagesize_param"
+        - $ref: "#/components/parameters/pagesize_param"      
         - name: id
           in: query
           style: form
@@ -324,6 +342,7 @@ paths:
             items:
               type: integer
           example: 811,663
+
       responses:
         "200":
           description: List of services, paginated
