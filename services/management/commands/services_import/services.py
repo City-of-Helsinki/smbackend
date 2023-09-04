@@ -45,6 +45,7 @@ MOBILITY_SERVICE_NODE_MAPPING = {
         "service_nodes": [552, 558, 2217, 601, 633, 666, 684, 694, 361],
     },
 }
+MOBILITY_SERVICE_NODE_EXCLUDE_NODES = [515, 516, 527, 528, 529]
 
 
 def import_services(
@@ -511,16 +512,23 @@ def update_mobility_service_nodes():
             )
             service_node_count += 1
             service_node_count = update_node_children(service_node, service_node_count)
+    # Remove nodes that are not in the mapping
+    MobilityServiceNode.objects.filter(
+        id__in=MOBILITY_SERVICE_NODE_EXCLUDE_NODES
+    ).delete()
     return service_node_count
 
 
 def update_node_children(service_node, service_node_count):
     for child in service_node.get_children():
-        child_dict = service_node_to_dict(child)
-        child_dict["parent_id"] = service_node.id
-        MobilityServiceNode.objects.update_or_create(id=child.id, defaults=child_dict)
-        service_node_count += 1
-        service_node_count = update_node_children(child, service_node_count)
+        if child.id not in MOBILITY_SERVICE_NODE_EXCLUDE_NODES:
+            child_dict = service_node_to_dict(child)
+            child_dict["parent_id"] = service_node.id
+            MobilityServiceNode.objects.update_or_create(
+                id=child.id, defaults=child_dict
+            )
+            service_node_count += 1
+            service_node_count = update_node_children(child, service_node_count)
     return service_node_count
 
 
