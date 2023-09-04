@@ -11,6 +11,7 @@ from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
 from services.management.commands.services_import.keyword import KeywordHandler
 from services.models import (
     Department,
+    MobilityServiceNode,
     OrganizationServiceNodeUnitCount,
     OrganizationServiceUnitCount,
     Service,
@@ -24,6 +25,27 @@ from .utils import pk_get, save_translated_field
 
 UTC_TIMEZONE = pytz.timezone("UTC")
 SERVICE_REFERENCE_SEPARATOR = re.compile("[^0-9]+")
+MOBILITY_SERVICE_NODE_MAPPING = {
+    "traffic_node": {
+        "id": 1000000,
+        "name_fi": "Liikenne",
+        "name_sv": "Trafik",
+        "name_en": "Traffic",
+        "service_reference": 922,
+        "last_modified_time": datetime.now(UTC_TIMEZONE),
+        "service_nodes": [513, 526, 533, 2206, 541],
+    },
+    "mobility_node": {
+        "id": 1000001,
+        "name_fi": "Liikkuminen",
+        "name_sv": "Mobilitet",
+        "name_en": "Mobility",
+        "service_reference": 399,
+        "last_modified_time": datetime.now(UTC_TIMEZONE),
+        "service_nodes": [552, 558, 2217, 601, 633, 666, 684, 694, 361],
+    },
+}
+MOBILITY_SERVICE_NODE_EXCLUDE_NODES = [515, 516, 527, 528, 529]
 
 
 def import_services(
@@ -469,3 +491,53 @@ def remove_empty_service_nodes(logger):
     delete_count = nodes.count()
     nodes.delete()
     logger.info("Deleted {} service nodes without units.".format(delete_count))
+
+
+@db.transaction.atomic
+def update_mobility_service_nodes():
+    service_node_count = 0
+    for root_node_name, root_node_dict in MOBILITY_SERVICE_NODE_MAPPING.items():
+        service_nodes = root_node_dict.pop("service_nodes")
+        root_node, __ = MobilityServiceNode.objects.update_or_create(
+            id=root_node_dict["id"],
+            defaults=root_node_dict,
+        )
+        service_node_count += 1
+        service_nodes = ServiceNode.objects.filter(id__in=service_nodes)
+        for service_node in service_nodes:
+            node_dict = service_node_to_dict(service_node)
+            node_dict["parent_id"] = root_node.id
+            MobilityServiceNode.objects.update_or_create(
+                id=service_node.id, defaults=node_dict
+            )
+            service_node_count += 1
+            service_node_count = update_node_children(service_node, service_node_count)
+    # Remove nodes that are not in the mapping
+    MobilityServiceNode.objects.filter(
+        id__in=MOBILITY_SERVICE_NODE_EXCLUDE_NODES
+    ).delete()
+    return service_node_count
+
+
+def update_node_children(service_node, service_node_count):
+    for child in service_node.get_children():
+        if child.id not in MOBILITY_SERVICE_NODE_EXCLUDE_NODES:
+            child_dict = service_node_to_dict(child)
+            child_dict["parent_id"] = service_node.id
+            MobilityServiceNode.objects.update_or_create(
+                id=child.id, defaults=child_dict
+            )
+            service_node_count += 1
+            service_node_count = update_node_children(child, service_node_count)
+    return service_node_count
+
+
+def service_node_to_dict(service_node):
+    return {
+        "id": service_node.id,
+        "name_fi": service_node.name_fi,
+        "name_sv": service_node.name_sv,
+        "name_en": service_node.name_en,
+        "service_reference": service_node.service_reference,
+        "last_modified_time": service_node.last_modified_time,
+    }

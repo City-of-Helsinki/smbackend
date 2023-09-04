@@ -5,6 +5,7 @@ from services.models import (
     Department,
     ErrorMessage,
     FeedbackMapping,
+    MobilityServiceNode,
     Service,
     ServiceNode,
     Unit,
@@ -33,6 +34,13 @@ class ServiceNodeTranslationOptions(TranslationOptions):
 
 
 translator.register(ServiceNode, ServiceNodeTranslationOptions)
+
+
+class MobilityServiceNodeTranslationOptions(TranslationOptions):
+    fields = ("name",)
+
+
+translator.register(MobilityServiceNode, MobilityServiceNodeTranslationOptions)
 
 
 class DepartmentTranslationOptions(TranslationOptions):

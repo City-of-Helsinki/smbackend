@@ -29,6 +29,7 @@ from services.models import (
     Announcement,
     Department,
     ErrorMessage,
+    MobilityServiceNode,
     Service,
     ServiceNode,
     Unit,
@@ -201,11 +202,11 @@ def root_services(services):
     )
 
 
-def root_service_nodes(services):
+def root_service_nodes(services, model):
     # check this
     tree_ids = set(s.tree_id for s in services)
     return map(
-        lambda x: x.id, ServiceNode.objects.filter(level=0).filter(tree_id__in=tree_ids)
+        lambda x: x.id, model.objects.filter(level=0).filter(tree_id__in=tree_ids)
     )
 
 
@@ -330,7 +331,7 @@ class ServiceNodeSerializer(
         return ret
 
     def root_service_nodes(self, obj):
-        return next(root_service_nodes([obj]))
+        return next(root_service_nodes([obj], ServiceNode))
 
     class Meta:
         model = ServiceNode
@@ -341,6 +342,31 @@ class ServiceNodeSerializer(
             "syllables_fi",
             "service_reference",
         )
+
+
+class MobilitySerializer(ServiceNodeSerializer):
+    def __init__(self, *args, **kwargs):
+        super(MobilitySerializer, self).__init__(*args, **kwargs)
+
+    def to_representation(self, obj):
+        ret = super(ServiceNodeSerializer, self).to_representation(obj)
+        include_fields = self.context.get("include", [])
+        if "ancestors" in include_fields:
+            ancestors = obj.get_ancestors(ascending=True)
+            ser = MobilitySerializer(ancestors, many=True, context={"only": ["name"]})
+            ret["ancestors"] = ser.data
+        only_fields = self.context.get("only", [])
+        if "parent" in only_fields:
+            ret["parent"] = obj.parent_id
+        ret["root"] = self.root_service_nodes(obj)
+        return ret
+
+    def root_service_nodes(self, obj):
+        return next(root_service_nodes([obj], MobilityServiceNode))
+
+    class Meta:
+        model = MobilityServiceNode
+        exclude = ("service_reference",)
 
 
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
@@ -601,6 +627,25 @@ class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 
 
 register_view(ServiceNodeViewSet, "service_node")
+
+
+class MobilityViewSet(ServiceNodeViewSet):
+    queryset = MobilityServiceNode.objects.all()
+    serializer_class = MobilitySerializer
+
+    def get_queryset(self):
+        queryset = super(ServiceNodeViewSet, self).get_queryset()
+        query_params = self.request.query_params
+        if "id" in query_params:
+            id_list = query_params["id"].split(",")
+            queryset = queryset.filter(id__in=id_list)
+        if "ancestor" in query_params:
+            val = query_params["ancestor"]
+            queryset = queryset.by_ancestor(val)
+        return queryset
+
+
+register_view(MobilityViewSet, "mobility")
 
 
 class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
