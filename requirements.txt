@@ -29,7 +29,7 @@ celery==5.2.3
     #   -r requirements.in
     #   django-celery-beat
     #   django-celery-results
-certifi==2022.12.7
+certifi==2023.7.22
     # via
     #   requests
     #   sentry-sdk
@@ -201,7 +201,6 @@ pytz==2021.3
     #   pandas
 pyyaml==6.0.1
     # via
-    #   -r requirements.in
     #   django-munigeo
     #   drf-spectacular
 redis==4.4.4
