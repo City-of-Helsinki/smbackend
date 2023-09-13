@@ -7,6 +7,7 @@ Saves a CSV file for every camera and every day to PROJECT_ROOT/media/telraam_da
 import json
 import logging
 import os
+import re
 from datetime import date, datetime, timedelta
 
 import pandas as pd
@@ -158,6 +159,23 @@ def get_day_data(
     return res, delta_hours
 
 
+def get_last_saved_date() -> date:
+    # Try to find the import from CSV file names
+    start_date = date.today()
+    pattern = r"^0"
+    # Go back 90 days, as three months is the maximum length that data is store in the telraam API
+    c = 90
+    while c >= 0:
+        date_str = start_date.strftime("%d_%m_%Y").replace("_0", "_")
+        date_str = re.sub(pattern, "", date_str)
+        for filename in os.listdir(TELRAAM_COUNTER_CSV_FILE_PATH):
+            if filename.endswith(date_str + ".csv"):
+                return start_date
+        start_date -= timedelta(days=1)
+        c -= 1
+    return None
+
+
 def save_dataframe(from_date: date = True) -> datetime:
     can_overwrite_csv_file = True if from_date else False
     if not os.path.exists(TELRAAM_COUNTER_CSV_FILE_PATH):
@@ -171,6 +189,27 @@ def save_dataframe(from_date: date = True) -> datetime:
         )
     else:
         import_state = ImportState.objects.filter(csv_data_source=TELRAAM_CSV).first()
+        # In case that a import state is not found, try to create a state
+        # by finding the last date a CSV file is saved.
+        if not import_state:
+            last_saved_date = get_last_saved_date()
+            if last_saved_date:
+                import_state = ImportState.objects.create(
+                    csv_data_source=TELRAAM_CSV,
+                    current_year_number=last_saved_date.year,
+                    current_month_number=last_saved_date.month,
+                    current_day_number=last_saved_date.day,
+                )
+            else:
+                # As no date found set it to current date
+                date_today = date.today()
+                import_state = ImportState.objects.create(
+                    csv_data_source=TELRAAM_CSV,
+                    current_year_number=date_today.year,
+                    current_month_number=date_today.month,
+                    current_day_number=date_today.day,
+                )
+
     if not from_date:
         from_date = date(
             import_state.current_year_number,
@@ -214,6 +253,7 @@ def save_dataframe(from_date: date = True) -> datetime:
                     else:
                         values_list.append(report[hour][value_key])
                     columns[key] = values_list
+
             df = pd.DataFrame(data=columns, index=columns[INDEX_COLUMN_NAME])
             df = df.drop(columns=[INDEX_COLUMN_NAME], axis=1)
             df.index.rename(INDEX_COLUMN_NAME, inplace=True)
