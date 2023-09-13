@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import serializers
 
 from ..models import (
@@ -35,6 +36,7 @@ class StationSerializer(serializers.ModelSerializer):
     lon = serializers.SerializerMethodField()
     lat = serializers.SerializerMethodField()
     sensor_types = serializers.SerializerMethodField()
+    data_from_year = serializers.SerializerMethodField()
 
     class Meta:
         model = Station
@@ -52,6 +54,7 @@ class StationSerializer(serializers.ModelSerializer):
             "lon",
             "lat",
             "sensor_types",
+            "data_from_year",
         ]
 
     def get_y(self, obj):
@@ -78,6 +81,19 @@ class StationSerializer(serializers.ModelSerializer):
             if YearData.objects.filter(**filter).count() > 0:
                 result.append(type)
         return result
+
+    def get_data_from_year(self, obj):
+        q_exp = (
+            Q(value_at__gt=0)
+            | Q(value_pt__gt=0)
+            | Q(value_jt__gt=0)
+            | Q(value_bt__gt=0)
+        )
+        qs = YearData.objects.filter(q_exp, station=obj).order_by("year__year_number")
+        if qs.count() > 0:
+            return qs[0].year.year_number
+        else:
+            return None
 
 
 class YearSerializer(serializers.ModelSerializer):
