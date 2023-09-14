@@ -21,6 +21,7 @@ from eco_counter.constants import (
     TELRAAM_COUNTER_CAMERAS,
     TELRAAM_COUNTER_CSV_FILE,
     TELRAAM_COUNTER_CSV_FILE_PATH,
+    TELRAAM_COUNTER_DATA_TIME_FORMAT,
     TELRAAM_COUNTER_START_MONTH,
     TELRAAM_COUNTER_START_YEAR,
     TELRAAM_COUNTER_TRAFFIC_URL,
@@ -102,61 +103,61 @@ def get_delta_hours(from_date: datetime, end_date: datetime) -> datetime:
 
 
 def get_day_data(
-    day_date: date, camera_id: str, utf_offset: datetime, check_delta_hours: bool = True
-) -> tuple[list, int]:
+    day_date: date, camera_id: str, utc_offset: datetime, check_delta_hours: bool = True
+) -> list:
     from_datetime = (
-        datetime(day_date.year, day_date.month, day_date.day, 0, 0, 0) - utf_offset
-    )
+        datetime(day_date.year, day_date.month, day_date.day, 0, 0, 0)
+    ) - utc_offset
     from_datetime_str = from_datetime.strftime(TELRAAM_COUNTER_API_TIME_FORMAT)
     end_datetime = (
         datetime(day_date.year, day_date.month, day_date.day)
         + timedelta(hours=23)
         + timedelta(minutes=59)
-    ) - utf_offset
+    ) - utc_offset
 
     end_datetime_str = end_datetime.strftime(TELRAAM_COUNTER_API_TIME_FORMAT)
     report = fetch_traffic_report(from_datetime_str, end_datetime_str, camera_id)
-    delta_hours = len(report)
-    if not report:
-        logger.warning(
-            f"No report found for camera {camera_id}, populating with empty dicts"
-        )
-        report = [{} for a in range(delta_hours)]
-    else:
-        logger.info(
-            f"Imorted report with {len(report)} elements for camera {camera_id}"
-        )
-    if check_delta_hours and delta_hours != 24:
-        dif = 24 - delta_hours
-        if day_date == date.today():
-            logger.warning(
-                f"Fetched report with delta_hours not equal to 24, appending missing {dif} empty dicts."
-            )
-            report += [{} for a in range(dif)]
-
-        else:
-            # Case when camera gets turned on in the middle of day.
-            logger.warning(
-                f"Fetched report with delta_hours not equal to 24, adding missing {dif} empty dicts to start of report."
-            )
-            report = [{} for a in range(dif)] + report
-    delta_hours = len(report)
+    logger.info(
+        f"Imorted report with {len(report)} elements for camera {camera_id}, for date {str(day_date)}"
+    )
     res = []
-    start_date = from_datetime
-    for item in report:
+    start_datetime = from_datetime + utc_offset
+    # As fetched data migth not include data for every hour, use report_index variable to index
+    report_index = 0
+    # Add value for every hour
+    while start_datetime <= end_datetime + utc_offset:
         d = {}
-        d["date"] = datetime.strftime(start_date, TELRAAM_COUNTER_API_TIME_FORMAT)
+        d["date"] = datetime.strftime(start_datetime, TELRAAM_COUNTER_API_TIME_FORMAT)
+        item_datetime = None
+        report_item = None
+        if report_index < len(report):
+            report_item = report[report_index]
+            item_datetime = report_item["date"].replace(".000", "")
+            item_datetime = (
+                datetime.strptime(item_datetime, TELRAAM_COUNTER_DATA_TIME_FORMAT)
+                + utc_offset
+            )
+        # If datetimes are equal, the fetched report contains data for given start_datetime
+        if item_datetime == start_datetime:
+            # In next ireration read the next element in report
+            report_index += 1
+        else:
+            report_item = None
+
         for veh in VEHICLE_TYPES.keys():
             for dir in DIRECTIONS:
                 if dir == TOTAL:
                     key = f"{veh}{dir}"
                 else:
                     key = f"{veh}_{dir}"
-                val = int(round(item.get(key, 0)))
+                if report_item:
+                    val = int(round(report_item.get(key, 0)))
+                else:
+                    val = 0
                 d[key] = val
         res.append(d)
-        start_date += timedelta(hours=1)
-    return res, delta_hours
+        start_datetime += timedelta(hours=1)
+    return res
 
 
 def get_last_saved_date() -> date:
@@ -224,20 +225,15 @@ def save_dataframe(from_date: date = True) -> datetime:
     for camera in cameras:
         start_date = from_date
         while start_date <= date_today:
-            report, delta_hours = get_day_data(
-                start_date, camera["instance_id"], utc_offset
-            )
+            report = get_day_data(start_date, camera["instance_id"], utc_offset)
             mappings = get_mappings(
                 camera["mac"], direction=TELRAAM_COUNTER_CAMERAS[camera["mac"]]
             )
             columns = {}
             columns[INDEX_COLUMN_NAME] = []
-            for hour in range(delta_hours):
-                col_date = (
-                    datetime.strptime(
-                        report[hour]["date"], TELRAAM_COUNTER_API_TIME_FORMAT
-                    )
-                    + utc_offset
+            for hour in range(len(report)):
+                col_date = datetime.strptime(
+                    report[hour]["date"], TELRAAM_COUNTER_API_TIME_FORMAT
                 )
                 col_date_str = col_date.strftime(TELRAAM_COUNTER_API_TIME_FORMAT)
                 columns[INDEX_COLUMN_NAME].append(col_date_str)
@@ -302,5 +298,4 @@ class Command(BaseCommand):
                 return
 
         until_date = save_dataframe(from_date)
-
         logger.info(f"Telraam data imported until {str(until_date)}")
