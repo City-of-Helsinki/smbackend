@@ -8,11 +8,7 @@ import os
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
-from munigeo.models import (
-    AdministrativeDivision,
-    AdministrativeDivisionGeometry,
-    Municipality,
-)
+from munigeo.models import Municipality
 
 from services.models import Unit
 from smbackend_turku.importers.utils import get_external_source_config
@@ -22,7 +18,6 @@ from .utils import (
     get_municipality_name,
     get_root_dir,
     get_street_name_translations,
-    locates_in_turku,
     MobileUnitDataBase,
 )
 
@@ -43,10 +38,6 @@ WFS_SOURCE_DATA_SRID = 3877
 GEOJSON_SOURCE_DATA_SRID = 4326
 GEOJSON_FILENAME = "bicycle_stands_for_units.geojson"
 logger = logging.getLogger("mobility_data")
-division_turku = AdministrativeDivision.objects.get(name="Turku")
-turku_boundary = AdministrativeDivisionGeometry.objects.get(
-    division=division_turku
-).boundary
 
 
 class BicyleStand(MobileUnitDataBase):
@@ -225,25 +216,19 @@ def get_bicycle_stand_objects():
     external_stands = {}
     for data_source in data_sources:
         for feature in data_source[1][0]:
-            source_data_srid = (
-                WFS_SOURCE_DATA_SRID
-                if data_source[0] == "gml"
-                else GEOJSON_SOURCE_DATA_SRID
-            )
-            if locates_in_turku(feature, source_data_srid):
-                bicycle_stand = BicyleStand()
-                if data_source[0] == "gml":
-                    bicycle_stand.set_gml_feature(feature)
-                elif data_source[0] == "geojson":
-                    bicycle_stand.set_geojson_feature(feature)
-                if (
-                    bicycle_stand.name[FI_KEY] not in external_stands
-                    and not bicycle_stand.extra["maintained_by_turku"]
-                ):
-                    external_stands[bicycle_stand.name[FI_KEY]] = True
-                    bicycle_stands.append(bicycle_stand)
-                elif bicycle_stand.extra["maintained_by_turku"]:
-                    bicycle_stands.append(bicycle_stand)
+            bicycle_stand = BicyleStand()
+            if data_source[0] == "gml":
+                bicycle_stand.set_gml_feature(feature)
+            elif data_source[0] == "geojson":
+                bicycle_stand.set_geojson_feature(feature)
+            if (
+                bicycle_stand.name[FI_KEY] not in external_stands
+                and not bicycle_stand.extra["maintained_by_turku"]
+            ):
+                external_stands[bicycle_stand.name[FI_KEY]] = True
+                bicycle_stands.append(bicycle_stand)
+            elif bicycle_stand.extra["maintained_by_turku"]:
+                bicycle_stands.append(bicycle_stand)
 
     logger.info(f"Retrieved {len(bicycle_stands)} bicycle stands.")
     return bicycle_stands
