@@ -26,6 +26,9 @@ class LoadingPlace(MobileUnitDataBase):
         "Saavutettavuus": {
             "type": FieldTypes.MULTILANG_STRING,
         },
+        "rajoitukset": {
+            "type": FieldTypes.MULTILANG_STRING,
+        },
         "lastauspiste": {
             "type": FieldTypes.MULTILANG_STRING,
         },
@@ -33,9 +36,25 @@ class LoadingPlace(MobileUnitDataBase):
             "type": FieldTypes.MULTILANG_STRING,
         },
         "paikkoja_y": {"type": FieldTypes.INTEGER},
-        "Lisätieto": {
+        "max_aika_h": {"type": FieldTypes.STRING},
+        "max_aika_m": {"type": FieldTypes.STRING},
+        "rajoitus_m": {"type": FieldTypes.STRING},
+        "rajoitus_l": {"type": FieldTypes.STRING},
+        "rajoitus_s": {"type": FieldTypes.STRING},
+        "rajoitettu_ark": {"type": FieldTypes.STRING},
+        "rajoitettu_l": {"type": FieldTypes.STRING},
+        "rajoitettu_s": {"type": FieldTypes.STRING},
+        "voimassaol": {"type": FieldTypes.STRING},
+        "varattu_tie_ajoon": {"type": FieldTypes.MULTILANG_STRING},
+        "erityisluv": {"type": FieldTypes.MULTILANG_STRING},
+        "vuoropys": {"type": FieldTypes.STRING},
+        "päiväys": {"type": FieldTypes.STRING},
+        "lisätieto": {
             "type": FieldTypes.MULTILANG_STRING,
         },
+        "maksuvyöh": {"type": FieldTypes.STRING},
+        "rajoit_lis": {"type": FieldTypes.MULTILANG_STRING},
+        "talvikunno": {"type": FieldTypes.STRING},
     }
 
     def __init__(self, feature):
@@ -102,6 +121,8 @@ class LoadingPlace(MobileUnitDataBase):
                                     self.extra[field_name][lang] = strings[i].strip()
                     case FieldTypes.INTEGER:
                         self.extra[field_name] = feature[field].as_int()
+                    case FieldTypes.STRING:
+                        self.extra[field_name] = feature[field].as_string()
 
 
 def get_geojson_file_name():
