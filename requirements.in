@@ -43,4 +43,3 @@ pyshp
 polyline
 drf-spectacular
 xmltodict
-pyyaml>=5.4
