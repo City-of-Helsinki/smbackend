@@ -14,7 +14,7 @@ django-extensions
 psycopg2-binary<2.9
 django-mptt
 lxml>=4.9.1
-sentry-sdk
+sentry-sdk>=1.14.0
 pip-tools
 python-dateutil
 pytest-django
