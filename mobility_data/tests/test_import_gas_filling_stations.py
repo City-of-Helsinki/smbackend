@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 
 from mobility_data.importers.utils import (
@@ -10,14 +12,17 @@ from .utils import get_test_fixture_json_data
 
 
 @pytest.mark.django_db
-def test_importer(municipalities):
+@patch("mobility_data.importers.gas_filling_station.get_json_data")
+def test_importer(get_json_data_mock, municipalities):
     from mobility_data.importers.gas_filling_station import (
         CONTENT_TYPE_NAME,
         get_filtered_gas_filling_station_objects,
     )
 
-    json_data = get_test_fixture_json_data("gas_filling_stations.json")
-    objects = get_filtered_gas_filling_station_objects(json_data=json_data)
+    get_json_data_mock.return_value = get_test_fixture_json_data(
+        "gas_filling_stations.json"
+    )
+    objects = get_filtered_gas_filling_station_objects()
     content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
     num_created, num_deleted = save_to_database(objects, content_type)
     # Two will be created as One item in the fixture data locates outside Southwest Finland

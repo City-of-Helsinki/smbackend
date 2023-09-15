@@ -1,17 +1,21 @@
 import logging
 from datetime import datetime
+from unittest.mock import patch
 
 import pytest
 import pytz
 from munigeo.models import Municipality
 
+from mobility_data.tests.utils import get_test_fixture_data_layer
 from services.models import Service, ServiceNode, Unit
 from smbackend_turku.importers.bike_service_stations import import_bike_service_stations
 from smbackend_turku.importers.utils import get_external_source_config
 
 
 @pytest.mark.django_db
+@patch("mobility_data.importers.bike_service_stations.get_data_layer")
 def test_bike_service_stations_import(
+    get_data_layer_mock,
     municipality,
     administrative_division,
     administrative_division_type,
@@ -24,10 +28,12 @@ def test_bike_service_stations_import(
     ServiceNode.objects.create(
         id=42, name="Vapaa-aika", last_modified_time=datetime.now(utc_timezone)
     )
+    get_data_layer_mock.return_value = get_test_fixture_data_layer(
+        "bike_service_stations.geojson"
+    )
     import_bike_service_stations(
         logger=logger,
         config=config,
-        test_data="bike_service_stations.geojson",
     )
     assert Unit.objects.all().count() == 3
     Service.objects.all().count() == 1

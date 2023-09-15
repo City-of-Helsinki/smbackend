@@ -1,21 +1,41 @@
+from unittest.mock import patch
+
 import pytest
 from munigeo.models import Municipality
 
-from mobility_data.importers.disabled_and_no_staff_parking import (
-    DISABLED_PARKING_CONTENT_TYPE_NAME,
-    NO_STAFF_PARKING_CONTENT_TYPE_NAME,
+from mobility_data.importers.utils import (
+    get_or_create_content_type_from_config,
+    get_root_dir,
+    save_to_database,
 )
 from mobility_data.models import MobileUnit
 
-from .utils import import_command
-
 
 @pytest.mark.django_db
-def test_geojson_import(municipalities):
-    import_command(
-        "import_disabled_and_no_staff_parkings",
-        test_mode="autopysäköinti_eihlö.geojson",
+@patch("mobility_data.importers.disabled_and_no_staff_parking.get_geojson_file_name")
+def test_geojson_import(get_geojson_file_name_mock, municipalities):
+    from mobility_data.importers.disabled_and_no_staff_parking import (
+        DISABLED_PARKING_CONTENT_TYPE_NAME,
+        get_no_staff_parking_objects,
+        NO_STAFF_PARKING_CONTENT_TYPE_NAME,
     )
+
+    get_geojson_file_name_mock.return_value = (
+        f"{get_root_dir()}/mobility_data/tests/data/autopysäköinti_eihlö.geojson"
+    )
+    no_stuff_parking_objects, disabled_parking_objects = get_no_staff_parking_objects()
+    content_type = get_or_create_content_type_from_config(
+        NO_STAFF_PARKING_CONTENT_TYPE_NAME
+    )
+    num_created, num_deleted = save_to_database(no_stuff_parking_objects, content_type)
+    assert num_created == 2
+    assert num_deleted == 0
+    content_type = get_or_create_content_type_from_config(
+        DISABLED_PARKING_CONTENT_TYPE_NAME
+    )
+    num_created, num_deleted = save_to_database(disabled_parking_objects, content_type)
+    assert num_created == 1
+    assert num_deleted == 0
     assert MobileUnit.objects.all().count() == 3
     try:
         turku_muni = Municipality.objects.get(name="Turku")

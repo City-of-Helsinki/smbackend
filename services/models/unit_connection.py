@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from .unit import Unit
@@ -13,6 +14,9 @@ class UnitConnection(models.Model):
     OTHER_ADDRESS_TYPE = 7
     HIGHLIGHT_TYPE = 8
     ESERVICE_LINK_TYPE = 9
+    PRICE_TYPE = 10
+    SUBGROUP_TYPE = 11
+    OPENING_HOUR_OBJECT = 12
 
     SECTION_TYPES = (
         (PHONE_OR_EMAIL_TYPE, "PHONE_OR_EMAIL"),
@@ -24,18 +28,22 @@ class UnitConnection(models.Model):
         (OTHER_ADDRESS_TYPE, "OTHER_ADDRESS"),
         (HIGHLIGHT_TYPE, "HIGHLIGHT"),
         (ESERVICE_LINK_TYPE, "ESERVICE_LINK"),
+        (PRICE_TYPE, "PRICE"),
+        (SUBGROUP_TYPE, "SUBGROUP"),
+        (OPENING_HOUR_OBJECT, "OPENING_HOUR_OBJECT"),
     )
 
     unit = models.ForeignKey(
         Unit, db_index=True, related_name="connections", on_delete=models.CASCADE
     )
-    name = models.CharField(max_length=600)
+    name = models.CharField(max_length=2100)
     www = models.URLField(null=True, max_length=400)
     section_type = models.PositiveSmallIntegerField(choices=SECTION_TYPES, null=True)
     email = models.EmailField(max_length=100, null=True)
     phone = models.CharField(max_length=50, null=True)
     contact_person = models.CharField(max_length=80, null=True)
     order = models.PositiveSmallIntegerField(default=0)
+    tags = ArrayField(models.CharField(max_length=200), null=True, default=list)
 
     class Meta:
         ordering = ["order"]

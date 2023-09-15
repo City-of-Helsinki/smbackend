@@ -11,31 +11,27 @@ from smbackend_turku.importers.utils import BaseExternalSource
 
 
 class GasFillingStationImporter(BaseExternalSource):
-    def __init__(self, config=None, logger=None, test_data=None):
+    def __init__(self, config=None, logger=None):
         super().__init__(config)
         self.logger = logger
-        self.test_data = test_data
 
     def import_gas_filling_stations(self):
         self.logger.info("Importing gas filling stations...")
         content_type = get_or_create_content_type_from_config(
             GAS_FILLING_STATION_CONTENT_TYPE_NAME
         )
-        filtered_objects = get_filtered_gas_filling_station_objects(
-            json_data=self.test_data
-        )
+        filtered_objects = get_filtered_gas_filling_station_objects()
         super().save_objects_as_units(filtered_objects, content_type)
 
 
 class ChargingStationImporter(BaseExternalSource):
-    def __init__(self, logger=None, config=None, importer=None, test_data=None):
+    def __init__(self, logger=None, config=None, importer=None):
         super().__init__(config)
         self.logger = logger
-        self.test_data = test_data
 
     def import_charging_stations(self):
         self.logger.info("Importing charging stations...")
-        filtered_objects = get_charging_station_objects(csv_file=self.test_data)
+        filtered_objects = get_charging_station_objects()
         content_type = get_or_create_content_type_from_config(
             CHARGING_STATION_CONTENT_TYPE_NAME
         )

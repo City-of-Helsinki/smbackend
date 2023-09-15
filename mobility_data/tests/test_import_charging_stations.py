@@ -1,18 +1,22 @@
+from unittest.mock import patch
+
 import pytest
 from munigeo.models import Address
 
-from mobility_data.importers.charging_stations import (
-    CHARGING_STATION_SERVICE_NAMES,
-    CONTENT_TYPE_NAME,
+from mobility_data.importers.charging_stations import CHARGING_STATION_SERVICE_NAMES
+from mobility_data.importers.utils import (
+    get_content_type_config,
+    get_or_create_content_type_from_config,
+    get_root_dir,
+    save_to_database,
 )
-from mobility_data.importers.utils import get_content_type_config
 from mobility_data.models import ContentType, MobileUnit
-
-from .utils import import_command
 
 
 @pytest.mark.django_db
+@patch("mobility_data.importers.charging_stations.get_csv_file_name")
 def test_import_charging_stations(
+    get_csv_file_name_mock,
     municipalities,
     administrative_division_type,
     administrative_division,
@@ -20,7 +24,18 @@ def test_import_charging_stations(
     streets,
     address,
 ):
-    import_command("import_charging_stations", test_mode="charging_stations.csv")
+    from mobility_data.importers.charging_stations import (
+        CONTENT_TYPE_NAME,
+        get_charging_station_objects,
+    )
+
+    file_name = f"{get_root_dir()}/mobility_data/tests/data/charging_stations.csv"
+    get_csv_file_name_mock.return_value = file_name
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
+    objects = get_charging_station_objects()
+    num_created, num_deleted = save_to_database(objects, content_type)
+    assert num_created == 3
+    assert num_deleted == 0
     assert ContentType.objects.filter(type_name=CONTENT_TYPE_NAME).count() == 1
     assert (
         MobileUnit.objects.filter(content_types__type_name=CONTENT_TYPE_NAME).count()
@@ -64,7 +79,12 @@ def test_import_charging_stations(
         == f"{CHARGING_STATION_SERVICE_NAMES['en']}, Ratapihankatu 53"
     )
     # Test that dublicates are not created
-    import_command("import_charging_stations", test_mode="charging_stations.csv")
+    get_csv_file_name_mock.return_vale = file_name
+    content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
+    objects = get_charging_station_objects()
+    num_created, num_deleted = save_to_database(objects, content_type)
+    assert num_created == 0
+    assert num_deleted == 0
     assert ContentType.objects.filter(type_name=CONTENT_TYPE_NAME).count() == 1
     assert (
         MobileUnit.objects.filter(content_types__type_name=CONTENT_TYPE_NAME).count()

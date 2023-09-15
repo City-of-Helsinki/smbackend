@@ -8,7 +8,7 @@ asttokens==2.0.5
     # via stack-data
 backcall==0.2.0
     # via ipython
-black==21.9b0
+black==22.6.0
     # via
     #   -c requirements.txt
     #   ipython
@@ -56,30 +56,18 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-pygments==2.10.0
+pygments==2.15.0
     # via ipython
-regex==2021.9.24
-    # via
-    #   -c requirements.txt
-    #   black
 six==1.16.0
     # via
     #   -c requirements.txt
     #   asttokens
 stack-data==0.2.0
     # via ipython
-tomli==1.2.1
-    # via
-    #   -c requirements.txt
-    #   black
 traitlets==5.1.0
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==3.10.0.2
-    # via
-    #   -c requirements.txt
-    #   black
 wcwidth==0.2.5
     # via
     #   -c requirements.txt

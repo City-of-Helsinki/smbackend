@@ -22,10 +22,10 @@ class Command(BaseCommand):
         content_type = get_or_create_content_type_from_config(
             UNDERPASS_CONTENT_TYPE_NAME
         )
-        num_ceated, num_deleted = save_to_database(underpass_objects, content_type)
-        log_imported_message(logger, content_type, num_ceated, num_deleted)
+        num_created, num_deleted = save_to_database(underpass_objects, content_type)
+        log_imported_message(logger, content_type, num_created, num_deleted)
         content_type = get_or_create_content_type_from_config(
             OVERPASS_CONTENT_TYPE_NAME
         )
-        num_ceated, num_deleted = save_to_database(overpass_objects, content_type)
-        log_imported_message(logger, content_type, num_ceated, num_deleted)
+        num_created, num_deleted = save_to_database(overpass_objects, content_type)
+        log_imported_message(logger, content_type, num_created, num_deleted)

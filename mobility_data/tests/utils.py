@@ -29,9 +29,21 @@ def get_test_fixture_json_data(file_name):
     return data
 
 
-def get_test_fixture_data_layer(file_name):
+def get_data_source(file_name):
+    """
+    Returns the given file_name as a GDAL Datasource,
+    the file must be located in /mobility_data/tests/data/
+    """
     data_path = os.path.join(os.path.dirname(__file__), "data")
     file = os.path.join(data_path, file_name)
-    ds = DataSource(file)
+    return DataSource(file)
+
+
+def get_test_fixture_data_layer(file_name):
+    ds = get_data_source(file_name)
     assert len(ds) == 1
     return ds[0]
+
+
+def get_test_fixture_data_source(file_name):
+    return get_data_source(file_name)

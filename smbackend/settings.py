@@ -1,29 +1,36 @@
+import logging.config
 import os
+from pathlib import Path
 
 import environ
+import sentry_sdk
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
+from sentry_sdk.integrations.django import DjangoIntegration
 
 CONFIG_FILE_NAME = "config_dev.env"
+GDAL_LIBRARY_PATH = os.environ.get("GDAL_LIBRARY_PATH")
+GEOS_LIBRARY_PATH = os.environ.get("GEOS_LIBRARY_PATH")
 
-
-root = environ.Path(__file__) - 2  # two levels back in hierarchy
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = str(Path(__file__).resolve().parent.parent)
 env = environ.Env(
     DEBUG=(bool, False),
     LANGUAGES=(list, ["fi", "sv", "en"]),
     DATABASE_URL=(str, "postgis:///servicemap"),
+    SECRET_KEY=(str, "temp_key"),
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
     ALLOWED_HOSTS=(list, []),
-    SENTRY_DSN=(str, None),
-    SENTRY_ENVIRONMENT=(str, "development"),
+    SENTRY_DSN=(str, ""),
+    SENTRY_ENVIRONMENT=(str, ""),
     COOKIE_PREFIX=(str, "servicemap"),
     INTERNAL_IPS=(list, []),
     CELERY_BROKER_URL=(str, "amqp://guest:guest@localhost:5672"),
-    MEDIA_ROOT=(environ.Path(), root("media")),
-    STATIC_ROOT=(environ.Path(), root("static")),
-    MEDIA_URL=(str, "/media/"),
+    STATIC_ROOT=(str, BASE_DIR + "/static"),
+    MEDIA_ROOT=(str, BASE_DIR + "/media"),
     STATIC_URL=(str, "/static/"),
+    MEDIA_URL=(str, "/media/"),
     OPEN311_URL_BASE=(str, None),
     OPEN311_API_KEY=(str, None),
     OPEN311_INTERNAL_API_KEY=(str, None),
@@ -63,10 +70,16 @@ env = environ.Env(
     EMAIL_PORT=(int, None),
     EMAIL_USE_TLS=(bool, None),
     TELRAAM_TOKEN=(str, None),
+    DJANGO_LOG_LEVEL=(str, "INFO"),
+    TURKU_SERVICES_IMPORT_LOG_LEVEL=(str, "INFO"),
+    SEARCH_LOG_LEVEL=(str, "INFO"),
+    IOT_LOG_LEVEL=(str, "INFO"),
+    ECO_COUNTER_LOG_LEVEL=(str, "INFO"),
+    MOBILITY_DATA_LOG_LEVEL=(str, "INFO"),
+    BICYCLE_NETWORK_LOG_LEVEL=(str, "INFO"),
+    STREET_MAINTENANCE_LOG_LEVEL=(str, "INFO"),
 )
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = root()
 
 # Django environ has a nasty habit of complanining at level
 # WARN about env file not being preset. Here we pre-empt it.
@@ -77,8 +90,17 @@ if os.path.exists(env_file_path):
     environ.Env.read_env(env_file_path)
 
 DEBUG = env("DEBUG")
+SECRET_KEY = env("SECRET_KEY")
 TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+DJANGO_LOG_LEVEL = env("DJANGO_LOG_LEVEL")
+TURKU_SERVICES_IMPORT_LOG_LEVEL = env("TURKU_SERVICES_IMPORT_LOG_LEVEL")
+SEARCH_LOG_LEVEL = env("SEARCH_LOG_LEVEL")
+IOT_LOG_LEVEL = env("IOT_LOG_LEVEL")
+ECO_COUNTER_LOG_LEVEL = env("ECO_COUNTER_LOG_LEVEL")
+MOBILITY_DATA_LOG_LEVEL = env("MOBILITY_DATA_LOG_LEVEL")
+BICYCLE_NETWORK_LOG_LEVEL = env("BICYCLE_NETWORK_LOG_LEVEL")
+STREET_MAINTENANCE_LOG_LEVEL = env("STREET_MAINTENANCE_LOG_LEVEL")
 
 # Application definition
 INSTALLED_APPS = [
@@ -90,7 +112,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.gis",
     "django.contrib.postgres",
-    "raven.contrib.django.raven_compat",
     "rest_framework.authtoken",
     "rest_framework",
     "corsheaders",
@@ -161,7 +182,6 @@ MODELTRANSLATION_DEFAULT_LANGUAGE = LANGUAGE_CODE
 
 TIME_ZONE = "Europe/Helsinki"
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
 USE_X_FORWARDED_HOST = env("TRUST_X_FORWARDED_HOST")
@@ -292,16 +312,26 @@ LOGGING = {
         "blackhole": {"class": "logging.NullHandler"},
     },
     "loggers": {
-        "django": {"handlers": ["console"], "level": "INFO"},
-        "turku_services_import": {"handlers": ["console"], "level": "DEBUG"},
-        "search": {"handlers": ["console"], "level": "DEBUG"},
-        "iot": {"handlers": ["console"], "level": "INFO"},
-        "eco_counter": {"handlers": ["console"], "level": "INFO"},
-        "mobility_data": {"handlers": ["console"], "level": "INFO"},
-        "bicycle_network": {"handlers": ["console"], "level": "INFO"},
-        "street_maintenance": {"handlers": ["console"], "level": "INFO"},
+        "django": {"handlers": ["console"], "level": DJANGO_LOG_LEVEL},
+        "turku_services_import": {
+            "handlers": ["console"],
+            "level": TURKU_SERVICES_IMPORT_LOG_LEVEL,
+        },
+        "search": {"handlers": ["console"], "level": SEARCH_LOG_LEVEL},
+        "iot": {"handlers": ["console"], "level": IOT_LOG_LEVEL},
+        "eco_counter": {"handlers": ["console"], "level": ECO_COUNTER_LOG_LEVEL},
+        "mobility_data": {"handlers": ["console"], "level": MOBILITY_DATA_LOG_LEVEL},
+        "bicycle_network": {
+            "handlers": ["console"],
+            "level": BICYCLE_NETWORK_LOG_LEVEL,
+        },
+        "street_maintenance": {
+            "handlers": ["console"],
+            "level": STREET_MAINTENANCE_LOG_LEVEL,
+        },
     },
 }
+logging.config.dictConfig(LOGGING)
 
 # Define the endpoints for API documentation with drf-spectacular.
 DOC_ENDPOINTS = [
@@ -334,11 +364,6 @@ KML_REGEXP = r"application/vnd.google-earth\.kml"
 
 LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
 
-SENTRY_DSN = env("SENTRY_DSN")
-SENTRY_ENVIRONMENT = env("SENTRY_ENVIRONMENT")
-
-import raven  # noqa
-
 # Celery
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = "django-db"
@@ -366,47 +391,16 @@ TEST_CACHES = {
     }
 }
 
-
-if SENTRY_DSN:
-    RAVEN_CONFIG = {
-        "dsn": SENTRY_DSN,
-        # Needs to change if settings.py is not in an immediate child of the project
-        "release": raven.fetch_git_sha(os.path.dirname(os.pardir)),
-        "environment": SENTRY_ENVIRONMENT,
-    }
-
+sentry_sdk.init(
+    dsn=env.str("SENTRY_DSN"),
+    environment=env.str("SENTRY_ENVIRONMENT"),
+    traces_sample_rate=1.0,
+    send_default_pii=True,
+    integrations=[DjangoIntegration()],
+)
 
 COOKIE_PREFIX = env("COOKIE_PREFIX")
 INTERNAL_IPS = env("INTERNAL_IPS")
-
-if "SECRET_KEY" not in locals():
-    secret_file = os.path.join(BASE_DIR, ".django_secret")
-    try:
-        SECRET_KEY = open(secret_file).read().strip()
-    except IOError:
-        import random
-
-        system_random = random.SystemRandom()
-        try:
-            SECRET_KEY = "".join(
-                [
-                    system_random.choice(
-                        "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"
-                    )
-                    for i in range(64)
-                ]
-            )
-            secret = open(secret_file, "w")
-            import os
-
-            os.chmod(secret_file, 0o0600)
-            secret.write(SECRET_KEY)
-            secret.close()
-        except IOError:
-            Exception(
-                "Please create a %s file with random characters to generate your secret key!"
-                % secret_file
-            )
 TURKU_WFS_URL = env("TURKU_WFS_URL")
 PTV_ID_OFFSET = env("PTV_ID_OFFSET")
 GEO_SEARCH_LOCATION = env("GEO_SEARCH_LOCATION")

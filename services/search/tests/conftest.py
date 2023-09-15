@@ -12,7 +12,10 @@ from munigeo.models import (
 )
 from rest_framework.test import APIClient
 
-from services.management.commands.index_search_columns import get_search_column
+from services.management.commands.index_search_columns import (
+    generate_syllables,
+    get_search_column,
+)
 from services.management.commands.services_import.services import (
     update_service_counts,
     update_service_node_counts,
@@ -20,6 +23,7 @@ from services.management.commands.services_import.services import (
 )
 from services.models import (
     Department,
+    ExclusionRule,
     Service,
     ServiceNode,
     Unit,
@@ -80,9 +84,32 @@ def units(
     )
     unit.services.add(3)
     unit.save()
+    # id=4 is the "Tekonurmikentät" service
+    service = Service.objects.get(id=4)
+    unit = Unit.objects.create(
+        id=4,
+        name="Kupittaan tekonurmikentät",
+        service_names_fi=[service.name_fi],
+        last_modified_time=now(),
+        municipality=municipality,
+    )
+    unit.services.add(4)
+    unit.save()
+    # id=5 is the "tekojääradat" service
+    service = Service.objects.get(id=5)
+    unit = Unit.objects.create(
+        id=5,
+        name="Parkin kenttä",
+        service_names_fi=[service.name_fi],
+        last_modified_time=now(),
+        municipality=municipality,
+    )
+    unit.services.add(5)
+    unit.save()
     update_service_root_service_nodes()
     update_service_counts()
     update_service_node_counts()
+    generate_syllables(Unit)
     Unit.objects.update(search_column_fi=get_search_column(Unit, "fi"))
     return Unit.objects.all()
 
@@ -101,8 +128,9 @@ def department(municipality):
 @pytest.mark.django_db
 @pytest.fixture
 def accessibility_shortcoming(units):
+    unit = Unit.objects.get(name="Biologinen museo")
     return UnitAccessibilityShortcomings.objects.create(
-        unit=units[1], accessibility_shortcoming_count={"rollator": 5, "stroller": 1}
+        unit=unit, accessibility_shortcoming_count={"rollator": 5, "stroller": 1}
     )
 
 
@@ -127,6 +155,19 @@ def services():
         name_sv="Simhall",
         last_modified_time=now(),
     )
+    Service.objects.create(
+        id=4,
+        name="Tekonurmikentät",
+        name_sv="Konstgräsplaner",
+        last_modified_time=now(),
+    )
+    Service.objects.create(
+        id=5,
+        name="tekojääkentät",
+        name_sv="konstisbanor",
+        last_modified_time=now(),
+    )
+    generate_syllables(Service)
     Service.objects.update(search_column_fi=get_search_column(Service, "fi"))
     return Service.objects.all()
 
@@ -244,3 +285,10 @@ def streets():
     Street.objects.create(id=43, name="Markulantie", municipality_id="turku")
     Street.objects.create(id=44, name="Yliopistonkatu", municipality_id="turku")
     return Street.objects.all()
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def exclusion_rules():
+    ExclusionRule.objects.create(id=1, word="tekojää", exclusion="-nurmi")
+    return ExclusionRule.objects.all()

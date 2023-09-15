@@ -51,8 +51,6 @@ if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES
 else:
     DEFAULT_RENDERERS = ()
 
-# This allows us to find a serializer for Haystack search results
-serializers_by_model = {}
 
 all_views = []
 
@@ -62,14 +60,6 @@ def register_view(klass, name, basename=None):
     if basename is not None:
         entry["basename"] = basename
     all_views.append(entry)
-
-    if (
-        klass.serializer_class
-        and hasattr(klass.serializer_class, "Meta")
-        and hasattr(klass.serializer_class.Meta, "model")
-    ):
-        model = klass.serializer_class.Meta.model
-        serializers_by_model[model] = klass.serializer_class
 
 
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
@@ -210,6 +200,32 @@ def root_service_nodes(services):
     )
 
 
+def resolve_divisions(divisions):
+    div_list = []
+    for division_path in divisions:
+        if division_path.startswith("ocd-division"):
+            muni_ocd_id = division_path
+        else:
+            ocd_id_base = r"[\w0-9~_.-]+"
+            match_re = r"(%s)/([\w_-]+):(%s)" % (ocd_id_base, ocd_id_base)
+            m = re.match(match_re, division_path, re.U)
+            if not m:
+                raise ParseError("'division' must be of form 'muni/type:id'")
+
+            arr = division_path.split("/")
+            muni_ocd_id = make_muni_ocd_id(arr.pop(0), "/".join(arr))
+        try:
+            div = AdministrativeDivision.objects.select_related("geometry").get(
+                ocd_id=muni_ocd_id
+            )
+        except AdministrativeDivision.DoesNotExist:
+            raise ParseError(
+                "administrative division with OCD ID '%s' not found" % muni_ocd_id
+            )
+        div_list.append(div)
+    return div_list
+
+
 class JSONAPISerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super(JSONAPISerializer, self).__init__(*args, **kwargs)
@@ -300,7 +316,13 @@ class ServiceNodeSerializer(
 
     class Meta:
         model = ServiceNode
-        fields = "__all__"
+        exclude = (
+            "search_column_fi",
+            "search_column_sv",
+            "search_column_en",
+            "syllables_fi",
+            "service_reference",
+        )
 
 
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
@@ -315,6 +337,16 @@ class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
             total += unit_count.count
             ret["unit_count"]["municipality"][div_name] = unit_count.count
         ret["unit_count"]["total"] = total
+
+        divisions = self.context.get("divisions", [])
+        include_fields = self.context.get("include", [])
+        if "unit_count_per_division" in include_fields and divisions:
+            ret["unit_count_per_division"] = {}
+            div_list = resolve_divisions(divisions)
+            for div in div_list:
+                ret["unit_count_per_division"][div.name] = Unit.objects.filter(
+                    services=obj.pk, location__within=div.geometry.boundary
+                ).count()
         return ret
 
     class Meta:
@@ -530,6 +562,13 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
 
+    def get_serializer_context(self):
+        ret = super(ServiceViewSet, self).get_serializer_context()
+        query_params = self.request.query_params
+        division = query_params.get("division", "")
+        ret["divisions"] = [x.strip() for x in division.split(",") if x]
+        return ret
+
     def get_queryset(self):
         queryset = (
             super(ServiceViewSet, self)
@@ -720,6 +759,7 @@ class UnitSerializer(
             "accessibility_property_hash",
             "identifier_hash",
             "public",
+            "syllables_fi",
             "search_column_fi",
             "search_column_sv",
             "search_column_en",
@@ -916,30 +956,7 @@ class UnitViewSet(
             # Divisions can be specified with form:
             # division=helsinki/kaupunginosa:kallio,vantaa/äänestysalue:5
             d_list = filters["division"].lower().split(",")
-            div_list = []
-            for division_path in d_list:
-                if division_path.startswith("ocd-division"):
-                    muni_ocd_id = division_path
-                else:
-                    ocd_id_base = r"[\w0-9~_.-]+"
-                    match_re = r"(%s)/([\w_-]+):(%s)" % (ocd_id_base, ocd_id_base)
-                    m = re.match(match_re, division_path, re.U)
-                    if not m:
-                        raise ParseError("'division' must be of form 'muni/type:id'")
-
-                    arr = division_path.split("/")
-                    muni_ocd_id = make_muni_ocd_id(arr.pop(0), "/".join(arr))
-                try:
-                    div = AdministrativeDivision.objects.select_related("geometry").get(
-                        ocd_id=muni_ocd_id
-                    )
-                except AdministrativeDivision.DoesNotExist:
-                    raise ParseError(
-                        "administrative division with OCD ID '%s' not found"
-                        % muni_ocd_id
-                    )
-                div_list.append(div)
-
+            div_list = resolve_divisions(d_list)
             if div_list:
                 mp = div_list.pop(0).geometry.boundary
                 for div in div_list:
@@ -1085,52 +1102,6 @@ class UnitViewSet(
 register_view(UnitViewSet, "unit")
 
 
-class SearchSerializer(serializers.Serializer):
-    def __init__(self, *args, **kwargs):
-        super(SearchSerializer, self).__init__(*args, **kwargs)
-        self.serializer_by_model = {}
-
-    def _strip_context(self, context, model):
-        if model == Unit:
-            key = "unit"
-        elif model == Service:
-            key = "service"
-        else:
-            key = "service_node"
-        for spec in ["include", "only"]:
-            if spec in context:
-                context[spec] = context[spec].get(key, [])
-        if "only" in context and context["only"] == []:
-            context.pop("only")
-        return context
-
-    def get_result_serializer(self, model, instance):
-        ser = self.serializer_by_model.get(model)
-        if not ser:
-            ser_class = serializers_by_model[model]
-            assert model in serializers_by_model, "Serializer for %s not found" % model
-            context = self._strip_context(self.context.copy(), model)
-            ser = ser_class(context=context, many=False)
-            self.serializer_by_model[model] = ser
-        # TODO: another way to serialize with new data without
-        # costly Serializer instantiation
-        ser.instance = instance
-        if hasattr(ser, "_data"):
-            del ser._data
-        return ser
-
-    def to_representation(self, search_result):
-        if not search_result or not search_result.model:
-            return None
-        model = search_result.model
-        serializer = self.get_result_serializer(model, search_result.object)
-        data = serializer.data
-        data["sort_index"] = search_result._sort_index
-        data["object_type"] = model._meta.model_name
-        data["score"] = search_result.score
-        return data
-
-
 class AccessibilityRuleView(viewsets.ViewSetMixin, generics.ListAPIView):
     serializer_class = None
 
@@ -1147,13 +1118,13 @@ register_view(
 class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSerializer):
     def to_representation(self, obj):
         ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
-
         if "request" not in self.context:
             return ret
 
         query_params = self.context["request"].query_params
         unit_include = query_params.get("unit_include", None)
         service_point_id = ret["service_point_id"]
+
         if service_point_id and unit_include:
             try:
                 unit = Unit.objects.get(id=service_point_id)
@@ -1166,6 +1137,19 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
             if unit:
                 ser = UnitSerializer(unit, context={"only": unit_include.split(",")})
                 ret["unit"] = ser.data
+
+        unit_ids = ret["units"]
+        if unit_ids and unit_include:
+            units = Unit.objects.filter(id__in=unit_ids)
+            if units:
+                units_data = []
+                for unit in units:
+                    units_data.append(
+                        UnitSerializer(
+                            unit, context={"only": unit_include.split(",")}
+                        ).data
+                    )
+                ret["units"] = units_data
 
         include_fields = query_params.get("include", [])
         if "centroid" in include_fields and obj.geometry:
