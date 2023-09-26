@@ -366,7 +366,7 @@ class MobilitySerializer(ServiceNodeSerializer):
 
     class Meta:
         model = MobilityServiceNode
-        exclude = ("service_reference",)
+        fields = "__all__"
 
 
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
