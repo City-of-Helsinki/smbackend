@@ -40,7 +40,7 @@ MOBILITY_SERVICE_NODE_MAPPING = {
         "name_fi": "Liikkuminen",
         "name_sv": "Mobilitet",
         "name_en": "Mobility",
-        "service_reference": 399,
+        "service_reference": 917,
         "last_modified_time": datetime.now(UTC_TIMEZONE),
         "service_nodes": [552, 558, 2217, 601, 633, 666, 684, 694, 361],
     },
