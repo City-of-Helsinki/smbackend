@@ -359,6 +359,11 @@ class MobilitySerializer(ServiceNodeSerializer):
         if "parent" in only_fields:
             ret["parent"] = obj.parent_id
         ret["root"] = self.root_service_nodes(obj)
+        ret["related_services"] = (
+            [int(service) for service in obj.service_reference.split(",")]
+            if obj.service_reference
+            else []
+        )
         return ret
 
     def root_service_nodes(self, obj):
@@ -366,7 +371,7 @@ class MobilitySerializer(ServiceNodeSerializer):
 
     class Meta:
         model = MobilityServiceNode
-        fields = "__all__"
+        exclude = ("service_reference",)
 
 
 class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
