@@ -173,7 +173,7 @@ typing-extensions==4.5.0
     # via django-modeltranslation
 url-normalize==1.4.3
     # via requests-cache
-urllib3==1.26.15
+urllib3==1.26.17
     # via
     #   bmi-arcgis-restapi
     #   requests
