@@ -72,35 +72,12 @@ class TelraamCounterStation:
     SOURCE_SRID = 4326
     TARGET_SRID = settings.DEFAULT_SRID
 
-    def get_location_and_geometry(self, id):
-        url = TELRAAM_COUNTER_CAMERA_SEGMENTS_URL.format(id=id)
-        headers = {
-            "X-Api-Key": settings.TELRAAM_TOKEN,
-        }
-        response = TELRAAM_HTTP.get(url, headers=headers)
-        assert (
-            response.status_code == 200
-        ), "Could not fetch segment for camera {id}".format(id=id)
-        json_data = response.json()
-        coords = json_data["features"][0]["geometry"]["coordinates"]
-        lss = []
-        for coord in coords:
-            ls = LineString(coord, srid=self.SOURCE_SRID)
-            lss.append(ls)
-        geometry = MultiLineString(lss, srid=self.SOURCE_SRID)
-        geometry.transform(self.TARGET_SRID)
-        mid_line = round(len(coords) / 2)
-        mid_point = round(len(coords[mid_line]) / 2)
-        location = Point(coords[mid_line][mid_point], srid=self.SOURCE_SRID)
-        location.transform(self.TARGET_SRID)
-        return location, geometry
-
     def __init__(self, feature):
         self.name = feature["mac"]
         self.name_sv = feature["mac"]
         self.name_en = feature["mac"]
-        self.location, self.geometry = self.get_location_and_geometry(
-            feature["segment_id"]
+        self.location, self.geometry = get_telraam_camera_location_and_geometry(
+            feature["segment_id"], self.SOURCE_SRID, self.TARGET_SRID
         )
         self.station_id = feature["mac"]
 
@@ -407,6 +384,53 @@ def get_telraam_counter_stations():
     return stations
 
 
+def get_telraam_camera_location_and_geometry(id, source_srid=4326, target_srid=3067):
+    url = TELRAAM_COUNTER_CAMERA_SEGMENTS_URL.format(id=id)
+    headers = {
+        "X-Api-Key": settings.TELRAAM_TOKEN,
+    }
+    response = TELRAAM_HTTP.get(url, headers=headers)
+    assert (
+        response.status_code == 200
+    ), "Could not fetch segment for camera {id}".format(id=id)
+    json_data = response.json()
+    if len(json_data["features"]) == 0:
+        logger.error(f"No data for Telraam camera with segment_id: {id}")
+        return None, None
+
+    coords = json_data["features"][0]["geometry"]["coordinates"]
+    lss = []
+    for coord in coords:
+        ls = LineString(coord, srid=source_srid)
+        lss.append(ls)
+    geometry = MultiLineString(lss, srid=source_srid)
+    geometry.transform(target_srid)
+    mid_line = round(len(coords) / 2)
+    mid_point = round(len(coords[mid_line]) / 2)
+    location = Point(coords[mid_line][mid_point], srid=source_srid)
+    location.transform(target_srid)
+    return location, geometry
+
+
+def get_telraam_dataframe(mac, day, month, year):
+    csv_file = TELRAAM_COUNTER_CSV_FILE.format(
+        mac=mac,
+        day=day,
+        month=month,
+        year=year,
+    )
+    comment_line = None
+    skiprows = 0
+    with open(csv_file, "r") as file:
+        for line in file:
+            if line.startswith("#"):
+                comment_line = line
+                skiprows = 1
+            else:
+                break
+    return pd.read_csv(csv_file, index_col=False, skiprows=skiprows), csv_file
+
+
 def get_telraam_counter_csv(from_date):
     df = pd.DataFrame()
     try:
@@ -423,14 +447,10 @@ def get_telraam_counter_csv(from_date):
         start_date = from_date
 
         while start_date <= end_date:
-            csv_file = TELRAAM_COUNTER_CSV_FILE.format(
-                id=camera["mac"],
-                day=start_date.day,
-                month=start_date.month,
-                year=start_date.year,
-            )
             try:
-                df_tmp = pd.read_csv(csv_file, index_col=False)
+                df_tmp, csv_file = get_telraam_dataframe(
+                    camera["mac"], start_date.day, start_date.month, start_date.year
+                )
             except FileNotFoundError:
                 logger.warning(
                     f"File {csv_file} not found, skipping day{str(start_date)} for camera {camera}"
