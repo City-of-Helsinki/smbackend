@@ -118,7 +118,7 @@ TELRAAM_COUNTER_DATA_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 TELRAAM_COUNTER_CSV_FILE_PATH = f"{settings.MEDIA_ROOT}/telraam_data/"
 TELRAAM_COUNTER_CSV_FILE = (
-    TELRAAM_COUNTER_CSV_FILE_PATH + "telraam_data_{id}_{day}_{month}_{year}.csv"
+    TELRAAM_COUNTER_CSV_FILE_PATH + "telraam_data_{mac}_{day}_{month}_{year}.csv"
 )
 TELRAAM_COUNTER_CAMERAS = {
     # Mac id: Direction flag (True=rgt prefix will be keskustaan päin)
@@ -136,3 +136,10 @@ adapter = HTTPAdapter(max_retries=retry_strategy)
 TELRAAM_HTTP = requests.Session()
 TELRAAM_HTTP.mount("https://", adapter)
 TELRAAM_HTTP.mount("http://", adapter)
+
+
+# Telraam stations default values
+# The possibility to move station
+#
+STATION_350457790598039_DEFAULT_WKT_POS = "POINT (239628.47846388057 6710757.471557152)"
+STATION_350457790600975_DEFAULT_WKT_POS = "POINT (239523.2288977413 6710932.715108742)"
