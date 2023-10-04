@@ -480,8 +480,6 @@ def get_telraam_data_frames(from_date):
                     f"File {csv_file} not found, skipping day{str(start_date)} for camera {camera}"
                 )
             else:
-                df_cam = pd.concat([df_cam, df_tmp])
-            finally:
                 if not comment_lines and not current_station:
                     # Set the initial station, e.i, no coordinates defined in CSV source data
                     current_station = TelraamStation(
@@ -519,30 +517,36 @@ def get_telraam_data_frames(from_date):
                         current_station = TelraamStation(
                             mac=camera["mac"], location=location, geometry=geometry
                         )
+                        df_cam = pd.DataFrame()
                         data_frames[current_station] = []
+                df_cam = pd.concat([df_cam, df_tmp])
 
+            finally:
                 prev_comment_lines = comment_lines
                 start_date += timedelta(days=1)
-
-        df_cam[INDEX_COLUMN_NAME] = pd.to_datetime(
-            df_cam[INDEX_COLUMN_NAME], format=TELRAAM_COUNTER_API_TIME_FORMAT
-        )
-        data_frames[current_station].append(df_cam)
+        if not df_cam.empty:
+            df_cam[INDEX_COLUMN_NAME] = pd.to_datetime(
+                df_cam[INDEX_COLUMN_NAME], format=TELRAAM_COUNTER_API_TIME_FORMAT
+            )
+            data_frames[current_station].append(df_cam)
 
     return data_frames
 
 
 def get_or_create_telraam_station(station):
     name = str(station.mac)
-    obj, _ = Station.objects.get_or_create(
-        csv_data_source=TELRAAM_COUNTER,
-        name=name,
-        name_sv=name,
-        name_en=name,
-        location=station.location,
-        geometry=station.geometry,
-        station_id=station.mac,
-    )
+    filter = {
+        "csv_data_source": TELRAAM_COUNTER,
+        "name": name,
+        "name_sv": name,
+        "name_en": name,
+        "location": station.location,
+        "geometry": station.geometry,
+        "station_id": station.mac,
+    }
+    station_qs = Station.objects.filter(**filter)
+    if not station_qs.exists():
+        obj = Station.objects.create(**filter)
     return obj
 
 
