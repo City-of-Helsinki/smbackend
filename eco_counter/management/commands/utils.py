@@ -68,24 +68,22 @@ class TrafficCounterStation:
         self.location = geom
 
 
-class TelraamCounterStation:
-    # The Telraam API return the coordinates in EPSGS 31370
-    SOURCE_SRID = 4326
-    TARGET_SRID = settings.DEFAULT_SRID
+# class TelraamCounterStation:
+#     # The Telraam API return the coordinates in EPSGS 31370
+#     SOURCE_SRID = 4326
+#     TARGET_SRID = settings.DEFAULT_SRID
 
-    def __init__(self, feature):
-        self.name = feature["mac"]
-        self.name_sv = feature["mac"]
-        self.name_en = feature["mac"]
-        self.location, self.geometry = get_telraam_camera_location_and_geometry(
-            feature["segment_id"], self.SOURCE_SRID, self.TARGET_SRID
-        )
-        self.station_id = feature["mac"]
+#     def __init__(self, feature):
+#         self.name = feature["mac"]
+#         self.name_sv = feature["mac"]
+#         self.name_en = feature["mac"]
+#         self.location, self.geometry = get_telraam_camera_location_and_geometry(
+#             feature["segment_id"], self.SOURCE_SRID, self.TARGET_SRID
+#         )
+#         self.station_id = feature["mac"]
 
 
-class ObservationStation(
-    LAMStation, EcoCounterStation, TrafficCounterStation, TelraamCounterStation
-):
+class ObservationStation(LAMStation, EcoCounterStation, TrafficCounterStation):
     def __init__(self, csv_data_source, feature):
         self.csv_data_source = csv_data_source
         self.name = None
@@ -95,8 +93,8 @@ class ObservationStation(
         self.geometry = None
         self.station_id = None
         match csv_data_source:
-            case COUNTERS.TELRAAM_COUNTER:
-                TelraamCounterStation.__init__(self, feature)
+            # case COUNTERS.TELRAAM_COUNTER:
+            #     TelraamCounterStation.__init__(self, feature)
             case COUNTERS.LAM_COUNTER:
                 LAMStation.__init__(self, feature)
             case COUNTERS.ECO_COUNTER:
@@ -533,12 +531,26 @@ def get_telraam_data_frames(from_date):
     return data_frames
 
 
+def get_or_create_telraam_station(station):
+    name = str(station.mac)
+    obj, created = Station.objects.get_or_create(
+        csv_data_source=TELRAAM_COUNTER,
+        name=name,
+        name_sv=name,
+        name_en=name,
+        location=station.location,
+        geometry=station.geometry,
+        station_id=station.mac,
+    )
+    return obj
+
+
 def save_stations(csv_data_source):
     stations = []
     num_created = 0
     match csv_data_source:
-        case COUNTERS.TELRAAM_COUNTER:
-            stations = get_telraam_counter_stations()
+        # case COUNTERS.TELRAAM_COUNTER:
+        # Telraam station are handled differently as they are dynamic
         case COUNTERS.LAM_COUNTER:
             stations = get_lam_counter_stations()
         case COUNTERS.ECO_COUNTER:
