@@ -519,6 +519,7 @@ def get_telraam_data_frames(from_date):
                         current_station = TelraamStation(
                             mac=camera["mac"], location=location, geometry=geometry
                         )
+                        data_frames[current_station] = []
 
                 prev_comment_lines = comment_lines
                 start_date += timedelta(days=1)
@@ -533,7 +534,7 @@ def get_telraam_data_frames(from_date):
 
 def get_or_create_telraam_station(station):
     name = str(station.mac)
-    obj, created = Station.objects.get_or_create(
+    obj, _ = Station.objects.get_or_create(
         csv_data_source=TELRAAM_COUNTER,
         name=name,
         name_sv=name,
