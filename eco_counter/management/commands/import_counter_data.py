@@ -44,7 +44,8 @@ from .utils import (
     gen_eco_counter_test_csv,
     get_eco_counter_csv,
     get_lam_counter_csv,
-    get_telraam_counter_csv,
+    get_or_create_telraam_station,
+    get_telraam_data_frames,
     get_test_dataframe,
     get_traffic_counter_csv,
     save_stations,
@@ -319,13 +320,18 @@ class Command(BaseCommand):
                             values_key = station_types[i].upper()
                             values[values_key].append(val)
 
-    def save_observations(self, csv_data, start_time, csv_data_source=ECO_COUNTER):
+    def save_observations(
+        self, csv_data, start_time, csv_data_source=ECO_COUNTER, station=None
+    ):
         import_state = ImportState.objects.get(csv_data_source=csv_data_source)
         # Populate stations list, this is used to set/lookup station relations.
-        stations = [
-            station
-            for station in Station.objects.filter(csv_data_source=csv_data_source)
-        ]
+        if not station:
+            stations = [
+                station
+                for station in Station.objects.filter(csv_data_source=csv_data_source)
+            ]
+        else:
+            stations = [station]
         df = csv_data
         df["Date"] = pd.to_datetime(df["startTime"], format="%Y-%m-%dT%H:%M")
         df = df.drop("startTime", axis=1)
@@ -403,7 +409,11 @@ class Command(BaseCommand):
                         csv_data_source=counter,
                     )
                     logger.info(f"Retrieving stations for {counter}.")
-                    save_stations(counter)
+                    # As Telraam counters are dynamic, create after CSV data is processed
+                    if counter == TELRAAM_COUNTER:
+                        Station.objects.filter(csv_data_source=counter).delete()
+                    else:
+                        save_stations(counter)
 
         if options["test_counter"]:
             logger.info("Testing eco_counter importer.")
@@ -420,6 +430,7 @@ class Command(BaseCommand):
                 start_time,
                 csv_data_source=counter,
             )
+
         # Import if counters arg or initial import.
         if options["counters"] or initial_import_counters:
             if not initial_import_counters:
@@ -456,10 +467,9 @@ class Command(BaseCommand):
                 # The timeformat for the input data is : 2020-03-01T00:00
                 # Convert starting time to input datas timeformat
                 start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")
-                # start_index = None
                 match counter:
-                    case COUNTERS.TELRAAM_COUNTER:
-                        csv_data = get_telraam_counter_csv(start_time.date())
+                    # case COUNTERS.TELRAAM_COUNTER:
+                    # Telraam counters are handled differently due to their dynamic nature
                     case COUNTERS.LAM_COUNTER:
                         csv_data = get_lam_counter_csv(start_time.date())
                     case COUNTERS.ECO_COUNTER:
@@ -470,22 +480,45 @@ class Command(BaseCommand):
                         else:
                             start_year = TRAFFIC_COUNTER_START_YEAR
                         csv_data = get_traffic_counter_csv(start_year=start_year)
-                start_index = csv_data.index[
-                    csv_data[INDEX_COLUMN_NAME] == start_time_string
-                ].values[0]
-                # As LAM data is fetched with a timespan, no index data is available, instead
-                # show time.
-                if counter == LAM_COUNTER:
-                    logger.info(f"Starting saving observations at time:{start_time}")
-                else:
-                    logger.info(f"Starting saving observations at index:{start_index}")
 
-                csv_data = csv_data[start_index:]
-                self.save_observations(
-                    csv_data,
-                    start_time,
-                    csv_data_source=counter,
-                )
+                if counter == TELRAAM_COUNTER:
+                    data_frames = get_telraam_data_frames(start_time.date())
+                    for item in data_frames.items():
+                        if len(item) == 0:
+                            logger.error("Found Telraam dataframe without data")
+                            break
+                        station = get_or_create_telraam_station(item[0])
+                        logger.info(f"Saving Telraam station {station.name}")
+
+                        for csv_data in item[1]:
+                            start_time = csv_data.iloc[0][0].to_pydatetime()
+                            self.save_observations(
+                                csv_data,
+                                start_time,
+                                csv_data_source=TELRAAM_COUNTER,
+                                station=station,
+                            )
+                else:
+                    start_index = csv_data.index[
+                        csv_data[INDEX_COLUMN_NAME] == start_time_string
+                    ].values[0]
+                    # As LAM data is fetched with a timespan, no index data is available, instead
+                    # show time.
+                    if counter == LAM_COUNTER:
+                        logger.info(
+                            f"Starting saving observations at time:{start_time}"
+                        )
+                    else:
+                        logger.info(
+                            f"Starting saving observations at index:{start_index}"
+                        )
+
+                    csv_data = csv_data[start_index:]
+                    self.save_observations(
+                        csv_data,
+                        start_time,
+                        csv_data_source=counter,
+                    )
                 # Try to Free memory
                 del csv_data
                 gc.collect()
