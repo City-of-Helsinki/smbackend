@@ -270,12 +270,14 @@ def save_dataframe(from_date: date = True) -> datetime:
                 if os.path.exists(csv_file):
                     os.remove(csv_file)
             if not os.path.exists(csv_file) or can_overwrite_csv_file:
-                location, _ = get_telraam_camera_location_and_geometry(
+                location, geometry = get_telraam_camera_location_and_geometry(
                     camera["segment_id"]
                 )
                 # Write to WKT of the location, as the cameras position can change
-                with open(csv_file, "a") as file:
+                with open(csv_file, "w") as file:
                     file.write(f"# {location.wkt} \n")
+                    file.write(f"# {geometry.wkt} \n")
+
                 df.to_csv(csv_file, mode="a")
             start_date += timedelta(days=1)
 
