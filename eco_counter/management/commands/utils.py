@@ -26,6 +26,7 @@ from eco_counter.constants import (
     TELRAAM_COUNTER_CSV_FILE,
     TELRAAM_CSV,
     TELRAAM_HTTP,
+    TELRAAM_STATIONS_INITIAL_WKT_GEOMETRIES,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_CSV_URLS,
     TRAFFIC_COUNTER_METADATA_GEOJSON,
@@ -419,36 +420,61 @@ def get_telraam_dataframe(mac, day, month, year):
         month=month,
         year=year,
     )
-    comment_line = None
+    comment_lines = []
     skiprows = 0
     with open(csv_file, "r") as file:
         for line in file:
             if line.startswith("#"):
-                comment_line = line
-                skiprows = 1
+                comment_lines.append(line)
+                skiprows += 1
             else:
                 break
-    return pd.read_csv(csv_file, index_col=False, skiprows=skiprows), csv_file
+    return (
+        pd.read_csv(csv_file, index_col=False, skiprows=skiprows),
+        csv_file,
+        comment_lines,
+    )
 
 
-def get_telraam_counter_csv(from_date):
-    df = pd.DataFrame()
+class TelraamStation:
+    def __init__(self, mac, location, geometry):
+        self.mac = mac
+        self.location = location
+        self.geometry = geometry
+
+
+def parse_telraam_comment_lines(comment_lines):
+    location = None
+    geometry = None
+    comment_lines = [c.replace("# ", "") for c in comment_lines]
+    if len(comment_lines) > 0:
+        location = GEOSGeometry(comment_lines[0])
+    if len(comment_lines) > 1:
+        geometry = GEOSGeometry(comment_lines[1])
+    return location, geometry
+
+
+def get_telraam_data_frames(from_date):
     try:
         import_state = ImportState.objects.get(csv_data_source=TELRAAM_CSV)
     except ImportState.DoesNotExist:
+        logger.error("ImportState instance not found.")
         return None
     end_date = date(
         import_state.current_year_number,
         import_state.current_month_number,
         import_state.current_day_number,
     )
-    for camera in get_telraam_cameras():
+    data_frames = {}
+    for c_i, camera in enumerate(get_telraam_cameras()):
         df_cam = pd.DataFrame()
         start_date = from_date
+        current_station = None
+        prev_comment_lines = []
 
         while start_date <= end_date:
             try:
-                df_tmp, csv_file = get_telraam_dataframe(
+                df_tmp, csv_file, comment_lines = get_telraam_dataframe(
                     camera["mac"], start_date.day, start_date.month, start_date.year
                 )
             except FileNotFoundError:
@@ -458,17 +484,53 @@ def get_telraam_counter_csv(from_date):
             else:
                 df_cam = pd.concat([df_cam, df_tmp])
             finally:
+                if not comment_lines and not current_station:
+                    # Set the initial station, e.i, no coordinates defined in CSV source data
+                    current_station = TelraamStation(
+                        mac=camera["mac"],
+                        location=GEOSGeometry(
+                            TELRAAM_STATIONS_INITIAL_WKT_GEOMETRIES[camera["mac"]][
+                                "location"
+                            ]
+                        ),
+                        geometry=GEOSGeometry(
+                            TELRAAM_STATIONS_INITIAL_WKT_GEOMETRIES[camera["mac"]][
+                                "geometry"
+                            ]
+                        ),
+                    )
+                    data_frames[current_station] = []
+                elif comment_lines and not current_station:
+                    location, geometry = parse_telraam_comment_lines(comment_lines)
+                    current_station = TelraamStation(
+                        mac=camera["mac"], location=location, geometry=geometry
+                    )
+
+                if prev_comment_lines != comment_lines:
+                    location, geometry = parse_telraam_comment_lines(comment_lines)
+                    # CSV files might contain the initial coordinates, to avoid creating duplicated check coordinates
+                    if (
+                        location.wkt != current_station.location.wkt
+                        and geometry.wkt != current_station.geometry.wkt
+                    ):
+                        df_cam[INDEX_COLUMN_NAME] = pd.to_datetime(
+                            df_cam[INDEX_COLUMN_NAME],
+                            format=TELRAAM_COUNTER_API_TIME_FORMAT,
+                        )
+                        data_frames[current_station].append(df_cam)
+                        current_station = TelraamStation(
+                            mac=camera["mac"], location=location, geometry=geometry
+                        )
+
+                prev_comment_lines = comment_lines
                 start_date += timedelta(days=1)
 
-        if df.empty:
-            df = df_cam
-        else:
-            df = pd.merge(df, df_cam, on=INDEX_COLUMN_NAME)
+        df_cam[INDEX_COLUMN_NAME] = pd.to_datetime(
+            df_cam[INDEX_COLUMN_NAME], format=TELRAAM_COUNTER_API_TIME_FORMAT
+        )
+        data_frames[current_station].append(df_cam)
 
-    df[INDEX_COLUMN_NAME] = pd.to_datetime(
-        df[INDEX_COLUMN_NAME], format=TELRAAM_COUNTER_API_TIME_FORMAT
-    )
-    return df
+    return data_frames
 
 
 def save_stations(csv_data_source):
