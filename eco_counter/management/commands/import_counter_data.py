@@ -88,7 +88,6 @@ STATION_TYPES = [
 
 TYPE_DIRS = ["AK", "AP", "JK", "JP", "BK", "BP", "PK", "PP"]
 ALL_TYPE_DIRS = TYPE_DIRS + ["AT", "JT", "BT", "PT"]
-type_dirs_lower = [TD.lower() for TD in TYPE_DIRS]
 
 
 def delete_tables(
