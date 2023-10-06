@@ -103,6 +103,13 @@ class ObservationStation(LAMStation, EcoCounterStation, TrafficCounterStation):
                 TrafficCounterStation.__init__(self, feature)
 
 
+class TelraamStation:
+    def __init__(self, mac, location, geometry):
+        self.mac = mac
+        self.location = location
+        self.geometry = geometry
+
+
 def get_traffic_counter_metadata_data_layer():
     meta_file = f"{get_root_dir()}/eco_counter/data/{TRAFFIC_COUNTER_METADATA_GEOJSON}"
     return DataSource(meta_file)[0]
@@ -434,13 +441,6 @@ def get_telraam_dataframe(mac, day, month, year):
     )
 
 
-class TelraamStation:
-    def __init__(self, mac, location, geometry):
-        self.mac = mac
-        self.location = location
-        self.geometry = geometry
-
-
 def parse_telraam_comment_lines(comment_lines):
     location = None
     geometry = None
@@ -453,6 +453,9 @@ def parse_telraam_comment_lines(comment_lines):
 
 
 def get_telraam_data_frames(from_date):
+    """
+    For every camera create a dataframe for each location the camera has been placed.
+    """
     try:
         import_state = ImportState.objects.get(csv_data_source=TELRAAM_CSV)
     except ImportState.DoesNotExist:
@@ -464,7 +467,7 @@ def get_telraam_data_frames(from_date):
         import_state.current_day_number,
     )
     data_frames = {}
-    for c_i, camera in enumerate(get_telraam_cameras()):
+    for camera in get_telraam_cameras():
         df_cam = pd.DataFrame()
         start_date = from_date
         current_station = None
@@ -547,6 +550,8 @@ def get_or_create_telraam_station(station):
     station_qs = Station.objects.filter(**filter)
     if not station_qs.exists():
         obj = Station.objects.create(**filter)
+    else:
+        obj = station_qs.first()
     return obj
 
 
@@ -602,16 +607,51 @@ def get_test_dataframe(counter):
 
 
 def gen_eco_counter_test_csv(
-    columns, start_time, end_time, time_stamp_column="startTime"
+    columns, start_time, end_time, time_stamp_column="startTime", freq="15min"
 ):
     """
     Generates test data for a given timespan,
-    for every row (15min) the value 1 is set.
+    for every row ('freq') the value 1 is set.
     """
     df = pd.DataFrame()
-    timestamps = pd.date_range(start=start_time, end=end_time, freq="15min")
+    timestamps = pd.date_range(start=start_time, end=end_time, freq=freq)
     for col in columns:
         vals = [1 for i in range(len(timestamps))]
         df.insert(0, col, vals)
     df.insert(0, time_stamp_column, timestamps)
     return df
+
+
+def get_telraam_data_frames_test_fixture(
+    from_date,
+    num_cameras=1,
+    num_locations=2,
+    num_days_per_location=2,
+):
+    def get_location_and_geometry(i):
+        location = GEOSGeometry(f"POINT({i} {i})")
+        geometry = GEOSGeometry(
+            f"MULTILINESTRING (({i} {i}, 1 1), (1 1, 2 2), (2 2, 3 3))"
+        )
+        return location, geometry
+
+    columns = get_test_dataframe(TELRAAM_COUNTER).keys()
+    data_frames = {}
+    location_counter = 0
+    for c_c in range(num_cameras):
+        start_date = from_date
+        for l_c in range(num_locations):
+            location, geometry = get_location_and_geometry(location_counter)
+            station = TelraamStation(c_c, location, geometry)
+            data_frames[station] = []
+            df = pd.DataFrame()
+            # Generate 'num_days_per_location' days of data for every location
+            for day in range(num_days_per_location):
+                csv_data = gen_eco_counter_test_csv(
+                    columns, start_date, start_date + timedelta(hours=23), freq="1h"
+                )
+                start_date += timedelta(days=1)
+                df = pd.concat([df, csv_data])
+            data_frames[station].append(df)
+            location_counter += 1
+    return data_frames
