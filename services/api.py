@@ -1146,6 +1146,15 @@ class UnitViewSet(
                 arg = filters["address"] + r"($|\s|,|[a-zA-Z]).*"
             queryset = queryset.filter(**{key: arg})
 
+        if "no_private_services" in filters:
+            private_enterprise_value = (
+                10  # Value for PRIVATE_ENTERPRISE from ORGANIZER_TYPES
+            )
+            queryset = queryset.exclude(
+                Q(displayed_service_owner_type__iexact="PRIVATE_SERVICE")
+                | Q(organizer_type=private_enterprise_value)
+            )
+
         maintenance_organization = self.request.query_params.get(
             "maintenance_organization"
         )
