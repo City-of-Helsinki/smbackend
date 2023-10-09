@@ -8,9 +8,12 @@ import requests
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry, LineString, MultiLineString, Point
+from django.core.management.base import CommandError
 
 from eco_counter.constants import (
+    COUNTER_CHOICES_STR,
     COUNTERS,
+    COUNTERS_LIST,
     ECO_COUNTER,
     INDEX_COLUMN_NAME,
     LAM_COUNTER,
@@ -108,6 +111,14 @@ class TelraamStation:
         self.mac = mac
         self.location = location
         self.geometry = geometry
+
+
+def check_counters_argument(counters):
+    for counter in counters:
+        if counter not in COUNTERS_LIST:
+            raise CommandError(
+                f"Invalid counter type, valid types are: {COUNTER_CHOICES_STR}."
+            )
 
 
 def get_traffic_counter_metadata_data_layer():
@@ -427,6 +438,7 @@ def get_telraam_dataframe(mac, day, month, year):
     )
     comment_lines = []
     skiprows = 0
+    # The location and geometry is stored as comments to the csv file
     with open(csv_file, "r") as file:
         for line in file:
             if line.startswith("#"):
@@ -620,38 +632,3 @@ def gen_eco_counter_test_csv(
         df.insert(0, col, vals)
     df.insert(0, time_stamp_column, timestamps)
     return df
-
-
-def get_telraam_data_frames_test_fixture(
-    from_date,
-    num_cameras=1,
-    num_locations=2,
-    num_days_per_location=2,
-):
-    def get_location_and_geometry(i):
-        location = GEOSGeometry(f"POINT({i} {i})")
-        geometry = GEOSGeometry(
-            f"MULTILINESTRING (({i} {i}, 1 1), (1 1, 2 2), (2 2, 3 3))"
-        )
-        return location, geometry
-
-    columns = get_test_dataframe(TELRAAM_COUNTER).keys()
-    data_frames = {}
-    location_counter = 0
-    for c_c in range(num_cameras):
-        start_date = from_date
-        for l_c in range(num_locations):
-            location, geometry = get_location_and_geometry(location_counter)
-            station = TelraamStation(c_c, location, geometry)
-            data_frames[station] = []
-            df = pd.DataFrame()
-            # Generate 'num_days_per_location' days of data for every location
-            for day in range(num_days_per_location):
-                csv_data = gen_eco_counter_test_csv(
-                    columns, start_date, start_date + timedelta(hours=23), freq="1h"
-                )
-                start_date += timedelta(days=1)
-                df = pd.concat([df, csv_data])
-            data_frames[station].append(df)
-            location_counter += 1
-    return data_frames
