@@ -101,6 +101,12 @@ def delete_tables(
         ImportState.objects.filter(csv_data_source=csv_data_source).delete()
 
 
+def save_hour_data_values(hour_data, values):
+    for td in ALL_TYPE_DIRS:
+        setattr(hour_data, f"values_{td.lower()}", values[td])
+    hour_data.save()
+
+
 def save_values(values, dst_obj):
     for station_types in STATION_TYPES:
         setattr(dst_obj, f"value_{station_types[0]}", values[station_types[0]])
@@ -287,9 +293,7 @@ def save_hours(df, stations):
                     station=station,
                 )
                 hour_data, _ = HourData.objects.get_or_create(station=station, day=day)
-                for td in ALL_TYPE_DIRS:
-                    setattr(hour_data, f"values_{td.lower()}", values[td])
-                hour_data.save()
+                save_hour_data_values(hour_data, values)
                 values = {k: [] for k in ALL_TYPE_DIRS}
                 # output logger only when last station is saved
                 if i_station == len(stations) - 1:
@@ -301,7 +305,7 @@ def save_hours(df, stations):
             else:
                 # Add data to values dict for an hour
                 for station_types in STATION_TYPES:
-                    for i in range(3):
+                    for i in range(len(station_types)):
                         if i < 2:
                             dir_key = f"{station.name} {station_types[i].upper()}"
                             val = sum_series.get(dir_key, 0)
@@ -311,6 +315,13 @@ def save_hours(df, stations):
                             val = sum_series.get(p_key, 0) + sum_series.get(k_key, 0)
                         values_key = station_types[i].upper()
                         values[values_key].append(val)
+        # Save hour datas for the last day in data frame
+        day, _ = Day.objects.get_or_create(
+            date=datetime(year_number, month_number, day_number),
+            station=station,
+        )
+        hour_data, _ = HourData.objects.get_or_create(station=station, day=day)
+        save_hour_data_values(hour_data, values)
 
 
 def save_observations(csv_data, start_time, csv_data_source=ECO_COUNTER, station=None):
