@@ -34,6 +34,13 @@ e.g. ./manage.py import_counter_data --counters EC TC
 Counter names are: EC (Eco Counter), TC (Traffic Counter), LC (Lam Counter) and TR (Telraam Counter).
 Note, Traffic Counter data is updated once a week and Lam Counter data once a day.
 
+## Deleting data
+To delete data use the delete_counter_data management command.
+e.g. to delete all Lam Counter data type:
+```
+./manage.py delete_counter_data --counters LC
+```
+
 ### Importing Telraam raw data
 In order to import Telraam data into the database the raw data has to be imported. The raw data is imported with the _import_telraam_to_csv_ management command.
 The imported should be set to be run once a hour (see: https://github.com/City-of-Turku/smbackend/wiki/Celery-Tasks#telraam-to-csv-eco_countertasksimport_telraam_to_csv )
