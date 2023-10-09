@@ -7,13 +7,20 @@ The main purpose of these tests are to verify that the importer
 imports and calculates the data correctly.
 """
 import calendar
+from datetime import timedelta
 from io import StringIO
+from unittest.mock import patch
 
 import dateutil.parser
 import pytest
 from django.core.management import call_command
 
-from eco_counter.constants import ECO_COUNTER, LAM_COUNTER, TRAFFIC_COUNTER
+from eco_counter.constants import (
+    ECO_COUNTER,
+    LAM_COUNTER,
+    TELRAAM_COUNTER,
+    TRAFFIC_COUNTER,
+)
 from eco_counter.models import (
     Day,
     DayData,
@@ -27,21 +34,9 @@ from eco_counter.models import (
     Year,
     YearData,
 )
+from eco_counter.tests.utils import get_telraam_data_frames_test_fixture
 
-from .constants import (
-    ECO_COUNTER_TEST_COLUMN_NAMES,
-    LAM_COUNTER_TEST_COLUMN_NAMES,
-    TEST_EC_STATION_NAME,
-    TEST_LC_STATION_NAME,
-    TEST_TC_STATION_NAME,
-    TRAFFIC_COUNTER_TEST_COLUMN_NAMES,
-)
-
-TEST_COLUMN_NAMES = {
-    ECO_COUNTER: ECO_COUNTER_TEST_COLUMN_NAMES,
-    TRAFFIC_COUNTER: TRAFFIC_COUNTER_TEST_COLUMN_NAMES,
-    LAM_COUNTER: LAM_COUNTER_TEST_COLUMN_NAMES,
-}
+from .constants import TEST_EC_STATION_NAME, TEST_LC_STATION_NAME, TEST_TC_STATION_NAME
 
 
 def import_command(*args, **kwargs):
@@ -54,6 +49,114 @@ def import_command(*args, **kwargs):
         **kwargs,
     )
     return out.getvalue()
+
+
+@pytest.mark.django_db
+@patch("eco_counter.management.commands.utils.get_telraam_data_frames")
+def test_import_telraam(get_telraam_data_frames_mock):
+    from eco_counter.management.commands.import_counter_data import import_data
+
+    start_time = dateutil.parser.parse("2023-09-01T00:00")
+    ImportState.objects.create(
+        current_year_number=start_time.year,
+        current_month_number=start_time.month,
+        current_day_number=start_time.day,
+        csv_data_source=TELRAAM_COUNTER,
+    )
+    num_days_per_location = 2
+    get_telraam_data_frames_mock.return_value = get_telraam_data_frames_test_fixture(
+        start_time,
+        num_cameras=2,
+        num_locations=3,
+        num_days_per_location=num_days_per_location,
+    )
+    import_data([TELRAAM_COUNTER])
+    stations_qs = Station.objects.all()
+    # num_stations * nul_locations, as for every location a station is created
+    assert stations_qs.count() == 6
+    assert DayData.objects.count() == 12
+    assert HourData.objects.count() == 12
+    assert stations_qs.first().location.wkt == "POINT (2032 2032)"
+    assert Year.objects.count() == stations_qs.count()
+    import_state_qs = ImportState.objects.filter(csv_data_source=TELRAAM_COUNTER)
+    assert import_state_qs.count() == 1
+    import_state = import_state_qs.first()
+    assert import_state.current_year_number == 2023
+    assert import_state.current_month_number == 9
+    assert import_state.current_day_number == 2
+    # 12
+    assert Day.objects.count() == stations_qs.count() * num_days_per_location
+    # Test that duplicates are not created
+    get_telraam_data_frames_mock.return_value = get_telraam_data_frames_test_fixture(
+        start_time,
+        num_cameras=2,
+        num_locations=3,
+        num_days_per_location=num_days_per_location,
+    )
+    import_data([TELRAAM_COUNTER])
+    assert stations_qs.count() == 6
+    assert Year.objects.count() == stations_qs.count()
+    assert Day.objects.count() == stations_qs.count() * num_days_per_location
+    assert DayData.objects.count() == 12
+    assert HourData.objects.count() == 12
+    # Test new locations, adds 2 stations
+    new_start_time = start_time + timedelta(days=2)
+    get_telraam_data_frames_mock.return_value = get_telraam_data_frames_test_fixture(
+        new_start_time,
+        num_cameras=2,
+        num_locations=1,
+        num_days_per_location=num_days_per_location,
+    )
+    import_data([TELRAAM_COUNTER])
+    stations_qs = Station.objects.all()
+    assert stations_qs.count() == 8
+    assert Year.objects.count() == stations_qs.count()
+    assert Day.objects.count() == 16
+    # Test adding camera
+    get_telraam_data_frames_mock.return_value = get_telraam_data_frames_test_fixture(
+        new_start_time,
+        num_cameras=3,
+        num_locations=1,
+        num_days_per_location=num_days_per_location,
+    )
+    import_data([TELRAAM_COUNTER])
+    stations_qs = Station.objects.all()
+    assert stations_qs.count() == 9
+    assert Year.objects.count() == stations_qs.count()
+    # Test data related to first station
+    station = Station.objects.filter(station_id="0").first()
+    year_data = YearData.objects.get(station=station)
+    assert year_data.value_ak == 24 * num_days_per_location
+    assert year_data.value_ap == 24 * num_days_per_location
+    assert year_data.value_at == 24 * num_days_per_location * 2
+    assert year_data.value_pk == 24 * num_days_per_location
+    assert year_data.value_pp == 24 * num_days_per_location
+    assert year_data.value_pt == 24 * num_days_per_location * 2
+    assert MonthData.objects.count() == stations_qs.count() * Year.objects.count()
+    assert Month.objects.count() == stations_qs.count() * Year.objects.count()
+    assert (
+        MonthData.objects.get(station=station, month=Month.objects.first()).value_at
+        == 24 * num_days_per_location * 2
+    )
+    # 1.9.2023 is a friday, 9 stations has data for 1-3.9(week 34) and 3 stations has data for
+    # 4.5 (week 36)
+    assert WeekData.objects.count() == 12
+    assert Week.objects.count() == 12
+    # location*camera = 6 * num_days_per_location + cameras * num_days_per_location
+    DayData.objects.count() == 6 * 2 + 3 * 2
+    Day.objects.count() == 6 * 2 + 3 * 2
+
+    # Three locations for two cameras
+    assert Day.objects.filter(date__day=1).count() == 6
+    # One location for Three cameras
+    assert Day.objects.filter(date__day=4).count() == 3
+    assert DayData.objects.first().value_at == 48
+    assert DayData.objects.first().value_ap == 24
+    assert DayData.objects.first().value_ak == 24
+    HourData.objects.count() == 18
+    for hour_data in HourData.objects.all():
+        hour_data.values_ak == [1 for x in range(24)]
+        hour_data.values_at == [2 for x in range(24)]
 
 
 @pytest.mark.test_import_counter_data
