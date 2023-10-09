@@ -16,6 +16,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from eco_counter.constants import (
+    COUNTER_CHOICES_STR,
     COUNTER_START_YEARS,
     COUNTERS,
     ECO_COUNTER,
@@ -41,6 +42,7 @@ from eco_counter.models import (
 )
 
 from .utils import (
+    check_counters_argument,
     gen_eco_counter_test_csv,
     get_eco_counter_csv,
     get_lam_counter_csv,
@@ -345,6 +347,7 @@ def save_observations(csv_data, start_time, csv_data_source=ECO_COUNTER, station
     end_date = df.index[-1]
     import_state.current_year_number = end_date.year
     import_state.current_month_number = end_date.month
+    import_state.current_day_number = end_date.day
     import_state.save()
     logger.info(f"Imported observations until:{str(end_date)}")
 
@@ -385,7 +388,11 @@ def import_data(counters):
     for counter in counters:
         logger.info(f"Importing/counting data for {counter}...")
         import_state = ImportState.objects.filter(csv_data_source=counter).first()
-
+        if not import_state:
+            logger.error(
+                "ImportState instance not found, try importing with the '--init' argument."
+            )
+            break
         if import_state.current_year_number and import_state.current_month_number:
             start_time = "{year}-{month}-1T00:00".format(
                 year=import_state.current_year_number,
@@ -442,10 +449,6 @@ def import_data(counters):
 
 class Command(BaseCommand):
     help = "Imports traffic counter data in the Turku region."
-    COUNTERS = [ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER, TELRAAM_COUNTER]
-    COUNTER_CHOICES_STR = (
-        f"{ECO_COUNTER}, {TRAFFIC_COUNTER}, {TELRAAM_COUNTER} and {LAM_COUNTER}"
-    )
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -454,7 +457,7 @@ class Command(BaseCommand):
             nargs="+",
             default=False,
             help=f"For given counters in arguments deletes all tables before importing, imports stations and\
-                 starts importing from row 0. The counter arguments are: {self.COUNTER_CHOICES_STR}",
+                 starts importing from row 0. The counter arguments are: {COUNTER_CHOICES_STR}",
         )
         parser.add_argument(
             "--test-counter",
@@ -468,15 +471,8 @@ class Command(BaseCommand):
             type=str,
             nargs="+",
             default=False,
-            help=f"Import specific counter(s) data, choices are: {self.COUNTER_CHOICES_STR}.",
+            help=f"Import specific counter(s) data, choices are: {COUNTER_CHOICES_STR}.",
         )
-
-    def check_counters_argument(self, counters):
-        for counter in counters:
-            if counter not in self.COUNTERS:
-                raise CommandError(
-                    f"Invalid counter type, valid types are: {self.COUNTER_CHOICES_STR}."
-                )
 
     def handle(self, *args, **options):
         initial_import_counters = None
@@ -484,11 +480,11 @@ class Command(BaseCommand):
         if options["initial_import"]:
             if len(options["initial_import"]) == 0:
                 raise CommandError(
-                    f"Specify the counter(s), choices are: {self.COUNTER_CHOICES_STR}."
+                    f"Specify the counter(s), choices are: {COUNTER_CHOICES_STR}."
                 )
             else:
                 initial_import_counters = options["initial_import"]
-                self.check_counters_argument(initial_import_counters)
+                check_counters_argument(initial_import_counters)
                 logger.info(f"Deleting tables for: {initial_import_counters}")
                 handle_initial_import(initial_import_counters)
 
@@ -513,7 +509,7 @@ class Command(BaseCommand):
             if not initial_import_counters:
                 # run with counters argument
                 counters = options["counters"]
-                self.check_counters_argument(counters)
+                check_counters_argument(counters)
             else:
                 counters = initial_import_counters
             import_data(counters)
