@@ -302,19 +302,19 @@ def save_hours(df, stations):
                     )
                 prev_day_number = day_number
                 prev_month_number = month_number
-            else:
-                # Add data to values dict for an hour
-                for station_types in STATION_TYPES:
-                    for i in range(len(station_types)):
-                        if i < 2:
-                            dir_key = f"{station.name} {station_types[i].upper()}"
-                            val = sum_series.get(dir_key, 0)
-                        else:
-                            k_key = f"{station.name} {station_types[0].upper()}"
-                            p_key = f"{station.name} {station_types[1].upper()}"
-                            val = sum_series.get(p_key, 0) + sum_series.get(k_key, 0)
-                        values_key = station_types[i].upper()
-                        values[values_key].append(val)
+            # Add data to values dict for an hour
+            for station_types in STATION_TYPES:
+                for i in range(len(station_types)):
+                    if i < 2:
+                        dir_key = f"{station.name} {station_types[i].upper()}"
+                        val = sum_series.get(dir_key, 0)
+                    else:
+                        k_key = f"{station.name} {station_types[0].upper()}"
+                        p_key = f"{station.name} {station_types[1].upper()}"
+                        val = sum_series.get(p_key, 0) + sum_series.get(k_key, 0)
+                    values_key = station_types[i].upper()
+                    values[values_key].append(val)
+
         # Save hour datas for the last day in data frame
         day, _ = Day.objects.get_or_create(
             date=datetime(year_number, month_number, day_number),
