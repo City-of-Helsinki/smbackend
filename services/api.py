@@ -360,7 +360,11 @@ class MobilitySerializer(ServiceNodeSerializer):
             ret["parent"] = obj.parent_id
         ret["root"] = self.root_service_nodes(obj)
         ret["related_services"] = (
-            [int(service) for service in obj.service_reference.split(",")]
+            [
+                int(service)
+                for service in obj.service_reference.split(",")
+                if service.isdigit()
+            ]
             if obj.service_reference
             else []
         )
