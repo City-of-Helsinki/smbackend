@@ -468,16 +468,7 @@ def get_telraam_data_frames(from_date):
     """
     For every camera create a dataframe for each location the camera has been placed.
     """
-    try:
-        import_state = ImportState.objects.get(csv_data_source=TELRAAM_CSV)
-    except ImportState.DoesNotExist:
-        logger.error("ImportState instance not found.")
-        return None
-    end_date = date(
-        import_state.current_year_number,
-        import_state.current_month_number,
-        import_state.current_day_number,
-    )
+    end_date = date.today()
     data_frames = {}
     for camera in get_telraam_cameras():
         df_cam = pd.DataFrame()
@@ -516,6 +507,7 @@ def get_telraam_data_frames(from_date):
                     current_station = TelraamStation(
                         mac=camera["mac"], location=location, geometry=geometry
                     )
+                    data_frames[current_station] = []
 
                 if prev_comment_lines != comment_lines:
                     location, geometry = parse_telraam_comment_lines(comment_lines)
