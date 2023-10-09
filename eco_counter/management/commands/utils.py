@@ -27,15 +27,14 @@ from eco_counter.constants import (
     TELRAAM_COUNTER_CAMERAS,
     TELRAAM_COUNTER_CAMERAS_URL,
     TELRAAM_COUNTER_CSV_FILE,
-    TELRAAM_CSV,
     TELRAAM_HTTP,
     TELRAAM_STATIONS_INITIAL_WKT_GEOMETRIES,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_CSV_URLS,
     TRAFFIC_COUNTER_METADATA_GEOJSON,
 )
-from eco_counter.models import ImportState, Station
-from eco_counter.tests.test_import_counter_data import TEST_COLUMN_NAMES
+from eco_counter.models import Station
+from eco_counter.tests.constants import TEST_COLUMN_NAMES
 from mobility_data.importers.utils import get_root_dir
 
 logger = logging.getLogger("eco_counter")
@@ -475,7 +474,6 @@ def get_telraam_data_frames(from_date):
         start_date = from_date
         current_station = None
         prev_comment_lines = []
-
         while start_date <= end_date:
             try:
                 df_tmp, csv_file, comment_lines = get_telraam_dataframe(
