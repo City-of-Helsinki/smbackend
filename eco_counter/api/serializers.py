@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from django.db.models import Q
 from rest_framework import serializers
 
@@ -28,6 +30,7 @@ VALUE_FIELDS = [
     "value_bp",
     "value_bt",
 ]
+Q_EXP = Q(value_at__gt=0) | Q(value_pt__gt=0) | Q(value_jt__gt=0) | Q(value_bt__gt=0)
 
 
 class StationSerializer(serializers.ModelSerializer):
@@ -37,6 +40,7 @@ class StationSerializer(serializers.ModelSerializer):
     lat = serializers.SerializerMethodField()
     sensor_types = serializers.SerializerMethodField()
     data_from_year = serializers.SerializerMethodField()
+    is_active = serializers.SerializerMethodField()
 
     class Meta:
         model = Station
@@ -55,6 +59,7 @@ class StationSerializer(serializers.ModelSerializer):
             "lat",
             "sensor_types",
             "data_from_year",
+            "is_active",
         ]
 
     def get_y(self, obj):
@@ -83,17 +88,24 @@ class StationSerializer(serializers.ModelSerializer):
         return result
 
     def get_data_from_year(self, obj):
-        q_exp = (
-            Q(value_at__gt=0)
-            | Q(value_pt__gt=0)
-            | Q(value_jt__gt=0)
-            | Q(value_bt__gt=0)
-        )
-        qs = YearData.objects.filter(q_exp, station=obj).order_by("year__year_number")
+        qs = YearData.objects.filter(Q_EXP, station=obj).order_by("year__year_number")
         if qs.count() > 0:
             return qs[0].year.year_number
         else:
             return None
+
+    def get_is_active(self, obj):
+        num_days = [1, 7, 30, 365]
+        res = {}
+        for days in num_days:
+            from_date = date.today() - timedelta(days=days - 1)
+            day_qs = Day.objects.filter(station=obj, date__gte=from_date)
+            day_data_qs = DayData.objects.filter(day__in=day_qs)
+            if day_data_qs.filter(Q_EXP).count() > 0:
+                res[days] = True
+            else:
+                res[days] = False
+        return res
 
 
 class YearSerializer(serializers.ModelSerializer):
