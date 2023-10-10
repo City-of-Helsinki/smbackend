@@ -133,60 +133,11 @@ def hour_data(stations, days):
         station=stations[0],
         day=days[0],
     )
-    hour_data.values_ak = [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-    ]
-    hour_data.values_ap = [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-    ]
+    hour_data.values_ak = [v for v in range(1, 25)]
+    hour_data.values_ap = [v for v in range(1, 25)]
+
     hour_data.save()
-    return hour_data
+    return HourData.objects.all()
 
 
 @pytest.mark.django_db
