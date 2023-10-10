@@ -40,6 +40,7 @@ class StationSerializer(serializers.ModelSerializer):
     lat = serializers.SerializerMethodField()
     sensor_types = serializers.SerializerMethodField()
     data_from_year = serializers.SerializerMethodField()
+    data_until_date = serializers.SerializerMethodField()
     is_active = serializers.SerializerMethodField()
 
     class Meta:
@@ -59,6 +60,7 @@ class StationSerializer(serializers.ModelSerializer):
             "lat",
             "sensor_types",
             "data_from_year",
+            "data_until_date",
             "is_active",
         ]
 
@@ -107,6 +109,11 @@ class StationSerializer(serializers.ModelSerializer):
                 res[days] = False
         return res
 
+    def get_data_until_date(self, obj):
+        try:
+            return DayData.objects.filter(Q_EXP, station=obj).latest("day__date").day.date
+        except DayData.DoesNotExist:
+            return None
 
 class YearSerializer(serializers.ModelSerializer):
     station_name = serializers.PrimaryKeyRelatedField(
