@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 
 import dateutil.parser
 import pytest
@@ -135,9 +135,8 @@ def hour_data(stations, days):
     )
     hour_data.values_ak = [v for v in range(1, 25)]
     hour_data.values_ap = [v for v in range(1, 25)]
-
     hour_data.save()
-    return HourData.objects.all()
+    return hour_data
 
 
 @pytest.mark.django_db
@@ -191,3 +190,63 @@ def year_datas(stations, years):
         year_data.save()
         year_datas.append(year_data)
     return year_datas
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def is_active_fixtures():
+    station0 = Station.objects.create(
+        id=0,
+        name="Station with 0 day of data",
+        location="POINT(0 0)",
+        csv_data_source=LAM_COUNTER,
+    )
+    station1 = Station.objects.create(
+        id=1,
+        name="Station with 1 day of data",
+        location="POINT(0 0)",
+        csv_data_source=LAM_COUNTER,
+    )
+    station7 = Station.objects.create(
+        id=7,
+        name="Station with 7 days of data",
+        location="POINT(0 0)",
+        csv_data_source=LAM_COUNTER,
+    )
+    station30 = Station.objects.create(
+        id=30,
+        name="Station with 30 days of data",
+        location="POINT(0 0)",
+        csv_data_source=LAM_COUNTER,
+    )
+    start_date = date.today()
+    current_date = start_date
+    days_counter = 0
+    day_counts = [0, 1, 7, 30]
+    stations = [station0, station1, station7, station30]
+    while current_date >= start_date - timedelta(days=32):
+        for i, station in enumerate(stations):
+            days = day_counts[i]
+            day = Day.objects.create(station=station, date=current_date)
+            day_data = DayData.objects.create(station=station, day=day)
+            if i > 0:
+                start_day = day_counts[i - 1]
+            else:
+                start_day = 10000
+
+            if days > days_counter & days_counter >= start_day:
+                day_data.value_at = 1
+                day_data.value_pt = 1
+                day_data.value_jt = 1
+                day_data.value_bt = 1
+                day_data.save()
+            else:
+                day_data.value_at = 0
+                day_data.value_pt = 0
+                day_data.value_jt = 0
+                day_data.value_bt = 0
+                day_data.save()
+
+        current_date -= timedelta(days=1)
+        days_counter += 1
+    return Station.objects.all(), Day.objects.all(), DayData.objects.all()
