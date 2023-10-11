@@ -147,6 +147,7 @@ def day_datas(stations, days):
         day_data = DayData.objects.create(station=stations[0], day=days[i])
         day_data.value_ak = 5 + i
         day_data.value_ap = 6 + i
+        day_data.value_at = day_data.value_ak + day_data.value_ap
         day_data.save()
         day_datas.append(day_data)
     return day_datas
