@@ -17,6 +17,7 @@ jobs:
       ADDITIONAL_INSTALLED_APPS: smbackend_turku,ptv
       PTV_ID_OFFSET: 10000000
       LAM_COUNTER_API_BASE_URL: https://tie.digitraffic.fi/api/tms/v1/history
+      ECO_COUNTER_STATIONS_URL: https://dev.turku.fi/datasets/ecocounter/liikennelaskimet.geojson
 
     steps:
     - uses: actions/checkout@v3
