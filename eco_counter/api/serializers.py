@@ -39,7 +39,6 @@ class StationSerializer(serializers.ModelSerializer):
     lon = serializers.SerializerMethodField()
     lat = serializers.SerializerMethodField()
     sensor_types = serializers.SerializerMethodField()
-    data_from_year = serializers.SerializerMethodField()
     data_until_date = serializers.SerializerMethodField()
     data_from_date = serializers.SerializerMethodField()
     is_active = serializers.SerializerMethodField()
@@ -60,7 +59,6 @@ class StationSerializer(serializers.ModelSerializer):
             "lon",
             "lat",
             "sensor_types",
-            "data_from_year",
             "data_until_date",
             "data_from_date",
             "is_active",
@@ -90,13 +88,6 @@ class StationSerializer(serializers.ModelSerializer):
             if YearData.objects.filter(**filter).count() > 0:
                 result.append(type)
         return result
-
-    def get_data_from_year(self, obj):
-        qs = YearData.objects.filter(Q_EXP, station=obj).order_by("year__year_number")
-        if qs.count() > 0:
-            return qs[0].year.year_number
-        else:
-            return None
 
     def get_is_active(self, obj):
         num_days = [1, 7, 30, 365]
