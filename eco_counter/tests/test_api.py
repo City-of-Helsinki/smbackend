@@ -3,7 +3,6 @@ from datetime import timedelta
 import pytest
 from rest_framework.reverse import reverse
 
-from .conftest import TEST_TIMESTAMP
 from .constants import TEST_EC_STATION_NAME
 
 
@@ -301,13 +300,14 @@ def test_months_multiple_years(api_client, years, test_timestamp):
 
 
 @pytest.mark.django_db
-def test_station(api_client, stations, year_datas):
+def test_station(api_client, stations, year_datas, day_datas):
     url = reverse("eco_counter:stations-list")
     response = api_client.get(url)
     assert response.status_code == 200
     assert response.json()["results"][0]["name"] == TEST_EC_STATION_NAME
     assert response.json()["results"][0]["sensor_types"] == ["at"]
-    assert response.json()["results"][0]["data_from_year"] == TEST_TIMESTAMP.year
+    assert response.json()["results"][0]["data_until_date"] == "2020-01-07"
+    assert response.json()["results"][0]["data_from_date"] == "2020-01-01"
     # Test retrieving station by data type
     url = reverse("eco_counter:stations-list") + "?data_type=a"
     response = api_client.get(url)
