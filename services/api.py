@@ -308,30 +308,30 @@ class ServiceNodeSerializer(
         ret["period_enabled"] = obj.period_enabled()
         ret["root"] = self.root_service_nodes(obj)
         ret["unit_count"] = dict(
-            municipality=dict(
-                (
-                    (x.division.name_fi.lower() if x.division else "_unknown", x.count)
-                    for x in obj.unit_counts.all()
-                )
-            ),
-            organization=dict(
-                (
-                    (
-                        x.organization.name.lower() if x.organization else "_unknown",
-                        x.count,
-                    )
-                    for x in obj.unit_count_organizations.all()
-                )
-            ),
+            municipality=self.unit_count_per_municipality(obj),
+            organization=self.unit_count_per_organization(obj),
         )
-        total = 0
-        for _, part in ret["unit_count"]["municipality"].items():
-            total += part
+        total = self.unit_count_total(ret["unit_count"]["municipality"])
         ret["unit_count"]["total"] = total
         return ret
 
     def root_service_nodes(self, obj):
         return next(root_service_nodes([obj], ServiceNode))
+
+    def unit_count_per_municipality(self, obj):
+        return {
+            x.division.name_fi.lower() if x.division else "_unknown": x.count
+            for x in obj.unit_counts.all()
+        }
+
+    def unit_count_per_organization(self, obj):
+        return {
+            x.organization.name.lower() if x.organization else "_unknown": x.count
+            for x in obj.unit_count_organizations.all()
+        }
+
+    def unit_count_total(self, unit_count_data):
+        return sum(part for part in unit_count_data.values())
 
     class Meta:
         model = ServiceNode
@@ -368,6 +368,12 @@ class MobilitySerializer(ServiceNodeSerializer):
             if obj.service_reference
             else []
         )
+        ret["unit_count"] = dict(
+            municipality=self.unit_count_per_municipality(obj),
+        )
+        total = self.unit_count_total(ret["unit_count"]["municipality"])
+        ret["unit_count"]["total"] = total
+
         return ret
 
     def root_service_nodes(self, obj):
