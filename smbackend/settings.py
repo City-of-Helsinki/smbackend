@@ -130,6 +130,7 @@ INSTALLED_APPS = [
     "bicycle_network.apps.BicycleNetworkConfig",
     "iot.apps.IotConfig",
     "street_maintenance.apps.StreetMaintenanceConfig",
+    "environment_data.apps.EnvironmentDataConfig",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
