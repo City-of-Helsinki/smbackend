@@ -5,9 +5,15 @@ from functools import lru_cache
 from django.core.management import BaseCommand
 from django.db import connection, reset_queries
 
-import environment_data.management.commands.air_monitoring_constants as am_constants
-import environment_data.management.commands.air_monitoring_utils as am_utils
-from environment_data.constants import DATA_TYPE_CHOICES, DATA_TYPES
+import environment_data.management.commands.air_quality_constants as aq_constants
+import environment_data.management.commands.air_quality_utils as am_utils
+import environment_data.management.commands.weather_observation_constants as wo_constants
+import environment_data.management.commands.weather_observation_utils as wo_utils
+from environment_data.constants import (
+    DATA_TYPE_CHOICES,
+    DATA_TYPES,
+    DATA_TYPES_FULL_NAME,
+)
 from environment_data.models import (
     Day,
     DayData,
@@ -25,146 +31,29 @@ from environment_data.models import (
     YearData,
 )
 
+from .utils import (
+    create_row,
+    get_day_cached,
+    get_month_cached,
+    get_month_data_cached,
+    get_or_create_day_row_cached,
+    get_or_create_hour_row_cached,
+    get_or_create_row,
+    get_or_create_row_cached,
+    get_row_cached,
+    get_stations,
+    get_week_cached,
+    get_year_cached,
+    get_year_data_cached,
+)
+
 logger = logging.getLogger(__name__)
-
-
-def create_row(model, filter):
-    results = model.objects.filter(**filter)
-    if not results.exists():
-        model.objects.create(**filter)
-
-
-def get_or_create_row(model, filter):
-    results = model.objects.filter(**filter)
-    if results.exists():
-        return results.first(), False
-    else:
-        return model.objects.create(**filter), True
-
-
-@lru_cache(maxsize=4069)
-def get_or_create_row_cached(model, filter: tuple):
-    filter = {key: value for key, value in filter}
-    results = model.objects.filter(**filter)
-    if results.exists():
-        return results.first(), False
-    else:
-        return model.objects.create(**filter), True
-
-
-@lru_cache(maxsize=4096)
-def get_or_create_hour_row_cached(day, hour_number):
-    results = Hour.objects.filter(day=day, hour_number=hour_number)
-    if results.exists():
-        return results.first(), False
-    else:
-        return (
-            Hour.objects.create(day=day, hour_number=hour_number),
-            True,
-        )
-
-
-@lru_cache(maxsize=4096)
-def get_or_create_day_row_cached(date, year, month, week):
-    results = Day.objects.filter(
-        date=date,
-        weekday_number=date.weekday(),
-        year=year,
-        month=month,
-        week=week,
-    )
-    if results.exists():
-        return results.first(), False
-    else:
-        return (
-            Day.objects.create(
-                date=date,
-                weekday_number=date.weekday(),
-                year=year,
-                month=month,
-                week=week,
-            ),
-            True,
-        )
-
-
-@lru_cache(maxsize=4096)
-# Use tuple as it is immutable and is hashable for lru_cache
-def get_row_cached(model, filter: tuple):
-    filter = {key: value for key, value in filter}
-    results = model.objects.filter(**filter)
-    if results.exists():
-        return results.first()
-    else:
-        return None
-
-
-# def get_row(model, filter):
-#     results = model.objects.filter(**filter)
-#     if results.exists():
-#         return results.first()
-#     else:
-#         return None
-
-
-@lru_cache(maxsize=64)
-def get_year_cached(year_number):
-    qs = Year.objects.filter(year_number=year_number)
-    if qs.exists():
-        return qs.first()
-    else:
-        return None
-
-
-@lru_cache(maxsize=128)
-def get_year_data_cached(station, year):
-    qs = YearData.objects.filter(station=station, year=year)
-    if qs.exists():
-        return qs.first()
-    else:
-        return None
-
-
-@lru_cache(maxsize=256)
-def get_month_cached(year, month_number):
-    qs = Month.objects.filter(year=year, month_number=month_number)
-    if qs.exists():
-        return qs.first()
-    else:
-        return None
-
-
-@lru_cache(maxsize=256)
-def get_month_data_cached(station, month):
-    qs = MonthData.objects.filter(station=station, month=month)
-    if qs.exists():
-        return qs.first()
-    else:
-        return None
-
-
-@lru_cache(maxsize=1024)
-def get_week_cached(years, week_number):
-    qs = Week.objects.filter(years=years, week_number=week_number)
-    if qs.exists():
-        return qs.first()
-    else:
-        return None
-
-
-@lru_cache(maxsize=2048)
-def get_day_cached(date):
-    qs = Day.objects.filter(date=date)
-    if qs.exists():
-        return qs.first()
-    else:
-        return None
 
 
 def get_measurements(mean_series, station_name):
     values = {}
     # TODO add wheater observable params
-    for parameter in am_constants.OBSERVABLE_PARAMETERS:
+    for parameter in aq_constants.OBSERVABLE_PARAMETERS:
         key = f"{station_name} {parameter}"
         value = mean_series.get(key, False)
         if value:
@@ -476,7 +365,7 @@ def save_parameter_types(df, data_type, initial_import=False):
     if initial_import:
         Parameter.objects.filter(data_type=data_type).delete()
     for station in Station.objects.filter(data_type=data_type):
-        for parameter_name in am_constants.OBSERVABLE_PARAMETERS:
+        for parameter_name in aq_constants.OBSERVABLE_PARAMETERS:
             key = f"{station.name} {parameter_name}"
             if key in df.columns:
                 parameter, _ = get_or_create_row(Parameter, {"name": parameter_name})
@@ -546,8 +435,15 @@ class Command(BaseCommand):
             data_types = initial_import
         else:
             data_types = options.get("data_types", False)
-
-        breakpoint()
+        if not data_types:
+            logger.info(
+                "No data type provided, choices are: "
+                + " ".join(
+                    [item[0] + f" ({item[1]})" for item in DATA_TYPES_FULL_NAME.items()]
+                )
+            )
+            return
+        # TODO Check valid data_types
         initial_import = bool(initial_import or initial_import_stations)
         for data_type in data_types:
             if initial_import:
@@ -555,14 +451,15 @@ class Command(BaseCommand):
                 print(num_del)
                 import_state = ImportState.objects.create(
                     data_type=data_type,
-                    year_number=am_constants.START_YEAR,
+                    year_number=aq_constants.START_YEAR,
                     month_number=1,
                 )
             else:
-                import_state = ImportState.objects.create(data_type=data_type)
+                import_state = ImportState.objects.get(data_type=data_type)
+
             match data_type:
-                case DATA_TYPES.AIR_MONITORING:
-                    stations = am_utils.get_stations()
+                case DATA_TYPES.AIR_QUALITY:
+                    stations = get_stations(aq_constants.STATION_MATCH_STRINGS)
                     df = am_utils.get_dataframe(
                         stations,
                         import_state.year_number,
@@ -570,13 +467,22 @@ class Command(BaseCommand):
                         initial_import,
                     )
                 case DATA_TYPES.WEATHER_OBSERVATION:
-                    pass
+                    stations = get_stations(wo_constants.STATION_MATCH_STRINGS)
+                    df = wo_utils.get_dataframe(
+                        stations,
+                        import_state.year_number,
+                        import_state.month_number,
+                        initial_import,
+                    )
             save_stations(
                 stations, data_type, initial_import_stations=initial_import_stations
             )
             save_parameter_types(df, data_type, initial_import)
             save_measurements(df, data_type, initial_import)
+            logger.info(
+                f"Imported {DATA_TYPES_FULL_NAME[data_type]} observations until:{str(df.index[-1])}"
+            )
+
         end_time = datetime.now()
         duration = end_time - start_time
-        logger.info(f"Imported observations until:{str(df.index[-1])}")
         logger.info(f"Imported environment data in: {duration}")
