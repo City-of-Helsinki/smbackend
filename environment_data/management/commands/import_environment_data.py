@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from functools import lru_cache
 
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, CommandError
 from django.db import connection, reset_queries
 
 import environment_data.management.commands.air_quality_constants as aq_constants
@@ -10,9 +10,11 @@ import environment_data.management.commands.air_quality_utils as am_utils
 import environment_data.management.commands.weather_observation_constants as wo_constants
 import environment_data.management.commands.weather_observation_utils as wo_utils
 from environment_data.constants import (
+    AIR_QUALITY,
     DATA_TYPE_CHOICES,
     DATA_TYPES,
     DATA_TYPES_FULL_NAME,
+    WEATHER_OBSERVATION,
 )
 from environment_data.models import (
     Day,
@@ -48,12 +50,17 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
+VALID_DATA_TYPE_CHOICES = ", ".join(
+    [item[0] + f" ({item[1]})" for item in DATA_TYPES_FULL_NAME.items()]
+)
+OBSERVABLE_PARAMETERS = (
+    aq_constants.OBSERVABLE_PARAMETERS + wo_constants.OBSERVABLE_PARAMETERS
+)
 
 
 def get_measurements(mean_series, station_name):
     values = {}
-    # TODO add wheater observable params
-    for parameter in aq_constants.OBSERVABLE_PARAMETERS:
+    for parameter in OBSERVABLE_PARAMETERS:
         key = f"{station_name} {parameter}"
         value = mean_series.get(key, False)
         if value:
@@ -365,7 +372,7 @@ def save_parameter_types(df, data_type, initial_import=False):
     if initial_import:
         Parameter.objects.filter(data_type=data_type).delete()
     for station in Station.objects.filter(data_type=data_type):
-        for parameter_name in aq_constants.OBSERVABLE_PARAMETERS:
+        for parameter_name in OBSERVABLE_PARAMETERS:
             key = f"{station.name} {parameter_name}"
             if key in df.columns:
                 parameter, _ = get_or_create_row(Parameter, {"name": parameter_name})
@@ -423,9 +430,15 @@ class Command(BaseCommand):
             help=f"Import environment data, choices are: {DATA_TYPE_CHOICES}.",
         )
 
+    def check_data_types_argument(self, data_types):
+        for data_type in data_types:
+            if data_type not in [AIR_QUALITY, WEATHER_OBSERVATION]:
+                raise CommandError(
+                    f"Invalid data type, valid types are: {VALID_DATA_TYPE_CHOICES}."
+                )
+
     def handle(self, *args, **options):
         start_time = datetime.now()
-
         initial_import = options.get("initial_import", False)
         initial_import_stations = options.get("initial_import_with_stations", False)
 
@@ -437,21 +450,27 @@ class Command(BaseCommand):
             data_types = options.get("data_types", False)
         if not data_types:
             logger.info(
-                "No data type provided, choices are: "
-                + " ".join(
-                    [item[0] + f" ({item[1]})" for item in DATA_TYPES_FULL_NAME.items()]
-                )
+                f"No data type provided, choices are: {VALID_DATA_TYPE_CHOICES}"
             )
             return
-        # TODO Check valid data_types
+        self.check_data_types_argument(data_types)
+
         initial_import = bool(initial_import or initial_import_stations)
         for data_type in data_types:
             if initial_import:
-                num_del = ImportState.objects.filter(data_type=data_type).delete()
-                print(num_del)
+                ImportState.objects.filter(data_type=data_type).delete()
+                start_year = None
+                match data_type:
+                    case DATA_TYPES.AIR_QUALITY:
+                        start_year = aq_constants.START_YEAR
+                    case DATA_TYPES.WEATHER_OBSERVATION:
+                        start_year = wo_constants.START_YEAR
+                    case _:
+                        start_year = 2010
+
                 import_state = ImportState.objects.create(
                     data_type=data_type,
-                    year_number=aq_constants.START_YEAR,
+                    year_number=start_year,
                     month_number=1,
                 )
             else:
