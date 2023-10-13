@@ -10,9 +10,8 @@ def validate_timestamp(timestamp_str, data_type):
     try:
         datetime.strptime(timestamp_str, time_format)
     except ValueError:
-        raise ValueError(
-            f"{timestamp_str} invalid format date format, valid format for type {data_type} is {time_format}"
-        )
+        return f"{timestamp_str} invalid format date format, valid format for type {data_type} is {time_format}"
+    return None
 
 
 def get_start_and_end_and_year(filters, data_type):
@@ -26,22 +25,30 @@ def get_start_and_end_and_year(filters, data_type):
     if YEAR not in data_type and not year:
         raise ParseError("Supply 'year' parameter")
 
+    res1 = None
+    res2 = None
     match data_type:
         case DATA_TYPES.DAY:
-            validate_timestamp(start, DAY)
-            validate_timestamp(end, DAY)
+            res1 = validate_timestamp(start, DAY)
+            res2 = validate_timestamp(end, DAY)
         case DATA_TYPES.HOUR:
-            validate_timestamp(start, HOUR)
-            validate_timestamp(end, HOUR)
+            res1 = validate_timestamp(start, HOUR)
+            res2 = validate_timestamp(end, HOUR)
         case DATA_TYPES.WEEK:
-            validate_timestamp(start, WEEK)
-            validate_timestamp(end, WEEK)
+            res1 = validate_timestamp(start, WEEK)
+            res2 = validate_timestamp(end, WEEK)
         case DATA_TYPES.MONTH:
-            validate_timestamp(start, MONTH)
-            validate_timestamp(end, MONTH)
+            res1 = validate_timestamp(start, MONTH)
+            res2 = validate_timestamp(end, MONTH)
         case DATA_TYPES.YEAR:
-            validate_timestamp(start, YEAR)
-            validate_timestamp(end, YEAR)
+            res1 = validate_timestamp(start, YEAR)
+            res2 = validate_timestamp(end, YEAR)
+
+    if res1:
+        raise ParseError(res1)
+    if res2:
+        raise ParseError(res2)
+
     if HOUR in data_type or DAY in data_type:
         start = f"{year}-{start}"
         end = f"{year}-{end}"
