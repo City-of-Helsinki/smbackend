@@ -2,6 +2,8 @@ import types
 
 from drf_spectacular.utils import OpenApiParameter
 
+from environment_data.constants import VALID_DATA_TYPE_CHOICES
+
 DATA_TYPES = types.SimpleNamespace()
 HOUR = "hour"
 DAY = "day"
@@ -59,14 +61,29 @@ END_PARAM = OpenApiParameter(
 STATION_PARAM = OpenApiParameter(
     name="station_id",
     location=OpenApiParameter.QUERY,
-    description=("Id of the air monitoring station"),
+    description=("Id of the environemnt data station"),
     required=True,
     type=str,
 )
-AIR_MONITORING_DATA_PARAMS = [
+
+DATA_TYPE_PARAM = OpenApiParameter(
+    name="data_type",
+    location=OpenApiParameter.QUERY,
+    description=(
+        f"'data_type' of the station, valid types are: {VALID_DATA_TYPE_CHOICES}"
+    ),
+    required=False,
+    type=str,
+)
+
+
+ENVIRONMENT_DATA_PARAMS = [
     TYPE_PARAM,
     YEAR_PARAM,
     START_PARAM,
     END_PARAM,
     STATION_PARAM,
+]
+ENVIRONMENT_STATION_PARAMS = [
+    DATA_TYPE_PARAM,
 ]
