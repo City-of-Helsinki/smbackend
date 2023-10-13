@@ -2,6 +2,12 @@ from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
+from environment_data.api.constants import (
+    DATA_TYPES,
+    DATETIME_FORMATS,
+    ENVIRONMENT_DATA_PARAMS,
+    ENVIRONMENT_STATION_PARAMS,
+)
 from environment_data.api.serializers import (
     DayDataSerializer,
     HourDataSerializer,
@@ -11,6 +17,7 @@ from environment_data.api.serializers import (
     WeekDataSerializer,
     YearDataSerializer,
 )
+from environment_data.constants import DATA_TYPES_LIST, VALID_DATA_TYPE_CHOICES
 from environment_data.models import (
     DayData,
     HourData,
@@ -21,23 +28,41 @@ from environment_data.models import (
     YearData,
 )
 
-from .constants import AIR_MONITORING_DATA_PARAMS, DATA_TYPES, DATETIME_FORMATS
 from .utils import get_start_and_end_and_year
 
 
 @extend_schema_view(
     list=extend_schema(
-        description="Air monitoring stations",
+        description="Environment data stations",
+        parameters=ENVIRONMENT_STATION_PARAMS,
     )
 )
 class StationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Station.objects.all()
     serializer_class = StationSerializer
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.queryset
+        filters = self.request.query_params
+        data_type = filters.get("data_type", None)
+        if data_type:
+            data_type = str(data_type).upper()
+            if data_type not in DATA_TYPES_LIST:
+                return Response(
+                    f"Invalid data type, valid types are: {VALID_DATA_TYPE_CHOICES}",
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            queryset = queryset.filter(data_type=data_type)
+
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
 
 @extend_schema_view(
     list=extend_schema(
-        description="Air monitoring parameters",
+        description="Environment data parameters",
     )
 )
 class ParameterViewSet(viewsets.ReadOnlyModelViewSet):
@@ -47,16 +72,13 @@ class ParameterViewSet(viewsets.ReadOnlyModelViewSet):
 
 @extend_schema_view(
     list=extend_schema(
-        parameters=AIR_MONITORING_DATA_PARAMS,
+        parameters=ENVIRONMENT_DATA_PARAMS,
         description="Returns yearly, monthly, weekly or daily means of measured parameters."
         " Returns also the hourly measured parameters from which the means are calculated."
         " Provide the 'type' parameter to choose what type of data to return.",
     )
 )
 class DataViewSet(viewsets.GenericViewSet):
-    def get_queryset(self):
-        pass
-
     def list(self, request, *args, **kwargs):
         filters = self.request.query_params
         station_id = filters.get("station_id", None)
