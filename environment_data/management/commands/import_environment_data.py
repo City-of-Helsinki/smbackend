@@ -10,11 +10,11 @@ import environment_data.management.commands.air_quality_utils as am_utils
 import environment_data.management.commands.weather_observation_constants as wo_constants
 import environment_data.management.commands.weather_observation_utils as wo_utils
 from environment_data.constants import (
-    AIR_QUALITY,
     DATA_TYPE_CHOICES,
     DATA_TYPES,
     DATA_TYPES_FULL_NAME,
-    WEATHER_OBSERVATION,
+    DATA_TYPES_LIST,
+    VALID_DATA_TYPE_CHOICES,
 )
 from environment_data.models import (
     Day,
@@ -50,9 +50,6 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
-VALID_DATA_TYPE_CHOICES = ", ".join(
-    [item[0] + f" ({item[1]})" for item in DATA_TYPES_FULL_NAME.items()]
-)
 OBSERVABLE_PARAMETERS = (
     aq_constants.OBSERVABLE_PARAMETERS + wo_constants.OBSERVABLE_PARAMETERS
 )
@@ -383,7 +380,9 @@ def save_stations(stations, data_type, initial_import_stations=False):
     num_created = 0
     if initial_import_stations:
         Station.objects.filter(data_type=data_type).delete()
-    object_ids = list(Station.objects.filter(data_type=data_type).values_list("id", flat=True))
+    object_ids = list(
+        Station.objects.filter(data_type=data_type).values_list("id", flat=True)
+    )
     for station in stations:
         obj, created = get_or_create_row(
             Station,
@@ -432,7 +431,7 @@ class Command(BaseCommand):
 
     def check_data_types_argument(self, data_types):
         for data_type in data_types:
-            if data_type not in [AIR_QUALITY, WEATHER_OBSERVATION]:
+            if data_type not in DATA_TYPES_LIST:
                 raise CommandError(
                     f"Invalid data type, valid types are: {VALID_DATA_TYPE_CHOICES}."
                 )
