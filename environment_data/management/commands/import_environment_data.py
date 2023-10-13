@@ -383,7 +383,7 @@ def save_stations(stations, data_type, initial_import_stations=False):
     num_created = 0
     if initial_import_stations:
         Station.objects.filter(data_type=data_type).delete()
-    object_ids = list(Station.objects.all().values_list("id", flat=True))
+    object_ids = list(Station.objects.filter(data_type=data_type).values_list("id", flat=True))
     for station in stations:
         obj, created = get_or_create_row(
             Station,
@@ -400,7 +400,7 @@ def save_stations(stations, data_type, initial_import_stations=False):
             num_created += 1
     Station.objects.filter(id__in=object_ids).delete()
     logger.info(f"Deleted {len(object_ids)} obsolete environment data stations")
-    num_stations = Station.objects.all().count()
+    num_stations = Station.objects.filter(data_type=data_type).count()
     logger.info(
         f"Created {num_created} environment data stations of total {num_stations}."
     )
@@ -457,6 +457,7 @@ class Command(BaseCommand):
 
         initial_import = bool(initial_import or initial_import_stations)
         for data_type in data_types:
+            clear_cache()
             if initial_import:
                 ImportState.objects.filter(data_type=data_type).delete()
                 start_year = None
