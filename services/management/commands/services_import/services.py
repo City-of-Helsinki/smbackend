@@ -12,6 +12,7 @@ from services.management.commands.services_import.keyword import KeywordHandler
 from services.models import (
     Department,
     MobilityServiceNode,
+    MobilityServiceNodeUnitCount,
     OrganizationServiceNodeUnitCount,
     OrganizationServiceUnitCount,
     Service,
@@ -203,7 +204,7 @@ def get_organization_by_id(org_id):
         return None
 
 
-def update_count_objects(service_node_unit_count_objects, node):
+def update_count_objects(service_node_unit_count_objects, node, node_count_model):
     """
     This is a generator which yields all the objects that need to be saved.
     (Objects that didn't exist or whose count field was updated.)
@@ -211,18 +212,26 @@ def update_count_objects(service_node_unit_count_objects, node):
     for muni, count in node._unit_count.items():
         obj = service_node_unit_count_objects.get((node.id, muni))
         if obj is None:
-            obj = ServiceNodeUnitCount(
-                service_node=node,
-                division_type=get_municipality_division_type(),
-                division=get_divisions_by_muni().get(muni),
-                count=count,
-            )
+            params = {
+                "division_type": get_municipality_division_type(),
+                "division": get_divisions_by_muni().get(muni),
+                "count": count,
+            }
+
+            if node_count_model == MobilityServiceNodeUnitCount:
+                params.update({"mobility_service_node": node})
+            else:
+                params.update({"service_node": node})
+
+            obj = node_count_model(**params)
             yield obj
         elif obj.count != count:
             obj.count = count
             yield obj
     for node in node.get_children():
-        yield from update_count_objects(service_node_unit_count_objects, node)
+        yield from update_count_objects(
+            service_node_unit_count_objects, node, node_count_model
+        )
 
 
 def update_organization_count_objects(service_node_unit_count_objects, node):
@@ -255,6 +264,14 @@ def save_objects(objects):
 
 
 def update_service_node_counts():
+    return update_node_counts(ServiceNode, ServiceNodeUnitCount)
+
+
+def update_mobility_service_node_counts():
+    return update_node_counts(MobilityServiceNode, MobilityServiceNodeUnitCount)
+
+
+def update_node_counts(node_model, node_count_model):
     units_by_service = {}
     through_values = (
         Unit.service_nodes.through.objects.filter(
@@ -277,29 +294,38 @@ def update_service_node_counts():
         )
     )
 
-    for c in ServiceNodeUnitCount.objects.select_related("division").all():
+    for c in node_count_model.objects.select_related("division").all():
         div_name = c.division and c.division.name_fi.lower()
-        if (c.service_node_id, div_name) not in unit_counts_to_be_updated:
-            c.delete()
+        if node_model == MobilityServiceNode:
+            if (c.mobility_service_node_id, div_name) not in unit_counts_to_be_updated:
+                c.delete()
+        else:
+            if (c.service_node_id, div_name) not in unit_counts_to_be_updated:
+                c.delete()
 
-    tree = ServiceNode.tree_objects.all().get_cached_trees()
+    tree = node_model.tree_objects.all().get_cached_trees()
     for node in tree:
         update_service_node(node, units_by_service)
 
     def count_object_pair(x):
         div = x.division.name_fi.lower() if x.division is not None else None
-        return ((x.service_node_id, div), x)
+        if node_model == MobilityServiceNode:
+            return ((x.mobility_service_node_id, div), x)
+        else:
+            return ((x.service_node_id, div), x)
 
     service_node_unit_count_objects = dict(
         (
             count_object_pair(x)
-            for x in ServiceNodeUnitCount.objects.select_related("division").all()
+            for x in node_count_model.objects.select_related("division").all()
         )
     )
     objects_to_save = []
     for node in tree:
         objects_to_save.extend(
-            update_count_objects(service_node_unit_count_objects, node)
+            update_count_objects(
+                service_node_unit_count_objects, node, node_count_model
+            )
         )
     save_objects(objects_to_save)
     return tree
