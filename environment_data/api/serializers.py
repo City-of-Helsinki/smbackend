@@ -14,9 +14,23 @@ from environment_data.models import (
 
 
 class StationSerializer(serializers.ModelSerializer):
+    params = serializers.SerializerMethodField()
+
     class Meta:
         model = Station
-        fields = "__all__"
+        fields = ["id", "name", "location", "geo_id", "params"]
+
+    def get_params(self, obj):
+        res = {}
+        for param in obj.parameters.all():
+            qs = YearData.objects.filter(
+                station=obj, measurements__parameter=param, measurements__value__gte=0
+            )
+            if qs.count():
+                res[param.name] = True
+            else:
+                res[param.name] = False
+        return res
 
 
 class ParameterSerializer(serializers.ModelSerializer):
