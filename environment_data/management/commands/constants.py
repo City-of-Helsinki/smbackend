@@ -1,6 +1,6 @@
-from .weather_observation_constants import PRECIPITATIONAMOUNT
+from .weather_observation_constants import PRECIPITATION_AMOUNT
 
-CUMULATIVE_PARAMS = [PRECIPITATIONAMOUNT]
+CUMULATIVE_PARAMS = [PRECIPITATION_AMOUNT]
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 SOURCE_DATA_SRID = 4326
 
