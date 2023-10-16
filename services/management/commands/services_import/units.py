@@ -19,6 +19,7 @@ from services.management.commands.services_import.keyword import KeywordHandler
 from services.models import (
     AccessibilityVariable,
     Department,
+    MobilityServiceNode,
     Service,
     ServiceNode,
     Unit,
@@ -45,6 +46,7 @@ UTC_TIMEZONE = pytz.timezone("UTC")
 ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
 ACCESSIBILITY_VARIABLES = None
 EXISTING_SERVICE_NODE_IDS = None
+EXISTING_MOBILITY_SERVICE_NODE_IDS = None
 EXISTING_SERVICE_IDS = None
 LOGGER = None
 VERBOSITY = False
@@ -64,6 +66,15 @@ def get_service_node_ids():
             ServiceNode.objects.values_list("id", flat=True)
         )
     return EXISTING_SERVICE_NODE_IDS
+
+
+def get_mobility_service_node_ids():
+    global EXISTING_MOBILITY_SERVICE_NODE_IDS
+    if EXISTING_MOBILITY_SERVICE_NODE_IDS is None:
+        EXISTING_MOBILITY_SERVICE_NODE_IDS = set(
+            MobilityServiceNode.objects.values_list("id", flat=True)
+        )
+    return EXISTING_MOBILITY_SERVICE_NODE_IDS
 
 
 def get_service_ids():
@@ -455,6 +466,9 @@ def _import_unit(
     obj_changed, update_fields = _import_unit_service_nodes(
         obj, info, obj_changed, update_fields
     )
+    obj_changed, update_fields = _import_unit_mobility_service_nodes(
+        obj, info, obj_changed, update_fields
+    )
     obj_changed, update_fields = _import_unit_services(
         obj, info, obj_changed, update_fields
     )
@@ -501,6 +515,26 @@ def _import_unit_service_nodes(obj, info, obj_changed, update_fields):
         # Update root service cache
         obj.root_service_nodes = ",".join(str(x) for x in obj.get_root_service_nodes())
         update_fields.append("root_service_nodes")
+        obj_changed = True
+
+    return obj_changed, update_fields
+
+
+def _import_unit_mobility_service_nodes(obj, info, obj_changed, update_fields):
+    mobility_service_node_ids = sorted(
+        [
+            sid
+            for sid in info.get("ontologytree_ids", [])
+            if sid in get_mobility_service_node_ids()
+        ]
+    )
+
+    obj_mobility_service_node_ids = sorted(
+        obj.mobility_service_nodes.values_list("id", flat=True)
+    )
+
+    if obj_mobility_service_node_ids != mobility_service_node_ids:
+        obj.mobility_service_nodes.set(mobility_service_node_ids)
         obj_changed = True
 
     return obj_changed, update_fields
