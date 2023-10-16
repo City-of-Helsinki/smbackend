@@ -16,6 +16,7 @@ from environment_data.constants import (
     DATA_TYPES_LIST,
     VALID_DATA_TYPE_CHOICES,
 )
+from environment_data.management.commands.constants import CUMULATIVE_PARAMETERS
 from environment_data.models import (
     Day,
     DayData,
@@ -55,11 +56,17 @@ OBSERVABLE_PARAMETERS = (
 )
 
 
-def get_measurements(mean_series, station_name):
+def get_measurements(df, station_name):
+    mean_series = df.mean().dropna()
+    sum_series = df.sum().dropna()
+
     values = {}
     for parameter in OBSERVABLE_PARAMETERS:
         key = f"{station_name} {parameter}"
-        value = mean_series.get(key, False)
+        if parameter in CUMULATIVE_PARAMETERS:
+            value = sum_series.get(key, False)
+        else:
+            value = mean_series.get(key, False)
         if value:
             values[parameter] = value
     return values
@@ -99,10 +106,9 @@ def save_years(df, stations):
         measurements = []
         year_datas = {}
         year_data_objs = []
-        for index, row in years:
-            mean_series = row.mean().dropna()
+        for index, data_frame in years:
             year, _ = get_or_create_row_cached(Year, (("year_number", index),))
-            values = get_measurements(mean_series, station.name)
+            values = get_measurements(data_frame, station.name)
             year_data = YearData(station=station, year=year)
             year_data_objs.append(year_data)
             ret_mes = get_measurement_objects(values)
@@ -118,15 +124,14 @@ def save_months(df, stations):
         measurements = []
         month_datas = {}
         month_data_objs = []
-        for index, row in months:
+        for index, data_frame in months:
             year_number, month_number = index
-            mean_series = row.mean().dropna()
             year = get_year_cached(year_number)
             month, _ = get_or_create_row_cached(
                 Month,
                 (("year", year), ("month_number", month_number)),
             )
-            values = get_measurements(mean_series, station.name)
+            values = get_measurements(data_frame, station.name)
             month_data = MonthData(station=station, year=year, month=month)
             month_data_objs.append(month_data)
             ret_mes = get_measurement_objects(values)
@@ -145,13 +150,12 @@ def save_weeks(df, stations):
     logger.info("Saving weeks...")
     weeks = df.groupby([df.index.year, df.index.isocalendar().week])
     for i, station in enumerate(stations):
-        for index, row in weeks:
+        for index, data_frame in weeks:
             year_number, week_number = index
             if i == 0:
                 logger.info(
                     f"Processing week number {week_number} of year {year_number}"
                 )
-            mean_series = row.mean().dropna()
             year = get_year_cached(year_number)
             week, _ = Week.objects.get_or_create(
                 week_number=week_number,
@@ -159,7 +163,7 @@ def save_weeks(df, stations):
             )
             if week.years.count() == 0:
                 week.years.add(year)
-            values = get_measurements(mean_series, station.name)
+            values = get_measurements(data_frame, station.name)
             week_data, _ = WeekData.objects.get_or_create(station=station, week=week)
             for item in values.items():
                 parameter = get_parameter(item[0])
@@ -181,15 +185,14 @@ def save_days(df, stations):
         measurements = []
         day_datas = {}
         day_data_objs = []
-        for index, row in days:
+        for index, data_frame in days:
             year_number, month_number, week_number, day_number = index
             date = datetime(year_number, month_number, day_number)
-            mean_series = row.mean().dropna()
             year = get_year_cached(year_number)
             month = get_month_cached(year, month_number)
             week = get_week_cached(year, week_number)
             day, _ = get_or_create_day_row_cached(date, year, month, week)
-            values = get_measurements(mean_series, station.name)
+            values = get_measurements(data_frame, station.name)
             day_data = DayData(station=station, day=day)
             day_data_objs.append(day_data)
             ret_mes = get_measurement_objects(values)
@@ -205,13 +208,12 @@ def save_hours(df, stations):
         measurements = []
         hour_datas = {}
         hour_data_objs = []
-        for index, row in hours:
+        for index, data_frame in hours:
             year_number, month_number, day_number, hour_number = index
-            mean_series = row.mean().dropna()
             date = datetime(year_number, month_number, day_number)
             day = get_day_cached(date)
             hour, _ = get_or_create_hour_row_cached(day, hour_number)
-            values = get_measurements(mean_series, station.name)
+            values = get_measurements(data_frame, station.name)
             hour_data = HourData(station=station, hour=hour)
             hour_data_objs.append(hour_data)
             ret_mes = get_measurement_objects(values)
@@ -309,7 +311,7 @@ def save_measurements(df, data_type, initial_import=False):
     else:
         create_row(Year, {"year_number": start_date.year})
         year = get_year_cached(year_number=start_date.year)
-        # Handle year change in dataframe
+        # Handle possible year change in dataframe
         if df.index[-1].year > df.index[0].year:
             months_qs = Month.objects.filter(
                 year=year, month_number__gte=start_date.month, month_number__lte=12
