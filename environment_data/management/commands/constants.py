@@ -1,6 +1,7 @@
 from .weather_observation_constants import PRECIPITATION_AMOUNT
 
-CUMULATIVE_PARAMS = [PRECIPITATION_AMOUNT]
+# If param is defined as cumulative, sum() function is used for DataFrame insted for mean()
+CUMULATIVE_PARAMETERS = [PRECIPITATION_AMOUNT]
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 SOURCE_DATA_SRID = 4326
 
