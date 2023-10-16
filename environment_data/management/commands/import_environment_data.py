@@ -366,13 +366,28 @@ def save_measurements(df, data_type, initial_import=False):
 
 
 def save_parameter_types(df, data_type, initial_import=False):
+    match data_type:
+        case DATA_TYPES.AIR_QUALITY:
+            descriptions = aq_constants.PARAMETER_DESCRIPTIONS
+        case DATA_TYPES.WEATHER_OBSERVATION:
+            descriptions = wo_constants.PARAMETER_DESCRIPTIONS
+        case _:
+            descriptions = aq_constants.PARAMETER_DESCRIPTIONS
+
     if initial_import:
         Parameter.objects.filter(data_type=data_type).delete()
     for station in Station.objects.filter(data_type=data_type):
         for parameter_name in OBSERVABLE_PARAMETERS:
             key = f"{station.name} {parameter_name}"
             if key in df.columns:
-                parameter, _ = get_or_create_row(Parameter, {"name": parameter_name})
+                parameter, _ = get_or_create_row(
+                    Parameter,
+                    {
+                        "name": parameter_name,
+                        "description": descriptions[parameter_name],
+                        "data_type": data_type,
+                    },
+                )
                 station.parameters.add(parameter)
 
 
@@ -449,7 +464,7 @@ class Command(BaseCommand):
             data_types = options.get("data_types", False)
         if not data_types:
             logger.info(
-                f"No data type provided, choices are: {VALID_DATA_TYPE_CHOICES}"
+                f"No data type provided, vlid types are: {VALID_DATA_TYPE_CHOICES}"
             )
             return
         self.check_data_types_argument(data_types)
