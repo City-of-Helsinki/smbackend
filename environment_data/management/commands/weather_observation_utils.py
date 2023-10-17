@@ -12,7 +12,7 @@ from .constants import NAMESPACES, TIME_FORMAT
 from .weather_observation_constants import (
     DATA_URL,
     OBSERVABLE_PARAMETERS,
-    PARAMS,
+    REQUEST_PARAMS,
     START_YEAR,
 )
 
@@ -30,24 +30,18 @@ def get_dataframe(stations, from_year=START_YEAR, from_month=1, initial_import=F
         )
         for parameter in OBSERVABLE_PARAMETERS:
             data = {}
-            start_date_time = from_date_time
-            while (
-                start_date_time.month <= current_date_time.month
-                or start_date_time.year <= current_date_time.year
-            ):
-                params = PARAMS
+            start_date_time = from_date_time            
+            while start_date_time <= current_date_time:
+                params = REQUEST_PARAMS
                 params["fmisid"] = station["geoId"]
-                # params["geoId"] = f"-{station['geoId']}"
                 params["parameters"] = parameter
-
                 if not initial_import and from_year == current_date_time.year:
-                    print("INITIAL")
                     params["startTime"] = f"{from_year}-{from_month}-01T00:00Z"
                 else:
                     params[
                         "startTime"
                     ] = f"{start_date_time.year}-{start_date_time.month}-01T00:00Z"
-
+               
                 if current_date_time - relativedelta(months=1) < start_date_time:
                     params["endTime"] = current_date_time.strftime(TIME_FORMAT)
                 else:
