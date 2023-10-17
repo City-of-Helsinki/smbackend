@@ -79,6 +79,8 @@ class ParameterViewSet(viewsets.ReadOnlyModelViewSet):
     )
 )
 class DataViewSet(viewsets.GenericViewSet):
+    queryset = YearData.objects.all()
+
     def list(self, request, *args, **kwargs):
         filters = self.request.query_params
         station_id = filters.get("station_id", None)
@@ -86,6 +88,15 @@ class DataViewSet(viewsets.GenericViewSet):
             return Response(
                 "Supply 'station_id' parameter.", status=status.HTTP_400_BAD_REQUEST
             )
+        else:
+            try:
+                station = Station.objects.get(id=station_id)
+            except Station.DoesNotExist:
+                return Response(
+                    f"Station with id {station_id} not found.",
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
         data_type = filters.get("type", None)
         if not data_type:
             return Response(
@@ -98,7 +109,7 @@ class DataViewSet(viewsets.GenericViewSet):
         match data_type:
             case DATA_TYPES.HOUR:
                 queryset = HourData.objects.filter(
-                    station_id=station_id,
+                    station=station,
                     hour__day__year__year_number=year,
                     hour__day__date__gte=start,
                     hour__day__date__lte=end,
@@ -106,7 +117,7 @@ class DataViewSet(viewsets.GenericViewSet):
                 serializer_class = HourDataSerializer
             case DATA_TYPES.DAY:
                 queryset = DayData.objects.filter(
-                    station_id=station_id,
+                    station=station,
                     day__date__gte=start,
                     day__date__lte=end,
                     day__year__year_number=year,
@@ -116,7 +127,7 @@ class DataViewSet(viewsets.GenericViewSet):
                 serializer_class = WeekDataSerializer
                 queryset = WeekData.objects.filter(
                     week__years__year_number=year,
-                    station_id=station_id,
+                    station=station,
                     week__week_number__gte=start,
                     week__week_number__lte=end,
                 )
@@ -124,14 +135,14 @@ class DataViewSet(viewsets.GenericViewSet):
                 serializer_class = MonthDataSerializer
                 queryset = MonthData.objects.filter(
                     month__year__year_number=year,
-                    station_id=station_id,
+                    station=station,
                     month__month_number__gte=start,
                     month__month_number__lte=end,
                 )
             case DATA_TYPES.YEAR:
                 serializer_class = YearDataSerializer
                 queryset = YearData.objects.filter(
-                    station_id=station_id,
+                    station=station,
                     year__year_number__gte=start,
                     year__year_number__lte=end,
                 )
