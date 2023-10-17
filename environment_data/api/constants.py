@@ -65,7 +65,6 @@ STATION_PARAM = OpenApiParameter(
     required=True,
     type=str,
 )
-
 DATA_TYPE_PARAM = OpenApiParameter(
     name="data_type",
     location=OpenApiParameter.QUERY,
@@ -76,7 +75,6 @@ DATA_TYPE_PARAM = OpenApiParameter(
     type=str,
 )
 
-
 ENVIRONMENT_DATA_PARAMS = [
     TYPE_PARAM,
     YEAR_PARAM,
@@ -84,6 +82,7 @@ ENVIRONMENT_DATA_PARAMS = [
     END_PARAM,
     STATION_PARAM,
 ]
+
 ENVIRONMENT_STATION_PARAMS = [
     DATA_TYPE_PARAM,
 ]
