@@ -15,7 +15,7 @@ from environment_data.models import (
 
 
 class StationSerializer(serializers.ModelSerializer):
-    params = serializers.SerializerMethodField()
+    parameters_in_use = serializers.SerializerMethodField()
     data_type_verbose = serializers.SerializerMethodField()
 
     class Meta:
@@ -29,10 +29,10 @@ class StationSerializer(serializers.ModelSerializer):
             "name_en",
             "location",
             "geo_id",
-            "params",
+            "parameters_in_use",
         ]
 
-    def get_params(self, obj):
+    def get_parameters_in_use(self, obj):
         res = {}
         for param in obj.parameters.all():
             qs = YearData.objects.filter(
