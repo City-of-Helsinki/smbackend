@@ -414,6 +414,7 @@ def save_stations(stations, data_type, initial_import_stations=False):
             object_ids.remove(obj.id)
         if created:
             num_created += 1
+
     Station.objects.filter(id__in=object_ids).delete()
     logger.info(f"Deleted {len(object_ids)} obsolete environment data stations")
     num_stations = Station.objects.filter(data_type=data_type).count()
