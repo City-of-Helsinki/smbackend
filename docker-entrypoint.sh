@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-if [[ "$APPLY_MIGRATIONS" = "true" ]]; then
+if [[ "$APPLY_MIGRATIONS" = "True" ]]; then
     echo "Applying database migrations..."
     ./manage.py migrate --noinput
 fi
