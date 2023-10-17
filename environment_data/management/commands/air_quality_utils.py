@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 from dateutil.relativedelta import relativedelta
 
-from .air_quality_constants import OBSERVABLE_PARAMETERS, PARAMS, START_YEAR
+from .air_quality_constants import OBSERVABLE_PARAMETERS, REQUEST_PARAMS, START_YEAR
 from .constants import DATA_URL, NAMESPACES, TIME_FORMAT
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ def get_dataframe(stations, from_year=START_YEAR, from_month=1, initial_import=F
             data = {}
             start_date_time = from_date_time
             while start_date_time.year <= current_date_time.year:
-                params = PARAMS
+                params = REQUEST_PARAMS
                 params["geoId"] = f"-{station['geoId']}"
                 params["parameters"] = parameter
 
