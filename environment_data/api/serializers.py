@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from environment_data.constants import DATA_TYPES_FULL_NAME
 from environment_data.models import (
     Day,
     DayData,
@@ -15,10 +16,21 @@ from environment_data.models import (
 
 class StationSerializer(serializers.ModelSerializer):
     params = serializers.SerializerMethodField()
+    data_type_verbose = serializers.SerializerMethodField()
 
     class Meta:
         model = Station
-        fields = ["id", "name", "location", "geo_id", "params"]
+        fields = [
+            "id",
+            "data_type",
+            "data_type_verbose",
+            "name",
+            "name_sv",
+            "name_en",
+            "location",
+            "geo_id",
+            "params",
+        ]
 
     def get_params(self, obj):
         res = {}
@@ -32,11 +44,19 @@ class StationSerializer(serializers.ModelSerializer):
                 res[param.name] = False
         return res
 
+    def get_data_type_verbose(self, obj):
+        return DATA_TYPES_FULL_NAME[obj.data_type]
+
 
 class ParameterSerializer(serializers.ModelSerializer):
+    data_type_verbose = serializers.SerializerMethodField()
+
     class Meta:
         model = Parameter
-        fields = "__all__"
+        fields = ["id", "data_type", "data_type_verbose", "name", "description"]
+
+    def get_data_type_verbose(self, obj):
+        return DATA_TYPES_FULL_NAME[obj.data_type]
 
 
 class MeasurementSerializer(serializers.ModelSerializer):
