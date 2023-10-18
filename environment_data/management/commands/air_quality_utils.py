@@ -3,8 +3,9 @@ import xml.etree.ElementTree as Et
 from datetime import datetime, timedelta
 
 import pandas as pd
-import requests
 from dateutil.relativedelta import relativedelta
+
+from environment_data.constants import REQUEST_SESSION
 
 from .air_quality_constants import OBSERVABLE_PARAMETERS, REQUEST_PARAMS, START_YEAR
 from .constants import DATA_URL, NAMESPACES, TIME_FORMAT
@@ -37,7 +38,7 @@ def get_dataframe(stations, from_year=START_YEAR, from_month=1, initial_import=F
                 else:
                     params["endTime"] = f"{start_date_time.year}-12-31T23:59Z"
 
-                response = requests.get(DATA_URL, params=params)
+                response = REQUEST_SESSION.get(DATA_URL, params=params)
                 logger.info(f"Requested data from: {response.url}")
                 if response.status_code == 200:
                     root = Et.fromstring(response.content)
