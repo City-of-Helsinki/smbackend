@@ -2,9 +2,9 @@ import logging
 import xml.etree.ElementTree as Et
 from functools import lru_cache
 
-import requests
 from django.contrib.gis.geos import Point, Polygon
 
+from environment_data.constants import REQUEST_SESSION
 from environment_data.models import Day, Hour, Month, MonthData, Week, Year, YearData
 from mobility_data.importers.constants import (
     SOUTHWEST_FINLAND_BOUNDARY,
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_stations(match_strings: list):
-    response = requests.get(STATION_URL)
+    response = REQUEST_SESSION.get(STATION_URL)
     stations = []
 
     if response.status_code == 200:
