@@ -1023,17 +1023,18 @@ class UnitViewSet(
         if level and level != "all":
             level_specs = settings.LEVELS.get(level)
 
-        def service_nodes_by_ancestors(service_node_ids):
+        def service_nodes_by_ancestors(service_node_ids, node_model=ServiceNode):
             srv_list = set()
             for srv_id in service_node_ids:
                 srv_list |= set(
-                    ServiceNode.objects.all()
+                    node_model.objects.all()
                     .by_ancestor(srv_id)
                     .values_list("id", flat=True)
                 )
                 srv_list.add(int(srv_id))
             return list(srv_list)
 
+        mobility_service_nodes = filters.get("mobility_node", None)
         service_nodes = filters.get("service_node", None)
 
         def validate_service_node_ids(service_node_ids):
@@ -1042,6 +1043,19 @@ class UnitViewSet(
                 for service_node_id in service_node_ids
                 if service_node_id.isdigit()
             ]
+
+        mobility_service_node_ids = None
+        if mobility_service_nodes:
+            mobility_service_nodes = mobility_service_nodes.lower()
+            mobility_service_node_ids = validate_service_node_ids(
+                mobility_service_nodes.split(",")
+            )
+        if mobility_service_node_ids:
+            queryset = queryset.filter(
+                mobility_service_nodes__in=service_nodes_by_ancestors(
+                    mobility_service_node_ids, node_model=MobilityServiceNode
+                )
+            ).distinct()
 
         service_node_ids = None
         if service_nodes:
