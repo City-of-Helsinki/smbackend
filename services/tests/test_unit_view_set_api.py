@@ -11,7 +11,7 @@ from munigeo.models import (
 from rest_framework.test import APIClient
 
 from services.api import make_muni_ocd_id
-from services.models import Department, ServiceNode, Unit
+from services.models import Department, MobilityServiceNode, ServiceNode, Unit
 from services.tests.utils import get
 
 UTC_TIMEZONE = pytz.timezone("UTC")
@@ -101,6 +101,26 @@ def create_service_nodes():
         last_modified_time=datetime.now(UTC_TIMEZONE),
     )
     return service_node_1, service_node_2, service_node_3, service_node_4
+
+
+def create_mobility_nodes():
+    mobility_node_1 = MobilityServiceNode.objects.create(
+        id=1000000, name_fi="Liikenne", last_modified_time=datetime.now(UTC_TIMEZONE)
+    )
+    mobility_node_2 = MobilityServiceNode.objects.create(
+        id=513,
+        name_fi="Joukkoliikenne",
+        parent_id=1000000,
+        last_modified_time=datetime.now(UTC_TIMEZONE),
+    )
+    mobility_node_3 = MobilityServiceNode.objects.create(
+        id=514,
+        name_fi="Asiakaspalvelu",
+        parent_id=1000000,
+        last_modified_time=datetime.now(UTC_TIMEZONE),
+    )
+
+    return mobility_node_1, mobility_node_2, mobility_node_3
 
 
 @pytest.fixture
@@ -278,3 +298,41 @@ def test_service_node_filter(api_client):
     assert response.status_code == 200
     assert response.data["count"] == 1
     assert results[0]["id"] == 3
+
+
+@pytest.mark.django_db
+def test_mobility_node_filter(api_client):
+    """
+    Test that only units with given mobility service nodes are visible in unit view when given "mobility_node" parameter.
+    """
+    create_units()
+    mobility_node_1, mobility_node_2, mobility_node_3 = create_mobility_nodes()
+    unit_1 = Unit.objects.get(id=1)
+    unit_2 = Unit.objects.get(id=2)
+    unit_1.mobility_service_nodes.add(mobility_node_2)
+    unit_1.mobility_service_nodes.add(mobility_node_3)
+    unit_2.mobility_service_nodes.add(mobility_node_3)
+
+    # mobility_node_2 and mobility_node_3 are children of mobility_node_1, so querying with mobility_node_1 should
+    # return units linked with both mobility_node_2 and mobility_node_3
+    response = get(
+        api_client, reverse("unit-list"), data={"mobility_node": mobility_node_1.id}
+    )
+    assert response.status_code == 200
+    assert response.data["count"] == 2
+
+    # Querying with both mobility_node_2 and mobility_node_3 should return units linked with either of them
+    response = get(
+        api_client,
+        reverse("unit-list"),
+        data={"mobility_node": f"{mobility_node_2.id},{mobility_node_3.id}"},
+    )
+    assert response.status_code == 200
+    assert response.data["count"] == 2
+
+    response = get(
+        api_client, reverse("unit-list"), data={"mobility_node": mobility_node_2.id}
+    )
+    assert response.status_code == 200
+    assert response.data["count"] == 1
+    assert response.data["results"][0]["id"] == 1
