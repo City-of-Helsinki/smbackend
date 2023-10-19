@@ -1003,13 +1003,9 @@ class UnitViewSet(
                             "'organization' value must be a valid UUID"
                         )
 
-                deps = Department.objects.filter(uuid__in=deps_uuids).select_related(
-                    "municipality"
-                )
-                munis = [d.municipality for d in deps]
-
-                queryset = queryset.filter(root_department__in=deps) | queryset.filter(
-                    municipality__in=munis
+                deps = Department.objects.filter(uuid__in=deps_uuids)
+                queryset = queryset.filter(department__in=deps) | queryset.filter(
+                    root_department__in=deps
                 )
 
         if "provider_type" in filters:
