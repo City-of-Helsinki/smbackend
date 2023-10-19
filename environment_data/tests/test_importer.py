@@ -349,7 +349,7 @@ def test_cumulative_value():
     measurement = month_data.measurements.get(parameter=precipitation_amount)
     # days in September * hours in day
     assert round(measurement.value, 0) == 30 * 24
-    measurement = year_data.measurements.get(parameter=temperature)
+    measurement = month_data.measurements.get(parameter=temperature)
     assert round(measurement.value, 0) == 1
 
     week = Week.objects.get(week_number=36)
@@ -373,3 +373,13 @@ def test_cumulative_value():
     assert round(measurement.value, 0) == 1
     measurement = hour_data.measurements.get(parameter=temperature)
     assert round(measurement.value, 0) == 1
+
+    # Test negative values
+    clear_cache()
+    df = get_test_dataframe(columns, start_time, end_time, min_value=-1, max_value=-1)
+    save_parameter_types(df, data_type, options["initial_import"])
+    save_measurements(df, data_type, options["initial_import"])
+    precipitation_amount = Parameter.objects.get(name=wo_constants.PRECIPITATION_AMOUNT)
+    year = Year.objects.get(year_number=2022)
+    year_data = YearData.objects.get(station=naantali_station, year=year)
+    measurement = year_data.measurements.get(parameter=precipitation_amount)

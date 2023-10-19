@@ -3,10 +3,13 @@ import xml.etree.ElementTree as Et
 from datetime import datetime, timedelta
 
 import pandas as pd
-import requests
 from dateutil.relativedelta import relativedelta
 
-from environment_data.constants import DATA_TYPES_FULL_NAME, WEATHER_OBSERVATION
+from environment_data.constants import (
+    DATA_TYPES_FULL_NAME,
+    REQUEST_SESSION,
+    WEATHER_OBSERVATION,
+)
 
 from .constants import NAMESPACES, TIME_FORMAT
 from .weather_observation_constants import (
@@ -22,15 +25,19 @@ logger = logging.getLogger(__name__)
 def get_dataframe(stations, from_year=START_YEAR, from_month=1, initial_import=False):
     current_date_time = datetime.now()
     if from_year and from_month:
-        from_date_time = datetime.strptime(f"{from_year}-01-01T00:00:00Z", TIME_FORMAT)
+        from_date_time = datetime.strptime(
+            f"{from_year}-{from_month}-01T00:00:00Z", TIME_FORMAT
+        )
     column_data = {}
+    # Import data for every station and all parameters. Fetch data in montly chunks as
+    # no more than 744 hours is allowed per request.
     for station in stations:
         logger.info(
             f"Fetching data for {DATA_TYPES_FULL_NAME[WEATHER_OBSERVATION]} station {station['name']}"
         )
         for parameter in OBSERVABLE_PARAMETERS:
             data = {}
-            start_date_time = from_date_time            
+            start_date_time = from_date_time
             while start_date_time <= current_date_time:
                 params = REQUEST_PARAMS
                 params["fmisid"] = station["geoId"]
@@ -41,7 +48,6 @@ def get_dataframe(stations, from_year=START_YEAR, from_month=1, initial_import=F
                     params[
                         "startTime"
                     ] = f"{start_date_time.year}-{start_date_time.month}-01T00:00Z"
-               
                 if current_date_time - relativedelta(months=1) < start_date_time:
                     params["endTime"] = current_date_time.strftime(TIME_FORMAT)
                 else:
@@ -53,9 +59,9 @@ def get_dataframe(stations, from_year=START_YEAR, from_month=1, initial_import=F
                     params[
                         "endTime"
                     ] = f"{tmp_time.year}-{tmp_time.month}-{tmp_time.day}T23:00Z"
-                response = requests.get(DATA_URL, params=params)
-                logger.info(f"Requested data from: {response.url}")
 
+                response = REQUEST_SESSION.get(DATA_URL, params=params)
+                logger.info(f"Requested data from: {response.url}")
                 if response.status_code == 200:
                     root = Et.fromstring(response.content)
                     observation_series = root.findall(
