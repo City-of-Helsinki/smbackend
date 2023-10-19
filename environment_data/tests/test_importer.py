@@ -383,3 +383,4 @@ def test_cumulative_value():
     year = Year.objects.get(year_number=2022)
     year_data = YearData.objects.get(station=naantali_station, year=year)
     measurement = year_data.measurements.get(parameter=precipitation_amount)
+    assert round(measurement.value, 0) == 0
