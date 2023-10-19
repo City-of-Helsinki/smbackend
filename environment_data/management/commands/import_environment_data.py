@@ -58,16 +58,20 @@ OBSERVABLE_PARAMETERS = (
 
 def get_measurements(df, station_name):
     mean_series = df.mean().dropna()
+    # For cumulative values, remove negative values. E.g., negative value is marked
+    # if no rain has been observed. If less than 0,1mm rain has been observed
+    # then 0 is assigned.
+    df[df < 0] = 0
     sum_series = df.sum().dropna()
-
     values = {}
     for parameter in OBSERVABLE_PARAMETERS:
         key = f"{station_name} {parameter}"
+        value = None
         if parameter in CUMULATIVE_PARAMETERS:
-            value = sum_series.get(key, False)
+            value = sum_series.get(key, None)
         else:
-            value = mean_series.get(key, False)
-        if value:
+            value = mean_series.get(key, None)
+        if value is not None:
             values[parameter] = value
     return values
 
@@ -287,6 +291,8 @@ def delete_months(months_qs):
 
 def save_measurements(df, data_type, initial_import=False):
     def delete_if_no_relations(items):
+        # If model does not have related rows, delete it.
+        # Cleans useless Year, Month, Week, Day rows.
         for item in items:
             model = item[0]
             related_name = item[1]
@@ -305,6 +311,12 @@ def save_measurements(df, data_type, initial_import=False):
             (Day, "day_datas"),
             (Hour, "hour_datas"),
         ]
+        models = [YearData, MonthData, WeekData, DayData, MonthData]
+        for station in stations:
+            for model in models:
+                logger.info(
+                    f"Deleting {model.__name__} for {station.name}. {model.objects.all().delete()}"
+                )
         delete_if_no_relations(items)
         save_years(df, stations)
         save_months(df, stations)
