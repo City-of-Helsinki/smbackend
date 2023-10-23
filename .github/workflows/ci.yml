@@ -65,9 +65,11 @@ jobs:
 
       # Without this workaround Sonar reports a warning about an incorrect source path
       - name: Override coverage report source path for Sonar
+        if: github.event_name == 'push'
         run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
 
       - name: SonarCloud Scan
+        if: github.event_name == 'push'
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
