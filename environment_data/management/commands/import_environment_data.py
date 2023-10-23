@@ -311,7 +311,7 @@ def save_measurements(df, data_type, initial_import=False):
             (Day, "day_datas"),
             (Hour, "hour_datas"),
         ]
-        models = [YearData, MonthData, WeekData, DayData, MonthData]
+        models = [YearData, MonthData, WeekData, DayData, HourData]
         for station in stations:
             for model in models:
                 logger.info(
