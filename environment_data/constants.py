@@ -25,10 +25,10 @@ VALID_DATA_TYPE_CHOICES = ", ".join(
 DATA_TYPES_LIST = [AIR_QUALITY, WEATHER_OBSERVATION]
 
 retry_strategy = Retry(
-    total=10,
+    total=12,
     status_forcelist=[429],
     allowed_methods=["GET", "POST"],
-    backoff_factor=30,  # 30, 60, 120 , 240, ..seconds
+    backoff_factor=60,  # 60, 120 , 240, ..seconds
 )
 adapter = HTTPAdapter(max_retries=retry_strategy)
 REQUEST_SESSION = requests.Session()
