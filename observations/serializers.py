@@ -87,7 +87,7 @@ class DescriptiveObservationSerializer(BaseObservationSerializer):
         if val is None:
             return result
         default_language = settings.LANGUAGES[0][0]
-        if type(val) == str:
+        if isinstance(val, str):
             val = {default_language: val}
         serializer = AllowedValueSerializer(
             data={"description": val, "property_id": result["property_id"]}
