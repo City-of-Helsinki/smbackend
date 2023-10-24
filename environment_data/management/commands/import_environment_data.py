@@ -315,7 +315,7 @@ def save_measurements(df, data_type, initial_import=False):
         for station in stations:
             for model in models:
                 logger.info(
-                    f"Deleting {model.__name__} for {station.name}. {model.objects.all().delete()}"
+                    f"Deleting {model.__name__} for {station.name}. {model.objects.filter(station=station).delete()}"
                 )
         delete_if_no_relations(items)
         save_years(df, stations)
