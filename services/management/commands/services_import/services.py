@@ -13,7 +13,6 @@ from services.models import (
     Department,
     MobilityServiceNode,
     MobilityServiceNodeUnitCount,
-    OrganizationServiceNodeUnitCount,
     OrganizationServiceUnitCount,
     Service,
     ServiceNode,
@@ -234,29 +233,6 @@ def update_count_objects(service_node_unit_count_objects, node, node_count_model
         )
 
 
-def update_organization_count_objects(service_node_unit_count_objects, node):
-    """
-    This is a generator which yields all the objects that need to be saved.
-    (Objects that didn't exist or whose count field was updated.)
-    """
-    for org_id, count in node._unit_count.items():
-        obj = service_node_unit_count_objects.get((node.id, org_id))
-        if obj is None:
-            obj = OrganizationServiceNodeUnitCount(
-                service_node=node,
-                organization=get_organization_by_id(org_id),
-                count=count,
-            )
-            yield obj
-        elif obj.count != count:
-            obj.count = count
-            yield obj
-        for node in node.get_children():
-            yield from update_organization_count_objects(
-                service_node_unit_count_objects, node
-            )
-
-
 @db.transaction.atomic
 def save_objects(objects):
     for o in objects:
@@ -328,90 +304,6 @@ def update_node_counts(node_model, node_count_model):
             )
         )
     save_objects(objects_to_save)
-    return tree
-
-
-def update_service_node_organization_counts():
-    units_by_service = {}
-    through_values = (
-        Unit.service_nodes.through.objects.filter(
-            unit__public=True, unit__is_active=True
-        )
-        .values_list("servicenode_id", "unit__root_department__uuid", "unit_id")
-        .order_by("servicenode_id", "unit__root_department__uuid")
-        .distinct("servicenode_id", "unit__root_department__uuid")
-    )
-
-    for service_node_id, org_id, unit_id in through_values:
-        unit_set = units_by_service.setdefault(service_node_id, {}).setdefault(
-            org_id, set()
-        )
-        unit_set.add(unit_id)
-        units_by_service[service_node_id][org_id] = unit_set
-
-    unit_counts_to_be_updated = set(
-        ((service_node_id, org_id) for service_node_id, org_id, _ in through_values)
-    )
-
-    for c in OrganizationServiceNodeUnitCount.objects.select_related(
-        "organization"
-    ).all():
-        if (c.service_node_id, c.organization.uuid) not in unit_counts_to_be_updated:
-            c.delete()
-
-    tree = ServiceNode.tree_objects.all().get_cached_trees()
-    for node in tree:
-        update_service_node(node, units_by_service)
-
-    def count_object_pair(x):
-        return ((x.service_node_id, x.organization.uuid), x)
-
-    service_node_unit_count_objects = dict(
-        (
-            count_object_pair(x)
-            for x in OrganizationServiceNodeUnitCount.objects.select_related(
-                "organization"
-            ).all()
-        )
-    )
-
-    objects_to_save = []
-    for node in tree:
-        objects_to_save.extend(
-            update_organization_count_objects(service_node_unit_count_objects, node)
-        )
-
-    rm_list = []
-    unique_pairs = []
-    unique_pairs_with_object = []
-    for o in objects_to_save:
-        if (o.service_node_id, o.organization.uuid) not in unique_pairs:
-            unique_pairs.append((o.service_node_id, o.organization.uuid))
-            unique_pairs_with_object.append(
-                ((o.service_node_id, o.organization.uuid), o)
-            )
-        else:
-            pair = next(
-                (
-                    x
-                    for x in unique_pairs_with_object
-                    if x[0][0] == o.service_node_id and x[0][1] == o.organization.uuid
-                ),
-                None,
-            )
-            count = pair[1].count
-            if count > o.count:
-                rm_list.append(o)
-            else:
-                rm_list.append(pair[1])
-                unique_pairs_with_object.remove(pair)
-                unique_pairs_with_object.append(
-                    ((o.service_node_id, o.organization.uuid), o)
-                )
-
-    objects = [o for o in objects_to_save if o not in rm_list]
-
-    save_objects(objects)
     return tree
 
 
