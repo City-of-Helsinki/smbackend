@@ -309,7 +309,6 @@ class ServiceNodeSerializer(
         ret["root"] = self.root_service_nodes(obj)
         ret["unit_count"] = dict(
             municipality=self.unit_count_per_municipality(obj),
-            organization=self.unit_count_per_organization(obj),
         )
         total = self.unit_count_total(ret["unit_count"]["municipality"])
         ret["unit_count"]["total"] = total
@@ -322,12 +321,6 @@ class ServiceNodeSerializer(
         return {
             x.division.name_fi.lower() if x.division else "_unknown": x.count
             for x in obj.unit_counts.all()
-        }
-
-    def unit_count_per_organization(self, obj):
-        return {
-            x.organization.name.lower() if x.organization else "_unknown": x.count
-            for x in obj.unit_count_organizations.all()
         }
 
     def unit_count_total(self, unit_count_data):
