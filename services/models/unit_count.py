@@ -74,23 +74,3 @@ class OrganizationServiceUnitCount(models.Model):
 
     class Meta:
         unique_together = (("service", "organization"),)
-
-
-class OrganizationServiceNodeUnitCount(models.Model):
-    organization = models.ForeignKey(
-        Department,
-        null=True,
-        db_index=True,
-        on_delete=models.CASCADE,
-    )
-    service_node = models.ForeignKey(
-        ServiceNode,
-        null=False,
-        db_index=True,
-        related_name="unit_count_organizations",
-        on_delete=models.CASCADE,
-    )
-    count = models.PositiveIntegerField(null=False)
-
-    class Meta:
-        unique_together = (("service_node", "organization"),)
