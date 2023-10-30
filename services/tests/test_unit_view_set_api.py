@@ -2,7 +2,10 @@ from datetime import datetime
 
 import pytest
 import pytz
+from django.contrib.gis.geos import GEOSGeometry
 from django.urls import reverse
+from munigeo import api as munigeo_api
+from munigeo.api import DEFAULT_SRS
 from munigeo.models import (
     AdministrativeDivision,
     AdministrativeDivisionType,
@@ -12,6 +15,7 @@ from rest_framework.test import APIClient
 
 from services.api import make_muni_ocd_id
 from services.models import Department, MobilityServiceNode, ServiceNode, Unit
+from services.models.unit import PROJECTION_SRID
 from services.tests.utils import get
 
 UTC_TIMEZONE = pytz.timezone("UTC")
@@ -344,3 +348,32 @@ def test_mobility_node_filter(api_client):
     assert response.status_code == 200
     assert response.data["count"] == 1
     assert response.data["results"][0]["id"] == 1
+
+
+@pytest.mark.django_db
+def test_geometry_3d_parameter(api_client):
+    """
+    Test that geometry_3d parameter returns 3D geometries.
+    """
+    create_units()
+    wkt = "MULTILINESTRING Z ((1 2 3, 4 5 6, 7 8 9), (10 11 12, 13 14 15, 16 17 18))"
+    geometry_3d = GEOSGeometry(wkt, srid=PROJECTION_SRID)
+    unit = Unit.objects.get(id=1)
+    unit.geometry_3d = geometry_3d
+    unit.save()
+
+    # When geometry_3d parameter is not given, 3D geometries are not returned
+    response = get(api_client, reverse("unit-list"))
+    results = response.data["results"]
+    assert response.status_code == 200
+    assert "geometry_3d" not in results[0]
+
+    response = get(api_client, reverse("unit-list"), data={"geometry_3d": True})
+    results = response.data["results"]
+    assert response.status_code == 200
+    assert results[4]["id"] == 1
+    assert results[4]["geometry_3d"]["type"] == "MultiLineString"
+    assert (
+        results[4]["geometry_3d"]["coordinates"]
+        == munigeo_api.geom_to_json(geometry_3d, DEFAULT_SRS)["coordinates"]
+    )

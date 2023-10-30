@@ -846,6 +846,13 @@ class UnitSerializer(
         elif "geometry" in ret:
             del ret["geometry"]
 
+        if qparams.get("geometry_3d", "").lower() in ("true", "1"):
+            geom = obj.geometry_3d
+            if geom:
+                ret["geometry_3d"] = munigeo_api.geom_to_json(geom, self.srs)
+        elif "geometry_3d" in ret:
+            del ret["geometry_3d"]
+
         if qparams.get("accessibility_description", "").lower() in ("true", "1"):
             ret["accessibility_description"] = shortcomings.accessibility_description
 
