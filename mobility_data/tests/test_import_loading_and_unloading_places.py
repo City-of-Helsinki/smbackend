@@ -57,3 +57,7 @@ def test_import(get_geojson_file_name_mock, municipalities):
     assert lantinen_rantakatu.extra["rajoitustyyppi"]["en"] == "Special area"
 
     assert lantinen_rantakatu.extra["paikkoja_y"] == 2
+    assert lantinen_rantakatu.extra["max_aika_h"] == "3"
+    assert lantinen_rantakatu.extra["rajoitus_l"] == "test"
+    assert lantinen_rantakatu.extra["rajoitettu_ark"] == "4"
+    assert lantinen_rantakatu.extra["päiväys"] == "21.7.2022"
