@@ -28,7 +28,10 @@ from eco_counter.constants import (
     TELRAAM_CSV,
     TELRAAM_HTTP,
 )
-from eco_counter.management.commands.utils import get_telraam_cameras
+from eco_counter.management.commands.utils import (
+    get_telraam_camera_location_and_geometry,
+    get_telraam_cameras,
+)
 from eco_counter.models import ImportState
 
 TOKEN = settings.TELRAAM_TOKEN
@@ -257,7 +260,7 @@ def save_dataframe(from_date: date = True) -> datetime:
             df = df.astype(int)
 
             csv_file = TELRAAM_COUNTER_CSV_FILE.format(
-                id=camera["mac"],
+                mac=camera["mac"],
                 day=start_date.day,
                 month=start_date.month,
                 year=start_date.year,
@@ -267,7 +270,15 @@ def save_dataframe(from_date: date = True) -> datetime:
                 if os.path.exists(csv_file):
                     os.remove(csv_file)
             if not os.path.exists(csv_file) or can_overwrite_csv_file:
-                df.to_csv(csv_file)
+                location, geometry = get_telraam_camera_location_and_geometry(
+                    camera["segment_id"]
+                )
+                # Write to WKT of the location, as the cameras position can change
+                with open(csv_file, "w") as file:
+                    file.write(f"# {location.wkt} \n")
+                    file.write(f"# {geometry.wkt} \n")
+
+                df.to_csv(csv_file, mode="a")
             start_date += timedelta(days=1)
 
     start_date -= timedelta(days=1)

@@ -8,9 +8,12 @@ import requests
 from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry, LineString, MultiLineString, Point
+from django.core.management.base import CommandError
 
 from eco_counter.constants import (
+    COUNTER_CHOICES_STR,
     COUNTERS,
+    COUNTERS_LIST,
     ECO_COUNTER,
     INDEX_COLUMN_NAME,
     LAM_COUNTER,
@@ -24,14 +27,14 @@ from eco_counter.constants import (
     TELRAAM_COUNTER_CAMERAS,
     TELRAAM_COUNTER_CAMERAS_URL,
     TELRAAM_COUNTER_CSV_FILE,
-    TELRAAM_CSV,
     TELRAAM_HTTP,
+    TELRAAM_STATIONS_INITIAL_WKT_GEOMETRIES,
     TRAFFIC_COUNTER,
     TRAFFIC_COUNTER_CSV_URLS,
     TRAFFIC_COUNTER_METADATA_GEOJSON,
 )
-from eco_counter.models import ImportState, Station
-from eco_counter.tests.test_import_counter_data import TEST_COLUMN_NAMES
+from eco_counter.models import Station
+from eco_counter.tests.constants import TEST_COLUMN_NAMES
 from mobility_data.importers.utils import get_root_dir
 
 logger = logging.getLogger("eco_counter")
@@ -67,47 +70,22 @@ class TrafficCounterStation:
         self.location = geom
 
 
-class TelraamCounterStation:
-    # The Telraam API return the coordinates in EPSGS 31370
-    SOURCE_SRID = 4326
-    TARGET_SRID = settings.DEFAULT_SRID
+# class TelraamCounterStation:
+#     # The Telraam API return the coordinates in EPSGS 31370
+#     SOURCE_SRID = 4326
+#     TARGET_SRID = settings.DEFAULT_SRID
 
-    def get_location_and_geometry(self, id):
-        url = TELRAAM_COUNTER_CAMERA_SEGMENTS_URL.format(id=id)
-        headers = {
-            "X-Api-Key": settings.TELRAAM_TOKEN,
-        }
-        response = TELRAAM_HTTP.get(url, headers=headers)
-        assert (
-            response.status_code == 200
-        ), "Could not fetch segment for camera {id}".format(id=id)
-        json_data = response.json()
-        coords = json_data["features"][0]["geometry"]["coordinates"]
-        lss = []
-        for coord in coords:
-            ls = LineString(coord, srid=self.SOURCE_SRID)
-            lss.append(ls)
-        geometry = MultiLineString(lss, srid=self.SOURCE_SRID)
-        geometry.transform(self.TARGET_SRID)
-        mid_line = round(len(coords) / 2)
-        mid_point = round(len(coords[mid_line]) / 2)
-        location = Point(coords[mid_line][mid_point], srid=self.SOURCE_SRID)
-        location.transform(self.TARGET_SRID)
-        return location, geometry
-
-    def __init__(self, feature):
-        self.name = feature["mac"]
-        self.name_sv = feature["mac"]
-        self.name_en = feature["mac"]
-        self.location, self.geometry = self.get_location_and_geometry(
-            feature["segment_id"]
-        )
-        self.station_id = feature["mac"]
+#     def __init__(self, feature):
+#         self.name = feature["mac"]
+#         self.name_sv = feature["mac"]
+#         self.name_en = feature["mac"]
+#         self.location, self.geometry = get_telraam_camera_location_and_geometry(
+#             feature["segment_id"], self.SOURCE_SRID, self.TARGET_SRID
+#         )
+#         self.station_id = feature["mac"]
 
 
-class ObservationStation(
-    LAMStation, EcoCounterStation, TrafficCounterStation, TelraamCounterStation
-):
+class ObservationStation(LAMStation, EcoCounterStation, TrafficCounterStation):
     def __init__(self, csv_data_source, feature):
         self.csv_data_source = csv_data_source
         self.name = None
@@ -117,14 +95,29 @@ class ObservationStation(
         self.geometry = None
         self.station_id = None
         match csv_data_source:
-            case COUNTERS.TELRAAM_COUNTER:
-                TelraamCounterStation.__init__(self, feature)
+            # case COUNTERS.TELRAAM_COUNTER:
+            #     TelraamCounterStation.__init__(self, feature)
             case COUNTERS.LAM_COUNTER:
                 LAMStation.__init__(self, feature)
             case COUNTERS.ECO_COUNTER:
                 EcoCounterStation.__init__(self, feature)
             case COUNTERS.TRAFFIC_COUNTER:
                 TrafficCounterStation.__init__(self, feature)
+
+
+class TelraamStation:
+    def __init__(self, mac, location, geometry):
+        self.mac = mac
+        self.location = location
+        self.geometry = geometry
+
+
+def check_counters_argument(counters):
+    for counter in counters:
+        if counter not in COUNTERS_LIST:
+            raise CommandError(
+                f"Invalid counter type, valid types are: {COUNTER_CHOICES_STR}."
+            )
 
 
 def get_traffic_counter_metadata_data_layer():
@@ -407,56 +400,169 @@ def get_telraam_counter_stations():
     return stations
 
 
-def get_telraam_counter_csv(from_date):
-    df = pd.DataFrame()
-    try:
-        import_state = ImportState.objects.get(csv_data_source=TELRAAM_CSV)
-    except ImportState.DoesNotExist:
-        return None
-    end_date = date(
-        import_state.current_year_number,
-        import_state.current_month_number,
-        import_state.current_day_number,
+def get_telraam_camera_location_and_geometry(id, source_srid=4326, target_srid=3067):
+    url = TELRAAM_COUNTER_CAMERA_SEGMENTS_URL.format(id=id)
+    headers = {
+        "X-Api-Key": settings.TELRAAM_TOKEN,
+    }
+    response = TELRAAM_HTTP.get(url, headers=headers)
+    assert (
+        response.status_code == 200
+    ), "Could not fetch segment for camera {id}".format(id=id)
+    json_data = response.json()
+    if len(json_data["features"]) == 0:
+        logger.error(f"No data for Telraam camera with segment_id: {id}")
+        return None, None
+
+    coords = json_data["features"][0]["geometry"]["coordinates"]
+    lss = []
+    for coord in coords:
+        ls = LineString(coord, srid=source_srid)
+        lss.append(ls)
+    geometry = MultiLineString(lss, srid=source_srid)
+    geometry.transform(target_srid)
+    mid_line = round(len(coords) / 2)
+    mid_point = round(len(coords[mid_line]) / 2)
+    location = Point(coords[mid_line][mid_point], srid=source_srid)
+    location.transform(target_srid)
+    return location, geometry
+
+
+def get_telraam_dataframe(mac, day, month, year):
+    csv_file = TELRAAM_COUNTER_CSV_FILE.format(
+        mac=mac,
+        day=day,
+        month=month,
+        year=year,
     )
+    comment_lines = []
+    skiprows = 0
+    # The location and geometry is stored as comments to the csv file
+    with open(csv_file, "r") as file:
+        for line in file:
+            if line.startswith("#"):
+                comment_lines.append(line)
+                skiprows += 1
+            else:
+                break
+    return (
+        pd.read_csv(csv_file, index_col=False, skiprows=skiprows),
+        csv_file,
+        comment_lines,
+    )
+
+
+def parse_telraam_comment_lines(comment_lines):
+    location = None
+    geometry = None
+    comment_lines = [c.replace("# ", "") for c in comment_lines]
+    if len(comment_lines) > 0:
+        location = GEOSGeometry(comment_lines[0])
+    if len(comment_lines) > 1:
+        geometry = GEOSGeometry(comment_lines[1])
+    return location, geometry
+
+
+def get_telraam_data_frames(from_date):
+    """
+    For every camera create a dataframe for each location the camera has been placed.
+    """
+    end_date = date.today()
+    data_frames = {}
     for camera in get_telraam_cameras():
         df_cam = pd.DataFrame()
         start_date = from_date
-
+        current_station = None
+        prev_comment_lines = []
         while start_date <= end_date:
-            csv_file = TELRAAM_COUNTER_CSV_FILE.format(
-                id=camera["mac"],
-                day=start_date.day,
-                month=start_date.month,
-                year=start_date.year,
-            )
             try:
-                df_tmp = pd.read_csv(csv_file, index_col=False)
+                df_tmp, csv_file, comment_lines = get_telraam_dataframe(
+                    camera["mac"], start_date.day, start_date.month, start_date.year
+                )
             except FileNotFoundError:
                 logger.warning(
                     f"File {csv_file} not found, skipping day{str(start_date)} for camera {camera}"
                 )
             else:
+                if not comment_lines and not current_station:
+                    # Set the initial station, e.i, no coordinates defined in CSV source data
+                    current_station = TelraamStation(
+                        mac=camera["mac"],
+                        location=GEOSGeometry(
+                            TELRAAM_STATIONS_INITIAL_WKT_GEOMETRIES[camera["mac"]][
+                                "location"
+                            ]
+                        ),
+                        geometry=GEOSGeometry(
+                            TELRAAM_STATIONS_INITIAL_WKT_GEOMETRIES[camera["mac"]][
+                                "geometry"
+                            ]
+                        ),
+                    )
+                    data_frames[current_station] = []
+                elif comment_lines and not current_station:
+                    location, geometry = parse_telraam_comment_lines(comment_lines)
+                    current_station = TelraamStation(
+                        mac=camera["mac"], location=location, geometry=geometry
+                    )
+                    data_frames[current_station] = []
+
+                if prev_comment_lines != comment_lines:
+                    location, geometry = parse_telraam_comment_lines(comment_lines)
+                    # CSV files might contain the initial coordinates, to avoid creating duplicated check coordinates
+                    if (
+                        location.wkt != current_station.location.wkt
+                        and geometry.wkt != current_station.geometry.wkt
+                    ):
+                        df_cam[INDEX_COLUMN_NAME] = pd.to_datetime(
+                            df_cam[INDEX_COLUMN_NAME],
+                            format=TELRAAM_COUNTER_API_TIME_FORMAT,
+                        )
+                        data_frames[current_station].append(df_cam)
+                        current_station = TelraamStation(
+                            mac=camera["mac"], location=location, geometry=geometry
+                        )
+                        df_cam = pd.DataFrame()
+                        data_frames[current_station] = []
                 df_cam = pd.concat([df_cam, df_tmp])
+
             finally:
+                prev_comment_lines = comment_lines
                 start_date += timedelta(days=1)
+        if not df_cam.empty:
+            df_cam[INDEX_COLUMN_NAME] = pd.to_datetime(
+                df_cam[INDEX_COLUMN_NAME], format=TELRAAM_COUNTER_API_TIME_FORMAT
+            )
+            data_frames[current_station].append(df_cam)
 
-        if df.empty:
-            df = df_cam
-        else:
-            df = pd.merge(df, df_cam, on=INDEX_COLUMN_NAME)
+    return data_frames
 
-    df[INDEX_COLUMN_NAME] = pd.to_datetime(
-        df[INDEX_COLUMN_NAME], format=TELRAAM_COUNTER_API_TIME_FORMAT
-    )
-    return df
+
+def get_or_create_telraam_station(station):
+    name = str(station.mac)
+    filter = {
+        "csv_data_source": TELRAAM_COUNTER,
+        "name": name,
+        "name_sv": name,
+        "name_en": name,
+        "location": station.location,
+        "geometry": station.geometry,
+        "station_id": station.mac,
+    }
+    station_qs = Station.objects.filter(**filter)
+    if not station_qs.exists():
+        obj = Station.objects.create(**filter)
+    else:
+        obj = station_qs.first()
+    return obj
 
 
 def save_stations(csv_data_source):
     stations = []
     num_created = 0
     match csv_data_source:
-        case COUNTERS.TELRAAM_COUNTER:
-            stations = get_telraam_counter_stations()
+        # case COUNTERS.TELRAAM_COUNTER:
+        # Telraam station are handled differently as they are dynamic
         case COUNTERS.LAM_COUNTER:
             stations = get_lam_counter_stations()
         case COUNTERS.ECO_COUNTER:
@@ -503,14 +609,14 @@ def get_test_dataframe(counter):
 
 
 def gen_eco_counter_test_csv(
-    columns, start_time, end_time, time_stamp_column="startTime"
+    columns, start_time, end_time, time_stamp_column="startTime", freq="15min"
 ):
     """
     Generates test data for a given timespan,
-    for every row (15min) the value 1 is set.
+    for every row ('freq') the value 1 is set.
     """
     df = pd.DataFrame()
-    timestamps = pd.date_range(start=start_time, end=end_time, freq="15min")
+    timestamps = pd.date_range(start=start_time, end=end_time, freq=freq)
     for col in columns:
         vals = [1 for i in range(len(timestamps))]
         df.insert(0, col, vals)
