@@ -13,8 +13,8 @@
       <ExtentYMax>6707840.58200</ExtentYMax>
     </DatasetSpecificInfo>
     <PropertyDefn>
-      <Name>voimassa_a</Name>
-      <ElementPath>voimassa_a</ElementPath>
+      <Name>rajoitus</Name>
+      <ElementPath>rajoitus</ElementPath>
       <Type>Integer</Type>
     </PropertyDefn>
   </GMLFeatureClass>

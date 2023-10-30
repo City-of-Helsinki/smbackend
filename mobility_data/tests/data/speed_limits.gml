@@ -11,7 +11,7 @@
     </gml:boundedBy>
     <gml:featureMember>
         <GIS:Nopeusrajoitusalueet>
-            <GIS:voimassa_a>20</GIS:voimassa_a>
+            <GIS:rajoitus>20</GIS:rajoitus>
             <GIS:Geometry>
                 <gml:Polygon srsName="http://www.opengis.net/gml/srs/epsg.xml#3877">
                     <gml:name>20</gml:name>
@@ -26,7 +26,7 @@
     </gml:featureMember>
     <gml:featureMember>
         <GIS:Nopeusrajoitusalueet>
-            <GIS:voimassa_a>40</GIS:voimassa_a>
+            <GIS:rajoitus>40</GIS:rajoitus>
             <GIS:Geometry>
                 <gml:Polygon srsName="http://www.opengis.net/gml/srs/epsg.xml#3877">
                     <gml:name>40</gml:name>
@@ -41,7 +41,7 @@
     </gml:featureMember>
     <gml:featureMember>
         <GIS:Nopeusrajoitusalueet>
-            <GIS:voimassa_a>80</GIS:voimassa_a>
+            <GIS:rajoitus>80</GIS:rajoitus>
             <GIS:Geometry>
                 <gml:Polygon srsName="http://www.opengis.net/gml/srs/epsg.xml#3877">
                     <gml:name>80</gml:name>
