@@ -1161,6 +1161,7 @@ class UnitViewSet(
             )
             queryset = queryset.exclude(
                 Q(displayed_service_owner_type__iexact="PRIVATE_SERVICE")
+                | Q(displayed_service_owner_type__iexact="NOT_DISPLAYED")
                 | Q(organizer_type=private_enterprise_value)
             )
 

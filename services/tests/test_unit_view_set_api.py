@@ -78,6 +78,13 @@ def create_units():
         id=6, last_modified_time=datetime.now(UTC_TIMEZONE), is_active=False
     )
 
+    # Unit with "not displayed" service
+    Unit.objects.create(
+        id=7,
+        last_modified_time=datetime.now(UTC_TIMEZONE),
+        displayed_service_owner_type="NOT_DISPLAYED",
+    )
+
 
 def create_service_nodes():
     service_node_1 = ServiceNode.objects.create(
@@ -139,11 +146,12 @@ def test_get_unit_list(api_client):
     results = response.data["results"]
 
     assert response.status_code == 200
-    assert response.data["count"] == 4
-    assert results[0]["id"] == 4
-    assert results[1]["id"] == 3
-    assert results[2]["id"] == 2
-    assert results[3]["id"] == 1
+    assert response.data["count"] == 5
+    assert results[0]["id"] == 7
+    assert results[1]["id"] == 4
+    assert results[2]["id"] == 3
+    assert results[3]["id"] == 2
+    assert results[4]["id"] == 1
 
 
 @pytest.mark.django_db
