@@ -30,3 +30,4 @@ parso
 whitenoise
 libvoikko
 bmi-arcgis-restapi
+geopy

@@ -1,7 +1,10 @@
 import pytest
+from django.conf import settings
+from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.urls import reverse
 from munigeo.models import (
     AdministrativeDivision,
+    AdministrativeDivisionGeometry,
     AdministrativeDivisionType,
     Municipality,
 )
@@ -24,6 +27,23 @@ def create_administrative_divisions():
             ocd_id=make_muni_ocd_id(municipality_id),
             municipality=municipality,
         )
+
+
+def create_test_area():
+    """
+    Create a simple test area in Helsinki center.
+    """
+    polygon_coords = [
+        (24.928, 60.178),  # top left
+        (24.948, 60.178),  # top right
+        (24.948, 60.159),  # bottom right
+        (24.928, 60.159),  # bottom left
+        (24.928, 60.178),  # Close the ring by repeating the first point
+    ]
+    polygon = Polygon(polygon_coords, srid=4326)  # WGS84 srid
+    multi_polygon = MultiPolygon(polygon, srid=4326)
+    multi_polygon.transform(settings.DEFAULT_SRID)
+    return multi_polygon
 
 
 @pytest.fixture
@@ -50,3 +70,37 @@ def test_municipality_filter(api_client):
     assert response.status_code == 200
     assert response.data["count"] == 1
     assert response.data["results"][0]["municipality"] == "helsinki"
+
+
+@pytest.mark.django_db
+def test_address_filter(api_client):
+    create_administrative_divisions()
+    division = AdministrativeDivision.objects.get(name="helsinki")
+    AdministrativeDivisionGeometry.objects.create(
+        division=division, boundary=create_test_area()
+    )
+
+    response = get(
+        api_client,
+        reverse("administrativedivision-list"),
+        data={
+            "municipality": "helsinki",
+            "address": "Kaivokatu 1",
+        },  # An address in the test area
+    )
+
+    assert response.status_code == 200
+    assert response.data["count"] == 1
+    assert response.data["results"][0]["municipality"] == "helsinki"
+
+    response = get(
+        api_client,
+        reverse("administrativedivision-list"),
+        data={
+            "municipality": "helsinki",
+            "address": "Katajanokanranta 1",
+        },  # An address outside the test area
+    )
+
+    assert response.status_code == 200
+    assert response.data["count"] == 0
