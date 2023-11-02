@@ -85,11 +85,34 @@ def units(
     )
     unit.services.add(3)
     unit.save()
+
+    unit = Unit.objects.create(
+        id=4,
+        name="Jäähalli",
+        last_modified_time=now(),
+        municipality=municipality,
+        department=department,
+    )
+    # Add service Halli
+    unit.services.add(4)
+    unit.save()
+
+    unit = Unit.objects.create(
+        id=5,
+        name="Palloiluhalli",
+        last_modified_time=now(),
+        municipality=municipality,
+        department=department,
+    )
+    # Add service Halli
+    unit.services.add(4)
+    unit.save()
+
     update_service_root_service_nodes()
     update_service_counts()
     update_service_node_counts()
     Unit.objects.update(search_column_fi=get_search_column(Unit, "fi"))
-    return Unit.objects.all()
+    return Unit.objects.all().order_by("id")
 
 
 @pytest.mark.django_db
@@ -130,6 +153,16 @@ def services():
         id=3,
         name="Uimahalli",
         name_sv="Simhall",
+        last_modified_time=now(),
+    )
+    Service.objects.create(
+        id=4,
+        name="Halli",
+        last_modified_time=now(),
+    )
+    Service.objects.create(
+        id=5,
+        name="Hallinto",
         last_modified_time=now(),
     )
     Service.objects.update(search_column_fi=get_search_column(Service, "fi"))

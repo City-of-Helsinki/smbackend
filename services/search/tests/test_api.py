@@ -133,3 +133,23 @@ def test_search(
     results = response.json()["results"]
     assert results[0]["object_type"] == "administrativedivision"
     assert results[0]["name"]["fi"] == "Helsinki"
+
+
+@pytest.mark.django_db
+def test_search_service_order(api_client, units, services):
+    """
+    Test that services are ordered descending by unit count.
+    """
+    url = reverse("search") + "?q=halli&type=service"
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert len(results) == 3
+
+    assert results[0]["name"]["fi"] == "Halli"
+    assert results[0]["unit_count"]["total"] == 2
+
+    assert results[1]["name"]["fi"] == "Uimahalli"
+    assert results[1]["unit_count"]["total"] == 1
+
+    assert results[2]["name"]["fi"] == "Hallinto"
+    assert results[2]["unit_count"]["total"] == 0

@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-for ext in postgis hstore; do
+for ext in postgis hstore pg_trgm; do
     create_ext_sql="CREATE EXTENSION IF NOT EXISTS $ext"
     # Add the extensions to the default db template so that any
     # new db will have the extensions enabled includin test db.

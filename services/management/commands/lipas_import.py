@@ -103,18 +103,15 @@ class Command(BaseCommand):
             )
 
         layers = {}
-        for key, val in TYPES.items():
+        types = self._get_types()
+        for key, val in types.items():
             url = wfs.get_feature(
                 type_name=val, max_features=max_features, cql_filter=muni_filter
             )
 
             layers[key] = DataSource(url)[0]
 
-        logger.info(
-            "Retrieved {} path and {} area features.".format(
-                len(layers["paths"]), len(layers["areas"])
-            )
-        )
+            logger.info(f"Retrieved {len(layers[key])} {key} features.")
 
         # The Lipas database stores paths and areas as different features
         # which have a common id. We want to store the paths as one
@@ -181,6 +178,9 @@ class Command(BaseCommand):
 
         logger.info("Found {} matches.".format(len(geometries)))
 
+        self._save_geometries(geometries, units_by_lipas_id)
+
+    def _save_geometries(self, geometries, units_by_lipas_id):
         # Add all geometries we found to the db
         logger.info("Updating geometries in the database...")
         for lipas_id, geometry in geometries.items():
@@ -190,3 +190,6 @@ class Command(BaseCommand):
             # from commit 6cff46e0399fedbbc8266efa5230cd4ccb8a8485
             unit.geometry = geometry
             unit.save()
+
+    def _get_types(self):
+        return TYPES

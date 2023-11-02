@@ -1,12 +1,18 @@
 #!/bin/bash
 set -e
 
-if [[ "$APPLY_MIGRATIONS" = "true" ]]; then
+if [[ "$APPLY_MIGRATIONS" = "True" ]]; then
     echo "Applying database migrations..."
     ./manage.py migrate --noinput
 fi
 
 if [ "$1" = 'start_django_development_server' ]; then
+    until nc -z -v -w30 postgres 5432
+    do
+      echo "Waiting for the database..."
+      sleep 1
+    done
+    echo "Database is up!"
     # Start server
     echo "Starting development server"
     ./manage.py runserver 0.0.0.0:8000

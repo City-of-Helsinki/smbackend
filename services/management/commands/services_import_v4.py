@@ -19,10 +19,10 @@ from services.management.commands.services_import.properties import (
 from services.management.commands.services_import.services import (
     import_services,
     remove_empty_service_nodes,
+    update_mobility_service_node_counts,
     update_mobility_service_nodes,
     update_service_counts,
     update_service_node_counts,
-    update_service_node_organization_counts,
     update_service_organization_counts,
     update_service_root_service_nodes,
 )
@@ -154,11 +154,11 @@ class Command(BaseCommand):
             return
         import_units()
         update_service_node_counts()
-        update_service_node_organization_counts()
         remove_empty_service_nodes(self.logger)
         update_service_counts()
         update_service_organization_counts()
         update_mobility_service_nodes()
+        update_mobility_service_node_counts()
 
     @db.transaction.atomic
     def import_services(self):

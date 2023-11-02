@@ -308,30 +308,23 @@ class ServiceNodeSerializer(
         ret["period_enabled"] = obj.period_enabled()
         ret["root"] = self.root_service_nodes(obj)
         ret["unit_count"] = dict(
-            municipality=dict(
-                (
-                    (x.division.name_fi.lower() if x.division else "_unknown", x.count)
-                    for x in obj.unit_counts.all()
-                )
-            ),
-            organization=dict(
-                (
-                    (
-                        x.organization.name.lower() if x.organization else "_unknown",
-                        x.count,
-                    )
-                    for x in obj.unit_count_organizations.all()
-                )
-            ),
+            municipality=self.unit_count_per_municipality(obj),
         )
-        total = 0
-        for _, part in ret["unit_count"]["municipality"].items():
-            total += part
+        total = self.unit_count_total(ret["unit_count"]["municipality"])
         ret["unit_count"]["total"] = total
         return ret
 
     def root_service_nodes(self, obj):
         return next(root_service_nodes([obj], ServiceNode))
+
+    def unit_count_per_municipality(self, obj):
+        return {
+            x.division.name_fi.lower() if x.division else "_unknown": x.count
+            for x in obj.unit_counts.all()
+        }
+
+    def unit_count_total(self, unit_count_data):
+        return sum(part for part in unit_count_data.values())
 
     class Meta:
         model = ServiceNode
@@ -359,6 +352,21 @@ class MobilitySerializer(ServiceNodeSerializer):
         if "parent" in only_fields:
             ret["parent"] = obj.parent_id
         ret["root"] = self.root_service_nodes(obj)
+        ret["related_services"] = (
+            [
+                int(service)
+                for service in obj.service_reference.split(",")
+                if service.isdigit()
+            ]
+            if obj.service_reference
+            else []
+        )
+        ret["unit_count"] = dict(
+            municipality=self.unit_count_per_municipality(obj),
+        )
+        total = self.unit_count_total(ret["unit_count"]["municipality"])
+        ret["unit_count"]["total"] = total
+
         return ret
 
     def root_service_nodes(self, obj):
@@ -838,6 +846,13 @@ class UnitSerializer(
         elif "geometry" in ret:
             del ret["geometry"]
 
+        if qparams.get("geometry_3d", "").lower() in ("true", "1"):
+            geom = obj.geometry_3d
+            if geom:
+                ret["geometry_3d"] = munigeo_api.geom_to_json(geom, self.srs)
+        elif "geometry_3d" in ret:
+            del ret["geometry_3d"]
+
         if qparams.get("accessibility_description", "").lower() in ("true", "1"):
             ret["accessibility_description"] = shortcomings.accessibility_description
 
@@ -988,13 +1003,9 @@ class UnitViewSet(
                             "'organization' value must be a valid UUID"
                         )
 
-                deps = Department.objects.filter(uuid__in=deps_uuids).select_related(
-                    "municipality"
-                )
-                munis = [d.municipality for d in deps]
-
-                queryset = queryset.filter(root_department__in=deps) | queryset.filter(
-                    municipality__in=munis
+                deps = Department.objects.filter(uuid__in=deps_uuids)
+                queryset = queryset.filter(department__in=deps) | queryset.filter(
+                    root_department__in=deps
                 )
 
         if "provider_type" in filters:
@@ -1012,17 +1023,18 @@ class UnitViewSet(
         if level and level != "all":
             level_specs = settings.LEVELS.get(level)
 
-        def service_nodes_by_ancestors(service_node_ids):
+        def service_nodes_by_ancestors(service_node_ids, node_model=ServiceNode):
             srv_list = set()
             for srv_id in service_node_ids:
                 srv_list |= set(
-                    ServiceNode.objects.all()
+                    node_model.objects.all()
                     .by_ancestor(srv_id)
                     .values_list("id", flat=True)
                 )
                 srv_list.add(int(srv_id))
             return list(srv_list)
 
+        mobility_service_nodes = filters.get("mobility_node", None)
         service_nodes = filters.get("service_node", None)
 
         def validate_service_node_ids(service_node_ids):
@@ -1031,6 +1043,19 @@ class UnitViewSet(
                 for service_node_id in service_node_ids
                 if service_node_id.isdigit()
             ]
+
+        mobility_service_node_ids = None
+        if mobility_service_nodes:
+            mobility_service_nodes = mobility_service_nodes.lower()
+            mobility_service_node_ids = validate_service_node_ids(
+                mobility_service_nodes.split(",")
+            )
+        if mobility_service_node_ids:
+            queryset = queryset.filter(
+                mobility_service_nodes__in=service_nodes_by_ancestors(
+                    mobility_service_node_ids, node_model=MobilityServiceNode
+                )
+            ).distinct()
 
         service_node_ids = None
         if service_nodes:
@@ -1136,6 +1161,16 @@ class UnitViewSet(
                 key += "__iregex"
                 arg = filters["address"] + r"($|\s|,|[a-zA-Z]).*"
             queryset = queryset.filter(**{key: arg})
+
+        if "no_private_services" in filters:
+            private_enterprise_value = (
+                10  # Value for PRIVATE_ENTERPRISE from ORGANIZER_TYPES
+            )
+            queryset = queryset.exclude(
+                Q(displayed_service_owner_type__iexact="PRIVATE_SERVICE")
+                | Q(displayed_service_owner_type__iexact="NOT_DISPLAYED")
+                | Q(organizer_type=private_enterprise_value)
+            )
 
         maintenance_organization = self.request.query_params.get(
             "maintenance_organization"
