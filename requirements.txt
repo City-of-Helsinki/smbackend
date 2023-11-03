@@ -10,8 +10,10 @@ attrs==23.1.0
     # via
     #   cattrs
     #   requests-cache
-backports-zoneinfo==0.2.1
-    # via django
+backports-zoneinfo==0.2.1 ; python_version < "3.9"
+    # via
+    #   -r requirements.in
+    #   django
 black==23.11.0
     # via -r requirements.in
 bmi-arcgis-restapi==2.4.5

@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [ "3.8" ]
+        python: [ "3.8" ,"3.9", "3.10" , "3.11" ]
     env:
       DATABASE_URL: postgis://postgres:postgres@localhost/smbackend
       SECRET_KEY: test-secret
