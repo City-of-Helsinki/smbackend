@@ -4,6 +4,7 @@ __pycache__
 local_settings.py
 data/*
 !data/accessibility_rules.csv
+!data/geometry
 .idea
 .coverage
 venv_smbackend
