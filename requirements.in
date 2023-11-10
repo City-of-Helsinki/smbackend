@@ -31,3 +31,4 @@ whitenoise
 libvoikko
 bmi-arcgis-restapi
 geopy
+urllib3<2
