@@ -6,7 +6,7 @@ django-modeltranslation
 flake8
 requests
 requests_cache
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.78#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.79#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions
@@ -31,3 +31,5 @@ whitenoise
 libvoikko
 bmi-arcgis-restapi
 geopy
+urllib3<2
+backports.zoneinfo;python_version<"3.9"
