@@ -1,6 +1,7 @@
 [![Build Status](https://dev.azure.com/City-of-Helsinki/palvelukartta/_apis/build/status/smbackend%20Test?repoName=City-of-Helsinki%2Fsmbackend&branchName=develop)](https://dev.azure.com/City-of-Helsinki/palvelukartta/_build/latest?definitionId=921&repoName=City-of-Helsinki%2Fsmbackend&branchName=develop)
 [![Codecov](https://codecov.io/gh/City-of-Helsinki/smbackend/branch/master/graph/badge.svg)](https://codecov.io/gh/City-of-Helsinki/smbackend)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=City-of-Helsinki_smbackend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=City-of-Helsinki_smbackend)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Service Map Backend
 ===================
