@@ -33,3 +33,4 @@ bmi-arcgis-restapi
 geopy
 urllib3<2
 backports.zoneinfo;python_version<"3.9"
+drf-spectacular

@@ -1,7 +1,12 @@
 from django.contrib import admin
 from django.http import HttpResponse
-from django.urls import include, re_path
+from django.urls import include, path, re_path
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 from munigeo.api import all_views as munigeo_views
 from rest_framework import routers
 
@@ -62,5 +67,14 @@ urlpatterns = [
     re_path(r"^stats", views.post_statistic, name="stats"),
     re_path(r"^v2/", include(router.urls)),
     re_path(r"^v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
+    path("schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path(
+        "schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
+    ),
     re_path(r"", include(shortcutter_urls)),
 ]
