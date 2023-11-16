@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     "munigeo",
     "services.apps.ServicesConfig",
     "observations",
+    "drf_spectacular",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
@@ -221,6 +222,7 @@ REST_FRAMEWORK = {
         "rest_framework_jsonp.renderers.JSONPRenderer",
     ),
     "EXCEPTION_HANDLER": "services.exceptions.api_exception_handler",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 TEMPLATES = [
@@ -278,3 +280,10 @@ sentry_sdk.init(
 
 COOKIE_PREFIX = env("COOKIE_PREFIX")
 INTERNAL_IPS = env("INTERNAL_IPS")
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Palvelukartta REST API",
+    "DESCRIPTION": "Backend service for the Service Map UI.",
+    "VERSION": None,
+    "SERVE_INCLUDE_SCHEMA": False,
+}

@@ -1,6 +1,7 @@
 import logging
 
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -19,6 +20,7 @@ from .serializers import ObservablePropertySerializer, ObservationSerializer
 logger = logging.getLogger(__name__)
 
 
+@extend_schema(exclude=True)
 class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     queryset = models.Observation.objects.all()
     serializer_class = ObservationSerializer
