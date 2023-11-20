@@ -3,12 +3,47 @@ from datetime import timedelta
 import pytest
 from rest_framework.reverse import reverse
 
-from .conftest import TEST_TIMESTAMP
 from .constants import TEST_EC_STATION_NAME
 
 
 @pytest.mark.django_db
-def test__hour_data(api_client, hour_data):
+def test_is_active(api_client, is_active_fixtures):
+    url = reverse("eco_counter:stations-detail", args=[0])
+    response = api_client.get(url)
+    assert response.status_code == 200
+    is_active = response.json()["is_active"]
+    assert is_active["1"] is False
+    assert is_active["7"] is False
+    assert is_active["30"] is False
+    assert is_active["365"] is False
+    url = reverse("eco_counter:stations-detail", args=[1])
+    response = api_client.get(url)
+    assert response.status_code == 200
+    is_active = response.json()["is_active"]
+    assert is_active["1"] is True
+    assert is_active["7"] is True
+    assert is_active["30"] is True
+    assert is_active["365"] is True
+    url = reverse("eco_counter:stations-detail", args=[7])
+    response = api_client.get(url)
+    assert response.status_code == 200
+    is_active = response.json()["is_active"]
+    assert is_active["1"] is False
+    assert is_active["7"] is True
+    assert is_active["30"] is True
+    assert is_active["365"] is True
+    url = reverse("eco_counter:stations-detail", args=[30])
+    response = api_client.get(url)
+    assert response.status_code == 200
+    is_active = response.json()["is_active"]
+    assert is_active["1"] is False
+    assert is_active["7"] is False
+    assert is_active["30"] is True
+    assert is_active["365"] is True
+
+
+@pytest.mark.django_db
+def test_hour_data(api_client, hour_data):
     url = reverse("eco_counter:hour_data-list")
     response = api_client.get(url)
     assert response.status_code == 200
@@ -18,7 +53,7 @@ def test__hour_data(api_client, hour_data):
 
 
 @pytest.mark.django_db
-def test__day_data(
+def test_day_data(
     api_client,
     day_datas,
 ):
@@ -38,7 +73,7 @@ def test__day_data(
 
 
 @pytest.mark.django_db
-def test__get_day_data(api_client, day_datas, station_id, test_timestamp):
+def test_get_day_data(api_client, day_datas, station_id, test_timestamp):
     url = reverse(
         "eco_counter:day_data-get-day-data"
     ) + "?station_id={}&date={}".format(station_id, test_timestamp + timedelta(days=3))
@@ -50,7 +85,7 @@ def test__get_day_data(api_client, day_datas, station_id, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__get_day_datas(api_client, day_datas, station_id, test_timestamp):
+def test_get_day_datas(api_client, day_datas, station_id, test_timestamp):
     url = reverse(
         "eco_counter:day_data-get-day-datas"
     ) + "?station_id={}&start_date={}&end_date={}".format(
@@ -59,7 +94,6 @@ def test__get_day_datas(api_client, day_datas, station_id, test_timestamp):
     response = api_client.get(url)
     assert response.status_code == 200
     res_json = response.json()
-
     for i in range(4):
         assert res_json[i]["value_ak"] == day_datas[i].value_ak
         assert res_json[i]["value_ap"] == day_datas[i].value_ap
@@ -67,7 +101,7 @@ def test__get_day_datas(api_client, day_datas, station_id, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__week_data(api_client, week_datas):
+def test_week_data(api_client, week_datas):
     url = reverse("eco_counter:week_data-list")
     response = api_client.get(url)
     assert response.status_code == 200
@@ -84,7 +118,7 @@ def test__week_data(api_client, week_datas):
 
 
 @pytest.mark.django_db
-def test__get_week_data(api_client, week_datas, station_id, test_timestamp):
+def test_get_week_data(api_client, week_datas, station_id, test_timestamp):
     url = reverse(
         "eco_counter:week_data-get-week-data"
     ) + "?station_id={}&week_number={}&year_number={}".format(
@@ -97,7 +131,7 @@ def test__get_week_data(api_client, week_datas, station_id, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__get_week_datas(api_client, week_datas, station_id, test_timestamp):
+def test_get_week_datas(api_client, week_datas, station_id, test_timestamp):
     end_week_number = test_timestamp + timedelta(weeks=4)
     url = reverse(
         "eco_counter:week_data-get-week-datas"
@@ -117,7 +151,7 @@ def test__get_week_datas(api_client, week_datas, station_id, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__month_data(api_client, month_datas):
+def test_month_data(api_client, month_datas):
     url = reverse("eco_counter:month_data-list")
     response = api_client.get(url)
     assert response.status_code == 200
@@ -135,7 +169,7 @@ def test__month_data(api_client, month_datas):
 
 
 @pytest.mark.django_db
-def test__get_month_data(api_client, month_datas, station_id, test_timestamp):
+def test_get_month_data(api_client, month_datas, station_id, test_timestamp):
     url = reverse(
         "eco_counter:month_data-get-month-data"
     ) + "?station_id={}&month_number={}&year_number={}".format(
@@ -149,7 +183,7 @@ def test__get_month_data(api_client, month_datas, station_id, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__get_year_datas(api_client, year_datas, station_id, test_timestamp):
+def test_get_year_datas(api_client, year_datas, station_id, test_timestamp):
     end_year_number = test_timestamp.replace(year=test_timestamp.year + 1).year
     url = reverse(
         "eco_counter:year_data-get-year-datas"
@@ -178,7 +212,7 @@ def test__get_year_datas(api_client, year_datas, station_id, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__get_month_datas(api_client, month_datas, station_id, test_timestamp):
+def test_get_month_datas(api_client, month_datas, station_id, test_timestamp):
     url = reverse(
         "eco_counter:month_data-get-month-datas"
     ) + "?station_id={}&start_month_number={}&end_month_number={}&year_number={}".format(
@@ -194,7 +228,7 @@ def test__get_month_datas(api_client, month_datas, station_id, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__year_data(api_client, year_datas):
+def test_year_data(api_client, year_datas):
     url = reverse("eco_counter:year_data-list")
     response = api_client.get(url)
     assert response.status_code == 200
@@ -207,7 +241,7 @@ def test__year_data(api_client, year_datas):
 
 
 @pytest.mark.django_db
-def test__days(api_client, days, test_timestamp):
+def test_days(api_client, days, test_timestamp):
     url = reverse("eco_counter:days-list")
     response = api_client.get(url)
     assert response.status_code == 200
@@ -222,7 +256,7 @@ def test__days(api_client, days, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__weeks(api_client, weeks, test_timestamp):
+def test_weeks(api_client, weeks, test_timestamp):
     url = reverse("eco_counter:weeks-list")
     response = api_client.get(url)
     assert response.status_code == 200
@@ -236,7 +270,7 @@ def test__weeks(api_client, weeks, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__months(api_client, months, test_timestamp):
+def test_months(api_client, months, test_timestamp):
     url = reverse("eco_counter:months-list")
     response = api_client.get(url)
     assert response.status_code == 200
@@ -252,7 +286,7 @@ def test__months(api_client, months, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__months_multiple_years(api_client, years, test_timestamp):
+def test_months_multiple_years(api_client, years, test_timestamp):
     url = reverse("eco_counter:years-list")
     response = api_client.get(url)
     assert response.status_code == 200
@@ -266,13 +300,14 @@ def test__months_multiple_years(api_client, years, test_timestamp):
 
 
 @pytest.mark.django_db
-def test__station(api_client, stations, year_datas):
+def test_station(api_client, stations, year_datas, day_datas):
     url = reverse("eco_counter:stations-list")
     response = api_client.get(url)
     assert response.status_code == 200
     assert response.json()["results"][0]["name"] == TEST_EC_STATION_NAME
     assert response.json()["results"][0]["sensor_types"] == ["at"]
-    assert response.json()["results"][0]["data_from_year"] == TEST_TIMESTAMP.year
+    assert response.json()["results"][0]["data_until_date"] == "2020-01-07"
+    assert response.json()["results"][0]["data_from_date"] == "2020-01-01"
     # Test retrieving station by data type
     url = reverse("eco_counter:stations-list") + "?data_type=a"
     response = api_client.get(url)

@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from django.db.models import Q
 from rest_framework import serializers
 
@@ -28,6 +30,7 @@ VALUE_FIELDS = [
     "value_bp",
     "value_bt",
 ]
+Q_EXP = Q(value_at__gt=0) | Q(value_pt__gt=0) | Q(value_jt__gt=0) | Q(value_bt__gt=0)
 
 
 class StationSerializer(serializers.ModelSerializer):
@@ -36,7 +39,9 @@ class StationSerializer(serializers.ModelSerializer):
     lon = serializers.SerializerMethodField()
     lat = serializers.SerializerMethodField()
     sensor_types = serializers.SerializerMethodField()
-    data_from_year = serializers.SerializerMethodField()
+    data_until_date = serializers.SerializerMethodField()
+    data_from_date = serializers.SerializerMethodField()
+    is_active = serializers.SerializerMethodField()
 
     class Meta:
         model = Station
@@ -54,7 +59,9 @@ class StationSerializer(serializers.ModelSerializer):
             "lon",
             "lat",
             "sensor_types",
-            "data_from_year",
+            "data_until_date",
+            "data_from_date",
+            "is_active",
         ]
 
     def get_y(self, obj):
@@ -82,17 +89,35 @@ class StationSerializer(serializers.ModelSerializer):
                 result.append(type)
         return result
 
-    def get_data_from_year(self, obj):
-        q_exp = (
-            Q(value_at__gt=0)
-            | Q(value_pt__gt=0)
-            | Q(value_jt__gt=0)
-            | Q(value_bt__gt=0)
-        )
-        qs = YearData.objects.filter(q_exp, station=obj).order_by("year__year_number")
-        if qs.count() > 0:
-            return qs[0].year.year_number
-        else:
+    def get_is_active(self, obj):
+        num_days = [1, 7, 30, 365]
+        res = {}
+        for days in num_days:
+            from_date = date.today() - timedelta(days=days - 1)
+            day_qs = Day.objects.filter(station=obj, date__gte=from_date)
+            day_data_qs = DayData.objects.filter(day__in=day_qs)
+            if day_data_qs.filter(Q_EXP).count() > 0:
+                res[days] = True
+            else:
+                res[days] = False
+        return res
+
+    def get_data_until_date(self, obj):
+        try:
+            return (
+                DayData.objects.filter(Q_EXP, station=obj).latest("day__date").day.date
+            )
+        except DayData.DoesNotExist:
+            return None
+
+    def get_data_from_date(self, obj):
+        try:
+            return (
+                DayData.objects.filter(Q_EXP, station=obj)
+                .earliest("day__date")
+                .day.date
+            )
+        except DayData.DoesNotExist:
             return None
 
 

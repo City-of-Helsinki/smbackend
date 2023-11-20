@@ -78,6 +78,7 @@ env = environ.Env(
     MOBILITY_DATA_LOG_LEVEL=(str, "INFO"),
     BICYCLE_NETWORK_LOG_LEVEL=(str, "INFO"),
     STREET_MAINTENANCE_LOG_LEVEL=(str, "INFO"),
+    ENVIRONMENT_DATA_LOG_LEVEL=(str, "INFO"),
 )
 
 
@@ -101,6 +102,7 @@ ECO_COUNTER_LOG_LEVEL = env("ECO_COUNTER_LOG_LEVEL")
 MOBILITY_DATA_LOG_LEVEL = env("MOBILITY_DATA_LOG_LEVEL")
 BICYCLE_NETWORK_LOG_LEVEL = env("BICYCLE_NETWORK_LOG_LEVEL")
 STREET_MAINTENANCE_LOG_LEVEL = env("STREET_MAINTENANCE_LOG_LEVEL")
+ENVIRONMENT_DATA_LOG_LEVEL = env("ENVIRONMENT_DATA_LOG_LEVEL")
 
 # Application definition
 INSTALLED_APPS = [
@@ -130,6 +132,7 @@ INSTALLED_APPS = [
     "bicycle_network.apps.BicycleNetworkConfig",
     "iot.apps.IotConfig",
     "street_maintenance.apps.StreetMaintenanceConfig",
+    "environment_data.apps.EnvironmentDataConfig",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
@@ -329,6 +332,10 @@ LOGGING = {
             "handlers": ["console"],
             "level": STREET_MAINTENANCE_LOG_LEVEL,
         },
+        "environment_data": {
+            "handlers": ["console"],
+            "level": ENVIRONMENT_DATA_LOG_LEVEL,
+        },
     },
 }
 logging.config.dictConfig(LOGGING)
@@ -338,6 +345,9 @@ DOC_ENDPOINTS = [
     "/street_maintenance/geometry_history/",
     "/street_maintenance/maintenance_works/",
     "/street_maintenance/maintenance_units/",
+    "/environment_data/api/v1/stations/",
+    "/environment_data/api/v1/parameters/",
+    "/environment_data/api/v1/data/",
 ]
 
 
