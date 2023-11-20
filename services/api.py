@@ -676,6 +676,17 @@ class MobilityViewSet(ServiceNodeViewSet):
 register_view(MobilityViewSet, "mobility")
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            location=OpenApiParameter.QUERY,
+            description="Filter by ID or list of IDs.",
+            required=False,
+            type=str,
+        ),
+    ]
+)
 class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
