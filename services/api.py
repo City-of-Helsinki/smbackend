@@ -15,6 +15,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.utils.module_loading import import_string
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from modeltranslation.translator import NotRegistered, translator
 from mptt.utils import drilldown_tree_for_node
 from munigeo import api as munigeo_api
@@ -1371,6 +1372,62 @@ class AdministrativeDivisionViewSet(munigeo_api.AdministrativeDivisionViewSet):
 register_view(AdministrativeDivisionViewSet, "administrative_division")
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="street",
+            location=OpenApiParameter.QUERY,
+            description="Filter by street name.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="municipality",
+            location=OpenApiParameter.QUERY,
+            description="Filter by municipality name or OCD ID.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="number",
+            location=OpenApiParameter.QUERY,
+            description="Filter by building number.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="lat",
+            location=OpenApiParameter.QUERY,
+            description="Filter by location. Give latitude in WGS84 system. If this parameter is given also the 'lon' "
+            "parameter is required.",
+            required=False,
+            type=float,
+        ),
+        OpenApiParameter(
+            name="lon",
+            location=OpenApiParameter.QUERY,
+            description="Filter by location. Give longitude in WGS84 system. If this parameter is given also the 'lat' "
+            "parameter is required.",
+            required=False,
+            type=float,
+        ),
+        OpenApiParameter(
+            name="distance",
+            location=OpenApiParameter.QUERY,
+            description="The maximum distance from the provided location, defined by the lat and lon parameters. If this"
+            " parameter is given also the 'lat' and 'lon' parameters are required.",
+            required=False,
+            type=float,
+        ),
+        OpenApiParameter(
+            name="bbox",
+            location=OpenApiParameter.QUERY,
+            description="Bounding box in the format 'left,bottom,right,top'. Values must be floating points or integers.",
+            required=False,
+            type=str,
+        ),
+    ],
+)
 class AddressViewSet(munigeo_api.AddressViewSet):
     serializer_class = munigeo_api.AddressSerializer
 
