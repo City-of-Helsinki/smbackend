@@ -1347,6 +1347,75 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
         return ret
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="type",
+            location=OpenApiParameter.QUERY,
+            description="Filter by administrative division type or type ID.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="lat",
+            location=OpenApiParameter.QUERY,
+            description="Filter by location. Give latitude in WGS84 system. If this parameter is given also the 'lon' "
+            "parameter is required.",
+            required=False,
+            type=float,
+        ),
+        OpenApiParameter(
+            name="lon",
+            location=OpenApiParameter.QUERY,
+            description="Filter by location. Give longitude in WGS84 system. If this parameter is given also the 'lat' "
+            "parameter is required.",
+            required=False,
+            type=float,
+        ),
+        OpenApiParameter(
+            name="input",
+            location=OpenApiParameter.QUERY,
+            description="Filter by partial match of name.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="ocd_id",
+            location=OpenApiParameter.QUERY,
+            description="Filter by OCD ID.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="geometry",
+            location=OpenApiParameter.QUERY,
+            description="Display administrative division boundary.",
+            required=False,
+            type=bool,
+        ),
+        OpenApiParameter(
+            name="origin_id",
+            location=OpenApiParameter.QUERY,
+            description="Filter by origin ID.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="municipality",
+            location=OpenApiParameter.QUERY,
+            description="Filter by municipality.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="date",
+            location=OpenApiParameter.QUERY,
+            description="Filter divisions based on their validity date. Format: YYYY-MM-DD.",
+            required=False,
+            type=str,
+        ),
+    ]
+)
 class AdministrativeDivisionViewSet(munigeo_api.AdministrativeDivisionViewSet):
     serializer_class = AdministrativeDivisionSerializer
 
