@@ -48,6 +48,9 @@ def create_units():
         displayed_service_owner_type="MUNICIPAL_SERVICE",
         root_department=organization,
         municipality=municipality,
+        description_fi="Kuvaus suomeksi",
+        description_sv="Beskrivning på svenska",
+        description_en="Description in English",
     )
     # Unit with private service
     Unit.objects.create(
@@ -377,3 +380,18 @@ def test_geometry_3d_parameter(api_client):
         results[4]["geometry_3d"]["coordinates"]
         == munigeo_api.geom_to_json(geometry_3d, DEFAULT_SRS)["coordinates"]
     )
+
+
+@pytest.mark.django_db
+def test_translations(api_client):
+    """
+    Test that translations are returned correctly.
+    """
+    create_units()
+    response = get(api_client, reverse("unit-list"))
+    results = response.data["results"]
+    unit_with_translations = results[4]
+    assert unit_with_translations["id"] == 1
+    assert unit_with_translations["description"]["fi"] == "Kuvaus suomeksi"
+    assert unit_with_translations["description"]["sv"] == "Beskrivning på svenska"
+    assert unit_with_translations["description"]["en"] == "Description in English"

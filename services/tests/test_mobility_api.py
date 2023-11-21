@@ -30,3 +30,19 @@ def test_get_mobility_list(api_client):
 
     assert response.status_code == 200
     assert response.data["count"] == 2
+
+
+@pytest.mark.django_db
+def test_translations(api_client):
+    """
+    Test that translations are returned correctly.
+    """
+    MobilityServiceNode.objects.create(
+        id=1,
+        name="Frisbeegolf-rata",
+        name_sv="Frisbeegolfbana",
+        last_modified_time=datetime.now(pytz.utc),
+    )
+    response = get(api_client, reverse("mobilityservicenode-list"))
+    assert response.data["results"][0]["name"]["fi"] == "Frisbeegolf-rata"
+    assert response.data["results"][0]["name"]["sv"] == "Frisbeegolfbana"
