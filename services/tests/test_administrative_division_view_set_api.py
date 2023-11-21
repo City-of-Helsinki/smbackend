@@ -104,3 +104,24 @@ def test_address_filter(api_client):
 
     assert response.status_code == 200
     assert response.data["count"] == 0
+
+
+@pytest.mark.django_db
+def test_translations(api_client):
+    """
+    Test that the translations are returned correctly.
+    """
+    create_administrative_divisions()
+    division = AdministrativeDivision.objects.get(name="helsinki")
+    division.name_fi = "Eteläinen"
+    division.name_sv = "Södra"
+    division.save()
+
+    response = get(
+        api_client,
+        reverse("administrativedivision-list"),
+        data={"municipality": "helsinki"},
+    )
+
+    assert response.data["results"][0]["name"]["fi"] == "Eteläinen"
+    assert response.data["results"][0]["name"]["sv"] == "Södra"
