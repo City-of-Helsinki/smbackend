@@ -15,7 +15,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.utils.module_loading import import_string
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema
 from modeltranslation.translator import NotRegistered, translator
 from mptt.utils import drilldown_tree_for_node
 from munigeo import api as munigeo_api
@@ -43,6 +43,29 @@ from services.models import (
     UnitServiceDetails,
 )
 from services.models.unit import ORGANIZER_TYPES, PROVIDER_TYPES
+from services.open_api_parameters import (
+    ANCESTOR_ID_PARAMETER,
+    BBOX_PARAMETER,
+    BUILDING_NUMBER_PARAMETER,
+    CITY_AS_DEPARTMENT_PARAMETER,
+    DATE_PARAMETER,
+    DISTANCE_PARAMETER,
+    DIVISION_TYPE_PARAMETER,
+    GEOMETRY_PARAMETER,
+    ID_PARAMETER,
+    INPUT_PARAMETER,
+    LATITUDE_PARAMETER,
+    LEVEL_PARAMETER,
+    LONGITUDE_PARAMETER,
+    MUNICIPALITY_PARAMETER,
+    OCD_ID_PARAMETER,
+    OCD_MUNICIPALITY_PARAMETER,
+    ORGANIZATION_PARAMETER,
+    ORIGIN_ID_PARAMETER,
+    PROVIDER_TYPE_NOT_PARAMETER,
+    PROVIDER_TYPE_PARAMETER,
+    STREET_PARAMETER,
+)
 from services.utils import check_valid_concrete_field, strtobool
 from services.utils.geocode_address import geocode_address
 
@@ -612,24 +635,7 @@ class UnitIdentifierSerializer(serializers.ModelSerializer):
         exclude = ["unit", "id"]
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name="id",
-            location=OpenApiParameter.QUERY,
-            description="Filter by ID or list of IDs.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="ancestor",
-            location=OpenApiParameter.QUERY,
-            description="Filter by ancestor ID.",
-            required=False,
-            type=str,
-        ),
-    ]
-)
+@extend_schema(parameters=[ID_PARAMETER, ANCESTOR_ID_PARAMETER])
 class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = ServiceNode.objects.all()
     serializer_class = ServiceNodeSerializer
@@ -676,17 +682,7 @@ class MobilityViewSet(ServiceNodeViewSet):
 register_view(MobilityViewSet, "mobility")
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name="id",
-            location=OpenApiParameter.QUERY,
-            description="Filter by ID or list of IDs.",
-            required=False,
-            type=str,
-        ),
-    ]
-)
+@extend_schema(parameters=[ID_PARAMETER])
 class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
@@ -952,55 +948,13 @@ class KmlRenderer(renderers.BaseRenderer):
 
 @extend_schema(
     parameters=[
-        OpenApiParameter(
-            name="id",
-            location=OpenApiParameter.QUERY,
-            description="Filter by ID or list of IDs.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="municipality",
-            location=OpenApiParameter.QUERY,
-            description="Filter by municipality name or OCD ID.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="organization",
-            location=OpenApiParameter.QUERY,
-            description="Filter by organization UUID.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="city_as_department",
-            location=OpenApiParameter.QUERY,
-            description="Filter by city UUID.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="provider_type",
-            location=OpenApiParameter.QUERY,
-            description="Filter by provider type numeric value.",
-            required=False,
-            type=int,
-        ),
-        OpenApiParameter(
-            name="provider_type__not",
-            location=OpenApiParameter.QUERY,
-            description="Exclude by provider type numeric value.",
-            required=False,
-            type=int,
-        ),
-        OpenApiParameter(
-            name="level",
-            location=OpenApiParameter.QUERY,
-            description="Filter by level.",
-            required=False,
-            type=str,
-        ),
+        ID_PARAMETER,
+        OCD_MUNICIPALITY_PARAMETER,
+        ORGANIZATION_PARAMETER,
+        CITY_AS_DEPARTMENT_PARAMETER,
+        PROVIDER_TYPE_PARAMETER,
+        PROVIDER_TYPE_NOT_PARAMETER,
+        LEVEL_PARAMETER,
     ]
 )
 class UnitViewSet(
@@ -1431,71 +1385,15 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
 
 @extend_schema(
     parameters=[
-        OpenApiParameter(
-            name="type",
-            location=OpenApiParameter.QUERY,
-            description="Filter by administrative division type or type ID.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="lat",
-            location=OpenApiParameter.QUERY,
-            description="Filter by location. Give latitude in WGS84 system. If this parameter is given also the 'lon' "
-            "parameter is required.",
-            required=False,
-            type=float,
-        ),
-        OpenApiParameter(
-            name="lon",
-            location=OpenApiParameter.QUERY,
-            description="Filter by location. Give longitude in WGS84 system. If this parameter is given also the 'lat' "
-            "parameter is required.",
-            required=False,
-            type=float,
-        ),
-        OpenApiParameter(
-            name="input",
-            location=OpenApiParameter.QUERY,
-            description="Filter by partial match of name.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="ocd_id",
-            location=OpenApiParameter.QUERY,
-            description="Filter by OCD ID.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="geometry",
-            location=OpenApiParameter.QUERY,
-            description="Display administrative division boundary.",
-            required=False,
-            type=bool,
-        ),
-        OpenApiParameter(
-            name="origin_id",
-            location=OpenApiParameter.QUERY,
-            description="Filter by origin ID.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="municipality",
-            location=OpenApiParameter.QUERY,
-            description="Filter by municipality.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="date",
-            location=OpenApiParameter.QUERY,
-            description="Filter divisions based on their validity date. Format: YYYY-MM-DD.",
-            required=False,
-            type=str,
-        ),
+        DIVISION_TYPE_PARAMETER,
+        LATITUDE_PARAMETER,
+        LONGITUDE_PARAMETER,
+        INPUT_PARAMETER,
+        OCD_ID_PARAMETER,
+        GEOMETRY_PARAMETER,
+        ORIGIN_ID_PARAMETER,
+        MUNICIPALITY_PARAMETER,
+        DATE_PARAMETER,
     ]
 )
 class AdministrativeDivisionViewSet(munigeo_api.AdministrativeDivisionViewSet):
@@ -1525,58 +1423,13 @@ register_view(AdministrativeDivisionViewSet, "administrative_division")
 
 @extend_schema(
     parameters=[
-        OpenApiParameter(
-            name="street",
-            location=OpenApiParameter.QUERY,
-            description="Filter by street name.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="municipality",
-            location=OpenApiParameter.QUERY,
-            description="Filter by municipality name or OCD ID.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="number",
-            location=OpenApiParameter.QUERY,
-            description="Filter by building number.",
-            required=False,
-            type=str,
-        ),
-        OpenApiParameter(
-            name="lat",
-            location=OpenApiParameter.QUERY,
-            description="Filter by location. Give latitude in WGS84 system. If this parameter is given also the 'lon' "
-            "parameter is required.",
-            required=False,
-            type=float,
-        ),
-        OpenApiParameter(
-            name="lon",
-            location=OpenApiParameter.QUERY,
-            description="Filter by location. Give longitude in WGS84 system. If this parameter is given also the 'lat' "
-            "parameter is required.",
-            required=False,
-            type=float,
-        ),
-        OpenApiParameter(
-            name="distance",
-            location=OpenApiParameter.QUERY,
-            description="The maximum distance from the provided location, defined by the lat and lon parameters. If this"
-            " parameter is given also the 'lat' and 'lon' parameters are required.",
-            required=False,
-            type=float,
-        ),
-        OpenApiParameter(
-            name="bbox",
-            location=OpenApiParameter.QUERY,
-            description="Bounding box in the format 'left,bottom,right,top'. Values must be floating points or integers.",
-            required=False,
-            type=str,
-        ),
+        STREET_PARAMETER,
+        OCD_MUNICIPALITY_PARAMETER,
+        BUILDING_NUMBER_PARAMETER,
+        LATITUDE_PARAMETER,
+        LONGITUDE_PARAMETER,
+        DISTANCE_PARAMETER,
+        BBOX_PARAMETER,
     ],
 )
 class AddressViewSet(munigeo_api.AddressViewSet):
