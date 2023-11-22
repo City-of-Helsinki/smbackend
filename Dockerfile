@@ -1,10 +1,10 @@
 # Using Ubuntu base for access to GDAL PPA
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 WORKDIR /smbackend
 
 # tzdata installation requires settings frontend
 RUN apt-get update && \
-    TZ="Europe/Helsinki" DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip gdal-bin uwsgi uwsgi-plugin-python3 libgdal26 postgresql-client netcat gettext git-core libpq-dev voikko-fi libvoikko-dev && \
+    TZ="Europe/Helsinki" DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip gdal-bin uwsgi uwsgi-plugin-python3 postgresql-client netcat gettext git-core libpq-dev voikko-fi libvoikko-dev && \
     ln -s /usr/bin/pip3 /usr/local/bin/pip && \
     ln -s /usr/bin/python3 /usr/local/bin/python \
     && apt-get clean
