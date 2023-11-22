@@ -1,2 +1,3 @@
 ipython
 PyGithub
+urllib3<2
