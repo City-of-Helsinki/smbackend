@@ -455,14 +455,14 @@ class SearchViewSet(GenericAPIView):
         sql = f"""
             SELECT * from (
                 SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
-                AS rank FROM search_view, {search_fn}('{config_language}','{search_query_str}') search_query
+                AS rank FROM search_view, {search_fn}('{config_language}', %s) search_query
                 WHERE search_query @@ search_column_{language_short}
                 ORDER BY rank DESC LIMIT {sql_query_limit}
             ) AS sub_query where sub_query.rank >= {rank_threshold};
         """
 
         cursor = connection.cursor()
-        cursor.execute(sql)
+        cursor.execute(sql, [search_query_str])
         # Note, fetchall() consumes the results and once called returns None.
         all_results = cursor.fetchall()
         all_ids = get_all_ids_from_sql_results(all_results)
