@@ -16,7 +16,7 @@ function stage_1 {
     # Helsinki, Espoo and HSY Administrative divisions and Addresses
     #./manage.py geo_import helsinki --divisions
     #./manage.py geo_import espoo --divisions
-    ./manage.py geo_import hsy --divisions
+    GDAL_HTTP_UNSAFESSL=YES ./manage.py geo_import hsy --divisions
     ./manage.py geo_import helsinki --addresses
     ./manage.py geo_import uusimaa --addresses
     ./manage.py index_search_columns
