@@ -24,13 +24,13 @@ def get_division_units():
         for division in adm_type.administrativedivision_set.filter(
             end__gt=datetime.date(year=2017, month=3, day=16)
         ):
-            service_point_id = division.service_point_id
-            if service_point_id:
+            unit_ids = division.units
+            for unit_id in unit_ids:
                 try:
-                    unit = Unit.objects.get(id=int(service_point_id))
+                    unit = Unit.objects.get(id=int(unit_id))
                 except Unit.DoesNotExist:
                     try:
-                        unit_alias = UnitAlias.objects.get(second=service_point_id)
+                        unit_alias = UnitAlias.objects.get(second=unit_id)
                         unit = unit_alias.first
                     except UnitAlias.DoesNotExist:
                         unit = None
@@ -38,7 +38,7 @@ def get_division_units():
                     {
                         "unit": unit,
                         "division": division,
-                        "origin_service_point_id": service_point_id,
+                        "origin_unit_id": unit_id,
                         "time": (division.start, division.end),
                         "type": adm_type,
                     }
