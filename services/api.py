@@ -15,7 +15,11 @@ from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.utils.module_loading import import_string
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema, extend_schema_field
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_field,
+    extend_schema_serializer,
+)
 from modeltranslation.translator import NotRegistered, translator
 from mptt.utils import drilldown_tree_for_node
 from munigeo import api as munigeo_api
@@ -1361,6 +1365,7 @@ register_view(
 )
 
 
+@extend_schema_serializer(deprecate_fields=["service_point_id"])
 class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSerializer):
     def to_representation(self, obj):
         ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
