@@ -557,7 +557,7 @@ class DepartmentViewSet(JSONAPIViewSet):
             except ValueError:
                 raise ParseError("'level' needs to be integer")
             queryset = queryset.filter(level=level)
-        return queryset
+        return queryset.order_by("id")
 
     def retrieve(self, request, pk=None):
         try:
