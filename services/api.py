@@ -692,6 +692,7 @@ class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 register_view(ServiceNodeViewSet, "service_node")
 
 
+@extend_schema(parameters=[ID_PARAMETER, ANCESTOR_ID_PARAMETER])
 class MobilityViewSet(ServiceNodeViewSet):
     queryset = MobilityServiceNode.objects.all()
     serializer_class = MobilitySerializer
