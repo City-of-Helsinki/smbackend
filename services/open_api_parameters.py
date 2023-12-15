@@ -92,6 +92,14 @@ LATITUDE_PARAMETER = OpenApiParameter(
     type=float,
 )
 
+LEVEL_INTEGER_PARAMETER = OpenApiParameter(
+    name="level",
+    location=OpenApiParameter.QUERY,
+    description="Filter by level.",
+    required=False,
+    type=int,
+)
+
 LEVEL_PARAMETER = OpenApiParameter(
     name="level",
     location=OpenApiParameter.QUERY,
@@ -137,6 +145,14 @@ ORGANIZATION_PARAMETER = OpenApiParameter(
     name="organization",
     location=OpenApiParameter.QUERY,
     description="Filter by organization UUID.",
+    required=False,
+    type=str,
+)
+
+ORGANIZATION_TYPE_PARAMETER = OpenApiParameter(
+    name="organization_type",
+    location=OpenApiParameter.QUERY,
+    description="Filter by organization type.",
     required=False,
     type=str,
 )

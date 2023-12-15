@@ -59,12 +59,14 @@ from services.open_api_parameters import (
     ID_PARAMETER,
     INPUT_PARAMETER,
     LATITUDE_PARAMETER,
+    LEVEL_INTEGER_PARAMETER,
     LEVEL_PARAMETER,
     LONGITUDE_PARAMETER,
     MUNICIPALITY_PARAMETER,
     OCD_ID_PARAMETER,
     OCD_MUNICIPALITY_PARAMETER,
     ORGANIZATION_PARAMETER,
+    ORGANIZATION_TYPE_PARAMETER,
     ORIGIN_ID_PARAMETER,
     PROVIDER_TYPE_NOT_PARAMETER,
     PROVIDER_TYPE_PARAMETER,
@@ -545,6 +547,7 @@ class JSONAPIViewSet(JSONAPIViewSetMixin, viewsets.ReadOnlyModelViewSet):
     pass
 
 
+@extend_schema(parameters=[ORGANIZATION_TYPE_PARAMETER, LEVEL_INTEGER_PARAMETER])
 class DepartmentViewSet(JSONAPIViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
