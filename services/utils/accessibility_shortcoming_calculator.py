@@ -38,6 +38,7 @@ PATH_TITLES = {
         "sv": "Verksamhetsställe",
         "en": "Service point",
     },
+    "playground": {"fi": "Leikkipuisto", "sv": "Lekpark", "en": "Playground"},
 }
 
 
