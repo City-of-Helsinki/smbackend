@@ -6,10 +6,10 @@ on:
     branches: [ develop, master ]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python: [ "3.8" ,"3.9", "3.10" , "3.11" ]
+        python: [ "3.10" , "3.11" ]
     env:
       DATABASE_URL: postgis://postgres:postgres@localhost/smbackend
       SECRET_KEY: test-secret
@@ -39,7 +39,7 @@ jobs:
 
       - name: Install required Ubuntu packages
         run: |
-          sudo apt-get install gdal-bin voikko-fi libvoikko-dev
+          sudo apt-get update && sudo apt-get install gdal-bin voikko-fi libvoikko-dev
 
       - name: Create needed postgis extensions
         run: |

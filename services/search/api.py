@@ -23,6 +23,7 @@ from itertools import chain
 
 from django.db import connection, reset_queries
 from django.db.models import Count
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from munigeo import api as munigeo_api
 from munigeo.models import Address, AdministrativeDivision
 from rest_framework import serializers
@@ -202,6 +203,130 @@ class SearchSerializer(serializers.Serializer):
         return representation
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="q",
+            location=OpenApiParameter.QUERY,
+            description="The query string used for searching. Searches the search_columns for the given models. Commas "
+            "between words are interpreted as 'and' operator. Words ending with the '|' sign are interpreted as 'or' "
+            "operator.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="type",
+            location=OpenApiParameter.QUERY,
+            description="Comma separated list of types to search for. Valid values are: unit, service, servicenode, "
+            "address, administrativedivision. If not given defaults to all.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="use_trigram",
+            location=OpenApiParameter.QUERY,
+            description="Comma separated list of types that will include trigram results in search if no results are "
+            "found. Valid values are: unit, service, servicenode, address, administrativedivision. If not given "
+            "trigram will not be used.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="trigram_threshold",
+            location=OpenApiParameter.QUERY,
+            description="Threshold value for trigram search. If not given defaults to 0.15.",
+            required=False,
+            type=float,
+        ),
+        OpenApiParameter(
+            name="rank_threshold",
+            location=OpenApiParameter.QUERY,
+            description="Include results with search rank greater than or equal to the value. If not given defaults to "
+            "0.",
+            required=False,
+            type=float,
+        ),
+        OpenApiParameter(
+            name="use_websearch",
+            location=OpenApiParameter.QUERY,
+            description="Use websearch_to_tsquery instead of to_tsquery if exlusion rules are defined for the search.",
+            required=False,
+            type=bool,
+        ),
+        OpenApiParameter(
+            name="geometry",
+            location=OpenApiParameter.QUERY,
+            description="Display geometry of the search result. If not given defaults to false.",
+            required=False,
+            type=bool,
+        ),
+        OpenApiParameter(
+            name="order_units_by_num_services",
+            location=OpenApiParameter.QUERY,
+            description="Order units by number of services. If not given defaults to true.",
+            required=False,
+            type=bool,
+        ),
+        OpenApiParameter(
+            name="include",
+            location=OpenApiParameter.QUERY,
+            description="Comma separated list of fields to include in the response. Format: entity.field, e.g., "
+            "unit.connections.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="sql_query_limit",
+            location=OpenApiParameter.QUERY,
+            description="Limit the number of results in the search query.",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="unit_limit",
+            location=OpenApiParameter.QUERY,
+            description="Limit the number of units in the search results.",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="service_limit",
+            location=OpenApiParameter.QUERY,
+            description="Limit the number of services in the search results.",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="servicenode_limit",
+            location=OpenApiParameter.QUERY,
+            description="Limit the number of service nodes in the search results.",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="administrativedivision_limit",
+            location=OpenApiParameter.QUERY,
+            description="Limit the number of administrative divisions in the search results.",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="address_limit",
+            location=OpenApiParameter.QUERY,
+            description="Limit the number of addresses in the search results.",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="language",
+            location=OpenApiParameter.QUERY,
+            description="The language to be used in the search. If not given defaults to Finnish. Format: fi, sv, en.",
+            required=False,
+            type=str,
+        ),
+    ],
+    description="Search for units, services, service nodes, addresses and administrative divisions.",
+)
 class SearchViewSet(GenericAPIView):
     queryset = Unit.objects.all()
 
@@ -216,6 +341,11 @@ class SearchViewSet(GenericAPIView):
         q_val = params.get("q", "").strip() or params.get("input", "").strip()
         if not q_val:
             raise ParseError("Supply search terms with 'q=' ' or input=' '")
+
+        if not re.match(r"^[\w\såäö&|-]+$", q_val):
+            raise ParseError(
+                "Invalid search terms, only letters, numbers, spaces and -&| allowed."
+            )
 
         types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])
         types = params.get("type", types_str).split(",")
@@ -330,14 +460,14 @@ class SearchViewSet(GenericAPIView):
         sql = f"""
             SELECT * from (
                 SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
-                AS rank FROM search_view, {search_fn}('{config_language}','{search_query_str}') search_query
+                AS rank FROM search_view, {search_fn}('{config_language}', %s) search_query
                 WHERE search_query @@ search_column_{language_short}
                 ORDER BY rank DESC LIMIT {sql_query_limit}
             ) AS sub_query where sub_query.rank >= {rank_threshold};
         """
 
         cursor = connection.cursor()
-        cursor.execute(sql)
+        cursor.execute(sql, [search_query_str])
         # Note, fetchall() consumes the results and once called returns None.
         all_results = cursor.fetchall()
         all_ids = get_all_ids_from_sql_results(all_results)

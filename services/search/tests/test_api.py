@@ -153,3 +153,51 @@ def test_search_service_order(api_client, units, services):
 
     assert results[2]["name"]["fi"] == "Hallinto"
     assert results[2]["unit_count"]["total"] == 0
+
+
+@pytest.mark.django_db
+def test_search_input_query_validation(api_client):
+    # Test that | is allowed in query
+    url = reverse("search") + "?q=halli|museo"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that & is allowed in query
+    url = reverse("search") + "?q=halli&museo"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that - is allowed in query
+    url = reverse("search") + "?q=linja-auto"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that " " is allowed in query
+    url = reverse("search") + "?q=Keskustakirjasto Oodi"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that "ääkköset" are allowed in query
+    url = reverse("search") + "?q=lääkäri"
+    response = api_client.get(url)
+    assert response.status_code == 200
+    url = reverse("search") + "?q=röntgen"
+    response = api_client.get(url)
+    assert response.status_code == 200
+    url = reverse("search") + "?q=åbo"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that numbers are allowed in query
+    url = reverse("search") + "?q=123"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that special characters are not allowed in query
+    url = reverse("search") + "?q=halli("
+    response = api_client.get(url)
+    assert response.status_code == 400
+    assert (
+        response.json()["detail"]
+        == "Invalid search terms, only letters, numbers, spaces and -&| allowed."
+    )

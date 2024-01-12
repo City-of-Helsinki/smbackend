@@ -10,7 +10,7 @@ def print_section(title, items):
     if items:
         print(f"## {title}")
         for item in items:
-            print(f"- {item.title} [(#{item.number})]({item.issue_url})")
+            print(f"- {item.title} [(#{item.number})]({item.html_url})")
 
 
 def create_release_notes(start_tag, end_tag):

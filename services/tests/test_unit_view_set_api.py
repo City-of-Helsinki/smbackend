@@ -48,6 +48,10 @@ def create_units():
         displayed_service_owner_type="MUNICIPAL_SERVICE",
         root_department=organization,
         municipality=municipality,
+        description_fi="Kuvaus suomeksi",
+        description_sv="Beskrivning på svenska",
+        description_en="Description in English",
+        provider_type=2,
     )
     # Unit with private service
     Unit.objects.create(
@@ -377,3 +381,45 @@ def test_geometry_3d_parameter(api_client):
         results[4]["geometry_3d"]["coordinates"]
         == munigeo_api.geom_to_json(geometry_3d, DEFAULT_SRS)["coordinates"]
     )
+
+
+@pytest.mark.django_db
+def test_translations(api_client):
+    """
+    Test that translations are returned correctly.
+    """
+    create_units()
+    response = get(api_client, reverse("unit-list"))
+    results = response.data["results"]
+    unit_with_translations = results[4]
+    assert unit_with_translations["id"] == 1
+    assert unit_with_translations["description"]["fi"] == "Kuvaus suomeksi"
+    assert unit_with_translations["description"]["sv"] == "Beskrivning på svenska"
+    assert unit_with_translations["description"]["en"] == "Description in English"
+
+
+@pytest.mark.django_db
+def test_id_filter(api_client):
+    create_units()
+    response = get(api_client, reverse("unit-list"), data={"id": "2,3"})
+    assert response.status_code == 200
+    assert response.data["count"] == 2
+    assert response.data["results"][0]["id"] == 3
+    assert response.data["results"][1]["id"] == 2
+
+
+@pytest.mark.django_db
+def tests_provider_type_filter(api_client):
+    create_units()
+    response = get(api_client, reverse("unit-list"), data={"provider_type": 2})
+    assert response.status_code == 200
+    assert response.data["count"] == 1
+    assert response.data["results"][0]["id"] == 1
+
+
+@pytest.mark.django_db
+def test_provider_type_not_filter(api_client):
+    create_units()
+    response = get(api_client, reverse("unit-list"), data={"provider_type__not": 2})
+    assert response.status_code == 200
+    assert response.data["count"] == 4
