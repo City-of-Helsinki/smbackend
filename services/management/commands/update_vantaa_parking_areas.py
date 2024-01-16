@@ -68,6 +68,7 @@ class Command(BaseCommand):
         logger.info("Found {} parking areas for Vantaa".format(features.count))
         logger.info("Importing parking areas...")
 
+        updated_parking_areas = []
         for feature in features:
             geom = self.get_multi_geom(
                 GEOSGeometry(str(feature.get("geometry")), srid=SRC_SRID)
@@ -93,9 +94,19 @@ class Command(BaseCommand):
                 defaults={"boundary": geom},
             )
             logger.debug("Updated parking area {}".format(division.name_fi))
+            updated_parking_areas.append(division)
             num_parking_areas_updated += 1
 
+        # Delete parking areas that are no longer in the source data
+        all_parking_areas = AdministrativeDivision.objects.filter(
+            type=type, municipality=municipality
+        )
+        removed_parking_areas = all_parking_areas.exclude(
+            id__in=[area.id for area in updated_parking_areas]
+        )
+        num_parking_areas_deleted = removed_parking_areas.delete()[0]
+
         logger.info(
-            f"Import completed. {num_parking_areas_updated} parking areas updated "
+            f"Import completed. {num_parking_areas_updated} parking areas updated and {num_parking_areas_deleted} deleted "
             f"in {time() - start_time:.0f} seconds."
         )
