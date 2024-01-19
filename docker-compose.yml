@@ -18,6 +18,7 @@ services:
         env_file:
             - .env
         volumes:
+            - .:/smbackend
             - django-media:/var/media/
         ports:
             - "8000:8000"
