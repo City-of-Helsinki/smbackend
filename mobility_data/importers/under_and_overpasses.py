@@ -10,7 +10,7 @@ from mobility_data.importers.constants import TURKU_BBOX
 from .utils import MobileUnitDataBase
 
 URL = (
-    "https://julkinen.vayla.fi/inspirepalvelu/digiroad/wfs?service=WFS&request=GetFeature"
+    "https://avoinapi.vaylapilvi.fi/vaylatiedot/digiroad/ows?service=WFS&request=GetFeature"
     f"&typeName=dr_tielinkki_toim_lk&outputFormat=GML3&bbox={TURKU_BBOX},EPSG:4326&srsName=EPSG:4326"
 )
 UNDERPASS_CONTENT_TYPE_NAME = "Underpass"
@@ -33,7 +33,7 @@ def get_json_data(url):
 class Pass(MobileUnitDataBase):
     def __init__(self, feature):
         super().__init__()
-        coord_str = feature["digiroad:SHAPE"]["gml:LineString"]["gml:posList"]
+        coord_str = feature["digiroad:geom"]["gml:LineString"]["gml:posList"]
         coord_list = coord_str.split(" ")
         coords = ()
         i = 0
@@ -54,11 +54,12 @@ def get_under_and_overpass_objects():
     for feature in json_data["wfs:FeatureCollection"]["gml:featureMembers"][
         "digiroad:dr_tielinkki_toim_lk"
     ]:
+
         if (
-            feature.get("digiroad:KUNTAKOODI", None) == KUNTAKOODI
-            and feature.get("digiroad:TOIMINN_LK", None) == TOIMINN_LK
+            feature.get("digiroad:kuntakoodi", None) == KUNTAKOODI
+            and feature.get("digiroad:toiminn_lk", None) == TOIMINN_LK
         ):
-            silta_alik = int(feature.get("digiroad:SILTA_ALIK", None))
+            silta_alik = int(feature.get("digiroad:silta_alik", None))
             match silta_alik:
                 case PASS_TYPES.UNDERPASS:
                     underpasses.append(Pass(feature))
