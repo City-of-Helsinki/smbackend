@@ -1,7 +1,8 @@
 from datetime import datetime
-from functools import lru_cache
 
+from django.utils.decorators import method_decorator
 from django.utils.timezone import make_aware
+from django.views.decorators.cache import cache_page
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from rest_framework import mixins, viewsets
 from rest_framework.exceptions import ParseError
@@ -187,7 +188,7 @@ class GeometryHitoryViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(timestamp__gte=make_aware(start_date_time))
         return queryset
 
-    @lru_cache(maxsize=16)
+    @method_decorator(cache_page(60 * 15))
     def list(self, request):
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
