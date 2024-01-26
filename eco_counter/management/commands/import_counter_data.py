@@ -44,9 +44,13 @@ from eco_counter.models import (
 from .utils import (
     check_counters_argument,
     gen_eco_counter_test_csv,
+    get_data_from_date,
+    get_data_until_date,
     get_eco_counter_csv,
+    get_is_active,
     get_lam_counter_csv,
     get_or_create_telraam_station,
+    get_sensor_types,
     get_telraam_data_frames,
     get_test_dataframe,
     get_traffic_counter_csv,
@@ -360,6 +364,7 @@ def save_observations(csv_data, start_time, csv_data_source=ECO_COUNTER, station
     import_state.current_month_number = end_date.month
     import_state.current_day_number = end_date.day
     import_state.save()
+    add_additional_data_to_stations(csv_data_source)
     logger.info(f"Imported observations until:{str(end_date)}")
 
 
@@ -456,6 +461,17 @@ def import_data(counters):
             # Try to free some memory
             del csv_data
             gc.collect()
+
+
+def add_additional_data_to_stations(csv_data_source):
+
+    logger.info(f"Updating {csv_data_source} stations informations...")
+    for station in Station.objects.filter(csv_data_source=csv_data_source):
+        station.data_from_date = get_data_from_date(station)
+        station.data_until_date = get_data_until_date(station)
+        station.sensor_types = get_sensor_types(station)
+        station.is_active = get_is_active(station)
+        station.save()
 
 
 class Command(BaseCommand):
