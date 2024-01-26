@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry, LineString, MultiLineString, Point
 from django.core.management.base import CommandError
+from django.db.models import Q
 
 from eco_counter.constants import (
     COUNTER_CHOICES_STR,
@@ -33,11 +34,12 @@ from eco_counter.constants import (
     TRAFFIC_COUNTER_CSV_URLS,
     TRAFFIC_COUNTER_METADATA_GEOJSON,
 )
-from eco_counter.models import Station
+from eco_counter.models import Day, DayData, Station, YearData
 from eco_counter.tests.constants import TEST_COLUMN_NAMES
 from mobility_data.importers.utils import get_root_dir
 
 logger = logging.getLogger("eco_counter")
+Q_EXP = Q(value_at__gt=0) | Q(value_pt__gt=0) | Q(value_jt__gt=0) | Q(value_bt__gt=0)
 
 
 class LAMStation:
@@ -110,6 +112,53 @@ class TelraamStation:
         self.mac = mac
         self.location = location
         self.geometry = geometry
+
+
+def get_is_active(station):
+    # Returns if the station has been active during time period defined in num_days
+    num_days = [1, 7, 30, 365]
+    res = {}
+    for days in num_days:
+        from_date = date.today() - timedelta(days=days - 1)
+        day_qs = Day.objects.filter(station=station, date__gte=from_date)
+        day_data_qs = DayData.objects.filter(day__in=day_qs)
+        if day_data_qs.filter(Q_EXP).count() > 0:
+            res[days] = True
+        else:
+            res[days] = False
+    return res
+
+
+def get_sensor_types(station):
+    # Return the sensor types(car, bike etc) that has a total year value >0.
+    # i.e., there are sensors for counting the type of data.
+    types = ["at", "pt", "jt", "bt"]
+    result = []
+    for type in types:
+        filter = {"station": station, f"value_{type}__gt": 0}
+        if YearData.objects.filter(**filter).count() > 0:
+            result.append(type)
+    return result
+
+
+def get_data_until_date(station):
+    try:
+        return (
+            DayData.objects.filter(Q_EXP, station=station).latest("day__date").day.date
+        )
+    except DayData.DoesNotExist:
+        return None
+
+
+def get_data_from_date(station):
+    try:
+        return (
+            DayData.objects.filter(Q_EXP, station=station)
+            .earliest("day__date")
+            .day.date
+        )
+    except DayData.DoesNotExist:
+        return None
 
 
 def check_counters_argument(counters):
@@ -370,6 +419,7 @@ def fetch_telraam_camera(mac_id):
     headers = {
         "X-Api-Key": settings.TELRAAM_TOKEN,
     }
+    breakpoint()
     url = TELRAAM_COUNTER_CAMERAS_URL.format(mac_id=mac_id)
     response = TELRAAM_HTTP.get(url, headers=headers)
     cameras = response.json().get("camera", None)
