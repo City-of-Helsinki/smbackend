@@ -35,6 +35,10 @@ class Station(models.Model):
     # Optioal id of the station, used when fetching LAM
     # and TELRAAM station data
     station_id = models.CharField(max_length=16, null=True)
+    data_until_date = models.DateField(null=True, blank=True)
+    data_from_date = models.DateField(null=True, blank=True)
+    sensor_types = ArrayField(models.CharField(max_length=2), default=list)
+    is_active = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return "%s %s" % (self.name, self.location)
