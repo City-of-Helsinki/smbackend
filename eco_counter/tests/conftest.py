@@ -43,6 +43,9 @@ def stations():
             name=TEST_EC_STATION_NAME,
             location="POINT(60.4487578455581 22.269454227550053)",
             csv_data_source=ECO_COUNTER,
+            sensor_types=["at"],
+            data_until_date="2020-01-07",
+            data_from_date="2020-01-01",
         )
     )
     stations.append(
@@ -201,24 +204,28 @@ def is_active_fixtures():
         name="Station with 0 day of data",
         location="POINT(0 0)",
         csv_data_source=LAM_COUNTER,
+        is_active={"1": False, "7": False, "30": False, "365": False},
     )
     station1 = Station.objects.create(
         id=1,
         name="Station with 1 day of data",
         location="POINT(0 0)",
         csv_data_source=LAM_COUNTER,
+        is_active={"1": True, "7": True, "30": True, "365": True},
     )
     station7 = Station.objects.create(
         id=7,
         name="Station with 7 days of data",
         location="POINT(0 0)",
         csv_data_source=LAM_COUNTER,
+        is_active={"1": False, "7": True, "30": True, "365": True},
     )
     station30 = Station.objects.create(
         id=30,
         name="Station with 30 days of data",
         location="POINT(0 0)",
         csv_data_source=LAM_COUNTER,
+        is_active={"1": False, "7": False, "30": True, "365": True},
     )
     start_date = date.today()
     current_date = start_date
