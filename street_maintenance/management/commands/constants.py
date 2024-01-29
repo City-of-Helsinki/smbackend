@@ -140,11 +140,15 @@ EVENT_MAPPINGS = {
     "siirtoajo": [MUUT],
     "Kelintarkastus": [MUUT],
     "Sulamisvesien hallinta / höyrytys": [MUUT],
+    "Sulamisveden haittojen torjunta": [MUUT],
     "Sorateiden kunnossapito": [MUUT],
     "Äkillinen hoitotyö": [MUUT],
     "KT-valu": [MUUT],
     "Pintakelirikko": [MUUT],
     "Liikennemerkkityö": [MUUT],
+    "Puiden hoito": [MUUT],
+    "Puistometsien hoito": [MUUT],
+    "Hiekkalaatikoiden täyttö": [MUUT],
 }
 TIMESTAMP_FORMATS = {
     INFRAROAD: "%Y-%m-%d %H:%M:%S",
