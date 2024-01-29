@@ -17,6 +17,7 @@ raw SQL migration 008X_create_search_view.py.
 - The search_columns can be manually updated with  the index_search_columns
 and emptied with the empty_search_columns management script.
 """
+
 import logging
 import re
 from itertools import chain
@@ -143,9 +144,9 @@ class SearchSerializer(serializers.Serializer):
                 shortcomings = obj.accessibility_shortcomings
             except UnitAccessibilityShortcomings.DoesNotExist:
                 shortcomings = UnitAccessibilityShortcomings()
-            representation[
-                "accessibility_shortcoming_count"
-            ] = shortcomings.accessibility_shortcoming_count
+            representation["accessibility_shortcoming_count"] = (
+                shortcomings.accessibility_shortcoming_count
+            )
             representation["contract_type"] = UnitSerializer.get_contract_type(
                 self, obj
             )
