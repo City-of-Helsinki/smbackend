@@ -169,7 +169,7 @@ LEVELS = {
             991,  # health stations
             1097,  # basic education
             2125,  # pre school education
-            869  # municipal day care
+            869,  # municipal day care
             #  25344, # recycling
             #  25480, # public libraries
         ],

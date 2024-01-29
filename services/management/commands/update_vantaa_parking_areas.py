@@ -1,6 +1,7 @@
 """
 This management command updates Vantaa parking areas.
 """
+
 import logging
 import os
 from time import time
