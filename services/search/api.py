@@ -17,6 +17,7 @@ raw SQL migration 008X_create_search_view.py.
 - The search_columns can be manually updated with  the index_search_columns
 and emptied with the empty_search_columns management script.
 """
+
 import logging
 import re
 from itertools import chain
@@ -143,9 +144,9 @@ class SearchSerializer(serializers.Serializer):
                 shortcomings = obj.accessibility_shortcomings
             except UnitAccessibilityShortcomings.DoesNotExist:
                 shortcomings = UnitAccessibilityShortcomings()
-            representation[
-                "accessibility_shortcoming_count"
-            ] = shortcomings.accessibility_shortcoming_count
+            representation["accessibility_shortcoming_count"] = (
+                shortcomings.accessibility_shortcoming_count
+            )
             representation["contract_type"] = UnitSerializer.get_contract_type(
                 self, obj
             )
@@ -342,9 +343,9 @@ class SearchViewSet(GenericAPIView):
         if not q_val:
             raise ParseError("Supply search terms with 'q=' ' or input=' '")
 
-        if not re.match(r"^[\w\såäö&|-]+$", q_val):
+        if not re.match(r"^[\w\såäö+&|-]+$", q_val):
             raise ParseError(
-                "Invalid search terms, only letters, numbers, spaces and -&| allowed."
+                "Invalid search terms, only letters, numbers, spaces and +-&| allowed."
             )
 
         types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])

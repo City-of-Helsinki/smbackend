@@ -1,6 +1,7 @@
 """
 This management command updates Vantaa parking areas.
 """
+
 import logging
 import os
 from time import time
@@ -28,6 +29,17 @@ OCD_ID_VANTAA_PARKING_BASE = (
 SRC_SERVICE_URL = "https://matti.vantaa.fi/server2/rest/services/Hosted/Pys%C3%A4k%C3%B6intialueet/FeatureServer"
 SRC_LAYER_NAME = "Pyskintialueet MUOKATTAVA"
 SRC_SRID = 4326
+
+PARKING_NAME_TRANSLATIONS = {
+    "12h-24h": {"sv": "12-24 timmar", "en": "12-24 hours"},
+    "2h-3h": {"sv": "2-3 timmar", "en": "2-3 hours"},
+    "4h-11h": {"sv": "4-11 timmar", "en": "4-11 hours"},
+    "Ei rajoitusta": {"sv": "Ingen begränsning", "en": "No limitation"},
+    "Lyhytaikainen": {"sv": "Kortvarig", "en": "Temporary"},
+    "Maksullinen": {"sv": "Avgiftsbelagd", "en": "Paid"},
+    "Muu": {"sv": "Något annat", "en": "Other"},
+    "Varattu päivisin": {"sv": "Bokas dagtid", "en": "Reserved during the day"},
+}
 
 
 class Command(BaseCommand):
@@ -79,15 +91,25 @@ class Command(BaseCommand):
             if not origin_id:
                 logger.warning("Parking area has no origin ID, skipping")
                 continue
+            name_fi = props.get("tyyppi")
+            defaults = {
+                "name_fi": name_fi,
+                "municipality": municipality,
+                "type": type,
+                "extra": props,
+                "origin_id": origin_id,
+            }
+            try:
+                name_en = PARKING_NAME_TRANSLATIONS[name_fi]["en"]
+                name_sv = PARKING_NAME_TRANSLATIONS[name_fi]["sv"]
+                defaults["name_en"] = name_en
+                defaults["name_sv"] = name_sv
+            except KeyError:
+                logger.warning(f"No translation for {name_fi}")
+
             division, _ = AdministrativeDivision.objects.update_or_create(
                 ocd_id=OCD_ID_VANTAA_PARKING_BASE + origin_id,
-                defaults={
-                    "name_fi": props.get("tyyppi"),
-                    "municipality": municipality,
-                    "type": type,
-                    "extra": props,
-                    "origin_id": origin_id,
-                },
+                defaults=defaults,
             )
             AdministrativeDivisionGeometry.objects.update_or_create(
                 division=division,

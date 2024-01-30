@@ -1,6 +1,7 @@
 """
 This management command updates statistical district extra-data from Statistics Finland
 """
+
 import json
 import logging
 import os
