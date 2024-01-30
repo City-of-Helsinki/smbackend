@@ -96,19 +96,15 @@ def test_import_week_data_measurements():
     options = {"initial_import": False}
     assert WeekData.objects.first().measurements.count() == Parameter.objects.count()
     assert WeekData.objects.count() == Parameter.objects.count()
-
-    # Run incremental importer three times with different min_value to ensure no duplicate measurements are created
-    for c in range(3):
-        clear_cache()
-        df = get_test_dataframe(
-            columns, start_time, end_time, min_value=2 - c * 1, max_value=4
-        )
-        save_parameter_types(df, data_type, options["initial_import"])
-        save_measurements(df, data_type, options["initial_import"])
-        assert WeekData.objects.count() == Parameter.objects.count()
-        assert (
-            WeekData.objects.first().measurements.count() == Parameter.objects.count()
-        )
+    assert WeekData.objects.first().measurements.first().value == 3.0
+    # Run incremental importer with different min_value to ensure no duplicate measurements are created
+    clear_cache()
+    df = get_test_dataframe(columns, start_time, end_time, min_value=1, max_value=4)
+    save_parameter_types(df, data_type, options["initial_import"])
+    save_measurements(df, data_type, options["initial_import"])
+    assert WeekData.objects.count() == Parameter.objects.count()
+    assert WeekData.objects.first().measurements.count() == Parameter.objects.count()
+    assert WeekData.objects.first().measurements.first().value == 2.5
 
 
 @pytest.mark.django_db
