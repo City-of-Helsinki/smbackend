@@ -22,7 +22,6 @@ def api_client():
     return APIClient()
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def user():
     username = "test_user"
@@ -41,7 +40,6 @@ def user():
     return {"username": username, "password": password}
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def organization():
     return Department.objects.create(
@@ -49,7 +47,6 @@ def organization():
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def service():
     return Service.objects.create(
@@ -57,7 +54,6 @@ def service():
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def unit(service, organization):
     unit = Unit.objects.create(
@@ -71,7 +67,6 @@ def unit(service, organization):
     return unit
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def categorical_observations(unit, observable_property):
     return [
@@ -102,7 +97,6 @@ def categorical_observations(unit, observable_property):
     ]
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def descriptive_observations(unit, descriptive_property):
     value = AllowedValue.objects.create(
@@ -121,7 +115,6 @@ def descriptive_observations(unit, descriptive_property):
     ]
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def observable_property(service, unit):
     p = ObservableProperty.objects.create(
@@ -155,7 +148,6 @@ def observable_property(service, unit):
     return p
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def unit_latest_observation(observable_property, unit, categorical_observations):
     return UnitLatestObservation.objects.create(
@@ -163,7 +155,6 @@ def unit_latest_observation(observable_property, unit, categorical_observations)
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def unit_latest_observation_expired(
     observable_property, unit, categorical_observations
@@ -173,7 +164,6 @@ def unit_latest_observation_expired(
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def unit_latest_observation_both_expired_and_not_expirable(
     descriptive_property,
@@ -192,7 +182,6 @@ def unit_latest_observation_both_expired_and_not_expirable(
     }
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def descriptive_property(service, unit):
     p = ObservableProperty.objects.create(
