@@ -32,7 +32,6 @@ def api_client():
     return APIClient()
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def units(
     services,
@@ -115,7 +114,6 @@ def units(
     return Unit.objects.all().order_by("id")
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def department(municipality):
     return Department.objects.create(
@@ -126,7 +124,6 @@ def department(municipality):
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def accessibility_shortcoming(units):
     return UnitAccessibilityShortcomings.objects.create(
@@ -134,7 +131,6 @@ def accessibility_shortcoming(units):
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def services():
     Service.objects.create(
@@ -169,7 +165,6 @@ def services():
     return Service.objects.all()
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def service_nodes(services):
     leisure = ServiceNode.objects.create(
@@ -193,7 +188,6 @@ def service_nodes(services):
     return ServiceNode.objects.all()
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def addresses(streets, municipality):
     Address.objects.create(
@@ -245,7 +239,6 @@ def addresses(streets, municipality):
     return Address.objects.all()
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def municipality():
     return Municipality.objects.create(
@@ -253,7 +246,6 @@ def municipality():
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def administrative_division_type():
     return AdministrativeDivisionType.objects.get_or_create(
@@ -261,7 +253,6 @@ def administrative_division_type():
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def administrative_division(administrative_division_type):
     adm_div = AdministrativeDivision.objects.get_or_create(
@@ -273,7 +264,6 @@ def administrative_division(administrative_division_type):
     return adm_div
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def streets():
     Street.objects.create(
