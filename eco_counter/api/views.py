@@ -1,5 +1,7 @@
 import sys
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
@@ -54,6 +56,7 @@ class StationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Station.objects.all()
     serializer_class = StationSerializer
 
+    @method_decorator(cache_page(60 * 60))
     def list(self, request):
         queryset = Station.objects.all()
         filters = self.request.query_params

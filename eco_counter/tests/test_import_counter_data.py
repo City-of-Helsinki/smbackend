@@ -7,7 +7,7 @@ The main purpose of these tests are to verify that the importer
 imports and calculates the data correctly.
 """
 import calendar
-from datetime import timedelta
+from datetime import datetime, timedelta
 from io import StringIO
 from unittest.mock import patch
 
@@ -402,7 +402,16 @@ def test_import_traffic_counter_data(stations):
     start_time = dateutil.parser.parse("2020-01-01T00:00")
     end_time = dateutil.parser.parse("2020-02-29T23:45")
     import_command(test_counter=(TRAFFIC_COUNTER, start_time, end_time))
-    num_tc_stations = Station.objects.filter(csv_data_source=TRAFFIC_COUNTER).count()
+    stations_qs = Station.objects.filter(csv_data_source=TRAFFIC_COUNTER)
+    num_tc_stations = stations_qs.count()
+    station1 = stations_qs.first()
+    assert station1.sensor_types == ["at", "pt", "jt", "bt"]
+    assert station1.data_from_date == datetime.strptime("2020-01-01", "%Y-%m-%d").date()
+    assert (
+        station1.data_until_date == datetime.strptime("2020-02-29", "%Y-%m-%d").date()
+    )
+    assert station1.is_active == {"1": False, "7": False, "30": False, "365": False}
+
     state = ImportState.objects.get(csv_data_source=TRAFFIC_COUNTER)
     assert state.current_year_number == 2020
     assert state.current_month_number == 2
