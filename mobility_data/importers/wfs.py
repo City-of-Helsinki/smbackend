@@ -20,9 +20,13 @@ from mobility_data.importers.utils import (
 DEFAULT_SOURCE_DATA_SRID = 3877
 DEFAULT_MAX_FEATURES = 1000
 DEFAULT_WFS_TYPE = "string"
+DEFAULT_WFS_VERSION = "1.0.0"
 logger = logging.getLogger("mobility_data")
 
-WFS_URL = "{wfs_url}?service=WFS&request=GetFeature&typeName={wfs_layer}&outputFormat=GML3&maxFeatures={max_features}"
+WFS_URL = (
+    "{wfs_url}?service=WFS&version={wfs_version}&request=GetFeature&"
+    "typeName={wfs_layer}&outputFormat=GML3&maxFeatures={max_features}"
+)
 
 
 @db.transaction.atomic
@@ -134,8 +138,12 @@ class MobilityData(MobileUnitDataBase):
 
 def get_data_source(config, max_features):
     wfs_url = config.get("wfs_url", settings.TURKU_WFS_URL)
+    wfs_version = config.get("wfs_version", DEFAULT_WFS_VERSION)
     url = WFS_URL.format(
-        wfs_url=wfs_url, wfs_layer=config["wfs_layer"], max_features=max_features
+        wfs_url=wfs_url,
+        wfs_version=wfs_version,
+        wfs_layer=config["wfs_layer"],
+        max_features=max_features,
     )
     ds = DataSource(url)
     return ds
