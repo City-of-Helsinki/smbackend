@@ -168,16 +168,17 @@ def save_weeks(df, stations):
             if week.years.count() == 0:
                 week.years.add(year)
             values = get_measurements(data_frame, station.name)
-            week_data, _ = WeekData.objects.get_or_create(station=station, week=week)
+            week_data, created = WeekData.objects.get_or_create(
+                station=station, week=week
+            )
+            if not created:
+                week_data.measurements.all().delete()
             for item in values.items():
                 parameter = get_parameter(item[0])
-                if not week_data.measurements.filter(
+                measurement = Measurement.objects.create(
                     value=item[1], parameter=parameter
-                ):
-                    measurement = Measurement.objects.create(
-                        value=item[1], parameter=parameter
-                    )
-                    week_data.measurements.add(measurement)
+                )
+                week_data.measurements.add(measurement)
 
 
 def save_days(df, stations):
