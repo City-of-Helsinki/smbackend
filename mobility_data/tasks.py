@@ -106,6 +106,13 @@ def import_paavonpolkus(name="import_paavonpolkus"):
 
 
 @shared_task_email
+def import_school_and_kindergarten_accessibility_areas(
+    name="import_import_school_and_kindergarten_accessibility_areas",
+):
+    management.call_command("import_wfs", "SchoolAndKindergartenAccessibilityArea")
+
+
+@shared_task_email
 def delete_mobility_data(args=None, name="delete_mobility_data"):
     management.call_command("delete_mobility_data", args)
 
