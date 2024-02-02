@@ -514,3 +514,17 @@ features:
       speed_limit:
         wfs_field: rajoitus
         wfs_type: int
+
+  - content_type_name: SchoolAndKindergartenAccessibilityArea
+    content_type_description: Accessibility area of schools and kindergartens
+    wfs_layer: GIS:Koulujen_Paivakotien_saavutettavuus_2023
+    fields:
+      name:
+        fi: Kohde
+    extra_fields:
+      Minuutit:
+        wfs_field: Minuutit
+        wfs_type: int
+      Kulkumuoto:
+        wfs_field: Kulkumuoto
+
