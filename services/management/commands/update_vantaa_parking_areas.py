@@ -37,6 +37,13 @@ STREET_SERVICE_URL = "https://matti.vantaa.fi/server2/rest/services/Hosted/Kadun
 STREET_LAYER_NAME = "Kadunvarsipysäköinti MUOKATTAVA"
 STREET_TYPE = "street_parking_area"
 
+OCD_ID_VANTAA_PARK_AND_RIDE_PARKING_BASE = (
+    "ocd-division/country:fi/kunta:vantaa/liityntapysakointi-alue:"
+)
+PARK_AND_RIDE_SERVICE_URL = "https://matti.vantaa.fi/server2/rest/services/Hosted/Liitynt%C3%A4pys%C3%A4k%C3%B6intialueet/FeatureServer"
+PARK_AND_RIDE_LAYER_NAME = "Liityntäpysäköintialueet MUOKATTAVA"
+PARK_AND_RIDE_TYPE = "park_and_ride_area"
+
 DATA_SOURCES = [
     {
         "service_url": AREA_SERVICE_URL,
@@ -49,6 +56,12 @@ DATA_SOURCES = [
         "layer_name": STREET_LAYER_NAME,
         "type": STREET_TYPE,
         "ocd_id_base": OCD_ID_VANTAA_STREET_PARKING_BASE,
+    },
+    {
+        "service_url": PARK_AND_RIDE_SERVICE_URL,
+        "layer_name": PARK_AND_RIDE_LAYER_NAME,
+        "type": PARK_AND_RIDE_TYPE,
+        "ocd_id_base": OCD_ID_VANTAA_PARK_AND_RIDE_PARKING_BASE,
     },
 ]
 
@@ -63,6 +76,7 @@ PARKING_NAME_TRANSLATIONS = {
     "Maksullinen": {"sv": "Avgiftsbelagd", "en": "Paid"},
     "Muu": {"sv": "Något annat", "en": "Other"},
     "Varattu päivisin": {"sv": "Bokas dagtid", "en": "Reserved during the day"},
+    "Liityntäpysäköinti": {"sv": "Pendelparkering", "en": "Park & Ride"},
 }
 
 
