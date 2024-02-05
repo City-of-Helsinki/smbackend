@@ -23,45 +23,26 @@ import restapi  # noqa: E402
 
 logger = logging.getLogger("services.management")
 
-OCD_ID_VANTAA_PARKING_BASE = (
-    "ocd-division/country:fi/kunta:vantaa/pysakointipaikka-alue:"
-)
-AREA_SERVICE_URL = "https://matti.vantaa.fi/server2/rest/services/Hosted/Pys%C3%A4k%C3%B6intialueet/FeatureServer"
-AREA_LAYER_NAME = "Pyskintialueet MUOKATTAVA"
-AREA_TYPE = "parking_area"
-
-OCD_ID_VANTAA_STREET_PARKING_BASE = (
-    "ocd-division/country:fi/kunta:vantaa/kadunvarsipysakointi-alue:"
-)
-STREET_SERVICE_URL = "https://matti.vantaa.fi/server2/rest/services/Hosted/Kadunvarsipys%C3%A4k%C3%B6inti/FeatureServer"
-STREET_LAYER_NAME = "Kadunvarsipysäköinti MUOKATTAVA"
-STREET_TYPE = "street_parking_area"
-
-OCD_ID_VANTAA_PARK_AND_RIDE_PARKING_BASE = (
-    "ocd-division/country:fi/kunta:vantaa/liityntapysakointi-alue:"
-)
-PARK_AND_RIDE_SERVICE_URL = "https://matti.vantaa.fi/server2/rest/services/Hosted/Liitynt%C3%A4pys%C3%A4k%C3%B6intialueet/FeatureServer"
-PARK_AND_RIDE_LAYER_NAME = "Liityntäpysäköintialueet MUOKATTAVA"
-PARK_AND_RIDE_TYPE = "park_and_ride_area"
-
 DATA_SOURCES = [
     {
-        "service_url": AREA_SERVICE_URL,
-        "layer_name": AREA_LAYER_NAME,
-        "type": AREA_TYPE,
-        "ocd_id_base": OCD_ID_VANTAA_PARKING_BASE,
+        "type": "parking_area",
+        "service_url": "https://matti.vantaa.fi/server2/rest/services/Hosted/Pys%C3%A4k%C3%B6intialueet/FeatureServer",
+        "layer_name": "Pysäköintialueet MUOKATTAVA",
+        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/pysakointipaikka-alue:",
     },
     {
-        "service_url": STREET_SERVICE_URL,
-        "layer_name": STREET_LAYER_NAME,
-        "type": STREET_TYPE,
-        "ocd_id_base": OCD_ID_VANTAA_STREET_PARKING_BASE,
+        "type": "street_parking_area",
+        "service_url": "https://matti.vantaa.fi/server2/rest/services/Hosted/Kadunvarsipys%C3%A4k%C3%B6inti/"
+        "FeatureServer",
+        "layer_name": "Kadunvarsipysäköinti MUOKATTAVA",
+        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/kadunvarsipysakointi-alue:",
     },
     {
-        "service_url": PARK_AND_RIDE_SERVICE_URL,
-        "layer_name": PARK_AND_RIDE_LAYER_NAME,
-        "type": PARK_AND_RIDE_TYPE,
-        "ocd_id_base": OCD_ID_VANTAA_PARK_AND_RIDE_PARKING_BASE,
+        "type": "park_and_ride_area",
+        "service_url": "https://matti.vantaa.fi/server2/rest/services/Hosted/Liitynt%C3%A4pys%C3%A4k%C3%B6intialueet/"
+        "FeatureServer",
+        "layer_name": "Liityntäpysäköintialueet MUOKATTAVA",
+        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/liityntapysakointi-alue:",
     },
 ]
 
