@@ -45,6 +45,13 @@ DATA_SOURCES = [
         "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/liityntapysakointi-alue:",
     },
     {
+        "type": "hgv_parking_area",
+        "service_url": "https://matti.vantaa.fi/server2/rest/services/Hosted/Raskaan_liikenteen_"
+        "pys%C3%A4k%C3%B6intialueet/FeatureServer",
+        "layer_name": "Raskaan liikenteen pysäköintialueet MUOKATTAVA",
+        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/raskaanliikenteen-pysakointipaikka-alue:",
+    },
+    {
         "type": "hgv_street_parking_area",
         "service_url": "https://matti.vantaa.fi/server2/rest/services/Hosted/Raskaan_liikenteen_sallitut_kadunvarret/"
         "FeatureServer",
