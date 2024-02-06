@@ -44,6 +44,13 @@ DATA_SOURCES = [
         "layer_name": "Liityntäpysäköintialueet MUOKATTAVA",
         "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/liityntapysakointi-alue:",
     },
+    {
+        "type": "hgv_street_parking_area",
+        "service_url": "https://matti.vantaa.fi/server2/rest/services/Hosted/Raskaan_liikenteen_sallitut_kadunvarret/"
+        "FeatureServer",
+        "layer_name": "Raskaan liikenteen sallitut kadunvarret MUOKATTAVA",
+        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/raskaanliikenteen-sallittu-kadunvarsi-alue:",
+    },
 ]
 
 SRC_SRID = 4326
