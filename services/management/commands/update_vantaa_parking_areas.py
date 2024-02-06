@@ -58,6 +58,13 @@ DATA_SOURCES = [
         "layer_name": "Raskaan liikenteen sallitut kadunvarret MUOKATTAVA",
         "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/raskaanliikenteen-sallittu-kadunvarsi-alue:",
     },
+    {
+        "type": "hgv_no_parking_area",
+        "service_url": "https://matti.vantaa.fi/server2/rest/services/Hosted/Raskaan_liikenteen_kielletyt_kadunvarret/"
+        "FeatureServer",
+        "layer_name": "Raskaan liikenteen kielletyt kadunvarret MUOKATTAVA",
+        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/raskaanliikenteen-kielletty-kadunvarsi-alue:",
+    },
 ]
 
 SRC_SRID = 4326
