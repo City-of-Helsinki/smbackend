@@ -188,6 +188,11 @@ Imports the outdoor gym devices from the services.unit model. i.e., sets referen
 ./manage.py import_parking_machines
 ```
 
+### School and kindergarten accessibility areas
+```
+./manage.py import_wfs SchoolAndKindergartenAccessibilityArea
+```
+
 ## Deletion
 To delete mobile units for a content type.
 ```
