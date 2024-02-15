@@ -1,0 +1,24 @@
+{
+  "features": [
+    {
+      "geometry": null,
+      "id": 3,
+      "properties": {
+        "aikarajoitus": "30 min",
+        "aikarajoitus_num": null,
+        "aluetunnus": null,
+        "katu": null,
+        "kaupunginosa": null,
+        "kiekkopaikka": "Kyllä",
+        "lisätiedot": null,
+        "objectid": 3,
+        "objectid_1": null,
+        "paikkamäärä": 6,
+        "paikkamääräap": "6 ap",
+        "tyyppi": "Lyhytaikainen",
+        "voimassaoloaika": null
+      },
+      "type": "Feature"
+    }
+  ]
+}

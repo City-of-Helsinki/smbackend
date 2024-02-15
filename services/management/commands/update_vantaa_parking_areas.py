@@ -164,18 +164,22 @@ class Command(BaseCommand):
 
             updated_parking_areas = []
             for feature in features:
-                geom = self.get_multi_geom(
-                    GEOSGeometry(str(feature.get("geometry")), srid=SRC_SRID)
-                )
-                geom.transform(src_to_dest)
+                geometry = feature.get("geometry")
                 props = feature.get("properties")
+                name_fi = props.get("tyyppi")
+
+                if not geometry:
+                    logger.warning(f"Parking area {name_fi} has no geometry, skipping")
+                    continue
+                geom = self.get_multi_geom(GEOSGeometry(str(geometry), srid=SRC_SRID))
+                geom.transform(src_to_dest)
+
                 origin_id = (
                     str(props.get("objectid")) if props.get("objectid") else None
                 )
                 if not origin_id:
                     logger.warning("Parking area has no origin ID, skipping")
                     continue
-                name_fi = props.get("tyyppi")
                 defaults = {
                     "name_fi": name_fi,
                     "municipality": municipality,

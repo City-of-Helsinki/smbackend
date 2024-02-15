@@ -11,8 +11,11 @@ from munigeo.models import (
 )
 
 
-def get_mock_data():
-    file_path = "services/tests/data/vantaa_parking_areas.json"
+def get_mock_data(geometry=True):
+    if geometry:
+        file_path = "services/tests/data/vantaa_parking_areas.json"
+    else:
+        file_path = "services/tests/data/vantaa_parking_areas_null_geometry.json"
     with open(file_path, "r") as json_file:
         contents = json.load(json_file)
     return contents.get("features")
@@ -102,3 +105,28 @@ def test_delete_removed_parking_areas(mock_feature_service):
         == 2
     )
     assert not AdministrativeDivision.objects.filter(origin_id="3").exists()
+
+
+@pytest.mark.django_db
+@patch(
+    "services.management.commands.update_vantaa_parking_areas.DATA_SOURCES",
+    [
+        {
+            "type": "parking_area",
+            "service_url": "https://url",
+            "layer_name": "Pysäköintialueet MUOKATTAVA",
+            "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/pysakointipaikka-alue:",
+        }
+    ],
+)
+@patch("restapi.FeatureService")
+def test_skip_parking_areas_with_no_geometry(mock_feature_service):
+    mock_layer_instance = mock_feature_service.return_value.layer.return_value
+    mock_layer_instance.query.return_value = get_mock_data(geometry=False)
+
+    Municipality.objects.create(id="vantaa", name="Vantaa")
+    AdministrativeDivisionType.objects.create(type="parking_area")
+
+    assert AdministrativeDivision.objects.count() == 0
+    call_command("update_vantaa_parking_areas")
+    assert AdministrativeDivision.objects.count() == 0
