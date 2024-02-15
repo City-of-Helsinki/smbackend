@@ -58,16 +58,21 @@ class Command(BaseCommand):
 
         updated_parking_payzones = []
         for feature in features:
-            geom = MultiPolygon(
-                GEOSGeometry(str(feature.get("geometry")), srid=SRC_SRID)
-            )
-            geom.transform(src_to_dest)
             props = feature.get("properties")
+            name_fi = props.get("maksullisu")
+            geometry = feature.get("geometry")
+
+            if not geometry:
+                logger.warning(f"Parking payzone {name_fi} has no geometry, skipping")
+                continue
+
+            geom = MultiPolygon(GEOSGeometry(str(geometry), srid=SRC_SRID))
+            geom.transform(src_to_dest)
+
             origin_id = str(props.get("objectid")) if props.get("objectid") else None
             if not origin_id:
                 logger.warning("Parking payzone has no origin ID, skipping")
                 continue
-            name_fi = props.get("maksullisu")
 
             defaults = {
                 "name_fi": name_fi,

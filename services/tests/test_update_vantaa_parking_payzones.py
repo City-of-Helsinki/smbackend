@@ -10,8 +10,11 @@ from munigeo.models import (
 )
 
 
-def get_mock_data():
-    file_path = "services/tests/data/vantaa_parking_payzones.json"
+def get_mock_data(geometry=True):
+    if geometry:
+        file_path = "services/tests/data/vantaa_parking_payzones.json"
+    else:
+        file_path = "services/tests/data/vantaa_parking_payzones_null_geometry.json"
     with open(file_path, "r") as json_file:
         contents = json.load(json_file)
     return contents.get("features")
@@ -89,3 +92,17 @@ def test_delete_removed_parking_payzones(get_features_mock):
         == 2
     )
     assert not AdministrativeDivision.objects.filter(origin_id="3").exists()
+
+
+@pytest.mark.django_db
+@patch(
+    "services.management.commands.update_vantaa_parking_payzones.Command.get_features"
+)
+def test_skip_parking_payzone_with_no_geometry(get_features_mock):
+    get_features_mock.return_value = get_mock_data(geometry=False)
+    Municipality.objects.create(id="vantaa", name="Vantaa")
+    AdministrativeDivisionType.objects.create(type="parking_payzone")
+
+    assert AdministrativeDivision.objects.count() == 0
+    call_command("update_vantaa_parking_payzones")
+    assert AdministrativeDivision.objects.count() == 0
