@@ -1,0 +1,17 @@
+{
+  "features": [
+    {
+      "geometry": null,
+      "id": 3,
+      "properties": {
+        "maksullisu": "3 € / tunti",
+        "objectid": 3
+      },
+      "type": "Feature"
+    }
+  ],
+  "properties": {
+    "exceededTransferLimit": false
+  },
+  "type": "FeatureCollection"
+}
