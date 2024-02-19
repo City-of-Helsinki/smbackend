@@ -115,7 +115,7 @@ class Unit(SoftDeleteModel):
 
     provider_type = models.PositiveSmallIntegerField(choices=PROVIDER_TYPES, null=True)
 
-    picture_url = models.URLField(max_length=250, null=True)
+    picture_url = models.URLField(max_length=500, null=True)
     picture_entrance_url = models.URLField(max_length=500, null=True)
     streetview_entrance_url = models.URLField(max_length=500, null=True)
 
@@ -124,8 +124,8 @@ class Unit(SoftDeleteModel):
     name = models.CharField(max_length=200, db_index=True)
     street_address = models.CharField(max_length=100, null=True)
 
-    www = models.URLField(max_length=400, null=True)
-    address_postal_full = models.CharField(max_length=100, null=True)
+    www = models.URLField(max_length=500, null=True)
+    address_postal_full = models.CharField(max_length=500, null=True)
     call_charge_info = models.CharField(max_length=500, null=True)
     displayed_service_owner = models.CharField(max_length=120, null=True)
     displayed_service_owner_type = models.CharField(max_length=100, null=True)
@@ -134,9 +134,9 @@ class Unit(SoftDeleteModel):
 
     picture_caption = models.TextField(null=True)
 
-    phone = models.CharField(max_length=120, null=True)
-    fax = models.CharField(max_length=50, null=True)
-    email = models.EmailField(max_length=100, null=True)
+    phone = models.CharField(max_length=200, null=True)
+    fax = models.CharField(max_length=200, null=True)
+    email = models.EmailField(max_length=200, null=True)
     accessibility_phone = models.CharField(max_length=50, null=True)
     accessibility_email = models.EmailField(max_length=100, null=True)
     accessibility_www = models.URLField(max_length=400, null=True)
