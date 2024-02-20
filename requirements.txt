@@ -14,15 +14,15 @@ attrs==23.2.0
     #   jsonschema
     #   referencing
     #   requests-cache
-black==24.1.1
+black==24.2.0
     # via -r requirements.in
-bmi-arcgis-restapi==2.4.5
+bmi-arcgis-restapi==2.4.7
     # via -r requirements.in
 build==1.0.3
     # via pip-tools
 cattrs==23.2.3
     # via requests-cache
-certifi==2023.11.17
+certifi==2024.2.2
     # via
     #   requests
     #   sentry-sdk
@@ -36,7 +36,7 @@ coverage[toml]==7.4.1
     # via
     #   coverage
     #   pytest-cov
-django==5.0.1
+django==5.0.2
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -127,9 +127,9 @@ pathspec==0.12.1
     # via black
 pep8-naming==0.13.3
     # via -r requirements.in
-pip-tools==7.3.0
+pip-tools==7.4.0
     # via -r requirements.in
-platformdirs==4.1.0
+platformdirs==4.2.0
     # via
     #   black
     #   requests-cache
@@ -142,18 +142,20 @@ pycodestyle==2.11.1
 pyflakes==3.2.0
     # via flake8
 pyproject-hooks==1.0.0
-    # via build
-pytest==8.0.0
+    # via
+    #   build
+    #   pip-tools
+pytest==8.0.1
     # via
     #   pytest-cov
     #   pytest-django
 pytest-cov==4.1.0
     # via -r requirements.in
-pytest-django==4.7.0
+pytest-django==4.8.0
     # via -r requirements.in
 python-dateutil==2.8.2
     # via -r requirements.in
-pytz==2023.4
+pytz==2024.1
     # via
     #   -r requirements.in
     #   djangorestframework
@@ -172,15 +174,15 @@ requests==2.31.0
     #   django-munigeo
     #   requests-cache
     #   requests-mock
-requests-cache==1.1.1
+requests-cache==1.2.0
     # via -r requirements.in
 requests-mock==1.11.0
     # via -r requirements.in
-rpds-py==0.17.1
+rpds-py==0.18.0
     # via
     #   jsonschema
     #   referencing
-sentry-sdk==1.39.2
+sentry-sdk==1.40.5
     # via -r requirements.in
 six==1.16.0
     # via
@@ -198,7 +200,7 @@ tomli==2.0.1
     #   pip-tools
     #   pyproject-hooks
     #   pytest
-tqdm==4.66.1
+tqdm==4.66.2
     # via -r requirements.in
 typing-extensions==4.9.0
     # via
@@ -206,7 +208,7 @@ typing-extensions==4.9.0
     #   black
     #   cattrs
     #   django-modeltranslation
-tzdata==2023.4
+tzdata==2024.1
     # via -r requirements.in
 uritemplate==4.1.1
     # via drf-spectacular
