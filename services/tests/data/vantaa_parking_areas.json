@@ -1,0 +1,94 @@
+{
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              25.084374753255055,
+              60.3499294370369
+            ],
+            [
+              25.08408380151095,
+              60.34990982397221
+            ],
+            [
+              25.084089858850913,
+              60.34983805624883
+            ],
+            [
+              25.084383300724973,
+              60.349855193165794
+            ],
+            [
+              25.084374753255055,
+              60.3499294370369
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": 1,
+      "properties": {
+        "aikarajoitus": "30 min",
+        "aikarajoitus_num": null,
+        "aluetunnus": null,
+        "katu": null,
+        "kaupunginosa": null,
+        "kiekkopaikka": "Kyllä",
+        "lisätiedot": null,
+        "objectid": 1,
+        "objectid_1": null,
+        "paikkamäärä": 6,
+        "paikkamääräap": "6 ap",
+        "tyyppi": "Lyhytaikainen",
+        "voimassaoloaika": null
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            25.049797811943435,
+            60.35260110313705
+          ],
+          [
+            25.049934474444232,
+            60.35248545784165
+          ],
+          [
+            25.05008239193723,
+            60.35239648422703
+          ],
+          [
+            25.050167558514346,
+            60.35234643499014
+          ],
+          [
+            25.05058901570631,
+            60.352171773300924
+          ]
+        ],
+        "type": "LineString"
+      },
+      "id": 2,
+      "properties": {
+        "aikarajoitus": null,
+        "aikarajoitus_num": null,
+        "aluetunnus": null,
+        "katu": null,
+        "kaupunginosa": null,
+        "kiekkopaikka": "Ei",
+        "lisätiedot": null,
+        "objectid": 2,
+        "objectid_1": 2,
+        "paikkamäärä": 8,
+        "paikkamääräap": "8 ap",
+        "tyyppi": "Ei rajoitusta",
+        "voimassaoloaika": null
+      },
+      "type": "Feature"
+    }
+  ]
+}
