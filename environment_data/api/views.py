@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status, viewsets
 from rest_framework.response import Response
@@ -41,6 +43,7 @@ class StationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Station.objects.all()
     serializer_class = StationSerializer
 
+    @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
         queryset = self.queryset
         filters = self.request.query_params
