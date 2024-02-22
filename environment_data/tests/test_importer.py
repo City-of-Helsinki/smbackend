@@ -112,6 +112,7 @@ def test_importer():
     from environment_data.management.commands.import_environment_data import (
         save_measurements,
         save_parameter_types,
+        save_station_parameters,
         save_stations,
     )
 
@@ -145,6 +146,10 @@ def test_importer():
         is True
     )
     save_measurements(df, data_type, options["initial_import"])
+    save_station_parameters(data_type)
+    assert list(Station.objects.all()[0].parameters.all()) == list(
+        Parameter.objects.all()
+    )
     import_state = ImportState.objects.get(data_type=data_type)
     assert import_state.year_number == 2021
     assert import_state.month_number == 12

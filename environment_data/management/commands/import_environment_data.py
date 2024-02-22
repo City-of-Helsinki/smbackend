@@ -403,7 +403,23 @@ def save_parameter_types(df, data_type, initial_import=False):
                         "data_type": data_type,
                     },
                 )
+
+
+def save_station_parameters(data_type):
+    # Add parameters that have data to the station
+    for station in Station.objects.filter(data_type=data_type):
+        for parameter in Parameter.objects.filter(data_type=data_type):
+            if (
+                YearData.objects.filter(
+                    station=station,
+                    measurements__parameter=parameter,
+                    measurements__value__gte=0,
+                ).count()
+                > 0
+            ):
                 station.parameters.add(parameter)
+            else:
+                station.parameters.remove(parameter)
 
 
 def save_stations(stations, data_type, initial_import_stations=False):
@@ -529,6 +545,7 @@ class Command(BaseCommand):
             )
             save_parameter_types(df, data_type, initial_import)
             save_measurements(df, data_type, initial_import)
+            save_station_parameters(data_type)
             logger.info(
                 f"Imported {DATA_TYPES_FULL_NAME[data_type]} observations until:{str(df.index[-1])}"
             )

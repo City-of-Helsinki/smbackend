@@ -33,7 +33,6 @@ def get_dataframe(stations, from_year=START_YEAR, from_month=1, initial_import=F
                 else:
                     params["startTime"] = f"{start_date_time.year}-01-01T00:00Z"
                 if start_date_time.year == current_date_time.year:
-
                     params["endTime"] = current_date_time.strftime(TIME_FORMAT)
                 else:
                     params["endTime"] = f"{start_date_time.year}-12-31T23:59Z"
