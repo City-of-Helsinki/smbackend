@@ -419,7 +419,6 @@ def fetch_telraam_camera(mac_id):
     headers = {
         "X-Api-Key": settings.TELRAAM_TOKEN,
     }
-    breakpoint()
     url = TELRAAM_COUNTER_CAMERAS_URL.format(mac_id=mac_id)
     response = TELRAAM_HTTP.get(url, headers=headers)
     cameras = response.json().get("camera", None)
