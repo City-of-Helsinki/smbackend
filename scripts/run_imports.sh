@@ -6,19 +6,20 @@ function stage_0 {
     # Execute every 6 months
     # Finnish municipalities
     ./manage.py geo_import finland --municipalities
-    # Parking areas, Statistical districts
-    ./manage.py update_parking_areas
+    # Statistical districts
     ./manage.py update_statistical_districts
 }
 
 function stage_1 {
     # Execute once a week
     # Helsinki, Espoo and HSY Administrative divisions and Addresses
+    # Parking areas
     #./manage.py geo_import helsinki --divisions
     #./manage.py geo_import espoo --divisions
     GDAL_HTTP_UNSAFESSL=YES ./manage.py geo_import hsy --divisions
     ./manage.py geo_import helsinki --addresses
     ./manage.py geo_import uusimaa --addresses
+    ./manage.py update_parking_areas
     ./manage.py update_vantaa_parking_areas
     ./manage.py update_vantaa_parking_payzones
     ./manage.py index_search_columns
