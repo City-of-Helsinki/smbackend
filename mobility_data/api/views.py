@@ -5,6 +5,8 @@ from django.contrib.gis.gdal import SpatialReference
 from django.core.exceptions import ValidationError
 from django.db import connection, reset_queries
 from django.db.models import Q
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from munigeo import api as munigeo_api
 from rest_framework import status, viewsets
 from rest_framework.exceptions import ParseError
@@ -236,6 +238,7 @@ class MobileUnitViewSet(viewsets.ReadOnlyModelViewSet):
 
         return queryset
 
+    @method_decorator(cache_page(60 * 60))
     def list(self, request):
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)

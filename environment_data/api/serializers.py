@@ -34,14 +34,14 @@ class StationSerializer(serializers.ModelSerializer):
 
     def get_parameters_in_use(self, obj):
         res = {}
-        for param in obj.parameters.all():
-            qs = YearData.objects.filter(
-                station=obj, measurements__parameter=param, measurements__value__gte=0
-            )
-            if qs.count():
-                res[param.name] = True
+        available_parameters_qs = Parameter.objects.filter(data_type=obj.data_type)
+
+        for available_parameter in available_parameters_qs:
+            name = available_parameter.name
+            if obj.parameters.filter(name=name).exists():
+                res[name] = True
             else:
-                res[param.name] = False
+                res[name] = False
         return res
 
     def get_data_type_verbose(self, obj):

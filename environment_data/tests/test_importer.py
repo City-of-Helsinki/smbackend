@@ -69,10 +69,50 @@ def get_test_dataframe(
 
 
 @pytest.mark.django_db
+def test_import_week_data_measurements():
+    from environment_data.management.commands.import_environment_data import (
+        save_measurements,
+        save_parameter_types,
+        save_stations,
+    )
+
+    data_type = AIR_QUALITY
+    options = {"initial_import": True}
+    ImportState.objects.create(
+        data_type=data_type, year_number=aq_constants.START_YEAR, month_number=1
+    )
+    clear_cache()
+    stations = get_stations()
+    save_stations(stations, data_type, options["initial_import"])
+    start_time = dateutil.parser.parse("2020-01-01T00:00:00Z")
+    end_time = dateutil.parser.parse("2020-01-17T23:45:00Z")
+    columns = []
+    for station_name in STATION_NAMES:
+        for parameter in aq_constants.OBSERVABLE_PARAMETERS:
+            columns.append(f"{station_name} {parameter}")
+    df = get_test_dataframe(columns, start_time, end_time)
+    save_parameter_types(df, data_type, options["initial_import"])
+    save_measurements(df, data_type, options["initial_import"])
+    options = {"initial_import": False}
+    assert WeekData.objects.first().measurements.count() == Parameter.objects.count()
+    assert WeekData.objects.count() == Parameter.objects.count()
+    assert WeekData.objects.first().measurements.first().value == 3.0
+    # Run incremental importer with different min_value to ensure no duplicate measurements are created
+    clear_cache()
+    df = get_test_dataframe(columns, start_time, end_time, min_value=1, max_value=4)
+    save_parameter_types(df, data_type, options["initial_import"])
+    save_measurements(df, data_type, options["initial_import"])
+    assert WeekData.objects.count() == Parameter.objects.count()
+    assert WeekData.objects.first().measurements.count() == Parameter.objects.count()
+    assert WeekData.objects.first().measurements.first().value == 2.5
+
+
+@pytest.mark.django_db
 def test_importer():
     from environment_data.management.commands.import_environment_data import (
         save_measurements,
         save_parameter_types,
+        save_station_parameters,
         save_stations,
     )
 
@@ -106,6 +146,10 @@ def test_importer():
         is True
     )
     save_measurements(df, data_type, options["initial_import"])
+    save_station_parameters(data_type)
+    assert list(Station.objects.all()[0].parameters.all()) == list(
+        Parameter.objects.all()
+    )
     import_state = ImportState.objects.get(data_type=data_type)
     assert import_state.year_number == 2021
     assert import_state.month_number == 12
@@ -252,7 +296,6 @@ def test_importer():
     import_state = ImportState.objects.get(data_type=data_type)
     assert import_state.year_number == 2022
     assert import_state.month_number == 1
-
     # Test initial import
     clear_cache()
     options = {"initial_import": True}

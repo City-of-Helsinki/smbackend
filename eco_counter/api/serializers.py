@@ -1,5 +1,3 @@
-from datetime import date, timedelta
-
 from django.db.models import Q
 from rest_framework import serializers
 
@@ -38,10 +36,6 @@ class StationSerializer(serializers.ModelSerializer):
     y = serializers.SerializerMethodField()
     lon = serializers.SerializerMethodField()
     lat = serializers.SerializerMethodField()
-    sensor_types = serializers.SerializerMethodField()
-    data_until_date = serializers.SerializerMethodField()
-    data_from_date = serializers.SerializerMethodField()
-    is_active = serializers.SerializerMethodField()
 
     class Meta:
         model = Station
@@ -77,48 +71,6 @@ class StationSerializer(serializers.ModelSerializer):
     def get_lon(self, obj):
         obj.location.transform(4326)
         return obj.location.x
-
-    def get_sensor_types(self, obj):
-        # Return the sensor types(car, bike etc) that has a total year value >0.
-        # i.e., there are sensors for counting the type of data.
-        types = ["at", "pt", "jt", "bt"]
-        result = []
-        for type in types:
-            filter = {"station": obj, f"value_{type}__gt": 0}
-            if YearData.objects.filter(**filter).count() > 0:
-                result.append(type)
-        return result
-
-    def get_is_active(self, obj):
-        num_days = [1, 7, 30, 365]
-        res = {}
-        for days in num_days:
-            from_date = date.today() - timedelta(days=days - 1)
-            day_qs = Day.objects.filter(station=obj, date__gte=from_date)
-            day_data_qs = DayData.objects.filter(day__in=day_qs)
-            if day_data_qs.filter(Q_EXP).count() > 0:
-                res[days] = True
-            else:
-                res[days] = False
-        return res
-
-    def get_data_until_date(self, obj):
-        try:
-            return (
-                DayData.objects.filter(Q_EXP, station=obj).latest("day__date").day.date
-            )
-        except DayData.DoesNotExist:
-            return None
-
-    def get_data_from_date(self, obj):
-        try:
-            return (
-                DayData.objects.filter(Q_EXP, station=obj)
-                .earliest("day__date")
-                .day.date
-            )
-        except DayData.DoesNotExist:
-            return None
 
 
 class YearSerializer(serializers.ModelSerializer):

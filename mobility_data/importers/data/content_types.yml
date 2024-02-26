@@ -59,7 +59,7 @@ content_types:
       sv: Lastningsplats
       en: Loading place
 
-  # Content types from lounaistieto shapefiles importer
+  # Content types imported from lounaistieto shapefile importer
   - content_type_name: BusStopSouthwestFinland
     name:
       fi: Bussipysäkki
@@ -138,6 +138,7 @@ content_types:
       en: Recreational routes in Southwest Finland
   # End of lounaistieto shapefile importer content types
   
+  # Content types importer from opaskarta.turku.fi
   - content_type_name: GuestMarina
     name:
       fi: Vierasvenesatama
@@ -405,7 +406,14 @@ content_types:
       fi: Nopeusrajoitusalue
       sv: Hastighetsbegränsningszon
       en: Speed limit zone
-  # End of WFS importer content types
+  
+  - content_type_name: SchoolAndKindergartenAccessibilityArea
+    name:
+      fi: Koulu ja päiväkoti saavutettavuusalue
+      sv: Tillgänglighetsområde för skola och daghem
+      en: School and kindergarten accessibility area
+
+  # End of content types importer from opaskarta.turku.fi
 
   - content_type_name: Underpass
     name:

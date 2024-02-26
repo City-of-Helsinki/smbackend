@@ -57,6 +57,8 @@ def measurements(parameters):
 def parameters():
     Parameter.objects.create(id=1, name="AQINDEX_PT1H_avg")
     Parameter.objects.create(id=2, name="NO2_PT1H_avg")
+    Parameter.objects.create(id=3, name="WS_PT1H_avg")
+
     return Parameter.objects.all()
 
 

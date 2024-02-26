@@ -6,6 +6,8 @@ features:
     # Optional, the URL of the WFS, default=TURKU_WFS_URL.
     wfs_url: http://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx
     # Optional, Max number of features to be include when fetching data from WFS.
+    wfs_version: 1.0.0
+    # Optional, version of the WFS, default=1.0.0
     max_features: 10000
     # Optional, define the SRID of the source data if not found in the source data.
     srid: 3067 

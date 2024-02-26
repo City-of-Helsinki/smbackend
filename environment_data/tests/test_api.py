@@ -20,7 +20,8 @@ def test_station(api_client, stations, year_datas):
     assert result["data_type_verbose"] == DATA_TYPES_FULL_NAME[AIR_QUALITY]
     assert result["name"] == "Test"
     assert result["parameters_in_use"]["AQINDEX_PT1H_avg"] is True
-    assert result["parameters_in_use"]["NO2_PT1H_avg"] is False
+    assert result["parameters_in_use"]["NO2_PT1H_avg"] is True
+    assert result["parameters_in_use"]["WS_PT1H_avg"] is False
 
 
 @pytest.mark.django_db
