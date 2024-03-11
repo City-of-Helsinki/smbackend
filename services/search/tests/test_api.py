@@ -198,11 +198,21 @@ def test_search_input_query_validation(api_client):
     response = api_client.get(url)
     assert response.status_code == 200
 
+    # Test that . is allowed in query
+    url = reverse("search") + "?q=halli.museo"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that ' is allowed in query
+    url = reverse("search") + "?q=halli's"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
     # Test that special characters are not allowed in query
     url = reverse("search") + "?q=halli("
     response = api_client.get(url)
     assert response.status_code == 400
     assert (
         response.json()["detail"]
-        == "Invalid search terms, only letters, numbers, spaces and +-&| allowed."
+        == "Invalid search terms, only letters, numbers, spaces and .'+-&| allowed."
     )
