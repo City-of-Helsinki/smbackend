@@ -7,10 +7,18 @@ from django.db import models
 
 class IoTDataSource(models.Model):
     source_name = models.CharField(
-        max_length=3, unique=True, verbose_name="Three letter long name for the source"
+        max_length=3,
+        unique=True,
+        verbose_name="Three letter long identifier for the source. "
+        "Set the identifier as an argument to the Celery task that fetches the data.",
     )
     source_full_name = models.CharField(max_length=64, null=True)
     url = models.URLField()
+    headers = models.JSONField(
+        null=True,
+        blank=True,
+        verbose_name='request headers in JSON format, e.g., {"key1": "value1", "key2": "value2"}',
+    )
 
     def __str__(self):
         return self.source_name
@@ -26,7 +34,7 @@ class IoTDataSource(models.Model):
             response.json()
         except json.decoder.JSONDecodeError:
             raise ValidationError(
-                f"Could not parse the JSON data for the given url {self.url}"
+                f"Could not parse the JSON data from the given url {self.url}"
             )
 
 
