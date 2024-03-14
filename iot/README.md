@@ -1,6 +1,6 @@
 ## About
 The purpose of the IoT app is to store temporarly data from various IoT-data sources, that do not allow frequent fetching of their data.  
-The data is stored as it in JSON format to a JSONField and served as JSON. The app uses caching to cache all its queries and serialized data. The Cache is cleared for the source when importing the data source or when a data source is added. The cache is populated if empty when serving data. 
+The data is stored as it in JSON format to a JSONField and served as JSON. The app uses caching to cache all its queries and serialized data. The Cache is cleared for the source when importing the data or when a data source is added. The cache is populated if empty when serving data. 
 
 ## Adding IoT-data source from the Admin
 * Give a tree letter long identifier, this will be used to identify the data
