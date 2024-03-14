@@ -15,7 +15,7 @@ to be imported in the Celery task and when requesting data in the API.
 * Select *iot.tasks.import_iot_data* as the Task (registered) 
 * Choose the *Interval Schedule*
 * Set the Start DateTime
-* Add the source name as *Positional Arguments*, e.g. ["R24"] would import the source_name R24. 
+* Add the identifier as *Positional Arguments*, e.g. ["R24"] would import the identifier R24. 
 
 ## Manual import
 To manually import source:
