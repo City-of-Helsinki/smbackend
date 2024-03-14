@@ -19,7 +19,7 @@ to be imported in the Celery task and when requesting data in the API.
 
 ## Manual import
 To manually import source:
-`./manage.py import_iot_data source_name`
+`./manage.py import_iot_data identifier`
 Or by running the perioc task from the admin. 
 
 ## Retriving data
