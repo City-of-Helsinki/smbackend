@@ -120,6 +120,12 @@ def test_search(
     assert kurrapolku["location"]["type"] == "Point"
     assert kurrapolku["location"]["coordinates"][0] == 60.479032
     assert kurrapolku["location"]["coordinates"][1] == 22.25417
+    # Test address search with apostrophe in query
+    url = reverse("search") + "?q=tarkk'ampujankatu&type=address"
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert len(results) == 1
+    assert results[0]["name"]["fi"] == "Tarkk'ampujankatu 1"
     # Test that addresses are sorted by naturalsort.
     url = reverse("search") + "?q=yliopistonkatu&type=address"
     response = api_client.get(url)
@@ -198,11 +204,21 @@ def test_search_input_query_validation(api_client):
     response = api_client.get(url)
     assert response.status_code == 200
 
+    # Test that . is allowed in query
+    url = reverse("search") + "?q=halli.museo"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that ' is allowed in query
+    url = reverse("search") + "?q=halli's"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
     # Test that special characters are not allowed in query
     url = reverse("search") + "?q=halli("
     response = api_client.get(url)
     assert response.status_code == 400
     assert (
         response.json()["detail"]
-        == "Invalid search terms, only letters, numbers, spaces and +-&| allowed."
+        == "Invalid search terms, only letters, numbers, spaces and .'+-&| allowed."
     )
