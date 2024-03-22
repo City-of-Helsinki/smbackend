@@ -133,6 +133,7 @@ INSTALLED_APPS = [
     "iot.apps.IotConfig",
     "street_maintenance.apps.StreetMaintenanceConfig",
     "environment_data.apps.EnvironmentDataConfig",
+    "exceptional_situations.apps.ExceptionalSituationsConfig",
 ]
 
 if env("ADDITIONAL_INSTALLED_APPS"):
