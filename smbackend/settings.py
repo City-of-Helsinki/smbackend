@@ -79,6 +79,7 @@ env = environ.Env(
     BICYCLE_NETWORK_LOG_LEVEL=(str, "INFO"),
     STREET_MAINTENANCE_LOG_LEVEL=(str, "INFO"),
     ENVIRONMENT_DATA_LOG_LEVEL=(str, "INFO"),
+    EXCEPTIONAL_SITUATIONS_LOG_LEVEL=(str, "INFO"),
 )
 
 
@@ -103,6 +104,7 @@ MOBILITY_DATA_LOG_LEVEL = env("MOBILITY_DATA_LOG_LEVEL")
 BICYCLE_NETWORK_LOG_LEVEL = env("BICYCLE_NETWORK_LOG_LEVEL")
 STREET_MAINTENANCE_LOG_LEVEL = env("STREET_MAINTENANCE_LOG_LEVEL")
 ENVIRONMENT_DATA_LOG_LEVEL = env("ENVIRONMENT_DATA_LOG_LEVEL")
+EXCEPTIONAL_SITUATIONS_LOG_LEVEL = env("EXCEPTIONAL_SITUATIONS_LOG_LEVEL")
 
 # Application definition
 INSTALLED_APPS = [
@@ -336,6 +338,10 @@ LOGGING = {
         "environment_data": {
             "handlers": ["console"],
             "level": ENVIRONMENT_DATA_LOG_LEVEL,
+        },
+        "exceptional_situations": {
+            "handlers": ["console"],
+            "level": EXCEPTIONAL_SITUATIONS_LOG_LEVEL,
         },
     },
 }
