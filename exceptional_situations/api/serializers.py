@@ -14,6 +14,8 @@ class SituationSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "is_active",
+            "start_time",
+            "end_time",
             "situation_id",
             "release_time",
             "situation_type",
