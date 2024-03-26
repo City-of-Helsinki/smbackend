@@ -1,14 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 from django.utils import timezone
 
-from exceptional_situations.models import (
-    Situation,
-    SituationAnnouncement,
-    SituationLocation,
-    SituationType,
-)
+from exceptional_situations.models import Situation, SituationAnnouncement
 
 NOW = timezone.now()
 
