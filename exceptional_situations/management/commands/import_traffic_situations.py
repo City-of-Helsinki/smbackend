@@ -4,11 +4,13 @@ Imports road works and traffic announcements in Southwest Finland from digitraff
 
 import logging
 from copy import deepcopy
+from datetime import datetime
 
 import requests
 from dateutil import parser
 from django.contrib.gis.geos import GEOSGeometry, Polygon
 from django.core.management import BaseCommand
+from django.utils import timezone
 
 from exceptional_situations.models import (
     PROJECTION_SRID,
@@ -32,7 +34,7 @@ TRAFFIC_ANNOUNCEMENT_URL = (
     "?inactiveHours=0&includeAreaGeometry=true&situationType=TRAFFIC_ANNOUNCEMENT"
 )
 URLS = [ROAD_WORK_URL, TRAFFIC_ANNOUNCEMENT_URL]
-DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 SOUTHWEST_FINLAND_POLYGON = Polygon(
     SOUTHWEST_FINLAND_BOUNDARY, srid=SOUTHWEST_FINLAND_BOUNDARY_SRID
 )
@@ -109,11 +111,10 @@ class Command(BaseCommand):
                     continue
                 situation_id = properties.get("situationId", None)
                 release_time = properties.get("releaseTime", None)
-                try:
-                    release_time = parser.parse(release_time)
-                except parser.ParserError:
-                    logger.error(f"Invalid release time {release_time}")
-                    continue
+                release_time = datetime.strptime(release_time, DATETIME_FORMAT).replace(
+                    microsecond=0
+                )
+                release_time = timezone.make_aware(release_time, timezone.utc)
 
                 type_name = properties.get("situationType", None)
                 sub_type_name = properties.get("trafficAnnouncementType", None)
@@ -124,10 +125,11 @@ class Command(BaseCommand):
 
                 filter = {
                     "situation_id": situation_id,
-                    "release_time": release_time,
                     "situation_type": situation_type,
                 }
                 situation, _ = Situation.objects.get_or_create(**filter)
+                situation.release_time = release_time
+                situation.save()
 
                 SituationAnnouncement.objects.filter(situation=situation).delete()
                 situation.announcements.clear()
