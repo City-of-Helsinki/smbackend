@@ -44,7 +44,7 @@ class SituationAnnouncement(models.Model):
 class Situation(models.Model):
     situation_id = models.CharField(max_length=64)
     situation_type = models.ForeignKey(SituationType, on_delete=models.CASCADE)
-    release_time = models.DateTimeField()
+    release_time = models.DateTimeField(null=True, blank=True)
     announcements = models.ManyToManyField(SituationAnnouncement)
 
     class Meta:
@@ -83,7 +83,7 @@ class Situation(models.Model):
         for announcement in self.announcements.all():
             if not start_time:
                 start_time = announcement.start_time
-            if start_time < announcement.start_time:
+            if announcement.start_time < start_time:
                 start_time = announcement.start_time
         return start_time
 
@@ -97,6 +97,6 @@ class Situation(models.Model):
             if not end_time:
                 end_time = announcement.end_time
 
-            if end_time > announcement.end_time:
+            if announcement.end_time > end_time:
                 end_time = announcement.end_time
         return end_time
