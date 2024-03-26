@@ -129,15 +129,12 @@ class Command(BaseCommand):
                 }
                 situation, _ = Situation.objects.get_or_create(**filter)
 
-                SituationLocation.objects.filter(situation=situation).delete()
                 SituationAnnouncement.objects.filter(situation=situation).delete()
-                situation.locations.clear()
                 situation.announcements.clear()
                 for announcement_data in properties.get("announcements", []):
                     situation_location = self.create_location(
                         geometry, announcement_data
                     )
-                    situation.locations.add(situation_location)
                     situation_announcement = self.create_announcement(
                         deepcopy(announcement_data), situation_location
                     )
