@@ -3,7 +3,7 @@ from rest_framework import routers
 
 from exceptional_situations.api import views
 
-app_name = "exceptional_stituations"
+app_name = "exceptional_situations"
 
 
 router = routers.DefaultRouter()
@@ -20,5 +20,5 @@ router.register(
 )
 
 urlpatterns = [
-    path("api/v1/", include(router.urls), name="exceptional_stituations"),
+    path("api/v1/", include(router.urls), name="exceptional_situations"),
 ]
