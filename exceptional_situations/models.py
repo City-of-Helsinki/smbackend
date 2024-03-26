@@ -43,7 +43,6 @@ class Situation(models.Model):
     situation_id = models.CharField(max_length=64)
     situation_type = models.ForeignKey(SituationType, on_delete=models.CASCADE)
     release_time = models.DateTimeField()
-    locations = models.ManyToManyField(SituationLocation)
     announcements = models.ManyToManyField(SituationAnnouncement)
 
     class Meta:
