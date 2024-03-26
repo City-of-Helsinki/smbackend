@@ -8,11 +8,20 @@ class SituationType(models.Model):
     type_name = models.CharField(max_length=64)
     sub_type_name = models.CharField(max_length=64, null=True, blank=True)
 
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return "%s (%s)" % (self.type_name, self.id)
+
 
 class SituationLocation(models.Model):
     location = models.PointField(null=True, blank=True, srid=PROJECTION_SRID)
     geometry = models.GeometryField(null=True, blank=True, srid=PROJECTION_SRID)
     details = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["id"]
 
 
 class SituationAnnouncement(models.Model):
@@ -23,6 +32,12 @@ class SituationAnnouncement(models.Model):
     additional_info = models.JSONField(null=True, blank=True)
     location = models.OneToOneField(SituationLocation, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ["start_time"]
+
+    def __str__(self):
+        return "%s (%s)" % (self.title, self.id)
+
 
 class Situation(models.Model):
     situation_id = models.CharField(max_length=64)
@@ -30,6 +45,9 @@ class Situation(models.Model):
     release_time = models.DateTimeField()
     locations = models.ManyToManyField(SituationLocation)
     announcements = models.ManyToManyField(SituationAnnouncement)
+
+    class Meta:
+        ordering = ["id"]
 
     @property
     def situation_type_str(self):
@@ -54,9 +72,9 @@ class Situation(models.Model):
         )
 
     @property
-    def situation_start_time(self):
+    def start_time(self):
         """
-        Return start_time furthest in history
+        Return the start_time that is furthest in history
         """
         start_time = None
         for announcement in self.announcements.all():
@@ -67,9 +85,9 @@ class Situation(models.Model):
         return start_time
 
     @property
-    def situation_end_time(self):
+    def end_time(self):
         """
-        Return end_time furthest in future
+        Return the end_time that is furthest in future
         """
         end_time = None
         for announcement in self.announcements.filter(end_time__isnull=False):
