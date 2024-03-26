@@ -26,11 +26,13 @@ class SituationLocation(models.Model):
 
 class SituationAnnouncement(models.Model):
     title = models.CharField(max_length=128)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True, blank=True)
     additional_info = models.JSONField(null=True, blank=True)
-    location = models.OneToOneField(SituationLocation, on_delete=models.CASCADE)
+    location = models.OneToOneField(
+        SituationLocation, on_delete=models.CASCADE, null=True, blank=True
+    )
 
     class Meta:
         ordering = ["start_time"]
@@ -58,14 +60,16 @@ class Situation(models.Model):
 
     @property
     def is_active(self):
+        if not self.announcements.exists():
+            return False
         # If one or more end_time is null(unknown?) the situation is active
         if self.announcements.filter(end_time__isnull=True).exists():
             return True
 
-        # If end_time is past for all announcements, retrun True, else False
-        return all(
+        # If end_time is past for all announcements, return True, else False
+        return any(
             {
-                not a.end_time < timezone.now()
+                a.end_time > timezone.now()
                 for a in self.announcements.filter(end_time__isnull=False)
             }
         )
