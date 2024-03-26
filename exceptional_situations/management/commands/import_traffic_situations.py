@@ -1,3 +1,7 @@
+"""
+Imports road works and traffic announcements in Southwest Finland from digitraffic.fi.
+"""
+
 import logging
 from copy import deepcopy
 
@@ -19,7 +23,6 @@ from mobility_data.importers.constants import (
 )
 
 logger = logging.getLogger(__name__)
-
 ROAD_WORK_URL = (
     "https://tie.digitraffic.fi/api/traffic-message/v1/messages"
     "?inactiveHours=0&includeAreaGeometry=true&situationType=ROAD_WORK"
@@ -87,6 +90,7 @@ class Command(BaseCommand):
         return situation_announcement
 
     def handle(self, *args, **options):
+        num_imported = 0
         for url in URLS:
             try:
                 response = requests.get(url)
@@ -138,3 +142,5 @@ class Command(BaseCommand):
                         deepcopy(announcement_data), situation_location
                     )
                     situation.announcements.add(situation_announcement)
+                num_imported += 1
+        logger.info(f"Imported/updated {num_imported} traffic situations.")
