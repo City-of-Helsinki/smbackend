@@ -25,9 +25,6 @@ class SituationSerializer(serializers.ModelSerializer):
 
     def to_representation(self, obj):
         representation = super().to_representation(obj)
-        representation["locations"] = SituationLocationSerializer(
-            obj.locations, many=True
-        ).data
         representation["announcements"] = SituationAnnouncementSerializer(
             obj.announcements, many=True
         ).data
@@ -38,6 +35,17 @@ class SituationAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = SituationAnnouncement
         fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields.pop("location")
+
+    def to_representation(self, obj):
+        representation = super().to_representation(obj)
+        representation["location"] = SituationLocationSerializer(
+            obj.location, many=False
+        ).data
+        return representation
 
 
 class SituationLocationSerializer(serializers.ModelSerializer):
