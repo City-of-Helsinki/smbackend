@@ -62,6 +62,13 @@ class Situation(models.Model):
     def is_active(self):
         if not self.announcements.exists():
             return False
+
+        start_times_in_future = all(
+            {a.start_time > timezone.now() for a in self.announcements.all()}
+        )
+        # If all start times are in future, return False
+        if start_times_in_future:
+            return False
         # If one or more end_time is null(unknown?) the situation is active
         if self.announcements.filter(end_time__isnull=True).exists():
             return True
