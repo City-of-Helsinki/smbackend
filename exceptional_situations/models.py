@@ -33,7 +33,11 @@ class SituationAnnouncement(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
     additional_info = models.JSONField(null=True, blank=True)
     location = models.OneToOneField(
-        SituationLocation, on_delete=models.CASCADE, null=True, blank=True
+        SituationLocation,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="announcement",
     )
 
     class Meta:
