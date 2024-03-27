@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.gis.db import models
 from django.utils import timezone
 
@@ -51,15 +53,15 @@ class Situation(models.Model):
         ordering = ["id"]
 
     @property
-    def situation_type_str(self):
+    def situation_type_str(self) -> str:
         return self.situation_type.type_name
 
     @property
-    def situation_sub_type_str(self):
+    def situation_sub_type_str(self) -> str:
         return self.situation_type.sub_type_name
 
     @property
-    def is_active(self):
+    def is_active(self) -> bool:
         if not self.announcements.exists():
             return False
 
@@ -82,7 +84,7 @@ class Situation(models.Model):
         )
 
     @property
-    def start_time(self):
+    def start_time(self) -> datetime:
         """
         Return the start_time that is furthest in history
         """
@@ -95,7 +97,7 @@ class Situation(models.Model):
         return start_time
 
     @property
-    def end_time(self):
+    def end_time(self) -> datetime:
         """
         Return the end_time that is furthest in future
         """
