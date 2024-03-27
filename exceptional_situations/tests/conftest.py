@@ -1,7 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 from django.contrib.gis.geos import GEOSGeometry
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from exceptional_situations.models import (
@@ -11,7 +12,7 @@ from exceptional_situations.models import (
     SituationType,
 )
 
-NOW = datetime.now()
+NOW = timezone.now()
 
 
 @pytest.fixture
