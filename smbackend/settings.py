@@ -355,6 +355,8 @@ DOC_ENDPOINTS = [
     "/environment_data/api/v1/stations/",
     "/environment_data/api/v1/parameters/",
     "/environment_data/api/v1/data/",
+    "/exceptional_situations/api/v1/situation/",
+    "/exceptional_situations/api/v1/situation_type/",
 ]
 
 
