@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib.gis import admin
 
 from exceptional_situations.models import (
     Situation,
@@ -20,7 +20,7 @@ class SituationAnnouncementAdmin(admin.ModelAdmin):
     list_display = ("title", "start_time", "end_time")
 
 
-class SituationLocationAdmin(admin.ModelAdmin):
+class SituationLocationAdmin(admin.OSMGeoAdmin):
     list_display = ("id", "title", "geometry")
 
     def title(self, obj):
