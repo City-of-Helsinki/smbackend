@@ -164,6 +164,11 @@ def import_under_and_overpasses(name="import_under_and_overpasses"):
 
 
 @shared_task_email
+def import_street_area_information(name="import_street_area_information"):
+    management.call_command("import_wfs", "StreetAreaInformation")
+
+
+@shared_task_email
 def delete_obsolete_data(name="delete_obsolete_data"):
     MobileUnit.objects.filter(content_types__isnull=True).delete()
     ContentType.objects.filter(mobile_units__content_types__isnull=True).delete()
