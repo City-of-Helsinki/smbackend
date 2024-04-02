@@ -10,6 +10,7 @@ from rest_framework import routers
 import bicycle_network.api.urls
 import eco_counter.api.urls
 import environment_data.api.urls
+import exceptional_situations.api.urls
 import mobility_data.api.urls
 import street_maintenance.api.urls
 from iot.api import IoTViewSet
@@ -70,6 +71,11 @@ urlpatterns = [
         r"^environment_data/",
         include(environment_data.api.urls),
         name="environmet_data",
+    ),
+    re_path(
+        r"^exceptional_situations/",
+        include(exceptional_situations.api.urls),
+        name="exceptional_situations",
     ),
     re_path(
         r"^street_maintenance/",
