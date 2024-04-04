@@ -38,7 +38,7 @@ features:
     wfs_layer: GIS:Varusteet
     max_features: 100000 
     include:
-      Tyyppi: Grillipaikka
+      Varustelaji: Grillauspaikka      
     extra_fields:
       valmistaja:
         wfs_field: Valmistaja
