@@ -377,6 +377,7 @@ features:
   - content_type_name: PublicToilet
     wfs_layer: GIS:Varusteet
     max_features: 10000
+    locates_in_turku: True
     # Default is False, if True include only if geometry locates in Turku.
     # Include feature if field 'Tyyppi' has value 'WC'
     include:
@@ -456,6 +457,7 @@ features:
   - content_type_name: PublicBench
     wfs_layer: GIS:Varusteet
     max_features: 10000
+    locates_in_turku: True
     include:
       Tyyppi: Penkki
     extra_fields:
