@@ -70,6 +70,12 @@ features:
       asennus:
         wfs_field: Asennus
 
+  - content_type_name: LeanTo
+    wfs_layer: GIS:Varusteet
+    max_features: 100000 
+    include:
+      Tyyppi: Laavu
+
   - content_type_name: TicketMachineSign
     wfs_layer: GIS:Liikennemerkit
     include: 
