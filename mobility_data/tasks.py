@@ -44,8 +44,8 @@ def import_accessories(name="import_accessories"):
 
 
 @shared_task_email
-def import_barbecue_places(name="import_barbecue_places"):
-    management.call_command("import_wfs", ["BarbecuePlace"])
+def import_outdoor_places(name="import_outdoor_places"):
+    management.call_command("import_wfs", ["BarbecuePlace", "LeanTo"])
 
 
 @shared_task_email
