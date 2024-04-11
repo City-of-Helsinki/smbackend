@@ -413,6 +413,11 @@ content_types:
       sv: Tillgänglighetsområde för skola och daghem
       en: School and kindergarten accessibility area
 
+  - content_type_name: StreetAreaInformation
+    name:
+      fi: KatuAlueTieto
+      sv: GatuOmrådeInformation
+      en: StreetAreaInformation
   # End of content types importer from opaskarta.turku.fi
 
   - content_type_name: Underpass
