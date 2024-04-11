@@ -195,6 +195,12 @@ content_types:
       sv: Grillplats
       en: Barbecue place
 
+  - content_type_name: LeanTo
+    name:
+      fi: Laavu
+      sv: Vindskydd
+      en: LeanTo
+
   - content_type_name: TicketMachineSign
     # Liikennemerkki: 990 Lippuautomaatti
     name:

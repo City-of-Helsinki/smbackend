@@ -66,7 +66,7 @@ features:
     wfs_layer: GIS:Varusteet
     max_features: 100000 
     include:
-      Tyyppi: Grillipaikka
+      Varustelaji: Grillauspaikka      
     extra_fields:
       valmistaja:
         wfs_field: Valmistaja
@@ -97,6 +97,12 @@ features:
         wfs_type: double
       asennus:
         wfs_field: Asennus
+
+  - content_type_name: LeanTo
+    wfs_layer: GIS:Varusteet
+    max_features: 100000 
+    include:
+      Tyyppi: Laavu
 
   - content_type_name: TicketMachineSign
     wfs_layer: GIS:Liikennemerkit
