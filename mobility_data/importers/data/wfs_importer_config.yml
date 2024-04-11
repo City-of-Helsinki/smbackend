@@ -560,9 +560,12 @@ features:
       name:
         fi: Kohde
     extra_fields:
-      Minuutit:
+      kohde_ID:
+        wfs_field: Kohde_ID
+        wfs_type: int
+      minuutit:
         wfs_field: Minuutit
         wfs_type: int
-      Kulkumuoto:
+      kulkumuoto:
         wfs_field: Kulkumuoto
 
