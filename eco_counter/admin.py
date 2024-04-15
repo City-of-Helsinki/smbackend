@@ -55,8 +55,16 @@ class HourDataAdmin(DataAdmin):
 
 
 class ImportStateAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "csv_data_source",
+        "current_year_number",
+        "current_month_number",
+        "current_day_number",
+    )
+
     def get_readonly_fields(self, request, obj=None):
-        return [f.name for f in self.model._meta.fields]
+        return ["csv_data_source"]
 
 
 class StationAdmin(admin.ModelAdmin):

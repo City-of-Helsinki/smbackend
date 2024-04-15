@@ -44,8 +44,8 @@ def import_accessories(name="import_accessories"):
 
 
 @shared_task_email
-def import_barbecue_places(name="import_barbecue_places"):
-    management.call_command("import_wfs", ["BarbecuePlace"])
+def import_outdoor_places(name="import_outdoor_places"):
+    management.call_command("import_wfs", ["BarbecuePlace", "LeanTo"])
 
 
 @shared_task_email
@@ -161,6 +161,11 @@ def import_parking_machines(name="import_parking_machines"):
 @shared_task_email
 def import_under_and_overpasses(name="import_under_and_overpasses"):
     management.call_command("import_under_and_overpasses")
+
+
+@shared_task_email
+def import_street_area_information(name="import_street_area_information"):
+    management.call_command("import_wfs", "StreetAreaInformation")
 
 
 @shared_task_email

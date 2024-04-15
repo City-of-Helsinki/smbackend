@@ -1,4 +1,32 @@
 features:
+  - content_type_name: StreetAreaInformation
+    wfs_layer: GIS:Katualueet
+    max_features: 100000
+    fields:
+      name:
+        fi: Kadunnimi
+    extra_fields:
+      omistaja:
+        wfs_field: Omistaja
+      omistaja_koodi:
+        wfs_field: Omistaja_koodi
+      kunnossapitaja:
+        wfs_field: Kunnossapitaja
+      kunnossapitoluokka:
+        wfs_field: Kunnossapitoluokka
+      kunnossapitoluokka_koodi:
+        wfs_field: Kunnossapitoluokka_koodi
+      talvikunnossapito:
+        wfs_field: Talvikunnossapito
+      talvikunnossapito_koodi:
+        wfs_field: Talvikunnossapito_koodi
+      pintamateriaaliryhma:
+        wfs_field: Pintamateriaaliryhma
+      pintamateriaali:
+        wfs_field: Pintamateriaali
+      pintamateriaali_koodi:
+        wfs_field: Pintamateriaali_koodi
+      
   - content_type_name: PlayGround
     wfs_layer: GIS:Viheralueet
     max_features: 50000
@@ -38,7 +66,7 @@ features:
     wfs_layer: GIS:Varusteet
     max_features: 100000 
     include:
-      Tyyppi: Grillipaikka
+      Varustelaji: Grillauspaikka      
     extra_fields:
       valmistaja:
         wfs_field: Valmistaja
@@ -69,6 +97,12 @@ features:
         wfs_type: double
       asennus:
         wfs_field: Asennus
+
+  - content_type_name: LeanTo
+    wfs_layer: GIS:Varusteet
+    max_features: 100000 
+    include:
+      Tyyppi: Laavu
 
   - content_type_name: TicketMachineSign
     wfs_layer: GIS:Liikennemerkit
@@ -335,18 +369,22 @@ features:
   
   - content_type_name: ScooterParkingArea
     wfs_layer: GIS:Sahkopotkulautaparkki
+    locates_in_turku: False
   
   - content_type_name: ScooterSpeedLimitArea
     wfs_layer: GIS:Sahkopotkulauta_nopeusrajoitus
+    locates_in_turku: False
 
   - content_type_name: ScooterNoParkingArea
     wfs_layer: GIS:Sahkopotkulauta_pysakointikielto
+    locates_in_turku: False
+
 
   - content_type_name: PublicToilet
     wfs_layer: GIS:Varusteet
     max_features: 10000
-    # Default is False, if True include only if geometry locates in Turku.
     locates_in_turku: True
+    # Default is False, if True include only if geometry locates in Turku.
     # Include feature if field 'Tyyppi' has value 'WC'
     include:
       Tyyppi: WC
@@ -522,9 +560,12 @@ features:
       name:
         fi: Kohde
     extra_fields:
-      Minuutit:
+      kohde_ID:
+        wfs_field: Kohde_ID
+        wfs_type: int
+      minuutit:
         wfs_field: Minuutit
         wfs_type: int
-      Kulkumuoto:
+      kulkumuoto:
         wfs_field: Kulkumuoto
 

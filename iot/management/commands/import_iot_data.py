@@ -1,7 +1,9 @@
 import json
 import logging
+from xml.parsers.expat import ExpatError
 
 import requests
+import xmltodict
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 
@@ -13,17 +15,25 @@ logger = logging.getLogger("iot")
 
 def save_data_to_db(source):
     IoTData.objects.filter(data_source=source).delete()
-
     try:
-        response = requests.get(source.url)
+        response = requests.get(source.url, headers=source.headers)
     except requests.exceptions.ConnectionError:
         logger.error(f"Could not fetch data from: {source.url}")
         return
-    try:
-        json_data = response.json()
-    except json.decoder.JSONDecodeError:
-        logger.error(f"Could not decode data to json from: {source.url}")
-        return
+    if source.is_xml:
+        try:
+            json_data = xmltodict.parse(response.text)
+        except ExpatError as err:
+            logger.error(
+                f"Could not parse XML data from the give url {source.url}. {err}"
+            )
+            return
+    else:
+        try:
+            json_data = response.json()
+        except json.decoder.JSONDecodeError as err:
+            logger.error(f"Could not decode data to JSON from: {source.url}. {err}")
+            return
 
     IoTData.objects.create(data_source=source, data=json_data)
 

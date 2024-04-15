@@ -206,7 +206,10 @@ def get_traffic_counter_csv(start_year=2015):
         # data from years before the start year.
         if key <= start_year:
             continue
-        concat_df = get_dataframe(TRAFFIC_COUNTER_CSV_URLS[key])
+        try:
+            concat_df = get_dataframe(TRAFFIC_COUNTER_CSV_URLS[key])
+        except AssertionError:
+            continue
         # ignore_index=True, do not use the index values along the concatenation axis.
         # The resulting axis will be labeled 0, …, n - 1.
         df = pd.concat([df, concat_df], ignore_index=True)

@@ -151,10 +151,10 @@ def get_data_source(config, max_features):
 
 def import_wfs_feature(config, data_file=None):
     if "content_type_name" not in config:
-        logger.warning(f"Skipping feature {config}, 'content_type_name' is required.")
+        logger.warning(f"Discarding feature {config}, 'content_type_name' is required.")
         return False
     if "wfs_layer" not in config:
-        logger.warning(f"Skipping feature {config}, no wfs_layer defined.")
+        logger.warning(f"Dicarding feature {config}, no wfs_layer defined.")
         return False
     if "max_features" in config:
         max_features = config["max_features"]
