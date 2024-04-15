@@ -22,6 +22,7 @@ function stage_1 {
     ./manage.py update_parking_areas
     ./manage.py update_vantaa_parking_areas
     ./manage.py update_vantaa_parking_payzones
+    ./manage.py lipas_import_vantaa_nature_reserves
     ./manage.py index_search_columns
 }
 
