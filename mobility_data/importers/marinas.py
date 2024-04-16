@@ -3,6 +3,7 @@ Imports marinas, guest marina and boat parking.
 Note, wfs importer is not used as the berths data is
 separately assigned to the marina mobile units.
 """
+
 import logging
 
 from django.conf import settings
