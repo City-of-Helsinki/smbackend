@@ -177,6 +177,11 @@ def test_search_input_query_validation(api_client):
     response = api_client.get(url)
     assert response.status_code == 200
 
+    # Test that + is allowed in query
+    url = reverse("search") + "?q=Keskustakirjasto+Oodi"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
     # Test that "ääkköset" are allowed in query
     url = reverse("search") + "?q=lääkäri"
     response = api_client.get(url)
@@ -199,5 +204,5 @@ def test_search_input_query_validation(api_client):
     assert response.status_code == 400
     assert (
         response.json()["detail"]
-        == "Invalid search terms, only letters, numbers, spaces and -&| allowed."
+        == "Invalid search terms, only letters, numbers, spaces and +-&| allowed."
     )
