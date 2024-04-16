@@ -4,6 +4,7 @@ https://github.com/City-of-Helsinki/django-munigeo/blob/0.2/munigeo/importer/hel
 and modified to fit the WFS server of Turku.
 
 """
+
 import os
 import re
 from datetime import datetime
