@@ -8,6 +8,7 @@ https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx
 has been removed from the test input data, as it causes GDAL
 DataSource to fail when loading data.
 """
+
 import pytest
 from django.conf import settings
 

@@ -47,9 +47,9 @@ class CarShareParkingPlace(MobileUnitDataBase):
         street_name["en"] = street_name["fi"]
         self.extra[self.RESTRICTION_FIELD] = {}
         for i, language in enumerate(LANGUAGES):
-            self.name[
-                language
-            ] = f"{self.CAR_PARKING_NAME[language]}, {street_name[language]}"
+            self.name[language] = (
+                f"{self.CAR_PARKING_NAME[language]}, {street_name[language]}"
+            )
             self.address[language] = street_name[language]
             self.extra[self.RESTRICTION_FIELD][language] = restrictions[i].strip()
 

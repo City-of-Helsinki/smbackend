@@ -50,9 +50,9 @@ class BikeServiceStation(MobileUnitDataBase):
                 # If no swedish address, retrieve it from the database.
                 if language == "sv":
                     street_name, number = addresses[0].split(" ")
-                    self.address[
-                        language
-                    ] = f"{get_street_name_translations(street_name, municipality)[language]} number"
+                    self.address[language] = (
+                        f"{get_street_name_translations(street_name, municipality)[language]} number"
+                    )
                 # Source data does not contain English addresses, assign the Finnsh
                 else:
                     self.address[language] = addresses[0]

@@ -20,7 +20,7 @@ attrs==21.2.0
     #   requests-cache
 billiard==3.6.4.0
     # via celery
-black==22.6.0
+black==24.3.0
     # via -r requirements.in
 cattrs==1.8.0
     # via requests-cache
@@ -138,8 +138,10 @@ numpy==1.23.0
     # via
     #   -r requirements.in
     #   pandas
-packaging==21.0
-    # via pytest
+packaging==24.0
+    # via
+    #   black
+    #   pytest
 pandas==2.0.1
     # via -r requirements.in
 parso==0.8.2
@@ -172,8 +174,6 @@ pyflakes==2.3.1
     # via flake8
 pykml==0.2.0
     # via -r requirements.in
-pyparsing==2.4.7
-    # via packaging
 pyrsistent==0.19.3
     # via jsonschema
 pyshp==2.3.1
@@ -240,6 +240,8 @@ tomli==1.2.1
     #   pep517
 tqdm==4.62.3
     # via -r requirements.in
+typing-extensions==4.11.0
+    # via black
 tzdata==2022.1
     # via
     #   django-celery-beat

@@ -6,6 +6,7 @@ and only needed if changes are made to the importer.
 The main purpose of these tests are to verify that the importer
 imports and calculates the data correctly.
 """
+
 import calendar
 from datetime import datetime, timedelta
 from io import StringIO

@@ -45,9 +45,9 @@ def get_dataframe(stations, from_year=START_YEAR, from_month=1, initial_import=F
                 if not initial_import and from_year == current_date_time.year:
                     params["startTime"] = f"{from_year}-{from_month}-01T00:00Z"
                 else:
-                    params[
-                        "startTime"
-                    ] = f"{start_date_time.year}-{start_date_time.month}-01T00:00Z"
+                    params["startTime"] = (
+                        f"{start_date_time.year}-{start_date_time.month}-01T00:00Z"
+                    )
                 if current_date_time - relativedelta(months=1) < start_date_time:
                     params["endTime"] = current_date_time.strftime(TIME_FORMAT)
                 else:
@@ -56,9 +56,9 @@ def get_dataframe(stations, from_year=START_YEAR, from_month=1, initial_import=F
                         + relativedelta(months=1)
                         - relativedelta(hours=1)
                     )
-                    params[
-                        "endTime"
-                    ] = f"{tmp_time.year}-{tmp_time.month}-{tmp_time.day}T23:00Z"
+                    params["endTime"] = (
+                        f"{tmp_time.year}-{tmp_time.month}-{tmp_time.day}T23:00Z"
+                    )
 
                 response = REQUEST_SESSION.get(DATA_URL, params=params)
                 logger.info(f"Requested data from: {response.url}")

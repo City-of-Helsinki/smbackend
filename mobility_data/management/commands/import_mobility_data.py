@@ -1,6 +1,7 @@
 """
 Imports all mobility data sources.
 """
+
 import logging
 
 from django.core import management
