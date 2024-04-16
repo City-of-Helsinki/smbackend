@@ -473,8 +473,9 @@ class SearchViewSet(GenericAPIView):
                 )
 
             services_qs = services_qs.annotate(num_units=Count("units")).order_by(
-                "-units__count"
+                "-num_units"
             )
+
             # order_by() call makes duplicate rows appear distinct. This is solved by
             # fetching the ids and filtering a new queryset using them
             ids = list(services_qs.values_list("id", flat=True))
