@@ -108,7 +108,7 @@ flake8==3.9.2
     #   pep8-naming
 flake8-polyfill==1.0.2
     # via pep8-naming
-idna==3.2
+idna==3.7
     # via requests
 inflection==0.5.1
     # via drf-spectacular
