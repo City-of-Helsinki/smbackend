@@ -322,6 +322,11 @@ class SearchViewSet(GenericAPIView):
         if not q_val:
             raise ParseError("Supply search terms with 'q=' ' or input=' '")
 
+        if not re.match(r"^[\w\såäö&|-]+$", q_val):
+            raise ParseError(
+                "Invalid search terms, only letters, numbers, spaces and -&| allowed."
+            )
+
         types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])
         types = params.get("type", types_str).split(",")
         if "use_trigram" in self.request.query_params:
@@ -424,13 +429,13 @@ class SearchViewSet(GenericAPIView):
         # and by rankig gives better results, e.g. extra fields weight is counted.
         sql = f"""
         SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
-        AS rank FROM search_view, {search_fn}('{config_language}','{search_query_str}') search_query
+        AS rank FROM search_view, {search_fn}('{config_language}', %s) search_query
         WHERE search_query @@ search_column_{language_short}
         ORDER BY rank DESC LIMIT {sql_query_limit};
         """
 
         cursor = connection.cursor()
-        cursor.execute(sql)
+        cursor.execute(sql, [search_query_str])
         # Note, fetchall() consumes the results and once called returns None.
         all_results = cursor.fetchall()
         all_ids = get_all_ids_from_sql_results(all_results)
