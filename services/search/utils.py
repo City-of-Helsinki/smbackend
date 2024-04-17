@@ -1,6 +1,9 @@
+import logging
+
 import libvoikko
 from django.db import connection
 from django.db.models import Case, When
+from rest_framework.exceptions import ParseError
 
 from services.models import ExclusionRule, ServiceNode, ServiceNodeUnitCount, Unit
 from services.search.constants import (
@@ -8,6 +11,7 @@ from services.search.constants import (
     SEARCHABLE_MODEL_TYPE_NAMES,
 )
 
+logger = logging.getLogger("search")
 voikko = libvoikko.Voikko("fi")
 voikko.setNoUglyHyphenation(True)
 
@@ -188,11 +192,15 @@ def get_trigram_results(
 ):
     sql = f"""SELECT id, similarity({field}, %s) AS sml
         FROM {model_name}
-        WHERE  similarity({field},%s) >= {threshold}
+        WHERE  similarity({field}, %s) >= {threshold}
         ORDER BY sml DESC;
     """
     cursor = connection.cursor()
-    cursor.execute(sql, [q_val, q_val])
+    try:
+        cursor.execute(sql, [q_val, q_val])
+    except Exception as e:
+        logger.error(f"Error in similarity query: {e}")
+        raise ParseError("Similariy query failed.")
     all_results = cursor.fetchall()
     ids = [row[0] for row in all_results]
     objs = model.objects.filter(id__in=ids)
