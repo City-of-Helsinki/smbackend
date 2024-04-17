@@ -249,6 +249,13 @@ class SearchSerializer(serializers.Serializer):
             type=bool,
         ),
         OpenApiParameter(
+            name="order_units_by_provider_type",
+            location=OpenApiParameter.QUERY,
+            description="Order units by provider type. If not given defaults to true.",
+            required=False,
+            type=bool,
+        ),
+        OpenApiParameter(
             name="include",
             location=OpenApiParameter.QUERY,
             description="Comma separated list of fields to include in the response. Format: entity.field, e.g., "
@@ -314,7 +321,7 @@ class SearchViewSet(GenericAPIView):
     def get(self, request):
         model_limits = {}
         show_only_address = False
-        units_order_list = ["provider_type"]
+        units_order_list = []
         for model in list(QUERY_PARAM_TYPE_NAMES):
             model_limits[model] = DEFAULT_MODEL_LIMIT_VALUE
 
@@ -383,6 +390,18 @@ class SearchViewSet(GenericAPIView):
         if order_units_by_num_services:
             units_order_list.append("-num_services")
 
+        if "order_units_by_provider_type" in params:
+            try:
+                order_units_by_provider_type = strtobool(
+                    params["order_units_by_provider_type"]
+                )
+            except ValueError:
+                raise ParseError("'order_units_by_provider_type' needs to be a boolean")
+        else:
+            order_units_by_provider_type = True
+
+        if order_units_by_provider_type:
+            units_order_list.append("provider_type")
         if "include" in params:
             include_fields = params["include"].split(",")
         else:
@@ -515,9 +534,12 @@ class SearchViewSet(GenericAPIView):
                 services = self.request.query_params["service"].strip().split(",")
                 if services[0]:
                     units_qs = units_qs.filter(services__in=services)
-            units_qs = units_qs.annotate(num_services=Count("services")).order_by(
-                *units_order_list
-            )
+
+            if units_order_list:
+                units_qs = units_qs.annotate(num_services=Count("services")).order_by(
+                    *units_order_list
+                )
+
             units_qs = units_qs[: model_limits["unit"]]
         else:
             units_qs = Unit.objects.none()
