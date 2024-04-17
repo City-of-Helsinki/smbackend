@@ -323,9 +323,10 @@ class SearchViewSet(GenericAPIView):
         if not q_val:
             raise ParseError("Supply search terms with 'q=' ' or input=' '")
 
-        if not re.match(r"^[\w\såäö+&|-]+$", q_val):
+        if not re.match(r"^[\w\såäö.'+&|-]+$", q_val):
+
             raise ParseError(
-                "Invalid search terms, only letters, numbers, spaces and +-&| allowed."
+                "Invalid search terms, only letters, numbers, spaces and .'+-&| allowed."
             )
 
         types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])
@@ -417,10 +418,9 @@ class SearchViewSet(GenericAPIView):
         # Build conditional query string that is used in the SQL query.
         # split by "," or whitespace
         q_vals = re.split(r",\s+|\s+", q_val)
-        q_vals = [s.strip().replace("'", "") for s in q_vals]
         for q in q_vals:
             if search_query_str:
-                # if ends with "|"" make it a or
+                # if ends with "|" make it a or
                 if q[-1] == "|":
                     search_query_str += f"| {q[:-1]}:*"
                 # else make it an and.
@@ -439,7 +439,7 @@ class SearchViewSet(GenericAPIView):
         sql = f"""
             SELECT * from (
                 SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
-                AS rank FROM search_view, {search_fn}('{config_language}','{search_query_str}') search_query
+                AS rank FROM search_view, {search_fn}('{config_language}', %s) search_query
                 WHERE search_query @@ search_column_{language_short}
                 ORDER BY rank DESC LIMIT {sql_query_limit}
             ) AS sub_query where sub_query.rank >= {rank_threshold};

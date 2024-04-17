@@ -186,15 +186,14 @@ def get_preserved_order(ids):
 def get_trigram_results(
     model, model_name, field, q_val, threshold=DEFAULT_TRIGRAM_THRESHOLD
 ):
-    sql = f"""SELECT id, similarity({field}, '{q_val}') AS sml
+    sql = f"""SELECT id, similarity({field}, %s) AS sml
         FROM {model_name}
-        WHERE  similarity({field}, '{q_val}') >= {threshold}
+        WHERE  similarity({field},%s) >= {threshold}
         ORDER BY sml DESC;
     """
     cursor = connection.cursor()
-    cursor.execute(sql)
+    cursor.execute(sql, [q_val, q_val])
     all_results = cursor.fetchall()
-
     ids = [row[0] for row in all_results]
     objs = model.objects.filter(id__in=ids)
     return objs
