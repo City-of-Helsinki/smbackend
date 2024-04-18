@@ -387,19 +387,6 @@ def save_telraam_data(start_time):
             )
 
 
-def handle_initial_impor2t(initial_import_counters):
-    delete_tables(csv_data_sources=initial_import_counters)
-    for counter in initial_import_counters:
-        ImportState.objects.filter(csv_data_source=counter).delete()
-        ImportState.objects.create(csv_data_source=counter)
-        logger.info(f"Retrieving stations for {counter}.")
-        # As Telraam counters are dynamic, create after CSV data is processed
-        if counter == TELRAAM_COUNTER:
-            Station.objects.filter(csv_data_source=counter).delete()
-        else:
-            save_stations(counter)
-
-
 def handle_initial_import(counter):
     logger.info(f"Deleting tables for: {counter}")
     delete_tables(csv_data_sources=[counter])
@@ -467,30 +454,33 @@ def get_csv_data(counter, import_state, start_time, verbose=True):
         return csv_data
 
 
-def import_data(counters, initial_import=False):
+def import_data(counters, initial_import=False, force=False):
     for counter in counters:
         logger.info(f"Importing/counting data for {counter}...")
         import_state = ImportState.objects.filter(csv_data_source=counter).first()
+
         # Before deleting state and data, check that data is available.
-        if import_state and initial_import:
+        if not force and import_state and initial_import:
             start_time = get_start_time(counter, import_state)
             csv_data = get_csv_data(counter, import_state, start_time, verbose=False)
             if len(csv_data) == 0:
                 logger.info(
-                    "No data to retrieve, skipping initial import. Use --force-init to discard."
+                    "No data to retrieve, skipping initial import. Use --force to discard."
                 )
                 continue
+
         if initial_import:
             handle_initial_import(counter)
+            import_state = ImportState.objects.filter(csv_data_source=counter).first()
 
         if not import_state:
             logger.error(
                 "ImportState instance not found, try importing with the '--init' argument."
             )
             break
+
         start_time = get_start_time(counter, import_state)
         csv_data = get_csv_data(counter, import_state, start_time)
-
         save_observations(
             csv_data,
             start_time,
@@ -537,12 +527,17 @@ class Command(BaseCommand):
             default=False,
             help=f"Import specific counter(s) data, choices are: {COUNTER_CHOICES_STR}.",
         )
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Force the initial import and discard data check",
+        )
 
     def handle(self, *args, **options):
         initial_import_counters = None
         start_time = None
         initial_import = False
-
+        force = options.get("force", False)
         if options["initial_import"]:
             if len(options["initial_import"]) == 0:
                 raise CommandError(
@@ -576,4 +571,4 @@ class Command(BaseCommand):
             else:
                 counters = initial_import_counters
             check_counters_argument(counters)
-            import_data(counters, initial_import)
+            import_data(counters, initial_import, force)
