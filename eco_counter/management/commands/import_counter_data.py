@@ -435,23 +435,19 @@ def get_csv_data(counter, import_state, start_time, verbose=True):
                 start_year = TRAFFIC_COUNTER_START_YEAR
             csv_data = get_traffic_counter_csv(start_year=start_year)
 
-    if counter == TELRAAM_COUNTER:
-        save_telraam_data(start_time)
-    else:
-        start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")
-        start_index = csv_data.index[
-            csv_data[INDEX_COLUMN_NAME] == start_time_string
-        ].values[0]
-        if verbose:
-            # As LAM data is fetched with a timespan, no index data is available, instead
-            # show time.
-            if counter == LAM_COUNTER:
-                logger.info(f"Starting saving observations at time:{start_time}")
-            else:
-                logger.info(f"Starting saving observations at index:{start_index}")
+    start_time_string = start_time.strftime("%Y-%m-%dT%H:%M")
+    start_index = csv_data.index[
+        csv_data[INDEX_COLUMN_NAME] == start_time_string
+    ].values[0]
+    if verbose:
+        # As LAM data is fetched with a timespan, no index data is available, instead display start_time.
+        if counter == LAM_COUNTER:
+            logger.info(f"Starting saving observations at time:{start_time}")
+        else:
+            logger.info(f"Starting saving observations at index:{start_index}")
 
-        csv_data = csv_data[start_index:]
-        return csv_data
+    csv_data = csv_data[start_index:]
+    return csv_data
 
 
 def import_data(counters, initial_import=False, force=False):
@@ -480,15 +476,19 @@ def import_data(counters, initial_import=False, force=False):
             break
 
         start_time = get_start_time(counter, import_state)
-        csv_data = get_csv_data(counter, import_state, start_time)
-        save_observations(
-            csv_data,
-            start_time,
-            csv_data_source=counter,
-        )
-        # Try to free some memory
-        del csv_data
-        gc.collect()
+
+        if counter == TELRAAM_COUNTER:
+            save_telraam_data(start_time)
+        else:
+            csv_data = get_csv_data(counter, import_state, start_time)
+            save_observations(
+                csv_data,
+                start_time,
+                csv_data_source=counter,
+            )
+            # Try to free some memory
+            del csv_data
+            gc.collect()
 
 
 def add_additional_data_to_stations(csv_data_source):
