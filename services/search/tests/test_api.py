@@ -79,7 +79,8 @@ def test_search(
     assert museum_service_node["unit_count"]["municipality"]["turku"] == 1
     assert museum_service_node["unit_count"]["total"] == 1
     # Test that unit "Impivara" is retrieved from service Uimahalli
-    url = reverse("search") + "?q=uimahalli&type=unit"
+    url = reverse("search") + "?q=uimahalli&type=unit&rank_threshold=0"
+
     response = api_client.get(url)
     results = response.json()["results"]
     assert results[0]["name"]["fi"] == "Impivaara"
@@ -120,6 +121,12 @@ def test_search(
     assert kurrapolku["location"]["type"] == "Point"
     assert kurrapolku["location"]["coordinates"][0] == 60.479032
     assert kurrapolku["location"]["coordinates"][1] == 22.25417
+    # Test address search with apostrophe in query
+    url = reverse("search") + "?q=tarkk'ampujankatu&type=address"
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert len(results) == 1
+    assert results[0]["name"]["fi"] == "Tarkk'ampujankatu 1"
     # Test that addresses are sorted by naturalsort.
     url = reverse("search") + "?q=yliopistonkatu&type=address"
     response = api_client.get(url)
@@ -153,3 +160,85 @@ def test_search(
     )
     response = api_client.get(url)
     assert len(response.json()["results"]) == 4
+
+
+@pytest.mark.django_db
+def test_search_input_query_validation(api_client):
+    # Test that | is allowed in query
+    url = reverse("search") + "?q=halli|museo"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that & is allowed in query
+    url = reverse("search") + "?q=halli&museo"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that - is allowed in query
+    url = reverse("search") + "?q=linja-auto"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that " " is allowed in query
+    url = reverse("search") + "?q=Keskustakirjasto Oodi"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that + is allowed in query
+    url = reverse("search") + "?q=Keskustakirjasto+Oodi"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that "ääkköset" are allowed in query
+    url = reverse("search") + "?q=lääkäri"
+    response = api_client.get(url)
+    assert response.status_code == 200
+    url = reverse("search") + "?q=röntgen"
+    response = api_client.get(url)
+    assert response.status_code == 200
+    url = reverse("search") + "?q=åbo"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that numbers are allowed in query
+    url = reverse("search") + "?q=123"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that . is allowed in query
+    url = reverse("search") + "?q=halli.museo"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that ' is allowed in query
+    url = reverse("search") + "?q=halli's"
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    # Test that special characters are not allowed in query
+    url = reverse("search") + "?q=halli("
+    response = api_client.get(url)
+    assert response.status_code == 400
+    assert (
+        response.json()["detail"]
+        == "Invalid search terms, only letters, numbers, spaces and .'+-&| allowed."
+    )
+
+
+@pytest.mark.django_db
+def test_search_service_order(api_client, units, services):
+    """
+    Test that services are ordered descending by unit count.
+    """
+    url = reverse("search") + "?q=halli&type=service"
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert len(results) == 3
+    assert results[0]["name"]["fi"] == "Halli"
+    assert results[0]["unit_count"]["total"] == 2
+
+    assert results[1]["name"]["fi"] == "Uimahalli"
+    assert results[1]["unit_count"]["total"] == 1
+
+    assert results[2]["name"]["fi"] == "Hallinto"
+    assert results[2]["unit_count"]["total"] == 0

@@ -357,6 +357,7 @@ DOC_ENDPOINTS = [
     "/environment_data/api/v1/data/",
     "/exceptional_situations/api/v1/situation/",
     "/exceptional_situations/api/v1/situation_type/",
+    "/api/v2/search",
 ]
 
 
