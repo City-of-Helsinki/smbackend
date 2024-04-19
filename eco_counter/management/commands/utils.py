@@ -258,6 +258,11 @@ def get_traffic_counter_csv(start_year=2015):
 
 def get_lam_dataframe(csv_url):
     response = requests.get(csv_url, headers=LAM_STATION_USER_HEADER)
+    assert (
+        response.status_code == 200
+    ), "Fetching LAM data from {} , status code {}".format(
+        settings.ECO_COUNTER_STATIONS_URL, response.status_code
+    )
     string_data = response.content
     csv_data = pd.read_csv(io.StringIO(string_data.decode("utf-8")), delimiter=";")
     return csv_data

@@ -14,6 +14,11 @@ def initial_import_counter_data(args, name="initial_import_counter_data"):
 
 
 @shared_task_email
+def force_initial_import_counter_data(args, name="force_initial_import_counter_data"):
+    management.call_command("import_counter_data", "--force", "--init", args)
+
+
+@shared_task_email
 def delete_counter_data(args, name="delete_counter_data"):
     management.call_command("delete_counter_data", "--counters", args)
 
