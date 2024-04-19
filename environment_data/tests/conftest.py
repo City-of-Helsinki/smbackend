@@ -49,6 +49,8 @@ def stations(parameters):
 @pytest.fixture
 def measurements(parameters):
     Measurement.objects.create(id=1, parameter=Parameter.objects.get(id=1), value=1.5)
+    Measurement.objects.create(id=2, parameter=Parameter.objects.get(id=2), value=2)
+
     return Measurement.objects.all()
 
 
@@ -58,7 +60,6 @@ def parameters():
     Parameter.objects.create(id=1, name="AQINDEX_PT1H_avg")
     Parameter.objects.create(id=2, name="NO2_PT1H_avg")
     Parameter.objects.create(id=3, name="WS_PT1H_avg")
-
     return Parameter.objects.all()
 
 
@@ -66,6 +67,7 @@ def parameters():
 @pytest.fixture
 def years():
     Year.objects.create(id=1, year_number=2023)
+    Year.objects.create(id=2, year_number=2022)
     return Year.objects.all()
 
 
@@ -73,6 +75,7 @@ def years():
 @pytest.fixture
 def months(years):
     Month.objects.create(month_number=1, year=years[0])
+    Month.objects.create(month_number=1, year=years[1])
     return Month.objects.all()
 
 
@@ -81,6 +84,8 @@ def months(years):
 def weeks(years):
     week = Week.objects.create(week_number=1)
     week.years.add(years[0])
+    week = Week.objects.create(week_number=1)
+    week.years.add(years[1])
     return Week.objects.all()
 
 
@@ -93,6 +98,12 @@ def days(years, months, weeks):
         month=months[0],
         week=weeks[0],
     )
+    Day.objects.create(
+        date=parser.parse("2022-01-01 00:00:00"),
+        year=years[1],
+        month=months[1],
+        week=weeks[1],
+    )
     return Day.objects.all()
 
 
@@ -100,6 +111,7 @@ def days(years, months, weeks):
 @pytest.fixture
 def hours(days):
     Hour.objects.create(day=days[0], hour_number=0)
+    Hour.objects.create(day=days[1], hour_number=0)
     return Hour.objects.all()
 
 
@@ -108,6 +120,8 @@ def hours(days):
 def year_datas(stations, years, measurements):
     year_data = YearData.objects.create(station=stations[0], year=years[0])
     year_data.measurements.add(measurements[0])
+    year_data = YearData.objects.create(station=stations[0], year=years[1])
+    year_data.measurements.add(measurements[1])
     return YearData.objects.all()
 
 
@@ -116,6 +130,8 @@ def year_datas(stations, years, measurements):
 def month_datas(stations, months, measurements):
     month_data = MonthData.objects.create(station=stations[0], month=months[0])
     month_data.measurements.add(measurements[0])
+    month_data = MonthData.objects.create(station=stations[0], month=months[1])
+    month_data.measurements.add(measurements[1])
     return MonthData.objects.all()
 
 
@@ -124,14 +140,17 @@ def month_datas(stations, months, measurements):
 def week_datas(stations, weeks, measurements):
     week_data = WeekData.objects.create(station=stations[0], week=weeks[0])
     week_data.measurements.add(measurements[0])
+    week_data = WeekData.objects.create(station=stations[0], week=weeks[1])
+    week_data.measurements.add(measurements[1])
     return WeekData.objects.all()
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def day_datas(stations, days, measurements):
     day_data = DayData.objects.create(station=stations[0], day=days[0])
     day_data.measurements.add(measurements[0])
+    day_data = DayData.objects.create(station=stations[0], day=days[1])
+    day_data.measurements.add(measurements[1])
     return DayData.objects.all()
 
 
@@ -140,4 +159,6 @@ def day_datas(stations, days, measurements):
 def hour_datas(stations, hours, measurements):
     hour_data = HourData.objects.create(station=stations[0], hour=hours[0])
     hour_data.measurements.add(measurements[0])
+    hour_data = HourData.objects.create(station=stations[0], hour=hours[1])
+    hour_data.measurements.add(measurements[1])
     return HourData.objects.all()
