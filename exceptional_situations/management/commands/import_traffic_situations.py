@@ -34,7 +34,8 @@ TRAFFIC_ANNOUNCEMENT_URL = (
     "?inactiveHours=0&includeAreaGeometry=true&situationType=TRAFFIC_ANNOUNCEMENT"
 )
 URLS = [ROAD_WORK_URL, TRAFFIC_ANNOUNCEMENT_URL]
-DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+DATETIME_FORMATS = ["%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ"]
+
 SOUTHWEST_FINLAND_POLYGON = Polygon(
     SOUTHWEST_FINLAND_BOUNDARY, srid=SOUTHWEST_FINLAND_BOUNDARY_SRID
 )
@@ -44,19 +45,21 @@ class Command(BaseCommand):
     def get_geos_geometry(self, feature_data):
         return GEOSGeometry(str(feature_data["geometry"]), srid=PROJECTION_SRID)
 
-    def create_location(self, geometry, announcement_data):
+    def create_location(self, geometry, announcement_data, announcement):
         location = None
         details = announcement_data["locationDetails"].get("roadAddressLocation", None)
-        details.update(announcement_data.get("location", None))
+        if details:
+            details.update(announcement_data.get("location", None))
         filter = {
             "geometry": geometry,
             "location": location,
             "details": details,
+            "announcement": announcement,
         }
         situation_location = SituationLocation.objects.create(**filter)
         return situation_location
 
-    def create_announcement(self, announcement_data, situation_location):
+    def create_announcement(self, announcement_data):
         title = announcement_data.get("title", "")
         description = announcement_data["location"].get("description", "")
         additional_info = {}
@@ -81,7 +84,6 @@ class Command(BaseCommand):
         if end_time:
             end_time = parser.parse(end_time)
         filter = {
-            "location": situation_location,
             "title": title,
             "description": description,
             "additional_info": additional_info,
@@ -110,11 +112,21 @@ class Command(BaseCommand):
                 if not properties:
                     continue
                 situation_id = properties.get("situationId", None)
-                release_time = properties.get("releaseTime", None)
-                release_time = datetime.strptime(release_time, DATETIME_FORMAT).replace(
-                    microsecond=0
-                )
-                release_time = timezone.make_aware(release_time, timezone.utc)
+                release_time_str = properties.get("releaseTime", None)
+                if release_time_str:
+                    for format_str in DATETIME_FORMATS:
+                        try:
+                            release_time = datetime.strptime(
+                                release_time_str, format_str
+                            )
+                        except ValueError:
+                            pass
+                        else:
+                            break
+
+                    if release_time.microsecond != 0:
+                        release_time.replace(microsecond=0)
+                    release_time = timezone.make_aware(release_time, timezone.utc)
 
                 type_name = properties.get("situationType", None)
                 sub_type_name = properties.get("trafficAnnouncementType", None)
@@ -127,18 +139,18 @@ class Command(BaseCommand):
                     "situation_id": situation_id,
                     "situation_type": situation_type,
                 }
-                situation, _ = Situation.objects.get_or_create(**filter)
+                situation, created = Situation.objects.get_or_create(**filter)
                 situation.release_time = release_time
                 situation.save()
-
-                SituationAnnouncement.objects.filter(situation=situation).delete()
-                situation.announcements.clear()
+                if not created:
+                    SituationAnnouncement.objects.filter(situation=situation).delete()
+                    situation.announcements.clear()
                 for announcement_data in properties.get("announcements", []):
-                    situation_location = self.create_location(
-                        geometry, announcement_data
-                    )
                     situation_announcement = self.create_announcement(
-                        deepcopy(announcement_data), situation_location
+                        deepcopy(announcement_data)
+                    )
+                    self.create_location(
+                        geometry, announcement_data, situation_announcement
                     )
                     situation.announcements.add(situation_announcement)
                 num_imported += 1
