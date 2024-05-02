@@ -388,3 +388,10 @@ def create_mobile_units_as_unit_references(service_id, content_type):
         obj.unit_id = unit.id
         objects.append(obj)
     save_to_database(objects, content_type)
+
+
+def get_full_csv_file_name(csv_file_name, content_type_name):
+    file_name = get_file_name_from_data_source(content_type_name)
+    if file_name:
+        return file_name
+    return f"{get_root_dir()}/mobility_data/data/{csv_file_name}"
