@@ -17,6 +17,11 @@ content_types:
       sv: Elladningsstation för bilar
       en: Car e-charging point
 
+  - content_type_name: ParkingGarage
+    name:
+      fi: Parkkihalli
+      sv: Parkeringsgarage
+      en: Parking garage
   - content_type_name: NoStaffParking
     name:
       fi: Yleiset pysäköintialueet
