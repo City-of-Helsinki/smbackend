@@ -395,3 +395,16 @@ def get_full_csv_file_name(csv_file_name, content_type_name):
     if file_name:
         return file_name
     return f"{get_root_dir()}/mobility_data/data/{csv_file_name}"
+
+
+def split_string_at_digit(s):
+    # Split the string at the position of the first digit
+    match = re.search(r"\d", s)
+    if match:
+        index = match.start()
+        return (
+            s[:index],
+            s[index:],
+        )
+    else:
+        return s, ""
