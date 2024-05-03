@@ -397,8 +397,7 @@ def get_full_csv_file_name(csv_file_name, content_type_name):
     return f"{get_root_dir()}/mobility_data/data/{csv_file_name}"
 
 
-def split_string_at_digit(s):
-    # Split the string at the position of the first digit
+def split_string_at_first_digit(s):
     match = re.search(r"\d", s)
     if match:
         index = match.start()

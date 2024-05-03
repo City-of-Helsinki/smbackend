@@ -11,7 +11,7 @@ from .utils import (
     get_street_name_translations,
     LANGUAGES,
     MobileUnitDataBase,
-    split_string_at_digit,
+    split_string_at_first_digit,
 )
 
 logger = logging.getLogger("mobility_data")
@@ -51,7 +51,7 @@ class ParkingGarage(MobileUnitDataBase):
         except Municipality.DoesNotExist:
             self.municipality = None
         address = values[COLUMN_MAPPINGS["address"]]
-        street_name, street_number = split_string_at_digit(address)
+        street_name, street_number = split_string_at_first_digit(address)
         # As the source data contains only Finnish street names, we need to get the translations
         translated_street_names = get_street_name_translations(
             street_name.strip(), self.municipality
