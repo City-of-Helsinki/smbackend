@@ -48,11 +48,23 @@ def test_day_data(api_client, day_datas, parameters):
     )
     response = api_client.get(url)
     assert response.status_code == 200
+    assert len(response.json()["results"]) == 1
     json_data = response.json()["results"][0]
     assert len(json_data["measurements"]) == 1
     assert json_data["measurements"][0]["value"] == 1.5
     assert json_data["measurements"][0]["parameter"] == parameters[0].name
     assert json_data["date"] == "2023-01-01"
+
+
+@pytest.mark.django_db
+def test_day_data_non_existing_year(api_client, day_datas, parameters):
+    url = (
+        reverse("environment_data:data-list")
+        + "?year=2020&start=01-01&end=02-01&station_id=1&type=day"
+    )
+    response = api_client.get(url)
+    assert response.status_code == 200
+    assert len(response.json()["results"]) == 0
 
 
 @pytest.mark.django_db
@@ -63,6 +75,7 @@ def test_week_data(api_client, week_datas, parameters):
     )
     response = api_client.get(url)
     assert response.status_code == 200
+    assert len(response.json()["results"]) == 1
     json_data = response.json()["results"][0]
     assert len(json_data["measurements"]) == 1
     assert json_data["measurements"][0]["value"] == 1.5
@@ -78,11 +91,38 @@ def test_month_data(api_client, month_datas, parameters):
     )
     response = api_client.get(url)
     assert response.status_code == 200
+    assert len(response.json()["results"]) == 1
     json_data = response.json()["results"][0]
     assert len(json_data["measurements"]) == 1
     assert json_data["measurements"][0]["value"] == 1.5
     assert json_data["measurements"][0]["parameter"] == parameters[0].name
     assert json_data["month_number"] == 1
+    url = (
+        reverse("environment_data:data-list")
+        + "?year=2023&start=1&end=1&station_id=411&type=month"
+    )
+    response = api_client.get(url)
+    assert len(response.json()["results"]) == 0
+
+
+@pytest.mark.django_db
+def test_month_data_non_existing_year(api_client, month_datas, parameters):
+    url = (
+        reverse("environment_data:data-list")
+        + "?year=2020&start=1&end=1&station_id=411&type=month"
+    )
+    response = api_client.get(url)
+    assert len(response.json()["results"]) == 0
+
+
+@pytest.mark.django_db
+def test_month_data_chars_in_arguments(api_client, month_datas, parameters):
+    url = (
+        reverse("environment_data:data-list")
+        + "?year=foo&start=abc&end=dce&station_id=foobar&type=month"
+    )
+    response = api_client.get(url)
+    assert len(response.json()["results"]) == 0
 
 
 @pytest.mark.django_db
@@ -94,6 +134,7 @@ def test_year_data(api_client, year_datas, parameters):
     response = api_client.get(url)
     assert response.status_code == 200
     json_data = response.json()["results"][0]
+    assert len(response.json()["results"]) == 1
     assert len(json_data["measurements"]) == 1
     assert json_data["measurements"][0]["value"] == 1.5
     assert json_data["measurements"][0]["parameter"] == parameters[0].name
