@@ -235,6 +235,13 @@ def streets():
         name_sv="Bangårdsgatan",
         municipality_id="turku",
     )
+    Street.objects.create(
+        name="Juhana Herttuan puistokatu",
+        name_fi="Juhana Herttuan puistokatu",
+        name_sv="Hertig Johans parkgata",
+        name_en="Juhana Herttuan puistokatu",
+        municipality_id="turku",
+    )
     return Street.objects.all()
 
 
