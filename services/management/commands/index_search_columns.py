@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from munigeo.models import Address, AdministrativeDivision
 
 from services.models import Service, ServiceNode, Unit
-from services.search.utils import hyphenate
+from services.search.utils import get_foreign_key_attr, hyphenate
 
 logger = logging.getLogger("search")
 
@@ -37,7 +37,7 @@ def generate_syllables(model):
     for row in model.objects.all():
         row.syllables_fi = []
         for column in model.get_syllable_fi_columns():
-            row_content = getattr(row, column, None)
+            row_content = get_foreign_key_attr(row, column)
             if row_content:
                 # Rows migth be of type str or Array, if str
                 # cast to array by splitting.
@@ -86,12 +86,15 @@ def index_servicenodes(lang):
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        for lang in ["fi", "sv", "en"]:
+        for lang in ["fi", "sv", "en"][0:1]:
             key = "search_column_%s" % lang
             # Only generate syllables for the finnish language
             if lang == "fi":
                 logger.info(f"Generating syllables for language: {lang}.")
                 logger.info(f"Syllables generated for {generate_syllables(Unit)} Units")
+                logger.info(
+                    f"Syllables generated for {generate_syllables(Address)} Addresses"
+                )
                 logger.info(
                     f"Syllables generated for {generate_syllables(Service)} Services"
                 )
