@@ -285,6 +285,7 @@ def addresses(streets, municipality):
         number=1,
         full_name="Kellonsoittajankatu 1",
     )
+    generate_syllables(Address)
     Address.objects.update(search_column_fi=get_search_column(Address, "fi"))
     return Address.objects.all()
 
