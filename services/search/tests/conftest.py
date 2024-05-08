@@ -277,6 +277,14 @@ def addresses(streets, municipality):
         number=1,
         full_name="Tarkk'ampujankatu 1",
     )
+    Address.objects.create(
+        municipality_id=municipality.id,
+        location=Point(60.44879002342721, 22.283629416961055),
+        id=7,
+        street_id=46,
+        number=1,
+        full_name="Kellonsoittajankatu 1",
+    )
     Address.objects.update(search_column_fi=get_search_column(Address, "fi"))
     return Address.objects.all()
 
@@ -314,6 +322,7 @@ def streets():
     Street.objects.create(id=43, name="Markulantie", municipality_id="turku")
     Street.objects.create(id=44, name="Yliopistonkatu", municipality_id="turku")
     Street.objects.create(id=45, name="Tarkk'ampujankatu", municipality_id="turku")
+    Street.objects.create(id=46, name="Kellonsoittajankatu", municipality_id="turku")
     return Street.objects.all()
 
 
