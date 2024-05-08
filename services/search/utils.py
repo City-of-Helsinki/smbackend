@@ -16,6 +16,22 @@ voikko = libvoikko.Voikko("fi")
 voikko.setNoUglyHyphenation(True)
 
 
+def get_foreign_key_attr(obj, field):
+    """Get attr recursively by following foreign key relations
+    For example:
+    get_foreign_key_attr(
+        <Address: Kurrapolku 1-2A, Turku>, "street__name_fi"
+    )
+    """
+    fields = field.split("__")
+    if len(fields) == 1:
+        return getattr(obj, fields[0], None)
+    else:
+        first_field = fields[0]
+        remaining_fields = "__".join(fields[1:])
+        return get_foreign_key_attr(getattr(obj, first_field), remaining_fields)
+
+
 def is_compound_word(word):
     result = voikko.analyze(word)
     if len(result) == 0:
@@ -25,7 +41,7 @@ def is_compound_word(word):
 
 def hyphenate(word):
     """
-    Returns a list of syllables of the word if it is a compound word.
+    Returns a list of syllables of the word, if it is a compound word.
     """
     word = word.strip()
     if is_compound_word(word):
