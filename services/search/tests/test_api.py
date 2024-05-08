@@ -121,6 +121,12 @@ def test_search(
     assert kurrapolku["location"]["type"] == "Point"
     assert kurrapolku["location"]["coordinates"][0] == 60.479032
     assert kurrapolku["location"]["coordinates"][1] == 22.25417
+    # Test search with 'kello'
+    url = reverse("search") + "?q=kello&type=address"
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert len(results) == 1
+    assert results[0]["name"]["fi"] == "Kellonsoittajankatu 1"
     # Test address search with apostrophe in query
     url = reverse("search") + "?q=tarkk'ampujankatu&type=address"
     response = api_client.get(url)
