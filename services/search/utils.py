@@ -3,9 +3,16 @@ import logging
 import libvoikko
 from django.db import connection
 from django.db.models import Case, When
+from django.db.models.functions import Lower
 from rest_framework.exceptions import ParseError
 
-from services.models import ExclusionRule, ServiceNode, ServiceNodeUnitCount, Unit
+from services.models import (
+    ExclusionRule,
+    ExclusionWord,
+    ServiceNode,
+    ServiceNodeUnitCount,
+    Unit,
+)
 from services.search.constants import (
     DEFAULT_TRIGRAM_THRESHOLD,
     SEARCHABLE_MODEL_TYPE_NAMES,
@@ -232,3 +239,16 @@ def get_search_exclusions(q):
     if rule:
         return rule.exclusion
     return ""
+
+
+def has_exclusion_word_in_query(q_vals, language_short):
+    """
+    To add/modify search exclusion words edit: services/fixtures/exclusion_words.json
+    To import words: ./manage.py loaddata services/fixtures/exclusion_words.json
+    """
+    return (
+        ExclusionWord.objects.filter(language_short=language_short)
+        .annotate(word_lower=Lower("word"))
+        .filter(word_lower__in=[q.lower() for q in q_vals])
+        .exists()
+    )
