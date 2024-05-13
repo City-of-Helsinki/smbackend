@@ -24,6 +24,7 @@ from services.management.commands.services_import.services import (
 from services.models import (
     Department,
     ExclusionRule,
+    ExclusionWord,
     Service,
     ServiceNode,
     Unit,
@@ -331,3 +332,9 @@ def streets():
 def exclusion_rules():
     ExclusionRule.objects.create(id=1, word="tekojää", exclusion="-nurmi")
     return ExclusionRule.objects.all()
+
+
+@pytest.fixture
+def exclusion_words():
+    ExclusionWord.objects.create(id=1, word="katu", language_short="fi")
+    return ExclusionWord.objects.all()
