@@ -60,10 +60,12 @@ def generate_syllables(
                     row_content = row_content.split()
                 for word in row_content:
                     syllables = hyphenate(word)
-                    for s in syllables:
-                        row.syllables_fi.append(s)
+                    if len(syllables) > 1:
+                        for s in syllables:
+                            row.syllables_fi.append(s)
             row.save(**save_kwargs)
             num_populated += 1
+
     # Enable sending of signals
     model._meta.auto_created = False
     return num_populated
@@ -126,7 +128,6 @@ class Command(BaseCommand):
                 )
             except ValueError as err:
                 raise ValueError(err)
-
         for lang in ["fi", "sv", "en"]:
             key = "search_column_%s" % lang
             # Only generate syllables for the finnish language
