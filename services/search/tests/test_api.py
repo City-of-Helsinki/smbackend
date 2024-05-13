@@ -14,6 +14,7 @@ def test_search(
     accessibility_shortcoming,
     municipality,
     exclusion_rules,
+    exclusion_words,
 ):
     # Search for "museo" in entities: units,services and servicenods
     url = reverse("search") + "?q=museo&type=unit,service,servicenode"
@@ -121,6 +122,16 @@ def test_search(
     assert kurrapolku["location"]["type"] == "Point"
     assert kurrapolku["location"]["coordinates"][0] == 60.479032
     assert kurrapolku["location"]["coordinates"][1] == 22.25417
+    # Test search with excluded word
+    url = reverse("search") + "?q=katu"
+    response = api_client.get(url)
+    assert response.status_code == 400
+    url = reverse("search") + "?q=Katu"
+    response = api_client.get(url)
+    assert response.status_code == 400
+    url = reverse("search") + "?q=koti katu"
+    response = api_client.get(url)
+    assert response.status_code == 400
     # Test search with 'kello'
     url = reverse("search") + "?q=kello&type=address"
     response = api_client.get(url)
