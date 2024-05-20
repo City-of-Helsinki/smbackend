@@ -27,9 +27,10 @@ from django.db.models import Count
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from munigeo import api as munigeo_api
 from munigeo.models import Address, AdministrativeDivision
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.exceptions import ParseError
 from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
 
 from services.api import (
     TranslatedModelSerializer,
@@ -60,6 +61,7 @@ from .utils import (
     get_preserved_order,
     get_service_node_results,
     get_trigram_results,
+    has_exclusion_word_in_query,
     set_address_fields,
     set_service_node_unit_count,
     set_service_unit_count,
@@ -467,6 +469,12 @@ class SearchViewSet(GenericAPIView):
                     search_query_str += f"& {q}:*"
             else:
                 search_query_str = f"{q}:*"
+
+        if has_exclusion_word_in_query(q_vals, language_short):
+            return Response(
+                f"Search query {q_vals} would return too many results",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         search_fn = "to_tsquery"
         if use_websearch:
