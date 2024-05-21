@@ -14,9 +14,9 @@ from mobility_data.models import ContentType, MobileUnit
 
 
 @pytest.mark.django_db
-@patch("mobility_data.importers.charging_stations.get_csv_file_name")
+@patch("mobility_data.importers.charging_stations.get_full_csv_file_name")
 def test_import_charging_stations(
-    get_csv_file_name_mock,
+    get_full_csv_file_name_mock,
     municipalities,
     administrative_division_type,
     administrative_division,
@@ -30,7 +30,7 @@ def test_import_charging_stations(
     )
 
     file_name = f"{get_root_dir()}/mobility_data/tests/data/charging_stations.csv"
-    get_csv_file_name_mock.return_value = file_name
+    get_full_csv_file_name_mock.return_value = file_name
     content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
     objects = get_charging_station_objects()
     num_created, num_deleted = save_to_database(objects, content_type)
@@ -79,7 +79,7 @@ def test_import_charging_stations(
         == f"{CHARGING_STATION_SERVICE_NAMES['en']}, Ratapihankatu 53"
     )
     # Test that dublicates are not created
-    get_csv_file_name_mock.return_vale = file_name
+    get_full_csv_file_name_mock.return_vale = file_name
     content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
     objects = get_charging_station_objects()
     num_created, num_deleted = save_to_database(objects, content_type)
