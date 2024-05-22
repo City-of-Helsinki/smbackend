@@ -16,6 +16,13 @@ features:
     municipality: muni_field
     # Optional, if set, include only if geometry is inside the boundarys of Turku, default=False
     locates_in_turku: True
+    # Optional, Add the field from which the Finnish address is fetched
+    # and get the Swedish and the English translations to it.  
+    # Suitable if only Finnish address is available in the source data.
+    translate_fi_address_field: field_with_finnish_address
+    # Required if "translate_fi_address_field" is used. 
+    # municipality id of the municipality from which to lookup the address translations.
+    translate_fi_address_municipality_id: turku
     # Optional, include only if 'field_name' contains the given string.
     include:
       field_name: this_must_be_in_field_name
