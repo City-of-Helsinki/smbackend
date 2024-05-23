@@ -155,7 +155,7 @@ def import_wfs(args=None, name="import_wfs"):
 
 @shared_task_email
 def import_parking_machines(name="import_parking_machines"):
-    management.call_command("import_parking_machines")
+    management.call_command("import_wfs", "ParkingMachine")
 
 
 @shared_task_email

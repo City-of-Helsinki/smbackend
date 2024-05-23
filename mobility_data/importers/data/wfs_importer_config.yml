@@ -1,4 +1,26 @@
 features:
+  - content_type_name: ParkingMachine
+    wfs_layer: GIS:Pysakointiautomaatit
+    translate_fi_address_field: Osoite
+    translate_fi_address_municipality_id: turku
+    extra_fields:
+      maksutapa_fi:
+        wfs_field: Maksutapa
+      maksutapa_sv:
+        wfs_field: Maksutapa_sv
+      maksutapa_en:
+        wfs_field: Maksutapa_en
+      maksuvyohyke:
+        wfs_field: Maksuvyohyke  
+      taksa:
+        wfs_field: Taksa
+      muu_tieto_fi:
+        wfs_field: Muu_tieto
+      muu_tieto_sv:
+        wfs_field: Muu_tieto_sv
+      muu_tieto_en:
+        wfs_field: Muu_tieto_en
+
   - content_type_name: StreetAreaInformation
     wfs_layer: GIS:Katualueet
     max_features: 100000

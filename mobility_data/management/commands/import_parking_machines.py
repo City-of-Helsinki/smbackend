@@ -1,3 +1,9 @@
+"""
+Deprecated, the parking machines will in future be imported with the WFS importer.
+All code related to this importer can be removed after the importing
+from WFS feature is in the production environment.
+"""
+
 import logging
 
 from django.core.management import BaseCommand
