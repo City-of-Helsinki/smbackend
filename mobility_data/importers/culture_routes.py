@@ -26,6 +26,11 @@ GROUP_CONTENT_TYPE_NAME = "CultureRoute"
 SOURCE_DATA_SRID = 4326
 # Routes are from https://citynomadi.com/route/?keywords=turku
 URLS = {
+    "Kaupunkiretkeily Halinen": {
+        "fi": "https://www.citynomadi.com/api/route/c86bece2b69d483104138fd296609aa3/kml?lang=fi",
+        "sv": "https://www.citynomadi.com/api/route/c86bece2b69d483104138fd296609aa3/kml?lang=sv",
+        "en": "https://www.citynomadi.com/api/route/c86bece2b69d483104138fd296609aa3/kml?lang=en",
+    },
     "Tapion Polku": {
         "fi": "https://www.citynomadi.com/api/route/5b6669fa989c1b8c2fc552b2b2afdbd1/kml?lang=fi",
         "sv": "https://www.citynomadi.com/api/route/5b6669fa989c1b8c2fc552b2b2afdbd1/kml?lang=sv",
