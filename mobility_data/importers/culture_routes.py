@@ -25,8 +25,21 @@ GEOMETRY_CONTENT_TYPE_NAME = "CultureRouteGeometry"
 GROUP_CONTENT_TYPE_NAME = "CultureRoute"
 SOURCE_DATA_SRID = 4326
 # Routes are from https://citynomadi.com/route/?keywords=turku
+KAUPUNKIRETKEILY_HALINEN = "Kaupunkiretkeily Halinen"
+# Define routes where placemarks are filtered and
+# trown away if name contains word defined in TROW_AWAY_PLACEMARK_NAMES constant.
+FILTER_PLACEMARKS = [KAUPUNKIRETKEILY_HALINEN]
+TROW_AWAY_PLACEMARK_NAMES = [
+    "Bussipysäkki",
+    "Leikkipuisto",
+    "Tulentekopaikka",
+    "Ulkokuntoilulaitteet",
+    "Melontapaikka",
+    "Raunistulanpuiston leikkipaikka",
+    "Yleinen WC",
+]
 URLS = {
-    "Kaupunkiretkeily Halinen": {
+    KAUPUNKIRETKEILY_HALINEN: {
         "fi": "https://www.citynomadi.com/api/route/c86bece2b69d483104138fd296609aa3/kml?lang=fi",
         "sv": "https://www.citynomadi.com/api/route/c86bece2b69d483104138fd296609aa3/kml?lang=sv",
         "en": "https://www.citynomadi.com/api/route/c86bece2b69d483104138fd296609aa3/kml?lang=en",
@@ -117,17 +130,22 @@ class Placemark(MobileUnitDataBase):
         super().__init__()
         self.content_type = None
 
+    @classmethod
+    def get_name(cls, placemark):
+        name = getattr(placemark, "name", None)
+        if name:
+            name = re.sub(CLEANR_HTML, "", name.text)
+            name = name.strip()
+        return name
+
     def set_data(self, placemark, lang, add_geometry=False):
         """
         :param placemark: The placemark element
         :param lang: The language to be set
         :param add_geometry: if True read and set the geometry
         """
-        name = getattr(placemark, "name", None)
-        if name:
-            name = re.sub(CLEANR_HTML, "", name.text)
-            name = name.strip()
-        self.name[lang] = name
+
+        self.name[lang] = Placemark.get_name(placemark)
         description = getattr(placemark, "description", None)
         if description:
             description = re.sub(CLEANR_HTML, "", description.text)
@@ -236,6 +254,7 @@ def get_routes():
         # Iterate trough folders and create placemarks for route(s)
         for folder_index in range(0, len_folders):
             placemarks_to_add = []
+            add_indices = []
             for lang_index, lang in enumerate(languages):
                 try:
                     placemarks_in_folder = placemarks[lang][folder_index]
@@ -246,18 +265,27 @@ def get_routes():
                     continue
 
                 # Iterate through all Placemarks in folder and set them to route.
+                add_index = 0
                 for pm_index, pm in enumerate(placemarks_in_folder):
                     add_geometry = False
                     # if first language, create new object.
                     if lang_index == 0:
+                        if key in FILTER_PLACEMARKS:
+                            name = Placemark.get_name(pm)
+                            if name in TROW_AWAY_PLACEMARK_NAMES:
+                                continue
                         pm_obj = Placemark()
                         placemarks_to_add.append(pm_obj)
                         # Geometry needs to be set only once for the placemark
                         add_geometry = True
+                        add_indices.append(pm_index)
                     else:
                         # else the placemark object exists, retrieve object to set data for the current language
-                        pm_obj = placemarks_to_add[pm_index]
+                        if add_index in add_indices:
+                            pm_obj = placemarks_to_add[add_index]
                     pm_obj.set_data(pm, lang, add_geometry=add_geometry)
+                    if pm_index in add_indices:
+                        add_index += 1
                 tmp_routes[folder_index].placemarks += placemarks_to_add
 
         for route in tmp_routes:
