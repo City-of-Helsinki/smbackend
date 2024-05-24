@@ -228,7 +228,7 @@ six==1.16.0
     #   python-dateutil
     #   requests-mock
     #   url-normalize
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via django
 toml==0.10.2
     # via
