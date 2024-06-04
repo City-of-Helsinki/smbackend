@@ -205,9 +205,9 @@ class GeoSearchImporter:
         for result in results:
             postal_code = result["postal_code_area"]["postal_code"]
             if postal_code not in self.postal_code_areas_cache:
-                self.postal_code_areas_cache[
-                    postal_code
-                ] = self.get_or_create_postal_code_area(postal_code, result)
+                self.postal_code_areas_cache[postal_code] = (
+                    self.get_or_create_postal_code_area(postal_code, result)
+                )
 
             (
                 street_name_fi,
@@ -353,9 +353,9 @@ class GeoSearchImporter:
 
             postal_code = result["postal_code_area"]["postal_code"]
             if postal_code not in self.postal_code_areas_cache:
-                self.postal_code_areas_cache[
-                    postal_code
-                ] = self.get_or_create_postal_code_area(postal_code, result)
+                self.postal_code_areas_cache[postal_code] = (
+                    self.get_or_create_postal_code_area(postal_code, result)
+                )
             # name_sv is not added as there might be a swedish translation
             street_entry = {
                 "name": street_name_fi,

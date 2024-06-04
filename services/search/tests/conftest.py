@@ -36,7 +36,6 @@ def api_client():
     return APIClient()
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def units(
     services,
@@ -106,15 +105,35 @@ def units(
     )
     unit.services.add(5)
     unit.save()
+    unit = Unit.objects.create(
+        id=6,
+        name="Jäähalli",
+        last_modified_time=now(),
+        municipality=municipality,
+        department=department,
+    )
+    # Add service Halli
+    unit.services.add(6)
+    unit.save()
+
+    unit = Unit.objects.create(
+        id=7,
+        name="Palloiluhalli",
+        last_modified_time=now(),
+        municipality=municipality,
+        department=department,
+    )
+    # Add service Halli
+    unit.services.add(6)
+    unit.save()
     update_service_root_service_nodes()
     update_service_counts()
     update_service_node_counts()
     generate_syllables(Unit)
     Unit.objects.update(search_column_fi=get_search_column(Unit, "fi"))
-    return Unit.objects.all()
+    return Unit.objects.all().order_by("id")
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def department(municipality):
     return Department.objects.create(
@@ -125,7 +144,6 @@ def department(municipality):
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def accessibility_shortcoming(units):
     unit = Unit.objects.get(name="Biologinen museo")
@@ -134,7 +152,6 @@ def accessibility_shortcoming(units):
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def services():
     Service.objects.create(
@@ -167,12 +184,21 @@ def services():
         name_sv="konstisbanor",
         last_modified_time=now(),
     )
+    Service.objects.create(
+        id=6,
+        name="Halli",
+        last_modified_time=now(),
+    )
+    Service.objects.create(
+        id=7,
+        name="Hallinto",
+        last_modified_time=now(),
+    )
     generate_syllables(Service)
     Service.objects.update(search_column_fi=get_search_column(Service, "fi"))
     return Service.objects.all()
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def service_nodes(services):
     leisure = ServiceNode.objects.create(
@@ -196,7 +222,6 @@ def service_nodes(services):
     return ServiceNode.objects.all()
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def addresses(streets, municipality):
     Address.objects.create(
@@ -244,11 +269,18 @@ def addresses(streets, municipality):
         number=33,
         full_name="Yliopistonkatu 33",
     )
+    Address.objects.create(
+        municipality_id=municipality.id,
+        location=Point(60.1612283, 24.9478104),
+        id=6,
+        street_id=45,
+        number=1,
+        full_name="Tarkk'ampujankatu 1",
+    )
     Address.objects.update(search_column_fi=get_search_column(Address, "fi"))
     return Address.objects.all()
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def municipality():
     return Municipality.objects.create(
@@ -256,7 +288,6 @@ def municipality():
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def administrative_division_type():
     return AdministrativeDivisionType.objects.get_or_create(
@@ -264,7 +295,6 @@ def administrative_division_type():
     )
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def administrative_division(administrative_division_type):
     adm_div = AdministrativeDivision.objects.get_or_create(
@@ -276,7 +306,6 @@ def administrative_division(administrative_division_type):
     return adm_div
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def streets():
     Street.objects.create(
@@ -284,10 +313,10 @@ def streets():
     )
     Street.objects.create(id=43, name="Markulantie", municipality_id="turku")
     Street.objects.create(id=44, name="Yliopistonkatu", municipality_id="turku")
+    Street.objects.create(id=45, name="Tarkk'ampujankatu", municipality_id="turku")
     return Street.objects.all()
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def exclusion_rules():
     ExclusionRule.objects.create(id=1, word="tekojää", exclusion="-nurmi")

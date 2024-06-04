@@ -223,7 +223,7 @@ LEVELS = {
             991,  # health stations
             1097,  # basic education
             2125,  # pre school education
-            869  # municipal day care
+            869,  # municipal day care
             #  25344, # recycling
             #  25480, # public libraries
         ],
@@ -357,6 +357,7 @@ DOC_ENDPOINTS = [
     "/environment_data/api/v1/data/",
     "/exceptional_situations/api/v1/situation/",
     "/exceptional_situations/api/v1/situation_type/",
+    "/api/v2/search",
 ]
 
 

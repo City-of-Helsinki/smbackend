@@ -11,10 +11,13 @@ from munigeo.models import Municipality
 from mobility_data.importers.utils import (
     delete_mobile_units,
     get_or_create_content_type_from_config,
+    get_street_name_translations,
+    LANGUAGES,
     locates_in_turku,
     log_imported_message,
     MobileUnitDataBase,
     save_to_database,
+    split_string_at_first_digit,
 )
 
 DEFAULT_SOURCE_DATA_SRID = 3877
@@ -40,6 +43,7 @@ class MobilityData(MobileUnitDataBase):
         super().__init__()
 
     def add_feature(self, feature, config):
+        municipality = None
         create_multipolygon = False
         if "create_multipolygon" in config:
             create_multipolygon = config["create_multipolygon"]
@@ -97,13 +101,31 @@ class MobilityData(MobileUnitDataBase):
                 self.municipality = Municipality.objects.filter(
                     id=municipality_id
                 ).first()
-
         if "fields" in config:
             for attr, field in config["fields"].items():
                 for lang, field_name in field.items():
                     # attr can have fallback definitons if None
                     if getattr(self, attr)[lang] is None:
                         getattr(self, attr)[lang] = feature[field_name].as_string()
+
+        if "translate_fi_address_municipality_id" in config:
+            municipality = Municipality.objects.filter(
+                id=config["translate_fi_address_municipality_id"].lower()
+            ).first()
+
+        if "translate_fi_address_field" in config:
+            address = feature[config["translate_fi_address_field"]].as_string()
+            if not address[0].isdigit():
+                street_name, street_number = split_string_at_first_digit(address)
+            else:
+                street_name = address
+                street_number = ""
+            muni = municipality if municipality else self.municipality
+            translated_street_names = get_street_name_translations(
+                street_name.strip(), muni
+            )
+            for lang in LANGUAGES:
+                self.address[lang] = f"{translated_street_names[lang]} {street_number}"
 
         if "extra_fields" in config:
             for field, attr in config["extra_fields"].items():
@@ -168,9 +190,12 @@ def import_wfs_feature(config, data_file=None):
     assert len(ds) == 1
     layer = ds[0]
     for feature in layer:
-        object = MobilityData()
-        if object.add_feature(feature, config):
-            objects.append(object)
+        try:
+            object = MobilityData()
+            if object.add_feature(feature, config):
+                objects.append(object)
+        except Exception as e:
+            logger.warning(f"Discarding feature {feature}, cause: {e}")
     content_type = get_or_create_content_type_from_config(config["content_type_name"])
     num_created, num_deleted = save_to_database(objects, content_type)
     log_imported_message(logger, content_type, num_created, num_deleted)

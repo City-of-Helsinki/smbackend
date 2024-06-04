@@ -1,16 +1,10 @@
-"""
-Deprecated, the parking machines will in future be imported with the WFS importer.
-All code related to this importer can be removed after the importing
-from WFS feature is in the production environment.
-"""
-
 import logging
 
 from django.core.management import BaseCommand
 
-from mobility_data.importers.parking_machines import (
+from mobility_data.importers.parking_garages import (
     CONTENT_TYPE_NAME,
-    get_parking_machine_objects,
+    get_parking_garage_objects,
 )
 from mobility_data.importers.utils import (
     get_or_create_content_type_from_config,
@@ -23,7 +17,8 @@ logger = logging.getLogger("mobility_data")
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        objects = get_parking_machine_objects()
+        logger.info("Importing parking garages...")
+        objects = get_parking_garage_objects()
         content_type = get_or_create_content_type_from_config(CONTENT_TYPE_NAME)
         num_created, num_deleted = save_to_database(objects, content_type)
         log_imported_message(logger, content_type, num_created, num_deleted)

@@ -2,6 +2,7 @@
 Note, bicycle stands are not imorter via the wfs importer
 as it needs logic to derive if the stand is hull lockable or covered.
 """
+
 import logging
 import os
 

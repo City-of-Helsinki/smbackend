@@ -155,7 +155,7 @@ def import_wfs(args=None, name="import_wfs"):
 
 @shared_task_email
 def import_parking_machines(name="import_parking_machines"):
-    management.call_command("import_parking_machines")
+    management.call_command("import_wfs", "ParkingMachine")
 
 
 @shared_task_email
@@ -166,6 +166,11 @@ def import_under_and_overpasses(name="import_under_and_overpasses"):
 @shared_task_email
 def import_street_area_information(name="import_street_area_information"):
     management.call_command("import_wfs", "StreetAreaInformation")
+
+
+@shared_task_email
+def import_parking_garages(name="import_parking_garages"):
+    management.call_command("import_parking_garages")
 
 
 @shared_task_email

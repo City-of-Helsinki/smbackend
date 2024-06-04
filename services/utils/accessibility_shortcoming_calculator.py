@@ -131,9 +131,11 @@ class AccessibilityShortcomingCalculator(object, metaclass=Singleton):
                 "{}: {} {}".format(
                     rule["id"],
                     rule["operator"],
-                    "{}recorded".format("" if message_recorded else "not ")
-                    if not is_ok
-                    else "passed",
+                    (
+                        "{}recorded".format("" if message_recorded else "not ")
+                        if not is_ok
+                        else "passed"
+                    ),
                 )
             )
             return is_ok, message_recorded

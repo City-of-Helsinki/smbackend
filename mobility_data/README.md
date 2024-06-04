@@ -26,6 +26,11 @@ To import data type:
 ```
 ./manage.py import_charging_stations  
 ```
+### Parking garages  
+To import data type:  
+```
+./manage.py import_parking_garages  
+```
 ### Culture Routes
 To import data type:  
 ```
@@ -165,7 +170,6 @@ To import data type:
 ./manage.py import_wfs BarbecuePlace
 ```
 
-
 ### Playgrounds
 ```
 ./manage.py import_wfs PlayGround
@@ -185,7 +189,7 @@ Imports the outdoor gym devices from the services.unit model. i.e., sets referen
 
 ### Parking machines
 ```
-./manage.py import_parking_machines
+./manage.py import_wfs ParkingMachine
 ```
 
 ### School and kindergarten accessibility areas

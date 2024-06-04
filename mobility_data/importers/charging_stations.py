@@ -6,10 +6,9 @@ from django.contrib.gis.geos import Point
 from munigeo.models import Municipality
 
 from .utils import (
-    get_file_name_from_data_source,
+    get_full_csv_file_name,
     get_municipality_name,
     get_postal_code,
-    get_root_dir,
     get_street_name_translations,
     LANGUAGES,
     MobileUnitDataBase,
@@ -111,16 +110,9 @@ def get_number_of_rows(file_name):
     return number_of_rows
 
 
-def get_csv_file_name():
-    file_name = get_file_name_from_data_source(CONTENT_TYPE_NAME)
-    if file_name:
-        return file_name
-    return f"{get_root_dir()}/mobility_data/data/{SOURCE_DATA_FILE_NAME}"
-
-
 def get_charging_station_objects():
     # Store the imported stations to dict, the index is the key.
-    file_name = get_csv_file_name()
+    file_name = get_full_csv_file_name(SOURCE_DATA_FILE_NAME, CONTENT_TYPE_NAME)
     charging_stations = {}
     column_mappings = {}
     number_of_rows = get_number_of_rows(file_name)

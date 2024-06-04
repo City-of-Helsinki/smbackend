@@ -1,29 +1,37 @@
+import logging
+
 import libvoikko
 from django.db import connection
 from django.db.models import Case, When
+from rest_framework.exceptions import ParseError
 
 from services.models import ExclusionRule, ServiceNode, ServiceNodeUnitCount, Unit
 from services.search.constants import (
     DEFAULT_TRIGRAM_THRESHOLD,
-    LENGTH_OF_HYPHENATED_WORDS,
     SEARCHABLE_MODEL_TYPE_NAMES,
 )
 
+logger = logging.getLogger("search")
 voikko = libvoikko.Voikko("fi")
 voikko.setNoUglyHyphenation(True)
 
 
+def is_compound_word(word):
+    result = voikko.analyze(word)
+    if len(result) == 0:
+        return False
+    return True if result[0]["WORDBASES"].count("+") > 1 else False
+
+
 def hyphenate(word):
     """
-    Returns a list of syllables of the word if word length
-    is >= LENGTH_OF_HYPHENATE_WORDS
+    Returns a list of syllables of the word if it is a compound word.
     """
-    word_length = len(word)
-    if word_length >= LENGTH_OF_HYPHENATED_WORDS:
-        # By Setting the value to word_length, voikko returns
-        # the words that are in the compound word, if the word is
-        # not a compound word it returns the syllables as normal.
-        voikko.setMinHyphenatedWordLength(word_length)
+    word = word.strip()
+    if is_compound_word(word):
+        # By Setting the setMinHyphenatedWordLength to word_length,
+        # voikko returns the words that are in the compound word
+        voikko.setMinHyphenatedWordLength(len(word))
         syllables = voikko.hyphenate(word)
         return syllables.split("-")
     else:
@@ -182,15 +190,18 @@ def get_preserved_order(ids):
 def get_trigram_results(
     model, model_name, field, q_val, threshold=DEFAULT_TRIGRAM_THRESHOLD
 ):
-    sql = f"""SELECT id, similarity({field}, '{q_val}') AS sml
+    sql = f"""SELECT id, similarity({field}, %s) AS sml
         FROM {model_name}
-        WHERE  similarity({field}, '{q_val}') >= {threshold}
+        WHERE  similarity({field}, %s) >= {threshold}
         ORDER BY sml DESC;
     """
     cursor = connection.cursor()
-    cursor.execute(sql)
+    try:
+        cursor.execute(sql, [q_val, q_val])
+    except Exception as e:
+        logger.error(f"Error in similarity query: {e}")
+        raise ParseError("Similariy query failed.")
     all_results = cursor.fetchall()
-
     ids = [row[0] for row in all_results]
     objs = model.objects.filter(id__in=ids)
     return objs

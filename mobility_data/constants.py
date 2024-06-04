@@ -12,6 +12,7 @@ from mobility_data.importers.disabled_and_no_staff_parking import (
 from mobility_data.importers.loading_unloading_places import (
     CONTENT_TYPE_NAME as LOADING_UNLOADING_PLACE,
 )
+from mobility_data.importers.parking_garages import CONTENT_TYPE_NAME as PARKING_GARAGE
 from mobility_data.importers.parking_machines import (
     CONTENT_TYPE_NAME as PARKING_MACHINE,
 )
@@ -53,6 +54,10 @@ DATA_SOURCE_IMPORTERS = {
     },
     PARKING_MACHINE: {
         "importer_name": "parking_machines",
+        "to_services_list": False,
+    },
+    PARKING_GARAGE: {
+        "importer_name": "parking_garages",
         "to_services_list": False,
     },
 }

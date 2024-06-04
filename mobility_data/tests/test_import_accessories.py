@@ -7,6 +7,7 @@ https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?SERVICE=WFS&REQUEST=DescribeFea
 has been removed from the test input data, as it causes GDAL
 DataSource to fail when loading data.
 """
+
 from unittest.mock import patch
 
 import pytest
