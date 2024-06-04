@@ -38,10 +38,8 @@ def generate_syllables(
     """
     # Disable sending of signals
     model._meta.auto_created = True
-    save_kwargs = {}
     num_populated = 0
     if model.__name__ == "Address" and not hyphenate_all_addresses:
-        save_kwargs["skip_modified_at"] = True
         if not hyphenate_addresses_from:
             hyphenate_addresses_from = Address.objects.latest(
                 "modified_at"
@@ -63,7 +61,7 @@ def generate_syllables(
                     if len(syllables) > 1:
                         for s in syllables:
                             row.syllables_fi.append(s)
-                    row.save(**save_kwargs)
+                    row.save(update_fields=["syllables_fi"])
             num_populated += 1
     # Enable sending of signals
     model._meta.auto_created = False
