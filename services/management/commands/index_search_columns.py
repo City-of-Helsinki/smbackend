@@ -47,7 +47,7 @@ def generate_syllables(
             ).modified_at - timedelta(days=HYPHENATE_ADDRESSES_MODIFIED_WITHIN_DAYS)
         qs = model.objects.filter(modified_at__gte=hyphenate_addresses_from)
     else:
-        qs = model.objects.all()
+        qs = model.objects.all()[:100]
     for row in qs:
         row.syllables_fi = []
         for column in model.get_syllable_fi_columns():
