@@ -48,6 +48,7 @@ def generate_syllables(
     else:
         qs = model.objects.all()
     for row in qs:
+        logger.info(f"Generating syllables for {row}")
         row.syllables_fi = []
         for column in model.get_syllable_fi_columns():
             row_content = get_foreign_key_attr(row, column)
@@ -61,7 +62,9 @@ def generate_syllables(
                     if len(syllables) > 1:
                         for s in syllables:
                             row.syllables_fi.append(s)
+                    logger.info(f"Hyphenated {word} to {syllables}")
                     row.save(update_fields=["syllables_fi"])
+                    logger.info(f"Saved syllables for {row}")
             num_populated += 1
     # Enable sending of signals
     model._meta.auto_created = False
