@@ -49,7 +49,7 @@ def generate_syllables(
         qs = model.objects.filter(modified_at__gte=hyphenate_addresses_from)
     else:
         qs = model.objects.all()
-    for row in qs:
+    for row in qs.iterator(chunk_size=10000):
         row.syllables_fi = []
         for column in model.get_syllable_fi_columns():
             row_content = get_foreign_key_attr(row, column)
@@ -128,6 +128,7 @@ class Command(BaseCommand):
                 )
             except ValueError as err:
                 raise ValueError(err)
+
         for lang in ["fi", "sv", "en"]:
             key = "search_column_%s" % lang
             # Only generate syllables for the finnish language
