@@ -22,7 +22,7 @@ build==1.2.1
     # via pip-tools
 cattrs==23.2.3
     # via requests-cache
-certifi==2024.2.2
+certifi==2024.6.2
     # via
     #   requests
     #   sentry-sdk
@@ -32,7 +32,7 @@ click==8.1.7
     # via
     #   black
     #   pip-tools
-coverage[toml]==7.5.1
+coverage[toml]==7.5.3
     # via pytest-cov
 django==5.0.6
     # via
@@ -64,7 +64,7 @@ django-mptt==0.16.0
     # via
     #   -r requirements.in
     #   django-munigeo
-django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.83
+django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.84
     # via -r requirements.in
 django-polymorphic==3.1.0
     # via -r requirements.in
@@ -119,7 +119,7 @@ parso==0.8.4
     #   jedi
 pathspec==0.12.1
     # via black
-pep8-naming==0.13.3
+pep8-naming==0.14.1
     # via -r requirements.in
 pip-tools==7.4.1
     # via -r requirements.in
@@ -139,7 +139,7 @@ pyproject-hooks==1.1.0
     # via
     #   build
     #   pip-tools
-pytest==8.2.0
+pytest==8.2.2
     # via
     #   pytest-cov
     #   pytest-django
@@ -159,7 +159,7 @@ referencing==0.35.1
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.31.0
+requests==2.32.3
     # via
     #   -r requirements.in
     #   bmi-arcgis-restapi
@@ -174,7 +174,7 @@ rpds-py==0.18.1
     # via
     #   jsonschema
     #   referencing
-sentry-sdk==2.1.1
+sentry-sdk==2.5.0
     # via -r requirements.in
 six==1.16.0
     # via
@@ -185,8 +185,6 @@ sqlparse==0.5.0
     # via django
 tqdm==4.66.4
     # via -r requirements.in
-typing-extensions==4.11.0
-    # via django-modeltranslation
 tzdata==2024.1
     # via -r requirements.in
 uritemplate==4.1.1
