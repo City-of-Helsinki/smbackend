@@ -1,5 +1,4 @@
 import logging
-import tracemalloc
 from datetime import datetime, timedelta
 
 from django.contrib.postgres.search import SearchVector
@@ -39,16 +38,18 @@ def generate_syllables(
     """
     # Disable sending of signals
     model._meta.auto_created = True
+    save_kwargs = {}
     num_populated = 0
     if model.__name__ == "Address" and not hyphenate_all_addresses:
+        save_kwargs["skip_modified_at"] = True
         if not hyphenate_addresses_from:
             hyphenate_addresses_from = Address.objects.latest(
                 "modified_at"
             ).modified_at - timedelta(days=HYPHENATE_ADDRESSES_MODIFIED_WITHIN_DAYS)
         qs = model.objects.filter(modified_at__gte=hyphenate_addresses_from)
     else:
-        qs = model.objects.all()[:100]
-    for row in qs:
+        qs = model.objects.all()
+    for row in qs.iterator(chunk_size=10000):
         row.syllables_fi = []
         for column in model.get_syllable_fi_columns():
             row_content = get_foreign_key_attr(row, column)
@@ -62,7 +63,7 @@ def generate_syllables(
                     if len(syllables) > 1:
                         for s in syllables:
                             row.syllables_fi.append(s)
-                    row.save(update_fields=["syllables_fi"])
+            row.save(**save_kwargs)
             num_populated += 1
     # Enable sending of signals
     model._meta.auto_created = False
@@ -115,8 +116,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        tracemalloc.start()
-        hyphenate_all_addresses = options.get("hyphenate_all_addresses", None)
+        hyphenate_all_addresses = options.get("hyphenate_all_addresses", False)
         hyphenate_addresses_from = options.get("hyphenate_addresses_from", None)
 
         if hyphenate_addresses_from:
@@ -130,30 +130,14 @@ class Command(BaseCommand):
             key = "search_column_%s" % lang
             # Only generate syllables for the finnish language
             if lang == "fi":
-                snapshot1 = tracemalloc.take_snapshot()
                 logger.info(f"Generating syllables for language: {lang}.")
-                logger.info("Generating syllables for Units")
                 logger.info(f"Syllables generated for {generate_syllables(Unit)} Units")
-                snapshot2 = tracemalloc.take_snapshot()
-
-                top_stats = snapshot2.compare_to(snapshot1, "lineno")
-                print("[ Top 10 differences ]")
-                for stat in top_stats[:10]:
-                    print(stat)
-
-                logger.info("Generating syllables for Addresses")
                 num_populated = generate_syllables(
                     Address,
                     hyphenate_all_addresses=hyphenate_all_addresses,
                     hyphenate_addresses_from=hyphenate_addresses_from,
                 )
                 logger.info(f"Syllables generated for {num_populated} Addresses")
-                snapshot3 = tracemalloc.take_snapshot()
-                top_stats = snapshot3.compare_to(snapshot2, "lineno")
-                print("[ Top 10 differences ]")
-                for stat in top_stats[:10]:
-                    print(stat)
-
                 logger.info(
                     f"Syllables generated for {generate_syllables(Service)} Services"
                 )
