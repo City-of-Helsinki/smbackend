@@ -108,6 +108,8 @@ flake8==3.9.2
     #   pep8-naming
 flake8-polyfill==1.0.2
     # via pep8-naming
+freezegun==1.5.1
+    # via -r requirements.in
 idna==3.7
     # via requests
 inflection==0.5.1
@@ -191,6 +193,7 @@ python-crontab==2.6.0
 python-dateutil==2.8.2
     # via
     #   -r requirements.in
+    #   freezegun
     #   pandas
     #   python-crontab
 pytz==2021.3
