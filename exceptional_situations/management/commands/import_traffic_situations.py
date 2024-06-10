@@ -172,6 +172,5 @@ class Command(BaseCommand):
                 except AssertionError:
                     continue
                 features = response.json()["features"]
-                breakpoint()
                 num_imported += self.save_features(features)
             logger.info(f"Imported/updated {num_imported} traffic situations.")
