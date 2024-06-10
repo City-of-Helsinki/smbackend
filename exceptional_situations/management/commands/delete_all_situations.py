@@ -13,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        for situation in Situation.objects.all():
-            SituationAnnouncement.objects.filter(situation=situation).delete()
-            situation.delete()
-            SituationLocation.objects.all().delete()
+        SituationLocation.objects.all().delete()
+        SituationAnnouncement.objects.all().delete()
+        Situation.objects.all().delete()
         logger.info("Deleted all situations.")
