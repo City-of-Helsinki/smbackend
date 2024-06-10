@@ -24,6 +24,8 @@ from itertools import chain
 
 from django.db import connection, reset_queries
 from django.db.models import Count
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from munigeo import api as munigeo_api
 from munigeo.models import Address, AdministrativeDivision
@@ -320,6 +322,7 @@ class SearchSerializer(serializers.Serializer):
 class SearchViewSet(GenericAPIView):
     queryset = Unit.objects.all()
 
+    @method_decorator(cache_page(60 * 60))
     def get(self, request):
         model_limits = {}
         show_only_address = False
