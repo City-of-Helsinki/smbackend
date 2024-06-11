@@ -43,3 +43,4 @@ pyshp
 polyline
 drf-spectacular
 xmltodict
+freezegun
