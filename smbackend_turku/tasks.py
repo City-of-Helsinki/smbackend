@@ -46,8 +46,11 @@ def geo_import_municipalities(name="geo_import_municipalities"):
 
 
 @shared_task_email
-def index_search_columns(name="index_search_columns"):
-    management.call_command("index_search_columns")
+def index_search_columns(*args, name="index_search_columns"):
+    if args:
+        management.call_command("index_search_columns", args)
+    else:
+        management.call_command("index_search_columns")
 
 
 @shared_task_email

@@ -24,12 +24,15 @@ from itertools import chain
 
 from django.db import connection, reset_queries
 from django.db.models import Count
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from munigeo import api as munigeo_api
 from munigeo.models import Address, AdministrativeDivision
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.exceptions import ParseError
 from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
 
 from services.api import (
     TranslatedModelSerializer,
@@ -60,6 +63,7 @@ from .utils import (
     get_search_exclusions,
     get_service_node_results,
     get_trigram_results,
+    has_exclusion_word_in_query,
     set_address_fields,
     set_service_node_unit_count,
     set_service_unit_count,
@@ -318,6 +322,7 @@ class SearchSerializer(serializers.Serializer):
 class SearchViewSet(GenericAPIView):
     queryset = Unit.objects.all()
 
+    @method_decorator(cache_page(60 * 60))
     def get(self, request):
         model_limits = {}
         show_only_address = False
@@ -331,7 +336,6 @@ class SearchViewSet(GenericAPIView):
             raise ParseError("Supply search terms with 'q=' ' or input=' '")
 
         if not re.match(r"^[\w\såäö.'+&|-]+$", q_val):
-
             raise ParseError(
                 "Invalid search terms, only letters, numbers, spaces and .'+-&| allowed."
             )
@@ -447,6 +451,13 @@ class SearchViewSet(GenericAPIView):
                     search_query_str += f"& {q}:*"
             else:
                 search_query_str = f"{q}:*"
+
+        if has_exclusion_word_in_query(q_vals, language_short):
+            return Response(
+                f"Search query {q_vals} would return too many results",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         search_fn = "to_tsquery"
         if use_websearch:
             exclusions = get_search_exclusions(q)

@@ -1,11 +1,14 @@
 import logging
+from datetime import datetime, timedelta
 
 from django.contrib.postgres.search import SearchVector
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 from munigeo.models import Address, AdministrativeDivision
 
 from services.models import Service, ServiceNode, Unit
-from services.search.utils import hyphenate
+from services.search.constants import HYPHENATE_ADDRESSES_MODIFIED_WITHIN_DAYS
+from services.search.utils import get_foreign_key_attr, hyphenate
 
 logger = logging.getLogger("search")
 
@@ -27,17 +30,29 @@ def get_search_column(model, lang):
     return search_column
 
 
-def generate_syllables(model):
+def generate_syllables(
+    model, hyphenate_all_addresses=False, hyphenate_addresses_from=None
+):
     """
     Generates syllables for the given model.
     """
     # Disable sending of signals
     model._meta.auto_created = True
+    save_kwargs = {}
     num_populated = 0
-    for row in model.objects.all():
+    if model.__name__ == "Address" and not hyphenate_all_addresses:
+        save_kwargs["skip_modified_at"] = True
+        if not hyphenate_addresses_from:
+            hyphenate_addresses_from = Address.objects.latest(
+                "modified_at"
+            ).modified_at - timedelta(days=HYPHENATE_ADDRESSES_MODIFIED_WITHIN_DAYS)
+        qs = model.objects.filter(modified_at__gte=hyphenate_addresses_from)
+    else:
+        qs = model.objects.all()
+    for row in qs.iterator(chunk_size=10000):
         row.syllables_fi = []
         for column in model.get_syllable_fi_columns():
-            row_content = getattr(row, column, None)
+            row_content = get_foreign_key_attr(row, column)
             if row_content:
                 # Rows migth be of type str or Array, if str
                 # cast to array by splitting.
@@ -45,10 +60,12 @@ def generate_syllables(model):
                     row_content = row_content.split()
                 for word in row_content:
                     syllables = hyphenate(word)
-                    for s in syllables:
-                        row.syllables_fi.append(s)
-            row.save()
+                    if len(syllables) > 1:
+                        for s in syllables:
+                            row.syllables_fi.append(s)
+            row.save(**save_kwargs)
             num_populated += 1
+
     # Enable sending of signals
     model._meta.auto_created = False
     return num_populated
@@ -85,13 +102,45 @@ def index_servicenodes(lang):
 
 
 class Command(BaseCommand):
-    def handle(self, *args, **kwargs):
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--hyphenate_addresses_from",
+            nargs="?",
+            type=str,
+            help="Hyphenate addresses whose modified_at timestamp starts at given timestamp YYYY-MM-DDTHH:MM:SS",
+        )
+
+        parser.add_argument(
+            "--hyphenate_all_addresses",
+            action="store_true",
+            help="Hyphenate all addresses",
+        )
+
+    def handle(self, *args, **options):
+        hyphenate_all_addresses = options.get("hyphenate_all_addresses", None)
+        hyphenate_addresses_from = options.get("hyphenate_addresses_from", None)
+
+        if hyphenate_addresses_from:
+            try:
+                hyphenate_addresses_from = timezone.make_aware(
+                    datetime.strptime(hyphenate_addresses_from, "%Y-%m-%dT%H:%M:%S")
+                )
+            except ValueError as err:
+                raise ValueError(err)
+
         for lang in ["fi", "sv", "en"]:
             key = "search_column_%s" % lang
             # Only generate syllables for the finnish language
             if lang == "fi":
                 logger.info(f"Generating syllables for language: {lang}.")
                 logger.info(f"Syllables generated for {generate_syllables(Unit)} Units")
+                num_populated = generate_syllables(
+                    Address,
+                    hyphenate_all_addresses=hyphenate_all_addresses,
+                    hyphenate_addresses_from=hyphenate_addresses_from,
+                )
+                logger.info(f"Syllables generated for {num_populated} Addresses")
                 logger.info(
                     f"Syllables generated for {generate_syllables(Service)} Services"
                 )
