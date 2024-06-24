@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib.gis.db import models
 from django.utils import timezone
+from munigeo.models import Municipality
 
 PROJECTION_SRID = 4326
 
@@ -39,12 +40,17 @@ class SituationAnnouncement(models.Model):
         blank=True,
         related_name="announcements",
     )
+    municipalities = models.ManyToManyField(Municipality)
 
     class Meta:
         ordering = ["start_time"]
 
     def __str__(self):
         return "%s (%s)" % (self.title, self.id)
+
+    @property
+    def municipality_names(self) -> list:
+        return [m.id for m in self.municipalities.all()]
 
 
 class Situation(models.Model):
