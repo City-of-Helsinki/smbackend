@@ -124,6 +124,14 @@ def test_situation_filter_by_end_time(api_client, situations):
 
 
 @pytest.mark.django_db
+def test_filter_by_municipalities(api_client, situations):
+    response = api_client.get(SITUATION_LIST_URL + "?municipalities=raisio,lieto")
+    assert response.json()["count"] == 2
+    response = api_client.get(SITUATION_LIST_URL + "?municipalities=turku")
+    assert response.json()["count"] == 1
+
+
+@pytest.mark.django_db
 def test_situation_types_list(api_client, situation_types):
     response = api_client.get(reverse("exceptional_situations:situation_type-list"))
     assert response.status_code == 200

@@ -27,6 +27,7 @@ class SituationAnnouncementSerializer(serializers.ModelSerializer):
             "end_time",
             "additional_info",
             "location",
+            "municipality_names",
         ]
 
     def __init__(self, *args, **kwargs):
