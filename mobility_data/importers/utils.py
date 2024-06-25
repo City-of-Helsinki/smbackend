@@ -5,6 +5,7 @@ import re
 import tempfile
 import zipfile
 from enum import Enum
+from functools import lru_cache
 
 import requests
 import yaml
@@ -171,6 +172,7 @@ def get_postal_code(point):
     return postal_code_area.postal_code
 
 
+@lru_cache()
 def get_street_name_translations(name, municipality):
     """
     Returns a dict where the key is the language and the value is
@@ -197,6 +199,7 @@ def get_street_name_translations(name, municipality):
         return names
 
 
+@lru_cache()
 def get_municipality_name(point):
     """
     Returns the string name of the municipality in which the point
