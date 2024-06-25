@@ -336,7 +336,7 @@ def import_command(*args, **kwargs):
 
 @pytest.mark.django_db
 @freeze_time("2024-06-11 12:00:00", tz_offset=2)
-def test_import_traffic_situation():
+def test_import_traffic_situation(municipalities):
     import_command(test_importer=data)
     assert SituationType.objects.count() == 1
     assert SituationType.objects.first().type_name == "ROAD_WORK"
@@ -352,6 +352,9 @@ def test_import_traffic_situation():
     assert location.details["primaryPoint"]["roadName"] == "Turun kehätie"
     announcement = SituationAnnouncement.objects.first()
     assert announcement in situation.announcements.all()
+    assert announcement.municipalities.filter(
+        id=municipalities.get(id="turku").id
+    ).exists()
     assert announcement.title == "Tie 40, eli Turun kehätie, Turku. Tietyö. "
     assert "aikutusalue 1,1 km, suuntaan Kärsämäen " in announcement.description
     assert (
