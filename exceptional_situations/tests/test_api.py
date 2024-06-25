@@ -38,7 +38,7 @@ def test_situations_list(api_client, situations, inactive_situations):
         "end_time",
         "additional_info",
         "location",
-        "municipality_names",
+        "municipalities",
     }
     location = announcement["location"]
     assert location.keys() == {"id", "location", "geometry", "details"}
@@ -172,7 +172,7 @@ def test_announcement_list(api_client, announcements):
         "end_time",
         "additional_info",
         "location",
-        "municipality_names",
+        "municipalities",
     }
     location = result_data["location"]
     assert location.keys() == {"id", "location", "geometry", "details"}
@@ -196,7 +196,7 @@ def test_announcement_retrieve(api_client, announcements):
         "end_time",
         "additional_info",
         "location",
-        "municipality_names",
+        "municipalities",
     }
     assert json_data["id"] == announcements[0].pk
 

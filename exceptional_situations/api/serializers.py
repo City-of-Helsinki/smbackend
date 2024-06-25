@@ -16,6 +16,7 @@ class SituationLocationSerializer(serializers.ModelSerializer):
 
 class SituationAnnouncementSerializer(serializers.ModelSerializer):
     location = SituationLocationSerializer()
+    municipalities = serializers.SerializerMethodField()
 
     class Meta:
         model = SituationAnnouncement
@@ -27,8 +28,11 @@ class SituationAnnouncementSerializer(serializers.ModelSerializer):
             "end_time",
             "additional_info",
             "location",
-            "municipality_names",
+            "municipalities",
         ]
+
+    def get_municipalities(self, obj):
+        return [m.id for m in obj.municipalities.all()]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
