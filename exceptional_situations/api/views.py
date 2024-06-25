@@ -1,4 +1,5 @@
 import django_filters
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 
@@ -23,6 +24,7 @@ class SituationFilter(django_filters.FilterSet):
     start_time__lt = django_filters.DateTimeFilter(method="filter_start_time__lt")
     end_time__gt = django_filters.DateTimeFilter(method="filter_end_time__gt")
     end_time__lt = django_filters.DateTimeFilter(method="filter_end_time__lt")
+    municipalities = django_filters.CharFilter(method="filter_municipalities")
 
     class Meta:
         model = Situation
@@ -50,13 +52,20 @@ class SituationFilter(django_filters.FilterSet):
         ids = [obj.id for obj in queryset if obj.start_time < start_time]
         return queryset.filter(id__in=ids)
 
-    def filter_end_time__gt(self, queryset, fields, start_time):
-        ids = [obj.id for obj in queryset if obj.start_time > start_time]
+    def filter_end_time__gt(self, queryset, fields, end_time):
+        ids = [obj.id for obj in queryset if obj.end_time > end_time]
         return queryset.filter(id__in=ids)
 
-    def filter_end_time__lt(self, queryset, fields, start_time):
-        ids = [obj.id for obj in queryset if obj.start_time < start_time]
+    def filter_end_time__lt(self, queryset, fields, end_time):
+        ids = [obj.id for obj in queryset if obj.end_time < end_time]
         return queryset.filter(id__in=ids)
+
+    def filter_municipalities(self, queryset, fields, municipalities):
+        municipalities = municipalities.split(",")
+        query = Q()
+        for municiaplity in municipalities:
+            query |= Q(announcements__municipalities__id__iexact=municiaplity.strip())
+        return queryset.filter(query).distinct()
 
 
 class SituationViewSet(viewsets.ReadOnlyModelViewSet):
