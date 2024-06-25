@@ -48,10 +48,6 @@ class SituationAnnouncement(models.Model):
     def __str__(self):
         return "%s (%s)" % (self.title, self.id)
 
-    @property
-    def municipality_names(self) -> list:
-        return [m.id for m in self.municipalities.all()]
-
 
 class Situation(models.Model):
     situation_id = models.CharField(max_length=64)
