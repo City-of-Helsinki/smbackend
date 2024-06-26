@@ -47,11 +47,15 @@ def test_geojson_import(
     assert num_created == 3
     assert num_deleted == 0
     assert MobileUnit.objects.all().count() == 3
-    kupittaan_maauimala = MobileUnit.objects.get(name="Kupittaan maauimala")
+    kupittaan_maauimala = MobileUnit.objects.get(
+        name="Pyöräpysäköinti Kupittaan maauimala"
+    )
     assert kupittaan_maauimala
-    kupittaan_palloiluhalli = MobileUnit.objects.get(name="Kupittaan palloiluhalli")
+    kupittaan_palloiluhalli = MobileUnit.objects.get(
+        name="Pyöräpysäköinti Kupittaan palloiluhalli"
+    )
     assert kupittaan_palloiluhalli
-    turun_amk = MobileUnit.objects.get(name="Turun AMK")
+    turun_amk = MobileUnit.objects.get(name="Pyöräpysäköinti Turun AMK")
     assert turun_amk
     assert kupittaan_maauimala.extra["hull_lockable"] is False
     assert kupittaan_maauimala.extra["covered"] is False
@@ -100,8 +104,9 @@ def test_gml_importer(
     stand_covered_hull_lockable = MobileUnit.objects.all()[1]
     # <GIS:Id>319490982</GIS:Id> in fixture xml
     stand_external = MobileUnit.objects.all()[2]
-    assert stand_normal.name_fi == "Linnanpuisto"
-    assert stand_normal.name_sv == "Slottsparken"
+    assert stand_normal.name_fi == "Pyöräpysäköinti Linnanpuisto"
+    assert stand_normal.name_sv == "Cykelparkering Slottsparken"
+    assert stand_normal.name_en == "Bicycle parking Linnanpuisto"
     assert stand_normal.municipality.name == "Turku"
     extra = stand_normal.extra
     assert extra["model"] == "Normaali"
@@ -109,19 +114,19 @@ def test_gml_importer(
     assert extra["covered"] is False
     assert extra["hull_lockable"] is False
     assert extra["number_of_places"] == 24
-    assert extra["number_of_stands"] == 2
-    assert stand_covered_hull_lockable.name == "Pitkäpellonkatu 7"
-    assert stand_covered_hull_lockable.name_sv == "Långåkersgatan 7"
+    assert extra["number_of_stands"] is None
+    assert stand_covered_hull_lockable.name == "Pyöräpysäköinti Pitkäpellonkatu 7"
+    assert stand_covered_hull_lockable.name_sv == "Cykelparkering Långåkersgatan 7"
     extra = stand_covered_hull_lockable.extra
     assert extra["maintained_by_turku"] is True
     assert extra["covered"] is True
     assert extra["hull_lockable"] is True
     assert extra["number_of_places"] == 18
-    assert extra["number_of_stands"] == 1
+    assert extra["number_of_stands"] is None
     # external stand has no street name, so the closest street name
     # and address number is assigned as name and that is "Kupittaankatu 8".
-    assert stand_external.name == "Kupittaankatu 8"
-    assert stand_external.name_sv == "Kuppisgatan 8"
+    assert stand_external.name == "Pyöräpysäköinti Kupittaankatu 8"
+    assert stand_external.name_sv == "Cykelparkering Kuppisgatan 8"
     extra = stand_external.extra
     assert extra["maintained_by_turku"] is False
     # As there are no info for stand that are not maintained by turku
