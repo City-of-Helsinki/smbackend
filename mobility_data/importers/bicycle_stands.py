@@ -56,7 +56,6 @@ class BicyleStand(MobileUnitDataBase):
 
     def __init__(self):
         super().__init__()
-        self.prefix_name = {}
         self.related_unit = None
         self.extra = {f: None for f in self.EXTRA_FIELDS}
 
@@ -110,7 +109,7 @@ class BicyleStand(MobileUnitDataBase):
         else:
             self.name["sv"] = name
             self.name["en"] = name
-        self.prefix_name = {k: f"{NAME_PREFIX[k]} {v}" for k, v in self.name.items()}
+        self.name = {k: f"{NAME_PREFIX[k]} {v}" for k, v in self.name.items()}
         addr = feature["osoite"].as_string().split(",")
         # Some addresses are in format:"Pyhän Henrikin aukio, Kupittaankatu 8, 20520 Turku"
         # Then remove the prefix part.
@@ -148,16 +147,18 @@ class BicyleStand(MobileUnitDataBase):
             self.extra["model"] = model_elem.as_string()
         else:
             self.extra["model"] = None
-        num_stands_elem = feature["Lukumaara"]
-        if num_stands_elem is not None:
-            num = num_stands_elem.as_int()
-            # for bicycle stands that are Not maintained by Turku
-            # the number of stands is set to 0 in the input data
-            # but in reality there is no data so None is set.
-            if num == 0 and not self.extra["maintained_by_turku"]:
-                self.extra["number_of_stands"] = None
-            else:
-                self.extra["number_of_stands"] = num
+
+        # For some reason the field "lukumaara" has been removed
+        # num_stands_elem = feature["lukumaara"]
+        # if num_stands_elem is not None:
+        #     num = num_stands_elem.as_int()
+        #     # for bicycle stands that are Not maintained by Turku
+        #     # the number of stands is set to 0 in the input data
+        #     # but in reality there is no data so None is set.
+        #     if num == 0 and not self.extra["maintained_by_turku"]:
+        #         self.extra["number_of_stands"] = None
+        #     else:
+        #         self.extra["number_of_stands"] = num
 
         num_places_elem = feature["Pyorapaikkojen_lukumaara"].as_string()
         if num_places_elem:
@@ -186,8 +187,8 @@ class BicyleStand(MobileUnitDataBase):
         full_names = get_closest_address_full_name(self.geometry)
         self.name[FI_KEY] = full_names[FI_KEY]
         self.name[SV_KEY] = full_names[SV_KEY]
-        self.name[EN_KEY] = full_names[EN_KEY]
-        self.prefix_name = {k: f"{NAME_PREFIX[k]} {v}" for k, v in self.name.items()}
+        self.name[EN_KEY] = full_names[FI_KEY]
+        self.name = {k: f"{NAME_PREFIX[k]} {v}" for k, v in self.name.items()}
 
 
 def get_data_sources():
@@ -219,7 +220,12 @@ def get_bicycle_stand_objects():
         for feature in data_source[1][0]:
             bicycle_stand = BicyleStand()
             if data_source[0] == "gml":
-                bicycle_stand.set_gml_feature(feature)
+                try:
+                    bicycle_stand.set_gml_feature(feature)
+                except IndexError as err:
+                    # Handle IndexError gracefully, as the field names can change in the source data
+                    # and it would prevent importing the GEOJSON data.
+                    logger.warning(f"Discarding {feature}, reason: {err}")
             elif data_source[0] == "geojson":
                 bicycle_stand.set_geojson_feature(feature)
             if (
