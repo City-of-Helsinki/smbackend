@@ -38,6 +38,7 @@ def test_situations_list(api_client, situations, inactive_situations):
         "end_time",
         "additional_info",
         "location",
+        "municipalities",
     }
     location = announcement["location"]
     assert location.keys() == {"id", "location", "geometry", "details"}
@@ -102,12 +103,12 @@ def test_situation_filter_by_end_time(api_client, situations):
         SITUATION_LIST_URL
         + f"?end_time__gt={datetime.strftime(end_time, DATETIME_FORMAT)}"
     )
-    assert response.json()["count"] == 1
+    assert response.json()["count"] == 2
     response = api_client.get(
         SITUATION_LIST_URL
         + f"?end_time__lt={datetime.strftime(end_time, DATETIME_FORMAT)}"
     )
-    assert response.json()["count"] == 1
+    assert response.json()["count"] == 0
 
     end_time = timezone.now() - timedelta(days=2)
     response = api_client.get(
@@ -120,6 +121,14 @@ def test_situation_filter_by_end_time(api_client, situations):
         + f"?end_time__lt={datetime.strftime(end_time, DATETIME_FORMAT)}"
     )
     assert response.json()["count"] == 0
+
+
+@pytest.mark.django_db
+def test_filter_by_municipalities(api_client, situations):
+    response = api_client.get(SITUATION_LIST_URL + "?municipalities=raisio,lieto")
+    assert response.json()["count"] == 2
+    response = api_client.get(SITUATION_LIST_URL + "?municipalities=turku")
+    assert response.json()["count"] == 1
 
 
 @pytest.mark.django_db
@@ -163,6 +172,7 @@ def test_announcement_list(api_client, announcements):
         "end_time",
         "additional_info",
         "location",
+        "municipalities",
     }
     location = result_data["location"]
     assert location.keys() == {"id", "location", "geometry", "details"}
@@ -186,6 +196,7 @@ def test_announcement_retrieve(api_client, announcements):
         "end_time",
         "additional_info",
         "location",
+        "municipalities",
     }
     assert json_data["id"] == announcements[0].pk
 

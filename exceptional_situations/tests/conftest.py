@@ -3,6 +3,7 @@ from datetime import timedelta
 import pytest
 from django.contrib.gis.geos import GEOSGeometry
 from django.utils import timezone
+from munigeo.models import Municipality
 from rest_framework.test import APIClient
 
 from exceptional_situations.models import (
@@ -18,6 +19,15 @@ NOW = timezone.now()
 @pytest.fixture
 def api_client():
     return APIClient()
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def municipalities():
+    Municipality.objects.create(id="turku", name="Turku")
+    Municipality.objects.create(id="lieto", name="Lieto")
+    Municipality.objects.create(id="raisio", name="Raisio")
+    return Municipality.objects.all()
 
 
 @pytest.mark.django_db
@@ -48,9 +58,9 @@ def locations():
 
 @pytest.mark.django_db
 @pytest.fixture
-def announcements(locations):
+def announcements(locations, municipalities):
     json_data = {"test_key": "test_value"}
-    SituationAnnouncement.objects.create(
+    sa = SituationAnnouncement.objects.create(
         title="two hours",
         description="two hours long situation",
         additional_info=json_data,
@@ -58,7 +68,9 @@ def announcements(locations):
         start_time=NOW - timedelta(hours=1),
         end_time=NOW + timedelta(hours=1),
     )
-    SituationAnnouncement.objects.create(
+    sa.municipalities.add(municipalities.filter(id="turku").first())
+    sa.municipalities.add(municipalities.filter(id="lieto").first())
+    sa = SituationAnnouncement.objects.create(
         title="two days",
         description="two days long situation",
         additional_info=json_data,
@@ -66,7 +78,7 @@ def announcements(locations):
         start_time=NOW - timedelta(days=1),
         end_time=NOW + timedelta(days=1),
     )
-
+    sa.municipalities.add(municipalities.filter(id="raisio").first())
     return SituationAnnouncement.objects.all()
 
 
