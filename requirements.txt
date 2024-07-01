@@ -110,6 +110,10 @@ flake8-polyfill==1.0.2
     # via pep8-naming
 freezegun==1.5.1
     # via -r requirements.in
+geographiclib==2.0
+    # via geopy
+geopy==2.4.1
+    # via -r requirements.in
 idna==3.7
     # via requests
 inflection==0.5.1
