@@ -42,6 +42,7 @@ from services.models import (
 )
 from services.models.unit import CONTRACT_TYPES, ORGANIZER_TYPES, PROVIDER_TYPES
 from services.utils import check_valid_concrete_field
+from services.utils.geocode_address import geocode_address
 
 if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"]:
     DEFAULT_RENDERERS = [
@@ -1161,6 +1162,24 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
 
 class AdministrativeDivisionViewSet(munigeo_api.AdministrativeDivisionViewSet):
     serializer_class = AdministrativeDivisionSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        filters = self.request.query_params
+
+        if "address" in filters and "municipality" in filters:
+            street_address = filters["address"]
+            municipality = filters["municipality"]
+            country = settings.DEFAULT_COUNTRY
+            address = f"{street_address}, {municipality}, {country}"
+            location_coordinates = geocode_address(address)
+            if location_coordinates:
+                point = Point(
+                    location_coordinates[1], location_coordinates[0], srid=4326
+                )
+                queryset = queryset.filter(geometry__boundary__contains=point)
+
+        return queryset
 
 
 register_view(AdministrativeDivisionViewSet, "administrative_division")
