@@ -40,7 +40,7 @@ from services.models import (
     UnitIdentifier,
     UnitServiceDetails,
 )
-from services.models.unit import CONTRACT_TYPES, ORGANIZER_TYPES, PROVIDER_TYPES
+from services.models.unit import ORGANIZER_TYPES, PROVIDER_TYPES
 from services.utils import check_valid_concrete_field
 
 if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"]:
@@ -650,13 +650,14 @@ class UnitSerializer(
         return choicefield_string(ORGANIZER_TYPES, "organizer_type", obj)
 
     def get_contract_type(self, obj):
-        key = choicefield_string(CONTRACT_TYPES, "contract_type", obj)
+        key = getattr(obj, "displayed_service_owner_type")
         if not key:
             return None
-        translations = {}
-        for lang in LANGUAGES:
-            with translation.override(lang):
-                translations[lang] = translation.gettext(key)
+        translations = {
+            "fi": getattr(obj, "displayed_service_owner_fi"),
+            "sv": getattr(obj, "displayed_service_owner_sv"),
+            "en": getattr(obj, "displayed_service_owner_en"),
+        }
         return {"id": key, "description": translations}
 
     def to_representation(self, obj):
@@ -1027,6 +1028,15 @@ class UnitViewSet(
                 key += "__iregex"
                 arg = filters["address"] + r"($|\s|,|[a-zA-Z]).*"
             queryset = queryset.filter(**{key: arg})
+
+        if "no_private_services" in filters:
+            private_enterprise_value = (
+                10  # Value for PRIVATE_ENTERPRISE from ORGANIZER_TYPES
+            )
+            queryset = queryset.exclude(
+                Q(displayed_service_owner_type__iexact="PRIVATE_SERVICE")
+                | Q(organizer_type=private_enterprise_value)
+            )
 
         maintenance_organization = self.request.query_params.get(
             "maintenance_organization"

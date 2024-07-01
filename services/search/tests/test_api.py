@@ -34,15 +34,15 @@ def test_search(
     assert biological_museum_unit["contract_type"]["id"] == "municipal_service"
     assert (
         biological_museum_unit["contract_type"]["description"]["fi"]
-        == "municipal_service"
+        == "kunnallinen palvelu"
     )
     assert (
         biological_museum_unit["contract_type"]["description"]["sv"]
-        == "municipal_service"
+        == "kommunal tjänst"
     )
     assert (
         biological_museum_unit["contract_type"]["description"]["en"]
-        == "municipal_service"
+        == "municipal service"
     )
     assert biological_museum_unit["department"]["name"]["fi"] == "Test Department"
     assert (
