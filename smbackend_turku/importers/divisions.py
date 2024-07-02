@@ -235,7 +235,6 @@ class DivisionImporter:
             self.logger.debug("%s" % obj.ocd_id)
         obj.save()
         syncher.mark(obj, True)
-        # if geom.geom_type == "Polygon":
 
         try:
             geom_obj = obj.geometry
