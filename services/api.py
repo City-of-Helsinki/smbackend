@@ -1179,7 +1179,7 @@ class AdministrativeDivisionViewSet(munigeo_api.AdministrativeDivisionViewSet):
                 )
                 queryset = queryset.filter(geometry__boundary__contains=point)
 
-        return queryset
+        return queryset.order_by("id")
 
 
 register_view(AdministrativeDivisionViewSet, "administrative_division")
