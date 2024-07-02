@@ -45,6 +45,7 @@ class DivisionImporter:
         self.logger = logger
         self.importer = importer
         self.muni_data_path = "data"
+        self.imported_geometries = {}
 
     def _import_division(self, muni, div, type_obj, syncher, parent_dict, feat):
         check_turku_boundary = div.get("check_turku_boundary", True)
@@ -234,16 +235,23 @@ class DivisionImporter:
             self.logger.debug("%s" % obj.ocd_id)
         obj.save()
         syncher.mark(obj, True)
+        # if geom.geom_type == "Polygon":
 
         try:
             geom_obj = obj.geometry
         except AdministrativeDivisionGeometry.DoesNotExist:
             geom_obj = AdministrativeDivisionGeometry(division=obj)
 
+        # If the geometry is in multiple featureMembers, combine the geometries
+        if full_id in self.imported_geometries.keys():
+            geom = geom.union(self.imported_geometries[full_id].boundary)
         geom_obj.boundary = geom
         geom_obj.save()
+        self.imported_geometries[full_id] = geom_obj
 
     def _import_one_division_type(self, muni, div):
+        self.imported_geometries = {}
+
         def make_div_id(obj):
             if "parent" in div:
                 return "%s-%s" % (obj.parent.origin_id, obj.origin_id)
