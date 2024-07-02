@@ -28,15 +28,17 @@ from services.models import (
     UnitIdentifier,
     UnitServiceDetails,
 )
-from services.models.unit import (
-    CONTRACT_TYPES,
-    ORGANIZER_TYPES,
-    PROJECTION_SRID,
-    PROVIDER_TYPES,
-)
+from services.models.unit import ORGANIZER_TYPES, PROJECTION_SRID, PROVIDER_TYPES
 from services.utils import AccessibilityShortcomingCalculator
 
-from .utils import clean_text, pk_get, postcodes, save_translated_field
+from .utils import (
+    clean_text,
+    pk_get,
+    postcodes,
+    save_translated_field,
+    update_extra_searchwords,
+    update_service_names_fields,
+)
 
 UTC_TIMEZONE = pytz.timezone("UTC")
 ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
@@ -73,105 +75,7 @@ def get_service_ids():
 def _fetch_units():
     if VERBOSITY:
         LOGGER.info("Fetching units")
-    return pk_get("unit", params={"official": "yes"})
-
-
-CONTRACT_TYPE_MAPPINGS = [
-    ("MUNICIPALITY", "SELF_PRODUCED", None, "municipal_service"),
-    ("MUNICIPALITY", "PURCHASED_SERVICE", None, "purchased_service"),
-    ("MUNICIPALITY", "VOUCHER_SERVICE", None, "voucher_service"),
-    ("MUNICIPALITY", "PAYMENT_COMMITMENT", None, "private_service"),
-    ("MUNICIPALITY", "SUPPORTED_OPERATIONS", None, "supported_operations"),
-    ("MUNICIPALITY", "CONTRACT_SCHOOL", None, "private_contract_school"),
-    (
-        "MUNICIPALLY_OWNED_COMPANY",
-        "SELF_PRODUCED",
-        None,
-        "service_by_municipally_owned_company",
-    ),
-    (
-        "MUNICIPAL_ENTERPRISE_GROUP",
-        "SELF_PRODUCED",
-        None,
-        "service_by_municipal_group_entity",
-    ),
-    (
-        "JOINT_MUNICIPAL_AUTHORITY",
-        "SELF_PRODUCED",
-        None,
-        "service_by_joint_municipal_authority",
-    ),
-    (
-        "OTHER_REGIONAL_COOPERATION_ORGANIZATION",
-        "SELF_PRODUCED",
-        None,
-        "service_by_regional_cooperation_organization",
-    ),
-    ("GOVERNMENT", "SELF_PRODUCED", None, "state_service"),
-    ("GOVERNMENT", "CONTRACT_SCHOOL", None, "state_contract_school"),
-    ("GOVERNMENTAL_COMPANY", "SELF_PRODUCED", None, "state_service"),
-    ("ORGANIZATION", "SELF_PRODUCED", None, "private_service"),
-    ("ORGANIZATION", "CONTRACT_SCHOOL", None, "private_contract_school"),
-    ("FOUNDATION", "SELF_PRODUCED", None, "private_service"),
-    ("FOUNDATION", "CONTRACT_SCHOOL", None, "private_contract_school"),
-    ("ASSOCIATION", "SELF_PRODUCED", None, "private_service"),
-    ("ASSOCIATION", "CONTRACT_SCHOOL", None, "private_contract_school"),
-    ("PRIVATE_ENTERPRISE", "SELF_PRODUCED", None, "private_service"),
-    ("PRIVATE_ENTERPRISE", "CONTRACT_SCHOOL", None, "private_contract_school"),
-    (
-        "PRIVATE_ENTERPRICE",
-        "OTHER_PRODUCTION_METHOD",
-        None,
-        "private_service",
-    ),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "MUNICIPALITY",
-        "service_by_other_municipality",
-    ),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "MUNICIPALLY_OWNED_COMPANY",
-        "service_by_other_municipality",
-    ),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "MUNICIPAL_ENTERPRISE_GROUP",
-        "service_by_other_municipality",
-    ),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "JOINT_MUNICIPAL_AUTHORITY",
-        "service_by_joint_municipal_authority",
-    ),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "OTHER_REGIONAL_COOPERATION_ORGANIZATION",
-        "service_by_regional_cooperation_organization",
-    ),
-    ("MUNICIPALITY", "OTHER_PRODUCTION_METHOD", "GOVERNMENT", "state_service"),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "GOVERNMENTAL_COMPANY",
-        "state_service",
-    ),
-    ("MUNICIPALITY", "OTHER_PRODUCTION_METHOD", "ORGANIZATION", "private_service"),
-    ("MUNICIPALITY", "OTHER_PRODUCTION_METHOD", "FOUNDATION", "private_service"),
-    ("MUNICIPALITY", "OTHER_PRODUCTION_METHOD", "ASSOCIATION", "private_service"),
-    (
-        "MUNICIPALITY",
-        "OTHER_PRODUCTION_METHOD",
-        "PRIVATE_ENTERPRISE",
-        "private_service",
-    ),
-    ("MUNICIPALITY", "OTHER_PRODUCTION_METHOD", "UNKNOWN", "private_service"),
-]
+    return pk_get("unit", params={"official": "yes", "newfeatures": "yes"})
 
 
 def import_units(
@@ -239,7 +143,11 @@ def import_units(
 
     if fetch_only_id:
         obj_id = fetch_only_id
-        obj_list = [fetch_resource("unit", obj_id, params={"official": "yes"})]
+        obj_list = [
+            fetch_resource(
+                "unit", obj_id, params={"official": "yes", "newfeatures": "yes"}
+            )
+        ]
         queryset = Unit.objects.filter(id=obj_id)
     else:
         obj_list = fetch_units()
@@ -319,6 +227,7 @@ def _import_unit(
         "picture_caption",
         "address_postal_full",
         "call_charge_info",
+        "displayed_service_owner",
     )
     for field in fields_that_need_translation:
         if save_translated_field(obj, field, info, field):
@@ -336,41 +245,57 @@ def _import_unit(
             LOGGER.warning("%s: coordinates present but no city" % obj)
 
     municipality_id = None
-    muni_name = info.get("address_city_fi", None)
-    if not muni_name and "address_zip" in info:
-        muni_name = "no-city"
-    if muni_name:
-        muni_name = muni_name.lower()
-        if muni_name in ("helsingin kaupunki",):
-            muni_name = "helsinki"
-        elif muni_name in ("vantaan kaupunki",):
-            muni_name = "vantaa"
-        elif muni_name in ("espoon kaupunki",):
-            muni_name = "espoo"
-        if muni_name not in muni_by_name:
-            postcode = info.get("address_zip", None)
-            muni_name = postcodes().get(postcode, None)
-            if muni_name:
-                if VERBOSITY:
-                    LOGGER.warning(
-                        "%s: municipality to %s based on post code %s (was %s)"
-                        % (obj, muni_name, postcode, info.get("address_city_fi"))
-                    )
-                muni_name = muni_name.lower()
-        if muni_name:
-            muni = muni_by_name.get(muni_name)
-            if muni:
-                municipality_id = muni.id
-            else:
-                if VERBOSITY:
-                    LOGGER.warning(
-                        "%s: municipality %s not found from current Municipalities"
-                        % (obj, muni_name)
-                    )
+    muni_name = None
+    org_id = info.get("org_id", None)
 
-    if municipality_id:
-        # self._set_field(obj, 'municipality_id', municipality_id)
+    # FIXME: Temporarily skip health district units completely
+    if org_id == "5de91045-92ab-484b-9f96-7010ff7fb35e":
+        LOGGER.info("Temporarily skipping health district unit: %s" % obj)
+        return None
+
+    if org_id:
+        department_qs = Department.objects.filter(uuid=org_id)
+        if department_qs:
+            municipality = department_qs.first().municipality
+            if municipality:
+                muni_name = municipality.id
+
+    if not muni_name:
+        muni_name = info.get("address_city_fi", None)
+        if not muni_name and "address_zip" in info:
+            muni_name = "no-city"
+        if muni_name:
+            muni_name = muni_name.lower()
+            if muni_name in ("helsingin kaupunki",):
+                muni_name = "helsinki"
+            elif muni_name in ("vantaan kaupunki",):
+                muni_name = "vantaa"
+            elif muni_name in ("espoon kaupunki",):
+                muni_name = "espoo"
+            if muni_name not in muni_by_name:
+                postcode = info.get("address_zip", None)
+                muni_name = postcodes().get(postcode, None)
+                if muni_name:
+                    if VERBOSITY:
+                        LOGGER.warning(
+                            "%s: municipality to %s based on post code %s (was %s)"
+                            % (obj, muni_name, postcode, info.get("address_city_fi"))
+                        )
+                    muni_name = muni_name.lower()
+    if muni_name:
+        muni = muni_by_name.get(muni_name)
+        if muni:
+            municipality_id = muni.id
+        else:
+            if VERBOSITY:
+                LOGGER.warning(
+                    "%s: municipality %s not found from current Municipalities"
+                    % (obj, muni_name)
+                )
+
+    if municipality_id and municipality_id != obj.municipality_id:
         obj.municipality_id = municipality_id
+        obj_changed = True
 
     dept = None
     dept_id = None
@@ -408,26 +333,10 @@ def _import_unit(
         "streetview_entrance_url",
         "organizer_name",
         "organizer_business_id",
+        "displayed_service_owner_type",
+        "vtj_prt",
+        "vtj_prt_verified",
     ]
-
-    contract_type = None
-    if dept:
-        organization_type = dept.organization_type
-        for mapping in CONTRACT_TYPE_MAPPINGS:
-            if mapping[0] != organization_type:
-                continue
-            if mapping[1] != info.get("provider_type"):
-                continue
-            if mapping[2] in [None, info.get("organizer_type")]:
-                contract_type = mapping[3]
-                break
-    if contract_type:
-        ctype = next(
-            (val for val, str_val in CONTRACT_TYPES if str_val == contract_type)
-        )
-        if obj.contract_type != ctype:
-            obj.contract_type = ctype
-            obj_changed = True
 
     if info.get("provider_type"):
         info["provider_type"] = [
@@ -525,6 +434,12 @@ def _import_unit(
         obj_changed = True
         obj.public = is_public
 
+    # if unit was previously soft-deleted, make it active again
+    if not obj.is_active:
+        obj_changed = True
+        obj.is_active = True
+        obj.deleted_at = None
+
     maintenance_organization = muni_name
     if obj.extensions is None:
         obj.extensions = {}
@@ -558,8 +473,13 @@ def _import_unit(
     obj_changed, update_fields = _import_unit_services(
         obj, info, obj_changed, update_fields
     )
+    obj_changed, update_fields = update_service_names_fields(
+        obj, info, obj_changed, update_fields
+    )
     obj_changed = keyword_handler.sync_searchwords(obj, info, obj_changed)
-
+    obj_changed, update_fields = update_extra_searchwords(
+        obj, info, obj_changed, update_fields
+    )
     obj_changed, update_fields = _import_unit_accessibility_variables(
         obj, info, obj_changed, update_fields
     )
@@ -649,6 +569,7 @@ def _import_unit_services(obj, info, obj_changed, update_fields):
             unit_owd.save()
 
         obj.service_details_hash = owd_hash
+
         obj_changed = True
         update_fields.append("service_details_hash")
 
@@ -719,7 +640,7 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
 
         for i, conn in enumerate(info["connections"]):
             c = UnitConnection(unit=obj)
-            save_translated_field(c, "name", conn, "name", max_length=600)
+            save_translated_field(c, "name", conn, "name", max_length=2100)
             save_translated_field(c, "www", conn, "www")
             section_type = [
                 val
@@ -730,6 +651,12 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
             c.section_type = section_type
 
             c.order = i
+
+            tags = conn.get("tags", [])
+            if tags and getattr(c, "tags") != tags:
+                setattr(c, "tags", tags)
+                c._changed = True
+
             fields = ["email", "phone", "contact_person"]
             for field in fields:
                 val = conn.get(field, None)
