@@ -842,6 +842,59 @@ class KmlRenderer(renderers.BaseRenderer):
         return render_to_string("kml.xml", resp)
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            location=OpenApiParameter.QUERY,
+            description="Filter by ID or list of IDs.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="municipality",
+            location=OpenApiParameter.QUERY,
+            description="Filter by municipality name or OCD ID.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="organization",
+            location=OpenApiParameter.QUERY,
+            description="Filter by organization UUID.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="city_as_department",
+            location=OpenApiParameter.QUERY,
+            description="Filter by city UUID.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="provider_type",
+            location=OpenApiParameter.QUERY,
+            description="Filter by provider type numeric value.",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="provider_type__not",
+            location=OpenApiParameter.QUERY,
+            description="Exclude by provider type numeric value.",
+            required=False,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="level",
+            location=OpenApiParameter.QUERY,
+            description="Filter by level.",
+            required=False,
+            type=str,
+        ),
+    ]
+)
 class UnitViewSet(
     munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet
 ):
@@ -875,6 +928,12 @@ class UnitViewSet(
         if "id" in filters:
             id_list = filters["id"].split(",")
             queryset = queryset.filter(id__in=id_list)
+
+        for f in filters:
+            if f.startswith("extra__"):
+                queryset = queryset.filter(
+                    **{f: int(filters[f]) if filters[f].isnumeric() else filters[f]}
+                )
 
         if "municipality" in filters:
             val = filters["municipality"].lower().strip()
