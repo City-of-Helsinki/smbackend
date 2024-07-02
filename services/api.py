@@ -578,6 +578,17 @@ class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 register_view(ServiceNodeViewSet, "service_node")
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            location=OpenApiParameter.QUERY,
+            description="Filter by ID or list of IDs.",
+            required=False,
+            type=str,
+        ),
+    ]
+)
 class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
