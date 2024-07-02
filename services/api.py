@@ -533,6 +533,24 @@ class UnitIdentifierSerializer(serializers.ModelSerializer):
         exclude = ["unit", "id"]
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            location=OpenApiParameter.QUERY,
+            description="Filter by ID or list of IDs.",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="ancestor",
+            location=OpenApiParameter.QUERY,
+            description="Filter by ancestor ID.",
+            required=False,
+            type=str,
+        ),
+    ]
+)
 class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = ServiceNode.objects.all()
     serializer_class = ServiceNodeSerializer
