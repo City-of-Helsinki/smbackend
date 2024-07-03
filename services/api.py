@@ -15,7 +15,11 @@ from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.utils.module_loading import import_string
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_field,
+    extend_schema_serializer,
+)
 from modeltranslation.translator import NotRegistered, translator
 from mptt.utils import drilldown_tree_for_node
 from munigeo import api as munigeo_api
@@ -90,6 +94,17 @@ def register_view(klass, name, basename=None):
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
 
 logger = logging.getLogger(__name__)
+
+
+class TranslationsSerializer(serializers.Serializer):
+    fi = serializers.CharField(required=False)
+    sv = serializers.CharField(required=False)
+    en = serializers.CharField(required=False)
+
+
+@extend_schema_field(TranslationsSerializer)
+class TranslationsField(serializers.CharField):
+    pass
 
 
 class MPTTModelSerializer(serializers.ModelSerializer):
@@ -210,6 +225,13 @@ class TranslatedModelSerializer(object):
         return ret
 
 
+class ServicesTranslatedModelSerializer(TranslatedModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super(ServicesTranslatedModelSerializer, self).__init__(*args, **kwargs)
+        for field_name in self.translated_fields:
+            self.fields[field_name] = TranslationsField()
+
+
 def root_services(services):
     tree_ids = set(s.tree_id for s in services)
     return map(
@@ -274,7 +296,7 @@ class JSONAPISerializer(serializers.ModelSerializer):
 
 
 class DepartmentSerializer(
-    TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer
+    ServicesTranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer
 ):
     id = serializers.SerializerMethodField("get_uuid")
     parent = serializers.SerializerMethodField()
@@ -296,7 +318,7 @@ class DepartmentSerializer(
 
 
 class ServiceNodeSerializer(
-    TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer
+    ServicesTranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer
 ):
     children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
@@ -350,7 +372,7 @@ class ServiceNodeSerializer(
         )
 
 
-class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
+class ServiceSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
         ret = super(ServiceSerializer, self).to_representation(obj)
         ret["unit_count"] = {"municipality": {}}
@@ -392,7 +414,7 @@ class RelatedServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
         fields = ["name", "root_service_node"]
 
 
-class ServiceDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer):
+class ServiceDetailsSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
         ret = super(ServiceDetailsSerializer, self).to_representation(obj)
         service_data = RelatedServiceSerializer(obj.service).data
@@ -496,7 +518,9 @@ def choicefield_string(choices, key, obj):
         return None
 
 
-class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+class UnitConnectionSerializer(
+    ServicesTranslatedModelSerializer, serializers.ModelSerializer
+):
     section_type = serializers.SerializerMethodField()
 
     class Meta:
@@ -515,7 +539,9 @@ class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):
 register_view(UnitConnectionViewSet, "unit_connection")
 
 
-class UnitEntranceSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer):
+class UnitEntranceSerializer(
+    ServicesTranslatedModelSerializer, munigeo_api.GeoModelSerializer
+):
     location = serializers.SerializerMethodField()
 
     class Meta:
@@ -526,7 +552,11 @@ class UnitEntranceSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSeri
         return munigeo_api.geom_to_json(obj.location, self.srs)
 
 
-class UnitEntranceViewSet(munigeo_api.GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
+class UnitEntranceViewSet(
+    ServicesTranslatedModelSerializer,
+    munigeo_api.GeoModelAPIView,
+    viewsets.ReadOnlyModelViewSet,
+):
     queryset = UnitEntrance.objects.all()
     serializer_class = UnitEntranceSerializer
 
@@ -613,7 +643,7 @@ register_view(ServiceViewSet, "service")
 
 
 class UnitSerializer(
-    TranslatedModelSerializer, munigeo_api.GeoModelSerializer, JSONAPISerializer
+    ServicesTranslatedModelSerializer, munigeo_api.GeoModelSerializer, JSONAPISerializer
 ):
     connections = UnitConnectionSerializer(many=True)
     entrances = UnitEntranceSerializer(many=True)
@@ -1170,6 +1200,7 @@ register_view(
 )
 
 
+@extend_schema_serializer(deprecate_fields=["service_point_id"])
 class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSerializer):
     def to_representation(self, obj):
         ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
@@ -1277,7 +1308,7 @@ class PostalCodeAreaViewSet(munigeo_api.PostalCodeAreaViewSet):
 register_view(PostalCodeAreaViewSet, "postalcodearea")
 
 
-class AnnouncementSerializer(TranslatedModelSerializer, JSONAPISerializer):
+class AnnouncementSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = Announcement
         exclude = ["id", "active"]
@@ -1291,7 +1322,7 @@ class AnnouncementViewSet(viewsets.ReadOnlyModelViewSet):
 register_view(AnnouncementViewSet, "announcement")
 
 
-class ErrorMessageSerializer(TranslatedModelSerializer, JSONAPISerializer):
+class ErrorMessageSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = ErrorMessage
         exclude = ["id", "active"]
