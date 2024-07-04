@@ -181,6 +181,14 @@ STREET_PARAMETER = OpenApiParameter(
     type=str,
 )
 
+UNIT_GEOMETRY_3D_PARAMETER = OpenApiParameter(
+    name="geometry_3d",
+    location=OpenApiParameter.QUERY,
+    description="If given displays the 3D geometry of unit if it exists.",
+    required=False,
+    type=bool,
+)
+
 UNIT_GEOMETRY_PARAMETER = OpenApiParameter(
     name="geometry",
     location=OpenApiParameter.QUERY,
@@ -188,3 +196,4 @@ UNIT_GEOMETRY_PARAMETER = OpenApiParameter(
     required=False,
     type=bool,
 )
+

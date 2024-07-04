@@ -69,6 +69,7 @@ from services.open_api_parameters import (
     PROVIDER_TYPE_NOT_PARAMETER,
     PROVIDER_TYPE_PARAMETER,
     STREET_PARAMETER,
+    UNIT_GEOMETRY_3D_PARAMETER,
     UNIT_GEOMETRY_PARAMETER,
 )
 from services.utils import check_valid_concrete_field
@@ -807,6 +808,13 @@ class UnitSerializer(
         elif "geometry" in ret:
             del ret["geometry"]
 
+        if qparams.get("geometry_3d", "").lower() in ("true", "1"):
+            geom = obj.geometry_3d
+            if geom:
+                ret["geometry_3d"] = munigeo_api.geom_to_json(geom, self.srs)
+        elif "geometry_3d" in ret:
+            del ret["geometry_3d"]
+
         if qparams.get("accessibility_description", "").lower() in ("true", "1"):
             ret["accessibility_description"] = shortcomings.accessibility_description
         return ret
@@ -881,6 +889,7 @@ class KmlRenderer(renderers.BaseRenderer):
         PROVIDER_TYPE_NOT_PARAMETER,
         LEVEL_PARAMETER,
         UNIT_GEOMETRY_PARAMETER,
+        UNIT_GEOMETRY_3D_PARAMETER,
     ]
 )
 class UnitViewSet(
