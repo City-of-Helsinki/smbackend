@@ -939,8 +939,18 @@ class UnitViewSet(
 
                 queryset = queryset.filter(muni_sq)
 
-        if "city_as_department" in filters:
-            val = filters["city_as_department"].lower().strip()
+        if "organization" in filters or "city_as_department" in filters:
+            val = (
+                filters["organization"].lower().strip()
+                if "organization" in filters
+                else ""
+            )
+            if len(val) == 0:
+                val = (
+                    filters["city_as_department"].lower().strip()
+                    if "city_as_department" in filters
+                    else ""
+                )
 
             if len(val) > 0:
                 deps_uuids = val.split(",")
@@ -950,16 +960,12 @@ class UnitViewSet(
                         uuid.UUID(deps_uuid)
                     except ValueError:
                         raise serializers.ValidationError(
-                            "'city_as_department' value must be a valid UUID"
+                            "'organization' value must be a valid UUID"
                         )
 
-                deps = Department.objects.filter(uuid__in=deps_uuids).select_related(
-                    "municipality"
-                )
-                munis = [d.municipality for d in deps]
-
-                queryset = queryset.filter(root_department__in=deps) | queryset.filter(
-                    municipality__in=munis
+                deps = Department.objects.filter(uuid__in=deps_uuids)
+                queryset = queryset.filter(department__in=deps) | queryset.filter(
+                    root_department__in=deps
                 )
 
         if "provider_type" in filters:
