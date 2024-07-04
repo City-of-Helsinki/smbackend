@@ -1,5 +1,13 @@
 from drf_spectacular.utils import OpenApiParameter
 
+ACCESSIBILITY_DESCRIPTION_PARAMETER = OpenApiParameter(
+    name="accessibility_description",
+    location=OpenApiParameter.QUERY,
+    description="If given displays the accessibility description of unit.",
+    required=False,
+    type=bool,
+)
+
 ANCESTOR_ID_PARAMETER = OpenApiParameter(
     name="ancestor",
     location=OpenApiParameter.QUERY,
@@ -171,4 +179,12 @@ STREET_PARAMETER = OpenApiParameter(
     description="Filter by street name.",
     required=False,
     type=str,
+)
+
+UNIT_GEOMETRY_PARAMETER = OpenApiParameter(
+    name="geometry",
+    location=OpenApiParameter.QUERY,
+    description="If given displays the geometry of unit if it exists.",
+    required=False,
+    type=bool,
 )

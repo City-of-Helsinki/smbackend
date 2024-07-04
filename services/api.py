@@ -47,6 +47,7 @@ from services.models import (
 )
 from services.models.unit import ORGANIZER_TYPES, PROVIDER_TYPES
 from services.open_api_parameters import (
+    ACCESSIBILITY_DESCRIPTION_PARAMETER,
     ANCESTOR_ID_PARAMETER,
     BBOX_PARAMETER,
     BUILDING_NUMBER_PARAMETER,
@@ -68,6 +69,7 @@ from services.open_api_parameters import (
     PROVIDER_TYPE_NOT_PARAMETER,
     PROVIDER_TYPE_PARAMETER,
     STREET_PARAMETER,
+    UNIT_GEOMETRY_PARAMETER,
 )
 from services.utils import check_valid_concrete_field
 from services.utils.geocode_address import geocode_address
@@ -870,6 +872,7 @@ class KmlRenderer(renderers.BaseRenderer):
 
 @extend_schema(
     parameters=[
+        ACCESSIBILITY_DESCRIPTION_PARAMETER,
         ID_PARAMETER,
         OCD_MUNICIPALITY_PARAMETER,
         ORGANIZATION_PARAMETER,
@@ -877,6 +880,7 @@ class KmlRenderer(renderers.BaseRenderer):
         PROVIDER_TYPE_PARAMETER,
         PROVIDER_TYPE_NOT_PARAMETER,
         LEVEL_PARAMETER,
+        UNIT_GEOMETRY_PARAMETER,
     ]
 )
 class UnitViewSet(
