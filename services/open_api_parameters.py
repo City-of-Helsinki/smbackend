@@ -196,4 +196,3 @@ UNIT_GEOMETRY_PARAMETER = OpenApiParameter(
     required=False,
     type=bool,
 )
-
