@@ -15,6 +15,11 @@ from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.utils.module_loading import import_string
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_field,
+    extend_schema_serializer,
+)
 from modeltranslation.translator import NotRegistered, translator
 from mptt.utils import drilldown_tree_for_node
 from munigeo import api as munigeo_api
@@ -41,6 +46,32 @@ from services.models import (
     UnitServiceDetails,
 )
 from services.models.unit import ORGANIZER_TYPES, PROVIDER_TYPES
+from services.open_api_parameters import (
+    ACCESSIBILITY_DESCRIPTION_PARAMETER,
+    ANCESTOR_ID_PARAMETER,
+    BBOX_PARAMETER,
+    BUILDING_NUMBER_PARAMETER,
+    CITY_AS_DEPARTMENT_PARAMETER,
+    DATE_PARAMETER,
+    DISTANCE_PARAMETER,
+    DIVISION_TYPE_PARAMETER,
+    GEOMETRY_PARAMETER,
+    ID_PARAMETER,
+    INPUT_PARAMETER,
+    LATITUDE_PARAMETER,
+    LEVEL_PARAMETER,
+    LONGITUDE_PARAMETER,
+    MUNICIPALITY_PARAMETER,
+    OCD_ID_PARAMETER,
+    OCD_MUNICIPALITY_PARAMETER,
+    ORGANIZATION_PARAMETER,
+    ORIGIN_ID_PARAMETER,
+    PROVIDER_TYPE_NOT_PARAMETER,
+    PROVIDER_TYPE_PARAMETER,
+    STREET_PARAMETER,
+    UNIT_GEOMETRY_3D_PARAMETER,
+    UNIT_GEOMETRY_PARAMETER,
+)
 from services.utils import check_valid_concrete_field
 from services.utils.geocode_address import geocode_address
 
@@ -66,6 +97,17 @@ def register_view(klass, name, basename=None):
 LANGUAGES = [x[0] for x in settings.LANGUAGES]
 
 logger = logging.getLogger(__name__)
+
+
+class TranslationsSerializer(serializers.Serializer):
+    fi = serializers.CharField(required=False)
+    sv = serializers.CharField(required=False)
+    en = serializers.CharField(required=False)
+
+
+@extend_schema_field(TranslationsSerializer)
+class TranslationsField(serializers.CharField):
+    pass
 
 
 class MPTTModelSerializer(serializers.ModelSerializer):
@@ -186,6 +228,13 @@ class TranslatedModelSerializer(object):
         return ret
 
 
+class ServicesTranslatedModelSerializer(TranslatedModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super(ServicesTranslatedModelSerializer, self).__init__(*args, **kwargs)
+        for field_name in self.translated_fields:
+            self.fields[field_name] = TranslationsField()
+
+
 def root_services(services):
     tree_ids = set(s.tree_id for s in services)
     return map(
@@ -250,7 +299,7 @@ class JSONAPISerializer(serializers.ModelSerializer):
 
 
 class DepartmentSerializer(
-    TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer
+    ServicesTranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer
 ):
     id = serializers.SerializerMethodField("get_uuid")
     parent = serializers.SerializerMethodField()
@@ -272,7 +321,7 @@ class DepartmentSerializer(
 
 
 class ServiceNodeSerializer(
-    TranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer
+    ServicesTranslatedModelSerializer, MPTTModelSerializer, JSONAPISerializer
 ):
     children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
@@ -326,7 +375,7 @@ class ServiceNodeSerializer(
         )
 
 
-class ServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
+class ServiceSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
         ret = super(ServiceSerializer, self).to_representation(obj)
         ret["unit_count"] = {"municipality": {}}
@@ -368,7 +417,7 @@ class RelatedServiceSerializer(TranslatedModelSerializer, JSONAPISerializer):
         fields = ["name", "root_service_node"]
 
 
-class ServiceDetailsSerializer(TranslatedModelSerializer, JSONAPISerializer):
+class ServiceDetailsSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
         ret = super(ServiceDetailsSerializer, self).to_representation(obj)
         service_data = RelatedServiceSerializer(obj.service).data
@@ -472,7 +521,9 @@ def choicefield_string(choices, key, obj):
         return None
 
 
-class UnitConnectionSerializer(TranslatedModelSerializer, serializers.ModelSerializer):
+class UnitConnectionSerializer(
+    ServicesTranslatedModelSerializer, serializers.ModelSerializer
+):
     section_type = serializers.SerializerMethodField()
 
     class Meta:
@@ -491,7 +542,9 @@ class UnitConnectionViewSet(viewsets.ReadOnlyModelViewSet):
 register_view(UnitConnectionViewSet, "unit_connection")
 
 
-class UnitEntranceSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSerializer):
+class UnitEntranceSerializer(
+    ServicesTranslatedModelSerializer, munigeo_api.GeoModelSerializer
+):
     location = serializers.SerializerMethodField()
 
     class Meta:
@@ -502,7 +555,11 @@ class UnitEntranceSerializer(TranslatedModelSerializer, munigeo_api.GeoModelSeri
         return munigeo_api.geom_to_json(obj.location, self.srs)
 
 
-class UnitEntranceViewSet(munigeo_api.GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
+class UnitEntranceViewSet(
+    ServicesTranslatedModelSerializer,
+    munigeo_api.GeoModelAPIView,
+    viewsets.ReadOnlyModelViewSet,
+):
     queryset = UnitEntrance.objects.all()
     serializer_class = UnitEntranceSerializer
 
@@ -532,6 +589,7 @@ class UnitIdentifierSerializer(serializers.ModelSerializer):
         exclude = ["unit", "id"]
 
 
+@extend_schema(parameters=[ID_PARAMETER, ANCESTOR_ID_PARAMETER])
 class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = ServiceNode.objects.all()
     serializer_class = ServiceNodeSerializer
@@ -559,6 +617,7 @@ class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 register_view(ServiceNodeViewSet, "service_node")
 
 
+@extend_schema(parameters=[ID_PARAMETER])
 class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
@@ -587,7 +646,7 @@ register_view(ServiceViewSet, "service")
 
 
 class UnitSerializer(
-    TranslatedModelSerializer, munigeo_api.GeoModelSerializer, JSONAPISerializer
+    ServicesTranslatedModelSerializer, munigeo_api.GeoModelSerializer, JSONAPISerializer
 ):
     connections = UnitConnectionSerializer(many=True)
     entrances = UnitEntranceSerializer(many=True)
@@ -749,6 +808,13 @@ class UnitSerializer(
         elif "geometry" in ret:
             del ret["geometry"]
 
+        if qparams.get("geometry_3d", "").lower() in ("true", "1"):
+            geom = obj.geometry_3d
+            if geom:
+                ret["geometry_3d"] = munigeo_api.geom_to_json(geom, self.srs)
+        elif "geometry_3d" in ret:
+            del ret["geometry_3d"]
+
         if qparams.get("accessibility_description", "").lower() in ("true", "1"):
             ret["accessibility_description"] = shortcomings.accessibility_description
         return ret
@@ -812,6 +878,20 @@ class KmlRenderer(renderers.BaseRenderer):
         return render_to_string("kml.xml", resp)
 
 
+@extend_schema(
+    parameters=[
+        ACCESSIBILITY_DESCRIPTION_PARAMETER,
+        ID_PARAMETER,
+        OCD_MUNICIPALITY_PARAMETER,
+        ORGANIZATION_PARAMETER,
+        CITY_AS_DEPARTMENT_PARAMETER,
+        PROVIDER_TYPE_PARAMETER,
+        PROVIDER_TYPE_NOT_PARAMETER,
+        LEVEL_PARAMETER,
+        UNIT_GEOMETRY_PARAMETER,
+        UNIT_GEOMETRY_3D_PARAMETER,
+    ]
+)
 class UnitViewSet(
     munigeo_api.GeoModelAPIView, JSONAPIViewSet, viewsets.ReadOnlyModelViewSet
 ):
@@ -845,6 +925,12 @@ class UnitViewSet(
         if "id" in filters:
             id_list = filters["id"].split(",")
             queryset = queryset.filter(id__in=id_list)
+
+        for f in filters:
+            if f.startswith("extra__"):
+                queryset = queryset.filter(
+                    **{f: int(filters[f]) if filters[f].isnumeric() else filters[f]}
+                )
 
         if "municipality" in filters:
             val = filters["municipality"].lower().strip()
@@ -1133,6 +1219,7 @@ register_view(
 )
 
 
+@extend_schema_serializer(deprecate_fields=["service_point_id"])
 class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSerializer):
     def to_representation(self, obj):
         ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
@@ -1177,6 +1264,19 @@ class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSeriali
         return ret
 
 
+@extend_schema(
+    parameters=[
+        DIVISION_TYPE_PARAMETER,
+        LATITUDE_PARAMETER,
+        LONGITUDE_PARAMETER,
+        INPUT_PARAMETER,
+        OCD_ID_PARAMETER,
+        GEOMETRY_PARAMETER,
+        ORIGIN_ID_PARAMETER,
+        MUNICIPALITY_PARAMETER,
+        DATE_PARAMETER,
+    ]
+)
 class AdministrativeDivisionViewSet(munigeo_api.AdministrativeDivisionViewSet):
     serializer_class = AdministrativeDivisionSerializer
 
@@ -1202,6 +1302,17 @@ class AdministrativeDivisionViewSet(munigeo_api.AdministrativeDivisionViewSet):
 register_view(AdministrativeDivisionViewSet, "administrative_division")
 
 
+@extend_schema(
+    parameters=[
+        STREET_PARAMETER,
+        OCD_MUNICIPALITY_PARAMETER,
+        BUILDING_NUMBER_PARAMETER,
+        LATITUDE_PARAMETER,
+        LONGITUDE_PARAMETER,
+        DISTANCE_PARAMETER,
+        BBOX_PARAMETER,
+    ],
+)
 class AddressViewSet(munigeo_api.AddressViewSet):
     serializer_class = munigeo_api.AddressSerializer
 
@@ -1216,7 +1327,7 @@ class PostalCodeAreaViewSet(munigeo_api.PostalCodeAreaViewSet):
 register_view(PostalCodeAreaViewSet, "postalcodearea")
 
 
-class AnnouncementSerializer(TranslatedModelSerializer, JSONAPISerializer):
+class AnnouncementSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = Announcement
         exclude = ["id", "active"]
@@ -1230,7 +1341,7 @@ class AnnouncementViewSet(viewsets.ReadOnlyModelViewSet):
 register_view(AnnouncementViewSet, "announcement")
 
 
-class ErrorMessageSerializer(TranslatedModelSerializer, JSONAPISerializer):
+class ErrorMessageSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = ErrorMessage
         exclude = ["id", "active"]

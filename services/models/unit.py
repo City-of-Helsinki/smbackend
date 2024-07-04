@@ -101,6 +101,8 @@ class Unit(SoftDeleteModel):
 
     location = models.PointField(null=True, srid=PROJECTION_SRID)  # lat, lng?
     geometry = models.GeometryField(srid=PROJECTION_SRID, null=True)
+    geometry_3d = models.GeometryField(srid=PROJECTION_SRID, null=True, dim=3)
+
     department = models.ForeignKey(Department, null=True, on_delete=models.CASCADE)
     root_department = models.ForeignKey(
         Department, null=True, related_name="descendant_units", on_delete=models.CASCADE
