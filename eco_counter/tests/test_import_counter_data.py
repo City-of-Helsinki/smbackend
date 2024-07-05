@@ -78,7 +78,7 @@ def test_import_telraam(get_telraam_data_frames_mock):
     assert DayData.objects.count() == 12
     assert HourData.objects.count() == 12
     assert stations_qs.first().location.wkt == "POINT (2032 2032)"
-    assert Year.objects.count() == stations_qs.count()
+    assert Year.objects.count() == 1
     import_state_qs = ImportState.objects.filter(csv_data_source=TELRAAM_COUNTER)
     assert import_state_qs.count() == 1
     import_state = import_state_qs.first()
