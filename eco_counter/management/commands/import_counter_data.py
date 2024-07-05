@@ -96,26 +96,9 @@ TYPE_DIRS = ["AK", "AP", "JK", "JP", "BK", "BP", "PK", "PP"]
 ALL_TYPE_DIRS = TYPE_DIRS + ["AT", "JT", "BT", "PT"]
 
 
-def delete_if_no_relations(items):
-    # If model does not have related rows, delete it.
-    # Cleans useless Year, Month, Week, Day rows.
-    for item in items:
-        model = item[0]
-        related_name = item[1]
-        for row in model.objects.all():
-            if not getattr(row, related_name).exists():
-                row.delete()
-
-
 def delete_tables(
     csv_data_sources=[ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER, TELRAAM_COUNTER],
 ):
-    items = [
-        (Year, "year_datas"),
-        (Month, "month_datas"),
-        (Week, "week_datas"),
-        (Day, "day_datas"),
-    ]
 
     models = [YearData, MonthData, WeekData, DayData, HourData]
 
@@ -127,8 +110,6 @@ def delete_tables(
                 )
 
         ImportState.objects.filter(csv_data_source=csv_data_source).delete()
-        delete_if_no_relations(items)
-    delete_if_no_relations(items)
 
 
 def save_hour_data_values(hour_data, values):
