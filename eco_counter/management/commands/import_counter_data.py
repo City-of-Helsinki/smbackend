@@ -1,5 +1,5 @@
 """
-To run test:
+To run tests:
 pytest -m test_import_counter_data
 Usage:
 see README.md
@@ -96,13 +96,39 @@ TYPE_DIRS = ["AK", "AP", "JK", "JP", "BK", "BP", "PK", "PP"]
 ALL_TYPE_DIRS = TYPE_DIRS + ["AT", "JT", "BT", "PT"]
 
 
+def delete_if_no_relations(items):
+    # If model does not have related rows, delete it.
+    # Cleans useless Year, Month, Week, Day rows.
+    for item in items:
+        model = item[0]
+        related_name = item[1]
+        for row in model.objects.all():
+            if not getattr(row, related_name).exists():
+                row.delete()
+
+
 def delete_tables(
     csv_data_sources=[ECO_COUNTER, TRAFFIC_COUNTER, LAM_COUNTER, TELRAAM_COUNTER],
 ):
+    items = [
+        (Year, "year_datas"),
+        (Month, "month_datas"),
+        (Week, "week_datas"),
+        (Day, "day_datas"),
+    ]
+
+    models = [YearData, MonthData, WeekData, DayData, HourData]
+
     for csv_data_source in csv_data_sources:
         for station in Station.objects.filter(csv_data_source=csv_data_source):
-            Year.objects.filter(station=station).delete()
+            for model in models:
+                logger.info(
+                    f"Deleting {model.__name__} for {station.name}. {model.objects.filter(station=station).delete()}"
+                )
+
         ImportState.objects.filter(csv_data_source=csv_data_source).delete()
+        delete_if_no_relations(items)
+    delete_if_no_relations(items)
 
 
 def save_hour_data_values(hour_data, values):
@@ -161,8 +187,8 @@ def save_years(df, stations):
     for index, row in years:
         logger.info(f"Saving year {index}")
         sum_series = row.sum()
+        year, _ = Year.objects.get_or_create(year_number=index)
         for station in stations:
-            year, _ = Year.objects.get_or_create(station=station, year_number=index)
             values = get_values(sum_series, station.name)
             year_data, _ = YearData.objects.get_or_create(year=year, station=station)
             save_values(values, year_data)
@@ -175,13 +201,9 @@ def save_months(df, stations):
         year_number, month_number = index
         logger.info(f"Saving month {month_number} of year {year_number}")
         sum_series = row.sum()
+        year, _ = Year.objects.get_or_create(year_number=year_number)
+        month, _ = Month.objects.get_or_create(year=year, month_number=month_number)
         for station in stations:
-            year, _ = Year.objects.get_or_create(
-                station=station, year_number=year_number
-            )
-            month, _ = Month.objects.get_or_create(
-                station=station, year=year, month_number=month_number
-            )
             values = get_values(sum_series, station.name)
             month_data, _ = MonthData.objects.get_or_create(
                 year=year, month=month, station=station
@@ -192,16 +214,14 @@ def save_months(df, stations):
 def save_current_year(stations, year_number, end_month_number):
     logger.info(f"Saving current year {year_number}")
     for station in stations:
-        year, _ = Year.objects.get_or_create(station=station, year_number=year_number)
+        year, _ = Year.objects.get_or_create(year_number=year_number)
         year_data, _ = YearData.objects.get_or_create(station=station, year=year)
         for station_types in STATION_TYPES:
             setattr(year_data, f"value_{station_types[0]}", 0)
             setattr(year_data, f"value_{station_types[1]}", 0)
             setattr(year_data, f"value_{station_types[2]}", 0)
         for month_number in range(1, end_month_number + 1):
-            month, _ = Month.objects.get_or_create(
-                station=station, year=year, month_number=month_number
-            )
+            month, _ = Month.objects.get_or_create(year=year, month_number=month_number)
             month_data, _ = MonthData.objects.get_or_create(
                 station=station, month=month, year=year
             )
@@ -221,16 +241,14 @@ def save_weeks(df, stations):
         year_number, week_number = index
         logger.info(f"Saving week number {week_number} of year {year_number}")
         sum_series = row.sum()
+        year = Year.objects.get(year_number=year_number)
+        week, _ = Week.objects.get_or_create(
+            week_number=week_number,
+            years__year_number=year_number,
+        )
+        if week.years.count() == 0:
+            week.years.add(year)
         for station in stations:
-            year = Year.objects.get(station=station, year_number=year_number)
-            week, _ = Week.objects.get_or_create(
-                station=station,
-                week_number=week_number,
-                years__year_number=year_number,
-            )
-            if week.years.count() == 0:
-                week.years.add(year)
-
             values = get_values(sum_series, station.name)
             week_data, _ = WeekData.objects.get_or_create(station=station, week=week)
             save_values(values, week_data)
@@ -244,25 +262,19 @@ def save_days(df, stations):
     prev_week_number = None
     for index, row in days:
         year_number, month_number, week_number, day_number = index
-
         date = datetime(year_number, month_number, day_number)
         sum_series = row.sum()
+        year = Year.objects.get(year_number=year_number)
+        month = Month.objects.get(year=year, month_number=month_number)
+        week = Week.objects.get(years=year, week_number=week_number)
+        day, _ = Day.objects.get_or_create(
+            date=date,
+            weekday_number=date.weekday(),
+            year=year,
+            month=month,
+            week=week,
+        )
         for station in stations:
-            year = Year.objects.get(station=station, year_number=year_number)
-            month = Month.objects.get(
-                station=station, year=year, month_number=month_number
-            )
-            week = Week.objects.get(
-                station=station, years=year, week_number=week_number
-            )
-            day, _ = Day.objects.get_or_create(
-                station=station,
-                date=date,
-                weekday_number=date.weekday(),
-                year=year,
-                month=month,
-                week=week,
-            )
             values = get_values(sum_series, station.name)
             day_data, _ = DayData.objects.get_or_create(station=station, day=day)
             save_values(values, day_data)
@@ -293,8 +305,7 @@ def save_hours(df, stations):
                 if month_number != prev_month_number:
                     prev_day_number = day_number
                 day = Day.objects.get(
-                    date=datetime(year_number, month_number, prev_day_number),
-                    station=station,
+                    date=datetime(year_number, month_number, prev_day_number)
                 )
                 hour_data, _ = HourData.objects.get_or_create(station=station, day=day)
                 save_hour_data_values(hour_data, values)
@@ -321,8 +332,7 @@ def save_hours(df, stations):
 
         # Save hour datas for the last day in data frame
         day, _ = Day.objects.get_or_create(
-            date=datetime(year_number, month_number, day_number),
-            station=station,
+            date=datetime(year_number, month_number, day_number)
         )
         hour_data, _ = HourData.objects.get_or_create(station=station, day=day)
         save_hour_data_values(hour_data, values)

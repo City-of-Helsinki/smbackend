@@ -74,38 +74,34 @@ def station_id():
 
 @pytest.mark.django_db
 @pytest.fixture
-def years(stations):
+def years():
     years = []
     for i in range(2):
-        year = Year.objects.create(
-            station=stations[0], year_number=TEST_TIMESTAMP.year + i
-        )
+        year = Year.objects.create(year_number=TEST_TIMESTAMP.year + i)
         years.append(year)
     return years
 
 
 @pytest.mark.django_db
 @pytest.fixture
-def months(stations, years):
+def months(years):
     months = []
     for i in range(4):
         timestamp = TEST_TIMESTAMP + relativedelta(months=i)
         month_number = int(timestamp.month)
-        month = Month.objects.create(
-            station=stations[0], month_number=month_number, year=years[0]
-        )
+        month = Month.objects.create(month_number=month_number, year=years[0])
         months.append(month)
     return months
 
 
 @pytest.mark.django_db
 @pytest.fixture
-def weeks(stations, years):
+def weeks(years):
     weeks = []
     for i in range(4):
         timestamp = TEST_TIMESTAMP + timedelta(weeks=i)
         week_number = int(timestamp.strftime("%-V"))
-        week = Week.objects.create(station=stations[0], week_number=week_number)
+        week = Week.objects.create(week_number=week_number)
         week.years.add(years[0])
         weeks.append(week)
     return weeks
@@ -113,12 +109,11 @@ def weeks(stations, years):
 
 @pytest.mark.django_db
 @pytest.fixture
-def days(stations, years, months, weeks):
+def days(years, months, weeks):
     days = []
     for i in range(7):
         timestamp = TEST_TIMESTAMP + timedelta(days=i)
         day = Day.objects.create(
-            station=stations[0],
             date=timestamp,
             weekday_number=timestamp.weekday(),
             week=weeks[0],
@@ -235,7 +230,7 @@ def is_active_fixtures():
     while current_date >= start_date - timedelta(days=32):
         for i, station in enumerate(stations):
             days = day_counts[i]
-            day = Day.objects.create(station=station, date=current_date)
+            day = Day.objects.create(date=current_date)
             day_data = DayData.objects.create(station=station, day=day)
             if i > 0:
                 start_day = day_counts[i - 1]
