@@ -187,7 +187,7 @@ def save_months(df, stations):
         for station in stations:
             values = get_values(sum_series, station.name)
             month_data, _ = MonthData.objects.get_or_create(
-                year=year, month=month, station=station
+                month=month, station=station
             )
             save_values(values, month_data)
 
@@ -204,7 +204,7 @@ def save_current_year(stations, year_number, end_month_number):
         for month_number in range(1, end_month_number + 1):
             month, _ = Month.objects.get_or_create(year=year, month_number=month_number)
             month_data, _ = MonthData.objects.get_or_create(
-                station=station, month=month, year=year
+                station=station, month=month
             )
             for station_types in STATION_TYPES:
                 for i in range(3):
