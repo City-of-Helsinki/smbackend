@@ -151,12 +151,9 @@ class MonthData(CounterData):
     month = models.ForeignKey(
         "Month", on_delete=models.CASCADE, related_name="month_data", null=True
     )
-    year = models.ForeignKey(
-        "Year", on_delete=models.CASCADE, related_name="month_data", null=True
-    )
 
     class Meta:
-        ordering = ["-year__year_number", "-month__month_number"]
+        ordering = ["-month__year__year_number", "-month__month_number"]
 
 
 class WeekData(CounterData):
