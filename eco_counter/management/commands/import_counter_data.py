@@ -1,6 +1,4 @@
 """
-To run tests:
-pytest -m test_import_counter_data
 Usage:
 see README.md
 """
