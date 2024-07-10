@@ -85,8 +85,7 @@ def test_import_telraam(get_telraam_data_frames_mock):
     assert import_state.current_year_number == 2023
     assert import_state.current_month_number == 9
     assert import_state.current_day_number == 2
-    # 12
-    assert Day.objects.count() == stations_qs.count() * num_days_per_location
+    assert Day.objects.count() == num_days_per_location
     # Test that duplicates are not created
     get_telraam_data_frames_mock.return_value = get_telraam_data_frames_test_fixture(
         start_time,
@@ -96,8 +95,8 @@ def test_import_telraam(get_telraam_data_frames_mock):
     )
     import_data([TELRAAM_COUNTER])
     assert stations_qs.count() == 6
-    assert Year.objects.count() == stations_qs.count()
-    assert Day.objects.count() == stations_qs.count() * num_days_per_location
+    assert Year.objects.count() == 1
+    assert Day.objects.count() == num_days_per_location
     assert DayData.objects.count() == 12
     assert HourData.objects.count() == 12
     # Test new locations, adds 2 stations
@@ -111,8 +110,8 @@ def test_import_telraam(get_telraam_data_frames_mock):
     import_data([TELRAAM_COUNTER])
     stations_qs = Station.objects.all()
     assert stations_qs.count() == 8
-    assert Year.objects.count() == stations_qs.count()
-    assert Day.objects.count() == 16
+    assert Year.objects.count() == 1
+    assert Day.objects.count() == 4
     # Test adding camera
     get_telraam_data_frames_mock.return_value = get_telraam_data_frames_test_fixture(
         new_start_time,
@@ -123,7 +122,7 @@ def test_import_telraam(get_telraam_data_frames_mock):
     import_data([TELRAAM_COUNTER])
     stations_qs = Station.objects.all()
     assert stations_qs.count() == 9
-    assert Year.objects.count() == stations_qs.count()
+    assert Year.objects.count() == 1
     # Test data related to first station
     station = Station.objects.filter(station_id="0").first()
     year_data = YearData.objects.get(station=station)
@@ -133,34 +132,30 @@ def test_import_telraam(get_telraam_data_frames_mock):
     assert year_data.value_pk == 24 * num_days_per_location
     assert year_data.value_pp == 24 * num_days_per_location
     assert year_data.value_pt == 24 * num_days_per_location * 2
-    assert MonthData.objects.count() == stations_qs.count() * Year.objects.count()
-    assert Month.objects.count() == stations_qs.count() * Year.objects.count()
+    assert MonthData.objects.count() == stations_qs.count() * Month.objects.count()
     assert (
         MonthData.objects.get(station=station, month=Month.objects.first()).value_at
         == 24 * num_days_per_location * 2
     )
     # 1.9.2023 is a friday, 9 stations has data for 1-3.9(week 34) and 3 stations has data for
     # 4.5 (week 36)
-    assert WeekData.objects.count() == 12
-    assert Week.objects.count() == 12
+    assert Week.objects.count() == 2
     # location*camera = 6 * num_days_per_location + cameras * num_days_per_location
-    DayData.objects.count() == 6 * 2 + 3 * 2
-    Day.objects.count() == 6 * 2 + 3 * 2
-
+    assert DayData.objects.count() == 6 * 2 + 3 * 2
+    assert Day.objects.count() == 4
     # Three locations for two cameras
-    assert Day.objects.filter(date__day=1).count() == 6
+    assert Day.objects.filter(date__day=1).count() == 1
     # One location for Three cameras
-    assert Day.objects.filter(date__day=4).count() == 3
+    assert Day.objects.filter(date__day=4).count() == 1
     assert DayData.objects.first().value_at == 48
     assert DayData.objects.first().value_ap == 24
     assert DayData.objects.first().value_ak == 24
-    HourData.objects.count() == 18
+    assert HourData.objects.count() == 18
     for hour_data in HourData.objects.all():
         hour_data.values_ak == [1 for x in range(24)]
         hour_data.values_at == [2 for x in range(24)]
 
 
-@pytest.mark.test_import_counter_data
 @pytest.mark.django_db
 def test_import_eco_counter_data(stations):
     """
@@ -375,7 +370,6 @@ def test_import_eco_counter_data(stations):
     assert Year.objects.filter(year_number=2020).count() == num_ec_stations
 
 
-@pytest.mark.test_import_counter_data
 @pytest.mark.django_db
 def test_import_traffic_counter_data(stations):
     # Test importing of Traffic Counter
@@ -459,7 +453,6 @@ def test_import_traffic_counter_data(stations):
     assert Year.objects.filter(year_number=2020).count() == num_tc_stations
 
 
-@pytest.mark.test_import_counter_data
 @pytest.mark.django_db
 def test_import_lam_counter_data(stations):
     # Test lam counter data and year change
