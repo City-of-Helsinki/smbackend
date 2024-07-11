@@ -24,6 +24,13 @@ def delete_counter_data(args, name="delete_counter_data"):
 
 
 @shared_task_email
+def rename_telraam_csv_files_to_yyyy_mm_dd(
+    name="rename_telraam_csv_files_to_yyyy_mm_dd",
+):
+    management.call_command("rename_telraam_csv_files_to_yyyy_mm_dd")
+
+
+@shared_task_email
 def import_telraam_to_csv(*args, name="import_telraam_to_csv"):
     if args:
         management.call_command("import_telraam_to_csv", args)
