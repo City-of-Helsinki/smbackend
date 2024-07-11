@@ -170,9 +170,10 @@ def get_last_saved_date() -> date:
     # Go back 90 days, as three months is the maximum length that data is store in the telraam API
     c = 90
     while c >= 0:
-        date_str = start_date.strftime("%d_%m_%Y").replace("_0", "_")
+        date_str = start_date.strftime("%Y_%m_%d").replace("_0", "_")
         date_str = re.sub(pattern, "", date_str)
         for filename in os.listdir(TELRAAM_COUNTER_CSV_FILE_PATH):
+
             if filename.endswith(date_str + ".csv"):
                 return start_date
         start_date -= timedelta(days=1)
