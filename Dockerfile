@@ -1,5 +1,5 @@
 # Using Ubuntu base for access to GDAL PPA
-FROM ubuntu:22.04
+FROM public.ecr.aws/ubuntu/ubuntu:22.04
 WORKDIR /smbackend
 
 # tzdata installation requires settings frontend
