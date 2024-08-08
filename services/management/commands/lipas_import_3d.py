@@ -30,7 +30,7 @@ class Command(lipas_import.Command):
                 unit.geometry_3d = geometry
                 unit.save()
             else:
-                logger.error(
+                logger.warning(
                     f"Failed to save unit {unit.name_fi} because of a missing z coordinate.",
                 )
 
