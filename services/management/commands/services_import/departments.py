@@ -48,7 +48,7 @@ def import_departments(noop=False, logger=None, fetch_resource=pk_get):
                     parent = Department.objects.get(uuid=parent_id)
                     obj.parent_id = parent.id
                 except Department.DoesNotExist:
-                    logger and logger.error(
+                    logger and logger.warning(
                         "Department import: no parent with uuid {} found for {}".format(
                             parent_id, d["id"]
                         )
