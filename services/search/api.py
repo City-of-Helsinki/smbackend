@@ -193,6 +193,12 @@ class SearchSerializer(serializers.Serializer):
                     representation["connections"] = UnitConnectionSerializer(
                         obj.connections, many=True
                     ).data
+                elif "department" in include_field:
+                    representation["department"] = DepartmentSerializer(
+                        obj.department
+                    ).data
+                elif "municipality" in include_field:
+                    representation["municipality"] = obj.municipality.id
                 else:
                     if hasattr(obj, include_field):
                         representation[include_field] = getattr(
