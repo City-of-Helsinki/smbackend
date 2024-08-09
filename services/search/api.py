@@ -168,8 +168,12 @@ class SearchSerializer(serializers.Serializer):
 
         if self.context["geometry"]:
             if hasattr(obj, "geometry"):
+                if isinstance(obj, AdministrativeDivision):
+                    geometry = obj.geometry.boundary
+                else:
+                    geometry = obj.geometry
                 representation["geometry"] = munigeo_api.geom_to_json(
-                    obj.geometry, DEFAULT_SRS
+                    geometry, DEFAULT_SRS
                 )
             else:
                 representation["geometry"] = None
