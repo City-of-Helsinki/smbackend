@@ -466,6 +466,10 @@ class SearchViewSet(GenericAPIView):
 
         config_language = LANGUAGES[language_short]
         search_query_str = None  # Used in the raw sql
+        # Replace multiple consecutive vertical bars with a single vertical bar to be used as an OR operator.
+        q_val = re.sub(r"\|+", "|", q_val)
+        # Remove vertical bars that are not between words to avoid errors in the query.
+        q_val = re.sub(r"(?<!\w)\|+|\|+(?!\w)", "", q_val)
         # Build conditional query string that is used in the SQL query.
         # split by "," or whitespace
         q_vals = re.split(r",\s+|\s+", q_val)

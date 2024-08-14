@@ -240,3 +240,27 @@ def test_search_input_query_validation(api_client):
         response.json()["detail"]
         == "Invalid search terms, only letters, numbers, spaces and .'+-&| allowed."
     )
+
+
+@pytest.mark.django_db
+def test_search_with_vertical_bar_in_query(api_client, units):
+    # Test that a single vertical bar in query is treated as OR operator
+    url = reverse("search") + "?q=terveysasema|museo&type=unit"
+    response = api_client.get(url)
+    assert response.status_code == 200
+    assert len(response.json()["results"]) == 2
+    assert response.json()["results"][0]["name"]["fi"] == "Terveysasema"
+    assert response.json()["results"][1]["name"]["fi"] == "Biologinen museo"
+
+    # Test that multiple vertical bars in query are treated as OR operators
+    url = reverse("search") + "?q=terveysasema||museo&type=unit"
+    response = api_client.get(url)
+    assert response.status_code == 200
+    assert len(response.json()["results"]) == 2
+    assert response.json()["results"][0]["name"]["fi"] == "Terveysasema"
+    assert response.json()["results"][1]["name"]["fi"] == "Biologinen museo"
+
+    # Test that a vertical bars that are not between search terms do not cause an error
+    url = reverse("search") + "?q=|terveysasema||''||'"
+    response = api_client.get(url)
+    assert response.status_code == 200
