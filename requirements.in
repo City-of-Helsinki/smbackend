@@ -3,6 +3,8 @@ djangorestframework
 djangorestframework-jsonp
 django-filter
 django-modeltranslation
+django-two-factor-auth
+django-two-factor-auth[phonenumbers]
 flake8
 requests
 requests_cache

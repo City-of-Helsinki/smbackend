@@ -40,10 +40,14 @@ django==5.1
     #   django-cors-headers
     #   django-extensions
     #   django-filter
+    #   django-formtools
     #   django-js-asset
     #   django-modeltranslation
     #   django-munigeo
+    #   django-otp
+    #   django-phonenumber-field
     #   django-polymorphic
+    #   django-two-factor-auth
     #   djangorestframework
     #   drf-spectacular
 django-cors-headers==4.4.0
@@ -54,6 +58,8 @@ django-extensions==3.2.3
     # via -r requirements.in
 django-filter==24.3
     # via -r requirements.in
+django-formtools==2.5.1
+    # via django-two-factor-auth
 django-js-asset==2.2.0
     # via django-mptt
 django-modeltranslation==0.19.7
@@ -66,7 +72,13 @@ django-mptt==0.16.0
     #   django-munigeo
 django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.86
     # via -r requirements.in
+django-otp==1.5.2
+    # via django-two-factor-auth
+django-phonenumber-field==8.0.0
+    # via django-two-factor-auth
 django-polymorphic==3.1.0
+    # via -r requirements.in
+django-two-factor-auth[phonenumbers]==1.17.0
     # via -r requirements.in
 djangorestframework==3.15.2
     # via
@@ -125,6 +137,8 @@ pathspec==0.12.1
     # via black
 pep8-naming==0.14.1
     # via -r requirements.in
+phonenumbers==8.13.43
+    # via django-two-factor-auth
 pip-tools==7.4.1
     # via -r requirements.in
 platformdirs==4.2.2
@@ -139,6 +153,8 @@ pycodestyle==2.12.1
     # via flake8
 pyflakes==3.2.0
     # via flake8
+pypng==0.20220715.0
+    # via qrcode
 pyproject-hooks==1.1.0
     # via
     #   build
@@ -159,6 +175,8 @@ pyyaml==6.0.2
     # via
     #   django-munigeo
     #   drf-spectacular
+qrcode==7.4.2
+    # via django-two-factor-auth
 referencing==0.35.1
     # via
     #   jsonschema
@@ -202,6 +220,7 @@ typing-extensions==4.12.2
     #   black
     #   cattrs
     #   django-modeltranslation
+    #   qrcode
 tzdata==2024.1
     # via -r requirements.in
 uritemplate==4.1.1
