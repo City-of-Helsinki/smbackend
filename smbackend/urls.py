@@ -9,6 +9,7 @@ from drf_spectacular.views import (
 )
 from munigeo.api import all_views as munigeo_views
 from rest_framework import routers
+from two_factor.urls import urlpatterns as tf_urls
 
 from observations.api import views as observations_views
 from observations.views import obtain_auth_token
@@ -77,4 +78,5 @@ urlpatterns = [
         "schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
     ),
     re_path(r"", include(shortcutter_urls)),
+    re_path("", include(tf_urls)),
 ]
