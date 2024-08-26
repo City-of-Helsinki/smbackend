@@ -29,6 +29,11 @@ def rename_telraam_csv_files_to_yyyy_mm_dd(
 ):
     management.call_command("rename_telraam_csv_files_to_yyyy_mm_dd")
 
+    
+@shared_task_email
+def delete_all_counter_data(name="delete_all_counter_data"):
+    management.call_command("delete_all_counter_data")
+
 
 @shared_task_email
 def import_telraam_to_csv(*args, name="import_telraam_to_csv"):

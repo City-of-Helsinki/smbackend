@@ -63,9 +63,7 @@ def test_day_data(
     results = response.json()["results"]
     for i in range(7):
         # reverse order for day_datas as their order_by property is ascending
-        assert (
-            results[i]["day_info"]["station_name"] == day_datas[6 - i].day.station.name
-        )
+        assert results[i]["station_name"] == day_datas[6 - i].station.name
         assert results[i]["value_ak"] == day_datas[6 - i].value_ak
         assert results[i]["value_ap"] == day_datas[6 - i].value_ap
         assert results[i]["value_jk"] == day_datas[6 - i].value_jk
@@ -107,10 +105,7 @@ def test_week_data(api_client, week_datas):
     assert response.status_code == 200
     results = response.json()["results"]
     for i in range(4):
-        assert (
-            results[i]["week_info"]["station_name"]
-            == week_datas[3 - i].week.station.name
-        )
+        assert results[i]["station_name"] == week_datas[3 - i].station.name
         assert results[i]["value_ak"] == week_datas[3 - i].value_ak
         assert results[i]["value_ap"] == week_datas[3 - i].value_ap
         assert results[i]["value_jk"] == week_datas[3 - i].value_jk
@@ -157,10 +152,7 @@ def test_month_data(api_client, month_datas):
     assert response.status_code == 200
     results = response.json()["results"]
     for i in range(4):
-        assert (
-            results[i]["month_info"]["station_name"]
-            == month_datas[3 - i].month.station.name
-        )
+        assert results[i]["station_name"] == month_datas[3 - i].station.name
         # month_data is ordered ascedning
         assert results[i]["value_ak"] == month_datas[3 - i].value_ak
         assert results[i]["value_ap"] == month_datas[3 - i].value_ap
@@ -250,7 +242,6 @@ def test_days(api_client, days, test_timestamp):
     day2 = response.json()["results"][6]
     assert day1["date"] == str(test_timestamp + timedelta(days=6))
     assert day1["weekday_number"] == 1  # 2020.1.7 is tuesday (0-6)
-    assert day1["station_name"] == days[6].station.name
     assert day2["date"] == str(test_timestamp)
     assert day2["weekday_number"] == 2  # 2020.1.1 is wednesday
 
@@ -264,7 +255,6 @@ def test_weeks(api_client, weeks, test_timestamp):
     week1 = results[0]
     week2 = results[3]
     assert week1["week_number"] == 4
-    assert week1["station_name"] == weeks[3].station.name
     assert week1["years"][0]["year_number"] == test_timestamp.year
     assert week2["week_number"] == 1
 
@@ -279,7 +269,6 @@ def test_months(api_client, months, test_timestamp):
     month1 = results[0]
     month2 = results[3]
     assert month1["month_number"] == 4
-    assert month1["station_name"] == months[3].station.name
     assert month1["year_number"] == test_timestamp.year
     assert month2["month_number"] == 1
     assert month2["year_number"] == test_timestamp.year
@@ -295,7 +284,6 @@ def test_months_multiple_years(api_client, years, test_timestamp):
     year1 = results[0]
     year2 = results[1]
     assert year1["year_number"] == test_timestamp.year + 1
-    assert year1["station_name"] == years[1].station.name
     assert year2["year_number"] == test_timestamp.year
 
 

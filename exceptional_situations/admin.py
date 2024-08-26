@@ -20,7 +20,7 @@ class SituationAnnouncementAdmin(admin.ModelAdmin):
     list_display = ("title", "start_time", "end_time")
 
 
-class SituationLocationAdmin(admin.OSMGeoAdmin):
+class SituationLocationAdmin(admin.GISModelAdmin):
     list_display = ("id", "title", "geometry")
 
     def title(self, obj):
