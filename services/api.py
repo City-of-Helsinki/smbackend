@@ -991,6 +991,7 @@ class KmlRenderer(renderers.BaseRenderer):
         LEVEL_PARAMETER,
         UNIT_GEOMETRY_PARAMETER,
         UNIT_GEOMETRY_3D_PARAMETER,
+        BBOX_PARAMETER,
     ]
 )
 class UnitViewSet(
