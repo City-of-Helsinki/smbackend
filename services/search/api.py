@@ -22,11 +22,13 @@ import logging
 import re
 from itertools import chain
 
+from django.contrib.gis.gdal import SpatialReference
 from django.db import connection, reset_queries
 from django.db.models import Count
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from munigeo import api as munigeo_api
 from munigeo.models import Address, AdministrativeDivision
+from munigeo.utils import get_default_srid
 from rest_framework import serializers, status
 from rest_framework.exceptions import ParseError
 from rest_framework.generics import GenericAPIView
@@ -344,6 +346,13 @@ class SearchSerializer(serializers.Serializer):
             required=False,
             type=str,
         ),
+        OpenApiParameter(
+            name="bbox",
+            location=OpenApiParameter.QUERY,
+            description="Bounding box in the format 'left,bottom,right,top'.",
+            required=False,
+            type=str,
+        ),
     ],
     description="Search for units, services, service nodes, addresses and administrative divisions.",
 )
@@ -586,6 +595,16 @@ class SearchViewSet(GenericAPIView):
                 services = self.request.query_params["service"].strip().split(",")
                 if services[0]:
                     units_qs = units_qs.filter(services__in=services)
+
+            if "bbox" in self.request.query_params:
+                bbox = self.request.query_params["bbox"]
+                if "bbox_srid" in self.request.query_params:
+                    bbox_srid = self.request.query_params["bbox_srid"]
+                else:
+                    bbox_srid = get_default_srid()
+                ref = SpatialReference(bbox_srid)
+                bbox_filter = munigeo_api.build_bbox_filter(ref, bbox, "location")
+                units_qs = units_qs.filter(**bbox_filter)
 
             if units_order_list:
                 units_qs = units_qs.annotate(num_services=Count("services")).order_by(

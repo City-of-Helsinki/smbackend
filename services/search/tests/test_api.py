@@ -264,3 +264,23 @@ def test_search_with_vertical_bar_in_query(api_client, units):
     url = reverse("search") + "?q=|terveysasema||''||'"
     response = api_client.get(url)
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_search_with_bbox_parameter(api_client, units):
+    """
+    When bbox parameter is given, only units within the bounding box should be returned.
+    """
+    url = reverse("search") + "?q=halli&type=unit"
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert len(results) == 3
+
+    url = (
+        reverse("search")
+        + "?q=halli&type=unit&bbox=24.93545,60.16952,24.95190,60.17800&bbox_srid=4326"
+    )
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert len(results) == 1
+    assert results[0]["name"]["fi"] == "Jäähalli"
