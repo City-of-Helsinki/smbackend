@@ -27,6 +27,7 @@ importers = [
     "outdoor_gym_devices",
     "foli_parkandride_stops",
     "under_and_overpasses",
+    "parking_garages",
 ]
 # Read the content type names to be imported
 wfs_content_type_names = get_configured_cotent_type_names()
