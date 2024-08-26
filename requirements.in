@@ -44,3 +44,4 @@ polyline
 drf-spectacular
 xmltodict
 freezegun
+geopy
