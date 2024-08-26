@@ -27,9 +27,9 @@ SOURCE_DATA_SRID = 4326
 # Routes are from https://citynomadi.com/route/?keywords=turku
 KAUPUNKIRETKEILY_HALINEN = "Kaupunkiretkeily Halinen"
 # Define routes where placemarks are filtered and
-# trown away if name contains word defined in TROW_AWAY_PLACEMARK_NAMES constant.
+# thrown away if name contains word defined in THROW_AWAY_PLACEMARK_NAMES constant.
 FILTER_PLACEMARKS = [KAUPUNKIRETKEILY_HALINEN]
-TROW_AWAY_PLACEMARK_NAMES = [
+THROW_AWAY_PLACEMARK_NAMES = [
     "Bussipysäkki",
     "Leikkipuisto",
     "Tulentekopaikka",
@@ -272,7 +272,7 @@ def get_routes():
                     if lang_index == 0:
                         if key in FILTER_PLACEMARKS:
                             name = Placemark.get_name(pm)
-                            if name in TROW_AWAY_PLACEMARK_NAMES:
+                            if name in THROW_AWAY_PLACEMARK_NAMES:
                                 continue
                         pm_obj = Placemark()
                         placemarks_to_add.append(pm_obj)
