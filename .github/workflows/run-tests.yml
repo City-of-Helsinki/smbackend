@@ -30,7 +30,7 @@ jobs:
         python-version: 3.10.0
     - name: Install required Ubuntu packages
       run: |
-        sudo apt-get update && sudo apt-get -y --no-install-recommends install gdal-bin voikko-fi libvoikko-dev
+        sudo apt-get update && sudo apt-get -y --no-install-recommends install gdal-bin voikko-fi libvoikko-dev gettext 
         sudo apt-get install redis-server
     - name: Create needed postgis extensions
       run: |
@@ -40,6 +40,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Compile messages
+      run: |
+        python manage.py compilemessages
     - name: Run Python side code neatness tests
       run: |
         flake8
