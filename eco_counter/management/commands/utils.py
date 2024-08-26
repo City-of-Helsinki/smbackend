@@ -120,8 +120,8 @@ def get_is_active(station):
     res = {}
     for days in num_days:
         from_date = date.today() - timedelta(days=days - 1)
-        day_qs = Day.objects.filter(station=station, date__gte=from_date)
-        day_data_qs = DayData.objects.filter(day__in=day_qs)
+        day_qs = Day.objects.filter(date__gte=from_date)
+        day_data_qs = DayData.objects.filter(station=station, day__in=day_qs)
         if day_data_qs.filter(Q_EXP).count() > 0:
             res[days] = True
         else:

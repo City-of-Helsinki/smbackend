@@ -26,6 +26,9 @@ class YearDataAdmin(DataAdmin):
 class MonthDataAdmin(DataAdmin):
     list_display = ("get_name", "month", "year")
 
+    def year(self, obj):
+        return obj.month.year.year_number
+
 
 class WeekDataAdmin(DataAdmin):
     list_display = ("get_name", "week", "get_years")
