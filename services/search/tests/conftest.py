@@ -96,6 +96,7 @@ def units(
         last_modified_time=now(),
         municipality=municipality,
         department=department,
+        location=Point(24.941387, 60.17103, srid=4326),  # Helsinki center
     )
     # Add service Halli
     unit.services.add(4)
