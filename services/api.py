@@ -1320,13 +1320,6 @@ class AddressViewSet(munigeo_api.AddressViewSet):
 register_view(AddressViewSet, "address")
 
 
-class PostalCodeAreaViewSet(munigeo_api.PostalCodeAreaViewSet):
-    serializers_class = munigeo_api.PostalCodeSerializer
-
-
-register_view(PostalCodeAreaViewSet, "postalcodearea")
-
-
 class AnnouncementSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
     class Meta:
         model = Announcement
