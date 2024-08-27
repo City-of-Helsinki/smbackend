@@ -66,9 +66,6 @@ class CounterData(models.Model):
 
 
 class Year(models.Model):
-    station = models.ForeignKey(
-        "Station", on_delete=models.CASCADE, related_name="years", null=True
-    )
     year_number = models.PositiveSmallIntegerField(default=2023)
 
     @property
@@ -83,9 +80,6 @@ class Year(models.Model):
 
 
 class Month(models.Model):
-    station = models.ForeignKey(
-        "Station", on_delete=models.CASCADE, related_name="months", null=True
-    )
     year = models.ForeignKey("Year", on_delete=models.CASCADE, related_name="months")
     month_number = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(12)], default=1
@@ -103,9 +97,6 @@ class Month(models.Model):
 
 
 class Week(models.Model):
-    station = models.ForeignKey(
-        "Station", on_delete=models.CASCADE, related_name="weeks"
-    )
     week_number = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(53)]
     )
@@ -123,9 +114,6 @@ class Week(models.Model):
 
 
 class Day(models.Model):
-    station = models.ForeignKey(
-        "Station", on_delete=models.CASCADE, related_name="day", null=True
-    )
     date = models.DateField(default=now)
     weekday_number = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(7)], default=1
@@ -163,12 +151,9 @@ class MonthData(CounterData):
     month = models.ForeignKey(
         "Month", on_delete=models.CASCADE, related_name="month_data", null=True
     )
-    year = models.ForeignKey(
-        "Year", on_delete=models.CASCADE, related_name="month_data", null=True
-    )
 
     class Meta:
-        ordering = ["-year__year_number", "-month__month_number"]
+        ordering = ["-month__year__year_number", "-month__month_number"]
 
 
 class WeekData(CounterData):
