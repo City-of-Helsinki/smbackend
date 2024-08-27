@@ -1,0 +1,18 @@
+[
+  {
+    "model": "services.exclusionword",
+    "pk": 1,
+    "fields": {
+      "word": "katu",
+      "language_short": "fi"
+    }
+  },
+  {
+    "model": "services.exclusionword",
+    "pk": 2,
+    "fields": {
+      "word": "tie",
+      "language_short": "fi"
+    }
+  }
+]

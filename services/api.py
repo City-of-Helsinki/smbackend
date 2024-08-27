@@ -140,7 +140,7 @@ class TranslatedModelSerializer(object):
             self.translated_fields = []
             return
 
-        self.translated_fields = trans_opts.fields.keys()
+        self.translated_fields = trans_opts.all_fields.keys()
         # Remove the pre-existing data in the bundle.
         for field_name in self.translated_fields:
             for lang in LANGUAGES:

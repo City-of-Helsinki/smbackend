@@ -4,7 +4,7 @@ from .feedback import FeedbackMapping
 from .keyword import Keyword
 from .mobility import MobilityServiceNode
 from .notification import Announcement, ErrorMessage
-from .search_rule import ExclusionRule
+from .search_rule import ExclusionRule, ExclusionWord
 from .service import Service, UnitServiceDetails
 from .service_mapping import ServiceMapping
 from .service_node import ServiceNode

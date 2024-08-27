@@ -27,9 +27,10 @@ from django.db.models import Count
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from munigeo import api as munigeo_api
 from munigeo.models import Address, AdministrativeDivision
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.exceptions import ParseError
 from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
 
 from services.api import (
     TranslatedModelSerializer,
@@ -60,6 +61,7 @@ from .utils import (
     get_preserved_order,
     get_service_node_results,
     get_trigram_results,
+    has_exclusion_word_in_query,
     set_address_fields,
     set_service_node_unit_count,
     set_service_unit_count,
@@ -166,8 +168,12 @@ class SearchSerializer(serializers.Serializer):
 
         if self.context["geometry"]:
             if hasattr(obj, "geometry"):
+                if isinstance(obj, AdministrativeDivision):
+                    geometry = obj.geometry.boundary
+                else:
+                    geometry = obj.geometry
                 representation["geometry"] = munigeo_api.geom_to_json(
-                    obj.geometry, DEFAULT_SRS
+                    geometry, DEFAULT_SRS
                 )
             else:
                 representation["geometry"] = None
@@ -191,6 +197,12 @@ class SearchSerializer(serializers.Serializer):
                     representation["connections"] = UnitConnectionSerializer(
                         obj.connections, many=True
                     ).data
+                elif "department" in include_field:
+                    representation["department"] = DepartmentSerializer(
+                        obj.department
+                    ).data
+                elif "municipality" in include_field:
+                    representation["municipality"] = obj.municipality.id
                 else:
                     if hasattr(obj, include_field):
                         representation[include_field] = getattr(
@@ -454,6 +466,10 @@ class SearchViewSet(GenericAPIView):
 
         config_language = LANGUAGES[language_short]
         search_query_str = None  # Used in the raw sql
+        # Replace multiple consecutive vertical bars with a single vertical bar to be used as an OR operator.
+        q_val = re.sub(r"\|+", "|", q_val)
+        # Remove vertical bars that are not between words to avoid errors in the query.
+        q_val = re.sub(r"(?<!\w)\|+|\|+(?!\w)", "", q_val)
         # Build conditional query string that is used in the SQL query.
         # split by "," or whitespace
         q_vals = re.split(r",\s+|\s+", q_val)
@@ -467,6 +483,12 @@ class SearchViewSet(GenericAPIView):
                     search_query_str += f"& {q}:*"
             else:
                 search_query_str = f"{q}:*"
+
+        if has_exclusion_word_in_query(q_vals, language_short):
+            return Response(
+                f"Search query {q_vals} would return too many results",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         search_fn = "to_tsquery"
         if use_websearch:

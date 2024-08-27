@@ -1,15 +1,42 @@
+import logging
+
 import libvoikko
 from django.db import connection
 from django.db.models import Case, When
+from django.db.models.functions import Lower
+from rest_framework.exceptions import ParseError
 
-from services.models import ServiceNode, ServiceNodeUnitCount, Unit
+from services.models import (
+    ExclusionRule,
+    ExclusionWord,
+    ServiceNode,
+    ServiceNodeUnitCount,
+    Unit,
+)
 from services.search.constants import (
     DEFAULT_TRIGRAM_THRESHOLD,
     SEARCHABLE_MODEL_TYPE_NAMES,
 )
 
+logger = logging.getLogger("search")
 voikko = libvoikko.Voikko("fi")
 voikko.setNoUglyHyphenation(True)
+
+
+def get_foreign_key_attr(obj, field):
+    """Get attr recursively by following foreign key relations
+    For example:
+    get_foreign_key_attr(
+        <Address: Kurrapolku 1-2A, Turku>, "street__name_fi"
+    )
+    """
+    fields = field.split("__")
+    if len(fields) == 1:
+        return getattr(obj, fields[0], None)
+    else:
+        first_field = fields[0]
+        remaining_fields = "__".join(fields[1:])
+        return get_foreign_key_attr(getattr(obj, first_field), remaining_fields)
 
 
 def is_compound_word(word):
@@ -21,7 +48,7 @@ def is_compound_word(word):
 
 def hyphenate(word):
     """
-    Returns a list of syllables of the word if it is a compound word.
+    Returns a list of syllables of the word, if it is a compound word.
     """
     word = word.strip()
     if is_compound_word(word):
@@ -199,15 +226,42 @@ def get_preserved_order(ids):
 def get_trigram_results(
     model, model_name, field, q_val, threshold=DEFAULT_TRIGRAM_THRESHOLD
 ):
-    sql = f"""SELECT id, similarity({field}, '{q_val}') AS sml
+    sql = f"""SELECT id, similarity({field}, %s) AS sml
         FROM {model_name}
-        WHERE  similarity({field}, '{q_val}') >= {threshold}
+        WHERE  similarity({field}, %s) >= {threshold}
         ORDER BY sml DESC;
     """
     cursor = connection.cursor()
-    cursor.execute(sql)
+    try:
+        cursor.execute(sql, [q_val, q_val])
+    except Exception as e:
+        logger.error(f"Error in similarity query: {e}")
+        raise ParseError("Similarity query failed.")
     all_results = cursor.fetchall()
-
     ids = [row[0] for row in all_results]
     objs = model.objects.filter(id__in=ids)
     return objs
+
+
+def get_search_exclusions(q):
+    """
+    To add/modify search exclusion rules edit: services/fixtures/exclusion_rules
+    To import rules: ./manage.py loaddata services/fixtures/exclusion_rules.json
+    """
+    rule = ExclusionRule.objects.filter(word__iexact=q).first()
+    if rule:
+        return rule.exclusion
+    return ""
+
+
+def has_exclusion_word_in_query(q_vals, language_short):
+    """
+    To add/modify search exclusion words edit: services/fixtures/exclusion_words.json
+    To import words: ./manage.py loaddata services/fixtures/exclusion_words.json
+    """
+    return (
+        ExclusionWord.objects.filter(language_short=language_short)
+        .annotate(word_lower=Lower("word"))
+        .filter(word_lower__in=[q.lower() for q in q_vals])
+        .exists()
+    )

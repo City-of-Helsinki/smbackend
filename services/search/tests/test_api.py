@@ -13,6 +13,8 @@ def test_search(
     administrative_division,
     accessibility_shortcoming,
     municipality,
+    exclusion_rules,
+    exclusion_words,
 ):
     # Search for "museo" in entities: units,services and servicenods
     url = reverse("search") + "?q=museo&type=unit,service,servicenode"
@@ -120,6 +122,22 @@ def test_search(
     assert kurrapolku["location"]["type"] == "Point"
     assert kurrapolku["location"]["coordinates"][0] == 60.479032
     assert kurrapolku["location"]["coordinates"][1] == 22.25417
+    # Test search with excluded word
+    url = reverse("search") + "?q=katu"
+    response = api_client.get(url)
+    assert response.status_code == 400
+    url = reverse("search") + "?q=Katu"
+    response = api_client.get(url)
+    assert response.status_code == 400
+    url = reverse("search") + "?q=koti katu"
+    response = api_client.get(url)
+    assert response.status_code == 400
+    # Test search with 'kello'
+    url = reverse("search") + "?q=kello&type=address"
+    response = api_client.get(url)
+    results = response.json()["results"]
+    assert len(results) == 1
+    assert results[0]["name"]["fi"] == "Kellonsoittajankatu 1"
     # Test address search with apostrophe in query
     url = reverse("search") + "?q=tarkk'ampujankatu&type=address"
     response = api_client.get(url)
@@ -222,3 +240,27 @@ def test_search_input_query_validation(api_client):
         response.json()["detail"]
         == "Invalid search terms, only letters, numbers, spaces and .'+-&| allowed."
     )
+
+
+@pytest.mark.django_db
+def test_search_with_vertical_bar_in_query(api_client, units):
+    # Test that a single vertical bar in query is treated as OR operator
+    url = reverse("search") + "?q=terveysasema|museo&type=unit"
+    response = api_client.get(url)
+    assert response.status_code == 200
+    assert len(response.json()["results"]) == 2
+    assert response.json()["results"][0]["name"]["fi"] == "Terveysasema"
+    assert response.json()["results"][1]["name"]["fi"] == "Biologinen museo"
+
+    # Test that multiple vertical bars in query are treated as OR operators
+    url = reverse("search") + "?q=terveysasema||museo&type=unit"
+    response = api_client.get(url)
+    assert response.status_code == 200
+    assert len(response.json()["results"]) == 2
+    assert response.json()["results"][0]["name"]["fi"] == "Terveysasema"
+    assert response.json()["results"][1]["name"]["fi"] == "Biologinen museo"
+
+    # Test that a vertical bars that are not between search terms do not cause an error
+    url = reverse("search") + "?q=|terveysasema||''||'"
+    response = api_client.get(url)
+    assert response.status_code == 200
