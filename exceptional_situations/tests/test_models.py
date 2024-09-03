@@ -1,20 +1,19 @@
 from datetime import timedelta
 
 import pytest
-from django.utils import timezone
 
 from exceptional_situations.models import Situation, SituationAnnouncement
 
 
 @pytest.mark.django_db
-def test_situation_is_active(situation_types):
-    now = timezone.now()
+def test_situation_is_active(situation_types, now):
 
     announcement_1 = SituationAnnouncement.objects.create(start_time=now, title="test1")
     announcement_2 = SituationAnnouncement.objects.create(start_time=now, title="test2")
     situation = Situation.objects.create(
         release_time=now, situation_type=situation_types.first(), situation_id="TestID"
     )
+    # No announcements, returns False
     assert situation.is_active is False
 
     situation.announcements.add(announcement_1)
@@ -44,8 +43,7 @@ def test_situation_is_active(situation_types):
 
 
 @pytest.mark.django_db
-def test_situation_start_time(situation_types):
-    now = timezone.now()
+def test_situation_start_time(situation_types, now):
     announcement_1 = SituationAnnouncement.objects.create(
         start_time=now, title="starts now"
     )
@@ -61,8 +59,7 @@ def test_situation_start_time(situation_types):
 
 
 @pytest.mark.django_db
-def test_situation_end_time(situation_types):
-    now = timezone.now()
+def test_situation_end_time(situation_types, now):
     announcement_1 = SituationAnnouncement.objects.create(
         start_time=now - timedelta(hours=1),
         end_time=now + timedelta(hours=2),

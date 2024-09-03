@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 import pytest
-from django.utils import timezone
 from rest_framework.reverse import reverse
 
 SITUATION_LIST_URL = reverse("exceptional_situations:situation-list")
@@ -70,8 +69,8 @@ def test_situation_retrieve(api_client, situations):
 
 
 @pytest.mark.django_db
-def test_situation_filter_by_start_time(api_client, situations):
-    start_time = timezone.now() - timedelta(hours=6)
+def test_situation_filter_by_start_time(api_client, situations, now):
+    start_time = now - timedelta(hours=6)
     response = api_client.get(
         SITUATION_LIST_URL
         + f"?start_time__gt={datetime.strftime(start_time, DATETIME_FORMAT)}"
@@ -84,7 +83,7 @@ def test_situation_filter_by_start_time(api_client, situations):
     )
     assert response.json()["count"] == 1
 
-    start_time = timezone.now() - timedelta(days=2)
+    start_time = now - timedelta(days=2)
     response = api_client.get(
         SITUATION_LIST_URL
         + f"?start_time__gt={datetime.strftime(start_time, DATETIME_FORMAT)}"
@@ -98,8 +97,8 @@ def test_situation_filter_by_start_time(api_client, situations):
 
 
 @pytest.mark.django_db
-def test_situation_filter_by_end_time(api_client, situations):
-    end_time = timezone.now()
+def test_situation_filter_by_end_time(api_client, situations, now):
+    end_time = now
     response = api_client.get(
         SITUATION_LIST_URL
         + f"?end_time__gt={datetime.strftime(end_time, DATETIME_FORMAT)}"
@@ -111,7 +110,7 @@ def test_situation_filter_by_end_time(api_client, situations):
     )
     assert response.json()["count"] == 0
 
-    end_time = timezone.now() - timedelta(days=2)
+    end_time = now - timedelta(days=2)
     response = api_client.get(
         SITUATION_LIST_URL
         + f"?end_time__gt={datetime.strftime(end_time, DATETIME_FORMAT)}"
