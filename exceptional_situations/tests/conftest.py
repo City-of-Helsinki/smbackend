@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import pytest
 from django.contrib.gis.geos import GEOSGeometry
@@ -13,12 +13,15 @@ from exceptional_situations.models import (
     SituationType,
 )
 
-NOW = timezone.now()
-
 
 @pytest.fixture
 def api_client():
     return APIClient()
+
+
+@pytest.fixture
+def now():
+    return datetime.now().replace(tzinfo=timezone.get_default_timezone())
 
 
 @pytest.mark.django_db
@@ -58,15 +61,16 @@ def locations():
 
 @pytest.mark.django_db
 @pytest.fixture
-def announcements(locations, municipalities):
+def announcements(locations, municipalities, now):
+
     json_data = {"test_key": "test_value"}
     sa = SituationAnnouncement.objects.create(
         title="Twelve hours",
         description="Twelve hours long situation",
         additional_info=json_data,
         location=locations[0],
-        start_time=NOW,
-        end_time=NOW + timedelta(hours=12),
+        start_time=now,
+        end_time=now + timedelta(hours=12),
     )
     sa.municipalities.add(municipalities.filter(id="turku").first())
     sa.municipalities.add(municipalities.filter(id="lieto").first())
@@ -75,8 +79,8 @@ def announcements(locations, municipalities):
         description="two days long situation",
         additional_info=json_data,
         location=locations[1],
-        start_time=NOW - timedelta(days=1),
-        end_time=NOW + timedelta(days=1),
+        start_time=now - timedelta(days=1),
+        end_time=now + timedelta(days=1),
     )
     sa.municipalities.add(municipalities.filter(id="raisio").first())
     return SituationAnnouncement.objects.all()
@@ -84,24 +88,24 @@ def announcements(locations, municipalities):
 
 @pytest.mark.django_db
 @pytest.fixture
-def inactive_announcements(locations):
+def inactive_announcements(locations, now):
     json_data = {"test_key": "test_value"}
     SituationAnnouncement.objects.create(
         title="in past",
         description="inactive announcement",
         additional_info=json_data,
         location=locations[2],
-        start_time=NOW - timedelta(days=2),
-        end_time=NOW - timedelta(days=1),
+        start_time=now - timedelta(days=2),
+        end_time=now - timedelta(days=1),
     )
     return SituationAnnouncement.objects.all()
 
 
 @pytest.mark.django_db
 @pytest.fixture
-def inactive_situations(situation_types, inactive_announcements):
+def inactive_situations(situation_types, inactive_announcements, now):
     situation = Situation.objects.create(
-        release_time=NOW,
+        release_time=now,
         situation_id="inactive",
         situation_type=situation_types.first(),
     )
@@ -111,15 +115,15 @@ def inactive_situations(situation_types, inactive_announcements):
 
 @pytest.mark.django_db
 @pytest.fixture
-def situations(situation_types, announcements):
+def situations(situation_types, announcements, now):
     situation = Situation.objects.create(
-        release_time=NOW,
-        situation_id="TwoHoursLong",
+        release_time=now,
+        situation_id="TwelveHoursLong",
         situation_type=situation_types.first(),
     )
     situation.announcements.add(announcements[0])
     situation = Situation.objects.create(
-        release_time=NOW - timedelta(days=1),
+        release_time=now - timedelta(days=1),
         situation_id="TwoDaysLong",
         situation_type=situation_types.first(),
     )
