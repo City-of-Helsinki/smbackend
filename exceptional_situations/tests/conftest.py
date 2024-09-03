@@ -61,12 +61,12 @@ def locations():
 def announcements(locations, municipalities):
     json_data = {"test_key": "test_value"}
     sa = SituationAnnouncement.objects.create(
-        title="two hours",
-        description="two hours long situation",
+        title="Twelve hours",
+        description="Twelve hours long situation",
         additional_info=json_data,
         location=locations[0],
-        start_time=NOW - timedelta(hours=1),
-        end_time=NOW + timedelta(hours=1),
+        start_time=NOW,
+        end_time=NOW + timedelta(hours=12),
     )
     sa.municipalities.add(municipalities.filter(id="turku").first())
     sa.municipalities.add(municipalities.filter(id="lieto").first())
