@@ -71,11 +71,12 @@ def test_situation_retrieve(api_client, situations):
 
 @pytest.mark.django_db
 def test_situation_filter_by_start_time(api_client, situations):
-    start_time = timezone.now()
+    start_time = timezone.now() - timedelta(hours=6)
     response = api_client.get(
         SITUATION_LIST_URL
         + f"?start_time__gt={datetime.strftime(start_time, DATETIME_FORMAT)}"
     )
+
     assert response.json()["count"] == 1
     response = api_client.get(
         SITUATION_LIST_URL
