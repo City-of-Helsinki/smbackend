@@ -4,13 +4,12 @@ Imports road works and traffic announcements in Southwest Finland from digitraff
 
 import logging
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 
 import requests
 from dateutil import parser
 from django.contrib.gis.geos import GEOSGeometry, Polygon
 from django.core.management import BaseCommand
-from django.utils import timezone
 from munigeo.models import Municipality
 
 from exceptional_situations.models import (
@@ -148,7 +147,7 @@ class Command(BaseCommand):
 
                 if release_time.microsecond != 0:
                     release_time.replace(microsecond=0)
-                release_time = timezone.make_aware(release_time, timezone.utc)
+                release_time = release_time.replace(tzinfo=timezone.utc)
 
             type_name = properties.get("situationType", None)
             sub_type_name = properties.get("trafficAnnouncementType", None)
