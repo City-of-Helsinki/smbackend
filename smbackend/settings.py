@@ -36,9 +36,6 @@ env = Env(
     OPEN311_SERVICE_CODE=(str, None),
     SHORTCUTTER_UNIT_URL=(str, None),
     ADDRESS_SEARCH_RADIUS=(int, 50),
-    TURKU_API_KEY=(str, None),
-    ACCESSIBILITY_SYSTEM_ID=(str, None),
-    ADDITIONAL_INSTALLED_APPS=(list, None),
     ADDITIONAL_MIDDLEWARE=(list, None),
     DJANGO_LOG_LEVEL=(str, "INFO"),
     IMPORT_LOG_LEVEL=(str, "INFO"),
@@ -104,12 +101,6 @@ INSTALLED_APPS = [
     "two_factor",
     "two_factor.plugins.email",
 ]
-
-if env("ADDITIONAL_INSTALLED_APPS"):
-    INSTALLED_APPS += env("ADDITIONAL_INSTALLED_APPS")
-
-TURKU_API_KEY = env("TURKU_API_KEY")
-ACCESSIBILITY_SYSTEM_ID = env("ACCESSIBILITY_SYSTEM_ID")
 
 MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
