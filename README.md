@@ -11,7 +11,7 @@ This is the backend service for the Service Map UI.
 Installation with Docker Compose
 ------------
 
-First configure development environment settings as stated in `config_dev.env.example` and in `config_dev_ui.env.example`.
+First configure development environment settings as stated in `.env.example` and in `config_dev_ui.env.example`.
 
 ### Running the application
 
