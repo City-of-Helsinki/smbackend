@@ -190,6 +190,15 @@ pip-compile -U requirements.in
 pip-compile -U requirements-dev.in
 ```
 
+Code formatting
+---------------------
+The code is formatted with black, flake8 and isort. To format the code, run:
+```
+isort .
+black .
+```
+
+
 Observations
 ------------
 
