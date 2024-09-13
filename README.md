@@ -181,6 +181,15 @@ Start Celery beat to handle scheduled periodic tasks with command:
 celery -A smbackend beat -l INFO
 ```
 
+Updating requirements
+---------------------
+
+pip-tools is used to manage requirements. To update the requirements, run:
+```
+pip-compile -U requirements.in
+pip-compile -U requirements-dev.in
+```
+
 Observations
 ------------
 
