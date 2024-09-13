@@ -19,6 +19,13 @@ Run application with `docker-compose up`
 
 This will startup and bind local postgres, servicemap backend and servicemap frontend containers.
 
+### Run migrations
+
+When building the application for the first time, migrations need to be run. This can be done with the following command:
+
+`docker-compose exec servicemap python manage.py migrate`
+
+
 ### Importing data
 
 To import data for development usage and automatically index it, run command:
