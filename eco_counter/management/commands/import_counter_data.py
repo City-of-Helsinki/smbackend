@@ -382,7 +382,9 @@ def handle_initial_import(counter):
     ImportState.objects.filter(csv_data_source=counter).delete()
     import_state = ImportState.objects.create(csv_data_source=counter)
     logger.info(f"Retrieving stations for {counter}.")
-    # As Telraam counters are dynamic, create after CSV data is processed
+    # As Telraam counters are dynamic, i.e., location can change,
+    # create Stations while the CSV data is processed as location info
+    # is bundled into the CSV files.
     if counter == TELRAAM_COUNTER:
         Station.objects.filter(csv_data_source=counter).delete()
     else:
@@ -447,12 +449,16 @@ def import_data(counters, initial_import=False, force=False):
         # Before deleting state and data, check that data is available.
         if not force and import_state and initial_import:
             start_time = get_start_time(counter, import_state)
-            csv_data = get_csv_data(counter, import_state, start_time, verbose=False)
-            if len(csv_data) == 0:
-                logger.info(
-                    "No data to retrieve, skipping initial import. Use --force to discard."
+            # Handle Telraam data differently in save_telraam_data method as the souurce data is static CSV files.
+            if counter != TELRAAM_COUNTER:
+                csv_data = get_csv_data(
+                    counter, import_state, start_time, verbose=False
                 )
-                continue
+                if len(csv_data) == 0:
+                    logger.info(
+                        "No data to retrieve, skipping initial import. Use --force to discard."
+                    )
+                    continue
 
         if initial_import:
             handle_initial_import(counter)
