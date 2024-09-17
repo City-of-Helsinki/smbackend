@@ -390,15 +390,15 @@ features:
         wfs_field: paatospykala
   
   - content_type_name: ScooterParkingArea
-    wfs_layer: GIS:Sahkopotkulautaparkki
+    wfs_layer: GIS:Sahkopotkulauta_pysakointi
     locates_in_turku: False
   
   - content_type_name: ScooterSpeedLimitArea
-    wfs_layer: GIS:Sahkopotkulauta_nopeusrajoitus
+    wfs_layer: GIS:Sahkopotkulauta_nopeusrajoitusalueet
     locates_in_turku: False
 
   - content_type_name: ScooterNoParkingArea
-    wfs_layer: GIS:Sahkopotkulauta_pysakointikielto
+    wfs_layer: GIS:Sahkopotkulauta_pysakointikieltoalueet
     locates_in_turku: False
 
 
