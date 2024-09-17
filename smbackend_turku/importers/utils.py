@@ -26,7 +26,7 @@ from services.models import Service, ServiceNode, Unit, UnitServiceDetails
 
 # TODO: Change to production endpoint when available
 TURKU_BASE_URL = "https://digiaurajoki.turku.fi:9443/kuntapalvelut/api/v1/"
-ACCESSIBILITY_BASE_URL = "https://asiointi.hel.fi/kapaesteettomyys/api/v1/"
+ACCESSIBILITY_BASE_URL = "https://tpr.hel.fi/kapaesteettomyys/api/v1/"
 UTC_TIMEZONE = pytz.timezone("UTC")
 
 data_path = os.path.join(os.path.dirname(__file__), "data")

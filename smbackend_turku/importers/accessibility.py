@@ -143,18 +143,18 @@ class AccessibilityImporter:
 
     def _set_unit_accesibility_properties(self, unit, accessiblity_entry):
         accessibility_properties = [
-            "accessibility_phone",
-            "accessibility_email",
-            "accessibility_www",
+            ("accessibility_phone", "accessibilityPhone"),
+            ("accessibility_email", "accessibilityEmail"),
+            ("accessibility_www", "accessibilityWww"),
         ]
         changed = False
 
         for accessibility_property in accessibility_properties:
-            entry_value = accessiblity_entry.get(accessibility_property)
-            unit_value = getattr(unit, accessibility_property)
+            entry_value = accessiblity_entry.get(accessibility_property[1])
+            unit_value = getattr(unit, accessibility_property[0])
             if entry_value == unit_value:
                 continue
-            setattr(unit, accessibility_property, entry_value)
+            setattr(unit, accessibility_property[0], entry_value)
             changed = True
 
         return changed
