@@ -99,6 +99,9 @@ class Migration(migrations.Migration):
         for item in keep_weeks.items():
             week = item[1]
             year_numbers = item[0].split("_")[:-1]
+            # Handle erroneous weeks without a year.
+            if year_numbers == [""]:
+                continue
             week.years.clear()
             for year_number in year_numbers:
                 week.years.add(keep_years[year_number])
