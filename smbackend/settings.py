@@ -311,7 +311,15 @@ INTERNAL_IPS = env("INTERNAL_IPS")
 SPECTACULAR_SETTINGS = {
     "TITLE": "Palvelukartta REST API",
     "DESCRIPTION": "Backend service for the Service Map UI.",
-    "VERSION": None,
+    "VERSION": "v2",
+    "CONTACT": {
+        "name": "City of Helsinki",
+        "url": "https://www.hel.fi",
+    },
+    "LICENSE": {
+        "name": "AGPL-3.0",
+        "url": "https://www.gnu.org/licenses/agpl-3.0.html",
+    },
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
