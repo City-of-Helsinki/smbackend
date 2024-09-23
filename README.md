@@ -31,6 +31,10 @@ When building the application for the first time, migrations need to be run. Thi
 To import data for development usage and automatically index it, run command:
 `docker-compose run servicemap maintenance_tasks all`
 
+However, this might take a while, especially on the first run. You can also import the needed data separately, but note
+that there are some dependencies between the data imports. The commands for the imports are found in
+[scripts/run_imports.sh](scripts/run_imports.sh).
+
 Installation without Docker
 ------------
 
