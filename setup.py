@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="smbackend",
-    version="240508",
+    version="241001",
     license="AGPLv3",
     packages=find_packages(),
     include_package_data=True,

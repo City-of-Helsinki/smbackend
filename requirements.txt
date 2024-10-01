@@ -18,11 +18,11 @@ black==24.8.0
     # via -r requirements.in
 bmi-arcgis-restapi==2.4.9
     # via -r requirements.in
-build==1.2.1
+build==1.2.2
     # via pip-tools
-cattrs==23.2.3
+cattrs==24.1.2
     # via requests-cache
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   requests
     #   sentry-sdk
@@ -34,16 +34,20 @@ click==8.1.7
     #   pip-tools
 coverage[toml]==7.6.1
     # via pytest-cov
-django==5.1
+django==5.1.1
     # via
     #   -r requirements.in
     #   django-cors-headers
     #   django-extensions
     #   django-filter
+    #   django-formtools
     #   django-js-asset
     #   django-modeltranslation
     #   django-munigeo
+    #   django-otp
+    #   django-phonenumber-field
     #   django-polymorphic
+    #   django-two-factor-auth
     #   djangorestframework
     #   drf-spectacular
 django-cors-headers==4.4.0
@@ -54,9 +58,11 @@ django-extensions==3.2.3
     # via -r requirements.in
 django-filter==24.3
     # via -r requirements.in
+django-formtools==2.5.1
+    # via django-two-factor-auth
 django-js-asset==2.2.0
     # via django-mptt
-django-modeltranslation==0.19.7
+django-modeltranslation==0.19.9
     # via
     #   -r requirements.in
     #   django-munigeo
@@ -64,9 +70,15 @@ django-mptt==0.16.0
     # via
     #   -r requirements.in
     #   django-munigeo
-django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.86
+django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.87
     # via -r requirements.in
+django-otp==1.5.4
+    # via django-two-factor-auth
+django-phonenumber-field==8.0.0
+    # via django-two-factor-auth
 django-polymorphic==3.1.0
+    # via -r requirements.in
+django-two-factor-auth[phonenumbers]==1.17.0
     # via -r requirements.in
 djangorestframework==3.15.2
     # via
@@ -88,7 +100,7 @@ geographiclib==2.0
     # via geopy
 geopy==2.4.1
     # via -r requirements.in
-idna==3.7
+idna==3.10
     # via requests
 inflection==0.5.1
     # via drf-spectacular
@@ -125,9 +137,11 @@ pathspec==0.12.1
     # via black
 pep8-naming==0.14.1
     # via -r requirements.in
+phonenumbers==8.13.45
+    # via django-two-factor-auth
 pip-tools==7.4.1
     # via -r requirements.in
-platformdirs==4.2.2
+platformdirs==4.3.6
     # via
     #   black
     #   requests-cache
@@ -139,26 +153,30 @@ pycodestyle==2.12.1
     # via flake8
 pyflakes==3.2.0
     # via flake8
+pypng==0.20220715.0
+    # via qrcode
 pyproject-hooks==1.1.0
     # via
     #   build
     #   pip-tools
-pytest==8.3.2
+pytest==8.3.3
     # via
     #   pytest-cov
     #   pytest-django
 pytest-cov==5.0.0
     # via -r requirements.in
-pytest-django==4.8.0
+pytest-django==4.9.0
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via -r requirements.in
-pytz==2024.1
+pytz==2024.2
     # via -r requirements.in
 pyyaml==6.0.2
     # via
     #   django-munigeo
     #   drf-spectacular
+qrcode==7.4.2
+    # via django-two-factor-auth
 referencing==0.35.1
     # via
     #   jsonschema
@@ -178,7 +196,7 @@ rpds-py==0.20.0
     # via
     #   jsonschema
     #   referencing
-sentry-sdk==2.13.0
+sentry-sdk==2.14.0
     # via -r requirements.in
 six==1.16.0
     # via
@@ -202,13 +220,14 @@ typing-extensions==4.12.2
     #   black
     #   cattrs
     #   django-modeltranslation
+    #   qrcode
 tzdata==2024.1
     # via -r requirements.in
 uritemplate==4.1.1
     # via drf-spectacular
 url-normalize==1.4.3
     # via requests-cache
-urllib3==1.26.19
+urllib3==1.26.20
     # via
     #   -r requirements.in
     #   bmi-arcgis-restapi

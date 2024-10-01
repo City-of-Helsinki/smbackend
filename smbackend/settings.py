@@ -36,15 +36,19 @@ env = Env(
     OPEN311_SERVICE_CODE=(str, None),
     SHORTCUTTER_UNIT_URL=(str, None),
     ADDRESS_SEARCH_RADIUS=(int, 50),
-    TURKU_API_KEY=(str, None),
-    ACCESSIBILITY_SYSTEM_ID=(str, None),
-    ADDITIONAL_INSTALLED_APPS=(list, None),
     ADDITIONAL_MIDDLEWARE=(list, None),
     DJANGO_LOG_LEVEL=(str, "INFO"),
     IMPORT_LOG_LEVEL=(str, "INFO"),
     SEARCH_LOG_LEVEL=(str, "INFO"),
     GEO_SEARCH_LOCATION=(str, ""),
     GEO_SEARCH_API_KEY=(str, ""),
+    EMAIL_USE_TLS=(bool, True),
+    EMAIL_HOST=(str, None),
+    EMAIL_PORT=(int, None),
+    EMAIL_TIMEOUT=(int, None),
+    EMAIL_HOST_USER=(str, None),
+    EMAIL_HOST_PASSWORD=(str, None),
+    OTP_EMAIL_SENDER=(str, None),
 )
 
 env_path = BASE_DIR / ".env"
@@ -60,6 +64,13 @@ GEO_SEARCH_API_KEY = env("GEO_SEARCH_API_KEY")
 DJANGO_LOG_LEVEL = env("DJANGO_LOG_LEVEL")
 IMPORT_LOG_LEVEL = env("IMPORT_LOG_LEVEL")
 SEARCH_LOG_LEVEL = env("SEARCH_LOG_LEVEL")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_TIMEOUT = env("EMAIL_TIMEOUT")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+OTP_EMAIL_SENDER = env("OTP_EMAIL_SENDER")
 
 # Application definition
 INSTALLED_APPS = [
@@ -82,13 +93,14 @@ INSTALLED_APPS = [
     "services.apps.ServicesConfig",
     "observations",
     "drf_spectacular",
+    # Two-factor authentication
+    "django_otp",
+    "django_otp.plugins.otp_static",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_email",
+    "two_factor",
+    "two_factor.plugins.email",
 ]
-
-if env("ADDITIONAL_INSTALLED_APPS"):
-    INSTALLED_APPS += env("ADDITIONAL_INSTALLED_APPS")
-
-TURKU_API_KEY = env("TURKU_API_KEY")
-ACCESSIBILITY_SYSTEM_ID = env("ACCESSIBILITY_SYSTEM_ID")
 
 MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -100,6 +112,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "django_otp.middleware.OTPMiddleware",
 ]
 
 if env("ADDITIONAL_MIDDLEWARE"):
@@ -252,6 +265,7 @@ LOGGING = {
     },
     "handlers": {
         "console": {
+            "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "timestamped_named",
         },
@@ -260,6 +274,10 @@ LOGGING = {
         "django": {"handlers": ["console"], "level": DJANGO_LOG_LEVEL},
         "services.search": {"handlers": ["console"], "level": SEARCH_LOG_LEVEL},
         "services.management": {"handlers": ["console"], "level": IMPORT_LOG_LEVEL},
+        "two_factor": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
     },
 }
 
@@ -284,6 +302,23 @@ INTERNAL_IPS = env("INTERNAL_IPS")
 SPECTACULAR_SETTINGS = {
     "TITLE": "Palvelukartta REST API",
     "DESCRIPTION": "Backend service for the Service Map UI.",
-    "VERSION": None,
+    "VERSION": "v2",
+    "CONTACT": {
+        "name": "City of Helsinki",
+        "url": "https://www.hel.fi",
+    },
+    "LICENSE": {
+        "name": "AGPL-3.0",
+        "url": "https://www.gnu.org/licenses/agpl-3.0.html",
+    },
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+# Two-factor authentication settings
+LOGIN_URL = "two_factor:login"
+OTP_EMAIL_SUBJECT = "Palvelukartta - kirjautumistunniste"
+
+if DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

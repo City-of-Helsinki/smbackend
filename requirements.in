@@ -3,10 +3,12 @@ djangorestframework
 djangorestframework-jsonp
 django-filter
 django-modeltranslation
+django-two-factor-auth
+django-two-factor-auth[phonenumbers]
 flake8
 requests
 requests_cache
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.86#egg=django-munigeo
+git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.87#egg=django-munigeo
 pytz
 django-cors-headers
 django-extensions

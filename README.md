@@ -11,7 +11,7 @@ This is the backend service for the Service Map UI.
 Installation with Docker Compose
 ------------
 
-First configure development environment settings as stated in `config_dev.env.example` and in `config_dev_ui.env.example`.
+First configure development environment settings as stated in `.env.example` and in `config_dev_ui.env.example`.
 
 ### Running the application
 
@@ -19,10 +19,21 @@ Run application with `docker-compose up`
 
 This will startup and bind local postgres, servicemap backend and servicemap frontend containers.
 
+### Run migrations
+
+When building the application for the first time, migrations need to be run. This can be done with the following command:
+
+`docker-compose exec servicemap python manage.py migrate`
+
+
 ### Importing data
 
 To import data for development usage and automatically index it, run command:
 `docker-compose run servicemap maintenance_tasks all`
+
+However, this might take a while, especially on the first run. You can also import the needed data separately, but note
+that there are some dependencies between the data imports. The commands for the imports are found in
+[scripts/run_imports.sh](scripts/run_imports.sh).
 
 Installation without Docker
 ------------
@@ -173,6 +184,24 @@ Start Celery beat to handle scheduled periodic tasks with command:
 ```
 celery -A smbackend beat -l INFO
 ```
+
+Updating requirements
+---------------------
+
+pip-tools is used to manage requirements. To update the requirements, run:
+```
+pip-compile -U requirements.in
+pip-compile -U requirements-dev.in
+```
+
+Code formatting
+---------------------
+The code is formatted with black, flake8 and isort. To format the code, run:
+```
+isort .
+black .
+```
+
 
 Observations
 ------------
