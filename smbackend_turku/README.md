@@ -27,7 +27,7 @@ Note, All imports can and is recommended to be run from the Admin using Celery T
 ```
 
 
-## Enricing addresses with geo-search-data
+## Enriching addresses with geo-search-data
 This enriches addresses imported with the address importer(from the WFS server)
 ```
 ./manage.py turku_services_import enriched_addresses
