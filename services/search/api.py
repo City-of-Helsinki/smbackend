@@ -205,6 +205,16 @@ class SearchSerializer(serializers.Serializer):
                     ).data
                 elif "municipality" in include_field:
                     representation["municipality"] = obj.municipality.id
+                elif "geometry_3d" in include_field:
+                    if obj.geometry_3d:
+                        representation["geometry_3d"] = munigeo_api.geom_to_json(
+                            obj.geometry_3d, DEFAULT_SRS
+                        )
+                elif "geometry" in include_field:
+                    if obj.geometry:
+                        representation["geometry"] = munigeo_api.geom_to_json(
+                            obj.geometry, DEFAULT_SRS
+                        )
                 else:
                     if hasattr(obj, include_field):
                         representation[include_field] = getattr(
