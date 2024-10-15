@@ -14,11 +14,11 @@ attrs==24.2.0
     #   jsonschema
     #   referencing
     #   requests-cache
-black==24.8.0
+black==24.10.0
     # via -r requirements.in
 bmi-arcgis-restapi==2.4.9
     # via -r requirements.in
-build==1.2.2
+build==1.2.2.post1
     # via pip-tools
 cattrs==24.1.2
     # via requests-cache
@@ -26,15 +26,15 @@ certifi==2024.8.30
     # via
     #   requests
     #   sentry-sdk
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via requests
 click==8.1.7
     # via
     #   black
     #   pip-tools
-coverage[toml]==7.6.1
+coverage[toml]==7.6.2
     # via pytest-cov
-django==5.1.1
+django==5.1.2
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -70,7 +70,7 @@ django-mptt==0.16.0
     # via
     #   -r requirements.in
     #   django-munigeo
-django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.87
+django-munigeo @ git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.88
     # via -r requirements.in
 django-otp==1.5.4
     # via django-two-factor-auth
@@ -112,7 +112,7 @@ jedi==0.19.1
     # via -r requirements.in
 jsonschema==4.23.0
     # via drf-spectacular
-jsonschema-specifications==2023.12.1
+jsonschema-specifications==2024.10.1
     # via jsonschema
 libvoikko==4.3
     # via -r requirements.in
@@ -137,7 +137,7 @@ pathspec==0.12.1
     # via black
 pep8-naming==0.14.1
     # via -r requirements.in
-phonenumbers==8.13.45
+phonenumbers==8.13.47
     # via django-two-factor-auth
 pip-tools==7.4.1
     # via -r requirements.in
@@ -155,7 +155,7 @@ pyflakes==3.2.0
     # via flake8
 pypng==0.20220715.0
     # via qrcode
-pyproject-hooks==1.1.0
+pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
@@ -196,7 +196,7 @@ rpds-py==0.20.0
     # via
     #   jsonschema
     #   referencing
-sentry-sdk==2.14.0
+sentry-sdk==2.16.0
     # via -r requirements.in
 six==1.16.0
     # via
@@ -205,7 +205,7 @@ six==1.16.0
     #   url-normalize
 sqlparse==0.5.1
     # via django
-tomli==2.0.1
+tomli==2.0.2
     # via
     #   black
     #   build
@@ -221,7 +221,7 @@ typing-extensions==4.12.2
     #   cattrs
     #   django-modeltranslation
     #   qrcode
-tzdata==2024.1
+tzdata==2024.2
     # via -r requirements.in
 uritemplate==4.1.1
     # via drf-spectacular
