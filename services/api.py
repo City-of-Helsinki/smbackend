@@ -77,6 +77,7 @@ from services.open_api_parameters import (
 )
 from services.utils import check_valid_concrete_field, strtobool
 from services.utils.geocode_address import geocode_address
+from services.utils.height_profile_geom import multilinestring_to_linestring_features
 
 if settings.REST_FRAMEWORK and settings.REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"]:
     DEFAULT_RENDERERS = [
@@ -912,6 +913,13 @@ class UnitSerializer(
                 ret["geometry_3d"] = munigeo_api.geom_to_json(geom, self.srs)
         elif "geometry_3d" in ret:
             del ret["geometry_3d"]
+
+        if qparams.get("heightprofilegeom", "").lower() in ("true", "1"):
+            if obj.geometry_3d:
+                geometry = munigeo_api.geom_to_json(obj.geometry_3d, self.srs)
+                ret["height_profile_geom"] = multilinestring_to_linestring_features(
+                    geometry.get("coordinates")
+                )
 
         if qparams.get("accessibility_description", "").lower() in ("true", "1"):
             ret["accessibility_description"] = shortcomings.accessibility_description
