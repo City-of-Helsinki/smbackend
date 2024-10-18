@@ -423,3 +423,52 @@ def test_provider_type_not_filter(api_client):
     response = get(api_client, reverse("unit-list"), data={"provider_type__not": 2})
     assert response.status_code == 200
     assert response.data["count"] == 4
+
+
+@pytest.mark.django_db
+def test_heightprofilegeom_parameter(api_client):
+    create_units()
+    wkt = "MULTILINESTRING Z ((1 2 3, 4 5 6, 7 8 9), (10 11 12, 13 14 15, 16 17 18))"
+    geometry_3d = GEOSGeometry(wkt, srid=PROJECTION_SRID)
+    unit = Unit.objects.get(id=1)
+    unit.geometry_3d = geometry_3d
+    unit.save()
+
+    # When heightprofilegeom parameter is not given, height_profile_geom is not returned
+    response = get(api_client, reverse("unit-list"))
+    results = response.data["results"]
+    assert response.status_code == 200
+    assert "height_profile_geom" not in results
+
+    response = get(api_client, reverse("unit-list"), data={"heightprofilegeom": True})
+    results = response.data["results"]
+    assert response.status_code == 200
+    assert results[4]["id"] == 1
+    assert results[4]["height_profile_geom"]["type"] == "FeatureCollection"
+    assert (
+        results[4]["height_profile_geom"]["features"][0]["geometry"]["type"]
+        == "LineString"
+    )
+    assert (
+        results[4]["height_profile_geom"]["features"][0]["geometry"]["coordinates"]
+        == munigeo_api.geom_to_json(geometry_3d, DEFAULT_SRS)["coordinates"][0]
+    )
+    assert (
+        results[4]["height_profile_geom"]["features"][0]["properties"]["attributeType"]
+        == "flat"
+    )
+    assert (
+        results[4]["height_profile_geom"]["features"][1]["geometry"]["coordinates"]
+        == munigeo_api.geom_to_json(geometry_3d, DEFAULT_SRS)["coordinates"][1]
+    )
+    assert (
+        results[4]["height_profile_geom"]["features"][1]["properties"]["attributeType"]
+        == "flat"
+    )
+
+    assert results[4]["height_profile_geom"]["properties"]["summary"] == "Height"
+    assert results[4]["height_profile_geom"]["properties"]["label"] == "Height profile"
+    assert (
+        results[4]["height_profile_geom"]["properties"]["label_fi"] == "Korkeusprofiili"
+    )
+    assert results[4]["height_profile_geom"]["properties"]["label_sv"] == "Höjdprofil"
