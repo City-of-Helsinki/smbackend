@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point
 from django.db import transaction
+from django.utils import timezone
 from munigeo.models import Address, PostalCodeArea, Street
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -425,6 +426,7 @@ class GeoSearchImporter:
                     address_entry["postal_code_area"] = self.postal_code_areas_cache[
                         postal_code
                     ]
+                    address_entry["modified_at"] = timezone.now()
                     address = Address(**address_entry)
                     # Ensures that no duplicates goes to DB, as there are some in the source data
                     if full_name_fi not in self.address_cache:
