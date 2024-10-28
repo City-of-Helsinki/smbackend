@@ -56,7 +56,6 @@ from .utils import (
 )
 
 logger = logging.getLogger("eco_counter")
-assert settings.ECO_COUNTER_STATIONS_URL, "Missing ECO_COUNTER_STATIONS_URL in env."
 assert (
     settings.ECO_COUNTER_OBSERVATIONS_URL
 ), "Missing ECO_COUNTER_OBSERVATIONS_URL in env."
