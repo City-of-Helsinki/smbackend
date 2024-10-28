@@ -37,13 +37,13 @@ class MobileUnitAdmin(admin.ModelAdmin):
 
     readonly_fields = ("id",)
     list_filter = (
-        ("content_type__name", custom_titled_filter("Type Name")),
+        ("content_types__name", custom_titled_filter("Type Name")),
         "is_active",
         ("mobile_unit_group__name", custom_titled_filter("Group Name")),
     )
     list_display = (
         "unit_name",
-        "type_name",
+        "type_names",
         "group_name",
     )
     search_fields = (
@@ -62,8 +62,8 @@ class MobileUnitAdmin(admin.ModelAdmin):
         else:
             return obj.name
 
-    def type_name(self, obj):
-        return obj.content_type.name
+    def type_names(self, obj):
+        return " ,".join([o.name for o in obj.content_types.all()])
 
     def group_name(self, obj):
         if obj.mobile_unit_group is None:
