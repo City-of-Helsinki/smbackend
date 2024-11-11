@@ -181,14 +181,19 @@ class Command(BaseCommand):
         self._save_geometries(geometries, units_by_lipas_id)
 
     def _save_geometries(self, geometries, units_by_lipas_id):
-        # Add all geometries we found to the db
         logger.info("Updating geometries in the database...")
         for lipas_id, geometry in geometries.items():
             unit = units_by_lipas_id[lipas_id]
-            # FIXME: make sports map UI support simplified
-            # geometries and bring back simplification
-            # from commit 6cff46e0399fedbbc8266efa5230cd4ccb8a8485
-            unit.geometry = geometry
+            try:
+                line_geometry = geometry.merged
+                if isinstance(line_geometry, LineString):
+                    line_geometry = MultiLineString([line_geometry])
+                unit.geometry = line_geometry
+            except TypeError as e:
+                logger.warning(
+                    f"Failed to merge geometry for unit {unit.name_fi}: {e}",
+                )
+                unit.geometry = geometry
             unit.save()
 
     def _get_types(self):

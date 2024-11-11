@@ -1,5 +1,7 @@
 import logging
 
+from django.contrib.gis.geos import LineString, MultiLineString
+
 from services.management.commands import lipas_import
 
 logger = logging.getLogger(__name__)
@@ -27,7 +29,18 @@ class Command(lipas_import.Command):
         for lipas_id, geometry in geometries.items():
             unit = units_by_lipas_id[lipas_id]
             if self._has_z_coordinate(geometry):
-                unit.geometry_3d = geometry
+                try:
+                    line_geometry = geometry.merged
+                    if isinstance(line_geometry, LineString):
+                        line_geometry = MultiLineString([line_geometry])
+                    unit.geometry_3d = line_geometry
+                    if len(line_geometry) == 0:
+                        unit.geometry_3d = geometry
+                except TypeError as e:
+                    logger.warning(
+                        f"Failed to merge 3D geometry for unit {unit.name_fi}: {e}",
+                    )
+                    unit.geometry_3d = geometry
                 unit.save()
             else:
                 logger.warning(
@@ -41,4 +54,4 @@ class Command(lipas_import.Command):
         """
         Check if a geometry has a Z-coordinate (3D).
         """
-        return "Z" in geometry.ewkt
+        return geometry.hasz
