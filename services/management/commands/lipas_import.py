@@ -189,7 +189,7 @@ class Command(BaseCommand):
                 if isinstance(line_geometry, LineString):
                     line_geometry = MultiLineString([line_geometry])
                 unit.geometry = line_geometry
-            except TypeError as e:
+            except (AttributeError, TypeError) as e:
                 logger.warning(
                     f"Failed to merge geometry for unit {unit.name_fi}: {e}",
                 )
