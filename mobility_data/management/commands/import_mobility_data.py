@@ -28,6 +28,7 @@ importers = [
     "foli_parkandride_stops",
     "under_and_overpasses",
     "parking_garages",
+    "voice_activated_crosswalks",
 ]
 # Read the content type names to be imported
 wfs_content_type_names = get_configured_cotent_type_names()
