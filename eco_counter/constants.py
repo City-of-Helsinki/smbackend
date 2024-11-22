@@ -50,6 +50,7 @@ COUNTER_START_YEARS = {
 }
 
 TRAFFIC_COUNTER_METADATA_GEOJSON = "traffic_counter_metadata.geojson"
+ECO_COUNTER_STATIONS_GEOJSON = "eco_counter_stations.geojson"
 LAM_STATIONS_API_FETCH_URL = (
     settings.LAM_COUNTER_API_BASE_URL
     + "?api=liikennemaara&tyyppi=h&pvm={start_date}&loppu={end_date}"

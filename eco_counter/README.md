@@ -7,7 +7,6 @@ Telraam data from https://telraam-api.net/.
 
 ## Installation:
 Add following lines to the .env:
-ECO_COUNTER_STATIONS_URL=https://dev.turku.fi/datasets/ecocounter/liikennelaskimet.geojson
 ECO_COUNTER_OBSERVATIONS_URL=https://data.turku.fi/cjtv3brqr7gectdv7rfttc/counters-15min.csv
 TRAFFIC_COUNTER_OBSERVATIONS_BASE_URL=https://data.turku.fi/2yxpk2imqi2mzxpa6e6knq/
 LAM_COUNTER_STATIONS_URL=https://tie.digitraffic.fi/api/v3/metadata/tms-stations
