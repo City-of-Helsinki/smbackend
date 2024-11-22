@@ -174,6 +174,11 @@ def import_parking_garages(name="import_parking_garages"):
 
 
 @shared_task_email
+def import_voice_activated_crosswalks(name="import_voice_activated_crosswalks"):
+    management.call_command("import_voice_activated_crosswalks")
+
+
+@shared_task_email
 def delete_obsolete_data(name="delete_obsolete_data"):
     MobileUnit.objects.filter(content_types__isnull=True).delete()
     ContentType.objects.filter(mobile_units__content_types__isnull=True).delete()
