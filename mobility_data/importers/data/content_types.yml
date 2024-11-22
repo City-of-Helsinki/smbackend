@@ -22,6 +22,13 @@ content_types:
       fi: Parkkihalli
       sv: Parkeringsgarage
       en: Parking garage
+
+  - content_type_name: VoiceActivatedCrosswalk
+    name:
+      fi: Ääniohjattu suojatie
+      sv: Skyddsväg med ljudsignal
+      en: Voice activated crosswalk
+      
   - content_type_name: NoStaffParking
     name:
       fi: Yleiset pysäköintialueet
