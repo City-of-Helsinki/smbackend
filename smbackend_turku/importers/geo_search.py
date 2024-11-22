@@ -95,7 +95,7 @@ class GeoSearchImporter:
         self.logger = logger
 
     def get_count(self, url):
-        headers = {"Authorization": f"Bearer Api-Key {settings.GEO_SEARCH_API_KEY}"}
+        headers = {"Api-Key": settings.GEO_SEARCH_API_KEY}
         try:
             response = self.http.get(url, headers=headers)
         except urllib3.exceptions.MaxRetryError as ex:
@@ -106,7 +106,7 @@ class GeoSearchImporter:
 
     def fetch_page(self, url, page):
         request_url = f"{url}&page={page}"
-        headers = {"Authorization": f"Bearer Api-Key {settings.GEO_SEARCH_API_KEY}"}
+        headers = {"Api-Key": settings.GEO_SEARCH_API_KEY}
         try:
             response = self.http.get(request_url, headers=headers)
         except urllib3.exceptions.MaxRetryError as ex:
