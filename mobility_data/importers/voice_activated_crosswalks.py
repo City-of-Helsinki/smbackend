@@ -30,6 +30,6 @@ def get_json_data():
     return json_data
 
 
-def get_parking_machine_objects():
+def get_voice_activated_crosswalks():
     json_data = get_json_data()["features"]
     return [VoiceActivatedCrosswalk(feature) for feature in json_data]
