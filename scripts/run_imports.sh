@@ -23,6 +23,8 @@ function stage_1 {
     ./manage.py update_vantaa_parking_areas
     ./manage.py update_vantaa_parking_payzones
     ./manage.py update_vantaa_nature_reserves
+    ./manage.py update_helsinki_school_districts
+    ./manage.py update_helsinki_preschool_districts
     ./manage.py index_search_columns
 }
 
