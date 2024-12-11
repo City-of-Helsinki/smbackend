@@ -531,7 +531,7 @@ class SearchViewSet(GenericAPIView):
         try:
             cursor.execute(sql, [search_query_str])
         except Exception as e:
-            logger.error(f"Error in search query: {e}")
+            logger.error(f"Error in search query: {e}", exc_info=e)
             raise ParseError("Search query failed.")
         # Note, fetchall() consumes the results and once called returns None.
         all_results = cursor.fetchall()
