@@ -15,7 +15,7 @@ First configure development environment settings as stated in `.env.example` and
 
 ### Running the application
 
-Run application with `docker-compose up`
+Run application with `docker compose up`
 
 This will startup and bind local postgres, servicemap backend and servicemap frontend containers.
 
@@ -23,13 +23,13 @@ This will startup and bind local postgres, servicemap backend and servicemap fro
 
 When building the application for the first time, migrations need to be run. This can be done with the following command:
 
-`docker-compose exec servicemap python manage.py migrate`
+`docker compose exec servicemap python manage.py migrate`
 
 
 ### Importing data
 
 To import data for development usage and automatically index it, run command:
-`docker-compose run servicemap maintenance_tasks all`
+`docker compose run servicemap maintenance_tasks all`
 
 However, this might take a while, especially on the first run. You can also import the needed data separately, but note
 that there are some dependencies between the data imports. The commands for the imports are found in
@@ -72,7 +72,7 @@ Be sure to load the virtualenv before installing the requirements:
 Example with virtualenv named servicemap as created in example above.
 ```workon servicemap```
 Install the requirements:
-```pip install -r requirements.txt```
+```pip install -r requirements.txt -r requirements-dev.txt```
 
  If this error occurs:
 ```   
