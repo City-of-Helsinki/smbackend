@@ -1,6 +1,8 @@
 import pytest
 from rest_framework.reverse import reverse
 
+from services.search.api import build_search_query
+
 
 @pytest.mark.django_db
 def test_search(
@@ -194,6 +196,7 @@ def test_search_service_order(api_client, units, services):
         "123",  # Test number
         "halli.museo",  # Test .
         "halli's",  # Test '
+        "halli,museo",  # Test ,
     ],
 )
 @pytest.mark.django_db
@@ -210,32 +213,104 @@ def test_search_input_query_disallowed_characters(api_client):
     assert response.status_code == 400
     assert (
         response.json()["detail"]
-        == "Invalid search terms, only letters, numbers, spaces and .'+-&| allowed."
+        == "Invalid search terms, only letters, numbers, spaces and .,'+-&| allowed."
     )
 
 
 @pytest.mark.django_db
 def test_search_with_vertical_bar_in_query(api_client, units):
-    # Test that a single vertical bar in query is treated as OR operator
-    url = reverse("search") + "?q=terveysasema|museo&type=unit"
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert len(response.json()["results"]) == 2
-    assert response.json()["results"][0]["name"]["fi"] == "Terveysasema"
-    assert response.json()["results"][1]["name"]["fi"] == "Biologinen museo"
-
-    # Test that multiple vertical bars in query are treated as OR operators
-    url = reverse("search") + "?q=terveysasema||museo&type=unit"
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert len(response.json()["results"]) == 2
-    assert response.json()["results"][0]["name"]["fi"] == "Terveysasema"
-    assert response.json()["results"][1]["name"]["fi"] == "Biologinen museo"
-
     # Test that a vertical bars that are not between search terms do not cause an error
     url = reverse("search") + "?q=|terveysasema||''||'"
     response = api_client.get(url)
-    assert response.status_code == 200
+    assert response.status_code == 200, f"{response} {response.json()}"
+
+
+@pytest.mark.parametrize(
+    "query,expected",
+    [
+        # Single-operand expression
+        ("a", "a:*"),
+        ("|a|", "a:*"),
+        ("&a&", "a:*"),
+        (" a ", "a:*"),
+        ("& |a  || &|&    &&", "a:*"),
+        # Two-operand expressions with AND operator
+        ("a b", "a:* & b:*"),
+        ("a,b", "a:* & b:*"),
+        ("a, b", "a:* & b:*"),
+        ("a,,, , ,, , , , ,   ,  ,,  ,        b", "a:* & b:*"),
+        ("a & b", "a:* & b:*"),
+        ("a& b", "a:* & b:*"),
+        ("a &b", "a:* & b:*"),
+        ("a&b", "a:* & b:*"),
+        ("a&&&&&&&&&&&&&b", "a:* & b:*"),
+        ("a  , &&&&&&&,    &  ,, & & & & &&&&& , , ,,,,      b", "a:* & b:*"),
+        # Two-operand expressions with OR operator
+        ("a | b", "a:* | b:*"),
+        ("a | b", "a:* | b:*"),
+        ("a| b", "a:* | b:*"),
+        ("a |b", "a:* | b:*"),
+        ("a|b", "a:* | b:*"),
+        ("a|||||||||||||b", "a:* | b:*"),
+        ("a ||| |||    ||  | ||| b", "a:* | b:*"),
+        # >=3 operands
+        ("a | b | c", "a:* | b:* | c:*"),
+        ("a, b, c", "a:* & b:* & c:*"),
+        ("a & b c, d", "a:* & b:* & c:* & d:*"),
+        # Mixed OR and AND operators
+        ("a, b | c, d", "a:* & b:* | c:* & d:*"),
+        ("a, &&& , & b || || |||| |c,,,, d", "a:* & b:* | c:* & d:*"),
+        # Expression with repeating single-quotes
+        ("','','''',a,b'c,d''e,f'''g,','','''", "a:* & b'c:* & d''e:* & f'''g:*"),
+    ],
+)
+def test_build_search_query(query, expected):
+    assert build_search_query(query) == expected
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "palloilu, halli",
+        "palloilu,halli",
+        "palloilu,     halli",
+        "palloilu,,,,,,halli",
+        "palloilu halli",
+        "palloilu    halli",
+        ",palloilu,halli",
+        "palloilu,halli,,",
+    ],
+)
+@pytest.mark.django_db
+def test_search_input_and_operator(api_client, units, query):
+    url = reverse("search")
+    response = api_client.get(url, {"q": query, "type": "unit"})
+    assert response.status_code == 200, f"{response} {response.json()}"
+    assert len(response.json()["results"]) == 1
+    assert response.json()["results"][0]["name"]["fi"] == "Palloiluhalli"
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "terveysasema|museo",
+        "terveysasema | museo",
+        "terveysasema |museo",
+        "terveysasema| museo",
+        "      terveysasema     |      museo  ",
+        "terveysasema||museo",
+        "terveysasema|||||||||museo",
+        "|||terveysasema|museo||",
+    ],
+)
+@pytest.mark.django_db
+def test_search_input_or_operator(api_client, units, query):
+    url = reverse("search")
+    response = api_client.get(url, {"q": query, "type": "unit"})
+    assert response.status_code == 200, f"{response} {response.json()}"
+    assert len(response.json()["results"]) == 2
+    assert response.json()["results"][0]["name"]["fi"] == "Terveysasema"
+    assert response.json()["results"][1]["name"]["fi"] == "Biologinen museo"
 
 
 @pytest.mark.django_db
