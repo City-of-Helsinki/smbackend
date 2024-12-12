@@ -228,6 +228,35 @@ class SearchSerializer(serializers.Serializer):
         return representation
 
 
+def build_search_query(query: str):
+    result = ""
+    query = query.strip(" |&,")
+    query = query.replace("\\", "\\\\")
+    or_operands = re.split(r"(?:\s*\|+\s*)+", query)
+
+    for or_operand in or_operands:
+        # Whitespace, comma and ampersand are all considered AND operators
+        and_operands = re.split(r"[\s,&]+", or_operand)
+        expression = ""
+        for and_operand in and_operands:
+            if re.fullmatch(r"'+", and_operand):
+                # Skip any operands that are just repeating single-quotes
+                continue
+            if expression:
+                expression += f" & {and_operand}:*"
+            else:
+                expression = f"{and_operand}:*"
+
+        if not expression:
+            continue
+        if result:
+            result += f" | {expression}"
+        else:
+            result = expression
+
+    return result
+
+
 @extend_schema(
     parameters=[
         OpenApiParameter(
@@ -381,9 +410,9 @@ class SearchViewSet(GenericAPIView):
         if not q_val:
             raise ParseError("Supply search terms with 'q=' ' or input=' '")
 
-        if not re.match(r"^[\w\såäö.'+&|-]+$", q_val):
+        if not re.match(r"^[\w\såäö.,'+&|-]+$", q_val):
             raise ParseError(
-                "Invalid search terms, only letters, numbers, spaces and .'+-&| allowed."
+                "Invalid search terms, only letters, numbers, spaces and .,'+-&| allowed."
             )
 
         types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])
@@ -484,34 +513,20 @@ class SearchViewSet(GenericAPIView):
             )
 
         config_language = LANGUAGES[language_short]
-        search_query_str = None  # Used in the raw sql
-        # Replace multiple consecutive vertical bars with a single vertical bar to be used as an OR operator.
-        q_val = re.sub(r"\|+", "|", q_val)
-        # Remove vertical bars that are not between words to avoid errors in the query.
-        q_val = re.sub(r"(?<!\w)\|+|\|+(?!\w)", "", q_val)
-        # Build conditional query string that is used in the SQL query.
-        # split by "," or whitespace
-        q_vals = re.split(r",\s+|\s+", q_val)
-        for q in q_vals:
-            if search_query_str:
-                # if ends with "|"" make it a or
-                if q[-1] == "|":
-                    search_query_str += f"| {q[:-1]}:*"
-                # else make it an and.
-                else:
-                    search_query_str += f"& {q}:*"
-            else:
-                search_query_str = f"{q}:*"
 
-        if has_exclusion_word_in_query(q_vals, language_short):
+        all_operands = re.split(r"[\s|&,]+", q_val)
+        if has_exclusion_word_in_query(all_operands, language_short):
             return Response(
-                f"Search query {q_vals} would return too many results",
+                f"Search query {q_val} would return too many results",
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        search_query_str = build_search_query(q_val)
 
         search_fn = "to_tsquery"
         if use_websearch:
-            exclusions = self.get_search_exclusions(q)
+            # NOTE: The check is done on the last operand only on purpose.
+            # This is a fix for some old edge case.
+            exclusions = self.get_search_exclusions(all_operands[-1])
             if exclusions:
                 search_fn = "websearch_to_tsquery"
                 search_query_str += f" {exclusions}"
