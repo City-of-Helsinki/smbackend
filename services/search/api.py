@@ -1,17 +1,17 @@
 """
-Brief explanation how full text search is implemented in the smbacked.
+Brief explanation how full text search is implemented in the smbackend.
 - Currently search is performed to following models, Unit, Service,
 munigeo_Address, munigeo_Administrative_division.
-- For every model that is include in the search a search column is added
+- For every model that is included in the search a search column is added
 for every language of type SearchVector. These are also defined as a Gindex.
  The models that are searched also implements a function called get_search_column_indexing
   where the name, configuration(language) and weight of the columns that will be indexed
   are defined. This function is used by the indexing script and signals when
   the search_column is populated.
 - A view called search_view is created and it contains the search_columns of the models
-and a couple auxilary columns: id. type_name and name. This view is created by a
+and a couple auxiliary columns: id. type_name and name. This view is created by a
 raw SQL migration 008X_create_search_view.py.
-- The search if performed by quering the views search_columns.
+- The search if performed by querying the views search_columns.
 - For models included in the search a post_save signal is connected and the
   search_column is updated when they are saved.
 - The search_columns can be manually updated with  the index_search_columns
@@ -303,7 +303,7 @@ def build_search_query(query: str):
         OpenApiParameter(
             name="use_websearch",
             location=OpenApiParameter.QUERY,
-            description="Use websearch_to_tsquery instead of to_tsquery if exlusion rules are defined for the search.",
+            description="Use websearch_to_tsquery instead of to_tsquery if exclusion rules are defined for the search.",
             required=False,
             type=bool,
         ),
