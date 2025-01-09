@@ -1,3 +1,14 @@
-ipython
-PyGithub
+-c requirements.txt
 urllib3<2
+black
+flake8
+ipython
+isort
+jedi
+parso
+pip-tools
+pep8-naming
+pytest-django
+pytest-cov
+PyGithub
+requests-mock
