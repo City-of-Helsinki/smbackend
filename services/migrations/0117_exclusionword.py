@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("services", "0116_alter_unit_address_postal_full_and_more"),
     ]
