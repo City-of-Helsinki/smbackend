@@ -124,21 +124,30 @@ def observable_property(service, unit):
         observation_type="observations.CategoricalObservation",
     )
     p.services.add(service)
-    AllowedValue.objects.create(
-        identifier="no_snow", name="No snow", description="There is no snow", property=p
-    ),
-    AllowedValue.objects.create(
-        identifier="good",
-        name="Good condition",
-        description="The trail is in good condition",
-        property=p,
-    ),
-    AllowedValue.objects.create(
-        identifier="poor",
-        name="Poor condition",
-        description="Poor skiing condition",
-        property=p,
-    ),
+    (
+        AllowedValue.objects.create(
+            identifier="no_snow",
+            name="No snow",
+            description="There is no snow",
+            property=p,
+        ),
+    )
+    (
+        AllowedValue.objects.create(
+            identifier="good",
+            name="Good condition",
+            description="The trail is in good condition",
+            property=p,
+        ),
+    )
+    (
+        AllowedValue.objects.create(
+            identifier="poor",
+            name="Poor condition",
+            description="Poor skiing condition",
+            property=p,
+        ),
+    )
     AllowedValue.objects.create(
         identifier="closed",
         name="Closed",

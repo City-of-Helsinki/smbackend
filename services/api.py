@@ -450,9 +450,9 @@ class ServiceSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
                 else None
             )
             if organization_name:
-                ret["unit_count"]["organization"][
-                    organization_name
-                ] = organization_unit_count.count
+                ret["unit_count"]["organization"][organization_name] = (
+                    organization_unit_count.count
+                )
 
         divisions = self.context.get("divisions", [])
         include_fields = self.context.get("include", [])

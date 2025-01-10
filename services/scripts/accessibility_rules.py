@@ -102,9 +102,7 @@ class Compound(Expression):
                 msg = """
 Error, trying to change operator of a compound expression at {}.
 Probable cause: missing closing parenthesis right before said line.
-                """.format(
-                    row[-1]
-                )
+                """.format(row[-1])
                 print(msg)
 
     def set_mode(self, mode):
