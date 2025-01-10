@@ -91,8 +91,8 @@ def _import_unit_entrance(
             obj_changed = True
 
     is_main_entrance = info["is_main_entrance"] == "Y"
-    if is_main_entrance != getattr(obj, "is_main_entrance"):
-        setattr(obj, "is_main_entrance", is_main_entrance)
+    if is_main_entrance != obj.is_main_entrance:
+        obj.is_main_entrance = is_main_entrance
         obj_changed = True
 
     n = float(info.get("latitude", 0))
