@@ -327,7 +327,7 @@ class DepartmentSerializer(
         return obj.uuid
 
     def get_parent(self, obj):
-        parent = getattr(obj, "parent")
+        parent = obj.parent
         if parent is not None:
             return parent.uuid
         return None
@@ -809,13 +809,13 @@ class UnitSerializer(
         return choicefield_string(ORGANIZER_TYPES, "organizer_type", obj)
 
     def get_contract_type(self, obj):
-        key = getattr(obj, "displayed_service_owner_type")
+        key = obj.displayed_service_owner_type
         if not key:
             return None
         translations = {
-            "fi": getattr(obj, "displayed_service_owner_fi"),
-            "sv": getattr(obj, "displayed_service_owner_sv"),
-            "en": getattr(obj, "displayed_service_owner_en"),
+            "fi": obj.displayed_service_owner_fi,
+            "sv": obj.displayed_service_owner_sv,
+            "en": obj.displayed_service_owner_en,
         }
         return {"id": key, "description": translations}
 

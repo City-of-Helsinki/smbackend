@@ -25,7 +25,7 @@ from itertools import chain
 from django.contrib.gis.gdal import SpatialReference
 from django.db import connection, reset_queries
 from django.db.models import Count
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from munigeo import api as munigeo_api
 from munigeo.models import Address, AdministrativeDivision
 from munigeo.utils import get_default_srid
@@ -122,28 +122,28 @@ class SearchSerializer(serializers.Serializer):
 
         # Address IDs are not serialized thus they changes after every import.
         if object_type not in ["address", "servicenode"]:
-            representation["id"] = getattr(obj, "id")
+            representation["id"] = obj.id
         representation["object_type"] = object_type
         names = {}
         if object_type == "address":
-            names["fi"] = getattr(obj, "full_name_fi")
-            names["sv"] = getattr(obj, "full_name_sv")
-            names["en"] = getattr(obj, "full_name_en")
+            names["fi"] = obj.full_name_fi
+            names["sv"] = obj.full_name_sv
+            names["en"] = obj.full_name_en
             representation["name"] = names
         else:
-            names["fi"] = getattr(obj, "name_fi")
-            names["sv"] = getattr(obj, "name_sv")
-            names["en"] = getattr(obj, "name_en")
+            names["fi"] = obj.name_fi
+            names["sv"] = obj.name_sv
+            names["en"] = obj.name_en
             representation["name"] = names
 
         if object_type == "unit":
             representation["street_address"] = {
-                "fi": getattr(obj, "street_address_fi"),
-                "sv": getattr(obj, "street_address_sv"),
-                "en": getattr(obj, "street_address_en"),
+                "fi": obj.street_address_fi,
+                "sv": obj.street_address_sv,
+                "en": obj.street_address_en,
             }
             if hasattr(obj.municipality, "id"):
-                representation["municipality"] = getattr(obj.municipality, "id")
+                representation["municipality"] = obj.municipality.id
             try:
                 shortcomings = obj.accessibility_shortcomings
             except UnitAccessibilityShortcomings.DoesNotExist:

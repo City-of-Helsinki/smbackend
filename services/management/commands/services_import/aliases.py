@@ -41,7 +41,6 @@ def import_aliases():
                     counts["success"] += 1
                 except db.IntegrityError:
                     counts["duplicate"] += 1
-                    pass
         except Unit.DoesNotExist:
             counts["notfound"] += 1
 

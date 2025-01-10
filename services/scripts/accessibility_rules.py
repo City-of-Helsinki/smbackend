@@ -509,7 +509,7 @@ if __name__ == "__main__":
     elif op == "values":
         key_qualifiers = "ABC"
         for i, v in tree.items():
-            for mode in range(0, len(v.messages["case_names"])):
+            for mode in range(len(v.messages["case_names"])):
                 v.set_mode(mode)
                 pprint.pprint(v.val(), width=WIDTH)
     elif op == "messages":

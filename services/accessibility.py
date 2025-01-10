@@ -41,7 +41,7 @@ class AccessibilityRules(object):
         self.tree = {}
         mode_letters = "ABC"
         for case, expression in tree.items():
-            for mode in range(0, len(expression.messages["case_names"])):
+            for mode in range(len(expression.messages["case_names"])):
                 expression.set_mode(mode)
                 self.tree[str(case) + mode_letters[mode]] = expression.val()
 
