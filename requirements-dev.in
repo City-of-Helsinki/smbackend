@@ -1,14 +1,11 @@
 -c requirements.txt
 urllib3<2
-black
-flake8
 ipython
-isort
 jedi
 parso
 pip-tools
-pep8-naming
 pytest-django
 pytest-cov
 PyGithub
 requests-mock
+ruff==v0.8.6 # sync with .pre-commit-config.yaml
