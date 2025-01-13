@@ -98,6 +98,6 @@ class Command(BaseCommand):
         )
         num_nature_reserves_deleted = deleted_nature_reserves.delete()[0]
         logger.info(
-            f"Import completed. {num_nature_reserves_updated} nature reserves updated and "
-            f"{num_nature_reserves_deleted} deleted."
+            f"Import completed. {num_nature_reserves_updated} nature reserves updated"
+            f" and {num_nature_reserves_deleted} deleted."
         )

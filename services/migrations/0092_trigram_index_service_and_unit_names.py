@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
             DROP INDEX unit_name_en_trgm_idx;
             DROP INDEX service_name_fi_trgm_idx;
             DROP INDEX service_name_sv_trgm_idx;
-            DROP INDEX service_name_en_trgm_idx;          
+            DROP INDEX service_name_en_trgm_idx;
             """,
         ),
     ]

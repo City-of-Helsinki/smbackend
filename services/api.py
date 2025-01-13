@@ -181,8 +181,8 @@ class TranslatedModelSerializer(object):
             if not isinstance(obj, dict):
                 raise ValidationError(
                     {
-                        field_name: "This field is a translated field. Instead of a string,"
-                        " you must supply an object with strings corresponding"
+                        field_name: "This field is a translated field. Instead of a"
+                        " string, you must supply an object with strings corresponding"
                         " to desired language ids."
                     }
                 )
@@ -232,7 +232,7 @@ class TranslatedModelSerializer(object):
                 d[lang] = val
 
             # If no text provided, leave the field as null
-            for key, val in d.items():
+            for val in d.values():
                 if val is not None:
                     break
             else:

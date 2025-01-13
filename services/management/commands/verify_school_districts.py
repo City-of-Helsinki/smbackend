@@ -55,7 +55,7 @@ def verify_school_units_found():
 
     success = True
     error_report = []
-    for key, val in missing.items():
+    for val in missing.values():
         if len(val) > 0:
             success = False
         error_report.append(pprint.pformat(val, indent=4))

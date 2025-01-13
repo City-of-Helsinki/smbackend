@@ -145,9 +145,8 @@ class Command(BaseCommand):
 
                 if clean_name(feature["nimi_fi"].value) != clean_name(unit.name_fi):
                     logger.warning(
-                        "id {} has non-matching name fields (Lipas: {}, db: {}).".format(
-                            lipas_id, feature["nimi_fi"].value, unit.name_fi
-                        )
+                        f"id {lipas_id} has non-matching name fields (Lipas:"
+                        f" {feature['nimi_fi'].value}, db: {unit.name_fi})."
                     )
 
                 try:
@@ -159,21 +158,27 @@ class Command(BaseCommand):
                             geometries[lipas_id].append(feature.geom.geos)
                         except TypeError:
                             raise TypeError(
-                                "The lipas database contains mixed geometries, this is unsupported!"
+                                "The lipas database contains mixed geometries, this is"
+                                " unsupported!"
                             )
-                            # If mixed geometry types ever begin to appear in the lipas database,
-                            # uncommenting the following might make everything work straight
-                            # away. Please note that it's completely untested.
+                            # If mixed geometry types ever begin to appear in the lipas
+                            # database, uncommenting the following might make everything
+                            # work straight away. Please note that it's completely
+                            # untested.
 
-                            # logger.warning("id {} has mixed geometries, "
-                            #                "creating a GeometryCollection as fallback".format(lipas_id))
-                            # geometries[lipas_id] = GeometryCollection(list(geometries[lipas_id]) + feature.geom.geos)
+                            # logger.warning(
+                            #     f"id {lipas_id} has mixed geometries, creating a"
+                            #     " GeometryCollection as fallback"
+                            # )
+                            # geometries[lipas_id] = GeometryCollection(
+                            #     list(geometries[lipas_id]) + feature.geom.geos)
                     else:
                         geometries[lipas_id] = get_multi(feature.geom.geos)
 
                 except GDALException as err:
-                    # We might be dealing with something weird that the Python GDAL lib doesn't handle.
-                    # One example is a CurvePolygon as defined here http://www.gdal.org/ogr__core_8h.html
+                    # We might be dealing with something weird that the Python GDAL lib
+                    # doesn't handle. One example is a CurvePolygon as defined here
+                    # http://www.gdal.org/ogr__core_8h.html
                     logger.error("Error while processing a geometry: {}".format(err))
 
         logger.info("Found {} matches.".format(len(geometries)))

@@ -54,7 +54,7 @@ def pk_get(resource_name, res_id=None, params=None):
         url = "%s%s/" % (url, res_id)
     if params:
         url += "?" + urlencode(params)
-    print("CALLING URL >>> ", url)
+    print("CALLING URL >>> ", url)  # noqa: T201
     resp = requests.get(url, timeout=300)
     assert resp.status_code == 200, "fuu status code {}".format(resp.status_code)
     return resp.json()
@@ -88,7 +88,7 @@ def clean_text(text):
         return text
     text = text.replace("\r\n", "\n")
     # remove consecutive whitespaces
-    text = re.sub(r"[ \t][ \t]+", " ", text, re.U)
+    text = re.sub(r"[ \t][ \t]+", " ", text)
     # remove nil bytes
     text = text.replace("\u0000", " ")
     text = text.replace("\r", "\n")

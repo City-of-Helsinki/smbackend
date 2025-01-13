@@ -77,5 +77,5 @@ def format_unit(unit):
 
 def print_units(units):
     for u, value in units:
-        print(format_unit(u), "measured value:", value)
-        print()
+        print(format_unit(u), "measured value:", value)  # noqa: T201
+        print()  # noqa: T201

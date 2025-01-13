@@ -77,7 +77,7 @@ class Command(BaseCommand):
         # text = text.replace('\n', ' ')
         # text = text.replace(u'\u00a0', ' ')
         # remove consecutive whitespaces
-        text = re.sub(r"\s\s+", " ", text, re.U)
+        text = re.sub(r"\s\s+", " ", text)
         # remove nil bytes
         text = text.replace("\u0000", " ")
         text = text.strip()
@@ -120,7 +120,7 @@ class Command(BaseCommand):
 
     def _set_field(self, obj, field_name, val):
         if not hasattr(obj, field_name):
-            print(vars(obj))
+            print(vars(obj))  # noqa: T201
         obj_val = getattr(obj, field_name)
         if obj_val == val:
             return
@@ -186,7 +186,7 @@ class Command(BaseCommand):
                 continue
             method = getattr(self, "import_%s" % imp)
             if self.verbosity:
-                print("Importing %s..." % imp)
+                print("Importing %s..." % imp)  # noqa: T201
             if "id" in options and options.get("id"):
                 method(pk=options["id"])
             else:
