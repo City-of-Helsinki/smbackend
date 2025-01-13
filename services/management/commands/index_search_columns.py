@@ -106,7 +106,8 @@ class Command(BaseCommand):
             "--hyphenate_addresses_from",
             nargs="?",
             type=str,
-            help="Hyphenate addresses whose modified_at timestamp starts at given timestamp YYYY-MM-DDTHH:MM:SS",
+            help="Hyphenate addresses whose modified_at timestamp starts at given"
+            " timestamp YYYY-MM-DDTHH:MM:SS",
         )
 
         parser.add_argument(
@@ -142,20 +143,28 @@ class Command(BaseCommand):
                     f"Syllables generated for {generate_syllables(Service)} Services"
                 )
                 logger.info(
-                    f"Syllables generated for {generate_syllables(ServiceNode)} ServiceNodes"
+                    f"Syllables generated for"
+                    f" {generate_syllables(ServiceNode)} ServiceNodes"
                 )
 
             logger.info(
-                f"{lang} Units indexed: {Unit.objects.update(**{key: get_search_column(Unit, lang)})}"
+                f"{lang} Units indexed:"
+                f" {Unit.objects.update(**{key: get_search_column(Unit, lang)})}"
             )
             logger.info(
-                f"{lang} Services indexed: {Service.objects.update(**{key: get_search_column(Service, lang)})}"
+                f"{lang} Services indexed:"
+                f" {Service.objects.update(**{key: get_search_column(Service, lang)})}"
             )
             logger.info(f"{lang} ServiceNodes indexed: {index_servicenodes(lang)}")
             logger.info(
-                f"{lang} AdministrativeDivisions indexed: "
-                f"{AdministrativeDivision.objects.update(**{key: get_search_column(AdministrativeDivision, lang)})}"
+                "{lang} AdministrativeDivisions indexed: {divisions}".format(
+                    lang=lang,
+                    divisions=AdministrativeDivision.objects.update(
+                        **{key: get_search_column(AdministrativeDivision, lang)}
+                    ),
+                )
             )
             logger.info(
-                f"{lang} Addresses indexed: {Address.objects.update(**{key: get_search_column(Address, lang)})}"
+                f"{lang} Addresses indexed:"
+                f" {Address.objects.update(**{key: get_search_column(Address, lang)})}"
             )

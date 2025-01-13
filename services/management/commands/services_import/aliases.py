@@ -14,7 +14,7 @@ def import_aliases():
     try:
         f = open(path, "r")
     except FileNotFoundError:
-        print("Aliases file {} not found".format(path))
+        print("Aliases file {} not found".format(path))  # noqa: T201
         return
 
     value_sets = {}
@@ -27,7 +27,7 @@ def import_aliases():
         )
 
     if len(value_sets) == 0:
-        print("No aliases found in file.")
+        print("No aliases found in file.")  # noqa: T201
         return
 
     counts = {"success": 0, "duplicate": 0, "notfound": 0}
@@ -45,8 +45,8 @@ def import_aliases():
             counts["notfound"] += 1
 
     if counts["success"]:
-        print("Imported {} aliases.".format(counts["success"]))
+        print("Imported {} aliases.".format(counts["success"]))  # noqa: T201
     if counts["notfound"]:
-        print("{} units not found.".format(counts["notfound"]))
+        print("{} units not found.".format(counts["notfound"]))  # noqa: T201
     if counts["duplicate"]:
-        print("Skipped {} aliases already in database.".format(counts["duplicate"]))
+        print("Skipped {} aliases already in database.".format(counts["duplicate"]))  # noqa: T201

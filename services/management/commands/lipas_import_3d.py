@@ -44,7 +44,8 @@ class Command(lipas_import.Command):
                 unit.save()
             else:
                 logger.warning(
-                    f"Failed to save unit {unit.name_fi} because of a missing z coordinate.",
+                    f"Failed to save unit {unit.name_fi} because of a missing z"
+                    " coordinate.",
                 )
 
     def _get_types(self):

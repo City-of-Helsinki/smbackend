@@ -35,7 +35,7 @@ DATA_SOURCES = [
         "service_url": "https://matti.vantaa.fi/server2/rest/services/Hosted/Kadunvarsipys%C3%A4k%C3%B6inti/"
         "FeatureServer",
         "layer_name": "Kadunvarsipysäköinti MUOKATTAVA",
-        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/kadunvarsipysakointi-alue:",
+        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/kadunvarsipysakointi-alue:",  # noqa: E501
     },
     {
         "type": "park_and_ride_area",
@@ -49,21 +49,21 @@ DATA_SOURCES = [
         "service_url": "https://matti.vantaa.fi/server2/rest/services/Hosted/Raskaan_liikenteen_"
         "pys%C3%A4k%C3%B6intialueet/FeatureServer",
         "layer_name": "Raskaan liikenteen pysäköintialueet MUOKATTAVA",
-        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/raskaanliikenteen-pysakointipaikka-alue:",
+        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/raskaanliikenteen-pysakointipaikka-alue:",  # noqa: E501
     },
     {
         "type": "hgv_street_parking_area",
         "service_url": "https://matti.vantaa.fi/server2/rest/services/Hosted/Raskaan_liikenteen_sallitut_kadunvarret/"
         "FeatureServer",
         "layer_name": "Raskaan liikenteen sallitut kadunvarret MUOKATTAVA",
-        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/raskaanliikenteen-sallittu-kadunvarsi-alue:",
+        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/raskaanliikenteen-sallittu-kadunvarsi-alue:",  # noqa: E501
     },
     {
         "type": "hgv_no_parking_area",
         "service_url": "https://matti.vantaa.fi/server2/rest/services/Hosted/Raskaan_liikenteen_kielletyt_kadunvarret/"
         "FeatureServer",
         "layer_name": "Raskaan liikenteen kielletyt kadunvarret MUOKATTAVA",
-        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/raskaanliikenteen-kielletty-kadunvarsi-alue:",
+        "ocd_id_base": "ocd-division/country:fi/kunta:vantaa/raskaanliikenteen-kielletty-kadunvarsi-alue:",  # noqa: E501
     },
 ]
 
@@ -217,6 +217,7 @@ class Command(BaseCommand):
             num_parking_areas_deleted = removed_parking_areas.delete()[0]
 
             logger.info(
-                f"Import completed. {num_parking_areas_updated} {readable_name} updated and {num_parking_areas_deleted}"
-                f" deleted in {time() - start_time:.0f} seconds."
+                f"Import completed. {num_parking_areas_updated} {readable_name} updated"
+                f" and {num_parking_areas_deleted} deleted in"
+                f" {time() - start_time:.0f} seconds."
             )

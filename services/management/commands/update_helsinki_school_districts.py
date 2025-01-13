@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from munigeo.models import AdministrativeDivision
 
-from services.management.commands.school_district_import.school_district_importer import (
+from services.management.commands.school_district_import.school_district_importer import (  # noqa: E501
     SchoolDistrictImporter,
 )
 
@@ -58,7 +58,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         division_types = list({data["division_type"] for data in SCHOOL_DISTRICT_DATA})
 
-        # Remove old divisions before importing new ones to avoid possible duplicates as the source layers may change
+        # Remove old divisions before importing new ones to avoid possible duplicates
+        # as the source layers may change
         AdministrativeDivision.objects.filter(
             type__type__in=division_types, municipality__id="helsinki"
         ).delete()

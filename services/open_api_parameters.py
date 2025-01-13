@@ -19,7 +19,8 @@ ANCESTOR_ID_PARAMETER = OpenApiParameter(
 BBOX_PARAMETER = OpenApiParameter(
     name="bbox",
     location=OpenApiParameter.QUERY,
-    description="Bounding box in the format 'left,bottom,right,top'. Values must be floating points or integers.",
+    description="Bounding box in the format 'left,bottom,right,top'. Values must be"
+    " floating points or integers.",
     required=False,
     type=str,
 )
@@ -44,7 +45,8 @@ DATE_PARAMETER = (
     OpenApiParameter(
         name="date",
         location=OpenApiParameter.QUERY,
-        description="Filter divisions based on their validity date. Format: YYYY-MM-DD.",
+        description="Filter divisions based on their validity date. Format:"
+        " YYYY-MM-DD.",
         required=False,
         type=str,
     ),
@@ -53,11 +55,13 @@ DATE_PARAMETER = (
 DISTANCE_PARAMETER = OpenApiParameter(
     name="distance",
     location=OpenApiParameter.QUERY,
-    description="The maximum distance from the provided location, defined by the lat and lon parameters. If this"
-    " parameter is given also the 'lat' and 'lon' parameters are required.",
+    description="The maximum distance from the provided location, defined by the lat"
+    " and lon parameters. If this  parameter is given also the 'lat' and 'lon'"
+    " parameters are required.",
     required=False,
     type=float,
 )
+
 
 DIVISION_TYPE_PARAMETER = OpenApiParameter(
     name="type",
@@ -94,8 +98,8 @@ INPUT_PARAMETER = OpenApiParameter(
 LATITUDE_PARAMETER = OpenApiParameter(
     name="lat",
     location=OpenApiParameter.QUERY,
-    description="Filter by location. Give latitude in WGS84 system. If this parameter is given also the 'lon' "
-    "parameter is required.",
+    description="Filter by location. Give latitude in WGS84 system. If this parameter"
+    " is given also the 'lon' parameter is required.",
     required=False,
     type=float,
 )
@@ -119,8 +123,8 @@ LEVEL_PARAMETER = OpenApiParameter(
 LONGITUDE_PARAMETER = OpenApiParameter(
     name="lon",
     location=OpenApiParameter.QUERY,
-    description="Filter by location. Give longitude in WGS84 system. If this parameter is given also the 'lat' "
-    "parameter is required.",
+    description="Filter by location. Give longitude in WGS84 system. If this parameter"
+    " is given also the 'lat' parameter is required.",
     required=False,
     type=float,
 )

@@ -145,7 +145,8 @@ class SchoolDistrictImporter:
         During 1.8.-15.12. only the current school year is shown.
         During 16.12.-31.7. both the current and the next school year are shown.
 
-        The source might be named as "tuleva" but it might still actually be the current school year.
+        The source might be named as "tuleva" but it might still actually be the current
+         school year.
 
         If today is between 1.8.-15.12 delete the previous year.
         """

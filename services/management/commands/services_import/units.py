@@ -168,7 +168,7 @@ def import_units(
         )
 
     syncher = ModelSyncher(queryset, lambda obj: obj.id)
-    for idx, info in enumerate(obj_list):
+    for info in obj_list:
         uid = info["id"]
         info["connections"] = conn_by_unit.get(uid, [])
         info["accessibility_properties"] = acc_by_unit.get(uid, [])
@@ -508,8 +508,6 @@ def _import_unit_service_nodes(obj, info, obj_changed, update_fields):
     obj_service_node_ids = sorted(obj.service_nodes.values_list("id", flat=True))
 
     if obj_service_node_ids != service_node_ids:
-        # if not obj_created and VERBOSITY:
-        #     LOGGER.warning("%s service set changed: %s -> %s" % (obj, obj_service_node_ids, service_node_ids))
         obj.service_nodes.set(service_node_ids)
 
         # Update root service cache
@@ -679,9 +677,8 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
                 val = conn.get(field, None)
                 if val and len(val) > UnitConnection._meta.get_field(field).max_length:
                     LOGGER.info(
-                        "Ignoring too long value of field {} in unit {} connections".format(
-                            field, obj.pk
-                        )
+                        "Ignoring too long value of field {field} in unit {obj.pk}"
+                        " connections"
                     )
                     continue
                 if getattr(c, field) != val:

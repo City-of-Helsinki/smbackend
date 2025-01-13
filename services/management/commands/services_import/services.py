@@ -53,9 +53,14 @@ def import_services(
     noop=False,
     logger=None,
     importer=None,
-    ontologytrees=pk_get("ontologytree"),
-    ontologywords=pk_get("ontologyword"),
+    ontologytrees=None,
+    ontologywords=None,
 ):
+    if ontologytrees is None:
+        ontologytrees = pk_get("ontologytree")
+    if ontologywords is None:
+        ontologywords = pk_get("ontologyword")
+
     nodesyncher = ModelSyncher(ServiceNode.objects.all(), lambda obj: obj.id)
     servicesyncher = ModelSyncher(Service.objects.all(), lambda obj: obj.id)
 
@@ -168,7 +173,7 @@ def update_service_node(node, units_by_service):
             s.update(v)
             units[k] = s
     node._unit_count = {}
-    for k, v in units.items():
+    for k in units.keys():
         node._unit_count[k] = len(units[k])
     return units
 
@@ -227,9 +232,9 @@ def update_count_objects(service_node_unit_count_objects, node, node_count_model
         elif obj.count != count:
             obj.count = count
             yield obj
-    for node in node.get_children():
+    for child_node in node.get_children():
         yield from update_count_objects(
-            service_node_unit_count_objects, node, node_count_model
+            service_node_unit_count_objects, child_node, node_count_model
         )
 
 
@@ -414,7 +419,7 @@ def remove_empty_service_nodes(logger):
 @db.transaction.atomic
 def update_mobility_service_nodes():
     service_node_count = 0
-    for root_node_name, root_node_dict in MOBILITY_SERVICE_NODE_MAPPING.items():
+    for root_node_dict in MOBILITY_SERVICE_NODE_MAPPING.values():
         service_nodes = root_node_dict.pop("service_nodes")
         root_node, __ = MobilityServiceNode.objects.update_or_create(
             id=root_node_dict["id"],

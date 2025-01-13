@@ -1,5 +1,5 @@
 try:
-    import cProfile as profile
+    import cProfile as profile  # noqa: N813
 except ImportError:
     import profile
 

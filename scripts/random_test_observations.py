@@ -47,7 +47,7 @@ def main(base_url):
                     headers={"Authorization": "Token " + os.environ["API_TOKEN"]},
                 )
                 if response.status_code != 201:
-                    print("error")
+                    print("error")  # noqa: T201
                     sys.stderr.write(response.text)
                     exit(1)
 

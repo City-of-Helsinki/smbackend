@@ -153,7 +153,8 @@ class AccessibilityShortcomingCalculator(object, metaclass=Singleton):
                 op, properties, messages, profile_id
             )
             if rule["operator"] == "AND" and not is_ok and not message_recorded:
-                # Short circuit AND evaluation when no message was emitted. This edge case is required!
+                # Short circuit AND evaluation when no message was emitted.
+                # This edge case is required!
                 # NOTE: No messages are emitted from the AND clause itself.
                 logger.debug("{}: AND short circuited".format(rule["id"]))
                 return False, False
@@ -200,7 +201,8 @@ class AccessibilityShortcomingCalculator(object, metaclass=Singleton):
         messages[segment] = messages.get(segment, {})
         messages[segment][requirement_id] = messages[segment].get(requirement_id, [])
         if rule["id"] == requirement_id:
-            # This is a top level requirement - only add top level message if there are no specific messages.
+            # This is a top level requirement - only add top level message if there are
+            # no specific messages.
             if not messages[segment][requirement_id]:
                 messages[segment][requirement_id].append(rule["msg"])
                 record(segment, rule["msg"])

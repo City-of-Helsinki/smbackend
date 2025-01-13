@@ -61,7 +61,7 @@ class Command(BaseCommand):
                 )
             except AccessibilityVariable.DoesNotExist:
                 evaluation = "**MISSING**"
-            print(
+            print(  # noqa: T201
                 "{}{} {}{}{}".format(
                     indent, rule["id"], rule["operator"], evaluation, message
                 )
@@ -71,5 +71,5 @@ class Command(BaseCommand):
                     print_rule(operand, indent + "  ")
 
         for name, rule in Calculator().rules.items():
-            print("=== RULE {} ===".format(name))
+            print("=== RULE {} ===".format(name))  # noqa: T201
             print_rule(rule)

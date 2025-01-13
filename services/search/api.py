@@ -4,11 +4,11 @@ Brief explanation how full text search is implemented in the smbackend.
 munigeo_Address, munigeo_Administrative_division.
 - For every model that is included in the search a search column is added
 for every language of type SearchVector. These are also defined as a Gindex.
- The models that are searched also implements a function called get_search_column_indexing
-  where the name, configuration(language) and weight of the columns that will be indexed
-  are defined. This function is used by the indexing script and signals when
-  the search_column is populated.
-- A view called search_view is created and it contains the search_columns of the models
+ The models that are searched also implements a function called
+  get_search_column_indexing where the name, configuration(language) and weight of the
+  columns that will be indexed are defined. This function is used by the indexing script
+  and signals when the search_column is populated.
+- A view called search_view is created. It contains the search_columns of the models
 and a couple auxiliary columns: id. type_name and name. This view is created by a
 raw SQL migration 008X_create_search_view.py.
 - The search if performed by querying the views search_columns.
@@ -191,7 +191,8 @@ class SearchSerializer(serializers.Serializer):
                 include_object_type, include_field = include.split(".")
             except ValueError:
                 raise ParseError(
-                    "'include' list elements must be in format: entity.field, e.g., unit.connections."
+                    "'include' list elements must be in format: entity.field, e.g.,"
+                    " unit.connections."
                 )
 
             if object_type == "unit" and include_object_type == "unit":
@@ -222,7 +223,8 @@ class SearchSerializer(serializers.Serializer):
                         )
                     else:
                         raise ParseError(
-                            f"Entity {object_type} does not contain a {include_field} field."
+                            f"Entity {object_type} does not contain a {include_field}"
+                            " field."
                         )
 
         return representation
@@ -262,8 +264,10 @@ def build_search_query(query: str):
         OpenApiParameter(
             name="q",
             location=OpenApiParameter.QUERY,
-            description="The query string used for searching. Searches the search_columns for the given models. Commas "
-            "between words are interpreted as 'and' operator. Words ending with the '|' sign are interpreted as 'or' "
+            description="The query string used for searching. Searches the"
+            " search_columns for the given models. Commas "
+            "between words are interpreted as 'and' operator. Words ending with the '|'"
+            " sign are interpreted as 'or' "
             "operator.",
             required=False,
             type=str,
@@ -271,7 +275,8 @@ def build_search_query(query: str):
         OpenApiParameter(
             name="type",
             location=OpenApiParameter.QUERY,
-            description="Comma separated list of types to search for. Valid values are: unit, service, servicenode, "
+            description="Comma separated list of types to search for. Valid values are:"
+            " unit, service, servicenode, "
             "address, administrativedivision. If not given defaults to all.",
             required=False,
             type=str,
@@ -279,8 +284,10 @@ def build_search_query(query: str):
         OpenApiParameter(
             name="use_trigram",
             location=OpenApiParameter.QUERY,
-            description="Comma separated list of types that will include trigram results in search if no results are "
-            "found. Valid values are: unit, service, servicenode, address, administrativedivision. If not given "
+            description="Comma separated list of types that will include trigram"
+            " results in search if no results are "
+            "found. Valid values are: unit, service, servicenode, address,"
+            " administrativedivision. If not given "
             "trigram will not be used.",
             required=False,
             type=str,
@@ -288,14 +295,16 @@ def build_search_query(query: str):
         OpenApiParameter(
             name="trigram_threshold",
             location=OpenApiParameter.QUERY,
-            description="Threshold value for trigram search. If not given defaults to 0.15.",
+            description="Threshold value for trigram search. If not given defaults to"
+            " 0.15.",
             required=False,
             type=float,
         ),
         OpenApiParameter(
             name="rank_threshold",
             location=OpenApiParameter.QUERY,
-            description="Include results with search rank greater than or equal to the value. If not given defaults to "
+            description="Include results with search rank greater than or equal to the"
+            " value. If not given defaults to "
             "0.",
             required=False,
             type=float,
@@ -303,21 +312,24 @@ def build_search_query(query: str):
         OpenApiParameter(
             name="use_websearch",
             location=OpenApiParameter.QUERY,
-            description="Use websearch_to_tsquery instead of to_tsquery if exclusion rules are defined for the search.",
+            description="Use websearch_to_tsquery instead of to_tsquery if exclusion"
+            " rules are defined for the search.",
             required=False,
             type=bool,
         ),
         OpenApiParameter(
             name="geometry",
             location=OpenApiParameter.QUERY,
-            description="Display geometry of the search result. If not given defaults to false.",
+            description="Display geometry of the search result. If not given defaults"
+            " to false.",
             required=False,
             type=bool,
         ),
         OpenApiParameter(
             name="order_units_by_num_services",
             location=OpenApiParameter.QUERY,
-            description="Order units by number of services. If not given defaults to true.",
+            description="Order units by number of services. If not given defaults to"
+            " true.",
             required=False,
             type=bool,
         ),
@@ -331,7 +343,8 @@ def build_search_query(query: str):
         OpenApiParameter(
             name="include",
             location=OpenApiParameter.QUERY,
-            description="Comma separated list of fields to include in the response. Format: entity.field, e.g., "
+            description="Comma separated list of fields to include in the response."
+            " Format: entity.field, e.g., "
             "unit.connections.",
             required=False,
             type=str,
@@ -367,7 +380,8 @@ def build_search_query(query: str):
         OpenApiParameter(
             name="administrativedivision_limit",
             location=OpenApiParameter.QUERY,
-            description="Limit the number of administrative divisions in the search results.",
+            description="Limit the number of administrative divisions in the search"
+            " results.",
             required=False,
             type=int,
         ),
@@ -381,7 +395,8 @@ def build_search_query(query: str):
         OpenApiParameter(
             name="language",
             location=OpenApiParameter.QUERY,
-            description="The language to be used in the search. If not given defaults to Finnish. Format: fi, sv, en.",
+            description="The language to be used in the search. If not given defaults"
+            " to Finnish. Format: fi, sv, en.",
             required=False,
             type=str,
         ),
@@ -393,7 +408,8 @@ def build_search_query(query: str):
             type=str,
         ),
     ],
-    description="Search for units, services, service nodes, addresses and administrative divisions.",
+    description="Search for units, services, service nodes, addresses and"
+    " administrative divisions.",
 )
 class SearchViewSet(GenericAPIView):
     queryset = Unit.objects.all()
@@ -412,7 +428,8 @@ class SearchViewSet(GenericAPIView):
 
         if not re.match(r"^[\w\såäö.,'+&|-]+$", q_val):
             raise ParseError(
-                "Invalid search terms, only letters, numbers, spaces and .,'+-&| allowed."
+                "Invalid search terms, only letters, numbers, spaces and .,'+-&|"
+                " allowed."
             )
 
         types_str = ",".join([elem for elem in QUERY_PARAM_TYPE_NAMES])
@@ -531,8 +548,9 @@ class SearchViewSet(GenericAPIView):
                 search_fn = "websearch_to_tsquery"
                 search_query_str += f" {exclusions}"
 
-        # This is ~100 times faster than using Djangos SearchRank and allows searching using wildcard "|*"
-        # and by ranking gives better results, e.g. extra fields weight is counted.
+        # This is ~100 times faster than using Django's SearchRank and allows searching
+        # using wildcard "|*" and by ranking gives better results, e.g. extra fields
+        # weight is counted.
         sql = f"""
             SELECT * from (
                 SELECT id, type_name, name_{language_short}, ts_rank_cd(search_column_{language_short}, search_query)
@@ -540,7 +558,7 @@ class SearchViewSet(GenericAPIView):
                 WHERE search_query @@ search_column_{language_short}
                 ORDER BY rank DESC LIMIT {sql_query_limit}
             ) AS sub_query where sub_query.rank >= {rank_threshold};
-        """
+        """  # noqa: E501
 
         cursor = connection.cursor()
         try:
@@ -708,11 +726,13 @@ class SearchViewSet(GenericAPIView):
                 cursor = connection.cursor()
                 cursor.execute(sql)
                 addresses = cursor.fetchall()
-                # addresses are in format e.g. [(12755,), (4067,)], remove comma and parenthesis
+                # addresses are in format e.g. [(12755,), (4067,)], remove comma and
+                # parenthesis
                 ids = [re.sub(r"[(,)]", "", str(a)) for a in addresses]
                 preserved = get_preserved_order(ids)
                 addresses_qs = Address.objects.filter(id__in=ids).order_by(preserved)
-                # if no units has been found without trigram search and addresses are found,
+                # if no units has been found without trigram search and addresses are
+                # found,
                 # do not return any units, thus they might confuse in the results.
                 if addresses_qs.exists() and show_only_address:
                     units_qs = Unit.objects.none()
@@ -723,7 +743,8 @@ class SearchViewSet(GenericAPIView):
             logger.debug(connection.queries)
             queries_time = sum([float(s["time"]) for s in connection.queries])
             logger.debug(
-                f"Search queries total execution time: {queries_time} Num queries: {len(connection.queries)}"
+                f"Search queries total execution time: {queries_time}"
+                f" Num queries: {len(connection.queries)}"
             )
             reset_queries()
 

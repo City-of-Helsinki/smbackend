@@ -2,7 +2,7 @@ import csv
 import pprint
 import re
 import sys
-from collections import OrderedDict as odict
+from collections import OrderedDict
 from sys import argv
 
 """
@@ -103,7 +103,7 @@ class Compound(Expression):
 Error, trying to change operator of a compound expression at {}.
 Probable cause: missing closing parenthesis right before said line.
                 """.format(row[-1])
-                print(msg)
+                print(msg)  # noqa: T201
 
     def set_mode(self, mode):
         self.mode = mode
@@ -201,14 +201,14 @@ next_line.lineno = 0
 
 
 def exit_on_error(message, expression=None, lineno=None):
-    print("Error: " + message)
+    print("Error: " + message)  # noqa: T201
     if expression:
-        print(
+        print(  # noqa: T201
             "  beginning at line %s, expression %s"
             % (expression.first_line, str(expression))
         )
     if lineno:
-        print("  beginning at line %s" % lineno)
+        print("  beginning at line %s" % lineno)  # noqa: T201
     sys.exit(2)
 
 
@@ -269,7 +269,7 @@ def update_flags(row, expression):
     string_parts = raw_string.split(":")
     human_keys = {"Q": "include", "R": "reports", "S": "detailed_choice"}
     bits = []
-    for i, part in enumerate(string_parts):
+    for part in string_parts:
         vals = set()
         for char in part:
             if char not in human_keys.keys():
@@ -289,13 +289,13 @@ def build_comparison(iterator, row, depth=0, requirement_id=None):
     try:
         variable, operator, value = int(row[VARIABLE]), row[OPERATOR], row[VALUE]
     except ValueError:
-        exit_on_error("Value error %s." % row)
+        return exit_on_error("Value error %s." % row)
     if operator == "I":
         operator = "NEQ"
     elif operator == "E":
         operator = "EQ"
     else:
-        exit_on_error("Unknown comparison operator %s." % operator)
+        return exit_on_error("Unknown comparison operator %s." % operator)
 
     expression = Comparison(depth, variable, operator, value)
     match = VARIABLE_NAME.match(row[EXPRESSION])
@@ -304,7 +304,7 @@ def build_comparison(iterator, row, depth=0, requirement_id=None):
         path[0] = path[0].lower()
         expression.variable_path = path
     else:
-        print("nomatch")
+        print("nomatch")  # noqa: T201
     update_messages(row, expression)
     update_flags(row, expression)
     return expression
@@ -359,7 +359,7 @@ def build_expression(iterator, row, depth=0, requirement_id=None):
                 iterator, depth=depth, requirement_id=requirement_id
             )
         except ParseError as e:
-            exit_on_error(str(e), lineno=first_line)
+            return exit_on_error(str(e), lineno=first_line)
     expression.first_line = row[-1]
     expression.requirement_id = requirement_id
     return expression
@@ -426,7 +426,7 @@ def save_message(multilingual_message):
         message_id_incr += 1
         message_ids[msg_key] = msg_id
     msg_id = message_ids[msg_key]
-    for lang, message in multilingual_message.items():
+    for lang in multilingual_message.keys():
         try:
             current_message = messages[msg_id]
         except IndexError:
@@ -456,8 +456,8 @@ def gather_messages(expression):
 
 def build_tree(reader):
     global messages
-    tree = odict()
-    row_groups = odict()
+    tree = OrderedDict()
+    row_groups = OrderedDict()
     _, row = next_line(reader)
     accessibility_case_id = None
     while True:
@@ -476,10 +476,10 @@ def build_tree(reader):
         it = iter(rows)
         row = next(it)
         tree[acid] = build_expression(it, row, depth=0)
-    for acid, expression in tree.items():
+    for expression in tree.values():
         rescope(expression, "messages")
         rescope(expression, "flags")
-    for acid, expression in tree.items():
+    for expression in tree.values():
         gather_messages(expression)
     return tree, messages
 
@@ -494,7 +494,7 @@ def parse_accessibility_rules(filename):
 WIDTH = 140
 if __name__ == "__main__":
     if len(argv) != 3:
-        print(
+        print(  # noqa: T201
             "Please provide the desired operation and the input csv filename "
             "as the first and second parameters.\n\nOperation is one of\n"
             "  values, messages or debug."
@@ -504,13 +504,13 @@ if __name__ == "__main__":
     tree, messages = parse_accessibility_rules(filename)
     if op == "debug":
         for i, v in tree.items():
-            print("Case " + i)
-            print(str(v))
+            print("Case " + i)  # noqa: T201
+            print(str(v))  # noqa: T201
     elif op == "values":
         key_qualifiers = "ABC"
-        for i, v in tree.items():
+        for v in tree.values():
             for mode in range(len(v.messages["case_names"])):
                 v.set_mode(mode)
-                pprint.pprint(v.val(), width=WIDTH)
+                pprint.pprint(v.val(), width=WIDTH)  # noqa: T203
     elif op == "messages":
-        pprint.pprint(messages, width=WIDTH)
+        pprint.pprint(messages, width=WIDTH)  # noqa: T203
