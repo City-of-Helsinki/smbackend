@@ -1,0 +1,57 @@
+#
+# Review pipeline. Run build and deploy for Platta dev environments.
+# Pipeline runs different tests e.g. unittest and browser tests.
+#
+# Continuous integration (CI) triggers cause a pipeline to run whenever you push
+# an update to the specified branches or you push specified tags.
+# only PR trigger pipeline
+trigger: none
+
+# Pull request (PR) triggers cause a pipeline to run whenever a pull request is
+# opened with one of the specified target branches, or when updates are made to 
+# such a pull request.
+#
+# GitHub creates a new ref when a pull request is created. The ref points to a 
+# merge commit, which is the merged code between the source and target branches 
+# of the pull request.
+#
+# Opt out of pull request validation 
+pr:
+  # PR target branch
+  branches:
+    include:
+    - develop
+  paths:
+    exclude:
+    - '*release-please*'
+    - '*.md'
+    - '.github/'
+    - 'pipelines/palvelukartta-api-release.yml'
+    - 'pipelines/palvelukartta-api-dev.yml'
+    - 'docker-compose*'
+
+# By default, use self-hosted agents
+pool: Default
+
+resources:
+  repositories:
+    # Azure DevOps repository
+    - repository: palvelukartta-pipelines
+      type: git
+      # Azure DevOps project/repository
+      name: palvelukartta/palvelukartta-pipelines
+
+extends:
+  # Filename in Azure DevOps Repository
+  template: components/palvelukartta-api/pipelines/palvelukartta-api-review.yml@palvelukartta-pipelines
+  # parameters:
+    # Application build arguments and config map values as key value pairs.
+    # Does not contain all buildArguments or configMap values, the rest located in palvelukartta-pipelines
+    # The values here will override the values defined in the palvelukartta-pipelines repository
+    # buildArgs:
+    #   DEBUG: 1
+    # configMap: # pod environment variables
+    #   DEBUG: 1
+    ## Default value to pythonVersion is set on template.
+    ## Used tool version
+    # pythonVersion: 3.11
