@@ -40,17 +40,17 @@ Installation without Docker
 
 1. First, install the necessary Debian packages.
 
-* libpython3.10-dev 
+* libpython3.10-dev
 * python3.10-distutils
-* virtualenvwrapper 
-* libyaml-dev 
-* libxml2-dev 
+* virtualenvwrapper
+* libyaml-dev
+* libxml2-dev
 * libxslt1-dev
 * voikko-fi
 * libvoikko-dev
 
 2. Clone the repository.
-Use pyenv to manage python version and create a virtualenv with virtualenvwrapper.  
+Use pyenv to manage python version and create a virtualenv with virtualenvwrapper.
 The virtualenv that will be created and used here is named "servicemap"
 ```
 pyenv install -v 3.10.1
@@ -60,7 +60,7 @@ pyenv virtualenvwrapper
 mkvirtualenv servicemap
 ```
 
-Installation and usage info for pyenv, pyenv-virtualenvwrapper and  
+Installation and usage info for pyenv, pyenv-virtualenvwrapper and
  virtualenvwrapper can be found here:
 https://github.com/pyenv/pyenv-virtualenv
 https://github.com/pyenv/pyenv-virtualenvwrapper
@@ -75,10 +75,10 @@ Install the requirements:
 ```pip install -r requirements.txt -r requirements-dev.txt```
 
  If this error occurs:
-```   
+```
  ImportError: cannot import name 'html5lib' from 'pip._vendor' (/home/johndoe/.virtualenvs/servicemap/lib/python3.10/site-packages/pip/_vendor/__init__.py)
 ```
-Try installing latest pip. 
+Try installing latest pip.
 ```
 curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
 ```
@@ -105,7 +105,7 @@ ALTER database template1 is_template=false;
 DROP database template1;
 CREATE DATABASE template1 WITH OWNER = postgres ENCODING = 'UTF8' TABLESPACE = pg_default LC_COLLATE = 'fi_FI.UTF-8' LC_CTYPE = 'fi_FI.UTF-8' CONNECTION LIMIT = -1 TEMPLATE template0;
 ALTER database template1 is_template=true;
-\q  
+\q
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS postgis;'
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
 psql template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
