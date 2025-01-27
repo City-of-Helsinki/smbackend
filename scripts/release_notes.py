@@ -8,9 +8,9 @@ repo_name = "smbackend"
 
 def print_section(title, items):
     if items:
-        print(f"## {title}")
-        for item in items:
-            print(f"- {item.title} [(#{item.number})]({item.html_url})")
+        print(f"## {title}")  # noqa: T201
+        for item in items:  # noqa: T201
+            print(f"- {item.title} [(#{item.number})]({item.html_url})")  # noqa: T201
 
 
 def create_release_notes(start_tag, end_tag):
@@ -41,7 +41,7 @@ def create_release_notes(start_tag, end_tag):
                 else:
                     other.append(p)
 
-    print(f"# Release Notes - {end_tag}")
+    print(f"# Release Notes - {end_tag}")  # noqa: T201
     print_section("Features", features)
     print_section("Fixes", fixes)
     print_section("Improvements", improvements)

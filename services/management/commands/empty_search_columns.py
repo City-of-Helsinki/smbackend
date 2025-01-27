@@ -16,7 +16,8 @@ class Command(BaseCommand):
         for model in MODELS:
             for lang in ["fi", "sv", "en"]:
                 logger.info(
-                    f"Emptying search columns for model: {model.__name__} and language {lang}."
+                    f"Emptying search columns for model: {model.__name__} and language"
+                    " {lang}."
                 )
                 key = "search_column_%s" % lang
                 model.objects.update(**{key: None})

@@ -7,7 +7,7 @@ from django.contrib.postgres.indexes import (  # add the Postgres recommended GI
 from django.contrib.postgres.search import SearchVectorField
 from django.db.models import JSONField, Manager
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from munigeo.models import Municipality
 from munigeo.utils import get_default_srid
 

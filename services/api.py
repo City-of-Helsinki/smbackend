@@ -181,8 +181,8 @@ class TranslatedModelSerializer(object):
             if not isinstance(obj, dict):
                 raise ValidationError(
                     {
-                        field_name: "This field is a translated field. Instead of a string,"
-                        " you must supply an object with strings corresponding"
+                        field_name: "This field is a translated field. Instead of a"
+                        " string, you must supply an object with strings corresponding"
                         " to desired language ids."
                     }
                 )
@@ -232,7 +232,7 @@ class TranslatedModelSerializer(object):
                 d[lang] = val
 
             # If no text provided, leave the field as null
-            for key, val in d.items():
+            for val in d.values():
                 if val is not None:
                     break
             else:
@@ -327,7 +327,7 @@ class DepartmentSerializer(
         return obj.uuid
 
     def get_parent(self, obj):
-        parent = getattr(obj, "parent")
+        parent = obj.parent
         if parent is not None:
             return parent.uuid
         return None
@@ -450,9 +450,9 @@ class ServiceSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
                 else None
             )
             if organization_name:
-                ret["unit_count"]["organization"][
-                    organization_name
-                ] = organization_unit_count.count
+                ret["unit_count"]["organization"][organization_name] = (
+                    organization_unit_count.count
+                )
 
         divisions = self.context.get("divisions", [])
         include_fields = self.context.get("include", [])
@@ -809,13 +809,13 @@ class UnitSerializer(
         return choicefield_string(ORGANIZER_TYPES, "organizer_type", obj)
 
     def get_contract_type(self, obj):
-        key = getattr(obj, "displayed_service_owner_type")
+        key = obj.displayed_service_owner_type
         if not key:
             return None
         translations = {
-            "fi": getattr(obj, "displayed_service_owner_fi"),
-            "sv": getattr(obj, "displayed_service_owner_sv"),
-            "en": getattr(obj, "displayed_service_owner_en"),
+            "fi": obj.displayed_service_owner_fi,
+            "sv": obj.displayed_service_owner_sv,
+            "en": obj.displayed_service_owner_en,
         }
         return {"id": key, "description": translations}
 

@@ -1,0 +1,31 @@
+[tool.ruff]
+target-version = "py39"
+
+[tool.ruff.lint]
+select = [
+    # Pyflakes
+    "F",
+    # pycodestyle
+    "E",
+    "W",
+    # isort
+    "I",
+    # pep8-naming
+    "N",
+    # flake8-bugbear without opinionated rules
+    "B0",
+    # flake8-pie
+    "PIE",
+    # flake8-print
+    "T20",
+]
+[tool.ruff.lint.extend-per-file-ignores]
+"*/migrations/*" = ["E501"]
+"*/tests/*" = ["E501"]
+"api/schemas.py" = ["N815"]
+"api/tests/test_api.py" = ["N815"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "smbackend.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+filterwarnings = ["ignore:No directory at:UserWarning"]

@@ -6,8 +6,6 @@
 #
 asttokens==2.4.1
     # via stack-data
-black==24.10.0
-    # via -r requirements-dev.in
 build==1.2.2.post1
     # via pip-tools
 certifi==2024.8.30
@@ -23,9 +21,7 @@ charset-normalizer==3.4.0
     #   -c requirements.txt
     #   requests
 click==8.1.7
-    # via
-    #   black
-    #   pip-tools
+    # via pip-tools
 coverage==7.6.9
     # via pytest-cov
 cryptography==43.0.1
@@ -41,10 +37,6 @@ exceptiongroup==1.2.2
     #   pytest
 executing==2.1.0
     # via stack-data
-flake8==7.1.1
-    # via
-    #   -r requirements-dev.in
-    #   pep8-naming
 idna==3.10
     # via
     #   -c requirements.txt
@@ -53,39 +45,24 @@ iniconfig==2.0.0
     # via pytest
 ipython==8.27.0
     # via -r requirements-dev.in
-isort==5.13.2
-    # via -r requirements-dev.in
 jedi==0.19.1
     # via
     #   -r requirements-dev.in
     #   ipython
 matplotlib-inline==0.1.7
     # via ipython
-mccabe==0.7.0
-    # via flake8
-mypy-extensions==1.0.0
-    # via black
 packaging==24.2
     # via
-    #   black
     #   build
     #   pytest
 parso==0.8.4
     # via
     #   -r requirements-dev.in
     #   jedi
-pathspec==0.12.1
-    # via black
-pep8-naming==0.14.1
-    # via -r requirements-dev.in
 pexpect==4.9.0
     # via ipython
 pip-tools==7.4.1
     # via -r requirements-dev.in
-platformdirs==4.3.6
-    # via
-    #   -c requirements.txt
-    #   black
 pluggy==1.5.0
     # via pytest
 prompt-toolkit==3.0.47
@@ -94,12 +71,8 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
-pycodestyle==2.12.1
-    # via flake8
 pycparser==2.22
     # via cffi
-pyflakes==3.2.0
-    # via flake8
 pygithub==2.4.0
     # via -r requirements-dev.in
 pygments==2.18.0
@@ -127,6 +100,8 @@ requests==2.32.3
     #   requests-mock
 requests-mock==1.12.1
     # via -r requirements-dev.in
+ruff==0.8.6
+    # via -r requirements-dev.in
 six==1.16.0
     # via
     #   -c requirements.txt
@@ -135,7 +110,6 @@ stack-data==0.6.3
     # via ipython
 tomli==2.2.1
     # via
-    #   black
     #   build
     #   coverage
     #   pip-tools
@@ -147,7 +121,6 @@ traitlets==5.14.3
 typing-extensions==4.12.2
     # via
     #   -c requirements.txt
-    #   black
     #   ipython
     #   pygithub
 urllib3==1.26.20

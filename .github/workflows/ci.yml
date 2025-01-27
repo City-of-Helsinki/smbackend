@@ -1,76 +1,20 @@
-name: Continuous Integration
+name: CI
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+
 jobs:
-  build:
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        python: [ "3.10" , "3.11" ]
-    env:
-      DATABASE_URL: postgis://postgres:postgres@localhost/smbackend
-      SECRET_KEY: test-secret
-    services:
-      postgres:
-        image: postgis/postgis:13-3.3
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python }}
-          cache: pip
-
-      - name: Install required Ubuntu packages
-        run: |
-          sudo apt-get update && sudo apt-get install gdal-bin voikko-fi libvoikko-dev
-
-      - name: Create needed postgis extensions
-        run: |
-          psql -h localhost -U postgres template1 -c 'create extension hstore;create extension pg_trgm;'
-
-      - name: Install PyPI dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install codecov -r requirements.txt -r requirements-dev.txt
-
-      - name: Run Python side code neatness tests
-        run: |
-          flake8
-          black --check .
-          isort . -c
-
-      - name: Run pytest code functionality tests
-        run: |
-          pytest -ra -vvv --cov=.
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-
-      # Without this workaround Sonar reports a warning about an incorrect source path
-      - name: Override coverage report source path for Sonar
-        if: github.event_name == 'push'
-        run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
-
-      - name: SonarCloud Scan
-        if: github.event_name == 'push'
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  common:
+    uses: City-of-Helsinki/.github/.github/workflows/ci-django-api.yml@main
+    secrets: inherit
+    with:
+      python-version: "3.10"
+      postgres-major-version: 13
+      use-postgis: true
+      extra-commands: |
+        sudo apt-get install voikko-fi libvoikko-dev
+        psql postgresql://test_user:test_password@localhost/template1 -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
+        psql postgresql://test_user:test_password@localhost/template1 -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'

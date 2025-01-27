@@ -43,7 +43,7 @@ def municipalities(municipality_type):
 @pytest.fixture
 def services():
     os = []
-    for i in range(0, 5):
+    for i in range(5):
         o = Service.objects.create(
             name="service{}".format(i), id=i, last_modified_time=now()
         )
@@ -64,7 +64,7 @@ def units(services, municipalities):
         for service in services:
             if index % max_unit_count > 0:
                 distinct_service_muni_counts.add((service.id, municipality.id))
-            for i in range(0, index % max_unit_count):
+            for i in range(index % max_unit_count):
                 name = "unit_s{}_m{}_{}".format(service.id, municipality.id, i)
                 unit = Unit.objects.create(
                     id=unit_id,
@@ -194,7 +194,7 @@ def test_update_service_counts(municipalities, services, units, api_client):
     # Step 4: add single unit at a time
     service = Service.objects.get(pk=0)
     count = 0
-    for i in range(0, 10):
+    for i in range(10):
         u = Unit.objects.create(
             name="test_{}",
             id=i + 100000,

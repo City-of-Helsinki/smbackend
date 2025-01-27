@@ -12,8 +12,8 @@ class Migration(migrations.Migration):
             SELECT concat('unit_', services_unit.id) AS id, name_fi, name_sv, name_en, search_column_fi, search_column_sv, search_column_en, 'Unit' AS type_name from services_unit
             UNION
             SELECT concat('service_', id) AS id, name_fi, name_sv, name_en, search_column_fi, search_column_sv, search_column_en, 'Service' AS type_name from services_service
-            UNION        
-            SELECT concat('servicenode_', string_agg(id::text, '_')) AS ids, name_fi, name_sv, name_en, search_column_fi, search_column_sv, search_column_en, 'ServiceNode' AS type_name from services_servicenode group by 2,3,4,5,6,7,8 
+            UNION
+            SELECT concat('servicenode_', string_agg(id::text, '_')) AS ids, name_fi, name_sv, name_en, search_column_fi, search_column_sv, search_column_en, 'ServiceNode' AS type_name from services_servicenode group by 2,3,4,5,6,7,8
             UNION
             SELECT concat('administrativedivision_', id) AS id,  name_fi, name_sv, name_en, search_column_fi, search_column_sv, search_column_en, 'AdministrativeDivision' AS type_name from munigeo_administrativedivision
             UNION

@@ -54,7 +54,7 @@ def pk_get(resource_name, res_id=None, params=None):
         url = "%s%s/" % (url, res_id)
     if params:
         url += "?" + urlencode(params)
-    print("CALLING URL >>> ", url)
+    print("CALLING URL >>> ", url)  # noqa: T201
     resp = requests.get(url, timeout=300)
     assert resp.status_code == 200, "fuu status code {}".format(resp.status_code)
     return resp.json()
@@ -88,7 +88,7 @@ def clean_text(text):
         return text
     text = text.replace("\r\n", "\n")
     # remove consecutive whitespaces
-    text = re.sub(r"[ \t][ \t]+", " ", text, re.U)
+    text = re.sub(r"[ \t][ \t]+", " ", text)
     # remove nil bytes
     text = text.replace("\u0000", " ")
     text = text.replace("\r", "\n")
@@ -116,9 +116,9 @@ def update_service_names_fields(obj, info, obj_changed, update_fields):
     ):
         return obj_changed, update_fields
 
-    setattr(obj, "service_names_fi", service_names_fi)
-    setattr(obj, "service_names_sv", service_names_sv)
-    setattr(obj, "service_names_en", service_names_en)
+    obj.service_names_fi = service_names_fi
+    obj.service_names_sv = service_names_sv
+    obj.service_names_en = service_names_en
     update_fields.extend(["service_names_fi", "service_names_sv", "service_names_en"])
     obj_changed = True
     return obj_changed, update_fields
@@ -148,13 +148,13 @@ def update_extra_searchwords(obj, info, obj_changed, update_fields):
         return obj_changed, update_fields
 
     if extra_searchwords_fi:
-        setattr(obj, "extra_searchwords_fi", extra_searchwords_fi)
+        obj.extra_searchwords_fi = extra_searchwords_fi
         update_fields.append("extra_searchwords_fi")
     if extra_searchwords_sv:
-        setattr(obj, "extra_searchwords_sv", extra_searchwords_sv)
+        obj.extra_searchwords_sv = extra_searchwords_sv
         update_fields.append("extra_searchwords_sv")
     if extra_searchwords_en:
-        setattr(obj, "extra_searchwords_en", extra_searchwords_en)
+        obj.extra_searchwords_en = extra_searchwords_en
         update_fields.append("extra_searchwords_en")
     obj_changed = True
     return obj_changed, update_fields

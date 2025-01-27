@@ -113,6 +113,7 @@ class Command(BaseCommand):
         num_parking_payzones_deleted = removed_parking_payzones.delete()[0]
 
         logger.info(
-            f"Import completed. {num_parking_payzones_updated} parking payzones updated and "
-            f"{num_parking_payzones_deleted} deleted in {time() - start_time:.0f} seconds."
+            f"Import completed. {num_parking_payzones_updated} parking payzones updated"
+            f" and {num_parking_payzones_deleted} deleted in"
+            f" {time() - start_time:.0f} seconds."
         )
