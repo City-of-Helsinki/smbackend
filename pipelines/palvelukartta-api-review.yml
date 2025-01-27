@@ -20,7 +20,7 @@ pr:
   # PR target branch
   branches:
     include:
-    - develop
+    - main
   paths:
     exclude:
     - '*release-please*'
