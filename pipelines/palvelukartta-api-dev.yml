@@ -35,7 +35,6 @@ resources:
       type: git
       # Azure DevOps project/repository
       name: palvelukartta/palvelukartta-pipelines
-      ref: refs/heads/ansible_automation_update
 
 extends:
   # Filename in Azure DevOps Repository
