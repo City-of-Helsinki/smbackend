@@ -17,6 +17,7 @@ env = Env(
     DEBUG=(bool, False),
     LANGUAGES=(list, ["fi", "sv", "en"]),
     DATABASE_URL=(str, "postgis:///servicemap"),
+    DATABASE_PASSWORD=(str, ""),
     SECRET_KEY=(str, "temp_key"),
     TRUST_X_FORWARDED_HOST=(bool, False),
     SECURE_PROXY_SSL_HEADER=(tuple, None),
@@ -123,6 +124,9 @@ WSGI_APPLICATION = "smbackend.wsgi.application"
 
 # Database
 DATABASES = {"default": env.db()}
+
+if env("DATABASE_PASSWORD"):
+    DATABASES["default"]["PASSWORD"] = env("DATABASE_PASSWORD")
 
 # Keep the database connection open for 120s
 CONN_MAX_AGE = 120
