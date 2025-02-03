@@ -1,38 +1,38 @@
-version: '3.8'
 services:
-    postgres:
-        build: ./docker/postgres/
-        environment:
-            - POSTGRES_USER=servicemap
-            - POSTGRES_PASSWORD=servicemap
-            - POSTGRES_DB=servicemap
-        ports:
-            - "5432:5432"
-        volumes:
-            - postgres-data:/var/lib/postgres/data
-    servicemap:
-        build:
-            context: ./
-            dockerfile: ./Dockerfile
-            target: development
-        env_file:
-            - .env
-        volumes:
-            - .:/smbackend
-            - django-media:/var/media/
-        ports:
-            - "8000:8000"
-        restart: on-failure
-        depends_on:
-            - postgres
-    servicemap-ui:
-        image: helsinki/servicemap-ui:staging
-        ports:
-            - "2048:2048"
-        env_file:
-            - config_dev_ui.env.example
-        depends_on:
-            - servicemap
+  postgres:
+    build: ./docker/postgres/
+    environment:
+      - POSTGRES_USER=servicemap
+      - POSTGRES_PASSWORD=servicemap
+      - POSTGRES_DB=servicemap
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgres/data
+    container_name: servicemap-db
+
+  django:
+    build:
+      context: .
+      target: development
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    restart: on-failure
+    depends_on:
+      - postgres
+    container_name: servicemap-backend
+
+  servicemap-ui:
+    image: helsinki/servicemap-ui:staging
+    ports:
+      - "2048:2048"
+    env_file:
+      - config_dev_ui.env.example
+    container_name: servicemap-frontend
+
 volumes:
-    postgres-data:
-    django-media:
+  postgres-data:
