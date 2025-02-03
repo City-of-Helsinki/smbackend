@@ -1,46 +1,58 @@
-# Using Ubuntu base for access to GDAL PPA
-FROM public.ecr.aws/ubuntu/ubuntu:22.04 AS appbase
-WORKDIR /smbackend
+# ==============================
+FROM helsinki.azurecr.io/ubi9/python-312-gdal AS appbase
+# ==============================
 
-# tzdata installation requires settings frontend
-RUN apt-get update && \
-    TZ="Europe/Helsinki" DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip gdal-bin uwsgi uwsgi-plugin-python3 postgresql-client netcat gettext git-core libpq-dev voikko-fi libvoikko-dev && \
-    ln -s /usr/bin/pip3 /usr/local/bin/pip && \
-    ln -s /usr/bin/python3 /usr/local/bin/python \
-    && apt-get clean
+WORKDIR /app
+USER root
 
 COPY requirements.txt .
 
-RUN pip install --upgrade pip setuptools
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-# smbackend needs only static files, media is not used
-ENV STATIC_ROOT /srv/smbackend/static
-RUN mkdir -p /srv/smbackend/static
-
-ENV SECRET_KEY "only-for-build"
-RUN python manage.py compilemessages
-RUN python manage.py collectstatic
+RUN dnf update -y && dnf install -y \
+    nmap-ncat \
+    gettext \
+    postgresql \
+    && pip install -U pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt \
+    && dnf clean all
 
 # Munigeo will fetch data to this directory
-RUN mkdir -p /smbackend/data && chgrp -R 0 /smbackend/data && chmod -R g+w /smbackend/data
-
+RUN mkdir -p /app/data && chgrp -R 0 /app/data && chmod -R g+w /app/data
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
+EXPOSE 8000/tcp
 
 # ==============================
 FROM appbase AS development
 # ==============================
 
+ENV DEV_SERVER=True
+
 COPY requirements-dev.txt .
-RUN pip install --upgrade pip setuptools
 RUN pip install --no-cache-dir -r requirements-dev.txt
 
+COPY . .
+
+USER default
+
 # ==============================
-FROM appbase as production
+FROM appbase AS staticbuilder
 # ==============================
-# Openshift starts the container process with group zero and random ID
-# we mimic that here with nobody and group zero
-USER nobody:0
+
+ENV STATIC_ROOT /app/static
+COPY . .
+
+RUN mkdir -p /srv/smbackend/static
+
+RUN python manage.py collectstatic
+
+
+# ==============================
+FROM appbase AS production
+# ==============================
+
+COPY --from=staticbuilder /app/static /app/static
+COPY . .
+
+RUN python manage.py compilemessages
+
+USER default

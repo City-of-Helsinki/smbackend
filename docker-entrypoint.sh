@@ -1,28 +1,36 @@
 #!/bin/bash
+
 set -e
+
+# Wait for the database to be available
+if [ -z "$SKIP_DATABASE_CHECK" ] || [ "$SKIP_DATABASE_CHECK" = "0" ]; then
+  until nc -z -v -w30 "$DATABASE_HOST" "${DATABASE_PORT:-5432}"
+  do
+    echo "Waiting for postgres database connection..."
+    sleep 1
+  done
+  echo "Database is up!"
+fi
 
 if [[ "$APPLY_MIGRATIONS" = "True" ]]; then
     echo "Applying database migrations..."
     ./manage.py migrate --noinput
 fi
 
-if [ "$1" = 'start_django_development_server' ]; then
-    until nc -z -v -w30 postgres 5432
-    do
-      echo "Waiting for the database..."
-      sleep 1
-    done
-    echo "Database is up!"
-    # Start server
-    echo "Starting development server"
-    ./manage.py runserver 0.0.0.0:8000
+if [[ "$COMPILE_TRANSLATIONS" = "True" ]]; then
+    echo "Compile translations..."
+    ./manage.py compilemessages
+fi
 
-elif [ "$1" = 'maintenance_tasks' ]; then
+# Start server
+if [ "$1" = 'maintenance_tasks' ]; then
     shift
     ./scripts/run_imports.sh "$@"
-elif [ "$1" ]; then
-    echo "Running command: $1"
-    $1
+elif [[ -n "$*" ]]; then
+    echo "Running command: $*"
+    "$@"
+elif [[ "$DEV_SERVER" = "True" ]]; then
+    python -Wd ./manage.py runserver 0.0.0.0:8000
 else
     exec uwsgi --plugin http,python3 --master --http :8000 \
                --processes 4 --threads 1 \

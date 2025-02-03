@@ -15,7 +15,6 @@ services:
             context: ./
             dockerfile: ./Dockerfile
             target: development
-        command: start_django_development_server
         env_file:
             - .env
         volumes:

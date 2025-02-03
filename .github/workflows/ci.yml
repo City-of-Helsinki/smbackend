@@ -11,7 +11,7 @@ jobs:
     uses: City-of-Helsinki/.github/.github/workflows/ci-django-api.yml@main
     secrets: inherit
     with:
-      python-version: "3.10"
+      python-version: "3.12"
       postgres-major-version: 13
       use-postgis: true
       extra-commands: |

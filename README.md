@@ -40,8 +40,8 @@ Installation without Docker
 
 1. First, install the necessary Debian packages.
 
-* libpython3.10-dev
-* python3.10-distutils
+* libpython3.12-dev
+* python3.12-distutils
 * virtualenvwrapper
 * libyaml-dev
 * libxml2-dev
@@ -54,8 +54,8 @@ Installation without Docker
    The virtualenv that will be created and used here is named "servicemap"
 
 ```
-pyenv install -v 3.10.1
-pyenv virtualenv 3.10.1 smbackend
+pyenv install 3.12
+pyenv virtualenv 3.12 smbackend
 pyenv local smbackend
 pyenv virtualenvwrapper
 mkvirtualenv servicemap
@@ -77,13 +77,13 @@ https://virtualenvwrapper.readthedocs.io/en/latest/install.html
 If this error occurs:
 
 ```
- ImportError: cannot import name 'html5lib' from 'pip._vendor' (/home/johndoe/.virtualenvs/servicemap/lib/python3.10/site-packages/pip/_vendor/__init__.py)
+ ImportError: cannot import name 'html5lib' from 'pip._vendor' (/home/johndoe/.virtualenvs/servicemap/lib/python3.12/site-packages/pip/_vendor/__init__.py)
 ```
 
 Try installing latest pip.
 
 ```
-curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
+curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
 ```
 
 4. Setup the PostGIS database.
