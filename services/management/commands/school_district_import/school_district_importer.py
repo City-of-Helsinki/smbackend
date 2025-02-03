@@ -117,7 +117,7 @@ class SchoolDistrictImporter:
 
     def create_end_date(self, name):
         year = re.split(r"[ -]", name)[-1]
-        return f"{year }-07-31"
+        return f"{year}-07-31"
 
     def save_geometry(self, feature, division):
         geom = feature.geom

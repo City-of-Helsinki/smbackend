@@ -8,4 +8,4 @@ pytest-django
 pytest-cov
 PyGithub
 requests-mock
-ruff==v0.8.6 # sync with .pre-commit-config.yaml
+ruff==v0.9.4 # sync with .pre-commit-config.yaml
