@@ -26,13 +26,13 @@ def municipality():
 
 
 def get_mock_data(source_type):
-    if source_type == "avoindata:Esiopetusalue_suomi":
-        return "services/tests/data/Esiopetusalue_suomi.gml"
-    elif source_type == "avoindata:Esiopetusalue_suomi_tuleva":
-        return "services/tests/data/Esiopetusalue_suomi_tuleva.gml"
-    elif source_type == "avoindata:Opev_ooa_alaaste_suomi_tuleva":
-        return "services/tests/data/Opev_ooa_alaaste_suomi_tuleva.gml"
-    return "services/tests/data/Opev_ooa_alaaste_suomi.gml"
+    mock_data = {
+        "avoindata:Esiopetusalue_suomi": "services/tests/data/Esiopetusalue_suomi.gml",
+        "avoindata:Esiopetusalue_suomi_tuleva": "services/tests/data/Esiopetusalue_suomi_tuleva.gml",
+        "avoindata:Opev_ooa_alaaste_suomi_tuleva": "services/tests/data/Opev_ooa_alaaste_suomi_tuleva.gml",
+        "avoindata:Esiopetusalue_suomi_broken": "services/tests/data/Esiopetusalue_suomi_broken.gml",
+    }
+    return mock_data.get(source_type, "services/tests/data/Opev_ooa_alaaste_suomi.gml")
 
 
 @pytest.mark.django_db
@@ -249,3 +249,51 @@ def test_update_preschool_districts_removes_school_year(
         == 1
     )
     assert AdministrativeDivision.objects.filter(extra__schoolyear="2024-2025").exists()
+
+
+@pytest.mark.django_db
+@patch(
+    "services.management.commands.update_helsinki_preschool_districts.PRESCHOOL_DISTRICT_DATA",
+    [
+        {
+            "source_type": "avoindata:Esiopetusalue_suomi_broken",
+            "division_type": "preschool_education_fi",
+            "ocd_id": "esiopetuksen_oppilaaksiottoalue_fi",
+        },
+    ],
+)
+@patch("services.management.commands.lipas_import.MiniWFS.get_feature")
+@patch(
+    "services.management.commands.school_district_import.school_district_importer.datetime"
+)
+def test_update_preschool_districts_with_broken_data(
+    mock_datetime, get_feature_mock, municipality, caplog
+):
+    """
+    If source data has broken features, it should skip them and import everything it
+    can while logging the errors.
+    """
+    mock_datetime.today.return_value = datetime(2023, 8, 1)
+    mock_datetime.side_effect = lambda *args, **kwargs: datetime(*args, **kwargs)
+    get_feature_mock.side_effect = lambda type_name: get_mock_data(type_name)
+    caplog.clear()
+
+    call_command("update_helsinki_preschool_districts")
+
+    assert any(
+        record.levelname == "ERROR" and "Failed to import division" in record.msg
+        for record in caplog.records
+    )
+    assert any(
+        record.levelname == "WARNING"
+        and "Finished importing districts with errors" in record.msg
+        for record in caplog.records
+    )
+
+    assert (
+        AdministrativeDivision.objects.filter(
+            type__type="preschool_education_fi"
+        ).count()
+        == 1
+    )
+    assert AdministrativeDivision.objects.filter(extra__schoolyear="2023-2024").exists()

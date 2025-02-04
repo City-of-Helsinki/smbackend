@@ -4,6 +4,7 @@ from datetime import datetime
 
 from django.contrib.gis.gdal import CoordTransform, DataSource, SpatialReference
 from django.contrib.gis.geos import MultiPolygon
+from django.db import transaction
 from munigeo import ocd
 from munigeo.models import (
     AdministrativeDivision,
@@ -53,14 +54,27 @@ class SchoolDistrictImporter:
             type=division_type
         )
 
+        finished_with_errors = False
         for feature in layer:
-            self.import_division(
-                feature,
-                division_type_obj,
-                municipality,
-                ocd_id,
-                source_type,
+            try:
+                with transaction.atomic():
+                    self.import_division(
+                        feature,
+                        division_type_obj,
+                        municipality,
+                        ocd_id,
+                        source_type,
+                    )
+            except Exception:
+                logger.exception("Failed to import division, skipping...")
+                finished_with_errors = True
+
+        if finished_with_errors:
+            logger.warning(
+                "Finished importing districts with errors. See logs for more details."
             )
+        else:
+            logger.info("Finished importing districts.")
 
     def import_division(
         self, feature, division_type_obj, municipality, ocd_id, source_type
@@ -117,7 +131,7 @@ class SchoolDistrictImporter:
 
     def create_end_date(self, name):
         year = re.split(r"[ -]", name)[-1]
-        return f"{year }-07-31"
+        return f"{year}-07-31"
 
     def save_geometry(self, feature, division):
         geom = feature.geom
