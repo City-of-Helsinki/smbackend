@@ -162,7 +162,7 @@ def test_update_school_districts_removes_school_year(
 @patch(
     "services.management.commands.school_district_import.school_district_importer.datetime"
 )
-def test_update_preschool_districtcs(mock_datetime, get_feature_mock, municipality):
+def test_update_preschool_districts(mock_datetime, get_feature_mock, municipality):
     mock_datetime.today.return_value = datetime(2023, 1, 1)
     mock_datetime.side_effect = lambda *args, **kwargs: datetime(*args, **kwargs)
 
