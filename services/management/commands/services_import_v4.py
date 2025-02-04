@@ -143,7 +143,7 @@ class Command(BaseCommand):
     def _fetch_unit_accessibility_properties(self, unit_pk):
         if self.verbosity:
             self.logger.info(
-                "Fetching unit accessibility " "properties for unit {}".format(unit_pk)
+                "Fetching unit accessibility properties for unit {}".format(unit_pk)
             )
         obj_list = self.pk_get("unit/{}/accessibility".format(unit_pk))
         return obj_list
