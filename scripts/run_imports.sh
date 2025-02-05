@@ -23,8 +23,6 @@ function stage_1 {
     ./manage.py update_vantaa_parking_areas
     ./manage.py update_vantaa_parking_payzones
     ./manage.py update_vantaa_nature_reserves
-    ./manage.py update_helsinki_school_districts
-    ./manage.py update_helsinki_preschool_districts
     ./manage.py index_search_columns
 }
 
@@ -32,6 +30,8 @@ function stage_2 {
     # Execute daily
     # Unit properties import
     ./manage.py services_import_v4 unit_properties
+    ./manage.py update_helsinki_school_districts
+    ./manage.py update_helsinki_preschool_districts
 }
 
 function stage_3 {
