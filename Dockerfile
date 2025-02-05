@@ -41,10 +41,7 @@ FROM appbase AS staticbuilder
 ENV STATIC_ROOT /app/static
 COPY . .
 
-RUN mkdir -p /srv/smbackend/static
-
 RUN python manage.py collectstatic
-
 
 # ==============================
 FROM appbase AS production
