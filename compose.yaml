@@ -21,7 +21,7 @@ services:
       - .:/app
     ports:
       - "8000:8000"
-    restart: on-failure
+    restart: unless-stopped
     depends_on:
       - postgres
     container_name: servicemap-backend
