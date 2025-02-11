@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.2.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.1.0...smbackend-v3.2.0) (2025-02-11)
+
+
+### Features
+
+* Switch to City of Helsinki's UBI GDAL image ([f17857f](https://github.com/City-of-Helsinki/smbackend/commit/f17857f902aa2ecdd13a0bd10d8e78fd2f6effb0))
+
+
+### Bug Fixes
+
+* Remove default value for secret key ([58aba58](https://github.com/City-of-Helsinki/smbackend/commit/58aba5874d3712a5b6b2a65a0ebb78358da24aa2))
+
 ## [3.1.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.0.1...smbackend-v3.1.0) (2025-02-05)
 
 
