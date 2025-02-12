@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.3.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.2.0...smbackend-v3.3.0) (2025-02-12)
+
+
+### Features
+
+* **school:** Import school districts without units ([be5f514](https://github.com/City-of-Helsinki/smbackend/commit/be5f5142a61892ecf43b1f859b4dd17f82745169))
+* **school:** Run school district import inside a transaction ([6e131a4](https://github.com/City-of-Helsinki/smbackend/commit/6e131a48a06570fc91503ca812485fcd4609127b))
+
 ## [3.2.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.1.0...smbackend-v3.2.0) (2025-02-11)
 
 
