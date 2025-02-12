@@ -5,25 +5,11 @@
     <gml:featureMember>
         <avoindata:Esiopetusalue_suomi fid="Esiopetusalue_suomi.666">
             <avoindata:id>666</avoindata:id>
-            <avoindata:geom>
-                <gml:Polygon srsName="http://www.opengis.net/gml/srs/epsg.xml#3879">
-                    <gml:outerBoundaryIs>
-                        <gml:LinearRing>
-                            <gml:coordinates decimal="." cs="," ts=" ">2.55081158198837E7,6672479.619</gml:coordinates>
-                        </gml:LinearRing>
-                    </gml:outerBoundaryIs>
-                </gml:Polygon>
-            </avoindata:geom>
-        </avoindata:Esiopetusalue_suomi>
-    </gml:featureMember>
-    <gml:featureMember>
-        <avoindata:Esiopetusalue_suomi fid="Esiopetusalue_suomi.333">
-            <avoindata:id>333</avoindata:id>
             <avoindata:aluejako>VAKA_ESIOPETUS</avoindata:aluejako>
             <avoindata:kunta>091</avoindata:kunta>
-            <avoindata:nimi_fi>Testialue</avoindata:nimi_fi>
-            <avoindata:nimi_se>Testområde</avoindata:nimi_se>
-            <avoindata:toimipiste_id>14</avoindata:toimipiste_id>
+            <avoindata:nimi_fi>Puuttuva toimipiste_id</avoindata:nimi_fi>
+            <avoindata:nimi_se>Samma på svenska</avoindata:nimi_se>
+            <avoindata:toimipiste_id></avoindata:toimipiste_id>
             <avoindata:yhtluontipvm>2022-11-15</avoindata:yhtluontipvm>
             <avoindata:yhtdatanomistaja>Kami</avoindata:yhtdatanomistaja>
             <avoindata:paivitetty_tietopalveluun>2022-11-16</avoindata:paivitetty_tietopalveluun>
