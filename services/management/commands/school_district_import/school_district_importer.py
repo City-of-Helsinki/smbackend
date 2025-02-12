@@ -95,11 +95,17 @@ class SchoolDistrictImporter:
             **{ocd_id: str(origin_id), "parent": municipality.division.ocd_id}
         )
 
-        service_point_id = str(feature.get("toimipiste_id"))
+        try:
+            # Raises an IndexError if the field does not exist.
+            service_point_id = feature.get("toimipiste_id")
+        except IndexError:
+            service_point_id = None
+        if service_point_id is not None:
+            service_point_id = str(service_point_id)
 
         if self.district_type == "school":
             division.service_point_id = service_point_id
-            division.units = [service_point_id]
+            division.units = [service_point_id] if service_point_id else []
 
             if "suomi" in source_type:
                 name = feature.get("nimi_fi")
@@ -113,8 +119,11 @@ class SchoolDistrictImporter:
                 division.end = self.create_end_date(name)
 
         elif self.district_type == "preschool":
-            units = service_point_id.split(",")
-            division.units = units
+            if service_point_id:
+                units = service_point_id.split(",")
+                division.units = units
+            else:
+                division.units = []
 
             division.name_fi = feature.get("nimi_fi")
             division.name_sv = feature.get("nimi_se")
