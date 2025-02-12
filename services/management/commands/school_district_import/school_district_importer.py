@@ -110,13 +110,13 @@ class SchoolDistrictImporter:
             if "suomi" in source_type:
                 name = feature.get("nimi_fi")
                 division.name_fi = feature.get("nimi_fi")
-                division.start = self.create_start_date(name)
-                division.end = self.create_end_date(name)
+                division.start = self.get_start_date_from_name(name)
+                division.end = self.get_end_date_from_name(name)
             if "ruotsi" in source_type:
                 name = feature.get("nimi_se")
                 division.name_sv = feature.get("nimi_se")
-                division.start = self.create_start_date(name)
-                division.end = self.create_end_date(name)
+                division.start = self.get_start_date_from_name(name)
+                division.end = self.get_end_date_from_name(name)
 
         elif self.district_type == "preschool":
             if service_point_id:
@@ -134,11 +134,13 @@ class SchoolDistrictImporter:
 
         self.save_geometry(feature, division)
 
-    def create_start_date(self, name):
+    @staticmethod
+    def get_start_date_from_name(name):
         year = re.split(r"[ -]", name)[-2]
         return f"{year}-08-01"
 
-    def create_end_date(self, name):
+    @staticmethod
+    def get_end_date_from_name(name):
         year = re.split(r"[ -]", name)[-1]
         return f"{year}-07-31"
 
