@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.db import transaction
 from munigeo.models import AdministrativeDivision
 
 from services.management.commands.school_district_import.school_district_importer import (  # noqa: E501
@@ -55,6 +56,7 @@ class Command(BaseCommand):
         "Usage: ./manage.py update_helsinki_school_districts"
     )
 
+    @transaction.atomic
     def handle(self, *args, **options):
         division_types = list({data["division_type"] for data in SCHOOL_DISTRICT_DATA})
 
