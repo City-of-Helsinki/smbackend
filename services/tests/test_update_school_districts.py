@@ -10,6 +10,10 @@ from munigeo.models import (
     Municipality,
 )
 
+from services.management.commands.school_district_import.school_district_importer import (
+    SchoolDistrictImporter,
+)
+
 
 @pytest.fixture
 def municipality():
@@ -380,3 +384,36 @@ def test_should_update_school_districts_without_units(
     assert division.units == []
     assert division.start.year == 2023
     assert division.end.year == 2024
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "2023-2024",
+        pytest.param("2023 - 2024", marks=pytest.mark.xfail),
+        "Alakoulu 2023-2024",
+        "Koskenjärviniemen yläkoulu 2023-2024",
+        "Ali-Kosken yliopistollinen esikoulu 2023-2024",
+        pytest.param(
+            "Palsternakka-Cavoniuksen ala- ja yläasteen koulu 2023 - 2024",
+            marks=pytest.mark.xfail,
+        ),
+    ],
+)
+def test_get_start_date_from_name(name):
+    assert SchoolDistrictImporter.get_start_date_from_name(name) == "2023-08-01"
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "2023-2024",
+        "2023 - 2024",
+        "Alakoulu 2023-2024",
+        "Koskenjärviniemen yläkoulu 2023-2024",
+        "Ali-Kosken yliopistollinen esikoulu 2023-2024",
+        "Palsternakka-Cavoniuksen ala- ja yläasteen koulu 2023 - 2024",
+    ],
+)
+def test_get_end_date_from_name(name):
+    assert SchoolDistrictImporter.get_end_date_from_name(name) == "2024-07-31"
