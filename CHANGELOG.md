@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.3.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.3.0...smbackend-v3.3.1) (2025-03-07)
+
+
+### Dependencies
+
+* Bump cryptography from 43.0.1 to 44.0.1 ([8babaa4](https://github.com/City-of-Helsinki/smbackend/commit/8babaa4106fe9e921ddd2dcf09235ba8264d9751))
+* Bump django from 5.1.5 to 5.1.7 ([d007222](https://github.com/City-of-Helsinki/smbackend/commit/d007222a87596cb820f07ce4378833296f09d7d8))
+
 ## [3.3.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.2.0...smbackend-v3.3.0) (2025-02-12)
 
 
