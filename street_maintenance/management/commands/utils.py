@@ -535,9 +535,8 @@ def create_kuntec_maintenance_units():
             on_states = 0
             # example io_din field: {'no': 3, 'label': 'Muu työ', 'state': 0}
             for io in unit["io_din"]:
-                if io["state"] == 1:
-                    on_states += 1
-                    names.append(io["label"])
+                on_states += 1
+                names.append(io["label"])
         # If names, we have a unit with at least one io_din with State On.
         if len(names) > 0:
             filter = {
@@ -549,9 +548,7 @@ def create_kuntec_maintenance_units():
         else:
             no_io_din += 1
     MaintenanceUnit.objects.filter(id__in=objs_to_delete).delete()
-    logger.info(
-        f"Discarding {no_io_din} Kuntec units that do not have a io_din with Status 'On'(1)."
-    )
+    logger.info(f"Discarding {no_io_din} Kuntec units that do not have a io_din data.")
     return num_created, len(objs_to_delete)
 
 
