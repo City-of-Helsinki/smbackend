@@ -116,6 +116,17 @@
     description_sv: Stängd av andra skäl
     description_en: Closed for other reasons than cyanobacteria
     quality: unusable
+- model: observations.AllowedValue
+  fields:
+    property_id: swimming_water_cyanobacteria
+    identifier: 5
+    name_fi: Uimista suositellaan välttämään muista syistä
+    name_sv: Simning rekommenderas inte av andra skäl
+    name_en: Swimming not recommended for other reasons
+    description_fi: Uimista suositellaan välttämään muista syistä kuin sinilevän vuoksi
+    description_sv: Simning rekommenderas inte av andra skäl än blågröna alger
+    description_en: Swimming not recommended for other reasons than cyanobacteria
+    quality: warning
 - model: observations.ObservableProperty
   pk: live_swimming_water_temperature
   fields:
