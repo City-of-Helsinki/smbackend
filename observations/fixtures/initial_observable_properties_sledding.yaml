@@ -1,0 +1,31 @@
+- model: observations.ObservableProperty
+  pk: sledding_hill_condition
+  fields:
+    name_fi: Pulkkamäen kunto
+    name_en: Sledding hill condition
+    name_sv: Slädebacken skick
+    observation_type: observations.CategoricalObservation
+    services:
+      - 1083
+- model: observations.AllowedValue
+  fields:
+    identifier: closed
+    name_fi: Suljettu
+    name_en: Closed
+    name_sv: Stängd
+    description_fi: Pulkkamäki on suljettu
+    description_en: The sledding hill is closed
+    description_sv: Slädebacken är stängd
+    property_id: sledding_hill_condition
+    quality: unusable
+- model: observations.AllowedValue
+  fields:
+    identifier: open
+    name_fi: Auki
+    name_en: Open
+    name_sv: Öppen
+    description_fi: Pulkkamäki on auki
+    description_en: The sledding hill is open
+    description_sv: Slädebacken är öppen
+    property_id: sledding_hill_condition
+    quality: good
