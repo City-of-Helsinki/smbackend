@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.3.1...smbackend-v3.4.0) (2025-03-29)
+
+
+### Features
+
+* **observations:** Add new allowed value for swimming conditions ([4affe41](https://github.com/City-of-Helsinki/smbackend/commit/4affe41b06d8ca722b711a08646084c367863b0a))
+
 ## [3.3.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.3.0...smbackend-v3.3.1) (2025-03-07)
 
 
