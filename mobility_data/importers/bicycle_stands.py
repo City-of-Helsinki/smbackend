@@ -168,12 +168,17 @@ class BicyleStand(MobileUnitDataBase):
             self.extra["number_of_places"] = sum(numbers)
 
         quality_elem = feature["Pyorapaikkojen_laatutaso"].as_string()
+        
+        self.extra.setdefault("hull_lockable", None)
+        self.extra.setdefault("covered", None)
+
         if quality_elem:
             quality_text = quality_elem.lower()
             if self.WFS_HULL_LOCKABLE_STR in quality_text:
                 self.extra["hull_lockable"] = True
             else:
                 self.extra["hull_lockable"] = False
+
             if self.COVERED_IN_STR in quality_text:
                 self.extra["covered"] = True
             else:
