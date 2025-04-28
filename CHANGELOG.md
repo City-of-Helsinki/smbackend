@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.4.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.3.1...smbackend-v3.4.0) (2025-04-28)
+
+
+### Features
+
+* **observations:** Add initial observable properties for sledding ([72bfe02](https://github.com/City-of-Helsinki/smbackend/commit/72bfe02b25fdbc8a071e78bba00535889525aa71))
+* **observations:** Add new allowed value for swimming conditions ([4affe41](https://github.com/City-of-Helsinki/smbackend/commit/4affe41b06d8ca722b711a08646084c367863b0a))
+
+
+### Dependencies
+
+* Bump django from 5.1.7 to 5.1.8 ([a8bb3df](https://github.com/City-of-Helsinki/smbackend/commit/a8bb3dfb9ff7d27d2713ab2836dbb7af69d643f1))
+
 ## [3.3.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.3.0...smbackend-v3.3.1) (2025-03-07)
 
 
