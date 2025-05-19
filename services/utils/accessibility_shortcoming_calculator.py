@@ -39,6 +39,7 @@ PATH_TITLES = {
         "en": "Service point",
     },
     "playground": {"fi": "Leikkipuisto", "sv": "Lekpark", "en": "Playground"},
+    "restaurant": {"fi": "Ravintola", "sv": "Restaurang", "en": "Restaurant"},
     "nature_site": {
         "fi": "Luontokohde",
         "sv": "Naturobjektet",
