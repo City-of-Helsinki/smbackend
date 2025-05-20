@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.4.1...smbackend-v3.5.0) (2025-05-20)
+
+
+### Features
+
+* Update accessibility rules for restaurants ([9f1e6d0](https://github.com/City-of-Helsinki/smbackend/commit/9f1e6d03e527048783fd2ea8aab0e50deefb07af))
+
 ## [3.4.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.4.0...smbackend-v3.4.1) (2025-05-14)
 
 
