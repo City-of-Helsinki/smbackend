@@ -145,7 +145,7 @@ def get_charging_station_objects():
                     charging_stations[index] = charging_station
                 charging_stations[index].add_charger(values)
             line_count += 1
-            if line_count >= number_of_rows - 1:
+            if line_count >= number_of_rows:
                 break
     # create list from dict values.
     objects = [obj for obj in charging_stations.values()]
