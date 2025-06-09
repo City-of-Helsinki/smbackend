@@ -1,34 +1,30 @@
-
 # Using Ubuntu base for access to GDAL PPA
-FROM ubuntu:20.04
-FROM python:3.10.4
+FROM ubuntu:22.04
 WORKDIR /smbackend
 
 # tzdata installation requires settings frontend
 RUN apt-get update && \
-    TZ="Europe/Helsinki" DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip gdal-bin uwsgi uwsgi-plugin-python3 libgdal-dev postgresql-client netcat gettext git-core libpq-dev voikko-fi libvoikko-dev 
+    TZ="Europe/Helsinki" DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip gdal-bin uwsgi uwsgi-plugin-python3 libgdal-dev postgresql-client netcat gettext git-core libpq-dev voikko-fi libvoikko-dev dialog openssh-server \
+    && ln -s /usr/bin/pip3 /usr/local/bin/pip \
+    && ln -s /usr/bin/python3 /usr/local/bin/python \
+    && apt-get clean
   
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Enable SSH
+RUN echo "root:Docker!" | chpasswd
+COPY sshd_config /etc/ssh/
+
 COPY . .
+COPY data data_from_github
+RUN chmod u+x ./docker-entrypoint.sh
+RUN chmod u+x ./manage.py
 
-# smbackend needs static files and media for data sources
-ENV STATIC_ROOT /srv/smbackend/static
-RUN mkdir -p /ssmbackend/static
-ENV MEDIA_ROOT /srv/smbackend/media
-RUN mkdir -p /srv/smbackend/media
-
-ENV SECRET_KEY "only-for-build"
-RUN python manage.py compilemessages
-RUN python manage.py collectstatic
+EXPOSE 8000 2222
 
 # Munigeo will fetch data to this directory
 RUN mkdir -p /smbackend/data && chgrp -R 0 /smbackend/data && chmod -R g+w /smbackend/data
-
-# Openshift starts the container process with group zero and random ID
-# we mimic that here with nobody and group zero
-USER nobody:0
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
