@@ -88,7 +88,7 @@ pytest-cov==6.0.0
     # via -r requirements-dev.in
 pytest-django==4.9.0
     # via -r requirements-dev.in
-requests==2.32.3
+requests==2.32.4
     # via
     #   -c requirements.txt
     #   pygithub
