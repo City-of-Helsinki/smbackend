@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.5.0...smbackend-v3.5.1) (2025-06-10)
+
+
+### Dependencies
+
+* Bump django from 5.1.9 to 5.1.10 ([dee55b6](https://github.com/City-of-Helsinki/smbackend/commit/dee55b61b5de84a7fa8776c90df8530f074d49a0))
+
 ## [3.5.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.4.1...smbackend-v3.5.0) (2025-05-20)
 
 
