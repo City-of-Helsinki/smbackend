@@ -13,7 +13,6 @@ GDAL_LIBRARY_PATH = os.environ.get("GDAL_LIBRARY_PATH")
 GEOS_LIBRARY_PATH = os.environ.get("GEOS_LIBRARY_PATH")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-# TRUST_X_FORWARDED_HOST=(bool, False),
 BASE_DIR = str(Path(__file__).resolve().parent.parent)
 env = environ.Env(
     DEBUG=(bool, False),
@@ -23,7 +22,7 @@ env = environ.Env(
     SECURE_PROXY_SSL_HEADER=(tuple, None),
     ALLOWED_HOSTS=(list, []),
     CSRF_TRUSTED_ORIGINS=(list, []),
-    USE_X_FORWARDED_HOST=(list, []),
+    USE_X_FORWARDED_HOST=(bool, False),
     SENTRY_DSN=(str, ""),
     SENTRY_ENVIRONMENT=(str, ""),
     COOKIE_PREFIX=(str, "servicemap"),
@@ -193,8 +192,7 @@ TIME_ZONE = "Europe/Helsinki"
 USE_I18N = True
 USE_TZ = True
 
-# USE_X_FORWARDED_HOST = env("TRUST_X_FORWARDED_HOST")
-USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_HOST = env("USE_X_FORWARDED_HOST")
 SECURE_PROXY_SSL_HEADER = env("SECURE_PROXY_SSL_HEADER")
 CORS_ORIGIN_ALLOW_ALL = True
 TASTYPIE_DEFAULT_FORMATS = ["json"]
