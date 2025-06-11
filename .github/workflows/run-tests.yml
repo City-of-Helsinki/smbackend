@@ -8,8 +8,8 @@ on:
 
 jobs:
   build:
-    # Ubuntu latest is Ubuntu 20.04 as of 2022/6
-    runs-on: ubuntu-20.04
+    # Ubuntu latest is Ubuntu 24.04 as of 2025/6
+    runs-on: ubuntu-24.04
 
     env:
       # Database for tests
