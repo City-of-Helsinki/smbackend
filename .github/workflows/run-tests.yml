@@ -8,8 +8,8 @@ on:
 
 jobs:
   build:
-    # Ubuntu latest is Ubuntu 20.04 as of 2022/6
-    runs-on: ubuntu-20.04
+    # Ubuntu latest is Ubuntu 24.04 as of 2025/6
+    runs-on: ubuntu-24.04
 
     env:
       # Database for tests
@@ -23,10 +23,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.10.0
+    - name: Set up Python 3.10.18
       uses: actions/setup-python@v3
       with:
-        python-version: 3.10.0
+        python-version: 3.10.18
     - name: Install required Ubuntu packages
       run: |
         sudo apt-get update && sudo apt-get -y --no-install-recommends install gdal-bin voikko-fi libvoikko-dev gettext 
