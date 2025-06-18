@@ -22,52 +22,52 @@ def get_abs_file_path(json_file):
     return os.path.join(script_dir, rel_path)
 
 
-HELSINKI_POPULATION_BY_AGE_URL = (
-    "https://stat.hel.fi:443/api/v1/fi/Aluesarjat/vrm/vaerak/pksoa/A01S_HKI_Vakiluku.px"
+POPULATION_BY_AGE_URL = (
+    "https://stat.hel.fi/api/v1/fi/Aluesarjat/vrm/vaerak/alu_vaerak_004p.px"
 )
 with open(get_abs_file_path("helsinki_population_by_age.json")) as f:
     HELSINKI_POPULATION_BY_AGE = json.load(f)
 
-ESPOO_POPULATION_BY_AGE_URL = (
-    "https://stat.hel.fi:443/api/v1/fi/Aluesarjat/vrm/vaerak/pksoa/B01S_ESP_Vakiluku.px"
-)
 with open(get_abs_file_path("espoo_population_by_age.json")) as f:
     ESPOO_POPULATION_BY_AGE = json.load(f)
 
-VANTAA_POPULATION_BY_AGE_URL = (
-    "https://stat.hel.fi:443/api/v1/fi/Aluesarjat/vrm/vaerak/pksoa/C01S_VAN_Vakiluku.px"
-)
 with open(get_abs_file_path("vantaa_population_by_age.json")) as f:
     VANTAA_POPULATION_BY_AGE = json.load(f)
 
 
 population_by_age_configs = {
     "helsinki": {
-        "url": HELSINKI_POPULATION_BY_AGE_URL,
+        "url": POPULATION_BY_AGE_URL,
         "data": HELSINKI_POPULATION_BY_AGE,
         "municipality": Municipality.objects.get(name="Helsinki"),
     },
     "espoo": {
-        "url": ESPOO_POPULATION_BY_AGE_URL,
+        "url": POPULATION_BY_AGE_URL,
         "data": ESPOO_POPULATION_BY_AGE,
         "municipality": Municipality.objects.get(name="Espoo"),
     },
     "vantaa": {
-        "url": VANTAA_POPULATION_BY_AGE_URL,
+        "url": POPULATION_BY_AGE_URL,
         "data": VANTAA_POPULATION_BY_AGE,
         "municipality": Municipality.objects.get(name="Vantaa"),
     },
 }
 
-HELSINKI_POPULATION_FORECAST_URL = "https://stat.hel.fi:443/api/v1/fi/Aluesarjat/vrm/vaenn/pksoa/A01HKIS_Vaestoennuste.px"
+HELSINKI_POPULATION_FORECAST_URL = (
+    "https://stat.hel.fi/api/v1/fi/Aluesarjat/vrm/vaenn/alu_vaenn_006c.px"
+)
 with open(get_abs_file_path("helsinki_population_forecast.json")) as f:
     HELSINKI_POPULATION_FORECAST = json.load(f)
 
-ESPOO_POPULATION_FORECAST_URL = "https://stat.hel.fi:443/api/v1/fi/Aluesarjat/vrm/vaenn/pksoa/B01ESPS_Vaestoennuste.px"
+ESPOO_POPULATION_FORECAST_URL = (
+    "https://stat.hel.fi/api/v1/fi/Aluesarjat/vrm/vaenn/alu_vaenn_010e.px"
+)
 with open(get_abs_file_path("espoo_population_forecast.json")) as f:
     ESPOO_POPULATION_FORECAST = json.load(f)
 
-VANTAA_POPULATION_FORECAST_URL = "https://stat.hel.fi:443/api/v1/fi/Aluesarjat/vrm/vaenn/pksoa/C01VANS_Vaestoennuste.px"
+VANTAA_POPULATION_FORECAST_URL = (
+    "https://stat.hel.fi/api/v1/fi/Aluesarjat/vrm/vaenn/alu_vaenn_010f.px"
+)
 with open(get_abs_file_path("vantaa_population_forecast.json")) as f:
     VANTAA_POPULATION_FORECAST = json.load(f)
 
@@ -112,7 +112,7 @@ class Command(BaseCommand):
             )
             result = json.loads(response.text)
             for item in result.get("data"):
-                district_id, lang, gender, age, year = item.get("key")
+                district_id, _lang, age, year = item.get("key")
                 statistic_key = "%s_population_by_age" % year
                 value = item.get("values")[0]
                 num_statistics_updated = self._update_statistical_district(
@@ -142,7 +142,7 @@ class Command(BaseCommand):
             )
             result = json.loads(response.text)
             for item in result.get("data"):
-                lang, district_id, age, origin_key, year = item.get("key")
+                _origin_key, _lang, district_id, age, year = item.get("key")
                 statistic_key = "%s_population_forecast" % year
                 value = item.get("values")[0]
                 num_statistics_updated = self._update_statistical_district(

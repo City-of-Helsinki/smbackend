@@ -1,6 +1,15 @@
 {
   "query": [
     {
+      "code": "Laatimisvuosi ja vaihtoehto",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "PER24"
+        ]
+      }
+    },
+    {
       "code": "Äidinkieli",
       "selection": {
         "filter": "item",
@@ -14,7 +23,6 @@
       "selection": {
         "filter": "agg:osa-alueet Helsinki.agg",
         "values": [
-          "0910000000",
           "0911101010",
           "0911101020",
           "0911101080",
@@ -173,24 +181,15 @@
     {
       "code": "Ikä",
       "selection": {
-        "filter": "agg:ikäryhmät harva-jako.agg",
+        "filter": "agg:ika_harva.agg",
         "values": [
-          "total",
+          "ALL",
           "0-6",
           "7-17",
           "18-29",
           "30-49",
           "50-64",
-          "65+"
-        ]
-      }
-    },
-    {
-      "code": "Laatimisvuosi ja vaihtoehto",
-      "selection": {
-        "filter": "item",
-        "values": [
-          "PER21"
+          "65-"
         ]
       }
     },
@@ -199,7 +198,7 @@
       "selection": {
         "filter": "item",
         "values": [
-          "2029"
+          "2030"
         ]
       }
     }

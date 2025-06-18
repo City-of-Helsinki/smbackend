@@ -1,6 +1,15 @@
 {
   "query": [
     {
+      "code": "Laatimisvuosi ja vaihtoehto",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2024"
+        ]
+      }
+    },
+    {
       "code": "Äidinkieli",
       "selection": {
         "filter": "item",
@@ -113,24 +122,15 @@
     {
       "code": "Ikä",
       "selection": {
-        "filter": "agg:ikäryhmät harva-jako.agg",
+        "filter": "agg:ika_harva.agg",
         "values": [
-          "total",
+          "ALL",
           "0-6",
           "7-17",
           "18-29",
           "30-49",
           "50-64",
-          "65+"
-        ]
-      }
-    },
-    {
-      "code": "Laatimisvuosi ja vaihtoehto",
-      "selection": {
-        "filter": "item",
-        "values": [
-          "2022"
+          "65-"
         ]
       }
     },
@@ -139,7 +139,7 @@
       "selection": {
         "filter": "item",
         "values": [
-          "2029"
+          "2030"
         ]
       }
     }
