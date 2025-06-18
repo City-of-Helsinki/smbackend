@@ -3,7 +3,7 @@
     {
       "code": "Alue",
       "selection": {
-        "filter": "agg:pienalueet Espoo.agg",
+        "filter": "agg:esp_pienalueet.agg",
         "values": [
           "0490000000",
           "0491011111",
@@ -106,31 +106,22 @@
       "selection": {
         "filter": "item",
         "values": [
-          "all"
-        ]
-      }
-    },
-    {
-      "code": "Sukupuoli",
-      "selection": {
-        "filter": "item",
-        "values": [
-          "all"
+          "ALL"
         ]
       }
     },
     {
       "code": "Ikä",
       "selection": {
-        "filter": "agg:ikäryhmät harva-jako.agg",
+        "filter": "item",
         "values": [
-          "total",
+          "ALL",
           "0-6",
-          "7-17",
-          "18-29",
-          "30-49",
-          "50-64",
-          "65+"
+          "7-15",
+          "16-18",
+          "19-34",
+          "35-64",
+          "65-"
         ]
       }
     },
@@ -139,7 +130,7 @@
       "selection": {
         "filter": "item",
         "values": [
-          "2022"
+          "2024"
         ]
       }
     }
