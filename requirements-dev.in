@@ -1,5 +1,5 @@
 -c requirements.txt
-urllib3<2
+urllib3<3
 ipython
 jedi
 parso

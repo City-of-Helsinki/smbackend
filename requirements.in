@@ -24,6 +24,6 @@ psycopg2
 sentry-sdk
 tqdm
 tzdata
-urllib3<2
+urllib3<3
 whitenoise
 uwsgi
