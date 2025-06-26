@@ -150,3 +150,4 @@ Teho (kW);Määrä;Pistoke;Latauspiste nro;Osoite;X;Y;Hallinnoija_fi;Hallinnoija
 22;2;Type 2;106;Uimarannantie 1;23467516,1;6705855;Puuilo;Puuilo;Puuilo;Julkinen;Maksullinen;;;Virta app;;;
 11;5;Type 2;107;Loukinaistentie 10;23467530,2;6706589;Veho;Veho;Veho;Julkinen;Maksullinen;;;Plug-It;;;
 22;2;Type 2;108;Detmarinkuja 1;23464479,3;6704453,4;;;;Julkinen;Maksullinen;;;Eparking;;;
+20;3;CCS;109;Inspehtorinkatu 12;23460802.6;6705789.6;TYS;TYS;TYS;Julkinen;Maksullinen;;;Eparking;;;V2G
