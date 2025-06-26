@@ -119,12 +119,8 @@ class Command(BaseCommand):
                 f"Created {num_created_works} Works of total {tot_num_works} Works for provider {provider}"
             )
 
-            if num_created_works > 0:
-                precalculate_geometry_history(provider)
-            else:
-                logger.warning(
-                    f"No works created for {provider}, skipping geometry history population."
-                )
+            precalculate_geometry_history(provider)
+
             end_time = datetime.now()
             duration = end_time - start_time
             logger.info(
