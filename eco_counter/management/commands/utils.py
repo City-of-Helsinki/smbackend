@@ -324,7 +324,12 @@ def get_lam_counter_csv(start_date):
                 station.station_id, direction, start_date, today
             )
             # Read the direction, e.g., Vaasa
-            direction_name = df["suuntaselite"].iloc[0]
+            try:
+                direction_name = df["suuntaselite"].iloc[0]
+            except IndexError as e:
+                logger.warning(f"Discarding station {station} IndexError: {e}")
+                continue
+
             # From the mappings determine the 'keskustaan päin' or 'poispäin keskustasta' direction.
             try:
                 direction_value = LAM_STATIONS_DIRECTION_MAPPINGS[
