@@ -17,22 +17,28 @@ To import all data sources:
 The data sources can be imported separetely as explained below:
 
 ### Gas filling stations  
-To import data type:  
+To import data:  
 ```
 ./manage.py import_gas_filling_stations  
 ```
 ### Charging stations  
-To import data type:  
+To import data:  
 ```
 ./manage.py import_charging_stations  
 ```
 ### Parking garages  
-To import data type:  
+To import data:  
 ```
 ./manage.py import_parking_garages  
 ```
+
+### Voice activated crosswalks
+To import data:
+```
+./manage.py import_voice_activated_crosswalks
+```
 ### Culture Routes
-To import data type:  
+To import data:  
 ```
 ./manage.py import_culture_routes  
 ```
@@ -41,19 +47,19 @@ Culture routes are not deleted before importing. To explicity delete Culture Rou
 ./manage.py import_culture_routes --delete  
 ```
 ### Bicycle stands  
-To import data type:  
+To import data:  
 ```
 ./manage.py import_bicycle_stands 
 ```
 
 ### Bike service stations
-To import data type:  
+To import data:  
 ```
 ./manage.py import_bike_service_stations
 ```
 
 ### Payment Zones
-To import data type:
+To import data:
 ```
 ./manage.py import_wfs PaymentZone
 ```
@@ -65,27 +71,27 @@ To import type:
 ```
 
 ### Scooter Restriction
-To import data type:
+To import data:
 ```
 ./manage.py import_wfs ScooterParkingArea ScooterSpeedLimitArea ScooterNoParkingArea
 ```
 
 ### Accessories
 Imports public benches, toilets, tables and furniture groups.
-To import data type:
+To import data:
 ```
 ./manage.py import_wfs PublicToilet PublicTable PublicBench PublicFurnitureGroup
 ```
 ### Share car parking places
 Imports parking places for car sharing cars. 
-To import data type:
+To import data:
 ```
 ./manage.py import_share_car_parking_places
 ```
 
 ### Bicycle networks
 Imports brush salted(BLB) and brush sanded bicycle networks(BND).
-To import data type:
+To import data:
 ```
 ./manage.py import_wfs BrushSaltedBicycleNetwork BrushSandedBicycleNetwork
 ```
@@ -93,20 +99,20 @@ To import data type:
 ### Marinas
 Imports marinas, guest marina and boat parking.
 Imports also berths that belongs to marinas.
-To import data type:
+To import data:
 ```
 ./manage.py import_marinas
 ```
 
 ### Disabled and no staff parkings
 Imports disabled parkings and no staff parkings, i.e., no staff parking are parking places that are not intended for the staff.
-To import data type:
+To import data:
 ```
 ./manage.py import_disabled_and_no_staff_parkings
 ```
 
 ### Loading and unloading places
-To import data type:
+To import data:
 ```
 ./manage.py import_loading_and_unloading_places
 ```
@@ -122,30 +128,30 @@ To run the importer type:
 ```
 
 ### Paavonpolkus
-To import data type:
+To import data:
 ```
 ./manage.py import_wfs PaavonPolku
 ```
 ### Paddling trails
-To import data type:
+To import data:
 ```
 ./manage.py import_wfs PaddlingTrail
 ```
 
 ### Hiking trails
-To import data type:
+To import data:
 ```
 ./manage.py import_wfs HikingTrail
 ```
 
 ### Nature trails
-To import data type:
+To import data:
 ```
 ./manage.py import_wfs NatureTrail
 ```
 
 ### Fitness trails
-To import data type:
+To import data:
 ```
 ./manage.py import_wfs FitnessTrail
 ```
@@ -210,7 +216,7 @@ e.g., this would delete Paavonpolku mobile units,
 ## WFS Importer
 The WFS importer imports data from the open Turku WFS server.
 To set up a data source for importing in the WFS importer, configure the data source in the mobility_data/importers/data/wfs_importer_config.yml file.
-To import the data type:
+To import the data:
 ```
 ./manage import_wfs CONTENT_TYPE_NAME
 ```
