@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.6.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.5.2...smbackend-v3.6.0) (2025-06-30)
+
+
+### Features
+
+* Adapt to new statistical districts API ([24c5564](https://github.com/City-of-Helsinki/smbackend/commit/24c55645b8f74ec45c7936e28c4b663e64a89a15))
+
+
+### Dependencies
+
+* Bump urllib3 from 1.26.20 to 2.5.0 ([4dd0c67](https://github.com/City-of-Helsinki/smbackend/commit/4dd0c67b35459b3afa61f424131dc27360186f14))
+
 ## [3.5.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.5.1...smbackend-v3.5.2) (2025-06-11)
 
 
