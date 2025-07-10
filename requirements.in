@@ -21,9 +21,10 @@ requests_cache
 pytz
 python-dateutil
 psycopg2
-sentry-sdk
+sentry-sdk[django]
 tqdm
 tzdata
 urllib3<3
 whitenoise
 uwsgi
+uwsgitop
