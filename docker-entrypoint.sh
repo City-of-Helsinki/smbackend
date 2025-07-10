@@ -32,15 +32,6 @@ elif [[ -n "$*" ]]; then
 elif [[ "$DEV_SERVER" = "True" ]]; then
     python -Wd ./manage.py runserver 0.0.0.0:8000
 else
-    exec uwsgi --plugin http,python3 --master --http :8000 \
-               --processes 4 --threads 1 \
-               --need-app \
-               --mount "${URL_PREFIX:-/}=smbackend/wsgi.py" \
-               --manage-script-name \
-               --die-on-term \
-               --strict \
-               --ignore-sigpipe \
-               --ignore-write-errors \
-               --disable-write-exception \
-               --reload-on-rss 500
+    export UWSGI_PROCESSES=${UWSGI_PROCESSES:-4}
+    uwsgi --ini .prod/uwsgi.ini
 fi
