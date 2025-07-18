@@ -32,6 +32,7 @@ function stage_2 {
     ./manage.py services_import_v4 unit_properties
     ./manage.py update_helsinki_school_districts
     ./manage.py update_helsinki_preschool_districts
+    ./manage.py verify_school_districts
 }
 
 function stage_3 {
