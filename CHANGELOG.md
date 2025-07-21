@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.6.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.5.2...smbackend-v3.6.0) (2025-07-21)
+
+
+### Features
+
+* Adapt to new statistical districts API ([24c5564](https://github.com/City-of-Helsinki/smbackend/commit/24c55645b8f74ec45c7936e28c4b663e64a89a15))
+* **division:** Set units to empty if no units are found ([3aade0e](https://github.com/City-of-Helsinki/smbackend/commit/3aade0eeb5a142ac1ecb2c77e2ef39c84a20fb14))
+* Improve uWSGI options ([9355f55](https://github.com/City-of-Helsinki/smbackend/commit/9355f55774904ef86e5a2a12cfa6356ec4f45e73))
+
+
+### Dependencies
+
+* Add uwsgitop ([6f19156](https://github.com/City-of-Helsinki/smbackend/commit/6f19156f5d8bf0024951c0570fc6b80c0846aff4))
+* Bump urllib3 from 1.26.20 to 2.5.0 ([4dd0c67](https://github.com/City-of-Helsinki/smbackend/commit/4dd0c67b35459b3afa61f424131dc27360186f14))
+
 ## [3.5.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.5.1...smbackend-v3.5.2) (2025-06-11)
 
 
