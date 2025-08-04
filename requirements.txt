@@ -150,7 +150,7 @@ uritemplate==4.1.1
     # via drf-spectacular
 url-normalize==1.4.3
     # via requests-cache
-urllib3==2.5.0
+urllib3==1.26.20
     # via
     #   -r requirements.in
     #   bmi-arcgis-restapi
