@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.6.0...smbackend-v3.6.1) (2025-08-04)
+
+
+### Dependencies
+
+* Downgrade urllib3 ([c32464c](https://github.com/City-of-Helsinki/smbackend/commit/c32464ca106adde32b83d07afae49e7725e62779))
+
 ## [3.6.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.5.2...smbackend-v3.6.0) (2025-07-21)
 
 
