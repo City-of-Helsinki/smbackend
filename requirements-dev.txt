@@ -10,7 +10,7 @@ build==1.2.2.post1
     # via pip-tools
 certifi==2024.8.30
     # via
-    #   -c requirements.txt
+    #   -c /home/danipran/code/smbackend/requirements.txt
     #   requests
 cffi==1.17.1
     # via
@@ -18,7 +18,7 @@ cffi==1.17.1
     #   pynacl
 charset-normalizer==3.4.0
     # via
-    #   -c requirements.txt
+    #   -c /home/danipran/code/smbackend/requirements.txt
     #   requests
 click==8.1.7
     # via pip-tools
@@ -34,7 +34,7 @@ executing==2.1.0
     # via stack-data
 idna==3.10
     # via
-    #   -c requirements.txt
+    #   -c /home/danipran/code/smbackend/requirements.txt
     #   requests
 iniconfig==2.0.0
     # via pytest
@@ -90,7 +90,7 @@ pytest-django==4.9.0
     # via -r requirements-dev.in
 requests==2.32.4
     # via
-    #   -c requirements.txt
+    #   -c /home/danipran/code/smbackend/requirements.txt
     #   pygithub
     #   requests-mock
 requests-mock==1.12.1
@@ -99,7 +99,7 @@ ruff==0.9.4
     # via -r requirements-dev.in
 six==1.16.0
     # via
-    #   -c requirements.txt
+    #   -c /home/danipran/code/smbackend/requirements.txt
     #   asttokens
 stack-data==0.6.3
     # via ipython
@@ -109,11 +109,11 @@ traitlets==5.14.3
     #   matplotlib-inline
 typing-extensions==4.12.2
     # via
-    #   -c requirements.txt
+    #   -c /home/danipran/code/smbackend/requirements.txt
     #   pygithub
-urllib3==2.5.0
+urllib3==1.26.20
     # via
-    #   -c requirements.txt
+    #   -c /home/danipran/code/smbackend/requirements.txt
     #   -r requirements-dev.in
     #   pygithub
     #   requests
