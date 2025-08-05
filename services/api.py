@@ -10,7 +10,7 @@ from django.contrib.gis.measure import D
 from django.core.exceptions import ValidationError
 from django.db.models import F, Prefetch, Q
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.utils.module_loading import import_string
@@ -25,8 +25,11 @@ from mptt.utils import drilldown_tree_for_node
 from munigeo import api as munigeo_api
 from munigeo.models import AdministrativeDivision, Municipality
 from rest_framework import generics, renderers, serializers, viewsets
-from rest_framework.exceptions import ParseError
+from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound, ParseError
+from rest_framework.fields import SerializerMethodField
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from observations.models import Observation
 from services.accessibility import RULES
@@ -629,6 +632,7 @@ class UnitEntranceSerializer(
     ServicesTranslatedModelSerializer, munigeo_api.GeoModelSerializer
 ):
     location = serializers.SerializerMethodField()
+    picture_url = serializers.SerializerMethodField()
 
     class Meta:
         model = UnitEntrance
@@ -636,6 +640,14 @@ class UnitEntranceSerializer(
 
     def get_location(self, obj):
         return munigeo_api.geom_to_json(obj.location, self.srs)
+
+    def get_picture_url(self, obj):
+        if settings.PICTURE_URL_REWRITE_ENABLED and obj.picture_url:
+            request = self.context.get("request")
+            return request.build_absolute_uri(
+                reverse("unitentrance-picture", kwargs={"pk": obj.pk})
+            )
+        return obj.picture_url
 
 
 class UnitEntranceViewSet(munigeo_api.GeoModelAPIView, viewsets.ReadOnlyModelViewSet):
@@ -646,6 +658,13 @@ class UnitEntranceViewSet(munigeo_api.GeoModelAPIView, viewsets.ReadOnlyModelVie
         ret = super(UnitEntranceViewSet, self).get_serializer_context()
         ret["srs"] = self.srs
         return ret
+
+    @action(detail=True, methods=["get"], url_path="picture")
+    def picture(self, request, pk=None):
+        unit_entrance = self.get_object()
+        if not unit_entrance.picture_url:
+            raise NotFound()
+        return redirect(unit_entrance.picture_url)
 
 
 register_view(UnitEntranceViewSet, "unit_entrance")
@@ -756,6 +775,7 @@ class UnitSerializer(
     provider_type = serializers.SerializerMethodField()
     organizer_type = serializers.SerializerMethodField()
     contract_type = serializers.SerializerMethodField()
+    picture_url = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         super(UnitSerializer, self).__init__(*args, **kwargs)
@@ -818,6 +838,14 @@ class UnitSerializer(
             "en": obj.displayed_service_owner_en,
         }
         return {"id": key, "description": translations}
+
+    def get_picture_url(self, obj):
+        if settings.PICTURE_URL_REWRITE_ENABLED and obj.picture_url:
+            request = self.context.get("request")
+            return request.build_absolute_uri(
+                reverse("unit-picture", kwargs={"pk": obj.pk})
+            )
+        return obj.picture_url
 
     def to_representation(self, obj):
         ret = super(UnitSerializer, self).to_representation(obj)
@@ -1302,7 +1330,7 @@ class UnitViewSet(
             response["Content-Disposition"] = header
         return response
 
-    def retrieve(self, request, pk=None):
+    def _get_unit(self, pk):
         try:
             int(pk)
         except ValueError:
@@ -1313,6 +1341,10 @@ class UnitViewSet(
         except Unit.DoesNotExist:
             unit_alias = get_object_or_404(UnitAlias, second=pk)
             unit = unit_alias.first
+        return unit
+
+    def retrieve(self, request, pk=None):
+        unit = self._get_unit(pk)
         serializer = self.serializer_class(unit, context=self.get_serializer_context())
         return Response(serializer.data)
 
@@ -1320,6 +1352,13 @@ class UnitViewSet(
         response = super(UnitViewSet, self).list(request)
         response.add_post_render_callback(self._add_content_disposition_header)
         return response
+
+    @action(detail=True, methods=["get"], url_path="picture")
+    def picture(self, request, pk=None):
+        unit = self._get_unit(pk)
+        if not unit.picture_url:
+            raise NotFound()
+        return redirect(unit.picture_url)
 
 
 register_view(UnitViewSet, "unit")
@@ -1496,28 +1535,62 @@ class OutdoorSportsMapUsageViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class AnnouncementSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
+    picture_url = SerializerMethodField()
+
     class Meta:
         model = Announcement
         exclude = ["active", "outdoor_sports_map_usage"]
+
+    def get_picture_url(self, obj):
+        if settings.PICTURE_URL_REWRITE_ENABLED and obj.picture_url:
+            request = self.context.get("request")
+            return request.build_absolute_uri(
+                reverse("announcement-picture", kwargs={"pk": obj.pk})
+            )
+        return obj.picture_url
 
 
 class AnnouncementViewSet(OutdoorSportsMapUsageViewSet):
     queryset = Announcement.objects.filter(active=True)
     serializer_class = AnnouncementSerializer
 
+    @action(detail=True, methods=["get"], url_path="picture")
+    def picture(self, request, pk=None):
+        announcement = self.get_object()
+        if not announcement.picture_url:
+            raise NotFound()
+        return redirect(announcement.picture_url)
+
 
 register_view(AnnouncementViewSet, "announcement")
 
 
 class ErrorMessageSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
+    picture_url = SerializerMethodField()
+
     class Meta:
         model = ErrorMessage
         exclude = ["active", "outdoor_sports_map_usage"]
+
+    def get_picture_url(self, obj):
+        if settings.PICTURE_URL_REWRITE_ENABLED and obj.picture_url:
+            request = self.context.get("request")
+            return request.build_absolute_uri(
+                reverse("errormessage-picture", kwargs={"pk": obj.pk})
+            )
+        return obj.picture_url
 
 
 class ErrorMessageViewSet(OutdoorSportsMapUsageViewSet):
     queryset = ErrorMessage.objects.filter(active=True)
     serializer_class = ErrorMessageSerializer
+
+    @action(detail=True, methods=["get"], url_path="picture")
+    def picture(self, request, pk=None):
+        error_message = self.get_object()
+        if not error_message.picture_url:
+            raise NotFound()
+        return redirect(error_message.picture_url)
 
 
 register_view(ErrorMessageViewSet, "error_message")
