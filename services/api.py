@@ -1267,13 +1267,14 @@ class UnitViewSet(
             )
 
         if "observations" in self.include_fields:
+            now = timezone.now()
             queryset = queryset.prefetch_related(
                 Prefetch(
                     "observation_set",
                     queryset=Observation.objects.filter(
                         Q(property__expiration=None)
-                        | Q(time__gt=timezone.now() - F("property__expiration"))
-                    ),
+                        | Q(time__gt=now - F("property__expiration"))
+                    ).select_related("property"),
                 )
             )
 
