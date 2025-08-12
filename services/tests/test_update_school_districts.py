@@ -417,3 +417,73 @@ def test_get_start_date_from_name(name):
 )
 def test_get_end_date_from_name(name):
     assert SchoolDistrictImporter.get_end_date_from_name(name) == "2024-07-31"
+
+
+@pytest.mark.django_db(transaction=True)
+@patch(
+    "services.management.commands.update_helsinki_school_districts.SCHOOL_DISTRICT_DATA",
+    [
+        {
+            "source_type": "avoindata:Opev_ooa_alaaste_suomi",
+            "division_type": "lower_comprehensive_school_district_fi",
+            "ocd_id": "oppilaaksiottoalue_alakoulu",
+        },
+    ],
+)
+def test_update_school_districts_rollback_changes_on_error(monkeypatch, municipality):
+    def mock_import_districts(*_, **__):
+        raise ValueError("error")
+
+    monkeypatch.setattr(
+        SchoolDistrictImporter, "import_districts", mock_import_districts
+    )
+    school_district_type = AdministrativeDivisionType.objects.create(
+        type="lower_comprehensive_school_district_fi"
+    )
+    AdministrativeDivision.objects.create(
+        type=school_district_type,
+        name="school district",
+        ocd_id="oppilaaksiottoalue_alakoulu",
+        municipality=municipality,
+    )
+    assert AdministrativeDivision.objects.filter(type=school_district_type).count() == 1
+
+    call_command("update_helsinki_school_districts")
+
+    assert AdministrativeDivision.objects.filter(type=school_district_type).count() == 1
+
+
+@pytest.mark.django_db(transaction=True)
+@patch(
+    "services.management.commands.update_helsinki_preschool_districts.PRESCHOOL_DISTRICT_DATA",
+    [
+        {
+            "source_type": "avoindata:Esiopetusalue_suomi",
+            "division_type": "preschool_education_fi",
+            "ocd_id": "esiopetuksen_oppilaaksiottoalue_fi",
+        },
+    ],
+)
+def test_update_preschool_districts_rollback_changes_on_error(
+    monkeypatch, municipality
+):
+    def mock_import_districts(*_, **__):
+        raise ValueError("error")
+
+    monkeypatch.setattr(
+        SchoolDistrictImporter, "import_districts", mock_import_districts
+    )
+    school_district_type = AdministrativeDivisionType.objects.create(
+        type="preschool_education_fi"
+    )
+    AdministrativeDivision.objects.create(
+        type=school_district_type,
+        name="preschool district",
+        ocd_id="esiopetuksen_oppilaaksiottoalue_fi",
+        municipality=municipality,
+    )
+    assert AdministrativeDivision.objects.filter(type=school_district_type).count() == 1
+
+    call_command("update_helsinki_preschool_districts")
+
+    assert AdministrativeDivision.objects.filter(type=school_district_type).count() == 1
