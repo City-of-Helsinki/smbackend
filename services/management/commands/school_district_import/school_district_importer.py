@@ -45,7 +45,7 @@ class SchoolDistrictImporter:
             layer = DataSource(url)[0]
         except Exception as e:
             logger.error(f"Error retrieving data for {source_type}: {e}")
-            return
+            raise
 
         logger.info(f"Retrieved {len(layer)} {source_type} features.")
         logger.info("Processing data...")
