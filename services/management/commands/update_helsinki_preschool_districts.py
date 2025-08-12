@@ -40,6 +40,7 @@ class Command(BaseCommand):
         "Usage: ./manage.py update_helsinki_preschool_districts"
     )
 
+    @transaction.atomic
     def handle(self, *args, **options):
         importer = SchoolDistrictImporter(district_type="preschool")
 
