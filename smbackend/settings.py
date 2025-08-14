@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import sentry_sdk
+from csp.constants import NONCE, NONE, SELF
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
 from environ import Env
@@ -51,6 +52,9 @@ env = Env(
     EMAIL_HOST_PASSWORD=(str, None),
     OTP_EMAIL_SENDER=(str, None),
     PICTURE_URL_REWRITE_ENABLED=(bool, False),
+    CSP_ENABLED=(bool, False),
+    CSP_REPORT_ONLY=(bool, True),
+    CSP_REPORT_URI=(str, None),
 )
 
 env_path = BASE_DIR / ".env"
@@ -120,6 +124,12 @@ MIDDLEWARE = [
 
 if env("ADDITIONAL_MIDDLEWARE"):
     MIDDLEWARE += env("ADDITIONAL_MIDDLEWARE")
+
+
+if env("CSP_ENABLED"):
+    INSTALLED_APPS.append("csp")
+    MIDDLEWARE.append("csp.middleware.CSPMiddleware")
+
 
 ROOT_URLCONF = "smbackend.urls"
 WSGI_APPLICATION = "smbackend.wsgi.application"
@@ -328,3 +338,37 @@ if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 else:
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+
+content_security_policy_configuration = {
+    "EXCLUDE_URL_PREFIXES": ["/excluded-path/"],
+    "DIRECTIVES": {
+        "default-src": [NONE],
+        "connect-src": [SELF],
+        "img-src": [SELF],
+        "form-action": [SELF],
+        "frame-ancestors": [SELF],
+        "script-src": [
+            SELF,
+            "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js",
+        ],
+        "style-src": [
+            SELF,
+            NONCE,
+            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css",
+        ],
+        "upgrade-insecure-requests": True,
+    },
+}
+
+if report_uri := env("CSP_REPORT_URI"):
+    content_security_policy_configuration["DIRECTIVES"]["report-uri"] = report_uri
+
+if env("CSP_REPORT_ONLY"):
+    CONTENT_SECURITY_POLICY = None
+    CONTENT_SECURITY_POLICY_REPORT_ONLY = content_security_policy_configuration
+
+else:
+    CONTENT_SECURITY_POLICY = content_security_policy_configuration
+    CONTENT_SECURITY_POLICY_REPORT_ONLY = None
