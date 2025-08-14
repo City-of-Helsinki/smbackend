@@ -1,6 +1,7 @@
 bmi-arcgis-restapi
 Django
 django-cors-headers
+django-csp
 django-environ
 django-extensions
 django-filter
