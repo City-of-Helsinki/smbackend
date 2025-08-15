@@ -1,6 +1,6 @@
 import logging
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandParser
 from django.db import transaction
 from munigeo.models import AdministrativeDivision
 
@@ -53,20 +53,62 @@ SCHOOL_DISTRICT_DATA = [
     },
 ]
 
+PRESCHOOL_DISTRICT_DATA = [
+    {
+        "source_type": "avoindata:Esiopetusalue_suomi",
+        "division_type": "preschool_education_fi",
+        "ocd_id": "esiopetuksen_oppilaaksiottoalue_fi",
+    },
+    {
+        "source_type": "avoindata:Esiopetusalue_suomi_tuleva",
+        "division_type": "preschool_education_fi",
+        "ocd_id": "esiopetuksen_oppilaaksiottoalue_fi",
+    },
+    {
+        "source_type": "avoindata:Esiopetusalue_ruotsi",
+        "division_type": "preschool_education_sv",
+        "ocd_id": "esiopetuksen_oppilaaksiottoalue_sv",
+    },
+    {
+        "source_type": "avoindata:Esiopetusalue_ruotsi_tuleva",
+        "division_type": "preschool_education_sv",
+        "ocd_id": "esiopetuksen_oppilaaksiottoalue_sv",
+    },
+]
+
 
 class Command(BaseCommand):
-    help = (
-        "Update Helsinki school districts. "
-        "Usage: ./manage.py update_helsinki_school_districts"
-    )
+    help = "Update Helsinki school districts."
+
+    def add_arguments(self, parser: CommandParser) -> None:
+        parser.add_argument(
+            "district_type",
+            choices=["school", "preschool"],
+            help="The school district type to update.",
+        )
+
+    def get_dataset(self, district_type: str):
+        match district_type:
+            case "school":
+                return SCHOOL_DISTRICT_DATA
+            case "preschool":
+                return PRESCHOOL_DISTRICT_DATA
+            case _:
+                raise ValueError(
+                    f'couldn\'t find dataset for district type "{district_type}"'
+                )
 
     @transaction.atomic
     def handle(self, *args, **options):
-        importer = SchoolDistrictImporter(district_type="school")
+        district_type = options["district_type"]
+        dataset = self.get_dataset(district_type)
 
+        # Group data by division type
         data_by_division_type = {}
-        for data in SCHOOL_DISTRICT_DATA:
+        for data in dataset:
             data_by_division_type.setdefault(data["division_type"], []).append(data)
+
+        importer = SchoolDistrictImporter(district_type=district_type)
 
         for division_type in data_by_division_type.keys():
             logger.info(f"Updating division type: {division_type}")
