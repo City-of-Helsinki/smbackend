@@ -1,10 +1,10 @@
 import math
 from datetime import datetime
-from unittest.mock import patch
 
 import pytest
 import pytz
 
+from services.management.commands.services_import.entrances import import_entrances
 from services.models import Unit, UnitEntrance
 
 from .utils import get_test_location, get_test_resource
@@ -19,15 +19,13 @@ def create_units():
 
 
 @pytest.mark.django_db
-@patch("services.management.commands.services_import_v4.Command.pk_get")
-def test_entrances_import(entrance_resource):
-    from services.management.commands.services_import_v4 import import_entrances
+def test_entrances_import():
+    def mock_pk_get(*_, **__):
+        return get_test_resource(resource_name="entrances")
 
     create_units()
 
-    entrance_resource.return_value = get_test_resource(resource_name="entrances")
-
-    import_entrances()
+    import_entrances(mock_pk_get)
 
     unit_entrance_1_location = get_test_location(
         24.852525143795333, 60.2185902753135878, ENTRANCE_SRC_SRID
