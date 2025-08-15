@@ -13,6 +13,13 @@ from munigeo.models import (
 from services.management.commands.school_district_import.school_district_importer import (
     SchoolDistrictImporter,
 )
+from services.management.commands.update_helsinki_school_districts import (
+    PRESCHOOL_DISTRICT_DATA,
+    SCHOOL_DISTRICT_DATA,
+)
+from services.management.commands.update_helsinki_school_districts import (
+    Command as SchoolUpdateCommand,
+)
 
 
 @pytest.fixture
@@ -71,7 +78,7 @@ def test_update_school_districts(mock_datetime, get_feature_mock, municipality):
         type__type="lower_comprehensive_school_district_fi"
     ).exists()
 
-    call_command("update_helsinki_school_districts")
+    call_command("update_helsinki_school_districts", "school")
 
     assert (
         AdministrativeDivision.objects.filter(
@@ -136,7 +143,7 @@ def test_update_school_districts_removes_school_year(
 
     get_feature_mock.side_effect = lambda type_name: get_mock_data(type_name)
 
-    call_command("update_helsinki_school_districts")
+    call_command("update_helsinki_school_districts", "school")
     assert (
         AdministrativeDivision.objects.filter(
             type__type="lower_comprehensive_school_district_fi"
@@ -150,7 +157,7 @@ def test_update_school_districts_removes_school_year(
 
 @pytest.mark.django_db
 @patch(
-    "services.management.commands.update_helsinki_preschool_districts.PRESCHOOL_DISTRICT_DATA",
+    "services.management.commands.update_helsinki_school_districts.PRESCHOOL_DISTRICT_DATA",
     [
         {
             "source_type": "avoindata:Esiopetusalue_suomi",
@@ -178,7 +185,7 @@ def test_update_preschool_districts(mock_datetime, get_feature_mock, municipalit
         type__type="preschool_education_fi"
     ).exists()
 
-    call_command("update_helsinki_preschool_districts")
+    call_command("update_helsinki_school_districts", "preschool")
 
     assert (
         AdministrativeDivision.objects.filter(
@@ -217,7 +224,7 @@ def test_update_preschool_districts(mock_datetime, get_feature_mock, municipalit
 
 @pytest.mark.django_db
 @patch(
-    "services.management.commands.update_helsinki_preschool_districts.PRESCHOOL_DISTRICT_DATA",
+    "services.management.commands.update_helsinki_school_districts.PRESCHOOL_DISTRICT_DATA",
     [
         {
             "source_type": "avoindata:Esiopetusalue_suomi",
@@ -246,7 +253,7 @@ def test_update_preschool_districts_removes_school_year(
 
     get_feature_mock.side_effect = lambda type_name: get_mock_data(type_name)
 
-    call_command("update_helsinki_preschool_districts")
+    call_command("update_helsinki_school_districts", "preschool")
 
     assert (
         AdministrativeDivision.objects.filter(
@@ -259,7 +266,7 @@ def test_update_preschool_districts_removes_school_year(
 
 @pytest.mark.django_db
 @patch(
-    "services.management.commands.update_helsinki_preschool_districts.PRESCHOOL_DISTRICT_DATA",
+    "services.management.commands.update_helsinki_school_districts.PRESCHOOL_DISTRICT_DATA",
     [
         {
             "source_type": "avoindata:Esiopetusalue_suomi_broken",
@@ -284,7 +291,7 @@ def test_update_preschool_districts_with_broken_data(
     get_feature_mock.side_effect = lambda type_name: get_mock_data(type_name)
     caplog.clear()
 
-    call_command("update_helsinki_preschool_districts")
+    call_command("update_helsinki_school_districts", "preschool")
 
     assert any(
         record.levelname == "ERROR" and "Failed to import division" in record.msg
@@ -307,7 +314,7 @@ def test_update_preschool_districts_with_broken_data(
 
 @pytest.mark.django_db
 @patch(
-    "services.management.commands.update_helsinki_preschool_districts.PRESCHOOL_DISTRICT_DATA",
+    "services.management.commands.update_helsinki_school_districts.PRESCHOOL_DISTRICT_DATA",
     [
         {
             "source_type": "avoindata:Esiopetusalue_suomi_no_unit",
@@ -330,7 +337,7 @@ def test_should_update_preschool_districts_without_units(
     mock_datetime.side_effect = lambda *args, **kwargs: datetime(*args, **kwargs)
     get_feature_mock.side_effect = lambda type_name: get_mock_data(type_name)
 
-    call_command("update_helsinki_preschool_districts")
+    call_command("update_helsinki_school_districts", "preschool")
 
     assert (
         AdministrativeDivision.objects.filter(
@@ -370,7 +377,7 @@ def test_should_update_school_districts_without_units(
     mock_datetime.side_effect = lambda *args, **kwargs: datetime(*args, **kwargs)
     get_feature_mock.side_effect = lambda type_name: get_mock_data(type_name)
 
-    call_command("update_helsinki_school_districts")
+    call_command("update_helsinki_school_districts", "school")
 
     assert (
         AdministrativeDivision.objects.filter(
@@ -448,14 +455,14 @@ def test_update_school_districts_rollback_changes_on_error(monkeypatch, municipa
     )
     assert AdministrativeDivision.objects.filter(type=school_district_type).count() == 1
 
-    call_command("update_helsinki_school_districts")
+    call_command("update_helsinki_school_districts", "school")
 
     assert AdministrativeDivision.objects.filter(type=school_district_type).count() == 1
 
 
 @pytest.mark.django_db(transaction=True)
 @patch(
-    "services.management.commands.update_helsinki_preschool_districts.PRESCHOOL_DISTRICT_DATA",
+    "services.management.commands.update_helsinki_school_districts.PRESCHOOL_DISTRICT_DATA",
     [
         {
             "source_type": "avoindata:Esiopetusalue_suomi",
@@ -484,6 +491,27 @@ def test_update_preschool_districts_rollback_changes_on_error(
     )
     assert AdministrativeDivision.objects.filter(type=school_district_type).count() == 1
 
-    call_command("update_helsinki_preschool_districts")
+    call_command("update_helsinki_school_districts", "preschool")
 
     assert AdministrativeDivision.objects.filter(type=school_district_type).count() == 1
+
+
+@pytest.mark.parametrize(
+    "district_type, expected",
+    [
+        ("school", SCHOOL_DISTRICT_DATA),
+        ("preschool", PRESCHOOL_DISTRICT_DATA),
+    ],
+)
+def test_get_dataset_returns_correct_dataset(district_type, expected):
+    command = SchoolUpdateCommand()
+    dataset = command.get_dataset(district_type)
+    assert dataset == expected
+
+
+def test_get_dataset_raises_error_for_invalid_district_type():
+    command = SchoolUpdateCommand()
+    with pytest.raises(
+        ValueError, match='couldn\'t find dataset for district type "invalid"'
+    ):
+        command.get_dataset("invalid")
