@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.7.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.6.1...smbackend-v3.7.0) (2025-08-16)
+
+
+### Features
+
+* Implement django-csp ([63cca17](https://github.com/City-of-Helsinki/smbackend/commit/63cca172020e655d0a93f4c22d0da421a09c732c))
+* Picture url rewrite support and endpoints ([6b0f342](https://github.com/City-of-Helsinki/smbackend/commit/6b0f342b7816043f7a199b78f75ebaf185d713f4))
+
+
+### Bug Fixes
+
+* Retain earlier district data on importer error ([2e412a2](https://github.com/City-of-Helsinki/smbackend/commit/2e412a268d458a47bd4c8e818958551281c1d87d))
+* Wrap preschool import in a transaction ([17c477f](https://github.com/City-of-Helsinki/smbackend/commit/17c477f5ed550edb52e7c7245a0abe934de0e8b1))
+
+
+### Dependencies
+
+* Add django-csp ([013cf9d](https://github.com/City-of-Helsinki/smbackend/commit/013cf9d89f40eb0e3e3f61297aae31d5a44b5db0))
+
 ## [3.6.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.6.0...smbackend-v3.6.1) (2025-08-04)
 
 
