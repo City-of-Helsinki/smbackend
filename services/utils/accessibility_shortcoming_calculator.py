@@ -50,7 +50,7 @@ PATH_TITLES = {
 
 class OperatorError(Exception):
     def __init__(self, operator):
-        self.message = "Invalid operator {}".format(operator)
+        self.message = f"Invalid operator {operator}"
 
 
 class Singleton(type):
@@ -58,11 +58,11 @@ class Singleton(type):
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = super().__call__(*args, **kwargs)
         return cls._instances[cls]
 
 
-class AccessibilityShortcomingCalculator(object, metaclass=Singleton):
+class AccessibilityShortcomingCalculator(metaclass=Singleton):
     def __init__(self):
         try:
             self.rules, self.messages = RULES.get_data()

@@ -110,24 +110,14 @@ def set_service_unit_count(obj, representation):
      set the unit_counts for the service.
     """
     representation["unit_count"] = dict(
-        municipality=dict(
-            (
-                (
-                    x.division.name_fi.lower() if x.division else "_unknown",
-                    x.count,
-                )
-                for x in obj.unit_counts.all()
-            )
-        ),
-        organization=dict(
-            (
-                (
-                    x.organization.name.lower() if x.organization else "_unknown",
-                    x.count,
-                )
-                for x in obj.unit_count_organizations.all()
-            )
-        ),
+        municipality={
+            x.division.name_fi.lower() if x.division else "_unknown": x.count
+            for x in obj.unit_counts.all()
+        },
+        organization={
+            x.organization.name.lower() if x.organization else "_unknown": x.count
+            for x in obj.unit_count_organizations.all()
+        },
     )
     total = 0
     for _, part in representation["unit_count"]["municipality"].items():

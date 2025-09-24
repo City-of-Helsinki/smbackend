@@ -15,4 +15,4 @@ class Pagination(PageNumberPagination):
             KML_REGEXP, request.accepted_media_type
         ):
             return 30000
-        return super(Pagination, self).get_page_size(request)
+        return super().get_page_size(request)

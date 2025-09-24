@@ -75,11 +75,7 @@ class SoftDeleteModel(models.Model):
 
 class UnitSearchManager(Manager):
     def get_queryset(self):
-        qs = (
-            super(UnitSearchManager, self)
-            .get_queryset()
-            .prefetch_related("accessibility_shortcomings")
-        )
+        qs = super().get_queryset().prefetch_related("accessibility_shortcomings")
         if self.only_fields:
             fields = [
                 f for f in self.only_fields if check_valid_concrete_field(Unit, f)
@@ -214,7 +210,7 @@ class Unit(SoftDeleteModel):
         )
 
     def __str__(self):
-        return "%s (%s)" % (get_translated(self, "name"), self.id)
+        return "{} ({})".format(get_translated(self, "name"), self.id)
 
     def get_root_service_nodes(self):
         from .service_node import ServiceNode
@@ -225,14 +221,12 @@ class Unit(SoftDeleteModel):
         return sorted(service_node_list)
 
     def service_names(self):
-        return "\n".join((service.name for service in self.services.all()))
+        return "\n".join(service.name for service in self.services.all())
 
     def service_keywords(self):
         return "\n".join(
-            (
-                "\n".join((keyword.name for keyword in service.keywords.all()))
-                for service in self.services.all()
-            )
+            "\n".join(keyword.name for keyword in service.keywords.all())
+            for service in self.services.all()
         )
 
     def highlight_names(self):
@@ -240,11 +234,9 @@ class Unit(SoftDeleteModel):
             app_label="services", model_name="UnitConnection"
         )
         return "\n".join(
-            (
-                connection.name
-                for connection in self.connections.filter(
-                    section_type=unit_connection_model.HIGHLIGHT_TYPE
-                )
+            connection.name
+            for connection in self.connections.filter(
+                section_type=unit_connection_model.HIGHLIGHT_TYPE
             )
         )
 

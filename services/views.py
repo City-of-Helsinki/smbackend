@@ -87,7 +87,7 @@ def post_statistic(request):
     payload = request.POST.copy()
     data = payload.dict()
     now = tz.now()
-    timeframe = "%s/%s" % (now.month, now.year)
+    timeframe = f"{now.month}/{now.year}"
     statistic, _ = RequestStatistic.objects.get_or_create(timeframe=timeframe)
     statistic.request_counter += 1
 

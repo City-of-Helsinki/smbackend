@@ -44,9 +44,7 @@ def municipalities(municipality_type):
 def services():
     os = []
     for i in range(5):
-        o = Service.objects.create(
-            name="service{}".format(i), id=i, last_modified_time=now()
-        )
+        o = Service.objects.create(name=f"service{i}", id=i, last_modified_time=now())
         o.save()
         os.append(o)
     return os
@@ -65,7 +63,7 @@ def units(services, municipalities):
             if index % max_unit_count > 0:
                 distinct_service_muni_counts.add((service.id, municipality.id))
             for i in range(index % max_unit_count):
-                name = "unit_s{}_m{}_{}".format(service.id, municipality.id, i)
+                name = f"unit_s{service.id}_m{municipality.id}_{i}"
                 unit = Unit.objects.create(
                     id=unit_id,
                     municipality=municipality,
@@ -88,31 +86,29 @@ def units(services, municipalities):
     usd.save()
     units.append(unit)
     # Currently generates the following units
-    assert unit_names == set(
-        [
-            "unit_s0_mhelsinki_0",
-            "unit_s0_mvantaa_0",
-            "unit_s1_mhelsinki_0",
-            "unit_s1_mhelsinki_1",
-            "unit_s1_mvantaa_0",
-            "unit_s1_mvantaa_1",
-            "unit_s2_mhelsinki_0",
-            "unit_s2_mhelsinki_1",
-            "unit_s2_mhelsinki_2",
-            "unit_s2_mvantaa_0",
-            "unit_s2_mvantaa_1",
-            "unit_s2_mvantaa_2",
-            "unit_s3_mhelsinki_0",
-            "unit_s3_mhelsinki_1",
-            "unit_s3_mhelsinki_2",
-            "unit_s3_mhelsinki_3",
-            "unit_s3_mvantaa_0",
-            "unit_s3_mvantaa_1",
-            "unit_s3_mvantaa_2",
-            "unit_s3_mvantaa_3",
-            "unit_s0_special_case_no_muni",
-        ]
-    )
+    assert unit_names == {
+        "unit_s0_mhelsinki_0",
+        "unit_s0_mvantaa_0",
+        "unit_s1_mhelsinki_0",
+        "unit_s1_mhelsinki_1",
+        "unit_s1_mvantaa_0",
+        "unit_s1_mvantaa_1",
+        "unit_s2_mhelsinki_0",
+        "unit_s2_mhelsinki_1",
+        "unit_s2_mhelsinki_2",
+        "unit_s2_mvantaa_0",
+        "unit_s2_mvantaa_1",
+        "unit_s2_mvantaa_2",
+        "unit_s3_mhelsinki_0",
+        "unit_s3_mhelsinki_1",
+        "unit_s3_mhelsinki_2",
+        "unit_s3_mhelsinki_3",
+        "unit_s3_mvantaa_0",
+        "unit_s3_mvantaa_1",
+        "unit_s3_mvantaa_2",
+        "unit_s3_mvantaa_3",
+        "unit_s0_special_case_no_muni",
+    }
     return {"units": units, "count_rows": len(distinct_service_muni_counts) + 1}
 
 
@@ -125,7 +121,7 @@ def test_update_service_counts(municipalities, services, units, api_client):
     assert ServiceUnitCount.objects.count() == units["count_rows"]
 
     response = api_client.get(reverse("service-list", format="json"))
-    response_by_id = dict((s["id"], s) for s in response.data["results"])
+    response_by_id = {s["id"]: s for s in response.data["results"]}
 
     assert response_by_id[0]["unit_count"]["municipality"][None] == 1
 
@@ -150,7 +146,7 @@ def test_update_service_counts(municipalities, services, units, api_client):
     assert ServiceUnitCount.objects.count() == real_count
 
     response = api_client.get(reverse("service-list", format="json"))
-    response_by_id = dict((s["id"], s) for s in response.data["results"])
+    response_by_id = {s["id"]: s for s in response.data["results"]}
     assert response_by_id[0]["unit_count"]["municipality"][None] == 1
     assert response_by_id[0]["unit_count"]["municipality"]["helsinki"] == 1
     assert response_by_id[1]["unit_count"]["municipality"]["helsinki"] == 2
@@ -169,7 +165,7 @@ def test_update_service_counts(municipalities, services, units, api_client):
     assert ServiceUnitCount.objects.count() == real_count
 
     response = api_client.get(reverse("service-list", format="json"))
-    response_by_id = dict((s["id"], s) for s in response.data["results"])
+    response_by_id = {s["id"]: s for s in response.data["results"]}
     assert response_by_id[1]["unit_count"]["municipality"]["helsinki"] == 2
     assert response_by_id[2]["unit_count"]["municipality"]["helsinki"] == 3
     assert response_by_id[3]["unit_count"]["municipality"]["helsinki"] == 4

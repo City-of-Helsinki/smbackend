@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 import re
 import sys
@@ -47,7 +46,7 @@ class Command(BaseCommand):
     supported_languages = [lang[0] for lang in settings.LANGUAGES]
 
     def __init__(self):
-        super(Command, self).__init__()
+        super().__init__()
         for imp in self.importer_types:
             method = "import_%s" % imp
             assert getattr(self, method, False), "No importer defined for %s" % method
@@ -84,31 +83,29 @@ class Command(BaseCommand):
         return text
 
     def pk_get(self, resource_name, res_id=None, v3=False):
-        url = "%s%s/" % (URL_BASE, resource_name)
+        url = f"{URL_BASE}{resource_name}/"
         if res_id is None:
-            url = "%s%s/" % (url, res_id)
+            url = f"{url}{res_id}/"
         if v3:
             url = url.replace("v4", "v3")
         resp = requests.get(url, timeout=120)
-        assert resp.status_code == 200, "fuu status code {}".format(resp.status_code)
+        assert resp.status_code == 200, f"fuu status code {resp.status_code}"
         return resp.json()
 
     def _save_translated_field(
         self, obj, obj_field_name, info, info_field_name, max_length=None
     ):
         for lang in ("fi", "sv", "en"):
-            key = "%s_%s" % (info_field_name, lang)
+            key = f"{info_field_name}_{lang}"
             if key in info:
                 val = self.clean_text(info[key])
             else:
                 val = None
             if max_length and val and len(val) > max_length:
                 if self.verbosity:
-                    self.logger.warning(
-                        "%s: field '%s' too long" % (obj, obj_field_name)
-                    )
+                    self.logger.warning(f"{obj}: field '{obj_field_name}' too long")
                 val = None
-            obj_key = "%s_%s" % (obj_field_name, lang)
+            obj_key = f"{obj_field_name}_{lang}"
             obj_val = getattr(obj, obj_key, None)
             if obj_val == val:
                 continue
@@ -143,9 +140,9 @@ class Command(BaseCommand):
     def _fetch_unit_accessibility_properties(self, unit_pk):
         if self.verbosity:
             self.logger.info(
-                "Fetching unit accessibility properties for unit {}".format(unit_pk)
+                f"Fetching unit accessibility properties for unit {unit_pk}"
             )
-        obj_list = self.pk_get("unit/{}/accessibility".format(unit_pk))
+        obj_list = self.pk_get(f"unit/{unit_pk}/accessibility")
         return obj_list
 
     def import_units(self, pk=None):

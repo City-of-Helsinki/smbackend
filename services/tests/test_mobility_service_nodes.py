@@ -8,7 +8,7 @@ from services.management.commands.services_import.services import (
 from services.models import MobilityServiceNode, ServiceNode
 
 MODIFIED_TIME = datetime.datetime(
-    year=2023, month=1, day=1, hour=1, minute=1, second=1, tzinfo=datetime.timezone.utc
+    year=2023, month=1, day=1, hour=1, minute=1, second=1, tzinfo=datetime.UTC
 )
 
 

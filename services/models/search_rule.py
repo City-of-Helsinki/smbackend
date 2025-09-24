@@ -12,7 +12,7 @@ class ExclusionRule(models.Model):
         verbose_name_plural = _("Exclusion rules")
 
     def __str__(self):
-        return "%s : %s" % (self.word, self.exclusion)
+        return f"{self.word} : {self.exclusion}"
 
 
 class ExclusionWord(models.Model):

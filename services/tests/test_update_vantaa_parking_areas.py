@@ -16,7 +16,7 @@ def get_mock_data(geometry=True):
         file_path = "services/tests/data/vantaa_parking_areas.json"
     else:
         file_path = "services/tests/data/vantaa_parking_areas_null_geometry.json"
-    with open(file_path, "r") as json_file:
+    with open(file_path) as json_file:
         contents = json.load(json_file)
     return contents.get("features")
 

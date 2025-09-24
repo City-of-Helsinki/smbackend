@@ -52,8 +52,6 @@ class KeywordHandler:
         if self.verbosity and self.logger:
             old_kw_str = ", ".join([self.keywords_by_id[x].name for x in old_kw_set])
             new_kw_str = ", ".join([self.keywords_by_id[x].name for x in new_keywords])
-            self.logger.info(
-                "%s keyword set changed: %s -> %s" % (obj, old_kw_str, new_kw_str)
-            )
+            self.logger.info(f"{obj} keyword set changed: {old_kw_str} -> {new_kw_str}")
         obj.keywords.set(new_keywords)
         return True

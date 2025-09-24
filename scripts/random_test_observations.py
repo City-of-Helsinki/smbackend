@@ -34,7 +34,7 @@ values = {
 def main(base_url):
     for service, vals in values.items():
         response = requests.get(
-            base_url + "/unit/?service={}&only=id&page_size=1000".format(service)
+            base_url + f"/unit/?service={service}&only=id&page_size=1000"
         )
         assert response.status_code == 200
         fields = response.json()

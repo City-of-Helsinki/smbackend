@@ -189,7 +189,5 @@ class Command(BaseCommand):
         division.municipality = municipality
         division.save()
         num_statistics_updated += 1
-        logger.info(
-            "Division {} extra updated to: {}".format(division.id, division.extra)
-        )
+        logger.info(f"Division {division.id} extra updated to: {division.extra}")
         return num_statistics_updated

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
@@ -50,9 +48,9 @@ class Command(BaseCommand):
                 userorganization.user = user
                 userorganization.organization = department
                 userorganization.save()
-                self.stdout.write("User {} created".format(username))
+                self.stdout.write(f"User {username} created")
             else:
-                self.stdout.write("User {} already exists".format(username))
+                self.stdout.write(f"User {username} already exists")
 
         else:
-            self.stdout.write("City {} not found".format(city))
+            self.stdout.write(f"City {city} not found")

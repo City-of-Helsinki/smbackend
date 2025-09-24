@@ -5,7 +5,7 @@ from django.conf import settings
 from .scripts import accessibility_rules
 
 
-class AccessibilityRules(object):
+class AccessibilityRules:
     def __init__(self, data_paths, filename):
         self.data_paths = data_paths
         self.filename = filename

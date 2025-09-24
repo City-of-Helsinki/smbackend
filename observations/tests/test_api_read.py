@@ -8,7 +8,7 @@ from utils import match_observable_property_object_to_dict
 def test__get_observable_properties_for_unit(api_client, observable_property):
     services = observable_property.services.all()
     assert len(services) > 0
-    units = set((unit for service in services for unit in service.units.all()))
+    units = {unit for service in services for unit in service.units.all()}
     assert len(units) > 0
     for unit in units:
         url = (
@@ -66,7 +66,7 @@ def test__get_observable_properties_for_service(api_client, observable_property)
 def test__observable_not_expired(
     api_client, service, observable_property, unit_latest_observation
 ):
-    url = reverse("unit-list") + "?service={}&include=observations".format(service.pk)
+    url = reverse("unit-list") + f"?service={service.pk}&include=observations"
     response = api_client.get(url)
     assert len(response.data.get("results")[0].get("observations")) == 1
 
@@ -75,7 +75,7 @@ def test__observable_not_expired(
 def test__observable_expired(
     api_client, service, observable_property, unit_latest_observation_expired
 ):
-    url = reverse("unit-list") + "?service={}&include=observations".format(service.pk)
+    url = reverse("unit-list") + f"?service={service.pk}&include=observations"
     response = api_client.get(url)
     assert len(response.data.get("results")[0].get("observations")) == 0
 
@@ -87,7 +87,7 @@ def test__observable_expired_and_not_expired(
     observable_property,
     unit_latest_observation_both_expired_and_not_expirable,
 ):
-    url = reverse("unit-list") + "?service={}&include=observations".format(service.pk)
+    url = reverse("unit-list") + f"?service={service.pk}&include=observations"
     response = api_client.get(url)
     unit_data = response.data.get("results")[0]
     observations = unit_data.get("observations")

@@ -27,14 +27,14 @@ class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        queryset = super(ObservationViewSet, self).get_queryset()
+        queryset = super().get_queryset()
         filters = self.request.query_params
         unit = filters.get("unit")
         if unit:
             try:
                 queryset = queryset.filter(unit=int(unit))
             except ValueError:
-                logger.error("Invalid Unit id : '{}' used in filtering".format(unit))
+                logger.error(f"Invalid Unit id : '{unit}' used in filtering")
                 queryset = queryset.none()
 
         prop = filters.get("property")
@@ -47,7 +47,7 @@ class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
         if request.auth is None:
             raise AuthenticationFailed(_("Authentication required."))
 
-        return super(ObservationViewSet, self).create(request, *args, **kwargs)
+        return super().create(request, *args, **kwargs)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -57,7 +57,7 @@ class ObservationViewSet(JSONAPIViewSetMixin, viewsets.ModelViewSet):
 
 class ObservableSerializerMixin:
     def to_representation(self, obj):
-        data = super(ObservableSerializerMixin, self).to_representation(obj)
+        data = super().to_representation(obj)
         if "observable_properties" in self.context.get("include", []):
             data["observable_properties"] = ObservablePropertySerializer(
                 self.get_observable_properties(obj), many=True

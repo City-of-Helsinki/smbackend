@@ -13,7 +13,7 @@ from services.models.unit import PROJECTION_SRID
 def import_area():
     data_path = os.path.join(settings.BASE_DIR, "data")
     file = os.path.join(data_path, "geometry/koirametsa.geojson")
-    with open(file, "r") as geojson_file:
+    with open(file) as geojson_file:
         geojson_data = json.load(geojson_file)
 
     geom_str = json.dumps(geojson_data["features"][0]["geometry"])

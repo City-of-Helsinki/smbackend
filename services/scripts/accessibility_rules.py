@@ -45,7 +45,7 @@ class ParseError(Exception):
     pass
 
 
-class Expression(object):
+class Expression:
     eid = 0
 
     def __init__(self, depth):
@@ -79,7 +79,7 @@ class Compound(Expression):
     id_suffix = "ABC"
 
     def __init__(self, depth):
-        super(Compound, self).__init__(depth)
+        super().__init__(depth)
         self.operator = None
         self.operands = []
 
@@ -139,18 +139,18 @@ Probable cause: missing closing parenthesis right before said line.
         just = "\n" + self.indent()
         ret = "{just}({idstring}{subexpressions}{just}{idstring})".format(
             just=just,
-            idstring="%s #%s" % (self.operator, self.id()),
+            idstring=f"{self.operator} #{self.id()}",
             subexpressions=self.indent().join([str(s) for s in self.operands]),
         )
         if len(self.messages):
             ret += just
-            ret += just.join(["%s: %s" % (i, v) for i, v in self.messages.items()])
+            ret += just.join([f"{i}: {v}" for i, v in self.messages.items()])
         return ret + "\n"
 
 
 class Comparison(Expression):
     def __init__(self, depth, variable, operator, value):
-        super(Comparison, self).__init__(depth)
+        super().__init__(depth)
         self.variable = variable
         self.operator = operator
         self.value = value
@@ -177,16 +177,14 @@ class Comparison(Expression):
         ret = "\n" + just
         ret += " ".join(
             [
-                ("#%s [%s] " % (self.id(), str(self.variable)) + self.variable_path),
+                (f"#{self.id()} [{str(self.variable)}] " + self.variable_path),
                 self.operator,
                 self.value,
             ]
         )
         if len(self.messages):
             ret += "\n" + just
-            ret += ("\n" + just).join(
-                ["%s: %s" % (i, v) for i, v in self.messages.items()]
-            )
+            ret += ("\n" + just).join([f"{i}: {v}" for i, v in self.messages.items()])
             ret += "\n"
         return ret
 
@@ -273,7 +271,7 @@ def update_flags(row, expression):
         vals = set()
         for char in part:
             if char not in human_keys.keys():
-                exit_on_error("Wrong QRS character %s at row %s." % (char, row))
+                exit_on_error(f"Wrong QRS character {char} at row {row}.")
             vals.add(human_keys[char])
         bits.append(vals)
     completely_empty = True
@@ -485,7 +483,7 @@ def build_tree(reader):
 
 
 def parse_accessibility_rules(filename):
-    with open(filename, "r", encoding="utf8") as f:
+    with open(filename, encoding="utf8") as f:
         reader = csv.reader(f, delimiter=";", quotechar='"')
         tree = build_tree(reader)
         return tree

@@ -71,5 +71,5 @@ class Command(BaseCommand):
                     print_rule(operand, indent + "  ")
 
         for name, rule in Calculator().rules.items():
-            print("=== RULE {} ===".format(name))  # noqa: T201
+            print(f"=== RULE {name} ===")  # noqa: T201
             print_rule(rule)

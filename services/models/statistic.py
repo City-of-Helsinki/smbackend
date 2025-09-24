@@ -17,4 +17,4 @@ class RequestStatistic(models.Model):
         verbose_name_plural = _("Request statistics")
 
     def __str__(self):
-        return "%s (%s)" % (self.timeframe, self.request_counter)
+        return f"{self.timeframe} ({self.request_counter})"

@@ -38,7 +38,7 @@ class ObservableProperty(models.Model):
     observation_type = models.CharField(max_length=80, null=False, blank=False)
 
     def __str__(self):
-        return "%s (%s)" % (self.name, self.id)
+        return f"{self.name} ({self.id})"
 
     def get_observation_model(self):
         return apps.get_model(self.observation_type)
@@ -185,7 +185,7 @@ class PluralityAuthToken(models.Model):
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = self.generate_key()
-        return super(PluralityAuthToken, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def generate_key(self):
         return binascii.hexlify(os.urandom(20)).decode()
@@ -198,9 +198,7 @@ class PluralityTokenAuthentication(rest_framework.authentication.TokenAuthentica
     model = PluralityAuthToken
 
     def authenticate_credentials(self, key):
-        user, token = super(
-            PluralityTokenAuthentication, self
-        ).authenticate_credentials(key)
+        user, token = super().authenticate_credentials(key)
         if not token.active:
             raise exceptions.AuthenticationFailed(_("Token inactive or deleted."))
         return token.user, token
