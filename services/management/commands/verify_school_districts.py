@@ -89,7 +89,7 @@ def verify_school_units_enclosed():
     return (
         success,
         (
-            "{} errors \n".format(error_count)
+            f"{error_count} errors \n"
             + "\n\n".join([pprint.pformat(error, indent=4) for error in error_report])
         ),
     )

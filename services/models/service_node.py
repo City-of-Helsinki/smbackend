@@ -37,7 +37,7 @@ class ServiceNode(MPTTModel):
     syllables_fi = ArrayField(models.CharField(max_length=16), default=list)
 
     def __str__(self):
-        return "%s (%s)" % (get_translated(self, "name"), self.id)
+        return "{} ({})".format(get_translated(self, "name"), self.id)
 
     def _get_srv_list(self):
         srv_list = set(

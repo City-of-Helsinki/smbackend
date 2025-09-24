@@ -53,7 +53,7 @@ class Command(BaseCommand):
 
         features = self.get_features()
 
-        logger.info("Found {} parking payzones for Vantaa".format(features.count))
+        logger.info(f"Found {features.count} parking payzones for Vantaa")
         logger.info("Importing parking payzones...")
 
         updated_parking_payzones = []
@@ -98,7 +98,7 @@ class Command(BaseCommand):
                 division=division,
                 defaults={"boundary": geom},
             )
-            logger.debug("Updated parking payzone {}".format(division.name_fi))
+            logger.debug(f"Updated parking payzone {division.name_fi}")
 
             updated_parking_payzones.append(division)
             num_parking_payzones_updated += 1

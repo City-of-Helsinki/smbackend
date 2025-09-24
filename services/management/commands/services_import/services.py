@@ -117,9 +117,9 @@ def import_services(
         if (
             related_services_changed or obj.related_services.count() == 0
         ) and obj.service_reference is not None:
-            related_service_ids = set(
-                (id for id in SERVICE_REFERENCE_SEPARATOR.split(obj.service_reference))
-            )
+            related_service_ids = {
+                id for id in SERVICE_REFERENCE_SEPARATOR.split(obj.service_reference)
+            }
             obj.related_services.set(related_service_ids)
 
         for child_node in d["children"]:
@@ -192,12 +192,10 @@ def get_divisions_by_muni():
     if type is None:
         return {}
     else:
-        return dict(
-            (
-                (x.name_fi.lower(), x)
-                for x in AdministrativeDivision.objects.filter(type=type)
-            )
-        )
+        return {
+            x.name_fi.lower(): x
+            for x in AdministrativeDivision.objects.filter(type=type)
+        }
 
 
 @lru_cache(maxsize=0 if "pytest" in sys.modules else 128)
@@ -268,12 +266,10 @@ def update_node_counts(node_model, node_count_model):
         unit_set.add(unit_id)
         units_by_service[service_node_id][municipality] = unit_set
 
-    unit_counts_to_be_updated = set(
-        (
-            (service_node_id, municipality)
-            for service_node_id, municipality, _ in through_values
-        )
-    )
+    unit_counts_to_be_updated = {
+        (service_node_id, municipality)
+        for service_node_id, municipality, _ in through_values
+    }
 
     for c in node_count_model.objects.select_related("division").all():
         div_name = c.division and c.division.name_fi.lower()
@@ -296,10 +292,8 @@ def update_node_counts(node_model, node_count_model):
             return ((x.service_node_id, div), x)
 
     service_node_unit_count_objects = dict(
-        (
-            count_object_pair(x)
-            for x in node_count_model.objects.select_related("division").all()
-        )
+        count_object_pair(x)
+        for x in node_count_model.objects.select_related("division").all()
     )
     objects_to_save = []
     for node in tree:
@@ -413,7 +407,7 @@ def remove_empty_service_nodes(logger):
     nodes = ServiceNode.objects.filter(unit_counts=None)
     delete_count = nodes.count()
     nodes.delete()
-    logger.info("Deleted {} service nodes without units.".format(delete_count))
+    logger.info(f"Deleted {delete_count} service nodes without units.")
 
 
 @db.transaction.atomic

@@ -26,4 +26,4 @@ class FeedbackMapping(models.Model):
         unique_together = (("service_code", "department"),)
 
     def __str__(self):
-        return "%s (%s)" % (self.abbr_fi, self.service_code)
+        return f"{self.abbr_fi} ({self.service_code})"

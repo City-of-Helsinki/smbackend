@@ -26,4 +26,4 @@ class UnitEntrance(models.Model):
         ordering = ["-pk", "-is_main_entrance"]
 
     def __str__(self):
-        return "%s (%s)" % (get_translated(self, "name"), self.id)
+        return "{} ({})".format(get_translated(self, "name"), self.id)

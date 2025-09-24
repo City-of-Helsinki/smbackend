@@ -37,7 +37,7 @@ class Service(models.Model):
     search_column_en = SearchVectorField(null=True)
 
     def __str__(self):
-        return "%s (%s)" % (get_translated(self, "name"), self.id)
+        return "{} ({})".format(get_translated(self, "name"), self.id)
 
     class Meta:
         ordering = ["-pk"]

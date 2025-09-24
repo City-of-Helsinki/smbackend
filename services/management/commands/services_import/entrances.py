@@ -106,7 +106,7 @@ def _import_unit_entrance(
             location = p
         else:
             if VERBOSITY:
-                LOGGER.warning("Invalid coordinates (%f, %f) for %s" % (n, e, obj))
+                LOGGER.warning(f"Invalid coordinates ({n:f}, {e:f}) for {obj}")
 
     if location and obj.location:
         # If the distance is less than 10cm, assume the location
@@ -127,11 +127,11 @@ def _import_unit_entrance(
             verb = "changed"
         obj.last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
         if VERBOSITY:
-            LOGGER.info("%s %s" % (obj, verb))
+            LOGGER.info(f"{obj} {verb}")
         try:
             obj.save()
         except db.utils.DataError as e:
-            LOGGER.error("Importing failed for unit entrance {}".format(str(obj)))
+            LOGGER.error(f"Importing failed for unit entrance {str(obj)}")
             raise e
 
     syncher.mark(obj, True)

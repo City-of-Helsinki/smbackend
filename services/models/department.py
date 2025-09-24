@@ -36,7 +36,7 @@ class Department(MPTTModel):
     objects = CustomTreeManager()
 
     def __str__(self):
-        return "%s (%s)" % (get_translated(self, "name"), self.id)
+        return "{} ({})".format(get_translated(self, "name"), self.id)
 
     # This is used for unit indexing
     def top_departments(self, depth=3):

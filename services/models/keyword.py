@@ -12,4 +12,4 @@ class Keyword(models.Model):
         unique_together = (("language", "name"),)
 
     def __str__(self):
-        return "%s (%s)" % (self.name, self.language)
+        return f"{self.name} ({self.language})"

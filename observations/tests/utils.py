@@ -24,4 +24,4 @@ def match_observable_property_object_to_dict(obj, data):
 
     a = data["observation_type"]
     b = OBSERVATION_CLASS_KEYS[obj.observation_type]
-    assert a == b, "%s does not equal %s" % (a, b)
+    assert a == b, f"{a} does not equal {b}"

@@ -49,28 +49,28 @@ def clean_latin1(data):
 
 
 def pk_get(resource_name, res_id=None, params=None):
-    url = "%s%s/" % (URL_BASE, resource_name)
+    url = f"{URL_BASE}{resource_name}/"
     if res_id is not None:
-        url = "%s%s/" % (url, res_id)
+        url = f"{url}{res_id}/"
     if params:
         url += "?" + urlencode(params)
     print("CALLING URL >>> ", url)  # noqa: T201
     resp = requests.get(url, timeout=300)
-    assert resp.status_code == 200, "fuu status code {}".format(resp.status_code)
+    assert resp.status_code == 200, f"fuu status code {resp.status_code}"
     return resp.json()
 
 
 def save_translated_field(obj, obj_field_name, info, info_field_name, max_length=None):
     has_changed = False
     for lang in ("fi", "sv", "en"):
-        key = "%s_%s" % (info_field_name, lang)
+        key = f"{info_field_name}_{lang}"
         if key in info:
             val = clean_text(info[key])
         else:
             val = None
         if max_length and val and len(val) > max_length:
             val = None
-        obj_key = "%s_%s" % (obj_field_name, lang)
+        obj_key = f"{obj_field_name}_{lang}"
         obj_val = getattr(obj, obj_key)
         if obj_val == val:
             continue
@@ -163,7 +163,7 @@ def update_extra_searchwords(obj, info, obj_changed, update_fields):
 def postcodes():
     path = os.path.join(settings.BASE_DIR, "data", "fi", "postcodes.txt")
     postcodes = {}
-    f = open(path, "r", encoding="utf-8")
+    f = open(path, encoding="utf-8")
     for line in f.readlines():
         code, muni = line.split(",")
         postcodes[code] = muni.strip()

@@ -128,15 +128,15 @@ class TranslationsField(serializers.CharField):
 
 class MPTTModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
-        super(MPTTModelSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for field_name in "lft", "rght", "tree_id":
             if field_name in self.fields:
                 del self.fields[field_name]
 
 
-class TranslatedModelSerializer(object):
+class TranslatedModelSerializer:
     def __init__(self, *args, **kwargs):
-        super(TranslatedModelSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         model = self.Meta.model
         try:
             trans_opts = translator.get_options_for_model(model)
@@ -148,7 +148,7 @@ class TranslatedModelSerializer(object):
         # Remove the pre-existing data in the bundle.
         for field_name in self.translated_fields:
             for lang in LANGUAGES:
-                key = "%s_%s" % (field_name, lang)
+                key = f"{field_name}_{lang}"
                 if key in self.fields:
                     del self.fields[key]
 
@@ -193,7 +193,7 @@ class TranslatedModelSerializer(object):
                 value = obj[language]  # "musiikkiklubit"
                 if language == settings.LANGUAGES[0][0]:  # default language
                     extra_fields[field_name] = value  # { "name": "musiikkiklubit" }
-                extra_fields["{}_{}".format(field_name, language)] = (
+                extra_fields[f"{field_name}_{language}"] = (
                     value  # { "name_fi": "musiikkiklubit" }
                 )
             del data[field_name]  # delete original translated fields
@@ -215,7 +215,7 @@ class TranslatedModelSerializer(object):
         ret["keywords"] = kw_dict
 
     def to_representation(self, obj):
-        ret = super(TranslatedModelSerializer, self).to_representation(obj)
+        ret = super().to_representation(obj)
         if obj is None:
             return ret
 
@@ -228,7 +228,7 @@ class TranslatedModelSerializer(object):
 
             d = {}
             for lang in LANGUAGES:
-                key = "%s_%s" % (field_name, lang)
+                key = f"{field_name}_{lang}"
                 val = getattr(obj, key, None)
                 if val is None:
                     continue
@@ -246,13 +246,13 @@ class TranslatedModelSerializer(object):
 
 class ServicesTranslatedModelSerializer(TranslatedModelSerializer):
     def __init__(self, *args, **kwargs):
-        super(ServicesTranslatedModelSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for field_name in self.translated_fields:
             self.fields[field_name] = TranslationsField()
 
 
 def root_services(services):
-    tree_ids = set(s.tree_id for s in services)
+    tree_ids = {s.tree_id for s in services}
     return map(
         lambda x: x.id, Service.objects.filter(level=0).filter(tree_id__in=tree_ids)
     )
@@ -260,7 +260,7 @@ def root_services(services):
 
 def root_service_nodes(services, model):
     # check this
-    tree_ids = set(s.tree_id for s in services)
+    tree_ids = {s.tree_id for s in services}
     return map(
         lambda x: x.id, model.objects.filter(level=0).filter(tree_id__in=tree_ids)
     )
@@ -273,7 +273,7 @@ def resolve_divisions(divisions):
             muni_ocd_id = division_path
         else:
             ocd_id_base = r"[\w0-9~_.-]+"
-            match_re = r"(%s)/([\w_-]+):(%s)" % (ocd_id_base, ocd_id_base)
+            match_re = rf"({ocd_id_base})/([\w_-]+):({ocd_id_base})"
             m = re.match(match_re, division_path, re.U)
             if not m:
                 raise ParseError("'division' must be of form 'muni/type:id'")
@@ -294,7 +294,7 @@ def resolve_divisions(divisions):
 
 class JSONAPISerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
-        super(JSONAPISerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         context = kwargs.get("context", {})
         if "only" in context:
             self.keep_fields = set(context["only"] + ["id"])
@@ -304,7 +304,7 @@ class JSONAPISerializer(serializers.ModelSerializer):
                 del self.fields[field_name]
 
     def to_representation(self, obj):
-        ret = super(JSONAPISerializer, self).to_representation(obj)
+        ret = super().to_representation(obj)
         include_fields = self.context.get("include", [])
         if "municipality" in include_fields and obj.municipality:
             muni_json = munigeo_api.MunicipalitySerializer(
@@ -342,10 +342,10 @@ class ServiceNodeSerializer(
     children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     def __init__(self, *args, **kwargs):
-        super(ServiceNodeSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def to_representation(self, obj):
-        ret = super(ServiceNodeSerializer, self).to_representation(obj)
+        ret = super().to_representation(obj)
         include_fields = self.context.get("include", [])
         if "ancestors" in include_fields:
             ancestors = obj.get_ancestors(ascending=True)
@@ -395,7 +395,7 @@ class ServiceNodeSerializer(
 
 class MobilitySerializer(ServiceNodeSerializer):
     def __init__(self, *args, **kwargs):
-        super(MobilitySerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def to_representation(self, obj):
         ret = super(ServiceNodeSerializer, self).to_representation(obj)
@@ -435,7 +435,7 @@ class MobilitySerializer(ServiceNodeSerializer):
 
 class ServiceSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
-        ret = super(ServiceSerializer, self).to_representation(obj)
+        ret = super().to_representation(obj)
         ret["unit_count"] = {"municipality": {}, "organization": {}}
         total = 0
         for unit_count in obj.unit_counts.filter(division_type__type="muni"):
@@ -489,7 +489,7 @@ class RelatedServiceSerializer(ServicesTranslatedModelSerializer, JSONAPISeriali
 
 class ServiceDetailsSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
     def to_representation(self, obj):
-        ret = super(ServiceDetailsSerializer, self).to_representation(obj)
+        ret = super().to_representation(obj)
         service_data = RelatedServiceSerializer(obj.service).data
         ret["name"] = service_data.get("name")
         ret["root_service_node"] = service_data.get("root_service_node")
@@ -509,7 +509,7 @@ class ServiceDetailsSerializer(ServicesTranslatedModelSerializer, JSONAPISeriali
 
 class JSONAPIViewSetMixin:
     def initial(self, request, *args, **kwargs):
-        ret = super(JSONAPIViewSetMixin, self).initial(request, *args, **kwargs)
+        ret = super().initial(request, *args, **kwargs)
 
         query_params = self.request.query_params
         include = query_params.get("include", "")
@@ -528,7 +528,7 @@ class JSONAPIViewSetMixin:
         return ret
 
     def get_queryset(self):
-        queryset = super(JSONAPIViewSetMixin, self).get_queryset()
+        queryset = super().get_queryset()
         if not self.only_fields:
             return queryset
         model = queryset.model
@@ -541,7 +541,7 @@ class JSONAPIViewSetMixin:
         return queryset.only(*fields)
 
     def get_serializer_context(self):
-        context = super(JSONAPIViewSetMixin, self).get_serializer_context()
+        context = super().get_serializer_context()
 
         context["include"] = self.include_fields
         if self.only_fields:
@@ -560,7 +560,7 @@ class DepartmentViewSet(JSONAPIViewSet):
     serializer_class = DepartmentSerializer
 
     def get_queryset(self):
-        queryset = super(DepartmentViewSet, self).get_queryset()
+        queryset = super().get_queryset()
         query_params = self.request.query_params
         if "organization_type" in query_params:
             organization_types = query_params["organization_type"].split(",")
@@ -655,7 +655,7 @@ class UnitEntranceViewSet(munigeo_api.GeoModelAPIView, viewsets.ReadOnlyModelVie
     serializer_class = UnitEntranceSerializer
 
     def get_serializer_context(self):
-        ret = super(UnitEntranceViewSet, self).get_serializer_context()
+        ret = super().get_serializer_context()
         ret["srs"] = self.srs
         return ret
 
@@ -696,7 +696,7 @@ class ServiceNodeViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         queryset = (
-            super(ServiceNodeViewSet, self)
+            super()
             .get_queryset()
             .prefetch_related(
                 "keywords", "related_services", "unit_counts", "unit_counts__division"
@@ -741,7 +741,7 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
     serializer_class = ServiceSerializer
 
     def get_serializer_context(self):
-        ret = super(ServiceViewSet, self).get_serializer_context()
+        ret = super().get_serializer_context()
         query_params = self.request.query_params
         division = query_params.get("division", "")
         ret["divisions"] = [x.strip() for x in division.split(",") if x]
@@ -749,7 +749,7 @@ class ServiceViewSet(JSONAPIViewSet, viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         queryset = (
-            super(ServiceViewSet, self)
+            super()
             .get_queryset()
             .prefetch_related("keywords", "unit_counts", "unit_counts__division")
         )
@@ -778,7 +778,7 @@ class UnitSerializer(
     picture_url = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
-        super(UnitSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for f in ("connections", "accessibility_properties", "entrances"):
             if f not in self.fields:
                 continue
@@ -848,7 +848,7 @@ class UnitSerializer(
         return obj.picture_url
 
     def to_representation(self, obj):
-        ret = super(UnitSerializer, self).to_representation(obj)
+        ret = super().to_representation(obj)
         if hasattr(obj, "distance") and obj.distance:
             ret["distance"] = obj.distance.m
 
@@ -882,7 +882,7 @@ class UnitSerializer(
 
                 name = {}
                 for lang in LANGUAGES:
-                    name[lang] = getattr(s, "name_{0}".format(lang))
+                    name[lang] = getattr(s, f"name_{lang}")
                 data = {
                     "id": s.id,
                     "name": name,
@@ -972,7 +972,7 @@ class UnitSerializer(
 
 
 def make_muni_ocd_id(name, rest=None):
-    s = "ocd-division/country:%s/%s:%s" % (
+    s = "ocd-division/country:{}/{}:{}".format(
         settings.DEFAULT_COUNTRY,
         settings.DEFAULT_OCD_MUNICIPALITY,
         name,
@@ -1039,11 +1039,11 @@ class UnitViewSet(
     filter_backends = (DjangoFilterBackend,)
 
     def __init__(self, *args, **kwargs):
-        super(UnitViewSet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.service_details = False
 
     def get_serializer_context(self):
-        ret = super(UnitViewSet, self).get_serializer_context()
+        ret = super().get_serializer_context()
         ret["srs"] = self.srs
         ret["service_details"] = self._service_details_requested()
         return ret
@@ -1052,7 +1052,7 @@ class UnitViewSet(
         return "services" in self.include_fields
 
     def get_queryset(self):
-        queryset = super(UnitViewSet, self).get_queryset()
+        queryset = super().get_queryset()
 
         queryset = queryset.prefetch_related("accessibility_shortcomings")
         if self._service_details_requested():
@@ -1350,7 +1350,7 @@ class UnitViewSet(
         return Response(serializer.data)
 
     def list(self, request, **kwargs):
-        response = super(UnitViewSet, self).list(request)
+        response = super().list(request)
         response.add_post_render_callback(self._add_content_disposition_header)
         return response
 
@@ -1367,7 +1367,7 @@ register_view(UnitViewSet, "unit")
 
 class SearchSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
-        super(SearchSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.serializer_by_model = {}
 
     def _strip_context(self, context, model):
@@ -1427,7 +1427,7 @@ register_view(
 @extend_schema_serializer(deprecate_fields=["service_point_id"])
 class AdministrativeDivisionSerializer(munigeo_api.AdministrativeDivisionSerializer):
     def to_representation(self, obj):
-        ret = super(AdministrativeDivisionSerializer, self).to_representation(obj)
+        ret = super().to_representation(obj)
 
         if "request" not in self.context:
             return ret
@@ -1521,7 +1521,7 @@ register_view(AddressViewSet, "address")
 
 class OutdoorSportsMapUsageViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
-        queryset = super(OutdoorSportsMapUsageViewSet, self).get_queryset()
+        queryset = super().get_queryset()
         query_params = self.request.query_params
         outdoor_sports_map_usage = False
         if "outdoor_sports_map_usage" in query_params:

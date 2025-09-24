@@ -30,7 +30,7 @@ def get_multi(obj):
     elif isinstance(obj, (MultiLineString, MultiPolygon)):
         return obj
     else:
-        raise Exception("Unsupported geometry type: {}".format(obj.__class__.__name__))
+        raise Exception(f"Unsupported geometry type: {obj.__class__.__name__}")
 
 
 class MiniWFS:
@@ -56,7 +56,7 @@ class MiniWFS:
             if payload[key] is None:
                 del payload[key]
 
-        return "WFS:{}?{}".format(self.base_url, urlencode(payload))
+        return f"WFS:{self.base_url}?{urlencode(payload)}"
 
 
 class Command(BaseCommand):
@@ -88,7 +88,7 @@ class Command(BaseCommand):
         for unit_identifier in unit_identifiers:
             units_by_lipas_id[int(unit_identifier.value)] = unit_identifier.unit
 
-        logger.info("Retrieved {} objects.".format(len(unit_identifiers)))
+        logger.info(f"Retrieved {len(unit_identifiers)} objects.")
 
         # Get path and area data from the Lipas WFS
         logger.info("Retrieving geodata from Lipas...")
@@ -98,9 +98,7 @@ class Command(BaseCommand):
         muni_filter = options.get("muni_id")
 
         if muni_filter is not None:
-            muni_filter = " OR ".join(
-                ["kuntanumero = '{}'".format(id_) for id_ in muni_filter]
-            )
+            muni_filter = " OR ".join([f"kuntanumero = '{id_}'" for id_ in muni_filter])
 
         layers = {}
         types = self._get_types()
@@ -131,10 +129,10 @@ class Command(BaseCommand):
                 lipas_id = feature["id"].value
                 unit = units_by_lipas_id.get(lipas_id)
                 if not unit:
-                    logging.debug("id not found: {}".format(lipas_id))
+                    logging.debug(f"id not found: {lipas_id}")
                     continue
 
-                logger.debug("found id: {}".format(lipas_id))
+                logger.debug(f"found id: {lipas_id}")
 
                 def clean_name(name):
                     import re
@@ -179,9 +177,9 @@ class Command(BaseCommand):
                     # We might be dealing with something weird that the Python GDAL lib
                     # doesn't handle. One example is a CurvePolygon as defined here
                     # http://www.gdal.org/ogr__core_8h.html
-                    logger.error("Error while processing a geometry: {}".format(err))
+                    logger.error(f"Error while processing a geometry: {err}")
 
-        logger.info("Found {} matches.".format(len(geometries)))
+        logger.info(f"Found {len(geometries)} matches.")
 
         self._save_geometries(geometries, units_by_lipas_id)
 

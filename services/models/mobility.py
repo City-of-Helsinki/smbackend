@@ -22,7 +22,7 @@ class MobilityServiceNode(MPTTModel):
     tree_objects = TreeManager()
 
     def __str__(self):
-        return "%s (%s)" % (get_translated(self, "name"), self.id)
+        return "{} ({})".format(get_translated(self, "name"), self.id)
 
     def _get_srv_list(self):
         srv_list = set(

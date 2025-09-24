@@ -128,9 +128,7 @@ class Command(BaseCommand):
             else:
                 raise ValueError("Buffered geometry is not a Polygon or MultiPolygon.")
         else:
-            raise Exception(
-                "Unsupported geometry type: {}".format(obj.__class__.__name__)
-            )
+            raise Exception(f"Unsupported geometry type: {obj.__class__.__name__}")
 
     def update_parking_areas(self):
         src_srs = SpatialReference(SRC_SRID)
@@ -203,7 +201,7 @@ class Command(BaseCommand):
                     division=division,
                     defaults={"boundary": geom},
                 )
-                logger.debug("Updated parking area {}".format(division.name_fi))
+                logger.debug(f"Updated parking area {division.name_fi}")
                 updated_parking_areas.append(division)
                 num_parking_areas_updated += 1
 

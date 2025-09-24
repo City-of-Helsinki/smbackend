@@ -207,7 +207,7 @@ def test_calculate_shortcomings(unit_with_props, patch_rules, rules):
 
     shortcomings = Unit.objects.get(id=unit_with_props.id).accessibility_shortcomings
 
-    profile_count = len(set([profile[0] for profile in rules.keys()]))
+    profile_count = len({profile[0] for profile in rules.keys()})
     assert len(shortcomings.accessibility_shortcoming_count) == profile_count
     for count in shortcomings.accessibility_shortcoming_count.values():
         assert count == 1

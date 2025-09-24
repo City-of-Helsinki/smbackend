@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import django.contrib.gis.db.models.fields
 import django.contrib.postgres.fields.hstore
 import mptt.fields
@@ -513,7 +510,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="keyword",
-            unique_together=set([("language", "name")]),
+            unique_together={("language", "name")},
         ),
         migrations.AddField(
             model_name="department",

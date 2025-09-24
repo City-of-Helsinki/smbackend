@@ -42,7 +42,7 @@ def _import_unit_property(info):
         property_value = info["value_text"]
     else:
         LOGGER.warning(
-            "%s has no value for property: { %s }" % (CACHED_UNIT, property_name)
+            f"{CACHED_UNIT} has no value for property: {{ {property_name} }}"
         )
         return
 
@@ -62,5 +62,5 @@ def _import_unit_property(info):
     try:
         CACHED_UNIT.save()
     except db.utils.DataError as e:
-        LOGGER.error("Importing failed for unit attribute {}".format(str(info)))
+        LOGGER.error(f"Importing failed for unit attribute {str(info)}")
         raise e

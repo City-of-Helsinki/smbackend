@@ -66,7 +66,7 @@ def unit_most_services_without_periods(limit=10):
 
 
 def unit_ui_url(unit):
-    return "https://palvelukartta.hel.fi/unit/{}".format(unit.id)
+    return f"https://palvelukartta.hel.fi/unit/{unit.id}"
 
 
 def format_unit(unit):

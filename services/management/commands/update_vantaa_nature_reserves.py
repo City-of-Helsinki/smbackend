@@ -52,7 +52,7 @@ class Command(BaseCommand):
 
         features = self.get_features()
 
-        logger.info("Found {} nature reserves for Vantaa".format(features.count))
+        logger.info(f"Found {features.count} nature reserves for Vantaa")
         logger.info("Importing nature reserves...")
 
         updated_nature_reserves = []
@@ -84,7 +84,7 @@ class Command(BaseCommand):
                 division=division,
                 defaults={"boundary": geom},
             )
-            logger.debug("Updated nature reserve {}".format(division.name_fi))
+            logger.debug(f"Updated nature reserve {division.name_fi}")
             updated_nature_reserves.append(division)
             num_nature_reserves_updated += 1
 

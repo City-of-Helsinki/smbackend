@@ -115,9 +115,9 @@ def import_units(
 
     if not dept_syncher:
         dept_syncher = import_departments(noop=True)
-    department_id_to_uuid = dict(
-        ((k, str(v)) for k, v in Department.objects.all().values_list("id", "uuid"))
-    )
+    department_id_to_uuid = {
+        k: str(v) for k, v in Department.objects.all().values_list("id", "uuid")
+    }
 
     VERBOSITY and LOGGER.info("Fetching unit connections %s" % dept_syncher)
 
@@ -193,7 +193,7 @@ def _load_postcodes():
     path = os.path.join(settings.BASE_DIR, "data", "fi", "postcodes.txt")
     postcodes = {}
     try:
-        f = open(path, "r", encoding="utf-8")
+        f = open(path, encoding="utf-8")
     except FileNotFoundError:
         return
     for line in f.readlines():
@@ -294,7 +294,7 @@ def _import_unit(
         dept = dept_syncher.get(dept_id)
 
     if not dept:
-        LOGGER.warning("Missing department {} for unit {}".format(dept_id, obj.id))
+        LOGGER.warning(f"Missing department {dept_id} for unit {obj.id}")
     elif obj.department_id != dept.id:
         obj.department = dept
         obj_changed = True
@@ -384,7 +384,7 @@ def _import_unit(
             location = p
         else:
             if VERBOSITY:
-                LOGGER.warning("Invalid coordinates (%f, %f) for %s" % (n, e, obj))
+                LOGGER.warning(f"Invalid coordinates ({n:f}, {e:f}) for {obj}")
 
     if location and obj.location:
         # If the distance is less than 10cm, assume the location
@@ -411,9 +411,7 @@ def _import_unit(
         ).filter(boundary__contains=obj.location, division__type__type="muni")
         if div:
             if len(div) > 1:
-                LOGGER.warning(
-                    "Multiple municipalities found for unit {}!".format(obj.id)
-                )
+                LOGGER.warning(f"Multiple municipalities found for unit {obj.id}!")
             muni_name = div[0].division.name_fi.lower()
             muni = muni_by_name.get(muni_name)
             obj.municipality = muni
@@ -452,13 +450,13 @@ def _import_unit(
         else:
             verb = "changed"
         if VERBOSITY:
-            LOGGER.info("%s %s" % (obj, verb))
+            LOGGER.info(f"{obj} {verb}")
         obj.last_modified_time = datetime.datetime.now(UTC_TIMEZONE)
         obj_changed = False
         try:
             obj.save()
         except db.utils.DataError as e:
-            LOGGER.error("Importing failed for unit {}".format(str(obj)))
+            LOGGER.error(f"Importing failed for unit {str(obj)}")
             raise e
 
     update_fields = ["last_modified_time"]

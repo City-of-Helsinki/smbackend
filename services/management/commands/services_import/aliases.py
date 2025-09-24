@@ -12,9 +12,9 @@ RELEVANT_COLS = [3, 5]  # IMPORTANT: verify the ids are in these columns
 def import_aliases():
     path = os.path.join(settings.BASE_DIR, "data", "school_ids.csv")
     try:
-        f = open(path, "r")
+        f = open(path)
     except FileNotFoundError:
-        print("Aliases file {} not found".format(path))  # noqa: T201
+        print(f"Aliases file {path} not found")  # noqa: T201
         return
 
     value_sets = {}
@@ -22,9 +22,9 @@ def import_aliases():
     next(reader)
     for row in reader:
         primary_id = row[1]
-        value_sets[primary_id] = set(
+        value_sets[primary_id] = {
             row[col] for col in RELEVANT_COLS if row[col] and row[col].strip != ""
-        )
+        }
 
     if len(value_sets) == 0:
         print("No aliases found in file.")  # noqa: T201
