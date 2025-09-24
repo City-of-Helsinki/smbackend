@@ -66,7 +66,7 @@ urlpatterns = [
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^open311", views.post_service_request, name="open311"),
     re_path(r"^stats", views.post_statistic, name="stats"),
-    re_path(r"^v2/", include(router.urls)),
+    path("v2/", include(router.urls)),
     re_path(r"^v2/api-token-auth/", obtain_auth_token, name="api-auth-token"),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
@@ -77,6 +77,6 @@ urlpatterns = [
     path(
         "schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
     ),
-    re_path(r"", include(shortcutter_urls)),
-    re_path("", include(tf_urls)),
+    path("", include(shortcutter_urls)),
+    path("", include(tf_urls)),
 ]
