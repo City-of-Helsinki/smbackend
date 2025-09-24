@@ -12,7 +12,7 @@ jobs:
     secrets: inherit
     with:
       python-version: "3.12"
-      postgres-major-version: 13
+      postgres-major-version: 17
       use-postgis: true
       extra-commands: |
         sudo apt-get install voikko-fi libvoikko-dev
