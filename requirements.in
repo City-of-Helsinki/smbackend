@@ -1,5 +1,5 @@
 bmi-arcgis-restapi
-Django
+Django~=5.2
 django-cors-headers
 django-csp
 django-environ
