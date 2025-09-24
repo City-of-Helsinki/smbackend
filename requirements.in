@@ -6,8 +6,8 @@ django-environ
 django-extensions
 django-filter
 django-modeltranslation
-django-mptt
-git+https://github.com/City-of-Helsinki/django-munigeo@v0.2.88#egg=django-munigeo
+django-mptt~=0.18
+django-munigeo@https://github.com/City-of-Helsinki/django-munigeo/archive/refs/tags/v0.2.89.zip
 django-polymorphic>=3.1
 djangorestframework
 djangorestframework-jsonp
@@ -21,7 +21,7 @@ requests
 requests_cache
 pytz
 python-dateutil
-psycopg2
+psycopg[c]
 sentry-sdk[django]
 tqdm
 tzdata
