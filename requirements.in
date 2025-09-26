@@ -25,7 +25,7 @@ psycopg2
 sentry-sdk[django]
 tqdm
 tzdata
-urllib3<2  # NOTE: As of django-munigeo 0.2.88, urllib3 2.x is not supported.
+urllib3<3  # NOTE: As of django-munigeo 0.2.88, urllib3 2.x is not supported.
 whitenoise
 uwsgi
 uwsgitop
