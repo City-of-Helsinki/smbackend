@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.8.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.7.1...smbackend-v3.8.0) (2025-10-09)
+
+
+### Features
+
+* **sentry:** Update sentry configuration ([f2ff4b9](https://github.com/City-of-Helsinki/smbackend/commit/f2ff4b9ad2f609e668bc7d3e6f3ce513aebdf71a))
+
+
+### Dependencies
+
+* Bump django from 5.1.12 to 5.1.13 ([eb96445](https://github.com/City-of-Helsinki/smbackend/commit/eb96445107e82b23993fea728e75ca25180c3200))
+* Bump sentry-sdk from 2.16.0 to 2.39.0 ([5fc83d1](https://github.com/City-of-Helsinki/smbackend/commit/5fc83d11c29db9e301aeb765ae75cffe96b60066))
+
 ## [3.7.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.7.0...smbackend-v3.7.1) (2025-09-10)
 
 
