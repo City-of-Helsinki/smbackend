@@ -9,12 +9,14 @@ from services.models import (
 )
 
 
+@admin.register(Announcement, ErrorMessage)
 class NotificationAdmin(TranslationAdmin):
     list_display = ("title", "active", "content")
     list_display_links = ("title", "content")
     list_filter = ("active",)
 
 
+@admin.register(FeedbackMapping)
 class FeedbackMappingAdmin(admin.ModelAdmin):
     list_display = (
         "abbr_fi",
@@ -27,11 +29,6 @@ class FeedbackMappingAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(RequestStatistic)
 class RequestStatisticAdmin(admin.ModelAdmin):
     list_display = ("timeframe", "request_counter", "details")
-
-
-admin.site.register(Announcement, NotificationAdmin)
-admin.site.register(ErrorMessage, NotificationAdmin)
-admin.site.register(FeedbackMapping, FeedbackMappingAdmin)
-admin.site.register(RequestStatistic, RequestStatisticAdmin)
