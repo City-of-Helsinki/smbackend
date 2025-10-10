@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.8.0...smbackend-v3.8.1) (2025-10-10)
+
+
+### Bug Fixes
+
+* Add missing cors headers for sentry ([2be7dfa](https://github.com/City-of-Helsinki/smbackend/commit/2be7dfa6f5f66620dc0b831a43edd5bfe3d04d0c))
+
 ## [3.8.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.7.1...smbackend-v3.8.0) (2025-10-09)
 
 
