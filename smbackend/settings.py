@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import sentry_sdk
+from corsheaders.defaults import default_headers
 from csp.constants import NONCE, NONE, SELF
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
@@ -172,6 +173,11 @@ USE_TZ = True
 USE_X_FORWARDED_HOST = env("TRUST_X_FORWARDED_HOST")
 SECURE_PROXY_SSL_HEADER = env("SECURE_PROXY_SSL_HEADER")
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = (
+    *default_headers,
+    "baggage",
+    "sentry-trace",
+)
 TASTYPIE_DEFAULT_FORMATS = ["json"]
 
 DEFAULT_SRID = 3067  # ETRS TM35-FIN
