@@ -1,11 +1,8 @@
-FROM postgres:14
-
-RUN apt-get update && apt-get install --no-install-recommends -y \
-        postgis postgresql-14-postgis-3 postgresql-14-postgis-3-scripts \
-    && apt-get clean
+FROM postgis/postgis:17-3.5
 
 RUN localedef -i fi_FI -c -f UTF-8 -A /usr/share/locale/locale.alias fi_FI.UTF-8
 
 ENV LANG fi_FI.UTF-8
 
-COPY ./docker-entrypoint.sh /docker-entrypoint-initdb.d/docker-entrypoint.sh
+COPY ./init-extensions.sh /docker-entrypoint-initdb.d/init-extensions.sh
+RUN chmod +x /docker-entrypoint-initdb.d/init-extensions.sh

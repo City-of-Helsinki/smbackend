@@ -11,13 +11,15 @@ This is the backend service for the Service Map UI.
 Installation with Docker Compose
 ------------
 
-First configure development environment settings as stated in `.env.example` and in `config_dev_ui.env.example`.
+* Copy `./docker/django/.env.example` to `./docker/django/.env` and change the variable values to your liking.
+* Start django application and database server:
+  ```
+  docker compose up
+  ```
 
-### Running the application
+* Access application REST API on [localhost:8000/v2](http://localhost:8000/v2/)
 
-Run application with `docker compose up`
-
-This will startup and bind local postgres, servicemap backend and servicemap frontend containers.
+* You are done 🔥
 
 ### Run migrations
 

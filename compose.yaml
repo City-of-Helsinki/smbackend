@@ -1,14 +1,16 @@
 services:
-  postgres:
+  postgis:
     build: ./docker/postgres/
+    platform: linux/x86_64
+    restart: on-failure
     environment:
       - POSTGRES_USER=servicemap
       - POSTGRES_PASSWORD=servicemap
       - POSTGRES_DB=servicemap
     ports:
-      - "127.0.0.1:5432:5432"
+      - "5434:5432"
     volumes:
-      - postgres-data:/var/lib/postgres/data
+      - pgdata:/var/lib/postgresql/data
     container_name: servicemap-db
 
   django:
@@ -16,23 +18,20 @@ services:
       context: .
       target: development
     env_file:
-      - .env
+      - ./docker/django/.env
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     restart: unless-stopped
     depends_on:
-      - postgres
+      - postgis
     container_name: servicemap-backend
 
-  servicemap-ui:
-    image: helsinki/servicemap-ui:staging
-    ports:
-      - "2048:2048"
-    env_file:
-      - config_dev_ui.env.example
-    container_name: servicemap-frontend
-
 volumes:
-  postgres-data:
+  pgdata:
+    driver: local
+
+networks:
+  default:
+    name: helsinki
