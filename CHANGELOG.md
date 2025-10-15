@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.8.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.8.1...smbackend-v3.8.2) (2025-10-15)
+
+
+### Dependencies
+
+* Bump django from 5.1.12 to 5.2.7 ([33bbc79](https://github.com/City-of-Helsinki/smbackend/commit/33bbc79888fa51ddc581ff44cc46bb3b60825097))
+* Upgrade packages, add hashes ([3d93344](https://github.com/City-of-Helsinki/smbackend/commit/3d933444d733115300bcb5076ea3263e7cf7e47d))
+
 ## [3.8.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.8.0...smbackend-v3.8.1) (2025-10-10)
 
 
