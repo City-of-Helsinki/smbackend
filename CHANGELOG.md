@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.3](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.8.2...smbackend-v3.8.3) (2025-10-26)
+
+
+### Bug Fixes
+
+* Update uwsgi-config for Sentry ([ee45ee1](https://github.com/City-of-Helsinki/smbackend/commit/ee45ee1cba143487b4cea9f7b2a131ce6db0b480))
+
 ## [3.8.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.8.1...smbackend-v3.8.2) (2025-10-15)
 
 
