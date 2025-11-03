@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.9.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.8.2...smbackend-v3.9.0) (2025-11-03)
+
+
+### Features
+
+* Allow dynamic sentry trace ignore paths ([d66f861](https://github.com/City-of-Helsinki/smbackend/commit/d66f861995627245e9d19977a54221523235f80c))
+
+
+### Bug Fixes
+
+* Remove 'py-call-uwsgi-fork-hooks'-option ([9b09a11](https://github.com/City-of-Helsinki/smbackend/commit/9b09a11e0073f9306b6d0f4bc8a5e447c6112816))
+* Update uwsgi-config for Sentry ([ee45ee1](https://github.com/City-of-Helsinki/smbackend/commit/ee45ee1cba143487b4cea9f7b2a131ce6db0b480))
+
+
+### Dependencies
+
+* Bump sentry-sdk and uwsgi versions ([0b87d52](https://github.com/City-of-Helsinki/smbackend/commit/0b87d52f44d3ec7081238f55dd5787f469563020))
+
 ## [3.8.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.8.1...smbackend-v3.8.2) (2025-10-15)
 
 
