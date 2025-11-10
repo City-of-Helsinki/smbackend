@@ -29,3 +29,4 @@ urllib3<2  # NOTE: As of django-munigeo 0.2.88, urllib3 2.x is not supported.
 whitenoise
 uwsgi
 uwsgitop
+django-logger-extra@https://github.com/City-of-Helsinki/django-logger-extra/archive/refs/tags/v0.1.0.zip
