@@ -123,6 +123,7 @@ django==5.2.8 \
     #   django-filter
     #   django-formtools
     #   django-js-asset
+    #   django-logger-extra
     #   django-modeltranslation
     #   django-munigeo
     #   django-otp
@@ -160,6 +161,9 @@ django-js-asset==3.1.2 \
     --hash=sha256:1fc7584199ed1941ed7c8e7b87ca5524bb0f2ba941561d2a104e88ee9f07bedd \
     --hash=sha256:b5ffe376aebbd73b7af886d675ac9f43ca63b39540190fa8409c9f8e79145f68
     # via django-mptt
+django-logger-extra @ https://github.com/City-of-Helsinki/django-logger-extra/archive/refs/tags/v0.1.0.zip \
+    --hash=sha256:90dc28c88cb26e9684873cf1951568abfa2cda454837fe342b2bf482847bf380
+    # via -r requirements.in
 django-modeltranslation==0.19.16 \
     --hash=sha256:b0d51f2a5c6a1e2f1a8b8504d142a83f83bcb8649baaa128d9fdb9b6b413164d \
     --hash=sha256:d10b0bf221791ce2b0bc4299d061fc02ea34aae0d7091e65c865b6753e7f5cb0

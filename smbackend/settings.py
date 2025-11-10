@@ -113,6 +113,7 @@ INSTALLED_APPS = [
     "django_otp.plugins.otp_email",
     "two_factor",
     "two_factor.plugins.email",
+    "logger_extra",
 ]
 
 MIDDLEWARE = [
@@ -286,15 +287,15 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "timestamped_named": {
-            "format": "%(asctime)s %(name)s %(levelname)s: %(message)s",
-        },
+        "json": {
+            "()": "logger_extra.formatter.JSONFormatter",
+        }
     },
     "handlers": {
         "console": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
-            "formatter": "timestamped_named",
+            "formatter": "json",
         },
     },
     "loggers": {
