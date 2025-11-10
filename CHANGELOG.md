@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.9.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.9.0...smbackend-v3.9.1) (2025-11-10)
+
+
+### Dependencies
+
+* Bump django from 5.2.7 to 5.2.8 ([62ff365](https://github.com/City-of-Helsinki/smbackend/commit/62ff36577c9bd21a2a6ac5ad06ca7b692d528678))
+* Bump pip from 25.2 to 25.3 ([27ace72](https://github.com/City-of-Helsinki/smbackend/commit/27ace7297260cda889c3d034c6e63bb64bc0ef17))
+
 ## [3.9.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.8.2...smbackend-v3.9.0) (2025-11-03)
 
 
