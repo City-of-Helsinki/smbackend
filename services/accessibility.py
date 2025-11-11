@@ -31,7 +31,7 @@ class AccessibilityRules:
             full_path = os.path.join(path, data_file)
             if os.path.exists(full_path):
                 return full_path
-        raise FileNotFoundError("Data file '%s' not found" % data_file)
+        raise FileNotFoundError(f"Data file '{data_file}' not found")
 
     def _parse(self):
         tree, self.messages = accessibility_rules.parse_accessibility_rules(

@@ -119,7 +119,7 @@ def import_units(
         k: str(v) for k, v in Department.objects.all().values_list("id", "uuid")
     }
 
-    VERBOSITY and LOGGER.info("Fetching unit connections %s" % dept_syncher)
+    VERBOSITY and LOGGER.info(f"Fetching unit connections {dept_syncher}")
 
     connections = fetch_resource("connection")
     conn_by_unit = defaultdict(list)
@@ -253,7 +253,7 @@ def _import_unit(
 
     if "address_city_fi" not in info and "latitude" in info and "longitude" in info:
         if VERBOSITY:
-            LOGGER.warning("%s: coordinates present but no city" % obj)
+            LOGGER.warning(f"{obj}: coordinates present but no city")
 
     municipality_id = None
 
@@ -268,8 +268,8 @@ def _import_unit(
             if muni_name:
                 if VERBOSITY:
                     LOGGER.warning(
-                        "%s: municipality to %s based on post code %s (was %s)"
-                        % (obj, muni_name, postcode, info.get("address_city_fi"))
+                        f"{obj}: municipality to {muni_name} based on post code "
+                        f"{postcode} (was {info.get('address_city_fi')})"
                     )
                 muni_name = muni_name.lower()
     if muni_name:
@@ -279,8 +279,8 @@ def _import_unit(
         else:
             if VERBOSITY:
                 LOGGER.warning(
-                    "%s: municipality %s not found from current Municipalities"
-                    % (obj, muni_name)
+                    f"{obj}: municipality {muni_name} "
+                    "not found from current Municipalities"
                 )
 
     if municipality_id and municipality_id != obj.municipality_id:
@@ -417,9 +417,7 @@ def _import_unit(
             obj.municipality = muni
             if muni is not None:
                 LOGGER.info(
-                    "Municipality_id added according to unit {}'s location.".format(
-                        obj.id
-                    )
+                    f"Municipality_id added according to unit {obj.id}'s location."
                 )
 
     is_public = info.get("is_public", True)
@@ -565,8 +563,8 @@ def _import_unit_services(obj, info, obj_changed, update_fields):
     if obj.service_details_hash != owd_hash:
         if VERBOSITY:
             LOGGER.info(
-                "%s service details set changed (%s vs. %s)"
-                % (obj, obj.service_details_hash, owd_hash)
+                f"{obj} service details set changed "
+                f"({obj.service_details_hash} vs. {owd_hash})"
             )
         obj.service_details.all().delete()
         for owd in info["service_details"]:
@@ -599,8 +597,8 @@ def _import_unit_accessibility_variables(obj, info, obj_changed, update_fields):
     if obj.accessibility_property_hash != acp_hash:
         if VERBOSITY:
             LOGGER.info(
-                "%s accessibility property set changed (%s vs. %s)"
-                % (obj, obj.accessibility_property_hash, acp_hash)
+                f"{obj} accessibility property set changed "
+                f"({obj.accessibility_property_hash} vs. {acp_hash})"
             )
         obj.accessibility_properties.all().delete()
         for acp in info["accessibility_properties"]:
@@ -646,8 +644,7 @@ def _import_unit_connections(obj, info, obj_changed, update_fields):
     if obj.connection_hash != conn_hash:
         if VERBOSITY:
             LOGGER.info(
-                "%s connection set changed (%s vs. %s)"
-                % (obj, obj.connection_hash, conn_hash)
+                f"{obj} connection set changed ({obj.connection_hash} vs. {conn_hash})"
             )
         obj.connections.all().delete()
 
@@ -700,8 +697,7 @@ def _import_unit_sources(obj, info, obj_changed, update_fields):
     if obj.identifier_hash != id_hash:
         if VERBOSITY:
             LOGGER.info(
-                "%s identifier set changed (%s vs. %s)"
-                % (obj, obj.identifier_hash, id_hash)
+                f"{obj} identifier set changed ({obj.identifier_hash} vs. {id_hash})"
             )
         obj.identifiers.all().delete()
         if id_hash is not None:

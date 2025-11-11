@@ -70,9 +70,7 @@ def unit_ui_url(unit):
 
 
 def format_unit(unit):
-    return "Name: {}\n id: {}\n URL: {}\n".format(
-        unit.name_fi, unit.id, unit_ui_url(unit)
-    )
+    return f"Name: {unit.name_fi}\n id: {unit.id}\n URL: {unit_ui_url(unit)}\n"
 
 
 def print_units(units):

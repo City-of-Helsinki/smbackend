@@ -107,13 +107,13 @@ class Command(BaseCommand):
                 json=population_by_age_configs[config]["data"],
                 timeout=120,
             )
-            assert response.status_code == 200, "response status code {}".format(
-                response.status_code
+            assert response.status_code == 200, (
+                f"response status code {response.status_code}"
             )
             result = json.loads(response.text)
             for item in result.get("data"):
                 district_id, _lang, age, year = item.get("key")
-                statistic_key = "%s_population_by_age" % year
+                statistic_key = f"{year}_population_by_age"
                 value = item.get("values")[0]
                 num_statistics_updated = self._update_statistical_district(
                     age,
@@ -137,13 +137,13 @@ class Command(BaseCommand):
                 json=population_forecast_configs[config]["data"],
                 timeout=120,
             )
-            assert response.status_code == 200, "response status code {}".format(
-                response.status_code
+            assert response.status_code == 200, (
+                f"response status code {response.status_code}"
             )
             result = json.loads(response.text)
             for item in result.get("data"):
                 _origin_key, _lang, district_id, age, year = item.get("key")
-                statistic_key = "%s_population_forecast" % year
+                statistic_key = f"{year}_population_forecast"
                 value = item.get("values")[0]
                 num_statistics_updated = self._update_statistical_district(
                     age,

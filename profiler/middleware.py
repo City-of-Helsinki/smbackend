@@ -54,6 +54,6 @@ class ProfilerMiddleware:
             stats = pstats.Stats(self.profiler, stream=stream)
             stats.strip_dirs().sort_stats(request.GET.get("prof_sort", "time"))
             stats.print_stats(int(request.GET.get("prof_count", 100)))
-            response.content = "<pre>%s</pre>" % stream.getvalue()
+            response.content = f"<pre>{stream.getvalue()}</pre>"
             response["content-type"] = "text/html"
         return response

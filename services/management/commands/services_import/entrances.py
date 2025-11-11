@@ -67,7 +67,7 @@ def _import_unit_entrance(
                 obj.unit = Unit.objects.get(pk=info["unit_id"])
             except Unit.DoesNotExist:
                 if VERBOSITY:
-                    LOGGER.warning("Unit with id (%d) not found" % info["unit_id"])
+                    LOGGER.warning(f"Unit with id ({info['unit_id']:d}) not found")
                 return
         CACHED_UNIT = obj.unit
         obj_changed = True

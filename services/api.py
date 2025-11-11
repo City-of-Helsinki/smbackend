@@ -286,7 +286,7 @@ def resolve_divisions(divisions):
             )
         except AdministrativeDivision.DoesNotExist:
             raise ParseError(
-                "administrative division with OCD ID '%s' not found" % muni_ocd_id
+                f"administrative division with OCD ID '{muni_ocd_id}' not found"
             )
         div_list.append(div)
     return div_list
@@ -972,10 +972,9 @@ class UnitSerializer(
 
 
 def make_muni_ocd_id(name, rest=None):
-    s = "ocd-division/country:{}/{}:{}".format(
-        settings.DEFAULT_COUNTRY,
-        settings.DEFAULT_OCD_MUNICIPALITY,
-        name,
+    s = (
+        f"ocd-division/country:{settings.DEFAULT_COUNTRY}/"
+        f"{settings.DEFAULT_OCD_MUNICIPALITY}:{name}"
     )
     if rest:
         s += "/" + rest
@@ -1003,8 +1002,7 @@ class KmlRenderer(renderers.BaseRenderer):
         )
         if lang_code not in LANGUAGES:
             raise ParseError(
-                "Invalid language supplied. Supported languages: %s"
-                % ",".join(LANGUAGES)
+                f"Invalid language supplied. Supported languages: {','.join(LANGUAGES)}"
             )
         resp["lang_code"] = lang_code
         places = data.get("results", [data])
@@ -1086,7 +1084,7 @@ class UnitViewSet(
                         muni = Municipality.objects.get(division__ocd_id=ocd_id)
                         muni_sq |= Q(municipality=muni)
                     except Municipality.DoesNotExist:
-                        raise ParseError("municipality with ID '%s' not found" % ocd_id)
+                        raise ParseError(f"municipality with ID '{ocd_id}' not found")
 
                 queryset = queryset.filter(muni_sq)
 
@@ -1388,7 +1386,7 @@ class SearchSerializer(serializers.Serializer):
         ser = self.serializer_by_model.get(model)
         if not ser:
             ser_class = serializers_by_model[model]
-            assert model in serializers_by_model, "Serializer for %s not found" % model
+            assert model in serializers_by_model, f"Serializer for {model} not found"
             context = self._strip_context(self.context.copy(), model)
             ser = ser_class(context=context, many=False)
             self.serializer_by_model[model] = ser

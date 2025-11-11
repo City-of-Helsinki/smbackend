@@ -10,9 +10,7 @@ class ServiceMapping(models.Model):
 
     def __str__(self):
         if filter:
-            return "map {} -> {} [{}]".format(
-                self.service_id, self.node_id, self.filter
-            )
+            return f"map {self.service_id} -> {self.node_id} [{self.filter}]"
 
         else:
             return f"map {self.service_id} -> {self.node_id}"

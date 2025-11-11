@@ -99,7 +99,7 @@ def populate_search_column(obj):
                 )
 
             # Add all SearchVectors in search_vectors list to search_column.
-            key = "search_column_%s" % lang
+            key = f"search_column_{lang}"
             obj.__class__.objects.filter(id=id).update(
                 **{key: reduce(operator.add, search_vectors[lang])}
             )

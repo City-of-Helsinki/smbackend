@@ -99,10 +99,10 @@ class Compound(Expression):
             self.operator = operator
         else:
             if operator != self.operator:
-                msg = """
-Error, trying to change operator of a compound expression at {}.
+                msg = f"""
+Error, trying to change operator of a compound expression at {row[-1]}.
 Probable cause: missing closing parenthesis right before said line.
-                """.format(row[-1])
+                """
                 print(msg)  # noqa: T201
 
     def set_mode(self, mode):
@@ -202,11 +202,10 @@ def exit_on_error(message, expression=None, lineno=None):
     print("Error: " + message)  # noqa: T201
     if expression:
         print(  # noqa: T201
-            "  beginning at line %s, expression %s"
-            % (expression.first_line, str(expression))
+            f"  beginning at line {expression.first_line}, expression {str(expression)}"
         )
     if lineno:
-        print("  beginning at line %s" % lineno)  # noqa: T201
+        print(f"  beginning at line {lineno}")  # noqa: T201
     sys.exit(2)
 
 
@@ -252,7 +251,7 @@ def update_messages(row, expression):
             expression.messages[key] = current
     shortcoming = {}
     for lang in LANGUAGES:
-        key = "shortcoming_%s" % lang
+        key = f"shortcoming_{lang}"
         msg = expression.messages.get(key)
         if not msg:
             continue
@@ -287,13 +286,13 @@ def build_comparison(iterator, row, depth=0, requirement_id=None):
     try:
         variable, operator, value = int(row[VARIABLE]), row[OPERATOR], row[VALUE]
     except ValueError:
-        return exit_on_error("Value error %s." % row)
+        return exit_on_error(f"Value error {row}.")
     if operator == "I":
         operator = "NEQ"
     elif operator == "E":
         operator = "EQ"
     else:
-        return exit_on_error("Unknown comparison operator %s." % operator)
+        return exit_on_error(f"Unknown comparison operator {operator}.")
 
     expression = Comparison(depth, variable, operator, value)
     match = VARIABLE_NAME.match(row[EXPRESSION])
@@ -466,7 +465,7 @@ def build_tree(reader):
             row_groups[accessibility_case_id].append(row)
         try:
             lineno, row = next_line(reader)
-            row.append("lineno: %s" % lineno)
+            row.append(f"lineno: {lineno}")
         except StopIteration:
             break
     for acid, rows in row_groups.items():

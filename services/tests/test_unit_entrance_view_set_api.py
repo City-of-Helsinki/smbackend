@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from django.urls import reverse
@@ -8,7 +8,7 @@ from services.models import Unit, UnitEntrance
 from services.tests.utils import get, get_test_location
 
 MODIFIED_TIME = datetime(
-    year=2023, month=1, day=1, hour=1, minute=1, second=1, tzinfo=timezone.utc
+    year=2023, month=1, day=1, hour=1, minute=1, second=1, tzinfo=UTC
 )
 
 
@@ -64,14 +64,10 @@ def test_get_unit_entrance_fields(api_client):
     assert response.data["picture_url"] == "https://test.jpg"
     assert response.data["streetview_url"] == "https://teststreet"
     assert (
-        datetime.fromisoformat(response.data["last_modified_time"]).astimezone(
-            timezone.utc
-        )
+        datetime.fromisoformat(response.data["last_modified_time"]).astimezone(UTC)
         == MODIFIED_TIME
     )
     assert (
-        datetime.fromisoformat(response.data["last_modified_time"]).astimezone(
-            timezone.utc
-        )
+        datetime.fromisoformat(response.data["last_modified_time"]).astimezone(UTC)
         == MODIFIED_TIME
     )
