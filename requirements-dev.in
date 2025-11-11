@@ -6,5 +6,4 @@ parso
 pip-tools
 pytest-django
 pytest-cov
-PyGithub
 requests-mock
