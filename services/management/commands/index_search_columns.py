@@ -76,7 +76,7 @@ def index_servicenodes(lang):
     to avoid duplicates with Services in results
     """
     service_nodes_indexed = 0
-    key = "search_column_%s" % lang
+    key = f"search_column_{lang}"
     # Disable sending signals for the model
     ServiceNode._meta.auto_created = True
     columns = ServiceNode.get_search_column_indexing(lang)
@@ -128,7 +128,7 @@ class Command(BaseCommand):
             except ValueError as err:
                 raise ValueError(err)
         for lang in ["fi", "sv", "en"]:
-            key = "search_column_%s" % lang
+            key = f"search_column_{lang}"
             # Only generate syllables for the finnish language
             if lang == "fi":
                 logger.info(f"Generating syllables for language: {lang}.")

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from django.urls import reverse
@@ -17,7 +17,7 @@ from services.models import Service, ServiceNode, Unit
 from services.tests.utils import get
 
 MODIFIED_TIME = datetime(
-    year=2023, month=1, day=1, hour=1, minute=1, second=1, tzinfo=timezone.utc
+    year=2023, month=1, day=1, hour=1, minute=1, second=1, tzinfo=UTC
 )
 
 
@@ -112,9 +112,7 @@ def test_service_node_fields(api_client):
     assert response.data["children"] == [11]
     assert response.data["name"]["fi"] == "Vuokra-asuminen"
     assert (
-        datetime.fromisoformat(response.data["last_modified_time"]).astimezone(
-            timezone.utc
-        )
+        datetime.fromisoformat(response.data["last_modified_time"]).astimezone(UTC)
         == MODIFIED_TIME
     )
     assert response.data["level"] == 1

@@ -19,5 +19,5 @@ class Command(BaseCommand):
                     f"Emptying search columns for model: {model.__name__} and language"
                     " {lang}."
                 )
-                key = "search_column_%s" % lang
+                key = f"search_column_{lang}"
                 model.objects.update(**{key: None})

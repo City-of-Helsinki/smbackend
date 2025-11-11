@@ -48,8 +48,8 @@ class Command(BaseCommand):
     def __init__(self):
         super().__init__()
         for imp in self.importer_types:
-            method = "import_%s" % imp
-            assert getattr(self, method, False), "No importer defined for %s" % method
+            method = f"import_{imp}"
+            assert getattr(self, method, False), f"No importer defined for {method}"
 
         self.services = {}
         self.existing_service_ids = None
@@ -181,9 +181,9 @@ class Command(BaseCommand):
         for imp in self.importer_types:
             if imp not in self.options["import_types"]:
                 continue
-            method = getattr(self, "import_%s" % imp)
+            method = getattr(self, f"import_{imp}")
             if self.verbosity:
-                print("Importing %s..." % imp)  # noqa: T201
+                print(f"Importing {imp}...")  # noqa: T201
             if "id" in options and options.get("id"):
                 method(pk=options["id"])
             else:

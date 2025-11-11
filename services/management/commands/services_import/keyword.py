@@ -23,7 +23,7 @@ class KeywordHandler:
         return {kw.pk: kw for kw in Keyword.objects.all()}
 
     def _save_searchwords(self, obj, info, language):
-        field_name = "extra_searchwords_%s" % language
+        field_name = f"extra_searchwords_{language}"
         new_kw_set = set()
         if field_name in info:
             kws = [x.strip() for x in info[field_name].split(",")]

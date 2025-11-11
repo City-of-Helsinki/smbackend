@@ -129,7 +129,7 @@ def convert_to_list(text):
 
 
 def get_extra_searchwords(info, language):
-    field_name = "extra_searchwords_%s" % language
+    field_name = f"extra_searchwords_{language}"
     val = info.get(field_name, [])
     if val:
         val = convert_to_list(val)
