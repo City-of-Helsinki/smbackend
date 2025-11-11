@@ -12,8 +12,13 @@ repos:
       - id: check-yaml
       - id: check-toml
       - id: check-added-large-files
+  - repo: https://github.com/adamchainz/django-upgrade
+    rev: "1.27.0"  # replace with latest tag on GitHub
+    hooks:
+      - id: django-upgrade
+        args: [--target-version, "5.2"]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.4  # Sync with requirements-dev.in
+    rev: v0.14.4
     hooks:
       - id: ruff
         name: ruff lint
@@ -29,13 +34,3 @@ repos:
     rev: v0.10.0
     hooks:
       - id: shellcheck
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
-    hooks:
-      - id: pyupgrade
-        args: ["--py312-plus"]
-  - repo: https://github.com/adamchainz/django-upgrade
-    rev: "1.27.0"  # replace with latest tag on GitHub
-    hooks:
-      - id: django-upgrade
-        args: [--target-version, "5.2"]
