@@ -20,10 +20,11 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.4
     hooks:
-      - id: ruff
-        name: ruff lint
+      # Run the linter.
+      - id: ruff-check
+        args: [ "--fix" ]
+      # Run the formatter.
       - id: ruff-format
-        name: ruff format
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.20.0
     hooks:
