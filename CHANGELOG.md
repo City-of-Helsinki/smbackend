@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.10.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.9.1...smbackend-v3.10.0) (2025-11-12)
+
+
+### Features
+
+* Change logging format to json ([b639314](https://github.com/City-of-Helsinki/smbackend/commit/b6393143214f904192dc1a36a7b886d71fd69205))
+* Configure uwsgi for json logging ([b844fed](https://github.com/City-of-Helsinki/smbackend/commit/b844fedbd71ad62b136ec6cc88ec638c221e45eb))
+* Enable request id logging ([21a2da9](https://github.com/City-of-Helsinki/smbackend/commit/21a2da937689ec7f8907c6f1ba98222e1b3ff27d))
+* Remove release notes script ([8379d72](https://github.com/City-of-Helsinki/smbackend/commit/8379d72727ede64f9e95445b94bc47afc61b74bf))
+
+
+### Dependencies
+
+* Bump pip-tools ([c2dabfd](https://github.com/City-of-Helsinki/smbackend/commit/c2dabfd7ace5397aee7d880bea2b6d5566710372))
+* Move ipython to main requirements for improved console ([698643e](https://github.com/City-of-Helsinki/smbackend/commit/698643ee2731577df638e2ee305cf5ce71c2d86c))
+* Remove ruff from dev requirements ([fd2fb8b](https://github.com/City-of-Helsinki/smbackend/commit/fd2fb8b2cc15f630382ed5a391bd863ee3095d65))
+
 ## [3.9.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.9.0...smbackend-v3.9.1) (2025-11-10)
 
 
