@@ -1,5 +1,5 @@
 # ==============================
-FROM helsinki.azurecr.io/ubi9/python-312-gdal AS appbase
+FROM helsinki.azurecr.io/ubi9/python-312-gdal:build-278157 AS appbase
 # ==============================
 
 # Branch or tag used to pull python-uwsgi-common.
@@ -17,7 +17,7 @@ USER root
 
 COPY requirements.txt .
 
-RUN dnf update -y && dnf install -y \
+RUN dnf update --nobest -y && dnf install -y \
     nmap-ncat \
     gettext \
     postgresql \
