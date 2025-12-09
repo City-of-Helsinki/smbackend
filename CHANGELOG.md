@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.11.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.10.1...smbackend-v3.11.0) (2025-12-09)
+
+
+### Features
+
+* Allow Sentry uWSGI-plugin to be optional ([22694c0](https://github.com/City-of-Helsinki/smbackend/commit/22694c0c371fa25dfed6b02819a287e949c101f6))
+
+
+### Bug Fixes
+
+* Use certain base image for older gdal ([c3c3d86](https://github.com/City-of-Helsinki/smbackend/commit/c3c3d86ad2129c48633294b6141a762bd3408200))
+
 ## [3.10.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.10.0...smbackend-v3.10.1) (2025-12-04)
 
 
