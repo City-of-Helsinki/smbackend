@@ -1,5 +1,5 @@
 # ==============================
-FROM helsinki.azurecr.io/ubi9/python-312-gdal:build-278157 AS appbase
+FROM helsinki.azurecr.io/ubi9/python-312-gdal AS appbase
 # ==============================
 
 # Branch or tag used to pull python-uwsgi-common.
