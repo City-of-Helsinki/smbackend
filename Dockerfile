@@ -17,7 +17,7 @@ USER root
 
 COPY requirements.txt .
 
-RUN dnf update --nobest -y && dnf install -y \
+RUN dnf update -y && dnf install -y \
     nmap-ncat \
     gettext \
     postgresql \
