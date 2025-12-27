@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.11.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.11.0...smbackend-v3.11.1) (2025-12-27)
+
+
+### Bug Fixes
+
+* Return use of certain base image ([38edd25](https://github.com/City-of-Helsinki/smbackend/commit/38edd2574b685a5ef0337bf5e085b7f88ee423d0))
+* Use latest base image ([ab6418c](https://github.com/City-of-Helsinki/smbackend/commit/ab6418c16047d069ddd97f0a835018ee50d4a328))
+* Use latest base image ([#357](https://github.com/City-of-Helsinki/smbackend/issues/357)) ([523dc5d](https://github.com/City-of-Helsinki/smbackend/commit/523dc5d53f8a3c2f0e9d0ed69035a289fa2eb9ea))
+
 ## [3.11.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.10.1...smbackend-v3.11.0) (2025-12-09)
 
 
