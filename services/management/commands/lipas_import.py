@@ -27,7 +27,7 @@ def get_multi(obj):
         return MultiLineString(obj)
     elif isinstance(obj, Polygon):
         return MultiPolygon(obj)
-    elif isinstance(obj, (MultiLineString, MultiPolygon)):
+    elif isinstance(obj, MultiLineString | MultiPolygon):
         return obj
     else:
         raise Exception(f"Unsupported geometry type: {obj.__class__.__name__}")
