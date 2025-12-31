@@ -5,7 +5,7 @@ default_language_version:
     python: python3
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -13,12 +13,12 @@ repos:
       - id: check-toml
       - id: check-added-large-files
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: "1.27.0"  # replace with latest tag on GitHub
+    rev: "1.29.1"  # replace with latest tag on GitHub
     hooks:
       - id: django-upgrade
         args: [--target-version, "5.2"]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.4
+    rev: v0.14.10
     hooks:
       # Run the linter.
       - id: ruff-check
@@ -26,12 +26,12 @@ repos:
       # Run the formatter.
       - id: ruff-format
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v9.20.0
+    rev: v9.23.0
     hooks:
       - id: commitlint
         stages: [commit-msg, manual]
         additional_dependencies: ["@commitlint/config-conventional"]
   - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.10.0
+    rev: v0.11.0
     hooks:
       - id: shellcheck
