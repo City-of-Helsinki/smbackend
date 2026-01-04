@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.12.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.11.0...smbackend-v3.12.0) (2026-01-04)
+
+
+### Features
+
+* Update accessibility rules ([f9190bf](https://github.com/City-of-Helsinki/smbackend/commit/f9190bfb1fb0948d87d76f2912e5eeb0aa309a72))
+
+
+### Bug Fixes
+
+* Include only active units to search view ([6c9f9d2](https://github.com/City-of-Helsinki/smbackend/commit/6c9f9d2b05b2d0c5836f966906b9f549e048ba7a))
+* Return use of certain base image ([38edd25](https://github.com/City-of-Helsinki/smbackend/commit/38edd2574b685a5ef0337bf5e085b7f88ee423d0))
+* Use latest base image ([ab6418c](https://github.com/City-of-Helsinki/smbackend/commit/ab6418c16047d069ddd97f0a835018ee50d4a328))
+* Use latest base image ([#357](https://github.com/City-of-Helsinki/smbackend/issues/357)) ([523dc5d](https://github.com/City-of-Helsinki/smbackend/commit/523dc5d53f8a3c2f0e9d0ed69035a289fa2eb9ea))
+
 ## [3.11.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.10.1...smbackend-v3.11.0) (2025-12-09)
 
 
