@@ -66,7 +66,7 @@ with open(get_abs_file_path("espoo_population_forecast.json")) as f:
     ESPOO_POPULATION_FORECAST = json.load(f)
 
 VANTAA_POPULATION_FORECAST_URL = (
-    "https://stat.hel.fi/api/v1/fi/Aluesarjat/vrm/vaenn/alu_vaenn_010f.px"
+    "https://stat.hel.fi/api/v1/fi/Aluesarjat/vrm/vaenn/alu_vaenn_037o.px"
 )
 with open(get_abs_file_path("vantaa_population_forecast.json")) as f:
     VANTAA_POPULATION_FORECAST = json.load(f)
