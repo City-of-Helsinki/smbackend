@@ -9,6 +9,28 @@
       - 1083
 - model: observations.AllowedValue
   fields:
+    identifier: open
+    name_fi: Auki
+    name_en: Open
+    name_sv: Öppen
+    description_fi: Pulkkamäki on auki
+    description_en: The sledding hill is open
+    description_sv: Slädebacken är öppen
+    property_id: sledding_hill_condition
+    quality: good
+- model: observations.AllowedValue
+  fields:
+    identifier: snowmaking
+    name_fi: Lumetus kesken
+    name_en: Snowmaking unfinished
+    name_sv: Snötillverkning pågår
+    description_fi: Pulkkamäen lumetus on kesken
+    description_en: Snow making is in progress at the sledding hill
+    description_sv: Snötillverkning pågår på slädebacken
+    property_id: sledding_hill_condition
+    quality: unusable
+- model: observations.AllowedValue
+  fields:
     identifier: closed
     name_fi: Suljettu
     name_en: Closed
@@ -20,12 +42,12 @@
     quality: unusable
 - model: observations.AllowedValue
   fields:
-    identifier: open
-    name_fi: Auki
-    name_en: Open
-    name_sv: Öppen
-    description_fi: Pulkkamäki on auki
-    description_en: The sledding hill is open
-    description_sv: Slädebacken är öppen
+    identifier: weak
+    name_fi: Heikko
+    name_en: Weak
+    name_sv: Svag
+    description_fi: Pulkkamäen kunto on heikko
+    description_en: The sledding hill condition is weak
+    description_sv: Slädebackens skick är svagt
     property_id: sledding_hill_condition
-    quality: good
+    quality: poor
