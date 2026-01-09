@@ -61,6 +61,7 @@ env = Env(
     CSP_ENABLED=(bool, False),
     CSP_REPORT_ONLY=(bool, True),
     CSP_REPORT_URI=(str, None),
+    IMPORT_DATA_PATH=(str, None),
 )
 
 env_path = BASE_DIR / ".env"
@@ -84,6 +85,7 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 OTP_EMAIL_SENDER = env("OTP_EMAIL_SENDER")
 PICTURE_URL_REWRITE_ENABLED = env("PICTURE_URL_REWRITE_ENABLED")
+IMPORT_DATA_PATH = env("IMPORT_DATA_PATH")
 
 # Application definition
 INSTALLED_APPS = [
