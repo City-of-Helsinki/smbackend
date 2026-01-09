@@ -184,8 +184,8 @@ django-mptt==0.18.0 \
     # via
     #   -r requirements.in
     #   django-munigeo
-django-munigeo @ https://github.com/City-of-Helsinki/django-munigeo/archive/refs/tags/v0.2.89.zip \
-    --hash=sha256:571d9bc73ffeb771f9d5fcfb740242188f76f13da9e285a14057e9d759ed8593
+django-munigeo @ https://github.com/City-of-Helsinki/django-munigeo/archive/refs/tags/v0.2.90.zip \
+    --hash=sha256:2d432b00ed739e3d3d8a0488d2b4f72a1ca556e1fb8877abecb0863845f915b5
     # via -r requirements.in
 django-otp==1.6.1 \
     --hash=sha256:68dafa008921fd418382492d81b717636d8cc1364e24e8f9222b72264adf3c5d \
