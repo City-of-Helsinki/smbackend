@@ -184,6 +184,7 @@ CORS_ALLOW_HEADERS = (
 TASTYPIE_DEFAULT_FORMATS = ["json"]
 
 DEFAULT_SRID = 3067  # ETRS TM35-FIN
+PROJECTION_SRID = 3067
 ADDRESS_SEARCH_RADIUS = env("ADDRESS_SEARCH_RADIUS")
 # The Finnish national grid coordinates in TM35-FIN according to JHS-180
 # specification. We use it as a bounding box.
