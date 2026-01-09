@@ -21,12 +21,12 @@
 - model: observations.AllowedValue
   fields:
     identifier: snowmaking
-    name_fi: Lumetus kesken
-    name_en: Snowmaking unfinished
-    name_sv: Snötillverkning pågår
-    description_fi: Pulkkamäen lumetus on kesken
-    description_en: Snow making is in progress at the sledding hill
-    description_sv: Snötillverkning pågår på slädebacken
+    name_fi: Lumetus kesken, suljettu
+    name_en: Snowmaking unfinished, closed
+    name_sv: Snötillverkning pågår, stängd
+    description_fi: Pulkkamäen lumetus on kesken, suljettu
+    description_en: Snow making is in progress at the sledding hill, closed
+    description_sv: Snötillverkning pågår på slädebacken, stängd
     property_id: sledding_hill_condition
     quality: unusable
 - model: observations.AllowedValue
@@ -42,7 +42,7 @@
     quality: unusable
 - model: observations.AllowedValue
   fields:
-    identifier: weak
+    identifier: satisfactory
     name_fi: Heikko
     name_en: Weak
     name_sv: Svag
@@ -50,4 +50,4 @@
     description_en: The sledding hill condition is weak
     description_sv: Slädebackens skick är svagt
     property_id: sledding_hill_condition
-    quality: poor
+    quality: satisfactory
