@@ -1,5 +1,30 @@
 # Changelog
 
+## [3.12.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.11.0...smbackend-v3.12.0) (2026-01-12)
+
+
+### Features
+
+* Update accessibility rules ([f9190bf](https://github.com/City-of-Helsinki/smbackend/commit/f9190bfb1fb0948d87d76f2912e5eeb0aa309a72))
+* Update sledding initial observable props ([3169af2](https://github.com/City-of-Helsinki/smbackend/commit/3169af2820dbaaaa433d5bf14debebc22c47192f))
+
+
+### Bug Fixes
+
+* Add explicit PROJECTION_SRID-setting ([303f554](https://github.com/City-of-Helsinki/smbackend/commit/303f554cdf15698a93b92351103b0ace2a77fcbb))
+* Add import data path to settings ([63d4f3d](https://github.com/City-of-Helsinki/smbackend/commit/63d4f3dbf9f852ec64af3841f11b835521bf8aca))
+* Include only active units to search view ([6c9f9d2](https://github.com/City-of-Helsinki/smbackend/commit/6c9f9d2b05b2d0c5836f966906b9f549e048ba7a))
+* Return use of certain base image ([38edd25](https://github.com/City-of-Helsinki/smbackend/commit/38edd2574b685a5ef0337bf5e085b7f88ee423d0))
+* Update sledding initial observable props ([db9fbfe](https://github.com/City-of-Helsinki/smbackend/commit/db9fbfe8ecf96d31df0b2b9ba4ca7f0078e66ae2))
+* Update Vantaa stat-districts forecast import ([8a51dfc](https://github.com/City-of-Helsinki/smbackend/commit/8a51dfcb9b1bc692167ecf5156cbd7e73a0b874c))
+* Use latest base image ([ab6418c](https://github.com/City-of-Helsinki/smbackend/commit/ab6418c16047d069ddd97f0a835018ee50d4a328))
+* Use latest base image ([#357](https://github.com/City-of-Helsinki/smbackend/issues/357)) ([523dc5d](https://github.com/City-of-Helsinki/smbackend/commit/523dc5d53f8a3c2f0e9d0ed69035a289fa2eb9ea))
+
+
+### Dependencies
+
+* Bump django-munigeo ([9782f6d](https://github.com/City-of-Helsinki/smbackend/commit/9782f6d3f012d7f5de6d433c295ca7957fab3c65))
+
 ## [3.11.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.10.1...smbackend-v3.11.0) (2025-12-09)
 
 
