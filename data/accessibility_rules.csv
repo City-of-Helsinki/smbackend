@@ -282,7 +282,7 @@ AND;;;;;;;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;1;27;72;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;1;27;73;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;1;27;73;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [62] SERVICE_POINT.same_floor_as_entrance_no_need_for_lift = true;1;27;74;62;E;true;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -310,7 +310,7 @@ AND;;;;;;;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;1;29;80;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;1;29;81;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;1;29;81;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [92] INTERIOR.STEPS.existing = false;1;29;82;92;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -1069,7 +1069,7 @@ AND;;;;;;;;;;;;;;;
     AND;;;;;;;;;;;;;;;
     [185] PLAYGROUND.FURNITURE.existing = true;1;66;256;185;E;true;;;;;Kalusteita ei ole.;BIG;Leikkipuistossa ei ole kalusteita (penkkejä ja pöytiä).;Det finns inga möbler (bänkar och bord) i lekparken.;The playground does not have furniture (benches and tables).
     AND;;;;;;;;;;;;;;;
-    [186] PLAYGROUND.FURNITURE.benches_with 900mm_free_space = true;1;66;256;186;E;true;;;;;Ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa.;BIG;Leikkipuistossa ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa pyörätuolia varten.;Det finns inga bänkar med 900 mm fritt utrymme i änden för en rullstol.;There are no benches with 900 mm of free space at the end for a wheelchair.
+    [186] PLAYGROUND.FURNITURE.benches_with_900mm_free_space = true;1;66;256;186;E;true;;;;;Ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa.;BIG;Leikkipuistossa ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa pyörätuolia varten.;Det finns inga bänkar med 900 mm fritt utrymme i änden för en rullstol.;There are no benches with 900 mm of free space at the end for a wheelchair.
     AND;;;;;;;;;;;;;;;
     [187] PLAYGROUND.FURNITURE.benches_with_backrests_and_armrests = true;1;66;256;187;E;true;;;;;Ei ole penkkejä, joissa on selkä- ja käsinojat.;BIG;Leikkipuistossa ei ole penkkejä, joissa on selkä- ja käsinojat.;Det finns inga inga bänkar med ryggstöd och armstöd.;There are no benches with backrests and armrests.
     AND;;;;;;;;;;;;;;;
@@ -1457,7 +1457,7 @@ AND;;;;;;;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;2;91;324;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;2;91;325;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;2;91;325;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [62] SERVICE_POINT.same_floor_as_entrance_no_need_for_lift = true;2;91;326;62;E;true;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -1475,7 +1475,7 @@ AND;;;;;;;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;2;92;330;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;2;92;331;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;2;92;331;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [92] INTERIOR.STEPS.existing = false;2;92;332;92;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -2404,7 +2404,7 @@ AND;;;;;;;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;3;148;540;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;3;148;541;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;3;148;541;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [62] SERVICE_POINT.same_floor_as_entrance_no_need_for_lift = true;3;148;542;62;E;true;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -2432,7 +2432,7 @@ AND;;;;;;;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;3;150;548;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;3;150;549;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;3;150;549;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [92] INTERIOR.STEPS.existing = false;3;150;550;92;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3109,7 +3109,7 @@ AND;;;;;;;;;;;;;;;
     AND;;;;;;;;;;;;;;;
     [185] PLAYGROUND.FURNITURE.existing = true;3;183;714;185;E;true;;;;;Kalusteita ei ole.;BIG;Leikkipuistossa ei ole kalusteita (penkkejä ja pöytiä).;Det finns inga möbler (bänkar och bord) i lekparken.;The playground does not have furniture (benches and tables).
     AND;;;;;;;;;;;;;;;
-    [186] PLAYGROUND.FURNITURE.benches_with 900mm_free_space = true;3;183;714;186;E;true;;;;;Ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa.;BIG;Leikkipuistossa ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa rollaattoria varten.;Det finns inga bänkar med 90 cm fritt utrymme i änden för en rollator.;There are no benches with 90 cm of free space at the end for a rollator.
+    [186] PLAYGROUND.FURNITURE.benches_with_900mm_free_space = true;3;183;714;186;E;true;;;;;Ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa.;BIG;Leikkipuistossa ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa rollaattoria varten.;Det finns inga bänkar med 90 cm fritt utrymme i änden för en rollator.;There are no benches with 90 cm of free space at the end for a rollator.
     AND;;;;;;;;;;;;;;;
     [187] PLAYGROUND.FURNITURE.benches_with_backrests_and_armrests = true;3;183;714;187;E;true;;;;;Ei ole penkkejä, joissa on selkä- ja käsinojat.;BIG;Leikkipuistossa ei ole penkkejä, joissa on selkä- ja käsinojat.;Det finns inga inga bänkar med ryggstöd och armstöd.;There are no benches with backrests and armrests.
     AND;;;;;;;;;;;;;;;
@@ -3322,7 +3322,7 @@ AND;;;;;;;;;;;;;;;
     AND;;;;;;;;;;;;;;;
     [185] PLAYGROUND.FURNITURE.existing = true;4;196;760;185;E;true;;;;;Kalusteita ei ole.;BIG;Leikkipuistossa ei ole kalusteita (penkkejä ja pöytiä).;Det finns inga möbler (bänkar och bord) i lekparken.;The playground does not have furniture (benches and tables).
     AND;;;;;;;;;;;;;;;
-    [186] PLAYGROUND.FURNITURE.benches_with 900mm_free_space = true;4;196;760;186;E;true;;;;;Ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa.;BIG;Leikkipuistossa ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa lastenvaunuja varten.;Det finns inga bänkar med 900 mm fritt utrymme i änden för en barnvagn.;There are no benches with 900 mm of free space at the end for a stroller.
+    [186] PLAYGROUND.FURNITURE.benches_with_900mm_free_space = true;4;196;760;186;E;true;;;;;Ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa.;BIG;Leikkipuistossa ei ole penkkejä, joiden päässä on 90 cm vapaata tilaa lastenvaunuja varten.;Det finns inga bänkar med 900 mm fritt utrymme i änden för en barnvagn.;There are no benches with 900 mm of free space at the end for a stroller.
     AND;;;;;;;;;;;;;;;
     [205] PLAYGROUND.illuminated = true;4;196;760;205;E;true;;;;;Valaistus puuttuu.;BIG;Leikkipuisto ei ole valaistu.;Det finns ingen belysning på lekparken.;The playground is not illuminated.
   );;;;;;;;;;;;;;;
@@ -3330,19 +3330,19 @@ AND;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;
 5;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;197;761;500;I;indoor_facility;"Olen näkövammainen;Jag är synskadad;I am visually impaired:Olen näkövammainen - saavun saattoliikenteellä;Jag är synskadad - kommer med angöringstrafik;I am visually impaired - arrive with pick-up and drop-off traffic";"Puutteet näkövammaisen kannalta;Brister för synskadade;Shortcomings for visually impaired";RS:Q;Saattoliikenteen pysähtymispaikka pitää olla lähellä sisäänkäyntiä.;Saattoliikenne ei voi pysähtyä sisäänkäynnin eteen.;BIG;Saattoliikenne ei voi pysähtyä #2isäänkäynnin#3 eteen.;Angöringstafiken kan inte stoppa framför #2ngången#3.;The pick-up and drop-off traffic cannot stop in front of the #2ntrance#3.
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;197;761;500;I;indoor_facility;"Olen näkövammainen;Jag är synskadad;I am visually impaired:Olen näkövammainen - saavun saattoliikenteellä;Jag är synskadad - kommer med angöringstrafik;I am visually impaired - arrive with pick-up and drop-off traffic";"Puutteet näkövammaisen kannalta;Brister för synskadade;Shortcomings for visually impaired";RS:Q:Q;Saattoliikenteen pysähtymispaikka pitää olla lähellä sisäänkäyntiä.;Saattoliikenne ei voi pysähtyä sisäänkäynnin eteen.;BIG;Saattoliikenne ei voi pysähtyä #2isäänkäynnin#3 eteen.;Angöringstafiken kan inte stoppa framför #2ngången#3.;The pick-up and drop-off traffic cannot stop in front of the #2ntrance#3.
   OR;;;;;;;;;;;;;;;
   [5] OUTSIDE.01.PICKUP_AND_DROPOFF_AREA.near_entrance = true;5;197;762;5;E;true;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> outdoor_sport_facility;5;198;763;60;I;outdoor_sport_facility;;;RS:Q;Saattoliikenteen pysähtymispaikka pitää olla lähellä ulkoliikuntapaikkaa (etäisyys enintään 20 m).;Saattoliikenteen pysähtymispaikka on kauempana kuin 20 m ulkoliikuntapaikasta.;BIG;Saattoliikenteen pysähtymispaikka on kauempana kuin 20 m ulkoliikuntapaikasta.;Angöringstafiken kan inte stoppa i närheten av utomhusstället (distans mer än 20 m).;The pick-up and drop-off traffic cannot stop near the outdoor sport facility (distance over 20 m).
+  [60] SERVICE_POINT.type <> outdoor_sport_facility;5;198;763;60;I;outdoor_sport_facility;;;RS:Q:Q;Saattoliikenteen pysähtymispaikka pitää olla lähellä ulkoliikuntapaikkaa (etäisyys enintään 20 m).;Saattoliikenteen pysähtymispaikka on kauempana kuin 20 m ulkoliikuntapaikasta.;BIG;Saattoliikenteen pysähtymispaikka on kauempana kuin 20 m ulkoliikuntapaikasta.;Angöringstafiken kan inte stoppa i närheten av utomhusstället (distans mer än 20 m).;The pick-up and drop-off traffic cannot stop near the outdoor sport facility (distance over 20 m).
   OR;;;;;;;;;;;;;;;
   [503] OUTSIDE.PICKUP_AND_DROPOFF_AREA.distance_from_outdoor_sport_facility = less_than_20m;5;198;764;503;E;less_than_20m;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> nature_facility;5;199;765;60;I;nature_facility;;;RS::Q;Saattoliikenteen pysähtymispaikan lähellä (etäisyys enintään 20 m) pitää olla luontoalueen selkeästi havaittava opastaulu, jota voi katsoa läheltä ja jossa on tunnusteltava kartta.;Opastaulua ei ole.;BIG;Luontoalueesta kertovaa opastaulua ei ole.;Det finns ingen informationstavla om naturområdet.;There is no information board about the nature area.
+  [60] SERVICE_POINT.type <> nature_facility;5;199;765;60;I;nature_facility;;;RS:Q:Q;Saattoliikenteen pysähtymispaikan lähellä (etäisyys enintään 20 m) pitää olla luontoalueen selkeästi havaittava opastaulu, jota voi katsoa läheltä ja jossa on tunnusteltava kartta.;Opastaulua ei ole.;BIG;Luontoalueesta kertovaa opastaulua ei ole.;Det finns ingen informationstavla om naturområdet.;There is no information board about the nature area.
   OR;;;;;;;;;;;;;;;
   (;;;;;;;;;;;;;;;
     [630] NATURE_SITE.INFORMATION_BOARD.existing = true;5;199;766;630;E;true;;;;;;;;;
@@ -3368,19 +3368,19 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;200;767;500;I;indoor_facility;;;QRS:Q;Kulkureitti sisäänkäynnille pitää olla opastettu tai selkeä ilman opasteitakin.;Opasteita sisäänkäynnille ei ole, eikä reitti ole selkeä.;BIG;Opasteita #2isäänkäynnille#3 ei ole, eikä reitti ole selkeä.;Det finns inga skyltar till #2ngången#3, och rutten dit är inte tydlig.;No signposts to the #2ntrance#3 are provided and the route is not clear.
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;200;767;500;I;indoor_facility;;;QRS:Q:Q;Kulkureitti sisäänkäynnille pitää olla opastettu tai selkeä ilman opasteitakin.;Opasteita sisäänkäynnille ei ole, eikä reitti ole selkeä.;BIG;Opasteita #2isäänkäynnille#3 ei ole, eikä reitti ole selkeä.;Det finns inga skyltar till #2ngången#3, och rutten dit är inte tydlig.;No signposts to the #2ntrance#3 are provided and the route is not clear.
   OR;;;;;;;;;;;;;;;
   [19] ROUTE_TO_ENTRANCE.01.guided <> not_guided_not_clear;5;200;768;19;I;not_guided_not_clear;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> outdoor_sport_facility;5;201;769;60;I;outdoor_sport_facility;;;QRS:Q;Kulkureitti ulkoliikuntapaikkaan pitää olla opastettu tai selkeä ilman opasteitakin.;Opasteita ulkoliikuntapaikkaan ei ole, eikä reitti ole selkeä.;BIG;Opasteita ulkoliikuntapaikkaan ei ole, eikä reitti ole selkeä.;Det finns inga skyltar till utomhusstället, och rutten dit är inte tydlig.;No signposts to the outdoor sport facility are provided and the route is not clear.
+  [60] SERVICE_POINT.type <> outdoor_sport_facility;5;201;769;60;I;outdoor_sport_facility;;;QRS:Q:Q;Kulkureitti ulkoliikuntapaikkaan pitää olla opastettu tai selkeä ilman opasteitakin.;Opasteita ulkoliikuntapaikkaan ei ole, eikä reitti ole selkeä.;BIG;Opasteita ulkoliikuntapaikkaan ei ole, eikä reitti ole selkeä.;Det finns inga skyltar till utomhusstället, och rutten dit är inte tydlig.;No signposts to the outdoor sport facility are provided and the route is not clear.
   OR;;;;;;;;;;;;;;;
   [504] ROUTE_TO_OUTDOOR_SPORT_FACILITY.guided <> not_guided_not_clear;5;201;770;504;I;not_guided_not_clear;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> nature_facility;5;202;771;60;I;nature_facility;;;QRS:Q;Luontoalueen kulkureitti pitää olla koko matkalta opastettu tai selkeä ilman opasteitakin.;Suuntaviittoja/opasteita ei ole, eikä kulkureitti ole selkeä.;BIG;Suuntaviittoja/opasteita ei ole, eikä kulkureitti ole selkeä.;Det finns inga vägvisare, och rutten är inte tydlig.;No signposts are provided and the route is not clear.
+  [60] SERVICE_POINT.type <> nature_facility;5;202;771;60;I;nature_facility;;;QRS:Q:Q;Luontoalueen kulkureitti pitää olla koko matkalta opastettu tai selkeä ilman opasteitakin.;Suuntaviittoja/opasteita ei ole, eikä kulkureitti ole selkeä.;BIG;Suuntaviittoja/opasteita ei ole, eikä kulkureitti ole selkeä.;Det finns inga vägvisare, och rutten är inte tydlig.;No signposts are provided and the route is not clear.
   OR;;;;;;;;;;;;;;;
   [646] NATURE_SITE.ROUTE.guided = guided_and_clear;5;202;772;646;E;guided_and_clear;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3394,13 +3394,13 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;203;774;500;I;indoor_facility;;;QRS:Q;Kulkureitti sisäänkäynnille pitää olla valaistu.;Valaistusta ei ole.;BIG;Kulkureitillä #2isäänkäynnille#3 ei ole valaistusta.;Det finns ingen belysning på rutten till #2ngången#3.;The route to the #2ntrance#3 is not illuminated.
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;203;774;500;I;indoor_facility;;;QRS:Q:Q;Kulkureitti sisäänkäynnille pitää olla valaistu.;Valaistusta ei ole.;BIG;Kulkureitillä #2isäänkäynnille#3 ei ole valaistusta.;Det finns ingen belysning på rutten till #2ngången#3.;The route to the #2ntrance#3 is not illuminated.
   OR;;;;;;;;;;;;;;;
   [20] ROUTE_TO_ENTRANCE.01.illuminated = true;5;203;775;20;E;true;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;204;776;500;I;indoor_facility;;;QR:Q;Kulkureitillä sisäänkäynnille pitää olla liikkumista ohjaavaa pintamateriaalia (tuntokontrasti), jos reitti ei ole muuten selkeä.;Liikkumista ohjaavaa pintamateriaalia ei ole.;BIG;Kulkureitillä #2isäänkäynnille#3 ei ole liikkumista ohjaavaa pintamateriaalia (tuntokontrasti).;Rutten till #2ngången#3 saknar beläggning som ger anvisningar om hur man tar sig fram (materialkontrast).;The route to the #2ntrance#3 does not have guiding surface materials (tactile contrast).
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;204;776;500;I;indoor_facility;;;QR:Q:Q;Kulkureitillä sisäänkäynnille pitää olla liikkumista ohjaavaa pintamateriaalia (tuntokontrasti), jos reitti ei ole muuten selkeä.;Liikkumista ohjaavaa pintamateriaalia ei ole.;BIG;Kulkureitillä #2isäänkäynnille#3 ei ole liikkumista ohjaavaa pintamateriaalia (tuntokontrasti).;Rutten till #2ngången#3 saknar beläggning som ger anvisningar om hur man tar sig fram (materialkontrast).;The route to the #2ntrance#3 does not have guiding surface materials (tactile contrast).
   OR;;;;;;;;;;;;;;;
   [19] ROUTE_TO_ENTRANCE.01.guided <> not_guided_not_clear;5;204;777;19;I;not_guided_not_clear;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3414,7 +3414,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;206;781;500;I;indoor_facility;;;QRS:Q;Kulkureitillä sisäänkäynnille ei saa olla kierreportaita tai muutenkaan sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;206;781;500;I;indoor_facility;;;QRS:Q:Q;Kulkureitillä sisäänkäynnille ei saa olla kierreportaita tai muutenkaan sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [23] ROUTE_TO_ENTRANCE.01.STEPS.existing = false;5;206;782;23;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3442,7 +3442,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> outdoor_sport_facility;5;207;785;60;I;outdoor_sport_facility;;;QRS:Q;Kulkureitillä ulkoliikuntapaikkaan ei saa olla portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
+  [60] SERVICE_POINT.type <> outdoor_sport_facility;5;207;785;60;I;outdoor_sport_facility;;;QRS:Q:Q;Kulkureitillä ulkoliikuntapaikkaan ei saa olla portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [511] ROUTE_TO_OUTDOOR_SPORT_FACILITY.STEPS.existing = false;5;207;786;511;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3468,7 +3468,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> nature_facility;5;208;789;60;I;nature_facility;;;QRS:Q;Luontoalueen kulkureitillä ei saa olla portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
+  [60] SERVICE_POINT.type <> nature_facility;5;208;789;60;I;nature_facility;;;QRS:Q:Q;Luontoalueen kulkureitillä ei saa olla portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [651] NATURE_SITE.ROUTE.STEPS.existing = false;5;208;790;651;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3494,7 +3494,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;209;793;500;I;indoor_facility;;;QRS:Q;Sisäänkäynnin pitää olla valaistu tai muuten erottua selkeästi esim. katoksen tai syvennyksen avulla.;Sisäänkäynti ei ole valaistu eikä erotu selkeästi.;BIG;#1isäänkäynti#3 ei ole valaistu eikä erotu selkeästi.;#1ngången#3 är inte upplyst och kan inte tydligt urskiljas.;The #2ntrance#3 is not lit or clearly distinguishable.
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;209;793;500;I;indoor_facility;;;QRS:Q:Q;Sisäänkäynnin pitää olla valaistu tai muuten erottua selkeästi esim. katoksen tai syvennyksen avulla.;Sisäänkäynti ei ole valaistu eikä erotu selkeästi.;BIG;#1isäänkäynti#3 ei ole valaistu eikä erotu selkeästi.;#1ngången#3 är inte upplyst och kan inte tydligt urskiljas.;The #2ntrance#3 is not lit or clearly distinguishable.
   OR;;;;;;;;;;;;;;;
   [36] ENTRANCE.01.appearance <> difficult_to_perceive;5;209;794;36;I;difficult_to_perceive;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3502,7 +3502,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;210;796;500;I;indoor_facility;;;QRS:Q;Sisäänkäynnissä ei saa olla kierreportaita tai muutenkaan sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;210;796;500;I;indoor_facility;;;QRS:Q:Q;Sisäänkäynnissä ei saa olla kierreportaita tai muutenkaan sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [38] ENTRANCE.01.STEPS.existing = false;5;210;797;38;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3530,13 +3530,13 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;211;800;500;I;indoor_facility;;;QRS:Q;Sisäänkäynnin oven pitää erottua selkeästi seinästä.;Ovi ei erotu selkeästi.;BIG;#1isäänkäynnin#3 ovi ei erotu selkeästi.;Dörren vid #2ngången#3 kan inte tydligt urskiljas.;The #2ntrance#3 door is not clearly distinguishable.
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;211;800;500;I;indoor_facility;;;QRS:Q:Q;Sisäänkäynnin oven pitää erottua selkeästi seinästä.;Ovi ei erotu selkeästi.;BIG;#1isäänkäynnin#3 ovi ei erotu selkeästi.;Dörren vid #2ngången#3 kan inte tydligt urskiljas.;The #2ntrance#3 door is not clearly distinguishable.
   OR;;;;;;;;;;;;;;;
   [51] ENTRANCE.01.DOOR.stands_out_clearly = true;5;211;801;51;E;true;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;212;802;500;I;indoor_facility;;;QRS:Q;Jos sisäänkäynnissä on lasiovet, niissä pitää olla kontrastimerkinnät.;Lasiovissa ei ole kontrastimerkintöjä.;SMALL;#1isäänkäynnin#3 lasiovissa ei ole kontrastimerkintöjä.;Det finns inga kontrastmarkeringar på glasdörrarna vid #2ngången#3.;The glass doors of the #2ntrance#3 do not have contrast markings.
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;212;802;500;I;indoor_facility;;;QRS:Q:Q;Jos sisäänkäynnissä on lasiovet, niissä pitää olla kontrastimerkinnät.;Lasiovissa ei ole kontrastimerkintöjä.;SMALL;#1isäänkäynnin#3 lasiovissa ei ole kontrastimerkintöjä.;Det finns inga kontrastmarkeringar på glasdörrarna vid #2ngången#3.;The glass doors of the #2ntrance#3 do not have contrast markings.
   OR;;;;;;;;;;;;;;;
   [52] ENTRANCE.01.DOOR.glass_door = false;5;212;803;52;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3548,13 +3548,13 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;213;805;500;I;indoor_facility;;;QRS:Q;Jos toimipisteessä asioiminen vaatii liikkumista kerrosten välillä, sisätiloissa pitää olla tarjolla hissi, joka on helppo löytää ja hissin painikkeista erottaa tunnustellen kerrosnumerot ja uloskäyntikerroksen.;Toimipisteessä ei ole hissiä, vaikka asiointi vaatii liikkumista kerrosten välillä.;BIG;Toimipisteessä ei ole hissiä, vaikka asiointi vaatii liikkumista kerrosten välillä.;Det finns ingen hiss i verksamhetsstället, trots att man måste röra sig mellan våningsplanen för att uträtta ärenden.;The facility does not have a lift although access between floors is required.
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;213;805;500;I;indoor_facility;;;QRS:Q:Q;Jos toimipisteessä asioiminen vaatii liikkumista kerrosten välillä, sisätiloissa pitää olla tarjolla hissi, joka on helppo löytää ja hissin painikkeista erottaa tunnustellen kerrosnumerot ja uloskäyntikerroksen.;Toimipisteessä ei ole hissiä, vaikka asiointi vaatii liikkumista kerrosten välillä.;BIG;Toimipisteessä ei ole hissiä, vaikka asiointi vaatii liikkumista kerrosten välillä.;Det finns ingen hiss i verksamhetsstället, trots att man måste röra sig mellan våningsplanen för att uträtta ärenden.;The facility does not have a lift although access between floors is required.
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = public_toilet;5;213;806;60;E;public_toilet;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;5;213;807;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;5;213;808;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;5;213;808;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [62] SERVICE_POINT.same_floor_as_entrance_no_need_for_lift = true;5;213;809;62;E;true;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3570,25 +3570,25 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;214;811;500;I;indoor_facility;;;QRS:Q;Sisätilojen reitit pitää olla merkitty liikkumista ohjaavalla pintamateriaalilla (tummuus- tai tuntokontrasti).;Liikkumista ohjaavaa pintamateriaalia ei ole.;BIG;Sisätilojen kulkureiteillä ei ole liikkumista ohjaavaa pintamateriaalia (tummuus- tai tuntokontrasti).;Rutterna inomhus saknar ytmaterial ger anvisningar om hur man tar sig fram (ljushets- eller materialkontrast).;The indoor routes do not have guiding surface materials (colour or tactile contrast).
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;214;811;500;I;indoor_facility;;;QRS:Q:Q;Sisätilojen reitit pitää olla merkitty liikkumista ohjaavalla pintamateriaalilla (tummuus- tai tuntokontrasti).;Liikkumista ohjaavaa pintamateriaalia ei ole.;BIG;Sisätilojen kulkureiteillä ei ole liikkumista ohjaavaa pintamateriaalia (tummuus- tai tuntokontrasti).;Rutterna inomhus saknar ytmaterial ger anvisningar om hur man tar sig fram (ljushets- eller materialkontrast).;The indoor routes do not have guiding surface materials (colour or tactile contrast).
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = public_toilet;5;214;812;60;E;public_toilet;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;5;214;813;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;5;214;814;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;5;214;814;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [79] INTERIOR.uses_movement_guiding_material = true;5;214;815;79;E;true;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;215;816;500;I;indoor_facility;;;QRS:Q;Sisätiloissa pitää olla opasteet eri tiloihin (esim. asiakaspalvelutiskille, wc:hen).;Opasteita ei ole.;BIG;Sisätiloissa ei ole opasteita eri tiloihin (esim. asiakaspalvelutiskille, wc:hen).;Inomhus finns inga skyltar till olika platser (t.ex. till kundservicedisken eller toaletten).;The indoor area does not have signposts for various facilities (e.g. customer service desk, toilet, etc.).
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;215;816;500;I;indoor_facility;;;QRS:Q:Q;Sisätiloissa pitää olla opasteet eri tiloihin (esim. asiakaspalvelutiskille, wc:hen).;Opasteita ei ole.;BIG;Sisätiloissa ei ole opasteita eri tiloihin (esim. asiakaspalvelutiskille, wc:hen).;Inomhus finns inga skyltar till olika platser (t.ex. till kundservicedisken eller toaletten).;The indoor area does not have signposts for various facilities (e.g. customer service desk, toilet, etc.).
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = public_toilet;5;215;817;60;E;public_toilet;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;5;215;818;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;5;215;819;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;5;215;819;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = long_term_stay;5;215;820;60;E;long_term_stay;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3596,13 +3596,13 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;216;822;500;I;indoor_facility;;;QRS:Q;Sisätilojen kulkureiteillä ei saa olla kierreportaita tai muutenkaan sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;216;822;500;I;indoor_facility;;;QRS:Q:Q;Sisätilojen kulkureiteillä ei saa olla kierreportaita tai muutenkaan sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = public_toilet;5;216;823;60;E;public_toilet;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;5;216;824;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;5;216;825;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;5;216;825;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [92] INTERIOR.STEPS.existing = false;5;216;826;92;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3630,25 +3630,25 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;217;829;500;I;indoor_facility;;;QRS:Q;Sisätilojen ovien pitää erottua seinästä selkeästi tummuuskontrastilla.;Ovet eivät erotu selkeästi.;BIG;Sisätilojen ovet eivät erotu selkeästi (ei tummuuskontrastia).;Dörrarna inomhus kan inte tydligt urskiljas (ingen ljushetskontrast).;The doors in the indoor area are not clearly distinguishable (no colour contrast).
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;217;829;500;I;indoor_facility;;;QRS:Q:Q;Sisätilojen ovien pitää erottua seinästä selkeästi tummuuskontrastilla.;Ovet eivät erotu selkeästi.;BIG;Sisätilojen ovet eivät erotu selkeästi (ei tummuuskontrastia).;Dörrarna inomhus kan inte tydligt urskiljas (ingen ljushetskontrast).;The doors in the indoor area are not clearly distinguishable (no colour contrast).
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = public_toilet;5;217;830;60;E;public_toilet;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;5;217;831;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;5;217;832;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;5;217;832;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [104] INTERIOR.DOORS.stand_out_clearly = true;5;217;833;104;E;true;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;218;834;500;I;indoor_facility;;;QRS:Q;Jos sisätiloissa on lasiovia, niissä pitää olla kontrastimerkinnät.;Lasiovissa ei ole kontrastimerkintöjä.;SMALL;Sisätilojen lasiovissa ei ole kontrastimerkintöjä.;Det finns inga kontrastmarkeringar på glasdörrarna inomhus.;The glass doors in the indoor area do not have contrast markings.
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;218;834;500;I;indoor_facility;;;QRS:Q:Q;Jos sisätiloissa on lasiovia, niissä pitää olla kontrastimerkinnät.;Lasiovissa ei ole kontrastimerkintöjä.;SMALL;Sisätilojen lasiovissa ei ole kontrastimerkintöjä.;Det finns inga kontrastmarkeringar på glasdörrarna inomhus.;The glass doors in the indoor area do not have contrast markings.
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = public_toilet;5;218;835;60;E;public_toilet;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = other_indoor_facility;5;218;836;60;E;other_indoor_facility;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;5;218;837;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;5;218;837;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [105] INTERIOR.DOOR.glass_door = false;5;218;838;105;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3660,7 +3660,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> outdoor_sport_facility;5;219;840;60;I;outdoor_sport_facility;;;QRS:Q;Uimarannalla pitää olla selkeästi havaittava opastaulu, jota voi katsoa läheltä, ja jonka kohokartasta ilmenee palvelujen sijainnit.;Opastaulua ei ole.;BIG;Uimarannalla ei ole opastaulua.;Det finns ingen informationstavla i badstranden.;The beach does not have an information board.
+  [60] SERVICE_POINT.type <> outdoor_sport_facility;5;219;840;60;I;outdoor_sport_facility;;;QRS:Q:Q;Uimarannalla pitää olla selkeästi havaittava opastaulu, jota voi katsoa läheltä, ja jonka kohokartasta ilmenee palvelujen sijainnit.;Opastaulua ei ole.;BIG;Uimarannalla ei ole opastaulua.;Det finns ingen informationstavla i badstranden.;The beach does not have an information board.
   OR;;;;;;;;;;;;;;;
   [61] SERVICE_POINT.detailed_type <> beach;5;219;841;61;I;beach;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3678,7 +3678,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> outdoor_sport_facility;5;220;843;60;I;outdoor_sport_facility;;;QRS:Q;Ulkokuntoiluvälineiden yhteydessä pitää olla valaistu opastaulu, jota voi katsoa läheltä, ja jossa on tunnusteltavia opasteita.;Opastaulua ei ole.;BIG;Ulkokuntoiluvälineistä kertovaa opastaulua ei ole.;Det finns ingen informationstavla för utomhusmotionsutrustningar.;There is no information board for outdoor fitness equipment.
+  [60] SERVICE_POINT.type <> outdoor_sport_facility;5;220;843;60;I;outdoor_sport_facility;;;QRS:Q:Q;Ulkokuntoiluvälineiden yhteydessä pitää olla valaistu opastaulu, jota voi katsoa läheltä, ja jossa on tunnusteltavia opasteita.;Opastaulua ei ole.;BIG;Ulkokuntoiluvälineistä kertovaa opastaulua ei ole.;Det finns ingen informationstavla för utomhusmotionsutrustningar.;There is no information board for outdoor fitness equipment.
   OR;;;;;;;;;;;;;;;
   [61] SERVICE_POINT.detailed_type <> outdoor_fitness_equipment;5;220;844;61;I;outdoor_fitness_equipment;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3694,7 +3694,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;221;846;60;I;restaurant_or_cafe;;;QRS:Q;Ravintolan tai kahvilan hyvin valaistun palvelutiskin pitää erottua selkeästi ympäristöstään eikä siinä saa olla häikäisyhaittaa.;Dummy virhe.;BIG;Dummy virhe.;;
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;221;846;60;I;restaurant_or_cafe;;;QRS:Q:Q;Ravintolan tai kahvilan hyvin valaistun palvelutiskin pitää erottua selkeästi ympäristöstään eikä siinä saa olla häikäisyhaittaa.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   (;;;;;;;;;;;;;;;
     [302] RESTAURANT.SERVICE_DESK.stand_out_clearly = true;5;221;847;302;E;true;;;;;Palvelutiski ei erotu selkeästi.;BIG;Palvelutiski ei erotu selkeästi.;Servicedisken kan inte tydligt urskiljas.;The service desk does not stand out clearly.
@@ -3706,7 +3706,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;222;848;60;I;restaurant_or_cafe;;;QRS:Q;Ravintolan tai kahvilan kalusteiden pitää erottua selkeästi ympäristöstään.;Ruokailutila ei ole kalustettu.;BIG;Ruokailutila ei ole kalustettu.;Matplatsen är inte möblerad.;The dining area is not furnished.
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;222;848;60;I;restaurant_or_cafe;;;QRS:Q:Q;Ravintolan tai kahvilan kalusteiden pitää erottua selkeästi ympäristöstään.;Ruokailutila ei ole kalustettu.;BIG;Ruokailutila ei ole kalustettu.;Matplatsen är inte möblerad.;The dining area is not furnished.
   OR;;;;;;;;;;;;;;;
   (;;;;;;;;;;;;;;;
     [317] RESTAURANT.DINING_AREA.FURNITURE.existing = true;5;222;849;317;E;true;;;;;;;;;
@@ -3716,7 +3716,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;223;850;60;I;restaurant_or_cafe;;;QRS:Q;Ravintolan tai kahvilan pitää tarjota ruokalista suuremmalla fontilla ja pistekirjoituksella.;Dummy virhe.;BIG;Dummy virhe.;;
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;223;850;60;I;restaurant_or_cafe;;;QRS:Q:Q;Ravintolan tai kahvilan pitää tarjota ruokalista suuremmalla fontilla ja pistekirjoituksella.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [329] RESTAURANT.ORDERING.MENU.existing = false;5;223;851;329;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3728,7 +3728,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;224;853;60;I;restaurant_or_cafe;;;QRS:Q;Ravintolan tai kahvilan noutopöydän pitää erottua selkeästi ympäristöstään.;Dummy virhe.;BIG;Dummy virhe.;;
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;224;853;60;I;restaurant_or_cafe;;;QRS:Q:Q;Ravintolan tai kahvilan noutopöydän pitää erottua selkeästi ympäristöstään.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [332] RESTAURANT.ORDERING.BUFFET.existing = false;5;224;854;332;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3740,7 +3740,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;225;856;60;I;restaurant_or_cafe;;;QRS:Q;Jos kulku kabinettiin vaatii liikkumista kerrosten välillä, sisätiloissa pitää olla tarjolla hissi, joka on helppo löytää ja hissin painikkeista erottaa tunnustellen kerrosnumerot ja uloskäyntikerroksen.;Hissiä ei ole, vaikka kulku kokoustilaan vaatii liikkumista kerrosten välillä.;BIG;Sisätiloissa ei ole hissiä, vaikka kulku kokoustilaan vaatii liikkumista kerrosten välillä.;Det finns ingen hiss inomhus, trots att man måste röra sig mellan våningsplanen för att gå till mötesrummet.;The indoor area has no lift, although access between floors is required to get to the meeting room.
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;225;856;60;I;restaurant_or_cafe;;;QRS:Q:Q;Jos kulku kabinettiin vaatii liikkumista kerrosten välillä, sisätiloissa pitää olla tarjolla hissi, joka on helppo löytää ja hissin painikkeista erottaa tunnustellen kerrosnumerot ja uloskäyntikerroksen.;Hissiä ei ole, vaikka kulku kokoustilaan vaatii liikkumista kerrosten välillä.;BIG;Sisätiloissa ei ole hissiä, vaikka kulku kokoustilaan vaatii liikkumista kerrosten välillä.;Det finns ingen hiss inomhus, trots att man måste röra sig mellan våningsplanen för att gå till mötesrummet.;The indoor area has no lift, although access between floors is required to get to the meeting room.
   OR;;;;;;;;;;;;;;;
   [372] RESTAURANT.CABINET.existing = false;5;225;857;372;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3764,7 +3764,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;226;861;60;I;restaurant_or_cafe;;;QRS:Q;Kulkureitillä kabinettiin ei saa olla kierreportaita tai muutenkaan sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;226;861;60;I;restaurant_or_cafe;;;QRS:Q:Q;Kulkureitillä kabinettiin ei saa olla kierreportaita tai muutenkaan sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [372] RESTAURANT.CABINET.existing = false;5;226;862;372;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3794,7 +3794,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;227;866;60;I;restaurant_or_cafe;;;QRS:Q;Jos kulkureitillä kabinettiin on lasiovia, niissä pitää olla kontrastimerkinnät.;Lasiovissa ei ole kontrastimerkintöjä.;SMALL;Kulkureitillä kabinettiin on lasiovia, joissa ei ole kontrastimerkintöjä.;På rutten till kabinettet finns glasdörrarna utan kontrastmarkeringar.;The route to the cabinet has glass doors without contrast markings.
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;227;866;60;I;restaurant_or_cafe;;;QRS:Q:Q;Jos kulkureitillä kabinettiin on lasiovia, niissä pitää olla kontrastimerkinnät.;Lasiovissa ei ole kontrastimerkintöjä.;SMALL;Kulkureitillä kabinettiin on lasiovia, joissa ei ole kontrastimerkintöjä.;På rutten till kabinettet finns glasdörrarna utan kontrastmarkeringar.;The route to the cabinet has glass doors without contrast markings.
   OR;;;;;;;;;;;;;;;
   [372] RESTAURANT.CABINET.existing = false;5;227;867;372;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3810,7 +3810,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;228;871;60;I;restaurant_or_cafe;;;QRS:Q;Kabinetin kalusteiden pitää erottua selkeästi ympäristöstään.;Kabinetti ei ole kalustettu.;BIG;Kabinetti ei ole kalustettu.;Kabinettet är inte möblerad.;The cabinet is not furnished.
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;228;871;60;I;restaurant_or_cafe;;;QRS:Q:Q;Kabinetin kalusteiden pitää erottua selkeästi ympäristöstään.;Kabinetti ei ole kalustettu.;BIG;Kabinetti ei ole kalustettu.;Kabinettet är inte möblerad.;The cabinet is not furnished.
   OR;;;;;;;;;;;;;;;
   [372] RESTAURANT.CABINET.existing = false;5;228;872;372;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3822,7 +3822,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;229;874;60;I;restaurant_or_cafe;;;QRS:Q;Kadulta ulkoterassille siirryttäessä ei saa olla sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;229;874;60;I;restaurant_or_cafe;;;QRS:Q:Q;Kadulta ulkoterassille siirryttäessä ei saa olla sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [720] RESTAURANT.OUTDOOR_TERRACE.existing = false;5;229;875;720;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3860,7 +3860,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;230;881;60;I;restaurant_or_cafe;;;QRS:Q;Jos sisätilasta ulkoterassille siirryttäessä välissä on lasiovi, siinä pitää olla kontrastimerkinnät.;Lasiovissa ei ole kontrastimerkintöjä.;SMALL;Ulkoterassin lasiovessa ei ole kontrastimerkintöjä.;Det finns inga kontrastmarkeringar på utomhusterrassens glasdörr.;The glass door of the outdoor terrace does not have contrast markings.
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;230;881;60;I;restaurant_or_cafe;;;QRS:Q:Q;Jos sisätilasta ulkoterassille siirryttäessä välissä on lasiovi, siinä pitää olla kontrastimerkinnät.;Lasiovissa ei ole kontrastimerkintöjä.;SMALL;Ulkoterassin lasiovessa ei ole kontrastimerkintöjä.;Det finns inga kontrastmarkeringar på utomhusterrassens glasdörr.;The glass door of the outdoor terrace does not have contrast markings.
   OR;;;;;;;;;;;;;;;
   [720] RESTAURANT.OUTDOOR_TERRACE.existing = false;5;230;882;720;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3876,7 +3876,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;231;886;60;I;restaurant_or_cafe;;;QRS:Q;Sisätilasta ulkoterassille siirryttäessä ei saa olla sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;231;886;60;I;restaurant_or_cafe;;;QRS:Q:Q;Sisätilasta ulkoterassille siirryttäessä ei saa olla sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [720] RESTAURANT.OUTDOOR_TERRACE.existing = false;5;231;887;720;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3914,7 +3914,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;232;893;60;I;restaurant_or_cafe;;;QRS:Q;Ulkoterassin alustan pitää olla kova ja tasainen. Terassin kalusteiden pitää erottua selkeästi ympäristöstään.;Dummy virhe.;BIG;Dummy virhe.;;
+  [60] SERVICE_POINT.type <> restaurant_or_cafe;5;232;893;60;I;restaurant_or_cafe;;;QRS:Q:Q;Ulkoterassin alustan pitää olla kova ja tasainen. Terassin kalusteiden pitää erottua selkeästi ympäristöstään.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [720] RESTAURANT.OUTDOOR_TERRACE.existing = false;5;232;894;720;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3928,7 +3928,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;233;896;500;I;indoor_facility;;;QRS:Q;Äänestyspaikan palvelutiskin ja äänestyskopin pitää erottua selkeästi ympäristöstään. Äänestyskopissa pitää olla hyvä häikäisemätön valaistus ja saatavilla suurennuslasi.;Dummy virhe.;BIG;Dummy virhe.;;
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;233;896;500;I;indoor_facility;;;QRS:Q:Q;Äänestyspaikan palvelutiskin ja äänestyskopin pitää erottua selkeästi ympäristöstään. Äänestyskopissa pitää olla hyvä häikäisemätön valaistus ja saatavilla suurennuslasi.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [61] SERVICE_POINT.detailed_type <> polling_station;5;233;897;61;I;polling_station;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3946,7 +3946,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;234;899;500;I;indoor_facility;;;QRS:Q;Leikkipuistossa pitää olla aita, joka erottuu selkeästi ympäristöstään.;Aitaa ei ole.;BIG;Leikkipuistossa ei ole aitaa.;Det finns inget stängsel i lekparken.;The playground does not have a fence.
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;234;899;500;I;indoor_facility;;;QRS:Q:Q;Leikkipuistossa pitää olla aita, joka erottuu selkeästi ympäristöstään.;Aitaa ei ole.;BIG;Leikkipuistossa ei ole aitaa.;Det finns inget stängsel i lekparken.;The playground does not have a fence.
   OR;;;;;;;;;;;;;;;
   [61] SERVICE_POINT.detailed_type <> playground;5;234;900;61;I;playground;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3958,7 +3958,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;235;902;500;I;indoor_facility;;;QRS:Q;Leikkipuistossa pitää olla selkeästi havaittava opastaulu, jota voi katsoa läheltä.;Opastaulua ei ole.;BIG;Leikkipuistossa ei ole opastaulua.;Det finns ingen informationstavla i lekparken.;The playground does not have an information board.
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;235;902;500;I;indoor_facility;;;QRS:Q:Q;Leikkipuistossa pitää olla selkeästi havaittava opastaulu, jota voi katsoa läheltä.;Opastaulua ei ole.;BIG;Leikkipuistossa ei ole opastaulua.;Det finns ingen informationstavla i lekparken.;The playground does not have an information board.
   OR;;;;;;;;;;;;;;;
   [61] SERVICE_POINT.detailed_type <> playground;5;235;903;61;I;playground;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -3972,7 +3972,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;236;905;500;I;indoor_facility;;;QRS:Q;Leikkipuiston kulkuväylä pitää rajata selkeästi eikä kulkuväylällä saa olla sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;236;905;500;I;indoor_facility;;;QRS:Q:Q;Leikkipuiston kulkuväylä pitää rajata selkeästi eikä kulkuväylällä saa olla sellaisia portaita, joissa askelrytmi muuttuu tai kontrastiraidat puuttuvat tai käsijohde ei jatku vähintään 30 cm yli portaiden.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [61] SERVICE_POINT.detailed_type <> playground;5;236;906;61;I;playground;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -4014,7 +4014,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;237;910;500;I;indoor_facility;;;QRS:Q;Kokonaan valaistussa leikkipuistossa pitää olla selkeästi erottuvia roskakoreja sekä kalusteita (penkkejä ja pöytiä), joiden alustamateriaali erottuu tuntokontrastilla kulkuväylistä.;Dummy virhe.;BIG;Dummy virhe.;;
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;237;910;500;I;indoor_facility;;;QRS:Q:Q;Kokonaan valaistussa leikkipuistossa pitää olla selkeästi erottuvia roskakoreja sekä kalusteita (penkkejä ja pöytiä), joiden alustamateriaali erottuu tuntokontrastilla kulkuväylistä.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [61] SERVICE_POINT.detailed_type <> playground;5;237;911;61;I;playground;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -4038,7 +4038,7 @@ AND;;;;;;;;;;;;;;;
 );;;;;;;;;;;;;;;
 AND;;;;;;;;;;;;;;;
 (;;;;;;;;;;;;;;;
-  [500] SERVICE_POINT.general_type <> indoor_facility;5;238;913;500;I;indoor_facility;;;QRS:Q;Leikkipuiston leikkivälineissä ei saa olla puutteita näkövammaisen kannalta.;Dummy virhe.;BIG;Dummy virhe.;;
+  [500] SERVICE_POINT.general_type <> indoor_facility;5;238;913;500;I;indoor_facility;;;QRS:Q:Q;Leikkipuiston leikkivälineissä ei saa olla puutteita näkövammaisen kannalta.;Dummy virhe.;BIG;Dummy virhe.;;
   OR;;;;;;;;;;;;;;;
   [61] SERVICE_POINT.detailed_type <> playground;5;238;914;61;I;playground;;;;;;;;;
   OR;;;;;;;;;;;;;;;
@@ -4097,7 +4097,7 @@ AND;;;;;;;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   [60] SERVICE_POINT.type = restaurant_or_cafe;6;239;919;60;E;restaurant_or_cafe;;;;;;;;;
   OR;;;;;;;;;;;;;;;
-  [148] PLAYGROUND.has_playground_building = false;6;239;920;148;E;false;;;;;;;;;
+  [148] INTERIOR.has_playground_building_or_no_interior_at_all = false;6;239;920;148;E;false;;;;;;;;;
   OR;;;;;;;;;;;;;;;
   (;;;;;;;;;;;;;;;
     [60] SERVICE_POINT.type <> public_toilet;6;239;921;60;I;public_toilet;;;;;;;;;
