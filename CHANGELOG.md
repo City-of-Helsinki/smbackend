@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.13.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.12.0...smbackend-v3.13.0) (2026-01-22)
+
+
+### Features
+
+* Update indoor facility accessibility rules ([2b66175](https://github.com/City-of-Helsinki/smbackend/commit/2b661758339142f899c9228b84306db505f328d9))
+* Update outdoor sports facility accessibility rules ([8eabf34](https://github.com/City-of-Helsinki/smbackend/commit/8eabf340f500f945d1f9b7581bd31171ec88c74e))
+
+
+### Bug Fixes
+
+* **accessibility:** Add null check for variable_path ([e19a39d](https://github.com/City-of-Helsinki/smbackend/commit/e19a39d29cc64ed09d2a38bee1efb4a722a5cc7e))
+
+
+### Dependencies
+
+* Bump django-munigeo ([7481db2](https://github.com/City-of-Helsinki/smbackend/commit/7481db2717d1228514154e21f190a143ffe67fc9))
+
 ## [3.12.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.11.0...smbackend-v3.12.0) (2026-01-12)
 
 
