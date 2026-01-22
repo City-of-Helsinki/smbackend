@@ -8,7 +8,7 @@ django-filter
 django-logger-extra@https://github.com/City-of-Helsinki/django-logger-extra/archive/refs/tags/v0.1.0.zip
 django-modeltranslation
 django-mptt~=0.18
-django-munigeo@https://github.com/City-of-Helsinki/django-munigeo/archive/refs/tags/v0.2.90.zip
+django-munigeo@https://github.com/City-of-Helsinki/django-munigeo/archive/refs/tags/v0.2.91.zip
 django-polymorphic>=3.1
 django-two-factor-auth
 django-two-factor-auth[phonenumbers]
