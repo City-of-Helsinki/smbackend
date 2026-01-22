@@ -82,6 +82,7 @@ class Compound(Expression):
         super().__init__(depth)
         self.operator = None
         self.operands = []
+        self.variable_path = None
 
     def id(self):
         if self.parent is None:
@@ -328,7 +329,7 @@ def build_compound(iterator, depth=0, requirement_id=None):
     if depth is None:
         raise ParseError("Unclosed compound expression (aka mismatched parentheses(.")
     for operand in compound.operands:
-        if operand.variable_path[0] != "service_point":
+        if operand.variable_path and operand.variable_path[0] != "service_point":
             compound.variable_path = operand.variable_path[0:1]
             break
 
