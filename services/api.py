@@ -8,7 +8,7 @@ from django.contrib.gis.gdal import SpatialReference
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.core.exceptions import ValidationError
-from django.db.models import F, Prefetch, Q
+from django.db.models import F, Prefetch, Q, Subquery
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -1160,11 +1160,12 @@ class UnitViewSet(
                 mobility_service_nodes.split(",")
             )
         if mobility_service_node_ids:
-            queryset = queryset.filter(
+            matching_unit_ids = Unit.objects.filter(
                 mobility_service_nodes__in=service_nodes_by_ancestors(
                     mobility_service_node_ids, node_model=MobilityServiceNode
                 )
-            ).distinct()
+            ).values("id")
+            queryset = queryset.filter(id__in=Subquery(matching_unit_ids))
 
         service_node_ids = None
         if service_nodes:
@@ -1174,9 +1175,10 @@ class UnitViewSet(
             if level_specs["type"] == "include":
                 service_node_ids = level_specs["service_nodes"]
         if service_node_ids:
-            queryset = queryset.filter(
+            matching_unit_ids = Unit.objects.filter(
                 service_nodes__in=service_nodes_by_ancestors(service_node_ids)
-            ).distinct()
+            ).values("id")
+            queryset = queryset.filter(id__in=Subquery(matching_unit_ids))
 
         service_node_ids = None
         val = filters.get("exclude_service_nodes", None)
@@ -1187,13 +1189,17 @@ class UnitViewSet(
             if level_specs["type"] == "exclude":
                 service_node_ids = level_specs["service_nodes"]
         if service_node_ids:
-            queryset = queryset.exclude(
+            excluded_unit_ids = Unit.objects.filter(
                 service_nodes__in=service_nodes_by_ancestors(service_node_ids)
-            ).distinct()
+            ).values("id")
+            queryset = queryset.exclude(id__in=Subquery(excluded_unit_ids))
 
         services = filters.get("service")
         if services is not None:
-            queryset = queryset.filter(services__in=services.split(",")).distinct()
+            matching_unit_ids = Unit.objects.filter(
+                services__in=services.split(",")
+            ).values("id")
+            queryset = queryset.filter(id__in=Subquery(matching_unit_ids))
 
         if "division" in filters:
             # Divisions can be specified with form:
@@ -1254,10 +1260,11 @@ class UnitViewSet(
                     service_ids.append(value)
                 elif key == "service_node":
                     servicenode_ids.append(value)
-            queryset = queryset.filter(
+            matching_unit_ids = Unit.objects.filter(
                 Q(services__in=service_ids)
                 | Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))
-            ).distinct()
+            ).values("id")
+            queryset = queryset.filter(id__in=Subquery(matching_unit_ids))
 
         if "address" in filters:
             language = filters["language"] if "language" in filters else "fi"
