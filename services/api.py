@@ -1164,7 +1164,7 @@ class UnitViewSet(
                 mobility_service_nodes__in=service_nodes_by_ancestors(
                     mobility_service_node_ids, node_model=MobilityServiceNode
                 )
-            ).distinct()
+            ).distinct("id")
 
         service_node_ids = None
         if service_nodes:
@@ -1176,7 +1176,7 @@ class UnitViewSet(
         if service_node_ids:
             queryset = queryset.filter(
                 service_nodes__in=service_nodes_by_ancestors(service_node_ids)
-            ).distinct()
+            ).distinct("id")
 
         service_node_ids = None
         val = filters.get("exclude_service_nodes", None)
@@ -1189,11 +1189,11 @@ class UnitViewSet(
         if service_node_ids:
             queryset = queryset.exclude(
                 service_nodes__in=service_nodes_by_ancestors(service_node_ids)
-            ).distinct()
+            ).distinct("id")
 
         services = filters.get("service")
         if services is not None:
-            queryset = queryset.filter(services__in=services.split(",")).distinct()
+            queryset = queryset.filter(services__in=services.split(",")).distinct("id")
 
         if "division" in filters:
             # Divisions can be specified with form:
@@ -1257,7 +1257,7 @@ class UnitViewSet(
             queryset = queryset.filter(
                 Q(services__in=service_ids)
                 | Q(service_nodes__in=service_nodes_by_ancestors(servicenode_ids))
-            ).distinct()
+            ).distinct("id")
 
         if "address" in filters:
             language = filters["language"] if "language" in filters else "fi"

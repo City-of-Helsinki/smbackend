@@ -14,7 +14,7 @@ from munigeo.models import (
 from rest_framework.test import APIClient
 
 from services.api import make_muni_ocd_id
-from services.models import Department, MobilityServiceNode, ServiceNode, Unit
+from services.models import Department, MobilityServiceNode, Service, ServiceNode, Unit
 from services.models.unit import PROJECTION_SRID
 from services.tests.utils import get
 
@@ -472,3 +472,195 @@ def test_heightprofilegeom_parameter(api_client):
         results[4]["height_profile_geom"]["properties"]["label_fi"] == "Korkeusprofiili"
     )
     assert results[4]["height_profile_geom"]["properties"]["label_sv"] == "Höjdprofil"
+
+
+@pytest.mark.django_db
+def test_service_filter_returns_distinct_units(api_client):
+    """
+    Test that units with multiple services are not duplicated in results when filtering by service.
+    This tests the fix for distinct("id") in service filtering.
+    """
+    create_units()
+
+    # Create services
+    service_1 = Service.objects.create(
+        id=100, name="Service 1", last_modified_time=datetime.now(UTC_TIMEZONE)
+    )
+    service_2 = Service.objects.create(
+        id=101, name="Service 2", last_modified_time=datetime.now(UTC_TIMEZONE)
+    )
+
+    # Add multiple services to the same unit
+    unit_1 = Unit.objects.get(id=1)
+    unit_1.services.add(service_1, service_2)
+
+    # Filter by both services - unit should appear only once
+    response = get(
+        api_client,
+        reverse("unit-list"),
+        data={"service": f"{service_1.id},{service_2.id}"},
+    )
+
+    assert response.status_code == 200
+    # Unit 1 should appear only once, not twice
+    assert response.data["count"] == 1
+    unit_ids = [result["id"] for result in response.data["results"]]
+    assert unit_ids.count(1) == 1
+    assert response.data["results"][0]["id"] == 1
+
+
+@pytest.mark.django_db
+def test_service_node_filter_returns_distinct_units(api_client):
+    """
+    Test that units with multiple service nodes are not duplicated when filtering.
+    This tests the fix for distinct("id") in service_node filtering.
+    """
+    create_units()
+    (
+        service_node_1,
+        service_node_2,
+        service_node_3,
+        service_node_4,
+    ) = create_service_nodes()
+
+    # Add multiple service nodes to the same unit
+    unit_1 = Unit.objects.get(id=1)
+    unit_1.service_nodes.add(service_node_2, service_node_3)
+
+    # Filter by parent service node that includes both child nodes
+    response = get(
+        api_client, reverse("unit-list"), data={"service_node": service_node_1.id}
+    )
+
+    assert response.status_code == 200
+    # Unit 1 should appear only once, despite having multiple matching service nodes
+    unit_ids = [result["id"] for result in response.data["results"]]
+    assert unit_ids.count(1) == 1
+
+    # Also test with explicit list of both service nodes
+    response = get(
+        api_client,
+        reverse("unit-list"),
+        data={"service_node": f"{service_node_2.id},{service_node_3.id}"},
+    )
+
+    assert response.status_code == 200
+    unit_ids = [result["id"] for result in response.data["results"]]
+    # Unit 1 should still appear only once
+    assert unit_ids.count(1) == 1
+
+
+@pytest.mark.django_db
+def test_exclude_service_node_filter_returns_distinct_units(api_client):
+    """
+    Test that units are not duplicated when using exclude_service_nodes filter.
+    This tests the fix for distinct("id") in exclude_service_nodes filtering.
+    """
+    create_units()
+    (
+        service_node_1,
+        service_node_2,
+        service_node_3,
+        service_node_4,
+    ) = create_service_nodes()
+
+    # Create units with service nodes
+    unit_1 = Unit.objects.get(id=1)
+    unit_2 = Unit.objects.get(id=2)
+    unit_3 = Unit.objects.get(id=3)
+
+    # unit_1 has service_node_4 only
+    unit_1.service_nodes.add(service_node_4)
+
+    # unit_2 has both service_node_2 and service_node_4
+    unit_2.service_nodes.add(service_node_2, service_node_4)
+
+    # unit_3 has service_node_2 only
+    unit_3.service_nodes.add(service_node_2)
+
+    # Exclude service_node_2 - should get units without it
+    response = get(
+        api_client,
+        reverse("unit-list"),
+        data={"exclude_service_nodes": service_node_2.id},
+    )
+
+    assert response.status_code == 200
+    unit_ids = [result["id"] for result in response.data["results"]]
+
+    # Each unit should appear only once
+    assert len(unit_ids) == len(set(unit_ids)), "Duplicate units found in results"
+
+    # Units with service_node_2 should be excluded
+    assert 3 not in unit_ids
+    assert 2 not in unit_ids
+
+
+@pytest.mark.django_db
+def test_mobility_node_filter_returns_distinct_units(api_client):
+    """
+    Test that units with multiple mobility service nodes are not duplicated.
+    This tests the fix for distinct("id") in mobility_node filtering.
+    """
+    create_units()
+    mobility_node_1, mobility_node_2, mobility_node_3 = create_mobility_nodes()
+
+    # Add multiple mobility nodes to the same unit
+    unit_1 = Unit.objects.get(id=1)
+    unit_1.mobility_service_nodes.add(mobility_node_2, mobility_node_3)
+
+    # Filter by parent mobility node that includes both child nodes
+    response = get(
+        api_client, reverse("unit-list"), data={"mobility_node": mobility_node_1.id}
+    )
+
+    assert response.status_code == 200
+    unit_ids = [result["id"] for result in response.data["results"]]
+    # Unit 1 should appear only once, despite having multiple matching mobility nodes
+    assert unit_ids.count(1) == 1
+
+    # Also test with explicit list of both mobility nodes
+    response = get(
+        api_client,
+        reverse("unit-list"),
+        data={"mobility_node": f"{mobility_node_2.id},{mobility_node_3.id}"},
+    )
+
+    assert response.status_code == 200
+    unit_ids = [result["id"] for result in response.data["results"]]
+    # Unit 1 should still appear only once
+    assert unit_ids.count(1) == 1
+
+
+@pytest.mark.django_db
+def test_category_filter_returns_distinct_units(api_client):
+    """
+    Test that category filter (combining services and service_nodes) returns distinct units.
+    This tests the fix for distinct("id") in category filtering.
+    """
+    create_units()
+
+    # Create service and service node
+    service_1 = Service.objects.create(
+        id=100, name="Service 1", last_modified_time=datetime.now(UTC_TIMEZONE)
+    )
+    service_node_1, _, _, _ = create_service_nodes()
+
+    unit_1 = Unit.objects.get(id=1)
+    # Add both service and service_node to the same unit
+    unit_1.services.add(service_1)
+    unit_1.service_nodes.add(service_node_1)
+
+    # Filter by category including both the service and service_node
+    response = get(
+        api_client,
+        reverse("unit-list"),
+        data={"category": f"service:{service_1.id},service_node:{service_node_1.id}"},
+    )
+
+    assert response.status_code == 200
+    # Unit 1 should appear only once, not twice (once for service, once for service_node)
+    assert response.data["count"] == 1
+    unit_ids = [result["id"] for result in response.data["results"]]
+    assert unit_ids.count(1) == 1
+    assert response.data["results"][0]["id"] == 1
