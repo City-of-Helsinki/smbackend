@@ -1,11 +1,18 @@
+import logging
 import os
 import re
 
 import requests
 from django.conf import settings
 from django.utils.http import urlencode
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+logger = logging.getLogger(__name__)
 
 URL_BASE = "https://www.hel.fi/palvelukarttaws/rest/v4/"
+DEFAULT_TIMEOUT_SECONDS = 55
+DEFAULT_RETRY_DELAY = 1  # Backoff factor for exponential retry delays
 
 LATIN_1_CHARS = (
     (b"\xe2\x80\x99", b"'"),
@@ -38,6 +45,10 @@ LATIN_1_CHARS = (
 )
 
 
+class TPRApiError(requests.HTTPError):
+    """Custom exception for TPR API errors."""
+
+
 def clean_latin1(data):
     try:
         return data.encode("ISO-8859-1").decode("UTF-8")
@@ -48,16 +59,62 @@ def clean_latin1(data):
         return unicode_data.decode("UTF-8")
 
 
-def pk_get(resource_name, res_id=None, params=None):
+def pk_get(
+    resource_name: str,
+    res_id: int = None,
+    params: dict | None = None,
+    max_attempts: int = 3,
+    retry_delay: int = DEFAULT_RETRY_DELAY,
+    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
+) -> dict:
+    """
+    Fetch data from the TPR REST API with retry logic.
+
+    Args:
+        resource_name: The API resource name to fetch
+        res_id: Optional resource ID
+        params: Optional query parameters
+        max_attempts: Maximum number of retry attempts
+        retry_delay: Backoff factor for exponential retry delays.
+                    Actual delays will be: retry_delay * (2 ^ (attempt - 1)) seconds.
+                    For example, with retry_delay=1: 1s, 2s, 4s, 8s...
+        timeout_seconds: Request timeout in seconds
+
+    Returns:
+        JSON response as a dictionary
+
+    Raises:
+        TPRApiError: If the API request fails after retries
+    """
     url = f"{URL_BASE}{resource_name}/"
     if res_id is not None:
         url = f"{url}{res_id}/"
     if params:
         url += "?" + urlencode(params)
-    print("CALLING URL >>> ", url)  # noqa: T201
-    resp = requests.get(url, timeout=300)
-    assert resp.status_code == 200, f"fuu status code {resp.status_code}"
-    return resp.json()
+    logger.info(f"Fetching data from URL: {url}")
+
+    retry_strategy = Retry(
+        total=max_attempts,
+        backoff_factor=retry_delay,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET", "HEAD", "OPTIONS"],
+        raise_on_status=False,
+    )
+
+    session = requests.Session()
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+
+    try:
+        resp = session.get(url, timeout=timeout_seconds)
+        if resp.status_code != 200:
+            raise TPRApiError(
+                f"TPR API request failed with status code {resp.status_code}"
+                f" for URL: {url}"
+            )
+        return resp.json()
+    finally:
+        session.close()
 
 
 def save_translated_field(obj, obj_field_name, info, info_field_name, max_length=None):
