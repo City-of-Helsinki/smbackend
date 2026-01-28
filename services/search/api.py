@@ -244,6 +244,9 @@ def build_search_query(query: str):
             if re.fullmatch(r"'+", and_operand):
                 # Skip any operands that are just repeating single-quotes
                 continue
+            if not and_operand.strip():
+                # Skip empty operands to prevent invalid tsquery syntax like ":*"
+                continue
             if expression:
                 expression += f" & {and_operand}:*"
             else:
