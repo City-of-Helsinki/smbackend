@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.14.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.13.0...smbackend-v3.14.0) (2026-01-28)
+
+
+### Features
+
+* **services:** Add retry logic and timeout to external API calls ([3835300](https://github.com/City-of-Helsinki/smbackend/commit/383530073731cf991fe5a6309126639c56d06136))
+
+
+### Performance Improvements
+
+* Optimize unit filtering queries ([470fb17](https://github.com/City-of-Helsinki/smbackend/commit/470fb17af20325ffdc177bf46acccb9f7b8db378))
+
+
+### Dependencies
+
+* Bump wheel from 0.45.1 to 0.46.2 ([1e2d0c8](https://github.com/City-of-Helsinki/smbackend/commit/1e2d0c82d5d3da99b6c83bbf2071fe329319ae73))
+
 ## [3.13.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.12.0...smbackend-v3.13.0) (2026-01-22)
 
 
