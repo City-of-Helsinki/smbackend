@@ -1336,21 +1336,33 @@ class UnitViewSet(
             response["Content-Disposition"] = header
         return response
 
-    def _get_unit(self, pk):
+    def _get_unit(self, pk, queryset=None):
         try:
             int(pk)
         except ValueError:
             raise Http404
 
+        if queryset is None:
+            queryset = Unit.objects.filter(public=True, is_active=True)
+
         try:
-            unit = Unit.objects.get(pk=pk, public=True, is_active=True)
+            unit = queryset.get(pk=pk)
         except Unit.DoesNotExist:
+            # When unit is not found by pk, try to find it via UnitAlias
+            # We must fetch the aliased unit through the queryset to maintain
+            # prefetch optimizations and filter constraints (public, is_active)
             unit_alias = get_object_or_404(UnitAlias, second=pk)
-            unit = unit_alias.first
+            try:
+                unit = queryset.get(pk=unit_alias.first_id)
+            except Unit.DoesNotExist:
+                # Aliased unit exists but doesn't meet filter criteria
+                # (e.g., not public or not active)
+                raise Http404
         return unit
 
     def retrieve(self, request, pk=None):
-        unit = self._get_unit(pk)
+        queryset = self.get_queryset()
+        unit = self._get_unit(pk, queryset=queryset)
         serializer = self.serializer_class(unit, context=self.get_serializer_context())
         return Response(serializer.data)
 
