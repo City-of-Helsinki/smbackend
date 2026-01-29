@@ -262,6 +262,20 @@ def test_search_with_vertical_bar_in_query(api_client, units):
         ("a, &&& , & b || || |||| |c,,,, d", "a:* & b:* | c:* & d:*"),
         # Expression with repeating single-quotes
         ("','','''',a,b'c,d''e,f'''g,','','''", "a:* & b'c:* & d''e:* & f'''g:*"),
+        # Empty operands
+        ("   ", ""),
+        ("  |  ", ""),
+        ("  &  ", ""),
+        (",", ""),
+        ("  ,  ", ""),
+        ("a |   | b", "a:* | b:*"),
+        ("a &   & b", "a:* & b:*"),
+        ("a,   ,b", "a:* & b:*"),
+        ("   | a", "a:*"),
+        ("a |   ", "a:*"),
+        # Unbalanced leading single quote
+        ("'r", ""),
+        ("'museo palloiluhalli", "palloiluhalli:*"),
     ],
 )
 def test_build_search_query(query, expected):

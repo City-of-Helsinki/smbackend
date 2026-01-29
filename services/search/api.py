@@ -242,8 +242,20 @@ def build_search_query(query: str):
         and_operands = re.split(r"[\s,&]+", or_operand)
         expression = ""
         for and_operand in and_operands:
+            if not and_operand.strip():
+                # Skip empty or whitespace-only operands
+                continue
             if re.fullmatch(r"'+", and_operand):
                 # Skip any operands that are just repeating single-quotes
+                continue
+            # Skip operands that start with a single quote (likely user error or
+            # malicious input). This prevents tsquery syntax errors like "'r:*" while
+            # allowing valid embedded quotes like "b'c".
+            if (
+                and_operand.startswith("'")
+                and len(and_operand) > 1
+                and and_operand[1] != "'"
+            ):
                 continue
             if expression:
                 expression += f" & {and_operand}:*"
