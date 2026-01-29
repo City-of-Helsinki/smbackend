@@ -241,6 +241,9 @@ def build_search_query(query: str):
         and_operands = re.split(r"[\s,&]+", or_operand)
         expression = ""
         for and_operand in and_operands:
+            if not and_operand.strip():
+                # Skip empty or whitespace-only operands
+                continue
             if re.fullmatch(r"'+", and_operand):
                 # Skip any operands that are just repeating single-quotes
                 continue
