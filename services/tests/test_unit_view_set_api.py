@@ -3,6 +3,8 @@ from datetime import datetime
 import pytest
 import pytz
 from django.contrib.gis.geos import GEOSGeometry
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from munigeo import api as munigeo_api
 from munigeo.api import DEFAULT_SRS
@@ -14,11 +16,27 @@ from munigeo.models import (
 from rest_framework.test import APIClient
 
 from services.api import make_muni_ocd_id
-from services.models import Department, MobilityServiceNode, Service, ServiceNode, Unit
+from services.models import (
+    Department,
+    Keyword,
+    MobilityServiceNode,
+    Service,
+    ServiceNode,
+    Unit,
+    UnitAlias,
+    UnitConnection,
+)
 from services.models.unit import PROJECTION_SRID
 from services.tests.utils import get
 
 UTC_TIMEZONE = pytz.timezone("UTC")
+
+# Maximum expected database queries for unit retrieve operations.
+# This threshold represents acceptable performance with proper prefetching.
+# Before optimization: 64+ queries (N+1 for each related object)
+# After optimization: <30 queries (prefetch_related eliminates N+1)
+# If this threshold is exceeded, it indicates a potential N+1 query problem.
+MAX_EXPECTED_QUERIES = 30
 
 
 def create_units():
@@ -654,3 +672,159 @@ def test_category_filtering(api_client):
     assert response.data["count"] == 3
     unit_ids = {result["id"] for result in response.data["results"]}
     assert unit_ids == {1, 2, 3}
+
+
+@pytest.mark.django_db
+def test_unit_retrieve_prevents_n_plus_1_queries(api_client):
+    """
+    Test that retrieving a single unit does not cause N+1 queries.
+
+    This test ensures that UnitViewSet.retrieve() uses the optimized
+    get_queryset() with prefetch_related to avoid N+1 database queries.
+    """
+    create_units()
+    service_nodes = create_service_nodes()
+
+    # Get a unit and add multiple related objects
+    unit = Unit.objects.get(id=1)
+
+    # Add service nodes (would cause N+1 if not prefetched)
+    unit.service_nodes.add(service_nodes[0], service_nodes[1])
+
+    # Add keywords (would cause N+1 if not prefetched)
+    keyword1 = Keyword.objects.create(name="keyword1")
+    keyword2 = Keyword.objects.create(name="keyword2")
+    unit.keywords.add(keyword1, keyword2)
+
+    # Add connections (would cause N+1 if not prefetched)
+    UnitConnection.objects.create(
+        unit=unit,
+        name="Phone",
+        section_type=UnitConnection.PHONE_OR_EMAIL_TYPE,
+    )
+    UnitConnection.objects.create(
+        unit=unit,
+        name="Website",
+        section_type=UnitConnection.LINK_TYPE,
+    )
+
+    # Test with query counting
+    with CaptureQueriesContext(connection) as queries:
+        response = get(api_client, reverse("unit-detail", kwargs={"pk": unit.id}))
+
+    assert response.status_code == 200
+    assert response.data["id"] == unit.id
+
+    # With proper prefetching, total queries should be reasonable
+    total_queries = len(queries.captured_queries)
+    assert total_queries < MAX_EXPECTED_QUERIES, (
+        f"Too many queries: {total_queries}. Possible N+1 issue."
+    )
+
+
+@pytest.mark.django_db
+def test_unit_retrieve_with_include_parameter(api_client):
+    """
+    Test that unit retrieve with include parameter still uses prefetching.
+    Verifies that the fix works correctly with query parameters.
+    """
+    create_units()
+    service_nodes = create_service_nodes()
+
+    unit = Unit.objects.get(id=1)
+    unit.service_nodes.add(service_nodes[0])
+
+    UnitConnection.objects.create(
+        unit=unit,
+        name="Connection",
+        section_type=UnitConnection.PHONE_OR_EMAIL_TYPE,
+    )
+
+    # Test with specific include fields
+    with CaptureQueriesContext(connection) as queries:
+        response = get(
+            api_client,
+            reverse("unit-detail", kwargs={"pk": unit.id}),
+            data={"include": "service_nodes,connections"},
+        )
+
+    assert response.status_code == 200
+    assert "service_nodes" in response.data
+    assert "connections" in response.data
+
+    # Verify reasonable query count with include parameter
+    total_queries = len(queries.captured_queries)
+    assert total_queries < MAX_EXPECTED_QUERIES, (
+        f"Too many queries with include parameter: {total_queries}"
+    )
+
+
+@pytest.mark.django_db
+def test_unit_retrieve_via_alias_prevents_n_plus_1(api_client):
+    """
+    Test that retrieving a unit via UnitAlias does not cause N+1 queries.
+
+    Verifies that when a unit is accessed via an alias, the prefetch
+    optimizations are still applied and filters (public, is_active) are
+    enforced. This prevents the N+1 issue from being reintroduced through
+    the alias path.
+    """
+    create_units()
+    service_nodes = create_service_nodes()
+
+    # Get a unit and add related objects
+    unit = Unit.objects.get(id=1)
+    unit.service_nodes.add(service_nodes[0])
+
+    keyword = Keyword.objects.create(name="test_keyword")
+    unit.keywords.add(keyword)
+
+    UnitConnection.objects.create(
+        unit=unit,
+        name="Test Connection",
+        section_type=UnitConnection.PHONE_OR_EMAIL_TYPE,
+    )
+
+    # Create an alias for the unit
+    UnitAlias.objects.create(first=unit, second=9999)
+
+    # Access unit via alias - should still use prefetching
+    with CaptureQueriesContext(connection) as queries:
+        response = get(api_client, reverse("unit-detail", kwargs={"pk": 9999}))
+
+    assert response.status_code == 200
+    assert response.data["id"] == unit.id
+
+    # Verify query count is reasonable (prefetching active)
+    total_queries = len(queries.captured_queries)
+    assert total_queries < MAX_EXPECTED_QUERIES, (
+        f"Too many queries via alias: {total_queries}. "
+        "UnitAlias path should use prefetched queryset."
+    )
+
+
+@pytest.mark.django_db
+def test_unit_alias_respects_public_and_active_filters(api_client):
+    """
+    Test that UnitAlias lookups respect public and is_active filters.
+
+    Ensures that accessing a unit via alias still enforces the queryset
+    filters, preventing access to non-public or inactive units.
+    """
+    create_units()
+
+    # Unit 5 is not public, Unit 6 is not active
+    non_public_unit = Unit.objects.get(id=5)
+    inactive_unit = Unit.objects.get(id=6)
+
+    # Create aliases for these units
+    UnitAlias.objects.create(first=non_public_unit, second=8888)
+    UnitAlias.objects.create(first=inactive_unit, second=7777)
+
+    # Attempting to access non-public unit via alias should fail
+    response = api_client.get(reverse("unit-detail", kwargs={"pk": 8888}))
+    assert response.status_code == 404
+
+    # Attempting to access inactive unit via alias should fail
+    response = api_client.get(reverse("unit-detail", kwargs={"pk": 7777}))
+    assert response.status_code == 404
