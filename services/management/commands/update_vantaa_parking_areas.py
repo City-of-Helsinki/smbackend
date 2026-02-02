@@ -4,10 +4,17 @@ This management command updates Vantaa parking areas.
 
 import logging
 import os
+from itertools import batched
 from time import time
 
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
-from django.contrib.gis.geos import GEOSGeometry, LineString, MultiPolygon, Polygon
+from django.contrib.gis.geos import (
+    GEOSGeometry,
+    LineString,
+    MultiLineString,
+    MultiPolygon,
+    Polygon,
+)
 from django.core.management.base import BaseCommand
 from munigeo.models import (
     AdministrativeDivision,
@@ -68,6 +75,7 @@ DATA_SOURCES = [
 ]
 
 SRC_SRID = 4326
+BATCH_SIZE = 1000
 
 PARKING_NAME_TRANSLATIONS = {
     "12h-24h": {"sv": "12-24 timmar", "en": "12-24 hours"},
@@ -80,6 +88,10 @@ PARKING_NAME_TRANSLATIONS = {
     "Varattu päivisin": {"sv": "Bokas dagtid", "en": "Reserved during the day"},
     "Liityntäpysäköinti": {"sv": "Pendelparkering", "en": "Park & Ride"},
 }
+
+
+class UnsupportedGeometryError(Exception):
+    pass
 
 
 class Command(BaseCommand):
@@ -110,25 +122,56 @@ class Command(BaseCommand):
 
         return buffered_line
 
+    def _convert_polygon_to_multi(self, polygon):
+        """Convert a Polygon to MultiPolygon preserving SRID."""
+        multi_poly = MultiPolygon(polygon)
+        multi_poly.srid = polygon.srid
+        return multi_poly
+
+    def _convert_linestring_to_multi(self, linestring):
+        """Convert a LineString to MultiPolygon by buffering."""
+        buffered = self.transform_line_to_polygon(linestring)
+        if isinstance(buffered, MultiPolygon):
+            return buffered
+        if isinstance(buffered, Polygon):
+            return self._convert_polygon_to_multi(buffered)
+        raise ValueError("Buffered geometry is not a Polygon or MultiPolygon.")
+
+    def _convert_multilinestring_to_multi(self, multilinestring):
+        """Convert a MultiLineString to MultiPolygon by buffering each line."""
+        polygons = []
+        for line in multilinestring:
+            buffered = self.transform_line_to_polygon(line)
+            if not isinstance(buffered, (Polygon, MultiPolygon)):
+                raise ValueError("Buffered geometry is not a Polygon or MultiPolygon.")
+
+            # If buffered is a MultiPolygon, extract individual Polygons
+            if isinstance(buffered, MultiPolygon):
+                polygons.extend(list(buffered))
+            else:
+                polygons.append(buffered)
+
+        multi_poly = MultiPolygon(polygons)
+        multi_poly.srid = multilinestring.srid
+        return multi_poly
+
     def get_multi_geom(self, obj):
         """
         Return the appropriate multi-container for the supplied geometry.
         If the geometry is already a multi-container, return the object itself.
         """
-        if isinstance(obj, Polygon):
-            return MultiPolygon(obj)
-        elif isinstance(obj, (MultiPolygon)):
+        if isinstance(obj, MultiPolygon):
             return obj
-        elif isinstance(obj, (LineString)):
-            buffered_line = self.transform_line_to_polygon(obj)
-            if isinstance(buffered_line, MultiPolygon):
-                return buffered_line
-            elif isinstance(buffered_line, Polygon):
-                return MultiPolygon([buffered_line])
-            else:
-                raise ValueError("Buffered geometry is not a Polygon or MultiPolygon.")
-        else:
-            raise Exception(f"Unsupported geometry type: {obj.__class__.__name__}")
+        if isinstance(obj, Polygon):
+            return self._convert_polygon_to_multi(obj)
+        if isinstance(obj, LineString):
+            return self._convert_linestring_to_multi(obj)
+        if isinstance(obj, MultiLineString):
+            return self._convert_multilinestring_to_multi(obj)
+
+        raise UnsupportedGeometryError(
+            f"Unsupported geometry type: {obj.__class__.__name__}"
+        )
 
     def update_parking_areas(self):
         src_srs = SpatialReference(SRC_SRID)
@@ -154,10 +197,42 @@ class Command(BaseCommand):
 
             service = restapi.FeatureService(data_source["service_url"])
             parking_areas = service.layer(data_source["layer_name"])
-            features = parking_areas.query()
+
+            # Retrieve all features using pagination to handle more than
+            # the record limit
+            features = []
+
+            # First, get all object IDs
+            all_oids_result = parking_areas.query(returnIdsOnly=True)
+
+            # Extract object IDs from the result
+            if hasattr(all_oids_result, "objectIds"):
+                all_oids = all_oids_result.objectIds
+            elif isinstance(all_oids_result, dict) and "objectIds" in all_oids_result:
+                all_oids = all_oids_result["objectIds"]
+            else:
+                # Fallback: try to query all features at once
+                logger.warning(
+                    "Could not retrieve object IDs, "
+                    "attempting to query all features at once"
+                )
+                features = parking_areas.query()
+                all_oids = []
+
+            # Query features in batches using object IDs
+            if all_oids:
+                all_features = []
+
+                for batch_oids in batched(all_oids, BATCH_SIZE):
+                    oid_string = ",".join(map(str, batch_oids))
+                    batch = parking_areas.query(objectIds=oid_string)
+                    if batch:
+                        all_features.extend(batch)
+
+                features = all_features
 
             readable_name = data_source["type"].replace("_", " ").strip() + "s"
-            logger.info(f"Found {features.count} {readable_name} for Vantaa")
+            logger.info(f"Found {len(features)} {readable_name} for Vantaa")
             logger.info(f"Importing {readable_name}...")
 
             updated_parking_areas = []
