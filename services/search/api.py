@@ -599,6 +599,10 @@ class SearchViewSet(GenericAPIView):
             ids = list(dict.fromkeys(ids))
             preserved = get_preserved_order(ids)
             services_qs = Service.objects.filter(id__in=ids).order_by(preserved)
+            services_qs = services_qs.prefetch_related(
+                "unit_counts", "unit_count_organizations"
+            )
+            services_qs = services_qs.select_related("root_service_node")
             services_qs = services_qs[: model_limits["service"]]
         else:
             services_qs = Service.objects.none()
@@ -622,6 +626,10 @@ class SearchViewSet(GenericAPIView):
                 )
 
             units_qs = units_qs.all().distinct()
+            units_qs = units_qs.prefetch_related("accessibility_shortcomings")
+            units_qs = units_qs.select_related(
+                "department", "root_department", "municipality"
+            )
             if "municipality" in self.request.query_params:
                 municipalities = (
                     self.request.query_params["municipality"].lower().strip().split(",")
