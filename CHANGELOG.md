@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.15.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.14.1...smbackend-v3.15.0) (2026-02-06)
+
+
+### Features
+
+* **vantaa parking areas:** Support MultiLineString and fix pagination ([a879ec3](https://github.com/City-of-Helsinki/smbackend/commit/a879ec3667804d0049a3a6ef5cc999a082a992b4))
+
 ## [3.14.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.14.0...smbackend-v3.14.1) (2026-02-05)
 
 
