@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.15.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.15.0...smbackend-v3.15.1) (2026-02-10)
+
+
+### Bug Fixes
+
+* **services:** Eliminate n+1 query in unit detail endpoint ([6bb0d8f](https://github.com/City-of-Helsinki/smbackend/commit/6bb0d8f1c552c418444d3c0cfc97cb43b73e845f))
+
+
+### Performance Improvements
+
+* **search:** Optimize service and unit queries in API ([34fb0da](https://github.com/City-of-Helsinki/smbackend/commit/34fb0da84696ef330b53720f6e69ce0fa567e099))
+
 ## [3.15.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.14.1...smbackend-v3.15.0) (2026-02-06)
 
 
