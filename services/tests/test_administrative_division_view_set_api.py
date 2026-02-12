@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from django.conf import settings
 from django.contrib.gis.geos import MultiPolygon, Point, Polygon
@@ -183,12 +185,17 @@ def test_municipality_filter(api_client):
 
 
 @pytest.mark.django_db
-def test_address_filter(api_client):
+@patch("services.api.geocode_address")
+def test_address_filter(mock_geocode_address, api_client):
     create_administrative_divisions()
     division = AdministrativeDivision.objects.get(name="helsinki")
     AdministrativeDivisionGeometry.objects.create(
         division=division, boundary=create_test_area()
     )
+
+    # Mock geocode_address to return coordinates inside the test area
+    # Test area is approximately: lat 60.159-60.178, lon 24.928-24.948
+    mock_geocode_address.return_value = (60.168, 24.938)  # Inside the test area
 
     response = get(
         api_client,
@@ -202,6 +209,9 @@ def test_address_filter(api_client):
     assert response.status_code == 200
     assert response.data["count"] == 1
     assert response.data["results"][0]["municipality"] == "helsinki"
+
+    # Mock geocode_address to return coordinates outside the test area
+    mock_geocode_address.return_value = (60.150, 24.920)  # Outside the test area
 
     response = get(
         api_client,
