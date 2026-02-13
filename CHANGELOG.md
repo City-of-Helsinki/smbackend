@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.15.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.15.1...smbackend-v3.15.2) (2026-02-13)
+
+
+### Bug Fixes
+
+* Mock geocode_address in test_address_filter ([85ad493](https://github.com/City-of-Helsinki/smbackend/commit/85ad493b80e6fa317731a79d8ddccb5f9646c24c))
+* Prevent SQL injection in search queries ([11a0ae7](https://github.com/City-of-Helsinki/smbackend/commit/11a0ae7143689286750c9086f237b21bd242dca7))
+* **search:** Sanitize search query operands better ([b5032c6](https://github.com/City-of-Helsinki/smbackend/commit/b5032c63ae1ef17c52e8ead2dab9b94b26a4c162))
+
 ## [3.15.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.15.0...smbackend-v3.15.1) (2026-02-10)
 
 
