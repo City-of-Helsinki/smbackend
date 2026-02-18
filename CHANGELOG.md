@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.15.3](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.15.2...smbackend-v3.15.3) (2026-02-18)
+
+
+### Dependencies
+
+* Bump sqlparse from 0.5.3 to 0.5.4 ([ddf7299](https://github.com/City-of-Helsinki/smbackend/commit/ddf7299e5cc4629eeefd4c9edd30fdeedecb20eb))
+
 ## [3.15.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.15.1...smbackend-v3.15.2) (2026-02-13)
 
 
