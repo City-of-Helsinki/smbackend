@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.16.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.15.3...smbackend-v3.16.0) (2026-03-05)
+
+
+### Features
+
+* Add manual maintenance organization override for specific units ([4fe1616](https://github.com/City-of-Helsinki/smbackend/commit/4fe1616ad02041b1548c2fbb4fe58b8c96961f36))
+
+
+### Dependencies
+
+* Bump django from 5.2.11 to 5.2.12 ([fbbf602](https://github.com/City-of-Helsinki/smbackend/commit/fbbf602c2323fe7a87c6adacc619e4ee0ded6a5c))
+
 ## [3.15.3](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.15.2...smbackend-v3.15.3) (2026-02-18)
 
 
