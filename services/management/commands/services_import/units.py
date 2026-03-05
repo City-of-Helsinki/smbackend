@@ -435,9 +435,16 @@ def _import_unit(
     maintenance_organization = muni_name
     if obj.extensions is None:
         obj.extensions = {}
-    if obj.extensions.get("maintenance_organization") != maintenance_organization:
-        obj_changed = True
-        obj.extensions["maintenance_organization"] = maintenance_organization
+    # Skip overwriting maintenance_organization if it has been manually set in the
+    # database via the "manual_maintenance_organization" flag in extensions.
+    # HStore stores all values as strings, so the expected value is the string "True".
+    manual_maintenance_organization = (
+        obj.extensions.get("manual_maintenance_organization") == "True"
+    )
+    if not manual_maintenance_organization:
+        if obj.extensions.get("maintenance_organization") != maintenance_organization:
+            obj_changed = True
+            obj.extensions["maintenance_organization"] = maintenance_organization
     if obj.extensions.get("maintenance_group") is None:
         obj_changed = True
         obj.extensions["maintenance_group"] = "kaikki"
