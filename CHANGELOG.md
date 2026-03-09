@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.17.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.16.0...smbackend-v3.17.0) (2026-03-09)
+
+
+### Features
+
+* Import Espoo divisions once a week ([8b523bb](https://github.com/City-of-Helsinki/smbackend/commit/8b523bbb4d604c92972e7cb0b3a379bd76caa52a))
+
+
+### Bug Fixes
+
+* Handle missing ServiceNodes in unit count aggregation ([f5a00d8](https://github.com/City-of-Helsinki/smbackend/commit/f5a00d8b693be9101abc4d548fd9f543277d742e))
+
+
+### Dependencies
+
+* Bump django-munigeo ([b8e92dc](https://github.com/City-of-Helsinki/smbackend/commit/b8e92dc2206f37e57a24c7ace8e6d7c8db7ea2a4))
+
 ## [3.16.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.15.3...smbackend-v3.16.0) (2026-03-05)
 
 
