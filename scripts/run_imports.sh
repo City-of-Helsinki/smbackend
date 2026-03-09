@@ -12,10 +12,10 @@ function stage_0 {
 
 function stage_1 {
     # Execute once a week
-    # Helsinki, Espoo and HSY Administrative divisions and Addresses
-    # Parking areas
-    #./manage.py geo_import helsinki --divisions
-    #./manage.py geo_import espoo --divisions
+    # Import Helsinki, Espoo and HSY administrative divisions,
+    # addresses, parking areas, parking payzones and nature reserves.
+    # Additionally, index search columns for a better performance.
+    ./manage.py geo_import espoo --divisions
     GDAL_HTTP_UNSAFESSL=YES ./manage.py geo_import hsy --divisions
     ./manage.py geo_import helsinki --addresses
     ./manage.py geo_import uusimaa --addresses
