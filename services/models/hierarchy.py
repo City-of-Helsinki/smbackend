@@ -7,15 +7,12 @@ class CustomTreeManager(TreeManager):
         return TreeQuerySet(self.model, using=self._db)
 
     def determine_max_level(self):
-        if hasattr(self, "_max_level"):
-            return self._max_level
         qs = self.all().order_by("-level")
         if qs.count():
-            self._max_level = qs[0].level
+            return qs[0].level
         else:
             # Harrison-Stetson method
-            self._max_level = 10
-        return self._max_level
+            return 10
 
 
 class TreeQuerySet(QuerySet):

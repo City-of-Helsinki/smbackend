@@ -86,7 +86,14 @@ def set_service_node_unit_count(ids, representation):
         # Handle grouped service_nodes
         units_qs = Unit.objects.none()
         for id in ids:
-            service_node = ServiceNode.objects.get(id=id)
+            try:
+                service_node = ServiceNode.objects.get(id=id)
+            except ServiceNode.DoesNotExist:
+                logger.warning(
+                    f"ServiceNode with id={id} not found, "
+                    f"skipping in unit count aggregation."
+                )
+                continue
             units_qs = units_qs | service_node.get_units_qs()
         units_qs = units_qs.distinct()
         for unit in units_qs:
