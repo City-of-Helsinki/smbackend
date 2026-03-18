@@ -34,12 +34,9 @@ def get_multi(obj):
 
 
 class MiniWFS:
-    def __init__(self, base_url):
+    def __init__(self, base_url, version="1.0.0"):
         self.base_url = base_url
-
-        self.payload = {}
-        self.payload["version"] = "1.0.0"
-        self.payload["service"] = "WFS"
+        self.payload = {"version": version, "service": "WFS"}
 
     def get_feature(self, **params):
         payload = self.payload.copy()
@@ -47,6 +44,7 @@ class MiniWFS:
         payload["typeName"] = params.get("type_name")
         payload["maxFeatures"] = params.get("max_features")
         payload["cql_filter"] = params.get("cql_filter")
+        payload["outputFormat"] = params.get("output_format")
 
         return self._url(payload)
 
@@ -93,7 +91,7 @@ class Command(BaseCommand):
         # Get path and area data from the Lipas WFS
         logger.info("Retrieving geodata from Lipas...")
 
-        wfs = MiniWFS(WFS_BASE)
+        wfs = MiniWFS(WFS_BASE, version=self._get_wfs_version())
         max_features = options.get("max_features")
         muni_filter = options.get("muni_id")
 
@@ -102,9 +100,13 @@ class Command(BaseCommand):
 
         layers = {}
         types = self._get_types()
+        self._configure_gdal()
         for key, val in types.items():
             url = wfs.get_feature(
-                type_name=val, max_features=max_features, cql_filter=muni_filter
+                type_name=val,
+                max_features=max_features,
+                cql_filter=muni_filter,
+                output_format=self._get_output_format(),
             )
 
             layers[key] = DataSource(url)[0]
@@ -122,7 +124,7 @@ class Command(BaseCommand):
         # Iterate through Lipas layers and features
         logger.info("Processing Lipas geodata...")
         for layer in layers.values():
-            for feature in layer:
+            for feature in self._iter_features(layer):
                 logger.debug(feature.fid)
 
                 # Check if the feature's id is in the dict we built earlier
@@ -199,5 +201,27 @@ class Command(BaseCommand):
                 unit.geometry = geometry
             unit.save()
 
+    def _iter_features(self, layer):
+        """Iterate over layer features, skipping any that raise a GDALException."""
+        it = iter(layer)
+        while True:
+            try:
+                feature = next(it)
+            except StopIteration:
+                break
+            except GDALException as err:
+                logger.warning(f"Skipping corrupted feature: {err}")
+                continue
+            yield feature
+
     def _get_types(self):
         return TYPES
+
+    def _get_wfs_version(self):
+        return "1.0.0"
+
+    def _get_output_format(self):
+        return None
+
+    def _configure_gdal(self):
+        """Hook to apply GDAL configuration options before any DataSource is opened."""

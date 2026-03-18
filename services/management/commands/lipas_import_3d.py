@@ -1,5 +1,7 @@
 import logging
+from ctypes import c_char_p
 
+from django.contrib.gis.gdal.libgdal import lgdal
 from django.contrib.gis.geos import LineString, MultiLineString
 
 from services.management.commands import lipas_import
@@ -23,12 +25,28 @@ TYPES = {
 }
 
 
+def _has_z_coordinate(geometry):
+    return geometry.hasz
+
+
 class Command(lipas_import.Command):
+    def _get_wfs_version(self):
+        return "1.0.0"
+
+    def _get_output_format(self):
+        return "GML3"
+
+    def _configure_gdal(self):
+        lgdal.CPLSetConfigOption.restype = None
+        lgdal.CPLSetConfigOption.argtypes = [c_char_p, c_char_p]
+        lgdal.CPLSetConfigOption(b"GML_SRS_DIMENSION_IF_MISSING", b"3")
+        lgdal.CPLSetConfigOption(b"GML_SKIP_CORRUPTED_FEATURES", b"YES")
+
     def _save_geometries(self, geometries, units_by_lipas_id):
         logger.info("Updating 3D geometries in the database...")
         for lipas_id, geometry in geometries.items():
             unit = units_by_lipas_id[lipas_id]
-            if self._has_z_coordinate(geometry):
+            if _has_z_coordinate(geometry):
                 try:
                     line_geometry = geometry.merged
                     if isinstance(line_geometry, LineString):
@@ -50,9 +68,3 @@ class Command(lipas_import.Command):
 
     def _get_types(self):
         return TYPES
-
-    def _has_z_coordinate(self, geometry):
-        """
-        Check if a geometry has a Z-coordinate (3D).
-        """
-        return geometry.hasz
