@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.18.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.17.0...smbackend-v3.18.0) (2026-03-19)
+
+
+### Features
+
+* **lipas_import:** Add Siuntio and Inkoo to Lipas-imports ([782fd94](https://github.com/City-of-Helsinki/smbackend/commit/782fd9485f51257ac3d98121339e53ab58632805))
+
+
+### Bug Fixes
+
+* **lipas_import_3d:** Skip corrupted GML features and fix WFS 3D parsing ([a320056](https://github.com/City-of-Helsinki/smbackend/commit/a320056a2a7ec44530c33063e323d194ac11a641))
+
 ## [3.17.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.16.0...smbackend-v3.17.0) (2026-03-09)
 
 
