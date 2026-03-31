@@ -5,6 +5,7 @@ django-csp
 django-environ
 django-extensions
 django-filter
+django-helsinki-health-endpoints
 django-logger-extra@https://github.com/City-of-Helsinki/django-logger-extra/archive/refs/tags/v0.1.0.zip
 django-modeltranslation
 django-mptt~=0.18
