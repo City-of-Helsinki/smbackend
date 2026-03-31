@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.http import HttpResponse
 from django.urls import include, path, re_path
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.views import (
@@ -37,32 +36,8 @@ for view in services_views + munigeo_views + observations_views:
     router.register(view["name"], view["class"], **kwargs)
 
 
-def healthz(*args, **kwargs):
-    """Returns status code 200 if the server is alive."""
-    return HttpResponse(status=200)
-
-
-def readiness(*args, **kwargs):
-    """
-    Returns status code 200 if the server is ready to perform its duties.
-
-    This goes through each database connection and perform a standard SQL
-    query without requiring any particular tables to exist.
-    """
-    from django.db import connections
-
-    for name in connections:
-        cursor = connections[name].cursor()
-        cursor.execute("SELECT 1;")
-        cursor.fetchone()
-
-    return HttpResponse(status=200)
-
-
 urlpatterns = [
     re_path(r"^v2/search", SearchViewSet.as_view(), name="search"),
-    re_path(r"^healthz/", healthz),
-    re_path(r"^readiness/", readiness),
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^open311", views.post_service_request, name="open311"),
     re_path(r"^stats", views.post_statistic, name="stats"),
@@ -80,3 +55,5 @@ urlpatterns = [
     path("", include(shortcutter_urls)),
     path("", include(tf_urls)),
 ]
+
+urlpatterns += [path("", include("helsinki_health_endpoints.urls"))]

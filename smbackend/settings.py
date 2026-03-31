@@ -108,6 +108,7 @@ INSTALLED_APPS = [
     "services.apps.ServicesConfig",
     "observations",
     "drf_spectacular",
+    "helsinki_health_endpoints",
     # Two-factor authentication
     "django_otp",
     "django_otp.plugins.otp_static",
@@ -326,6 +327,9 @@ KML_REGEXP = r"application/vnd.google-earth\.kml"
 
 LOCALE_PATHS = (str(BASE_DIR / "locale"),)
 
+# Django helsinki health endpoints
+SENTRY_RELEASE = env.str("SENTRY_RELEASE")
+
 SENTRY_TRACES_SAMPLE_RATE = env.float("SENTRY_TRACES_SAMPLE_RATE")
 SENTRY_TRACES_IGNORE_PATHS = env.list("SENTRY_TRACES_IGNORE_PATHS")
 
@@ -348,7 +352,7 @@ if env("SENTRY_DSN"):
     sentry_sdk.init(
         dsn=env.str("SENTRY_DSN"),
         environment=env.str("SENTRY_ENVIRONMENT"),
-        release=env.str("SENTRY_RELEASE"),
+        release=SENTRY_RELEASE,
         integrations=[DjangoIntegration()],
         traces_sampler=sentry_traces_sampler,
         profile_session_sample_rate=env.str("SENTRY_PROFILE_SESSION_SAMPLE_RATE"),
