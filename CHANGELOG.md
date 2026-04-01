@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.19.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.18.0...smbackend-v3.19.0) (2026-04-01)
+
+
+### Features
+
+* Use django-helsinki-health-endpoints for readiness and healthz ([410b16b](https://github.com/City-of-Helsinki/smbackend/commit/410b16b701ea289e2b3c8e49548097d97e5eb2df))
+
+
+### Dependencies
+
+* Bump pygments ([47ab51c](https://github.com/City-of-Helsinki/smbackend/commit/47ab51c88a0113ba83ec74989fad0ec3ca49b3b8))
+* Bump requests from 2.32.5 to 2.33.0 ([5381363](https://github.com/City-of-Helsinki/smbackend/commit/5381363b79db2523525df058b7b1c5ff62c2b7e5))
+
 ## [3.18.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.17.0...smbackend-v3.18.0) (2026-03-19)
 
 
