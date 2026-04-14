@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.19.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.19.1...smbackend-v3.19.2) (2026-04-14)
+
+
+### Dependencies
+
+* Bump pytest from 8.4.2 to 9.0.3 ([0b11ab4](https://github.com/City-of-Helsinki/smbackend/commit/0b11ab4adccb737d9a533042e52b5bbb5f774664))
+
 ## [3.19.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.19.0...smbackend-v3.19.1) (2026-04-09)
 
 
