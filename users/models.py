@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser
+from helusers.models import AbstractUser
 
 
 class User(AbstractUser):
