@@ -8,7 +8,6 @@ from drf_spectacular.views import (
 )
 from munigeo.api import all_views as munigeo_views
 from rest_framework import routers
-from two_factor.urls import urlpatterns as tf_urls
 
 from observations.api import views as observations_views
 from observations.views import obtain_auth_token
@@ -17,7 +16,6 @@ from services.api import all_views as services_views
 from services.search.api import SearchViewSet
 from shortcutter import urls as shortcutter_urls
 
-admin.site.site_header = _("Servicemap administration")
 admin.site.index_title = _("Application management")
 
 router = routers.DefaultRouter()
@@ -53,7 +51,8 @@ urlpatterns = [
         "schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
     ),
     path("", include(shortcutter_urls)),
-    path("", include(tf_urls)),
+    path("helauth/", include("helusers.urls")),
+    path("pysocial/", include("social_django.urls", namespace="social")),
 ]
 
 urlpatterns += [path("", include("helsinki_health_endpoints.urls"))]
