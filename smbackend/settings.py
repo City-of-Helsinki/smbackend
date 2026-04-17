@@ -8,6 +8,7 @@ from csp.constants import NONCE, NONE, SELF
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
 from environ import Env
+from helusers.defaults import SOCIAL_AUTH_PIPELINE  # noqa
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.types import SamplingContext
 
@@ -56,12 +57,17 @@ env = Env(
     EMAIL_TIMEOUT=(int, None),
     EMAIL_HOST_USER=(str, None),
     EMAIL_HOST_PASSWORD=(str, None),
-    OTP_EMAIL_SENDER=(str, None),
     PICTURE_URL_REWRITE_ENABLED=(bool, False),
     CSP_ENABLED=(bool, False),
     CSP_REPORT_ONLY=(bool, True),
     CSP_REPORT_URI=(str, None),
     IMPORT_DATA_PATH=(str, None),
+    SOCIAL_AUTH_TUNNISTAMO_KEY=(str, ""),
+    SOCIAL_AUTH_TUNNISTAMO_SECRET=(str, ""),
+    SOCIAL_AUTH_TUNNISTAMO_OIDC_ENDPOINT=(str, ""),
+    LOGOUT_REDIRECT_URL=(str, "/admin/"),
+    HELUSERS_PASSWORD_LOGIN_DISABLED=(bool, False),
+    HELUSERS_PASSWORD_LOGIN_ALLOWLIST=(list, []),
 )
 
 env_path = BASE_DIR / ".env"
@@ -83,13 +89,16 @@ EMAIL_PORT = env("EMAIL_PORT")
 EMAIL_TIMEOUT = env("EMAIL_TIMEOUT")
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
-OTP_EMAIL_SENDER = env("OTP_EMAIL_SENDER")
 PICTURE_URL_REWRITE_ENABLED = env("PICTURE_URL_REWRITE_ENABLED")
 IMPORT_DATA_PATH = env("IMPORT_DATA_PATH")
 
 # Application definition
 INSTALLED_APPS = [
     "polymorphic",
+    "modeltranslation",
+    "helusers.apps.HelusersConfig",
+    "helusers.apps.HelusersAdminConfig",
+    "social_django",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.messages",
@@ -102,20 +111,11 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_extensions",
     "django_filters",
-    "modeltranslation",
-    "django.contrib.admin",
     "munigeo",
     "services.apps.ServicesConfig",
     "observations",
     "drf_spectacular",
     "helsinki_health_endpoints",
-    # Two-factor authentication
-    "django_otp",
-    "django_otp.plugins.otp_static",
-    "django_otp.plugins.otp_totp",
-    "django_otp.plugins.otp_email",
-    "two_factor",
-    "two_factor.plugins.email",
     "logger_extra",
 ]
 
@@ -130,7 +130,6 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django_otp.middleware.OTPMiddleware",
 ]
 
 if env("ADDITIONAL_MIDDLEWARE"):
@@ -379,7 +378,6 @@ SPECTACULAR_SETTINGS = {
 
 # Two-factor authentication settings
 LOGIN_URL = "two_factor:login"
-OTP_EMAIL_SUBJECT = "Palvelukartta - kirjautumistunniste"
 
 if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
@@ -419,3 +417,21 @@ if env("CSP_REPORT_ONLY"):
 else:
     CONTENT_SECURITY_POLICY = content_security_policy_configuration
     CONTENT_SECURITY_POLICY_REPORT_ONLY = None
+
+# Authentication
+
+AUTHENTICATION_BACKENDS = [
+    "helusers.tunnistamo_oidc.TunnistamoOIDCAuth",
+    "helusers.auth.HelusersModelBackend",
+]
+
+HELUSERS_PASSWORD_LOGIN_DISABLED = env("HELUSERS_PASSWORD_LOGIN_DISABLED")
+HELUSERS_PASSWORD_LOGIN_ALLOWLIST = env("HELUSERS_PASSWORD_LOGIN_ALLOWLIST")
+
+SOCIAL_AUTH_TUNNISTAMO_KEY = env("SOCIAL_AUTH_TUNNISTAMO_KEY")
+SOCIAL_AUTH_TUNNISTAMO_SECRET = env("SOCIAL_AUTH_TUNNISTAMO_SECRET")
+SOCIAL_AUTH_TUNNISTAMO_OIDC_ENDPOINT = env("SOCIAL_AUTH_TUNNISTAMO_OIDC_ENDPOINT")
+
+SESSION_SERIALIZER = "helusers.sessions.TunnistamoOIDCSerializer"
+
+LOGOUT_REDIRECT_URL = env("LOGOUT_REDIRECT_URL")
