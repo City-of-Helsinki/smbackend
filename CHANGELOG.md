@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.19.3](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.19.2...smbackend-v3.19.3) (2026-04-22)
+
+
+### Dependencies
+
+* Bump lxml from 6.0.2 to 6.1.0 ([b9cde40](https://github.com/City-of-Helsinki/smbackend/commit/b9cde40c1c08161cc5650f3652e4df197b0a010e))
+
 ## [3.19.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.19.1...smbackend-v3.19.2) (2026-04-14)
 
 
