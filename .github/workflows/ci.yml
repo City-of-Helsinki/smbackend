@@ -9,7 +9,8 @@ on:
 jobs:
   common:
     uses: City-of-Helsinki/.github/.github/workflows/ci-django-api.yml@main
-    secrets: inherit
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     with:
       python-version: "3.12"
       postgres-major-version: 17
