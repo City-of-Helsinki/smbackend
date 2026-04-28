@@ -3,6 +3,12 @@ name = "smbackend"
 requires-python = ">=3.12, <3.13"
 version = "3.19.3"
 
+[tool.coverage.run]
+source = ["."]
+omit = ["manage.py", "**/migrations/*"]
+relative_files = true
+branch = true
+
 [tool.ruff]
 target-version = "py312"
 
@@ -41,3 +47,5 @@ filterwarnings = ["ignore:No directory at:UserWarning"]
 strip-extras = true
 allow-unsafe = true
 generate-hashes = true
+
+
