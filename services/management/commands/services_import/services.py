@@ -1,9 +1,8 @@
 import re
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from functools import lru_cache
 
-import pytz
 from django import db
 from munigeo.importer.sync import ModelSyncher
 from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
@@ -23,7 +22,7 @@ from services.models import (
 
 from .utils import pk_get, save_translated_field
 
-UTC_TIMEZONE = pytz.timezone("UTC")
+UTC_TIMEZONE = UTC
 SERVICE_REFERENCE_SEPARATOR = re.compile("[^0-9]+")
 MOBILITY_SERVICE_NODE_MAPPING = {
     "traffic_node": {

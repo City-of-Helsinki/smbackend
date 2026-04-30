@@ -22,7 +22,6 @@ libvoikko
 lxml
 psycopg[c]
 python-dateutil
-pytz
 requests
 requests_cache
 sentry-sdk[django]

@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
-import pytz
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -17,12 +16,12 @@ def api_client():
 @pytest.mark.django_db
 def test_get_mobility_list(api_client):
     MobilityServiceNode.objects.create(
-        id=1, name="Urheilukeskus", last_modified_time=datetime.now(pytz.utc)
+        id=1, name="Urheilukeskus", last_modified_time=datetime.now(UTC)
     )
     MobilityServiceNode.objects.create(
         id=2,
         name="Kenttä",
-        last_modified_time=datetime.now(pytz.utc),
+        last_modified_time=datetime.now(UTC),
         service_reference="1+2",
     )  # Test that non-integer values in `service_reference` don't break the endpoint
 
@@ -41,7 +40,7 @@ def test_translations(api_client):
         id=1,
         name="Frisbeegolf-rata",
         name_sv="Frisbeegolfbana",
-        last_modified_time=datetime.now(pytz.utc),
+        last_modified_time=datetime.now(UTC),
     )
     response = get(api_client, reverse("mobilityservicenode-list"))
     assert response.data["results"][0]["name"]["fi"] == "Frisbeegolf-rata"

@@ -1,8 +1,7 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
-import pytz
 from django.core.management import call_command
 
 from services.models import Unit, UnitIdentifier
@@ -24,10 +23,10 @@ def test_lipas_import_3d(get_feature_mock):
     get_feature_mock.return_value = get_mock_data()
 
     unit = Unit.objects.create(
-        id=1, last_modified_time=datetime.now(pytz.utc), name_fi="Melontareitti"
+        id=1, last_modified_time=datetime.now(UTC), name_fi="Melontareitti"
     )
     unit_without_geometry_3d = Unit.objects.create(
-        id=2, last_modified_time=datetime.now(pytz.utc), name_fi="Kuntopolku"
+        id=2, last_modified_time=datetime.now(UTC), name_fi="Kuntopolku"
     )
     UnitIdentifier.objects.create(unit_id=unit.id, namespace="lipas", value="601110")
 
