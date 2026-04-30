@@ -21,7 +21,6 @@ RUN dnf update -y && dnf install -y \
     nmap-ncat \
     gettext \
     postgresql \
-    && pip install -U pip setuptools wheel \
     && pip install --no-cache-dir -r requirements.txt \
     && uwsgi --build-plugin https://github.com/City-of-Helsinki/uwsgi-sentry \
     && dnf clean all
