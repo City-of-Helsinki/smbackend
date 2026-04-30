@@ -1,7 +1,6 @@
 import datetime
 import logging
 
-import pytz
 from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
@@ -13,7 +12,7 @@ from services.models import Unit, UnitEntrance
 
 from .utils import clean_text, pk_get, save_translated_field
 
-UTC_TIMEZONE = pytz.timezone("UTC")
+UTC_TIMEZONE = datetime.UTC
 PROJECTION_SRID = get_default_srid()
 VERBOSITY = True
 LOGGER = logging.getLogger(__name__)
