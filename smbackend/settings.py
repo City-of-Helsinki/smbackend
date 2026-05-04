@@ -420,3 +420,7 @@ if env("CSP_REPORT_ONLY"):
 else:
     CONTENT_SECURITY_POLICY = content_security_policy_configuration
     CONTENT_SECURITY_POLICY_REPORT_ONLY = None
+
+# Authentication
+
+AUTH_USER_MODEL = "users.User"
