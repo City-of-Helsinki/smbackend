@@ -12,8 +12,6 @@ from rest_framework import exceptions
 
 from services import models as services_models
 
-AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
-
 
 class ObservableProperty(models.Model):
     """Specifies the detailed interpretation of observations.
@@ -166,7 +164,7 @@ class PluralityAuthToken(models.Model):
 
     key = models.CharField(max_length=40, primary_key=False, db_index=True)
     user = models.ForeignKey(
-        AUTH_USER_MODEL,
+        settings.AUTH_USER_MODEL,
         related_name="auth_tokens",
         null=False,
         on_delete=models.PROTECT,
@@ -209,7 +207,7 @@ class UserOrganization(models.Model):
         services_models.Department, on_delete=models.CASCADE
     )
     user = models.OneToOneField(
-        AUTH_USER_MODEL,
+        settings.AUTH_USER_MODEL,
         related_name="organization",
         null=False,
         on_delete=models.CASCADE,
