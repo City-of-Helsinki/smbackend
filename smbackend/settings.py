@@ -117,6 +117,7 @@ INSTALLED_APPS = [
     "two_factor",
     "two_factor.plugins.email",
     "logger_extra",
+    "users",
 ]
 
 MIDDLEWARE = [
