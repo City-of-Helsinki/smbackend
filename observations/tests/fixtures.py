@@ -1,7 +1,7 @@
 import datetime as d
 
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 from munigeo.models import Municipality
 from rest_framework.test import APIClient
@@ -15,6 +15,8 @@ from observations.models import (
     UserOrganization,
 )
 from services.models import Department, Service, Unit, UnitServiceDetails
+
+User = get_user_model()
 
 
 @pytest.fixture

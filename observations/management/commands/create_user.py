@@ -1,8 +1,10 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from observations.models import UserOrganization
 from services.models import Department
+
+User = get_user_model()
 
 
 class Command(BaseCommand):
