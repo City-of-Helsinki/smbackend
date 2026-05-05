@@ -50,6 +50,6 @@ urlpatterns = [
     path("", include(shortcutter_urls)),
     path("helauth/", include("helusers.urls")),
     path("pysocial/", include("social_django.urls", namespace="social")),
+    # Kubernetes liveness & readiness probes
+    path("", include("helsinki_health_endpoints.urls")),
 ]
-
-urlpatterns += [path("", include("helsinki_health_endpoints.urls"))]
