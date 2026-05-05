@@ -7,7 +7,9 @@ def default_details():
 
 
 class RequestStatistic(models.Model):
-    timeframe = models.CharField(max_length=10, verbose_name=_("Timeframe"))
+    timeframe = models.CharField(
+        max_length=10, unique=True, verbose_name=_("Timeframe")
+    )
     request_counter = models.IntegerField(default=0, verbose_name=_("Request counter"))
     details = models.JSONField(default=default_details, verbose_name=_("Details"))
 
