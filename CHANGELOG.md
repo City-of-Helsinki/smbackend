@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.20.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.19.3...smbackend-v3.20.0) (2026-05-05)
+
+
+### Features
+
+* Add a new app for User model ([938fca7](https://github.com/City-of-Helsinki/smbackend/commit/938fca742e8f44907b710c90c1c920919e6ee539))
+
+
+### Reverts
+
+* Back to main branch of ci-django-api ([0f6e2cb](https://github.com/City-of-Helsinki/smbackend/commit/0f6e2cbd8bae4166d57c7b1830b2086621cb0ef8))
+
 ## [3.19.3](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.19.2...smbackend-v3.19.3) (2026-04-22)
 
 
