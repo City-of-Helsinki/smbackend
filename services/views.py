@@ -88,7 +88,10 @@ def post_statistic(request):
     data = payload.dict()
     now = tz.now()
     timeframe = f"{now.month}/{now.year}"
-    statistic, _ = RequestStatistic.objects.get_or_create(timeframe=timeframe)
+    try:
+        statistic, _ = RequestStatistic.objects.get_or_create(timeframe=timeframe)
+    except RequestStatistic.MultipleObjectsReturned:
+        statistic = RequestStatistic.objects.filter(timeframe=timeframe).first()
     statistic.request_counter += 1
 
     try:
