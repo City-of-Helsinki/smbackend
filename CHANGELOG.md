@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.0.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.20.0...smbackend-v4.0.0) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **users:** migrate to a custom user model
+
+### Features
+
+* **users:** Migrate to a custom user model ([2fd8d1b](https://github.com/City-of-Helsinki/smbackend/commit/2fd8d1b94bdbbcc67b3f38e4f4f6d175fc4baf43))
+
 ## [3.20.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.19.3...smbackend-v3.20.0) (2026-05-05)
 
 
