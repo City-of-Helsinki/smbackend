@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.1.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.1.0...smbackend-v4.1.1) (2026-05-06)
+
+
+### Bug Fixes
+
+* Make RequestStatistic timeframe unique ([0a076b5](https://github.com/City-of-Helsinki/smbackend/commit/0a076b5fde76cf5eefea388a7d6f37bfcf5fd8f1))
+
+
+### Dependencies
+
+* Bump pip from 26.0 to 26.1 ([ab23dda](https://github.com/City-of-Helsinki/smbackend/commit/ab23ddab11d147b0a5d4a8bbce57f728a367a2f6))
+
 ## [4.1.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.0.0...smbackend-v4.1.0) (2026-05-06)
 
 
