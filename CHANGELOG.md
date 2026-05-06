@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.1.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.0.0...smbackend-v4.1.0) (2026-05-06)
+
+
+### Features
+
+* Add UserAdmin ([9983275](https://github.com/City-of-Helsinki/smbackend/commit/9983275cb297108718346c63c6d0f56c51a763a8))
+* Enable AD admin, remove OTP and two_factor ([9501484](https://github.com/City-of-Helsinki/smbackend/commit/9501484f9e5e94cc5583dec985d7f8926086257b))
+
 ## [4.0.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v3.20.0...smbackend-v4.0.0) (2026-05-05)
 
 
