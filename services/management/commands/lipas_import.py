@@ -1,4 +1,5 @@
 import logging
+import time
 from urllib.parse import urlencode
 
 from django.contrib.gis.gdal import DataSource
@@ -13,6 +14,31 @@ TYPES = {"paths": "lipas:lipas_kaikki_reitit", "areas": "lipas:lipas_kaikki_alue
 WFS_BASE = "http://lipas.cc.jyu.fi/geoserver/lipas/ows"
 
 logger = logging.getLogger(__name__)
+
+MAX_RETRIES = 3
+RETRY_BACKOFF = 10  # seconds
+
+
+def fetch_layer(url, retries=MAX_RETRIES, backoff=RETRY_BACKOFF):
+    """
+    Fetch a WFS DataSource layer with retry logic.
+
+    Retries up to `retries` times with exponential backoff on GDALException
+    (e.g. transient HTTP 502 errors from the remote WFS server).
+    """
+    for attempt in range(1, retries + 1):
+        try:
+            return DataSource(url)[0]
+        except GDALException as e:
+            if attempt < retries:
+                wait = backoff * attempt
+                logger.warning(
+                    f"Failed to fetch WFS layer (attempt {attempt}/{retries}): {e}. "
+                    f"Retrying in {wait}s..."
+                )
+                time.sleep(wait)
+            else:
+                raise
 
 
 def get_multi(obj):
@@ -109,7 +135,14 @@ class Command(BaseCommand):
                 output_format=self._get_output_format(),
             )
 
-            layers[key] = DataSource(url)[0]
+            try:
+                layers[key] = fetch_layer(url)
+            except GDALException:
+                logger.exception(
+                    f"Could not fetch WFS layer '{key}' after {MAX_RETRIES} attempts,"
+                    f" skipping."
+                )
+                continue
 
             logger.info(f"Retrieved {len(layers[key])} {key} features.")
 
@@ -175,11 +208,11 @@ class Command(BaseCommand):
                     else:
                         geometries[lipas_id] = get_multi(feature.geom.geos)
 
-                except GDALException as err:
+                except GDALException:
                     # We might be dealing with something weird that the Python GDAL lib
                     # doesn't handle. One example is a CurvePolygon as defined here
                     # http://www.gdal.org/ogr__core_8h.html
-                    logger.error(f"Error while processing a geometry: {err}")
+                    logger.exception("Error while processing a geometry.")
 
         logger.info(f"Found {len(geometries)} matches.")
 
