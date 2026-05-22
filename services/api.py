@@ -996,6 +996,9 @@ class KmlRenderer(renderers.BaseRenderer):
     format = "kml"
 
     def render(self, data, media_type=None, renderer_context=None):
+        response = renderer_context.get("response") if renderer_context else None
+        if response is not None and response.status_code >= 400:
+            return render_to_string("kml.xml", {"places": [], "lang_code": ""})
         resp = {}
         lang_code = renderer_context["view"].request.query_params.get(
             "language", LANGUAGES[0]
