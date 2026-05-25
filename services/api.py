@@ -607,6 +607,26 @@ def choicefield_string(choices, key, obj):
         return None
 
 
+def resolve_provider_type_value(value):
+    """Convert a provider_type query param value to its integer ID.
+
+    Accepts either an integer string (e.g. '1') or a string label
+    (e.g. 'SELF_PRODUCED').  Raises ParseError for unrecognised values.
+    """
+    valid_int_vals = {int_val for int_val, _ in PROVIDER_TYPES}
+    try:
+        int_value = int(value)
+        if int_value in valid_int_vals:
+            return int_value
+        raise ParseError(f"Invalid provider_type value: '{value}'")
+    except ValueError:
+        pass
+    for int_val, str_val in PROVIDER_TYPES:
+        if str_val == value:
+            return int_val
+    raise ParseError(f"Invalid provider_type value: '{value}'")
+
+
 class UnitConnectionSerializer(
     ServicesTranslatedModelSerializer, serializers.ModelSerializer
 ):
@@ -1119,12 +1139,12 @@ class UnitViewSet(
 
         if "provider_type" in filters:
             val = filters.get("provider_type")
-            pr_ids = val.split(",")
+            pr_ids = [resolve_provider_type_value(v) for v in val.split(",")]
             queryset = queryset.filter(provider_type__in=pr_ids)
 
         if "provider_type__not" in filters:
             val = filters.get("provider_type__not")
-            pr_ids = val.split(",")
+            pr_ids = [resolve_provider_type_value(v) for v in val.split(",")]
             queryset = queryset.exclude(provider_type__in=pr_ids)
 
         level = filters.get("level", None)
