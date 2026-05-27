@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.1.3](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.1.2...smbackend-v4.1.3) (2026-05-27)
+
+
+### Bug Fixes
+
+* **api:** Prevent KeyError in KmlRenderer for 400 and higher statuscodes ([a328ef6](https://github.com/City-of-Helsinki/smbackend/commit/a328ef6354964f1beca9680879545795ede661dd))
+* Import Helsinki divisions weekly ([92572a3](https://github.com/City-of-Helsinki/smbackend/commit/92572a3248d77307a0f89446ec1578e957eb7a7e))
+* **lipas_import:** Add retry and error handling for WFS datasource fetch ([b19b497](https://github.com/City-of-Helsinki/smbackend/commit/b19b49749e0c3cad6743ea1c531c2ae9bf3f9707))
+* Resolve provider_type filter string values ([36e2fa8](https://github.com/City-of-Helsinki/smbackend/commit/36e2fa8b33d4549a4ec357990fee988b00837220))
+
 ## [4.1.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.1.1...smbackend-v4.1.2) (2026-05-11)
 
 
