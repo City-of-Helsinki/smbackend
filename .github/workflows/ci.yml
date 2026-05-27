@@ -9,7 +9,7 @@ on:
 jobs:
   common:
     uses: City-of-Helsinki/.github/.github/workflows/ci-django-api.yml@main
-    secrets: 
+    secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     with:
       python-version: "3.12"
