@@ -17,6 +17,8 @@ GEOS_LIBRARY_PATH = os.environ.get("GEOS_LIBRARY_PATH")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Test review environment
+
 env = Env(
     DEBUG=(bool, False),
     LANGUAGES=(list, ["fi", "sv", "en"]),
