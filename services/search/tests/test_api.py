@@ -1,7 +1,8 @@
 import pytest
+from django.contrib.gis.geos import Point
 from rest_framework.reverse import reverse
 
-from services.search.api import build_search_query
+from services.search.api import SearchSerializer, build_search_query
 
 
 @pytest.mark.django_db
@@ -345,3 +346,67 @@ def test_search_with_bbox_parameter(api_client, units):
     results = response.json()["results"]
     assert len(results) == 1
     assert results[0]["name"]["fi"] == "Jäähalli"
+
+
+@pytest.mark.django_db
+def test_search_include_serializes_point_field(api_client, units):
+    unit = units.get(id=2)
+    unit.custom_point_field = Point(25.0, 61.0, srid=4326)
+
+    serializer = SearchSerializer(
+        unit,
+        context={
+            "include": ["unit.custom_point_field"],
+            "geometry": False,
+            "service_node_ids": {},
+        },
+    )
+    data = serializer.data
+
+    assert "custom_point_field" in data
+    geojson = data["custom_point_field"]
+    assert isinstance(geojson, dict)
+    assert geojson["type"] == "Point"
+    assert "coordinates" in geojson
+
+
+@pytest.mark.django_db
+def test_search_include_point_field_via_api(api_client, units):
+    url = reverse("search") + "?q=museo&type=unit&include=unit.location"
+    response = api_client.get(url)
+    assert response.status_code == 200
+    results = response.json()["results"]
+    assert len(results) == 1
+    location = results[0]["location"]
+    assert location["type"] == "Point"
+    assert location["coordinates"][0] == pytest.approx(22.24)
+    assert location["coordinates"][1] == pytest.approx(60.44)
+
+
+@pytest.mark.django_db
+def test_search_include_non_geometry_field_unchanged(api_client, units):
+    url = reverse("search") + "?q=asema&type=unit&include=unit.www,unit.phone"
+    response = api_client.get(url)
+    assert response.status_code == 200
+    results = response.json()["results"]
+    assert len(results) == 1
+    assert results[0]["www"] == "www.test.com"
+    assert results[0]["phone"] == "02020242"
+
+
+@pytest.mark.django_db
+def test_search_include_geometry_3d_null_does_not_fall_through_to_geometry(units):
+    unit = units.get(id=2)
+    assert unit.geometry_3d is None
+
+    serializer = SearchSerializer(
+        unit,
+        context={
+            "include": ["unit.geometry_3d"],
+            "geometry": False,
+            "service_node_ids": {},
+        },
+    )
+    data = serializer.data
+    assert "geometry_3d" not in data
+    assert "geometry" not in data
