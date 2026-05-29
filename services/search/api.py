@@ -23,6 +23,7 @@ import re
 from itertools import chain
 
 from django.contrib.gis.gdal import SpatialReference
+from django.contrib.gis.geos import GEOSGeometry
 from django.db import connection, reset_queries
 from django.db.models import Count
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -217,11 +218,17 @@ class SearchSerializer(serializers.Serializer):
                         representation["geometry"] = munigeo_api.geom_to_json(
                             obj.geometry, DEFAULT_SRS
                         )
+                elif "location" in include_field:
+                    if obj.location:
+                        representation["location"] = munigeo_api.geom_to_json(
+                            obj.location, DEFAULT_SRS
+                        )
                 else:
                     if hasattr(obj, include_field):
-                        representation[include_field] = getattr(
-                            obj, include_field, None
-                        )
+                        value = getattr(obj, include_field, None)
+                        if isinstance(value, GEOSGeometry):
+                            value = munigeo_api.geom_to_json(value, DEFAULT_SRS)
+                        representation[include_field] = value
                     else:
                         raise ParseError(
                             f"Entity {object_type} does not contain a {include_field}"
