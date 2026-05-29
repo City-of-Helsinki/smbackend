@@ -14,6 +14,7 @@ fi
 
 if [[ "$APPLY_MIGRATIONS" = "True" ]]; then
     echo "Applying database migrations..."
+    ./manage.py fix_migration_history
     ./manage.py migrate --noinput
 fi
 
