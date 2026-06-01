@@ -1219,10 +1219,22 @@ class UnitViewSet(
 
         services = filters.get("service")
         if services is not None:
-            matching_unit_ids = Unit.objects.filter(
-                services__in=services.split(",")
-            ).values("id")
-            queryset = queryset.filter(id__in=Subquery(matching_unit_ids))
+            service_ids = []
+            for s in services.split(","):
+                s = s.strip()
+                if not s:
+                    continue
+                if not s.isdigit():
+                    raise ParseError(
+                        f"'service' parameter must contain numeric service IDs,"
+                        f" got '{s}'."
+                    )
+                service_ids.append(s)
+            if service_ids:
+                matching_unit_ids = Unit.objects.filter(
+                    services__in=service_ids
+                ).values("id")
+                queryset = queryset.filter(id__in=Subquery(matching_unit_ids))
 
         if "division" in filters:
             # Divisions can be specified with form:
