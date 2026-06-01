@@ -539,6 +539,54 @@ def test_service_filtering(api_client):
 
 
 @pytest.mark.django_db
+def test_service_filter_non_numeric_value_returns_400(api_client):
+    create_units()
+
+    response = api_client.get(reverse("unit-list"), data={"service": "swimming"})
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_service_filter_mixed_numeric_and_non_numeric_returns_400(api_client):
+    create_units()
+
+    service1 = Service.objects.create(
+        id=695, name="Service 1", last_modified_time=datetime.now(UTC_TIMEZONE)
+    )
+    unit1 = Unit.objects.get(id=1)
+    service1.units.add(unit1)
+
+    response = api_client.get(
+        reverse("unit-list"), data={"service": "695,swimming,406"}
+    )
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_service_filter_empty_value_returns_all_units(api_client):
+    create_units()
+
+    response = api_client.get(reverse("unit-list"), data={"service": ""})
+    assert response.status_code == 200
+    assert (
+        response.data["count"]
+        == Unit.objects.filter(public=True, is_active=True).count()
+    )
+
+
+@pytest.mark.django_db
+def test_service_filter_whitespace_only_returns_all_units(api_client):
+    create_units()
+
+    response = api_client.get(reverse("unit-list"), data={"service": "   "})
+    assert response.status_code == 200
+    assert (
+        response.data["count"]
+        == Unit.objects.filter(public=True, is_active=True).count()
+    )
+
+
+@pytest.mark.django_db
 def test_service_node_filtering(api_client):
     """
     Test service node filtering.
