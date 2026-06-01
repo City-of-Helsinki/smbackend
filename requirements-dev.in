@@ -1,4 +1,4 @@
--c requirements.txt
+-r requirements.txt
 urllib3<2  # NOTE: As of django-munigeo 0.2.88, urllib3 2.x is not supported.
 jedi
 parso
