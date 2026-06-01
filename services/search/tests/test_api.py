@@ -1,7 +1,9 @@
 import pytest
-from django.contrib.gis.geos import Point
+from django.contrib.gis.geos import Point, Polygon
+from rest_framework.exceptions import ParseError
 from rest_framework.reverse import reverse
 
+from services.models import UnitConnection
 from services.search.api import SearchSerializer, build_search_query
 
 
@@ -410,3 +412,87 @@ def test_search_include_geometry_3d_null_does_not_fall_through_to_geometry(units
     data = serializer.data
     assert "geometry_3d" not in data
     assert "geometry" not in data
+
+
+def _make_serializer(unit, include_fields):
+    return SearchSerializer(
+        unit,
+        context={
+            "include": include_fields,
+            "geometry": False,
+            "service_node_ids": {},
+        },
+    )
+
+
+@pytest.mark.django_db
+def test_search_include_connections(units):
+    unit = units.get(id=2)
+    UnitConnection.objects.create(unit=unit, name="Test connection", order=0)
+
+    data = _make_serializer(unit, ["unit.connections"]).data
+
+    assert "connections" in data
+    assert len(data["connections"]) == 1
+    assert data["connections"][0]["name"]["fi"] == "Test connection"
+
+
+@pytest.mark.django_db
+def test_search_include_department(units):
+    unit = units.get(id=2)
+    data = _make_serializer(unit, ["unit.department"]).data
+
+    assert "department" in data
+    assert data["department"]["name"]["fi"] == "Test Department"
+
+
+@pytest.mark.django_db
+def test_search_include_municipality(units):
+    unit = units.get(id=2)
+    data = _make_serializer(unit, ["unit.municipality"]).data
+
+    assert data["municipality"] == "helsinki"
+
+
+@pytest.mark.django_db
+def test_search_include_geometry_3d_with_value(units):
+    unit = units.get(id=2)
+    poly = Polygon(((0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0), (0, 0, 0)))
+    unit.geometry_3d = poly
+    unit.save()
+
+    data = _make_serializer(unit, ["unit.geometry_3d"]).data
+
+    assert "geometry_3d" in data
+    assert data["geometry_3d"]["type"] == "Polygon"
+
+
+@pytest.mark.django_db
+def test_search_include_geometry_with_value(units):
+    unit = units.get(id=2)
+    poly = Polygon(((0, 0), (1, 0), (1, 1), (0, 1), (0, 0)))
+    unit.geometry = poly
+    unit.save()
+
+    data = _make_serializer(unit, ["unit.geometry"]).data
+
+    assert "geometry" in data
+    assert data["geometry"]["type"] == "Polygon"
+
+
+@pytest.mark.django_db
+def test_search_include_location_null_omits_key(units):
+    unit = units.get(id=1)
+    assert unit.location is None
+
+    data = _make_serializer(unit, ["unit.location"]).data
+
+    assert "location" not in data
+
+
+@pytest.mark.django_db
+def test_search_include_unknown_field_raises_parse_error(units):
+    unit = units.get(id=2)
+
+    with pytest.raises(ParseError):
+        _ = _make_serializer(unit, ["unit.nonexistent_field"]).data
