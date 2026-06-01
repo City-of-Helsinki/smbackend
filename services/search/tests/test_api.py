@@ -223,7 +223,7 @@ def test_search_with_vertical_bar_in_query(api_client, units):
     # Test that a vertical bars that are not between search terms do not cause an error
     url = reverse("search") + "?q=|terveysasema||''||'"
     response = api_client.get(url)
-    assert response.status_code == 200, f"{response} {response.json()}"
+    assert response.status_code == 200
 
 
 @pytest.mark.parametrize(
@@ -300,7 +300,7 @@ def test_build_search_query(query, expected):
 def test_search_input_and_operator(api_client, units, query):
     url = reverse("search")
     response = api_client.get(url, {"q": query, "type": "unit"})
-    assert response.status_code == 200, f"{response} {response.json()}"
+    assert response.status_code == 200
     assert len(response.json()["results"]) == 1
     assert response.json()["results"][0]["name"]["fi"] == "Palloiluhalli"
 
@@ -322,7 +322,7 @@ def test_search_input_and_operator(api_client, units, query):
 def test_search_input_or_operator(api_client, units, query):
     url = reverse("search")
     response = api_client.get(url, {"q": query, "type": "unit"})
-    assert response.status_code == 200, f"{response} {response.json()}"
+    assert response.status_code == 200
     assert len(response.json()["results"]) == 2
     assert response.json()["results"][0]["name"]["fi"] == "Terveysasema"
     assert response.json()["results"][1]["name"]["fi"] == "Biologinen museo"
