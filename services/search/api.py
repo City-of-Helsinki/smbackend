@@ -97,6 +97,41 @@ class RootDepartmentSerializer(TranslatedModelSerializer, serializers.ModelSeria
 
 
 class SearchSerializer(serializers.Serializer):
+    def _serialize_generic_field(self, obj, include_field, representation):
+        if not hasattr(obj, include_field):
+            raise ParseError(f"Entity unit does not contain a {include_field} field.")
+        value = getattr(obj, include_field, None)
+        if isinstance(value, GEOSGeometry):
+            value = munigeo_api.geom_to_json(value, DEFAULT_SRS)
+        representation[include_field] = value
+
+    def _handle_unit_include_field(self, obj, include_field, representation):
+        if "connections" in include_field:
+            representation["connections"] = UnitConnectionSerializer(
+                obj.connections, many=True
+            ).data
+        elif "department" in include_field:
+            representation["department"] = DepartmentSerializer(obj.department).data
+        elif "municipality" in include_field:
+            representation["municipality"] = obj.municipality.id
+        elif "geometry_3d" in include_field:
+            if obj.geometry_3d:
+                representation["geometry_3d"] = munigeo_api.geom_to_json(
+                    obj.geometry_3d, DEFAULT_SRS
+                )
+        elif "geometry" in include_field:
+            if obj.geometry:
+                representation["geometry"] = munigeo_api.geom_to_json(
+                    obj.geometry, DEFAULT_SRS
+                )
+        elif "location" in include_field:
+            if obj.location:
+                representation["location"] = munigeo_api.geom_to_json(
+                    obj.location, DEFAULT_SRS
+                )
+        else:
+            self._serialize_generic_field(obj, include_field, representation)
+
     def to_representation(self, obj):
         representation = super().to_representation(obj)
         object_type = None
@@ -198,42 +233,7 @@ class SearchSerializer(serializers.Serializer):
                 )
 
             if object_type == "unit" and include_object_type == "unit":
-                if "connections" in include_field:
-                    representation["connections"] = UnitConnectionSerializer(
-                        obj.connections, many=True
-                    ).data
-                elif "department" in include_field:
-                    representation["department"] = DepartmentSerializer(
-                        obj.department
-                    ).data
-                elif "municipality" in include_field:
-                    representation["municipality"] = obj.municipality.id
-                elif "geometry_3d" in include_field:
-                    if obj.geometry_3d:
-                        representation["geometry_3d"] = munigeo_api.geom_to_json(
-                            obj.geometry_3d, DEFAULT_SRS
-                        )
-                elif "geometry" in include_field:
-                    if obj.geometry:
-                        representation["geometry"] = munigeo_api.geom_to_json(
-                            obj.geometry, DEFAULT_SRS
-                        )
-                elif "location" in include_field:
-                    if obj.location:
-                        representation["location"] = munigeo_api.geom_to_json(
-                            obj.location, DEFAULT_SRS
-                        )
-                else:
-                    if hasattr(obj, include_field):
-                        value = getattr(obj, include_field, None)
-                        if isinstance(value, GEOSGeometry):
-                            value = munigeo_api.geom_to_json(value, DEFAULT_SRS)
-                        representation[include_field] = value
-                    else:
-                        raise ParseError(
-                            f"Entity {object_type} does not contain a {include_field}"
-                            " field."
-                        )
+                self._handle_unit_include_field(obj, include_field, representation)
 
         return representation
 
