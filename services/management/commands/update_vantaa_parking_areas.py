@@ -142,7 +142,7 @@ class Command(BaseCommand):
         polygons = []
         for line in multilinestring:
             buffered = self.transform_line_to_polygon(line)
-            if not isinstance(buffered, (Polygon, MultiPolygon)):
+            if not isinstance(buffered, Polygon | MultiPolygon):
                 raise ValueError("Buffered geometry is not a Polygon or MultiPolygon.")
 
             # If buffered is a MultiPolygon, extract individual Polygons

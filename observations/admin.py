@@ -4,6 +4,7 @@ from .models import (
     AllowedValue,
     CategoricalObservation,
     DescriptiveObservation,
+    MeasuredObservation,
     ObservableProperty,
     PluralityAuthToken,
 )
@@ -13,3 +14,4 @@ admin.site.register(ObservableProperty, admin.ModelAdmin)
 admin.site.register(AllowedValue, admin.ModelAdmin)
 admin.site.register(CategoricalObservation, admin.ModelAdmin)
 admin.site.register(DescriptiveObservation, admin.ModelAdmin)
+admin.site.register(MeasuredObservation, admin.ModelAdmin)

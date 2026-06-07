@@ -138,6 +138,34 @@ class DescriptiveObservation(Observation):
         return AllowedValue.objects.create(property=oproperty, **value)
 
 
+class MeasuredObservation(Observation):
+    """A numeric measured value of a property at a certain time.
+
+    Used for sensor-sourced quantitative measurements such as swimming water
+    temperature. The numeric reading is stored in `measured_value` rather than
+    in the categorical `value` foreign key.
+    """
+
+    measured_value = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="The measured numeric value (e.g. water temperature in °C).",
+    )
+
+    def get_external_value(self):
+        return self.measured_value
+
+    @staticmethod
+    def get_type():
+        return "measured"
+
+    @staticmethod
+    def get_internal_value(oproperty, value):
+        if value is None:
+            return None
+        return float(value)
+
+
 class UnitLatestObservation(models.Model):
     unit = models.ForeignKey(
         services_models.Unit,

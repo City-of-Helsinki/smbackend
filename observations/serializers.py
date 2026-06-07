@@ -133,18 +133,42 @@ class CategoricalObservationSerializer(BaseObservationSerializer):
         model = models.CategoricalObservation
 
 
+class MeasuredObservationSerializer(BaseObservationSerializer):
+    def to_representation(self, obj):
+        result = super().to_representation(obj)
+        result.update(
+            {
+                "value": obj.get_external_value(),
+            }
+        )
+        return result
+
+    class Meta:
+        model = models.MeasuredObservation
+
+
 def get_serializer_by_class(cls):
-    if cls == models.CategoricalObservation:
-        return CategoricalObservationSerializer
-    elif cls == models.DescriptiveObservation:
-        return DescriptiveObservationSerializer
+    serializers = {
+        models.CategoricalObservation: CategoricalObservationSerializer,
+        models.DescriptiveObservation: DescriptiveObservationSerializer,
+        models.MeasuredObservation: MeasuredObservationSerializer,
+    }
+    if cls not in serializers:
+        raise ValueError(f"No serializer registered for observation class: {cls}")
+    return serializers[cls]
 
 
 def get_serializer_by_object(obj):
-    if isinstance(obj, models.CategoricalObservation):
-        return CategoricalObservationSerializer
-    elif isinstance(obj, models.DescriptiveObservation):
-        return DescriptiveObservationSerializer
+    for cls, serializer in (
+        (models.CategoricalObservation, CategoricalObservationSerializer),
+        (models.DescriptiveObservation, DescriptiveObservationSerializer),
+        (models.MeasuredObservation, MeasuredObservationSerializer),
+    ):
+        if isinstance(obj, cls):
+            return serializer
+    raise ValueError(
+        f"No serializer registered for observation type: {type(obj).__name__}"
+    )
 
 
 class ObservationSerializer(serializers.BaseSerializer):
@@ -183,11 +207,18 @@ class ObservationSerializer(serializers.BaseSerializer):
     def create(self, validated_data):
         property = validated_data["property_id"]
         observable_property = models.ObservableProperty.objects.get(id=property)
+        model = observable_property.get_observation_model()
+        is_measured = model is models.MeasuredObservation
         has_value = "value" in validated_data and validated_data["value"] is not None
         if has_value:
-            validated_data["value"] = observable_property.get_internal_value(
+            internal_value = observable_property.get_internal_value(
                 validated_data["value"]
             )
+            if is_measured:
+                validated_data["measured_value"] = internal_value
+                validated_data["value"] = None
+            else:
+                validated_data["value"] = internal_value
         with transaction.atomic():
             if has_value:
                 if validated_data["add_maintenance_observation"]:
@@ -197,7 +228,7 @@ class ObservationSerializer(serializers.BaseSerializer):
 
             del validated_data["add_maintenance_observation"]
             obj = observable_property.create_observation(**validated_data)
-            if "value" in validated_data and validated_data["value"] is None:
+            if not has_value:
                 # POSTing a null value removes the property
                 # from the unit's latest observations
                 try:

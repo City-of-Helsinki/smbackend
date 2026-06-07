@@ -137,3 +137,14 @@
     services:
       - 731
       - 730
+- model: observations.ObservableProperty
+  pk: measured_swimming_water_temperature
+  fields:
+    name_fi: Veden lämpötila (mitattu)
+    name_en: Water temperature (measured)
+    name_sv: Vattentemperatur (uppmätt)
+    measurement_unit: "°C"
+    observation_type: observations.MeasuredObservation
+    services:
+      - 731
+      - 730

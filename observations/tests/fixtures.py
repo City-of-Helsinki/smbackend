@@ -10,6 +10,7 @@ from observations.models import (
     AllowedValue,
     CategoricalObservation,
     DescriptiveObservation,
+    MeasuredObservation,
     ObservableProperty,
     UnitLatestObservation,
     UserOrganization,
@@ -202,3 +203,45 @@ def descriptive_property(service, unit):
     )
     p.services.add(service)
     return p
+
+
+@pytest.fixture
+def measured_property(service):
+    # The property is created by migration 0011; reuse it and link the service.
+    p, _ = ObservableProperty.objects.update_or_create(
+        id="measured_swimming_water_temperature",
+        defaults={
+            "name": "Water temperature (measured)",
+            "measurement_unit": "°C",
+            "observation_type": "observations.MeasuredObservation",
+        },
+    )
+    p.services.add(service)
+    return p
+
+
+@pytest.fixture
+def measured_observations(unit, measured_property):
+    return [
+        MeasuredObservation.objects.create(
+            time=timezone.now() - d.timedelta(minutes=40),
+            unit=unit,
+            property=measured_property,
+            measured_value=13.25,
+        ),
+        MeasuredObservation.objects.create(
+            time=timezone.now() - d.timedelta(minutes=20),
+            unit=unit,
+            property=measured_property,
+            measured_value=13.40,
+        ),
+    ]
+
+
+@pytest.fixture
+def unit_latest_measured_observation(unit, measured_property, measured_observations):
+    return UnitLatestObservation.objects.create(
+        observation=measured_observations[-1],
+        property=measured_property,
+        unit=unit,
+    )
