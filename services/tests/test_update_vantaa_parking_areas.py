@@ -287,7 +287,7 @@ def test_transform_line_to_polygon():
 
     result = command.transform_line_to_polygon(line)
 
-    assert isinstance(result, (Polygon, MultiPolygon))
+    assert isinstance(result, Polygon | MultiPolygon)
     assert result.srid == 4326
     assert result.area > 0
 

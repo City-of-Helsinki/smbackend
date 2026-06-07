@@ -68,6 +68,10 @@ env = Env(
     LOGOUT_REDIRECT_URL=(str, "/admin/"),
     HELUSERS_PASSWORD_LOGIN_DISABLED=(bool, False),
     HELUSERS_PASSWORD_LOGIN_ALLOWLIST=(list, []),
+    SWIMMING_TEMPERATURES_BASE_URL=(
+        str,
+        "https://api.sensoripaja.fi/swimhelsinki/tpr",
+    ),
 )
 
 env_path = BASE_DIR / ".env"
@@ -91,6 +95,7 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 PICTURE_URL_REWRITE_ENABLED = env("PICTURE_URL_REWRITE_ENABLED")
 IMPORT_DATA_PATH = env("IMPORT_DATA_PATH")
+SWIMMING_TEMPERATURES_BASE_URL = env("SWIMMING_TEMPERATURES_BASE_URL")
 
 # Application definition
 INSTALLED_APPS = [

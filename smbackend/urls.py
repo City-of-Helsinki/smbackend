@@ -19,7 +19,8 @@ router = routers.DefaultRouter()
 
 registered_api_views = set()
 
-for view in services_views + munigeo_views + observations_views:
+all_api_views = services_views + munigeo_views + observations_views
+for view in all_api_views:
     kwargs = {}
     if view["name"] in registered_api_views:
         continue
