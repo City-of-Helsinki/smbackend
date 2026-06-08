@@ -1,5 +1,23 @@
 # Changelog
 
+## [4.2.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.1.3...smbackend-v4.2.0) (2026-06-08)
+
+
+### Features
+
+* **observations:** Add sensor water temperature via MeasuredObservation ([04d98c8](https://github.com/City-of-Helsinki/smbackend/commit/04d98c80cd79ba7c01d97bf7ec2229e5cfa7f09d))
+
+
+### Bug Fixes
+
+* **api:** Validate 'service' query parameter is numeric ([6e30cc8](https://github.com/City-of-Helsinki/smbackend/commit/6e30cc8af3fd585c0b79064d58edac14d55185ff))
+* **search:** Serialize Point objects in include handler ([4cc567a](https://github.com/City-of-Helsinki/smbackend/commit/4cc567a3c6083cdcc764c9aa3c73225a5bd352c3))
+
+
+### Dependencies
+
+* Bump idna from 3.10 to 3.15 ([70fdaa2](https://github.com/City-of-Helsinki/smbackend/commit/70fdaa2cc3e0d2d331134deb5d6c80107bcb2ff1))
+
 ## [4.1.3](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.1.2...smbackend-v4.1.3) (2026-05-27)
 
 
