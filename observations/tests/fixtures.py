@@ -245,3 +245,17 @@ def unit_latest_measured_observation(unit, measured_property, measured_observati
         property=measured_property,
         unit=unit,
     )
+
+
+@pytest.fixture
+def uiras_property(service):
+    p, _ = ObservableProperty.objects.update_or_create(
+        id="uiras_swimming_water_temperature",
+        defaults={
+            "name": "Water temperature (UiRas)",
+            "measurement_unit": "°C",
+            "observation_type": "observations.MeasuredObservation",
+        },
+    )
+    p.services.add(service)
+    return p

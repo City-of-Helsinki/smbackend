@@ -72,6 +72,10 @@ env = Env(
         str,
         "https://api.sensoripaja.fi/swimhelsinki/tpr",
     ),
+    UIRAS_BASE_URL=(
+        str,
+        "https://bri3.fvh.io/opendata/uiras/uiras_latest.geojson",
+    ),
 )
 
 env_path = BASE_DIR / ".env"
@@ -96,6 +100,15 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 PICTURE_URL_REWRITE_ENABLED = env("PICTURE_URL_REWRITE_ENABLED")
 IMPORT_DATA_PATH = env("IMPORT_DATA_PATH")
 SWIMMING_TEMPERATURES_BASE_URL = env("SWIMMING_TEMPERATURES_BASE_URL")
+UIRAS_BASE_URL = env("UIRAS_BASE_URL")
+
+# Units exposing UiRas water temperature, mapping Unit ID -> UiRas feature id.
+# Only these units are imported by import_uiras_swimming_water_temperatures.
+UIRAS_OBSERVABLE_UNITS = {
+    42611: "70B3D57050001ADA",
+    42505: "70B3D57050001BA6",
+    39368: "70B3D5705000516A",
+}
 
 # Application definition
 INSTALLED_APPS = [
