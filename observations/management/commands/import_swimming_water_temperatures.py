@@ -13,20 +13,13 @@ Usage:
 """
 
 import logging
-from datetime import UTC
 
 import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction
-from django.utils.dateparse import parse_datetime
-from django.utils.timezone import is_aware, make_aware
 
-from observations.models import (
-    MeasuredObservation,
-    ObservableProperty,
-    UnitLatestObservation,
-)
+from observations.models import ObservableProperty
+from observations.swimming_temperatures import parse_measurement, store_observation
 from services.models import Unit
 
 logger = logging.getLogger(__name__)
@@ -172,7 +165,7 @@ class Command(BaseCommand):
     ):
         """Store an observation, appending to errors on failure."""
         try:
-            return self._store_observation(
+            return store_observation(
                 unit_id, observable_property, temperature, measured_at
             )
         except Exception as exc:  # noqa: BLE001
@@ -180,38 +173,6 @@ class Command(BaseCommand):
             logger.error(msg)
             errors.append(msg)
             return None
-
-    @transaction.atomic
-    def _store_observation(
-        self, unit_id, observable_property, temperature, measured_at
-    ) -> bool:
-        """Store a reading idempotently and update the unit's latest pointer.
-
-        Returns True if a new observation row was created.
-        """
-        observation, created = MeasuredObservation.objects.get_or_create(
-            unit_id=unit_id,
-            property=observable_property,
-            time=measured_at,
-            defaults={"measured_value": temperature},
-        )
-        if not created and observation.measured_value != temperature:
-            observation.measured_value = temperature
-            observation.save(update_fields=["measured_value"])
-
-        latest = (
-            MeasuredObservation.objects.filter(
-                unit_id=unit_id, property=observable_property
-            )
-            .order_by("-time")
-            .first()
-        )
-        UnitLatestObservation.objects.update_or_create(
-            unit_id=unit_id,
-            property=observable_property,
-            defaults={"observation_id": latest.pk},
-        )
-        return created
 
     def _resolve_unit_ids(self, unit_ids_arg: str, base_url: str) -> list[int]:
         """Return unit IDs from --unit-ids, or the live tprId index."""
@@ -266,37 +227,10 @@ class Command(BaseCommand):
         try:
             response = requests.get(url, timeout=15)
             response.raise_for_status()
-            properties = response.json().get("properties", {})
-            return self._parse_measurement(properties.get("measurement"), unit_id)
+            properties = response.json().get("properties") or {}
+            return parse_measurement(properties.get("measurement"), unit_id)
         except requests.RequestException as exc:
             logger.warning(
                 "Could not fetch data for unit %s from %s: %s", unit_id, url, exc
             )
             return None
-
-    def _parse_measurement(self, measurement, unit_id):
-        """Parse a measurement dict into (temperature, measured_at), or None."""
-        if not measurement:
-            logger.debug("No measurement block for unit %s", unit_id)
-            return None
-
-        time_raw = measurement.get("time")
-        measured_at = parse_datetime(str(time_raw)) if time_raw is not None else None
-        try:
-            temp_water = float(measurement.get("temp_water"))
-        except (ValueError, TypeError):
-            temp_water = None
-
-        if temp_water is None or measured_at is None:
-            logger.warning(
-                "Incomplete or invalid measurement for unit %s: temp_water=%r, time=%r",
-                unit_id,
-                measurement.get("temp_water"),
-                time_raw,
-            )
-            return None
-
-        if not is_aware(measured_at):
-            measured_at = make_aware(measured_at, UTC)
-
-        return temp_water, measured_at

@@ -35,6 +35,7 @@ timeout 20m nice python manage.py lipas_import_3d \
     --muni-id=149 2>&1
 timeout 20m nice python manage.py update_mobility_service_nodes 2>&1
 timeout 20m nice python manage.py import_swimming_water_temperatures 2>&1 || true
+timeout 20m nice python manage.py import_uiras_swimming_water_temperatures 2>&1 || true
 
 if [[ -n "${IMPORT_HEALTHCHECK_URL}" ]]; then
   curl --retry 3 "${IMPORT_HEALTHCHECK_URL}"
