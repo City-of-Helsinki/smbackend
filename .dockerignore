@@ -1,5 +1,7 @@
 *~
 *.env
+# ignore the local virtualenv
+.venv
 # ignore .cache folder
 .pytest_cache
 # ignore sonar cache

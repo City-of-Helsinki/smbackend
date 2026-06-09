@@ -15,14 +15,21 @@ ENV DJANGO_URL_PREFIX=/
 WORKDIR /app
 USER root
 
-COPY requirements.txt .
+COPY --from=ghcr.io/astral-sh/uv:0.11.19 /uv /uvx /usr/local/bin/
+
+ENV UV_PROJECT_ENVIRONMENT=/opt/app-root \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_NO_CACHE=1 \
+    UV_PYTHON_DOWNLOADS=never
+
+COPY pyproject.toml uv.lock ./
 
 RUN dnf update -y && dnf install -y \
     nmap-ncat \
     gettext \
     postgresql \
-    && pip install -U pip setuptools wheel \
-    && pip install --no-cache-dir -r requirements.txt \
+    && uv sync --frozen --no-dev --inexact --group prod \
     && uwsgi --build-plugin https://github.com/City-of-Helsinki/uwsgi-sentry \
     && dnf clean all
 
@@ -46,12 +53,8 @@ FROM appbase AS development
 # ==============================
 
 ENV DEV_SERVER=True
-
-COPY requirements-dev.txt .
-RUN pip install --no-cache-dir -r requirements-dev.txt
-
+RUN uv sync --frozen --inexact
 COPY . .
-
 USER default
 
 # ==============================
@@ -60,7 +63,6 @@ FROM appbase AS staticbuilder
 
 ENV STATIC_ROOT=/app/static
 COPY . .
-
 RUN python manage.py collectstatic --noinput
 
 # ==============================
