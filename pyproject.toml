@@ -2,6 +2,72 @@
 name = "smbackend"
 requires-python = ">=3.12, <3.13"
 version = "4.3.0"
+dependencies = [
+    "Django~=5.2",
+    "bmi-arcgis-restapi",
+    "django-cors-headers",
+    "django-csp",
+    "django-environ",
+    "django-extensions",
+    "django-filter",
+    "django-helusers",
+    "social-auth-app-django",
+    "django-helsinki-health-endpoints",
+    "django-logger-extra @ https://github.com/City-of-Helsinki/django-logger-extra/archive/refs/tags/v0.1.0.zip",
+    # Pinned: modeltranslation 0.19.17+ changes unique_together handling for
+    # translated models, which makes `makemigrations` detect a new migration for
+    # the third-party munigeo app (munigeo.Street) that we cannot commit. Keep at
+    # the last drift-free release until munigeo ships compatible migrations.
+    "django-modeltranslation==0.19.16",
+    "django-mptt~=0.18",
+    "django-munigeo @ https://github.com/City-of-Helsinki/django-munigeo/archive/refs/tags/v0.2.92.zip",
+    # Pinned: django-polymorphic 4.2+ changes the default Meta options injected
+    # into polymorphic models, which makes `makemigrations` detect Meta-only
+    # migrations for the observations app. Keep at the last drift-free release.
+    "django-polymorphic==4.1.0",
+    "djangorestframework",
+    "djangorestframework-jsonp",
+    "drf-spectacular",
+    "geopy",
+    "ipython",
+    "libvoikko",
+    "lxml",
+    "psycopg[c]",
+    "python-dateutil",
+    "pytz",
+    "requests",
+    "requests_cache",
+    "sentry-sdk[django]",
+    "tqdm",
+    "tzdata",
+    # NOTE: As of django-munigeo 0.2.88, urllib3 2.x is not supported.
+    "urllib3<2",
+    "whitenoise",
+]
+
+[dependency-groups]
+dev = [
+    "jedi",
+    "parso",
+    "pytest-django",
+    "pytest-cov",
+    "requests-mock",
+]
+# Production-only serving tools. uWSGI is built from source (no PyPI wheels), so
+# it is kept out of the default install set to avoid compiling it in CI/test
+# environments that don't need it. The Docker image installs this group
+# explicitly with `uv sync --group prod`.
+prod = [
+    "uwsgi",
+    "uwsgitop",
+]
+
+[tool.uv]
+package = false
+# Supply-chain protection: only consider package versions published at least
+# three days ago, giving time for malicious or broken releases to be detected
+# and yanked.
+exclude-newer = "3 days"
 
 [tool.ruff]
 target-version = "py312"
@@ -36,8 +102,3 @@ select = [
 DJANGO_SETTINGS_MODULE = "smbackend.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 filterwarnings = ["ignore:No directory at:UserWarning"]
-
-[tool.pip-tools.compile]
-strip-extras = true
-allow-unsafe = true
-generate-hashes = true

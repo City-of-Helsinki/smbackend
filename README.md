@@ -69,24 +69,21 @@ https://github.com/pyenv/pyenv-virtualenv
 https://github.com/pyenv/pyenv-virtualenvwrapper
 https://virtualenvwrapper.readthedocs.io/en/latest/install.html
 
-3. Install pip requirements.
-   Be sure to load the virtualenv before installing the requirements:
-   Example with virtualenv named servicemap as created in example above.
-   ```workon servicemap```
-   Install the requirements:
-   ```pip install -r requirements.txt -r requirements-dev.txt```
+3. Install dependencies.
+   This project uses [uv](https://docs.astral.sh/uv/) to manage dependencies.
+   Install uv (see https://docs.astral.sh/uv/getting-started/installation/), then
+   create the virtualenv and install all dependencies (including dev) with:
+   ```
+   uv sync
+   ```
+   This creates a `.venv` in the project directory. Run commands inside it with
+   `uv run`, e.g. `uv run python manage.py runserver`, or activate it with
+   `source .venv/bin/activate`.
 
-If this error occurs:
-
-```
- ImportError: cannot import name 'html5lib' from 'pip._vendor' (/home/johndoe/.virtualenvs/servicemap/lib/python3.12/site-packages/pip/_vendor/__init__.py)
-```
-
-Try installing latest pip.
-
-```
-curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
-```
+   To install only the runtime dependencies (no dev tools), run:
+   ```
+   uv sync --no-dev
+   ```
 
 4. Setup the PostGIS database.
 
@@ -203,12 +200,46 @@ celery -A smbackend beat -l INFO
 Updating requirements
 ---------------------
 
-pip-tools is used to manage requirements. To update the requirements, run:
+[uv](https://docs.astral.sh/uv/) is used to manage dependencies. Dependencies are
+declared in `pyproject.toml` (runtime deps under `[project].dependencies`, dev tools
+under `[dependency-groups].dev`) and pinned in `uv.lock`.
+
+To add or remove a dependency, edit `pyproject.toml` (or use `uv add <package>` /
+`uv remove <package>`) and then refresh the lockfile:
 
 ```
-pip-compile -U requirements.in
-pip-compile -U requirements-dev.in
+uv lock
 ```
+
+To upgrade all dependencies to their latest allowed versions, run:
+
+```
+uv lock --upgrade
+```
+
+After updating the lockfile, sync your environment with `uv sync`.
+
+### Supply-chain protection (exclude-newer)
+
+As a supply-chain hardening measure, the resolver only considers package versions
+that have been published for at least **three days**, giving time for malicious or
+broken releases to be detected and yanked. This is configured globally in
+`pyproject.toml`:
+
+```toml
+[tool.uv]
+exclude-newer = "3 days"
+```
+
+Because it lives in `pyproject.toml`, the rule applies uniformly to **everyone** —
+developers running `uv lock`, CI, and Dependabot — with no extra commands or
+environment variables to remember. It is a rolling window, so it moves forward
+automatically on every `uv lock` / `uv lock --upgrade`.
+
+Note: a side effect is that updates (including security updates) for a version
+published within the last three days are held back until that version ages past
+the window.
+
 
 Code format
 -----------
