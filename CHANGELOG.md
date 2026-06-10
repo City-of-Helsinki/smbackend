@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.2.0...smbackend-v4.3.0) (2026-06-10)
+
+
+### Features
+
+* **observations:** Add UiRas water temperature source ([4e5a552](https://github.com/City-of-Helsinki/smbackend/commit/4e5a552c7c8188b53667c1330f82f06baa9e34e7))
+
 ## [4.2.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.1.3...smbackend-v4.2.0) (2026-06-08)
 
 
