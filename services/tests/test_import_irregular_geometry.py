@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
-import pytz
 from django.core.management import call_command
 
 from services.models import Unit
@@ -12,7 +11,7 @@ def test_import_irregular_geometry():
     unit = Unit.objects.create(
         id=23795,
         name="Östersundomin koirametsä",
-        last_modified_time=datetime.now(pytz.utc),
+        last_modified_time=datetime.now(UTC),
     )
     assert unit.geometry is None
 

@@ -2,10 +2,7 @@
 
 import datetime
 
-import pytz
 from django.db import migrations, models
-
-UTC_TIMEZONE = pytz.timezone("UTC")
 
 
 class Migration(migrations.Migration):
@@ -23,7 +20,7 @@ class Migration(migrations.Migration):
             name="origin_last_modified_time",
             field=models.DateTimeField(
                 db_index=True,
-                default=datetime.datetime.now(UTC_TIMEZONE),
+                default=datetime.datetime.now(datetime.UTC),
                 help_text="Time of last modification",
             ),
             preserve_default=False,

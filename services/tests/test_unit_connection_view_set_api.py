@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
-import pytz
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -10,7 +9,7 @@ from services.tests.utils import get
 
 
 def create_unit_connections():
-    unit = Unit.objects.create(id=1, last_modified_time=datetime.now(pytz.utc))
+    unit = Unit.objects.create(id=1, last_modified_time=datetime.now(UTC))
     UnitConnection.objects.create(
         id=100,
         unit=unit,

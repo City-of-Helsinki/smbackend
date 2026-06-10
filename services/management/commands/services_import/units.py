@@ -5,8 +5,8 @@ import logging
 import os
 from collections import defaultdict
 from operator import itemgetter
+from zoneinfo import ZoneInfo
 
-import pytz
 from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
@@ -42,8 +42,8 @@ from .utils import (
     update_service_names_fields,
 )
 
-UTC_TIMEZONE = pytz.timezone("UTC")
-ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
+UTC_TIMEZONE = datetime.UTC
+ACTIVE_TIMEZONE = ZoneInfo(settings.TIME_ZONE)
 ACCESSIBILITY_VARIABLES = None
 EXISTING_SERVICE_NODE_IDS = None
 EXISTING_MOBILITY_SERVICE_NODE_IDS = None
@@ -354,9 +354,9 @@ def _import_unit(
 
     for field in ["created_time"]:
         if info.get(field):
-            value = ACTIVE_TIMEZONE.localize(
-                datetime.datetime.strptime(info.get(field), "%Y-%m-%dT%H:%M:%S")
-            )
+            value = datetime.datetime.strptime(
+                info.get(field), "%Y-%m-%dT%H:%M:%S"
+            ).replace(tzinfo=ACTIVE_TIMEZONE)
             if getattr(obj, field) != value:
                 obj_changed = True
                 setattr(obj, field, value)

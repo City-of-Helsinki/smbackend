@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
-import pytz
 from django.contrib.gis.geos import GEOSGeometry
 from django.urls import reverse
 from munigeo import api as munigeo_api
@@ -28,7 +27,7 @@ from services.models import (
 from services.models.unit import PROJECTION_SRID
 from services.tests.utils import get
 
-UTC_TIMEZONE = pytz.timezone("UTC")
+UTC_TIMEZONE = UTC
 
 # Expected database query counts for unit retrieve operations with proper prefetching.
 # These represent the actual query counts after optimization to prevent N+1 issues.
