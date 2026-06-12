@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.3.0...smbackend-v4.3.1) (2026-06-12)
+
+
+### Dependencies
+
+* Update pre-commit tool versions ([34afb70](https://github.com/City-of-Helsinki/smbackend/commit/34afb704fe4913d07e8ae5b3cef36cb37ac6d4b5))
+
 ## [4.3.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.2.0...smbackend-v4.3.0) (2026-06-10)
 
 

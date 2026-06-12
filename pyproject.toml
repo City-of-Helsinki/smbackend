@@ -1,7 +1,7 @@
 [project]
 name = "smbackend"
 requires-python = ">=3.12, <3.13"
-version = "4.3.0"
+version = "4.3.1"
 dependencies = [
     "Django~=5.2",
     "bmi-arcgis-restapi",
