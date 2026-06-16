@@ -496,3 +496,22 @@ def test_search_include_unknown_field_raises_parse_error(units):
 
     with pytest.raises(ParseError):
         _ = _make_serializer(unit, ["unit.nonexistent_field"]).data
+
+
+@pytest.mark.django_db
+def test_search_serializer_null_geometry_does_not_crash(units):
+    unit = units.get(id=2)
+    unit.geometry = None
+    unit.save()
+
+    serializer = SearchSerializer(
+        unit,
+        context={
+            "include": [],
+            "geometry": True,
+            "service_node_ids": {},
+        },
+    )
+    data = serializer.data
+
+    assert data["geometry"] is None
