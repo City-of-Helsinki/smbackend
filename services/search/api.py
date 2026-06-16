@@ -206,7 +206,7 @@ class SearchSerializer(serializers.Serializer):
             ).data
 
         if self.context["geometry"]:
-            if hasattr(obj, "geometry"):
+            if getattr(obj, "geometry", None) is not None:
                 if isinstance(obj, AdministrativeDivision):
                     geometry = obj.geometry.boundary
                 else:
