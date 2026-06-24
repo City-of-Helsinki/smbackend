@@ -1090,7 +1090,6 @@ dependencies = [
     { name = "djangorestframework-jsonp" },
     { name = "drf-spectacular" },
     { name = "geopy" },
-    { name = "ipython" },
     { name = "libvoikko" },
     { name = "lxml" },
     { name = "psycopg", extra = ["c"] },
@@ -1108,6 +1107,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "ipython" },
     { name = "jedi" },
     { name = "parso" },
     { name = "pytest-cov" },
@@ -1139,7 +1139,6 @@ requires-dist = [
     { name = "djangorestframework-jsonp" },
     { name = "drf-spectacular" },
     { name = "geopy" },
-    { name = "ipython" },
     { name = "libvoikko" },
     { name = "lxml" },
     { name = "psycopg", extras = ["c"] },
@@ -1157,6 +1156,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "ipython" },
     { name = "jedi" },
     { name = "parso" },
     { name = "pytest-cov" },
