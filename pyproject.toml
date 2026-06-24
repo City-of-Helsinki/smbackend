@@ -67,7 +67,7 @@ package = false
 # Supply-chain protection: only consider package versions published at least
 # three days ago, giving time for malicious or broken releases to be detected
 # and yanked.
-exclude-newer = "3 days"
+exclude-newer = "P3D"
 
 [tool.ruff]
 target-version = "py312"
