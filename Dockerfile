@@ -29,7 +29,7 @@ RUN dnf update -y && dnf install -y \
     nmap-ncat \
     gettext \
     postgresql \
-    && uv sync --frozen --no-dev --inexact --group prod \
+    && uv sync --frozen --no-dev --group prod \
     && uwsgi --build-plugin https://github.com/City-of-Helsinki/uwsgi-sentry \
     && dnf clean all
 
@@ -53,7 +53,7 @@ FROM appbase AS development
 # ==============================
 
 ENV DEV_SERVER=True
-RUN uv sync --frozen --inexact
+RUN uv sync --frozen --group prod
 COPY . .
 USER default
 
