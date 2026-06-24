@@ -12,17 +12,15 @@ repos:
       - id: check-toml
       - id: check-added-large-files
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: "1.30.0"  # replace with latest tag on GitHub
+    rev: "1.30.0"
     hooks:
       - id: django-upgrade
         args: [--target-version, "5.2"]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.16
+    rev: v0.15.19
     hooks:
-      # Run the linter.
       - id: ruff-check
         args: [ "--fix" ]
-      # Run the formatter.
       - id: ruff-format
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.25.0
@@ -35,6 +33,6 @@ repos:
     hooks:
       - id: shellcheck
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.19
+    rev: 0.11.24
     hooks:
       - id: uv-lock
