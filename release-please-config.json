@@ -5,7 +5,14 @@
     ".": {
       "release-type": "python",
       "package-name": "smbackend",
-      "extra-files": ["pyproject.toml"],
+      "extra-files": [
+        {"path": "pyproject.toml", "type": "toml"},
+        {
+          "path": "uv.lock",
+          "type": "toml",
+          "jsonpath": "$.package[?(@.name=='smbackend')].version"
+        }
+      ],
       "changelog-sections": [
         {"type": "feat", "section": "Features"},
         {"type": "fix", "section": "Bug Fixes"},
