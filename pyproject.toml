@@ -29,7 +29,6 @@ dependencies = [
     "djangorestframework-jsonp",
     "drf-spectacular",
     "geopy",
-    "ipython",
     "libvoikko",
     "lxml",
     "psycopg[c]",
@@ -47,6 +46,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "ipython",
     "jedi",
     "parso",
     "pytest-django",
