@@ -15,7 +15,7 @@ ENV DJANGO_URL_PREFIX=/
 WORKDIR /app
 USER root
 
-COPY --from=ghcr.io/astral-sh/uv:0.11.19 /uv /uvx /usr/local/bin/
+COPY --from=ghcr.io/astral-sh/uv:0.11.24@sha256:99ea34acedc870ba4ad11a1f540a1c04267c9f30aadc465a94406f52dfda2c36 /uv /uvx /usr/local/bin/
 
 ENV UV_PROJECT_ENVIRONMENT=/opt/app-root \
     UV_COMPILE_BYTECODE=1 \
