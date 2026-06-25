@@ -2,28 +2,20 @@ import logging
 import re
 from datetime import datetime
 
-from django.contrib.gis.gdal import CoordTransform, DataSource, SpatialReference
-from django.contrib.gis.geos import MultiPolygon
 from django.db import transaction
 from munigeo import ocd
-from munigeo.models import (
-    AdministrativeDivision,
-    AdministrativeDivisionGeometry,
-    AdministrativeDivisionType,
-    Municipality,
+from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
+
+from services.management.commands.school_district_import.base_school_district_importer import (  # noqa: E501
+    BaseSchoolDistrictImporter,
 )
 
-from services.management.commands.lipas_import import MiniWFS
-
 logger = logging.getLogger(__name__)
-SRID = 3067
 
 
-class SchoolDistrictImporter:
+class SchoolDistrictImporter(BaseSchoolDistrictImporter):
     WFS_BASE = "https://kartta.hel.fi/ws/geoserver/avoindata/wfs"
-
-    def __init__(self, district_type):
-        self.district_type = district_type
+    MUNICIPALITY_ID = "helsinki"
 
     def import_districts(self, data):
         """
@@ -33,22 +25,13 @@ class SchoolDistrictImporter:
         - ocd_id: The key to use in the OCD ID generation
 
         """
-        wfs = MiniWFS(self.WFS_BASE)
-        municipality = Municipality.objects.get(id="helsinki")
+        municipality = self.get_municipality()
 
         source_type = data["source_type"]
         division_type = data["division_type"]
         ocd_id = data["ocd_id"]
 
-        try:
-            url = wfs.get_feature(type_name=source_type)
-            layer = DataSource(url)[0]
-        except Exception as e:
-            logger.error(f"Error retrieving data for {source_type}: {e}")
-            raise
-
-        logger.info(f"Retrieved {len(layer)} {source_type} features.")
-        logger.info("Processing data...")
+        layer = self.fetch_layer(source_type)
 
         division_type_obj, _ = AdministrativeDivisionType.objects.get_or_create(
             type=division_type
@@ -143,27 +126,6 @@ class SchoolDistrictImporter:
     def get_end_date_from_name(name):
         year = re.split(r"[ -]", name)[-1]
         return f"{year}-07-31"
-
-    def save_geometry(self, feature, division):
-        geom = feature.geom
-        if not geom.srid:
-            geom.srid = SRID
-        if geom.srid != SRID:
-            geom.transform(SRID)
-            ct = CoordTransform(SpatialReference(geom.srid), SpatialReference(SRID))
-            geom.transform(ct)
-
-        geom = geom.geos
-        if geom.geom_type == "Polygon":
-            geom = MultiPolygon(geom.buffer(0), srid=geom.srid)
-
-        try:
-            geom_obj = division.geometry
-        except AdministrativeDivisionGeometry.DoesNotExist:
-            geom_obj = AdministrativeDivisionGeometry(division=division)
-
-        geom_obj.boundary = geom
-        geom_obj.save()
 
     def remove_old_school_year(self, division_type):
         """
