@@ -1,0 +1,35 @@
+<GMLFeatureClassList>
+  <GMLFeatureClass>
+    <Name>Oppilaaksiottoalueet_suomenkielinen</Name>
+    <ElementPath>Oppilaaksiottoalueet_suomenkielinen</ElementPath>
+    <GeometryName>Geometry</GeometryName>
+    <GeometryElementPath>Geometry</GeometryElementPath>
+    <!--POLYGON-->
+    <GeometryType>3</GeometryType>
+    <SRSName>EPSG:3879</SRSName>
+    <DatasetSpecificInfo>
+      <FeatureCount>2</FeatureCount>
+      <ExtentXMin>25484429.72000</ExtentXMin>
+      <ExtentXMax>25491763.11000</ExtentXMax>
+      <ExtentYMin>6669577.29900</ExtentYMin>
+      <ExtentYMax>6682390.24500</ExtentYMax>
+    </DatasetSpecificInfo>
+    <PropertyDefn>
+      <Name>Info</Name>
+      <ElementPath>Info</ElementPath>
+      <Type>String</Type>
+      <Width>19</Width>
+    </PropertyDefn>
+    <PropertyDefn>
+      <Name>Nimi</Name>
+      <ElementPath>Nimi</ElementPath>
+      <Type>String</Type>
+      <Width>33</Width>
+    </PropertyDefn>
+    <PropertyDefn>
+      <Name>Id</Name>
+      <ElementPath>Id</ElementPath>
+      <Type>Integer</Type>
+    </PropertyDefn>
+  </GMLFeatureClass>
+</GMLFeatureClassList>
