@@ -66,6 +66,7 @@ class Command(BaseCommand):
                     "Something went wrong while updating division "
                     f"type {division_type}, changes rolled back."
                 )
+                raise
 
         # Remove stale data for division types that are no longer imported.
         for division_type in OBSOLETE_DIVISION_TYPES:
