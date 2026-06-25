@@ -1,6 +1,10 @@
 import logging
 from datetime import datetime
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from urllib.parse import urlparse
 
+import requests
 from django.db import transaction
 from munigeo import ocd
 from munigeo.models import AdministrativeDivision, AdministrativeDivisionType
@@ -10,6 +14,10 @@ from services.management.commands.school_district_import.base_school_district_im
 )
 
 logger = logging.getLogger(__name__)
+
+LEGACY_EPSG_3879_SRS_NAME = b"http://www.opengis.net/gml/srs/epsg.xml#3879"
+EPSG_3879_SRS_NAME = b"EPSG:3879"
+ESPOO_WFS_HOST = "kartat.espoo.fi"
 
 
 class EspooSchoolDistrictImporter(BaseSchoolDistrictImporter):
@@ -25,6 +33,28 @@ class EspooSchoolDistrictImporter(BaseSchoolDistrictImporter):
 
     WFS_BASE = "https://kartat.espoo.fi/teklaogcweb/wfs.ashx"
     MUNICIPALITY_ID = "espoo"
+
+    def prepare_datasource_input(self, url):
+        if not url.startswith("WFS:"):
+            return url, None
+
+        feature_url = url.removeprefix("WFS:")
+        parsed_url = urlparse(feature_url)
+        if parsed_url.scheme != "https" or parsed_url.hostname != ESPOO_WFS_HOST:
+            raise ValueError(f"Unexpected Espoo WFS URL: {feature_url}")
+
+        response = requests.get(feature_url, timeout=60)
+        response.raise_for_status()
+
+        tmpdir = TemporaryDirectory(
+            prefix="espoo-school-districts-",
+        )
+        path = Path(tmpdir.name) / "features.gml"
+        path.write_bytes(
+            response.content.replace(LEGACY_EPSG_3879_SRS_NAME, EPSG_3879_SRS_NAME)
+        )
+
+        return str(path), tmpdir
 
     def import_districts(self, data):
         """
@@ -67,6 +97,7 @@ class EspooSchoolDistrictImporter(BaseSchoolDistrictImporter):
             logger.warning(
                 "Finished importing districts with errors. See logs for more details."
             )
+            raise RuntimeError("Failed to import one or more Espoo school districts.")
         else:
             logger.info("Finished importing districts.")
 

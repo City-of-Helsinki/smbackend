@@ -29,17 +29,25 @@ class BaseSchoolDistrictImporter:
 
     def fetch_layer(self, source_type):
         wfs = MiniWFS(self.WFS_BASE)
+        datasource_resource = None
 
         try:
             url = wfs.get_feature(type_name=source_type)
-            layer = DataSource(url)[0]
+            datasource_input, datasource_resource = self.prepare_datasource_input(url)
+            layer = DataSource(datasource_input)[0]
+            layer._datasource_resource = datasource_resource
         except Exception as e:
-            logger.error(f"Error retrieving data for {source_type}: {e}")
+            if datasource_resource is not None:
+                datasource_resource.cleanup()
+            logger.exception(f"Error retrieving data for {source_type}: {e}")
             raise
 
         logger.info(f"Retrieved {len(layer)} {source_type} features.")
         logger.info("Processing data...")
         return layer
+
+    def prepare_datasource_input(self, url):
+        return url, None
 
     def import_districts(self, data):
         raise NotImplementedError

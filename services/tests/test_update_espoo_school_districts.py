@@ -1,5 +1,6 @@
 from datetime import datetime
-from unittest.mock import patch
+from pathlib import Path
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 from django.contrib.gis.geos import MultiPolygon
@@ -10,12 +11,19 @@ from munigeo.models import (
     Municipality,
 )
 
+from services.management.commands.school_district_import.base_school_district_importer import (  # noqa: E501
+    BaseSchoolDistrictImporter,
+)
 from services.management.commands.school_district_import.espoo_school_district_importer import (  # noqa: E501
     EspooSchoolDistrictImporter,
 )
 
 FI_SOURCE = "GIS:Oppilaaksiottoalueet_suomenkielinen"
 SV_SOURCE = "GIS:Oppilaaksiottoalueet_ruotsinkielinen_ala_aste"
+
+
+class _SchoolDistrictImporter(BaseSchoolDistrictImporter):
+    WFS_BASE = "https://example.com/wfs"
 
 
 @pytest.fixture
@@ -38,6 +46,136 @@ def get_mock_data(source_type):
         SV_SOURCE: "services/tests/data/Oppilaaksiottoalueet_ruotsinkielinen_ala_aste.gml",  # noqa: E501
     }
     return mock_data[source_type]
+
+
+ESPOO_WFS_URL = "https://kartat.espoo.fi/teklaogcweb/wfs.ashx?request=GetFeature"
+
+
+class _EspooFeature:
+    def __init__(self, origin_id, name):
+        self.origin_id = origin_id
+        self.name = name
+
+    def get(self, key):
+        return {"Id": self.origin_id, "Nimi": self.name}.get(key)
+
+
+def test_espoo_datasource_input_normalizes_legacy_epsg_3879_srs_name(requests_mock):
+    requests_mock.get(
+        ESPOO_WFS_URL,
+        content=(
+            b'<gml:Polygon srsName="'
+            b"http://www.opengis.net/gml/srs/epsg.xml#3879"
+            b'"></gml:Polygon>'
+        ),
+    )
+
+    importer = EspooSchoolDistrictImporter(district_type="school")
+    path, resource = importer.prepare_datasource_input(f"WFS:{ESPOO_WFS_URL}")
+
+    try:
+        assert Path(path).exists()
+        content = Path(path).read_bytes()
+        assert b"http://www.opengis.net/gml/srs/epsg.xml#3879" not in content
+        assert b"EPSG:3879" in content
+    finally:
+        resource.cleanup()
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "WFS:http://kartat.espoo.fi/teklaogcweb/wfs.ashx?request=GetFeature",
+        "WFS:https://example.com/wfs?request=GetFeature",
+    ],
+)
+def test_espoo_datasource_input_rejects_unexpected_wfs_urls(requests_mock, url):
+    importer = EspooSchoolDistrictImporter(district_type="school")
+
+    with pytest.raises(ValueError, match="Unexpected Espoo WFS URL"):
+        importer.prepare_datasource_input(url)
+
+    assert not requests_mock.called
+
+
+@pytest.mark.django_db
+@patch.object(EspooSchoolDistrictImporter, "save_geometry")
+@patch.object(EspooSchoolDistrictImporter, "fetch_layer")
+@patch.object(EspooSchoolDistrictImporter, "get_school_year_start_years")
+def test_espoo_import_districts_raises_after_attempting_all_divisions(
+    get_years_mock,
+    fetch_layer_mock,
+    save_geometry_mock,
+    municipality,
+):
+    importer = EspooSchoolDistrictImporter(district_type="school")
+    features = [
+        _EspooFeature("failed", "Failed district"),
+        _EspooFeature("ok", "Successful district"),
+    ]
+    get_years_mock.return_value = [2026, 2027]
+    fetch_layer_mock.return_value = features
+
+    def save_geometry(feature, division):
+        if division.origin_id == "failed_2026":
+            raise RuntimeError("geometry failed")
+
+    save_geometry_mock.side_effect = save_geometry
+
+    with pytest.raises(
+        RuntimeError, match="Failed to import one or more Espoo school districts"
+    ):
+        importer.import_districts(
+            {
+                "source_type": FI_SOURCE,
+                "division_type": "lower_comprehensive_school_district_fi",
+                "ocd_id": "oppilaaksiottoalue_alakoulu_fi",
+            }
+        )
+
+    assert save_geometry_mock.call_count == 4
+    assert not AdministrativeDivision.objects.filter(origin_id="failed_2026").exists()
+    assert AdministrativeDivision.objects.filter(origin_id="ok_2026").exists()
+    assert AdministrativeDivision.objects.filter(origin_id="ok_2027").exists()
+
+
+@patch(
+    "services.management.commands.school_district_import.base_school_district_importer.DataSource"
+)
+@patch("services.management.commands.lipas_import.MiniWFS.get_feature")
+def test_fetch_layer_cleans_datasource_resource_on_open_failure(
+    get_feature_mock, datasource_mock
+):
+    resource = Mock()
+    importer = _SchoolDistrictImporter()
+    importer.prepare_datasource_input = Mock(return_value=("features.gml", resource))
+    get_feature_mock.return_value = "WFS:https://example.com/wfs?request=GetFeature"
+    datasource_mock.side_effect = RuntimeError("open failed")
+
+    with pytest.raises(RuntimeError, match="open failed"):
+        importer.fetch_layer("test:layer")
+
+    resource.cleanup.assert_called_once_with()
+
+
+@patch(
+    "services.management.commands.school_district_import.base_school_district_importer.DataSource"
+)
+@patch("services.management.commands.lipas_import.MiniWFS.get_feature")
+def test_fetch_layer_keeps_datasource_resource_on_success(
+    get_feature_mock, datasource_mock
+):
+    layer = MagicMock()
+    layer.__len__.return_value = 0
+    resource = Mock()
+    importer = _SchoolDistrictImporter()
+    importer.prepare_datasource_input = Mock(return_value=("features.gml", resource))
+    get_feature_mock.return_value = "WFS:https://example.com/wfs?request=GetFeature"
+    datasource_mock.return_value = [layer]
+
+    assert importer.fetch_layer("test:layer") == layer
+    assert layer._datasource_resource == resource
+    resource.cleanup.assert_not_called()
 
 
 @pytest.mark.django_db
@@ -119,6 +257,31 @@ def test_update_espoo_school_districts(mock_datetime, get_feature_mock, municipa
         lower_sv.ocd_id == "ocd-division/country:fi/kunta:espoo/"
         "oppilaaksiottoalue_alakoulu_sv:495230929_2026"
     )
+
+
+@pytest.mark.django_db
+@patch(
+    "services.management.commands.update_espoo_school_districts."
+    "EspooSchoolDistrictImporter.import_districts"
+)
+def test_update_espoo_school_districts_raises_on_layer_refresh_failure(
+    import_districts_mock, municipality
+):
+    district_type = AdministrativeDivisionType.objects.create(
+        type="lower_comprehensive_school_district_fi"
+    )
+    stale_division = AdministrativeDivision.objects.create(
+        type=district_type,
+        origin_id="stale",
+        name="Stale district",
+        municipality=municipality,
+    )
+    import_districts_mock.side_effect = RuntimeError("layer refresh failed")
+
+    with pytest.raises(RuntimeError, match="layer refresh failed"):
+        call_command("update_espoo_school_districts")
+
+    assert AdministrativeDivision.objects.filter(pk=stale_division.pk).exists()
 
 
 @pytest.mark.django_db
