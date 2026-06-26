@@ -1,5 +1,26 @@
 # Changelog
 
+## [4.4.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.3.1...smbackend-v4.4.0) (2026-06-26)
+
+
+### Features
+
+* Add Espoo school district importer ([5ccc40b](https://github.com/City-of-Helsinki/smbackend/commit/5ccc40b8e367f1a387bddf9d26ae6209297b09fb))
+
+
+### Bug Fixes
+
+* **espoo-school-district-importer:** Normalize WFS GML SRS name ([9d222ca](https://github.com/City-of-Helsinki/smbackend/commit/9d222ca04213274db9c1ff20b56ffd7aae942ecc))
+* **release-please:** Update uv.lock TOML JSONPath ([7ecb521](https://github.com/City-of-Helsinki/smbackend/commit/7ecb521d84572cd51a2c4628ac5e27f76551de99))
+* **search:** Handle null geometry values in serializer ([9287805](https://github.com/City-of-Helsinki/smbackend/commit/9287805950ab7b01912abd196eb6a23f506c248e))
+
+
+### Dependencies
+
+* Bump cryptography from 48.0.0 to 48.0.1 ([6189264](https://github.com/City-of-Helsinki/smbackend/commit/61892643f9c982e17c687afdc7b125ac4716b89c))
+* Move ipython to dev-dependencies ([50c94af](https://github.com/City-of-Helsinki/smbackend/commit/50c94afe774f301f3aa3aa5b62716cd85ea9e6c0))
+* Update pre-commit tool versions ([781e73c](https://github.com/City-of-Helsinki/smbackend/commit/781e73c0256208b40c42f1a770b8a954f55b4fe4))
+
 ## [4.3.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.3.0...smbackend-v4.3.1) (2026-06-12)
 
 
