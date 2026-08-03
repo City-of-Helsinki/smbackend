@@ -1,4 +1,4 @@
-from django.db.models import Q, QuerySet
+from django.db.models import Max, Q, QuerySet
 from mptt.models import TreeManager
 
 
@@ -7,21 +7,27 @@ class CustomTreeManager(TreeManager):
         return TreeQuerySet(self.model, using=self._db)
 
     def determine_max_level(self):
-        qs = self.all().order_by("-level")
-        if qs.count():
-            return qs[0].level
-        else:
+        max_level = self.all().aggregate(max_level=Max("level"))["max_level"]
+        if max_level is None:
             # Harrison-Stetson method
             return 10
+        return max_level
 
 
 class TreeQuerySet(QuerySet):
     def by_ancestor(self, ancestor):
+        return self.by_ancestors([ancestor])
+
+    def by_ancestors(self, ancestors):
+        """Descendants of any of `ancestors`, resolved in a single query."""
+        ancestors = list(ancestors)
+        if not ancestors:
+            return self.none()
         manager = self.model.objects
         max_level = manager.determine_max_level()
         qs = Q()
         # Construct an OR'd queryset for each level of parenthood.
         for i in range(max_level):
-            key = "__".join(["parent"] * (i + 1))
-            qs |= Q(**{key: ancestor})
+            key = "__".join(["parent"] * (i + 1)) + "__in"
+            qs |= Q(**{key: ancestors})
         return self.filter(qs)

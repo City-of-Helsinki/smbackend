@@ -3,6 +3,8 @@ from datetime import datetime
 import pytest
 import pytz
 from django.contrib.gis.geos import GEOSGeometry
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from munigeo import api as munigeo_api
 from munigeo.api import DEFAULT_SRS
@@ -24,6 +26,8 @@ from services.models import (
     Unit,
     UnitAlias,
     UnitConnection,
+    UnitEntrance,
+    UnitIdentifier,
 )
 from services.models.unit import PROJECTION_SRID
 from services.tests.utils import get
@@ -33,9 +37,9 @@ UTC_TIMEZONE = pytz.timezone("UTC")
 # Expected database query counts for unit retrieve operations with proper prefetching.
 # These represent the actual query counts after optimization to prevent N+1 issues.
 # Before optimization: 64+ queries (N+1 for each related object)
-# After optimization: ~12-14 queries (prefetch_related eliminates N+1)
-EXPECTED_QUERIES_UNIT_RETRIEVE = 12
-EXPECTED_QUERIES_UNIT_RETRIEVE_WITH_ALIAS = 14
+# After optimization: ~11-13 queries (prefetch_related eliminates N+1)
+EXPECTED_QUERIES_UNIT_RETRIEVE = 11
+EXPECTED_QUERIES_UNIT_RETRIEVE_WITH_ALIAS = 13
 
 
 def create_units():
@@ -832,3 +836,101 @@ def test_unit_alias_respects_public_and_active_filters(api_client):
 
     response = api_client.get(reverse("unit-detail", kwargs={"pk": 7777}))
     assert response.status_code == 404
+
+
+def _populate_units_with_relations():
+    """Give every listed unit the related objects the serializer renders."""
+    create_units()
+    service_nodes = create_service_nodes()
+    department = Department.objects.get(uuid="a10eb4e7-c7e3-49ec-b6cd-54a1cb74adf8")
+    organization = Department.objects.get(uuid="83e74666-0836-4c1d-948a-4b34a8b90301")
+    municipality = Municipality.objects.get(id="helsinki")
+    keyword = Keyword.objects.create(name="keyword")
+    service = Service.objects.create(
+        id=100, name_fi="Service 100", last_modified_time=datetime.now(UTC_TIMEZONE)
+    )
+    for unit in Unit.objects.filter(public=True, is_active=True):
+        unit.department = department
+        unit.root_department = organization
+        unit.municipality = municipality
+        unit.displayed_service_owner_type = "MUNICIPAL_SERVICE"
+        unit.save()
+        # Both units must share the same service node tree, otherwise the root
+        # node lookup legitimately costs one query per distinct tree.
+        unit.service_nodes.add(service_nodes[0], service_nodes[1])
+        unit.keywords.add(keyword)
+        unit.services.add(service)
+        UnitConnection.objects.create(
+            unit=unit,
+            name="Phone",
+            section_type=UnitConnection.PHONE_OR_EMAIL_TYPE,
+        )
+        UnitEntrance.objects.create(
+            unit=unit,
+            name_fi="Sisäänkäynti",
+            last_modified_time=datetime.now(UTC_TIMEZONE),
+        )
+        UnitIdentifier.objects.create(unit=unit, namespace="test", value=str(unit.id))
+
+
+UNIT_LIST_QUERY_SHAPES = [
+    {},
+    {
+        "include": "services,accessibility_properties,department,root_department,"
+        "municipality,service_nodes,connections"
+    },
+    {
+        "only": "street_address,location,name,municipality,"
+        "accessibility_shortcoming_count,contract_type,organizer_type",
+        "geometry": "true",
+        "include": "services,accessibility_properties,department,root_department",
+    },
+    {"only": "name,entrances,identifiers,services,keywords"},
+]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("params", UNIT_LIST_QUERY_SHAPES)
+def test_unit_list_query_count_is_independent_of_page_size(api_client, params):
+    """
+    The unit list endpoint must issue a constant number of queries regardless
+    of how many units end up in the response. Serializing a unit may never
+    trigger a query of its own.
+    """
+    _populate_units_with_relations()
+
+    query_counts = []
+    for page_size in (1, 5):
+        with CaptureQueriesContext(connection) as context:
+            response = get(
+                api_client,
+                reverse("unit-list"),
+                data={**params, "page_size": page_size},
+            )
+        assert response.status_code == 200
+        query_counts.append(len(context.captured_queries))
+
+    assert query_counts[0] == query_counts[1], (
+        f"query count grew from {query_counts[0]} to {query_counts[1]} when the "
+        f"page size grew from 1 to 5 for params {params}"
+    )
+
+
+@pytest.mark.django_db
+def test_unit_list_only_parameter_limits_returned_fields(api_client):
+    """
+    `only` must also be honoured for translated fields, which are otherwise
+    both leaked into the response and loaded one column at a time.
+    """
+    _populate_units_with_relations()
+
+    response = get(
+        api_client,
+        reverse("unit-list"),
+        data={"only": "name,street_address"},
+    )
+    assert response.status_code == 200
+    results = response.data["results"]
+    assert results
+    for result in results:
+        assert set(result.keys()) == {"id", "name", "street_address"}

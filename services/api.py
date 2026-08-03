@@ -248,7 +248,13 @@ class ServicesTranslatedModelSerializer(TranslatedModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name in self.translated_fields:
-            self.fields[field_name] = TranslationsField()
+            # Only re-declare fields that survived the `only` filtering done by
+            # JSONAPISerializer. Re-adding all of them would both leak
+            # unrequested fields into the response and force the serializer to
+            # read model columns that the queryset deferred, causing one
+            # database query per field per object.
+            if field_name in self.fields:
+                self.fields[field_name] = TranslationsField()
 
 
 def root_services(services):
@@ -302,16 +308,29 @@ class JSONAPISerializer(serializers.ModelSerializer):
                 if field_name in self.keep_fields:
                     continue
                 del self.fields[field_name]
+        self._municipality_serializer = None
+        self._municipality_cache = {}
 
     def to_representation(self, obj):
         ret = super().to_representation(obj)
         include_fields = self.context.get("include", [])
-        if "municipality" in include_fields and obj.municipality:
-            muni_json = munigeo_api.MunicipalitySerializer(
-                obj.municipality, context=self.context
-            ).data
-            ret["municipality"] = muni_json
+        if "municipality" in include_fields:
+            municipality = getattr(obj, "municipality", None)
+            if municipality:
+                ret["municipality"] = self._serialize_municipality(municipality)
         return ret
+
+    def _serialize_municipality(self, municipality):
+        cached = self._municipality_cache.get(municipality.pk)
+        if cached is not None:
+            return cached
+        if self._municipality_serializer is None:
+            self._municipality_serializer = munigeo_api.MunicipalitySerializer(
+                context=self.context
+            )
+        data = self._municipality_serializer.to_representation(municipality)
+        self._municipality_cache[municipality.pk] = data
+        return data
 
 
 class DepartmentSerializer(
@@ -488,9 +507,23 @@ class RelatedServiceSerializer(ServicesTranslatedModelSerializer, JSONAPISeriali
 
 
 class ServiceDetailsSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._service_serializer = None
+        self._service_cache = {}
+
+    def _serialize_service(self, service):
+        cached = self._service_cache.get(service.pk)
+        if cached is None:
+            if self._service_serializer is None:
+                self._service_serializer = RelatedServiceSerializer()
+            cached = self._service_serializer.to_representation(service)
+            self._service_cache[service.pk] = cached
+        return cached
+
     def to_representation(self, obj):
         ret = super().to_representation(obj)
-        service_data = RelatedServiceSerializer(obj.service).data
+        service_data = self._serialize_service(obj.service)
         ret["name"] = service_data.get("name")
         ret["root_service_node"] = service_data.get("root_service_node")
         if ret["period_begin_year"] is not None:
@@ -508,6 +541,9 @@ class ServiceDetailsSerializer(ServicesTranslatedModelSerializer, JSONAPISeriali
 
 
 class JSONAPIViewSetMixin:
+    only_field_dependencies = {}
+    include_field_dependencies = {}
+
     def initial(self, request, *args, **kwargs):
         ret = super().initial(request, *args, **kwargs)
 
@@ -533,11 +569,12 @@ class JSONAPIViewSetMixin:
             return queryset
         model = queryset.model
         # department.uuid is a special case, hardcoded here for now
-        fields = [
-            f
-            for f in self.only_fields + ["uuid"]
-            if check_valid_concrete_field(model, f)
-        ]
+        field_names = set(self.only_fields) | {"uuid"}
+        for field_name in self.only_fields:
+            field_names.update(self.only_field_dependencies.get(field_name, ()))
+        for field_name in self.include_fields:
+            field_names.update(self.include_field_dependencies.get(field_name, ()))
+        fields = [f for f in field_names if check_valid_concrete_field(model, f)]
         return queryset.only(*fields)
 
     def get_serializer_context(self):
@@ -809,6 +846,10 @@ class UnitSerializer(
                 del ser.child.fields["unit"]
 
         self._root_node_cache = {}
+        self._department_serializer = None
+        self._department_cache = {}
+        self._service_details_serializer = None
+        self._connection_serializer = None
 
     def handle_extension_translations(self, extensions):
         if extensions is None or len(extensions) == 0:
@@ -867,6 +908,21 @@ class UnitSerializer(
             )
         return obj.picture_url
 
+    def _get_department_serializer(self):
+        if self._department_serializer is None:
+            self._department_serializer = DepartmentSerializer(context=self.context)
+        return self._department_serializer
+
+    def _serialize_department(self, department):
+        if department is None:
+            return None
+        serializer = self._get_department_serializer()
+        cached = self._department_cache.get(department.pk)
+        if cached is None:
+            cached = serializer.to_representation(department)
+            self._department_cache[department.pk] = cached
+        return cached
+
     def to_representation(self, obj):
         ret = super().to_representation(obj)
         if hasattr(obj, "distance") and obj.distance:
@@ -883,10 +939,7 @@ class UnitSerializer(
         include_fields = self.context.get("include", [])
         for field in ["department", "root_department"]:
             if field in include_fields:
-                dep_json = DepartmentSerializer(
-                    getattr(obj, field), context=self.context
-                ).data
-                ret[field] = dep_json
+                ret[field] = self._serialize_department(getattr(obj, field))
         # Not using actual serializer instances below is a performance optimization.
         if "service_nodes" in include_fields:
             service_nodes_json = []
@@ -916,9 +969,13 @@ class UnitSerializer(
                 service_nodes_json.append(data)
             ret["service_nodes"] = service_nodes_json
         if "services" in include_fields:
-            ret["services"] = ServiceDetailsSerializer(
-                obj.service_details, many=True
-            ).data
+            if self._service_details_serializer is None:
+                self._service_details_serializer = ServiceDetailsSerializer()
+            service_details_serializer = self._service_details_serializer
+            ret["services"] = [
+                service_details_serializer.to_representation(service_detail)
+                for service_detail in obj.service_details.all()
+            ]
         if "accessibility_properties" in include_fields:
             acc_props = [
                 {"variable": s.variable_id, "value": s.value}
@@ -927,9 +984,13 @@ class UnitSerializer(
             ret["accessibility_properties"] = acc_props
 
         if "connections" in include_fields:
-            ret["connections"] = UnitConnectionSerializer(
-                obj.connections, many=True
-            ).data
+            if self._connection_serializer is None:
+                self._connection_serializer = UnitConnectionSerializer()
+            connection_serializer = self._connection_serializer
+            ret["connections"] = [
+                connection_serializer.to_representation(connection)
+                for connection in obj.connections.all()
+            ]
 
         if "extensions" in ret:
             ret["extensions"] = self.handle_extension_translations(ret["extensions"])
@@ -1059,9 +1120,28 @@ class UnitViewSet(
     renderer_classes = DEFAULT_RENDERERS + [KmlRenderer]
     filter_backends = (DjangoFilterBackend,)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.service_details = False
+    only_field_dependencies = {
+        "contract_type": ("displayed_service_owner_type", "displayed_service_owner"),
+        "geometry": ("geometry", "location"),
+        "geometry_3d": ("geometry_3d",),
+    }
+    include_field_dependencies = {
+        "department": ("department",),
+        "root_department": ("root_department",),
+        "municipality": ("municipality",),
+    }
+
+    def initial(self, request, *args, **kwargs):
+        ret = super().initial(request, *args, **kwargs)
+        if self.only_fields:
+            query_params = self.request.query_params
+            for param, field in (
+                ("geometry_3d", "geometry_3d"),
+                ("heightprofilegeom", "geometry_3d"),
+            ):
+                if query_params.get(param, "").lower() in ("true", "1"):
+                    self.only_fields.append(field)
+        return ret
 
     def get_serializer_context(self):
         ret = super().get_serializer_context()
@@ -1076,6 +1156,21 @@ class UnitViewSet(
         queryset = super().get_queryset()
 
         queryset = queryset.prefetch_related("accessibility_shortcomings")
+
+        include_municipality = "municipality" in self.include_fields
+        select_related_fields = []
+        for field in "department", "root_department":
+            if field in self.include_fields:
+                select_related_fields += [field, f"{field}__parent"]
+                if include_municipality:
+                    select_related_fields.append(f"{field}__municipality")
+            elif self._should_prefetch_field(field):
+                select_related_fields.append(field)
+        if include_municipality:
+            select_related_fields.append("municipality")
+        if select_related_fields:
+            queryset = queryset.select_related(*select_related_fields)
+
         if self._service_details_requested():
             queryset = queryset.prefetch_related("service_details")
             queryset = queryset.prefetch_related("service_details__service")
@@ -1156,14 +1251,12 @@ class UnitViewSet(
             level_specs = settings.LEVELS.get(level)
 
         def service_nodes_by_ancestors(service_node_ids, node_model=ServiceNode):
-            srv_list = set()
-            for srv_id in service_node_ids:
-                srv_list |= set(
-                    node_model.objects.all()
-                    .by_ancestor(srv_id)
-                    .values_list("id", flat=True)
-                )
-                srv_list.add(int(srv_id))
+            srv_list = {int(srv_id) for srv_id in service_node_ids}
+            srv_list |= set(
+                node_model.objects.all()
+                .by_ancestors(service_node_ids)
+                .values_list("id", flat=True)
+            )
             return list(srv_list)
 
         mobility_service_nodes = filters.get("mobility_node", None)
@@ -1345,13 +1438,24 @@ class UnitViewSet(
                     ).select_related("property"),
                 )
             )
-
-        if "service_nodes" in self.include_fields:
-            queryset = queryset.prefetch_related("service_nodes")
-
-        for field in ["connections", "accessibility_properties", "keywords"]:
+        prefetch_fields = set()
+        for field in "connections", "accessibility_properties", "keywords":
             if self._should_prefetch_field(field):
-                queryset = queryset.prefetch_related(field)
+                prefetch_fields.add(field)
+        for field in (
+            "entrances",
+            "identifiers",
+            "services",
+            "service_nodes",
+            "mobility_service_nodes",
+            "related_units",
+        ):
+            if not self.only_fields or field in self.only_fields:
+                prefetch_fields.add(field)
+        if "service_nodes" in self.include_fields:
+            prefetch_fields.add("service_nodes")
+        for field in sorted(prefetch_fields):
+            queryset = queryset.prefetch_related(field)
 
         return queryset
 
