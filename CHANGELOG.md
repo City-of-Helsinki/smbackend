@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.4.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.0...smbackend-v4.4.1) (2026-08-04)
+
+
+### Performance Improvements
+
+* **api:** Eliminate N+1 queries in unit endpoint ([a5ca7e4](https://github.com/City-of-Helsinki/smbackend/commit/a5ca7e497bce6d0a9e664c0c2c95c9604bc2b255))
+
+
+### Dependencies
+
+* Bump pyasn1 from 0.6.3 to 0.6.4 ([a56ab01](https://github.com/City-of-Helsinki/smbackend/commit/a56ab01d375d84ebb9a62f3bf21dc2e51b29bda8))
+
 ## [4.4.0](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.3.1...smbackend-v4.4.0) (2026-06-26)
 
 
