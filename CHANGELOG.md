@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.1...smbackend-v4.4.2) (2026-08-06)
+
+
+### Dependencies
+
+* Bump cryptography from 48.0.1 to 50.0.0 ([8551faa](https://github.com/City-of-Helsinki/smbackend/commit/8551faa2b709f4aab05a337418b859e756967195))
+
 ## [4.4.1](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.0...smbackend-v4.4.1) (2026-08-04)
 
 
