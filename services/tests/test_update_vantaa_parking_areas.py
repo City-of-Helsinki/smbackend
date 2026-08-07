@@ -179,7 +179,7 @@ def test_update_parking_areas(mock_feature_service, mock_parking_areas_data):
         mock_parking_areas_data
     )
 
-    municipality = Municipality.objects.create(id="vantaa", name="Vantaa")
+    municipality = Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     division_type = AdministrativeDivisionType.objects.create(type="parking_area")
 
     assert AdministrativeDivision.objects.count() == 0
@@ -221,7 +221,7 @@ def test_delete_removed_parking_areas(mock_feature_service, mock_parking_areas_d
         mock_parking_areas_data
     )
 
-    municipality = Municipality.objects.create(id="vantaa", name="Vantaa")
+    municipality = Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     division_type = AdministrativeDivisionType.objects.create(type="parking_area")
 
     call_command("update_vantaa_parking_areas")
@@ -270,7 +270,7 @@ def test_skip_parking_areas_with_no_geometry(
         mock_parking_areas_null_geometry_data
     )
 
-    Municipality.objects.create(id="vantaa", name="Vantaa")
+    Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     AdministrativeDivisionType.objects.create(type="parking_area")
 
     assert AdministrativeDivision.objects.count() == 0
@@ -428,7 +428,7 @@ def test_pagination_with_object_ids(mock_feature_service):
 
     mock_layer_instance.query.side_effect = mock_query
 
-    Municipality.objects.create(id="vantaa", name="Vantaa")
+    Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     AdministrativeDivisionType.objects.create(type="parking_area")
 
     call_command("update_vantaa_parking_areas")
@@ -463,7 +463,7 @@ def test_pagination_fallback_no_object_ids(
 
     mock_layer_instance.query.side_effect = mock_query
 
-    Municipality.objects.create(id="vantaa", name="Vantaa")
+    Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     AdministrativeDivisionType.objects.create(type="parking_area")
 
     call_command("update_vantaa_parking_areas")
@@ -491,7 +491,7 @@ def test_translations_applied(mock_feature_service, mock_parking_areas_data):
         mock_parking_areas_data
     )
 
-    Municipality.objects.create(id="vantaa", name="Vantaa")
+    Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     AdministrativeDivisionType.objects.create(type="parking_area")
 
     call_command("update_vantaa_parking_areas")
@@ -545,7 +545,7 @@ def test_skip_parking_areas_without_origin_id(mock_feature_service):
     mock_layer_instance = mock_feature_service.return_value.layer.return_value
     mock_layer_instance.query.return_value = mock_data
 
-    Municipality.objects.create(id="vantaa", name="Vantaa")
+    Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     AdministrativeDivisionType.objects.create(type="parking_area")
 
     call_command("update_vantaa_parking_areas")
@@ -573,7 +573,7 @@ def test_multiple_data_source_types(mock_feature_service, mock_parking_areas_dat
         mock_parking_areas_data
     )
 
-    Municipality.objects.create(id="vantaa", name="Vantaa")
+    Municipality.objects.create(id="vantaa", name_fi="Vantaa")
 
     call_command("update_vantaa_parking_areas")
 
@@ -606,7 +606,7 @@ def test_extra_properties_stored(mock_feature_service, mock_parking_areas_data):
         mock_parking_areas_data
     )
 
-    Municipality.objects.create(id="vantaa", name="Vantaa")
+    Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     AdministrativeDivisionType.objects.create(type="parking_area")
 
     call_command("update_vantaa_parking_areas")
@@ -639,7 +639,7 @@ def test_geometry_stored_correctly(mock_feature_service, mock_parking_areas_data
         mock_parking_areas_data
     )
 
-    Municipality.objects.create(id="vantaa", name="Vantaa")
+    Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     AdministrativeDivisionType.objects.create(type="parking_area")
 
     call_command("update_vantaa_parking_areas")
@@ -671,7 +671,7 @@ def test_update_existing_parking_area(mock_feature_service, mock_parking_areas_d
         mock_parking_areas_data
     )
 
-    municipality = Municipality.objects.create(id="vantaa", name="Vantaa")
+    municipality = Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     division_type = AdministrativeDivisionType.objects.create(type="parking_area")
 
     # Create an existing parking area with old data
@@ -715,7 +715,7 @@ def test_ocd_id_format(mock_feature_service, mock_parking_areas_data):
         mock_parking_areas_data
     )
 
-    Municipality.objects.create(id="vantaa", name="Vantaa")
+    Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     AdministrativeDivisionType.objects.create(type="parking_area")
 
     call_command("update_vantaa_parking_areas")
@@ -748,7 +748,7 @@ def test_multilinestring_geometry_handling(
         mock_multilinestring_data
     )
 
-    Municipality.objects.create(id="vantaa", name="Vantaa")
+    Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     AdministrativeDivisionType.objects.create(type="hgv_street_parking_area")
 
     call_command("update_vantaa_parking_areas")
