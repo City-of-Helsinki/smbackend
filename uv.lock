@@ -363,14 +363,15 @@ provides-extras = ["test", "auditlog", "all"]
 
 [[package]]
 name = "django-modeltranslation"
-version = "0.19.16"
+version = "0.20.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
+    { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4e/31/111be1615706b4da9e3a834dd559f910ecc66847bf88660cd445260ee95a/django_modeltranslation-0.19.16.tar.gz", hash = "sha256:b0d51f2a5c6a1e2f1a8b8504d142a83f83bcb8649baaa128d9fdb9b6b413164d", size = 77714, upload-time = "2025-07-13T09:05:24.428Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d1/db/a0c18e3053c97176a195ee05891ad2e673c531eba612c8aa09b51333d634/django_modeltranslation-0.20.3.tar.gz", hash = "sha256:53f5e33927b99e184f3100c965c45f306f370b7086c6b34e35468800be0916ea", size = 82061, upload-time = "2026-04-14T05:20:06.561Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ef/dc/b9991b774cb8f16ceafaa9f45a354505ab5524cdc7ccc6527945859319a9/django_modeltranslation-0.19.16-py3-none-any.whl", hash = "sha256:d10b0bf221791ce2b0bc4299d061fc02ea34aae0d7091e65c865b6753e7f5cb0", size = 93405, upload-time = "2025-07-13T09:05:22.574Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/40/addb85c32031945ebed0545842fffbd9a5604fdc16bd684583e538137cbd/django_modeltranslation-0.20.3-py3-none-any.whl", hash = "sha256:0e1aaf77ce3dcf80c7ec67a6d67821635d07f4849c90363bc0afedb237b014f0", size = 98703, upload-time = "2026-04-14T05:20:04.394Z" },
 ]
 
 [[package]]
@@ -387,27 +388,43 @@ wheels = [
 
 [[package]]
 name = "django-munigeo"
-version = "0.2.92"
-source = { url = "https://github.com/City-of-Helsinki/django-munigeo/archive/refs/tags/v0.2.92.zip" }
+version = "0.3.12"
+source = { url = "https://github.com/City-of-Helsinki/django-munigeo/archive/refs/heads/RATY-306/1.0-sonar.zip" }
 dependencies = [
     { name = "django" },
-    { name = "django-modeltranslation" },
     { name = "django-mptt" },
+    { name = "djangorestframework" },
     { name = "pyyaml" },
     { name = "requests" },
-    { name = "six" },
+    { name = "requests-cache" },
+    { name = "unicodecsv" },
+    { name = "urllib3" },
 ]
-sdist = { hash = "sha256:edffced47167df0208b1b65618a96c08ad90fca690c559231b346d7ceed386ef" }
+sdist = { hash = "sha256:e9cf97a076cc5c10550d0eb3dd93da4188be8e99903df037e0544952d8f89a7c" }
 
 [package.metadata]
 requires-dist = [
-    { name = "django", specifier = ">=4.2" },
-    { name = "django-modeltranslation" },
+    { name = "coverage", extras = ["toml"], marker = "extra == 'test'" },
+    { name = "coverage-enable-subprocess", marker = "extra == 'test'" },
+    { name = "django", specifier = ">=5.2" },
+    { name = "django-environ", marker = "extra == 'test'" },
     { name = "django-mptt", specifier = ">=0.18.0" },
+    { name = "django-munigeo", extras = ["test"], marker = "extra == 'all'" },
+    { name = "djangorestframework" },
+    { name = "factory-boy", marker = "extra == 'test'" },
+    { name = "psycopg", marker = "extra == 'test'" },
+    { name = "pytest", marker = "extra == 'test'" },
+    { name = "pytest-django", marker = "extra == 'test'" },
+    { name = "pytest-mock", marker = "extra == 'test'" },
+    { name = "pytest-randomly", marker = "extra == 'test'" },
     { name = "pyyaml" },
     { name = "requests" },
-    { name = "six" },
+    { name = "requests-cache" },
+    { name = "requests-mock", marker = "extra == 'test'" },
+    { name = "unicodecsv" },
+    { name = "urllib3", specifier = ">=2" },
 ]
+provides-extras = ["test", "all"]
 
 [[package]]
 name = "django-polymorphic"
@@ -1129,9 +1146,9 @@ requires-dist = [
     { name = "django-helsinki-health-endpoints" },
     { name = "django-helusers" },
     { name = "django-logger-extra", url = "https://github.com/City-of-Helsinki/django-logger-extra/archive/refs/tags/v0.1.0.zip" },
-    { name = "django-modeltranslation", specifier = "==0.19.16" },
+    { name = "django-modeltranslation" },
     { name = "django-mptt", specifier = "~=0.18" },
-    { name = "django-munigeo", url = "https://github.com/City-of-Helsinki/django-munigeo/archive/refs/tags/v0.2.92.zip" },
+    { name = "django-munigeo", url = "https://github.com/City-of-Helsinki/django-munigeo/archive/refs/heads/RATY-306/1.0-sonar.zip" },
     { name = "django-polymorphic", specifier = "==4.1.0" },
     { name = "djangorestframework" },
     { name = "djangorestframework-jsonp" },
@@ -1148,7 +1165,7 @@ requires-dist = [
     { name = "social-auth-app-django" },
     { name = "tqdm" },
     { name = "tzdata" },
-    { name = "urllib3", specifier = "<2" },
+    { name = "urllib3", specifier = ">=2" },
     { name = "whitenoise" },
 ]
 
@@ -1261,6 +1278,12 @@ wheels = [
 ]
 
 [[package]]
+name = "unicodecsv"
+version = "0.14.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6f/a4/691ab63b17505a26096608cc309960b5a6bdf39e4ba1a793d5f9b1a53270/unicodecsv-0.14.1.tar.gz", hash = "sha256:018c08037d48649a0412063ff4eda26eaa81eff1546dbffa51fa5293276ff7fc", size = 10267, upload-time = "2015-09-22T22:00:19.516Z" }
+
+[[package]]
 name = "uritemplate"
 version = "4.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1283,11 +1306,11 @@ wheels = [
 
 [[package]]
 name = "urllib3"
-version = "1.26.20"
+version = "2.7.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e4/e8/6ff5e6bc22095cfc59b6ea711b687e2b7ed4bdb373f7eeec370a97d7392f/urllib3-1.26.20.tar.gz", hash = "sha256:40c2dc0c681e47eb8f90e7e27bf6ff7df2e677421fd46756da1161c39ca70d32", size = 307380, upload-time = "2024-08-29T15:43:11.37Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/53/0c/06f8b233b8fd13b9e5ee11424ef85419ba0d8ba0b3138bf360be2ff56953/urllib3-2.7.0.tar.gz", hash = "sha256:231e0ec3b63ceb14667c67be60f2f2c40a518cb38b03af60abc813da26505f4c", size = 433602, upload-time = "2026-05-07T16:13:18.596Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/cf/8435d5a7159e2a9c83a95896ed596f68cf798005fe107cc655b5c5c14704/urllib3-1.26.20-py2.py3-none-any.whl", hash = "sha256:0ed14ccfbf1c30a9072c7ca157e4319b70d65f623e91e7b32fadb2853431016e", size = 144225, upload-time = "2024-08-29T15:43:08.921Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/3e/5db95bcf282c52709639744ca2a8b149baccf648e39c8cc87553df9eae0c/urllib3-2.7.0-py3-none-any.whl", hash = "sha256:9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897", size = 131087, upload-time = "2026-05-07T16:13:17.151Z" },
 ]
 
 [[package]]

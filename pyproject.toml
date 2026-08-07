@@ -14,13 +14,9 @@ dependencies = [
     "social-auth-app-django",
     "django-helsinki-health-endpoints",
     "django-logger-extra @ https://github.com/City-of-Helsinki/django-logger-extra/archive/refs/tags/v0.1.0.zip",
-    # Pinned: modeltranslation 0.19.17+ changes unique_together handling for
-    # translated models, which makes `makemigrations` detect a new migration for
-    # the third-party munigeo app (munigeo.Street) that we cannot commit. Keep at
-    # the last drift-free release until munigeo ships compatible migrations.
-    "django-modeltranslation==0.19.16",
+    "django-modeltranslation",
     "django-mptt~=0.18",
-    "django-munigeo @ https://github.com/City-of-Helsinki/django-munigeo/archive/refs/tags/v0.2.92.zip",
+    "django-munigeo @ https://github.com/City-of-Helsinki/django-munigeo/archive/refs/heads/RATY-306/1.0-sonar.zip",
     # Pinned: django-polymorphic 4.2+ changes the default Meta options injected
     # into polymorphic models, which makes `makemigrations` detect Meta-only
     # migrations for the observations app. Keep at the last drift-free release.
@@ -39,8 +35,7 @@ dependencies = [
     "sentry-sdk[django]",
     "tqdm",
     "tzdata",
-    # NOTE: As of django-munigeo 0.2.88, urllib3 2.x is not supported.
-    "urllib3<2",
+    "urllib3>=2",
     "whitenoise",
 ]
 
