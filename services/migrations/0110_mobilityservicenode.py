@@ -10,7 +10,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("munigeo", "0014_increase_origin_id_length"),
+        ("munigeo", "0010_postalcodearea_address_full_name_en_and_more"),
         ("services", "0109_alter_unit_deleted_at_and_is_active"),
     ]
 
