@@ -249,20 +249,30 @@ def test_search_with_vertical_bar_in_query(api_client, units):
         ("a&&&&&&&&&&&&&b", "a:* & b:*"),
         ("a  , &&&&&&&,    &  ,, & & & & &&&&& , , ,,,,      b", "a:* & b:*"),
         # Two-operand expressions with OR operator
-        ("a | b", "a:* | b:*"),
-        ("a | b", "a:* | b:*"),
+        # A '|' with whitespace on both sides is treated as a literal
+        # separator (AND), not as an OR operator. This allows searching for
+        # names that literally contain " | ", e.g. "Metropolian kirjasto |
+        # Myllypuro", without the query being split into an OR search.
+        ("a | b", "a:* & b:*"),
+        ("a | b", "a:* & b:*"),
         ("a| b", "a:* | b:*"),
         ("a |b", "a:* | b:*"),
         ("a|b", "a:* | b:*"),
         ("a|||||||||||||b", "a:* | b:*"),
-        ("a ||| |||    ||  | ||| b", "a:* | b:*"),
+        ("a ||| |||    ||  | ||| b", "a:* & b:*"),
         # >=3 operands
-        ("a | b | c", "a:* | b:* | c:*"),
+        ("a | b | c", "a:* & b:* & c:*"),
         ("a, b, c", "a:* & b:* & c:*"),
         ("a & b c, d", "a:* & b:* & c:* & d:*"),
         # Mixed OR and AND operators
-        ("a, b | c, d", "a:* & b:* | c:* & d:*"),
+        ("a, b | c, d", "a:* & b:* & c:* & d:*"),
         ("a, &&& , & b || || |||| |c,,,, d", "a:* & b:* | c:* & d:*"),
+        # Real unit names that literally contain " | " should be treated as a
+        # single AND expression, not split into an OR search.
+        (
+            "Metropolian kirjasto | myllypuro",
+            "Metropolian:* & kirjasto:* & myllypuro:*",
+        ),
         # Expression with repeating single-quotes
         ("','','''',a,b'c,d''e,f'''g,','','''", "a:* & b'c:* & d''e:* & f'''g:*"),
         # Empty operands
@@ -271,7 +281,7 @@ def test_search_with_vertical_bar_in_query(api_client, units):
         ("  &  ", ""),
         (",", ""),
         ("  ,  ", ""),
-        ("a |   | b", "a:* | b:*"),
+        ("a |   | b", "a:* & b:*"),
         ("a &   & b", "a:* & b:*"),
         ("a,   ,b", "a:* & b:*"),
         ("   | a", "a:*"),
@@ -311,10 +321,8 @@ def test_search_input_and_operator(api_client, units, query):
     "query",
     [
         "terveysasema|museo",
-        "terveysasema | museo",
         "terveysasema |museo",
         "terveysasema| museo",
-        "      terveysasema     |      museo  ",
         "terveysasema||museo",
         "terveysasema|||||||||museo",
         "|||terveysasema|museo||",
@@ -328,6 +336,29 @@ def test_search_input_or_operator(api_client, units, query):
     assert len(response.json()["results"]) == 2
     assert response.json()["results"][0]["name"]["fi"] == "Terveysasema"
     assert response.json()["results"][1]["name"]["fi"] == "Biologinen museo"
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "Biologinen | museo",
+        "      Biologinen     |      museo  ",
+    ],
+)
+@pytest.mark.django_db
+def test_search_input_pipe_surrounded_by_spaces_is_literal(api_client, units, query):
+    """
+    A '|' surrounded by whitespace on both sides is treated as a literal
+    separator (i.e. an 'and' operator), not as an 'or' operator. This allows
+    searching for names that literally contain " | ", e.g. "Metropolian
+    kirjasto | Myllypuro", without the query being split into an unrelated
+    'or' search.
+    """
+    url = reverse("search")
+    response = api_client.get(url, {"q": query, "type": "unit"})
+    assert response.status_code == 200
+    assert len(response.json()["results"]) == 1
+    assert response.json()["results"][0]["name"]["fi"] == "Biologinen museo"
 
 
 @pytest.mark.django_db

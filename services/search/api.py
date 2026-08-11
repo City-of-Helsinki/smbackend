@@ -238,10 +238,31 @@ class SearchSerializer(serializers.Serializer):
         return representation
 
 
+def _collapse_literal_pipe_runs(match: re.Match) -> str:
+    """
+    Decide whether a run of "|" characters (with any surrounding/interspersed
+    whitespace) should act as an OR operator or as a literal separator.
+
+    A pipe run is only treated as an OR operator when it is NOT surrounded by
+    whitespace on both sides, e.g. "a|b" or "a| b" remain OR operators, but
+    "a | b" (whitespace on both sides) does not. This is needed because many
+    indexed names literally contain " | ", e.g. "Metropolian kirjasto |
+    Myllypuro". Without this, such a query would be split into an OR search
+    ("Metropolian kirjasto" OR "myllypuro"), losing the AND relationship
+    between the words and matching unrelated units, e.g. other "Metropolian
+    kirjasto | <other location>" units.
+    """
+    separator = match.group(0)
+    if separator[:1].isspace() and separator[-1:].isspace():
+        return " "
+    return separator
+
+
 def build_search_query(query: str):
     result = ""
     query = query.strip(" |&,")
     query = query.replace("\\", "\\\\")
+    query = re.sub(r"(?:\s*\|+\s*)+", _collapse_literal_pipe_runs, query)
     or_operands = re.split(r"(?:\s*\|+\s*)+", query)
 
     for or_operand in or_operands:
@@ -286,9 +307,11 @@ def build_search_query(query: str):
             location=OpenApiParameter.QUERY,
             description="The query string used for searching. Searches the"
             " search_columns for the given models. Commas "
-            "between words are interpreted as 'and' operator. Words ending with the '|'"
-            " sign are interpreted as 'or' "
-            "operator.",
+            "between words are interpreted as 'and' operator. A '|' sign that is not"
+            " surrounded by whitespace on both sides (e.g. 'a|b' or 'a| b') is"
+            " interpreted as an 'or' operator. A '|' surrounded by whitespace on both"
+            " sides (e.g. 'a | b') is treated as a literal separator, so names that"
+            " contain ' | ' can be searched for as-is.",
             required=False,
             type=str,
         ),
