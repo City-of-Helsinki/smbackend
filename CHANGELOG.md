@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.4.3](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.2...smbackend-v4.4.3) (2026-08-12)
+
+
+### Bug Fixes
+
+* **search:** Treat '|' surrounded by spaces as literal, not OR ([a38347e](https://github.com/City-of-Helsinki/smbackend/commit/a38347e855f2ba76f7534d6977122e5f72dcebdf))
+
+
+### Dependencies
+
+* Bump django from 5.2.15 to 5.2.16 ([1375bc6](https://github.com/City-of-Helsinki/smbackend/commit/1375bc6a84e8bcb629c194ed416587273bb2878c))
+* Update uv and packages ([60f4b23](https://github.com/City-of-Helsinki/smbackend/commit/60f4b23386b9bc7972050a5cbd80bf62a21c08e6))
+
 ## [4.4.2](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.1...smbackend-v4.4.2) (2026-08-06)
 
 
