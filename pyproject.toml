@@ -11,7 +11,9 @@ dependencies = [
     "django-extensions",
     "django-filter",
     "django-helusers",
-    "social-auth-app-django",
+    # Pin below 6.0.0: 6.x makes social login views POST-only, breaking the
+    # admin Keycloak login GET link (405). See CHANGELOG for social-app-django 6.0.0.
+    "social-auth-app-django>=5.9,<6",
     "django-helsinki-health-endpoints",
     "django-logger-extra @ https://github.com/City-of-Helsinki/django-logger-extra/archive/refs/tags/v0.1.0.zip",
     # Pinned: modeltranslation 0.19.17+ changes unique_together handling for
