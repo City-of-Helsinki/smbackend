@@ -3,7 +3,7 @@
 set -e
 
 # Wait for the database to be available
-if [ -z "$SKIP_DATABASE_CHECK" ] || [ "$SKIP_DATABASE_CHECK" = "0" ]; then
+if [[ -z "$SKIP_DATABASE_CHECK" ]] || [[ "$SKIP_DATABASE_CHECK" = "0" ]]; then
   until nc -z -v -w30 "$DATABASE_HOST" "${DATABASE_PORT:-5432}"
   do
     echo "Waiting for postgres database connection..."
@@ -23,7 +23,7 @@ if [[ "$COMPILE_TRANSLATIONS" = "True" ]]; then
 fi
 
 # Start server
-if [ "$1" = 'maintenance_tasks' ]; then
+if [[ "$1" = 'maintenance_tasks' ]]; then
     shift
     ./scripts/run_imports.sh "$@"
 elif [[ -n "$*" ]]; then
