@@ -50,7 +50,7 @@ function stage_all {
 }
 
 echo -n "Running imports "
-while test $# -gt 0
+while [[ $# -gt 0 ]]
 do
     echo -n "$1 "
     stage_"$1"

@@ -6,7 +6,7 @@ set -e
 TIMESTAMP_FORMAT="+%Y-%m-%d %H:%M:%S"
 ROOT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-if [ -f "$ROOT_PATH/local_update_config" ]; then
+if [[ -f "$ROOT_PATH/local_update_config" ]]; then
     "$ROOT_PATH/local_update_config"
 fi
 
