@@ -1,14 +1,14 @@
 import datetime
 import logging
+from zoneinfo import ZoneInfo
 
-import pytz
 from django import db
 
 from services.models import Unit
 
 from .utils import pk_get
 
-UTC_TIMEZONE = pytz.timezone("UTC")
+UTC_TIMEZONE = ZoneInfo("UTC")
 VERBOSITY = True
 LOGGER = logging.getLogger(__name__)
 CACHED_UNIT = None

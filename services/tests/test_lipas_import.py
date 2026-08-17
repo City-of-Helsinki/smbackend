@@ -77,8 +77,8 @@ def test_fetch_layer_exponential_backoff_timing(mock_datasource, mock_sleep):
 @patch("services.management.commands.lipas_import.fetch_layer")
 def test_command_skips_layer_on_fetch_failure(mock_fetch_layer, mock_sleep):
     from datetime import datetime
+    from zoneinfo import ZoneInfo
 
-    import pytz
     from django.core.management import call_command
 
     from services.models import Unit, UnitIdentifier
@@ -86,7 +86,7 @@ def test_command_skips_layer_on_fetch_failure(mock_fetch_layer, mock_sleep):
     mock_fetch_layer.side_effect = GDALException("server unavailable")
 
     unit = Unit.objects.create(
-        id=1, last_modified_time=datetime.now(pytz.utc), name_fi="Test Unit"
+        id=1, last_modified_time=datetime.now(ZoneInfo("UTC")), name_fi="Test Unit"
     )
     UnitIdentifier.objects.create(unit_id=unit.id, namespace="lipas", value="12345")
 
@@ -103,8 +103,8 @@ def test_command_skips_failed_layer_but_processes_successful_one(
     mock_fetch_layer, mock_sleep
 ):
     from datetime import datetime
+    from zoneinfo import ZoneInfo
 
-    import pytz
     from django.core.management import call_command
 
     from services.models import Unit, UnitIdentifier
@@ -119,7 +119,7 @@ def test_command_skips_failed_layer_but_processes_successful_one(
     ]
 
     unit = Unit.objects.create(
-        id=1, last_modified_time=datetime.now(pytz.utc), name_fi="Test Unit"
+        id=1, last_modified_time=datetime.now(ZoneInfo("UTC")), name_fi="Test Unit"
     )
     UnitIdentifier.objects.create(unit_id=unit.id, namespace="lipas", value="12345")
 
