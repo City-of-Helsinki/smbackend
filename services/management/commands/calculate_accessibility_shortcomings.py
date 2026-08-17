@@ -46,7 +46,7 @@ class Command(BaseCommand):
     def print_rules(self):
         def print_rule(rule, indent=""):
             message = (
-                " >> {}".format(list(Calculator().messages[rule["msg"]].values())[0])
+                " >> {}".format(next(iter(Calculator().messages[rule["msg"]].values())))
                 if rule["msg"] is not None and rule["msg"] < len(Calculator().messages)
                 else ""
             )
