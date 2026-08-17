@@ -1,8 +1,8 @@
 import math
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import pytest
-import pytz
 
 from services.management.commands.services_import.entrances import import_entrances
 from services.models import Unit, UnitEntrance
@@ -13,7 +13,7 @@ ENTRANCE_SRC_SRID = 4326
 
 
 def create_units():
-    utc_timezone = pytz.timezone("UTC")
+    utc_timezone = ZoneInfo("UTC")
     Unit.objects.create(id=23, last_modified_time=datetime.now(utc_timezone))
     Unit.objects.create(id=8062, last_modified_time=datetime.now(utc_timezone))
 

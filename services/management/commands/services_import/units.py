@@ -5,8 +5,8 @@ import logging
 import os
 from collections import defaultdict
 from operator import itemgetter
+from zoneinfo import ZoneInfo
 
-import pytz
 from django import db
 from django.conf import settings
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
@@ -42,14 +42,38 @@ from .utils import (
     update_service_names_fields,
 )
 
-UTC_TIMEZONE = pytz.timezone("UTC")
-ACTIVE_TIMEZONE = pytz.timezone(settings.TIME_ZONE)
+UTC_TIMEZONE = ZoneInfo("UTC")
+ACTIVE_TIMEZONE = ZoneInfo(settings.TIME_ZONE)
 ACCESSIBILITY_VARIABLES = None
 EXISTING_SERVICE_NODE_IDS = None
 EXISTING_MOBILITY_SERVICE_NODE_IDS = None
 EXISTING_SERVICE_IDS = None
 LOGGER = None
 VERBOSITY = False
+
+
+def _parse_created_time(value):
+    """Parse local timestamps using the later fold and by advancing DST gaps."""
+    naive_value = datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
+    first_occurrence = naive_value.replace(tzinfo=ACTIVE_TIMEZONE, fold=0)
+    second_occurrence = naive_value.replace(tzinfo=ACTIVE_TIMEZONE, fold=1)
+
+    def is_valid_local_time(local_value):
+        return (
+            local_value.astimezone(UTC_TIMEZONE)
+            .astimezone(ACTIVE_TIMEZONE)
+            .replace(tzinfo=None)
+            == naive_value
+        )
+
+    first_is_valid = is_valid_local_time(first_occurrence)
+    second_is_valid = is_valid_local_time(second_occurrence)
+    if not first_is_valid and not second_is_valid:
+        gap = second_occurrence.utcoffset() - first_occurrence.utcoffset()
+        return (naive_value + gap).replace(tzinfo=ACTIVE_TIMEZONE)
+    if first_occurrence.utcoffset() != second_occurrence.utcoffset():
+        return second_occurrence
+    return first_occurrence
 
 
 def get_accessibility_variables():
@@ -354,9 +378,7 @@ def _import_unit(
 
     for field in ["created_time"]:
         if info.get(field):
-            value = ACTIVE_TIMEZONE.localize(
-                datetime.datetime.strptime(info.get(field), "%Y-%m-%dT%H:%M:%S")
-            )
+            value = _parse_created_time(info[field])
             if getattr(obj, field) != value:
                 obj_changed = True
                 setattr(obj, field, value)
