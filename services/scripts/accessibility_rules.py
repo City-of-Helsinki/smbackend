@@ -1,4 +1,5 @@
 import csv
+import os
 import pprint
 import re
 import sys
@@ -482,8 +483,15 @@ def build_tree(reader):
     return tree, messages
 
 
-def parse_accessibility_rules(filename):
-    with open(filename, encoding="utf8") as f:
+def parse_accessibility_rules(filename, base_dir=None):
+    resolved_path = os.path.realpath(filename)
+    if base_dir is not None:
+        resolved_base = os.path.realpath(base_dir)
+        if os.path.commonpath((resolved_base, resolved_path)) != resolved_base:
+            raise ValueError(
+                f"File path '{filename}' is not within the allowed directory."
+            )
+    with open(resolved_path, encoding="utf8") as f:
         reader = csv.reader(f, delimiter=";", quotechar='"')
         tree = build_tree(reader)
         return tree
@@ -499,7 +507,7 @@ if __name__ == "__main__":
         )
         sys.exit(1)
     op, filename = argv[1], argv[2]
-    tree, messages = parse_accessibility_rules(filename)
+    tree, messages = parse_accessibility_rules(filename, base_dir=os.getcwd())
     if op == "debug":
         for i, v in tree.items():
             print("Case " + i)  # noqa: T201
