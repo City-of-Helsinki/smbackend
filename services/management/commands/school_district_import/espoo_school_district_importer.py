@@ -136,7 +136,6 @@ class EspooSchoolDistrictImporter(BaseSchoolDistrictImporter):
         if division_type.endswith("_sv"):
             division.name_sv = name
         else:
-            division.name = name
             division.name_fi = name
 
         division.start = self.get_start_date(start_year)

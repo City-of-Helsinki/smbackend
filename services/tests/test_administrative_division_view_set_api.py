@@ -23,11 +23,11 @@ def create_administrative_divisions():
     division_type = AdministrativeDivisionType.objects.create(type="muni")
     for municipality_id in municipality_ids:
         municipality = Municipality.objects.create(
-            id=municipality_id, name=municipality_id
+            id=municipality_id, name_fi=municipality_id
         )
         AdministrativeDivision.objects.create(
             type=division_type,
-            name=municipality_id,
+            name_fi=municipality_id,
             ocd_id=make_muni_ocd_id(municipality_id),
             municipality=municipality,
         )
@@ -55,7 +55,7 @@ def municipality():
     """
     Fixture to create a sample municipality for testing.
     """
-    return Municipality.objects.create(id="helsinki", name="Helsinki")
+    return Municipality.objects.create(id="helsinki", name_fi="Helsinki")
 
 
 @pytest.fixture
@@ -73,7 +73,7 @@ def administrative_division(administrative_division_type, municipality):
     """
     return AdministrativeDivision.objects.create(
         type=administrative_division_type,
-        name="Test Division",
+        name_fi="Test Division",
         ocd_id="ocd-division/test-muni/test-division",
         municipality=municipality,
     )
@@ -188,7 +188,7 @@ def test_municipality_filter(api_client):
 @patch("services.api.geocode_address")
 def test_address_filter(mock_geocode_address, api_client):
     create_administrative_divisions()
-    division = AdministrativeDivision.objects.get(name="helsinki")
+    division = AdministrativeDivision.objects.get(name_fi="helsinki")
     AdministrativeDivisionGeometry.objects.create(
         division=division, boundary=create_test_area()
     )
@@ -232,7 +232,7 @@ def test_translations(api_client):
     Test that the translations are returned correctly.
     """
     create_administrative_divisions()
-    division = AdministrativeDivision.objects.get(name="helsinki")
+    division = AdministrativeDivision.objects.get(name_fi="helsinki")
     division.name_fi = "Eteläinen"
     division.name_sv = "Södra"
     division.save()
