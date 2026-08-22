@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.4.4](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.3...smbackend-v4.4.4) (2026-08-22)
+
+
+### Bug Fixes
+
+* Retrieve only the first element with next(iter(iterable)) ([78f40ab](https://github.com/City-of-Helsinki/smbackend/commit/78f40abf1c2acd89ca20cd80dea2ce3ffff272b9))
+* Use '[[' instead of '[' for conditional tests ([c09a01c](https://github.com/City-of-Helsinki/smbackend/commit/c09a01c1f43f39203a1ea0986f4ab7dbecb42458))
+* Validate accessibility_rules.py CLI file paths ([8e93cb4](https://github.com/City-of-Helsinki/smbackend/commit/8e93cb41141b42c4175f65f89b22adc9ba0e346a))
+
+
+### Dependencies
+
+* Replace pytz with zoneinfo ([e0b8658](https://github.com/City-of-Helsinki/smbackend/commit/e0b8658a2e713ef0665b1d8369218e83af746a8a))
+* Update uv and packages ([b1a70d9](https://github.com/City-of-Helsinki/smbackend/commit/b1a70d9bb6b62de1c7c70b496c0d7a9523127e54))
+
 ## [4.4.3](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.2...smbackend-v4.4.3) (2026-08-12)
 
 
