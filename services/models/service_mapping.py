@@ -9,7 +9,7 @@ class ServiceMapping(models.Model):
     filter = models.TextField(blank=True, null=True, default="")
 
     def __str__(self):
-        if filter:
+        if self.filter:
             return f"map {self.service_id} -> {self.node_id} [{self.filter}]"
 
         else:
