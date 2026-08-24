@@ -66,8 +66,8 @@ class AccessibilityShortcomingCalculator(metaclass=Singleton):
     def __init__(self):
         try:
             self.rules, self.messages = RULES.get_data()
-        except FileNotFoundError as e:
-            logger.error(e)
+        except FileNotFoundError:
+            logger.exception("Failed to load accessibility rules data")
             self.rules, self.messages = {}, []
 
     def calculate(self, unit):
