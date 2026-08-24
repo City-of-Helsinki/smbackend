@@ -231,8 +231,8 @@ def get_trigram_results(
     cursor = connection.cursor()
     try:
         cursor.execute(sql, [q_val, q_val])
-    except Exception as e:
-        logger.error(f"Error in similarity query: {e}")
+    except Exception:
+        logger.exception("Error in similarity query")
         raise ParseError("Similarity query failed.")
     all_results = cursor.fetchall()
     ids = [row[0] for row in all_results]
