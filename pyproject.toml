@@ -18,7 +18,7 @@ dependencies = [
     "django-logger-extra @ https://github.com/City-of-Helsinki/django-logger-extra/archive/refs/tags/v0.1.0.zip",
     "django-modeltranslation",
     "django-mptt~=0.18",
-    "django-munigeo @ https://github.com/City-of-Helsinki/django-munigeo/archive/refs/heads/RATY-306/1.0-sonar.zip",
+    "django-munigeo @ https://github.com/City-of-Helsinki/django-munigeo/archive/refs/heads/RATY-306/1.0-sonar.tar.gz",
     # Pinned: django-polymorphic 4.2+ changes the default Meta options injected
     # into polymorphic models, which makes `makemigrations` detect Meta-only
     # migrations for the observations app. Keep at the last drift-free release.

@@ -397,7 +397,7 @@ wheels = [
 [[package]]
 name = "django-munigeo"
 version = "0.3.12"
-source = { url = "https://github.com/City-of-Helsinki/django-munigeo/archive/refs/heads/RATY-306/1.0-sonar.zip" }
+source = { url = "https://github.com/City-of-Helsinki/django-munigeo/archive/refs/heads/RATY-306/1.0-sonar.tar.gz" }
 dependencies = [
     { name = "django" },
     { name = "django-mptt" },
@@ -408,7 +408,7 @@ dependencies = [
     { name = "unicodecsv" },
     { name = "urllib3" },
 ]
-sdist = { hash = "sha256:e9cf97a076cc5c10550d0eb3dd93da4188be8e99903df037e0544952d8f89a7c" }
+sdist = { hash = "sha256:2c4643c197d04ad72add91dc2f69bb2b95986ac485098e56ab3994f539ac34b2" }
 
 [package.metadata]
 requires-dist = [
@@ -1098,7 +1098,7 @@ requires-dist = [
     { name = "django-logger-extra", url = "https://github.com/City-of-Helsinki/django-logger-extra/archive/refs/tags/v0.1.0.zip" },
     { name = "django-modeltranslation" },
     { name = "django-mptt", specifier = "~=0.18" },
-    { name = "django-munigeo", url = "https://github.com/City-of-Helsinki/django-munigeo/archive/refs/heads/RATY-306/1.0-sonar.zip" },
+    { name = "django-munigeo", url = "https://github.com/City-of-Helsinki/django-munigeo/archive/refs/heads/RATY-306/1.0-sonar.tar.gz" },
     { name = "django-polymorphic", specifier = "==4.1.0" },
     { name = "djangorestframework" },
     { name = "djangorestframework-jsonp" },
