@@ -18,10 +18,10 @@ def municipality(db):
         id=1, type="muni", name="Municipality"
     )
     AdministrativeDivision.objects.get_or_create(
-        id=1, name="Helsinki", origin_id=853, type_id=1
+        id=1, name_fi="Helsinki", origin_id=853, type_id=1
     )
     return Municipality.objects.create(
-        division_id=1, id="helsinki", name="Helsinki", name_sv="Helsingfors"
+        division_id=1, id="helsinki", name_fi="Helsinki", name_sv="Helsingfors"
     )
 
 

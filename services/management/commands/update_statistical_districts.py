@@ -39,17 +39,17 @@ population_by_age_configs = {
     "helsinki": {
         "url": POPULATION_BY_AGE_URL,
         "data": HELSINKI_POPULATION_BY_AGE,
-        "municipality": Municipality.objects.get(name="Helsinki"),
+        "municipality": Municipality.objects.get(name_fi="Helsinki"),
     },
     "espoo": {
         "url": POPULATION_BY_AGE_URL,
         "data": ESPOO_POPULATION_BY_AGE,
-        "municipality": Municipality.objects.get(name="Espoo"),
+        "municipality": Municipality.objects.get(name_fi="Espoo"),
     },
     "vantaa": {
         "url": POPULATION_BY_AGE_URL,
         "data": VANTAA_POPULATION_BY_AGE,
-        "municipality": Municipality.objects.get(name="Vantaa"),
+        "municipality": Municipality.objects.get(name_fi="Vantaa"),
     },
 }
 
@@ -76,17 +76,17 @@ population_forecast_configs = {
     "helsinki": {
         "url": HELSINKI_POPULATION_FORECAST_URL,
         "data": HELSINKI_POPULATION_FORECAST,
-        "municipality": Municipality.objects.get(name="Helsinki"),
+        "municipality": Municipality.objects.get(name_fi="Helsinki"),
     },
     "espoo": {
         "url": ESPOO_POPULATION_FORECAST_URL,
         "data": ESPOO_POPULATION_FORECAST,
-        "municipality": Municipality.objects.get(name="Espoo"),
+        "municipality": Municipality.objects.get(name_fi="Espoo"),
     },
     "vantaa": {
         "url": VANTAA_POPULATION_FORECAST_URL,
         "data": VANTAA_POPULATION_FORECAST,
-        "municipality": Municipality.objects.get(name="Vantaa"),
+        "municipality": Municipality.objects.get(name_fi="Vantaa"),
     },
 }
 
