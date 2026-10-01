@@ -41,7 +41,7 @@ dependencies = [
     "tqdm",
     "tzdata",
     # NOTE: As of django-munigeo 0.2.88, urllib3 2.x is not supported.
-    "urllib3<2",
+    "urllib3<3",
     "whitenoise",
 ]
 
