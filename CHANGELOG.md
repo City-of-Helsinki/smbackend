@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.5](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.4...smbackend-v4.4.5) (2026-10-01)
+
+
+### Dependencies
+
+* Bump pyjwt from 2.13.0 to 2.15.0 ([5abc81f](https://github.com/City-of-Helsinki/smbackend/commit/5abc81fbdd4a32dd67220a654db75627d5994f20))
+
 ## [4.4.4](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.3...smbackend-v4.4.4) (2026-08-25)
 
 
