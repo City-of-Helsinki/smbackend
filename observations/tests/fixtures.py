@@ -31,7 +31,7 @@ def user():
     password = "test_password"
     municipality = "helsinki"
     user = User.objects.create(username=username)
-    municipality = Municipality.objects.create(id=municipality, name=municipality)
+    municipality = Municipality.objects.create(id=municipality, name_fi=municipality)
     organization = Department.objects.create(
         name_fi="test_org",
         municipality=municipality,

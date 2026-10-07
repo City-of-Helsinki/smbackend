@@ -72,7 +72,7 @@ def set_service_node_unit_count(ids, representation):
             service_node_id=ids[0]
         )
         for service_node_count in service_node_count_qs:
-            if hasattr(service_node_count.division, "name"):
+            if service_node_count.division and service_node_count.division.name_fi:
                 division = service_node_count.division.name_fi.lower()
             else:
                 continue
