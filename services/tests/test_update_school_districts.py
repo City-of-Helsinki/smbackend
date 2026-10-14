@@ -27,11 +27,11 @@ def municipality():
     municipality_type = AdministrativeDivisionType.objects.create(type="municipality")
     municipality_division = AdministrativeDivision.objects.create(
         type=municipality_type,
-        name="Helsinki",
+        name_fi="Helsinki",
         ocd_id="ocd-division/country:fi/kunta:helsinki",
     )
     municipality = Municipality.objects.create(
-        id="helsinki", name="helsinki", division=municipality_division
+        id="helsinki", name_fi="helsinki", division=municipality_division
     )
     return municipality
 
@@ -88,7 +88,7 @@ def test_update_school_districts(mock_datetime, get_feature_mock, municipality):
     )
 
     division_1 = AdministrativeDivision.objects.get(origin_id="111")
-    assert division_1.name == "Testi peruskoulu 2024-2025"
+    assert division_1.name_fi == "Testi peruskoulu 2024-2025"
     assert division_1.type.type == "lower_comprehensive_school_district_fi"
     assert division_1.municipality == municipality
     assert division_1.parent == municipality.division
@@ -100,7 +100,7 @@ def test_update_school_districts(mock_datetime, get_feature_mock, municipality):
     assert type(division_1.geometry.boundary) is MultiPolygon
 
     division_2 = AdministrativeDivision.objects.get(origin_id="222")
-    assert division_2.name == "Testi peruskoulu 2023-2024"
+    assert division_2.name_fi == "Testi peruskoulu 2023-2024"
     assert division_2.type.type == "lower_comprehensive_school_district_fi"
     assert division_2.municipality == municipality
     assert division_2.parent == municipality.division
@@ -151,7 +151,7 @@ def test_update_school_districts_removes_school_year(
         == 1
     )
     assert AdministrativeDivision.objects.filter(
-        name="Testi peruskoulu 2024-2025"
+        name_fi="Testi peruskoulu 2024-2025"
     ).exists()
 
 
@@ -449,7 +449,7 @@ def test_update_school_districts_rollback_changes_on_error(monkeypatch, municipa
     )
     AdministrativeDivision.objects.create(
         type=school_district_type,
-        name="school district",
+        name_fi="school district",
         ocd_id="oppilaaksiottoalue_alakoulu",
         municipality=municipality,
     )
@@ -485,7 +485,7 @@ def test_update_preschool_districts_rollback_changes_on_error(
     )
     AdministrativeDivision.objects.create(
         type=school_district_type,
-        name="preschool district",
+        name_fi="preschool district",
         ocd_id="esiopetuksen_oppilaaksiottoalue_fi",
         municipality=municipality,
     )

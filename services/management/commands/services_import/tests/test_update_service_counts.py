@@ -29,11 +29,11 @@ def municipalities(municipality_type):
     os = []
     for muni_name in ["Helsinki", "Vantaa"]:
         o = AdministrativeDivision.objects.create(
-            type=municipality_type, name=muni_name
+            type=municipality_type, name_fi=muni_name
         )
         o.save()
         m = Municipality.objects.create(
-            name=muni_name, id=muni_name.lower(), division=o
+            name_fi=muni_name, id=muni_name.lower(), division=o
         )
         m.save()
         os.append(m)
@@ -140,7 +140,7 @@ def test_update_service_counts(municipalities, services, units, api_client):
     # Step 2: incrementally delete count objects:
 
     # Step 2 (a) : delete via municipality
-    Unit.objects.filter(municipality__name="Vantaa").delete()
+    Unit.objects.filter(municipality__name_fi="Vantaa").delete()
     update_service_counts()
     real_count = 1 + (units["count_rows"] - 1) / 2
     assert ServiceUnitCount.objects.count() == real_count
@@ -182,7 +182,7 @@ def test_update_service_counts(municipalities, services, units, api_client):
     units = list(Unit.objects.filter(services=service))
 
     while len(units) > 0:
-        assert service.unit_counts.get(division__name="Helsinki").count == len(units)
+        assert service.unit_counts.get(division__name_fi="Helsinki").count == len(units)
         units.pop().delete()
         update_service_counts()
     assert service.unit_counts.count() == 0
@@ -201,7 +201,7 @@ def test_update_service_counts(municipalities, services, units, api_client):
         UnitServiceDetails.objects.create(unit=u, service=service).save()
         update_service_counts()
         count += 1
-        assert count == service.unit_counts.get(division__name="Helsinki").count
+        assert count == service.unit_counts.get(division__name_fi="Helsinki").count
 
     # Step 5: delete everything
     Unit.objects.all().delete()

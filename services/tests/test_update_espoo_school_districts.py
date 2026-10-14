@@ -31,11 +31,11 @@ def municipality():
     municipality_type = AdministrativeDivisionType.objects.create(type="municipality")
     municipality_division = AdministrativeDivision.objects.create(
         type=municipality_type,
-        name="Espoo",
+        name_fi="Espoo",
         ocd_id="ocd-division/country:fi/kunta:espoo",
     )
     municipality = Municipality.objects.create(
-        id="espoo", name="espoo", division=municipality_division
+        id="espoo", name_fi="espoo", division=municipality_division
     )
     return municipality
 
@@ -215,7 +215,6 @@ def test_update_espoo_school_districts(mock_datetime, get_feature_mock, municipa
         origin_id="431976549_2026",
         type__type="lower_comprehensive_school_district_fi",
     )
-    assert lower_fi.name == "Tapiolan oppilasalue"
     assert lower_fi.name_fi == "Tapiolan oppilasalue"
     assert lower_fi.municipality == municipality
     assert lower_fi.parent == municipality.division
@@ -252,7 +251,7 @@ def test_update_espoo_school_districts(mock_datetime, get_feature_mock, municipa
         type__type="lower_comprehensive_school_district_sv",
     )
     assert lower_sv.name_sv == "Lagstads skola"
-    assert lower_sv.name is None
+    assert lower_sv.name_fi is None
     assert (
         lower_sv.ocd_id == "ocd-division/country:fi/kunta:espoo/"
         "oppilaaksiottoalue_alakoulu_sv:495230929_2026"
@@ -273,7 +272,7 @@ def test_update_espoo_school_districts_raises_on_layer_refresh_failure(
     stale_division = AdministrativeDivision.objects.create(
         type=district_type,
         origin_id="stale",
-        name="Stale district",
+        name_fi="Stale district",
         municipality=municipality,
     )
     import_districts_mock.side_effect = RuntimeError("layer refresh failed")
@@ -303,7 +302,7 @@ def test_update_espoo_school_districts_removes_old_data(
     AdministrativeDivision.objects.create(
         type=stale_type,
         origin_id="stale",
-        name="Stale district",
+        name_fi="Stale district",
         municipality=municipality,
     )
 
@@ -340,7 +339,7 @@ def test_update_espoo_school_districts_removes_obsolete_swedish_upper(
     AdministrativeDivision.objects.create(
         type=obsolete_type,
         origin_id="obsolete",
-        name="Obsolete sv upper district",
+        name_fi="Obsolete sv upper district",
         municipality=municipality,
     )
 
@@ -367,11 +366,11 @@ def test_update_espoo_does_not_remove_other_municipality_data(
     helsinki_type = AdministrativeDivisionType.objects.create(type="municipality_hki")
     helsinki_division = AdministrativeDivision.objects.create(
         type=helsinki_type,
-        name="Helsinki",
+        name_fi="Helsinki",
         ocd_id="ocd-division/country:fi/kunta:helsinki",
     )
     helsinki = Municipality.objects.create(
-        id="helsinki", name="helsinki", division=helsinki_division
+        id="helsinki", name_fi="helsinki", division=helsinki_division
     )
     shared_type = AdministrativeDivisionType.objects.create(
         type="lower_comprehensive_school_district_fi"
@@ -379,7 +378,7 @@ def test_update_espoo_does_not_remove_other_municipality_data(
     AdministrativeDivision.objects.create(
         type=shared_type,
         origin_id="hki-1",
-        name="Helsinki district",
+        name_fi="Helsinki district",
         municipality=helsinki,
     )
 
