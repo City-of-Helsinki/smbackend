@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.4.6](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.5...smbackend-v4.4.6) (2026-10-14)
+
+
+### Dependencies
+
+* Bump oauthlib from 3.3.1 to 4.0.0 ([bab90e3](https://github.com/City-of-Helsinki/smbackend/commit/bab90e3ef0dfafcbe38d15c44081b667b2240f0f))
+* Upgrade django-helusers and related dependencies ([3297ca9](https://github.com/City-of-Helsinki/smbackend/commit/3297ca987c28c1571dbb0b68ec592a931d3150a5))
+
 ## [4.4.5](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.4...smbackend-v4.4.5) (2026-10-01)
 
 
