@@ -34,7 +34,6 @@ dependencies = [
     "psycopg[c]",
     "python-dateutil",
     "requests",
-    "requests_cache",
     "sentry-sdk[django]",
     "tqdm",
     "tzdata",
