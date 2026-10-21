@@ -30,7 +30,6 @@ dependencies = [
     "drf-spectacular",
     "geopy",
     "libvoikko",
-    "lxml",
     "psycopg[c]",
     "requests",
     "sentry-sdk[django]",
