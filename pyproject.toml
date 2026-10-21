@@ -32,7 +32,6 @@ dependencies = [
     "libvoikko",
     "lxml",
     "psycopg[c]",
-    "python-dateutil",
     "requests",
     "sentry-sdk[django]",
     "tqdm",
