@@ -976,7 +976,6 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "ipython" },
-    { name = "jedi" },
     { name = "parso" },
     { name = "pytest-cov" },
     { name = "pytest-django" },
@@ -1021,7 +1020,6 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "ipython" },
-    { name = "jedi" },
     { name = "parso" },
     { name = "pytest-cov" },
     { name = "pytest-django" },

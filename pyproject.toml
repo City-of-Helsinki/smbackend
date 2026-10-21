@@ -43,7 +43,6 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ipython",
-    "jedi",
     "parso",
     "pytest-django",
     "pytest-cov",
