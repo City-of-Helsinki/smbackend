@@ -976,7 +976,6 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "ipython" },
-    { name = "parso" },
     { name = "pytest-cov" },
     { name = "pytest-django" },
     { name = "requests-mock" },
@@ -1020,7 +1019,6 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "ipython" },
-    { name = "parso" },
     { name = "pytest-cov" },
     { name = "pytest-django" },
     { name = "requests-mock" },
