@@ -169,9 +169,6 @@ class Command(BaseCommand):
         self.logger = logging.getLogger(__name__)
         self.services_changed = False
 
-        # if options['cached']:
-        #     requests_cache.install_cache('services_import')
-
         # Activate the default language for the duration of the import
         # to make sure translated fields are populated correctly.
         old_lang = get_language()
