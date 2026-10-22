@@ -63,6 +63,7 @@ prod = [
 
 [tool.uv]
 package = false
+required-version = ">=0.13.4"
 # Supply-chain protection: only consider package versions published at least
 # three days ago, giving time for malicious or broken releases to be detected
 # and yanked.
