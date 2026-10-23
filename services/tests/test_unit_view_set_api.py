@@ -47,11 +47,11 @@ def create_units():
     division_type = AdministrativeDivisionType.objects.create(type="muni")
     division = AdministrativeDivision.objects.create(
         type=division_type,
-        name=municipality_id,
+        name_fi=municipality_id,
         ocd_id=make_muni_ocd_id(municipality_id),
     )
     municipality = Municipality.objects.create(
-        id=municipality_id, name=municipality_id, division=division
+        id=municipality_id, name_fi=municipality_id, division=division
     )
     organization = Department.objects.create(
         name_fi="Helsingin kaupunki",
