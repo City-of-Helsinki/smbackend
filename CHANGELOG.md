@@ -1,5 +1,22 @@
 # Changelog
 
+## [4.4.7](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.6...smbackend-v4.4.7) (2026-10-23)
+
+
+### Bug Fixes
+
+* Bump uv version to 0.13.5 ([c3827fd](https://github.com/City-of-Helsinki/smbackend/commit/c3827fdb203daf9dfb6571c7bb2e6b9373635156))
+
+
+### Dependencies
+
+* Bump certifi to 2026.10.19 ([0e8f63b](https://github.com/City-of-Helsinki/smbackend/commit/0e8f63b916231aee8771dd971e95f0f8b6337862))
+* Remove redundant jedi declaration ([2de1d6c](https://github.com/City-of-Helsinki/smbackend/commit/2de1d6c0edd0d33efc43dfefaacfd88533bc561b))
+* Remove redundant parso declaration ([eeff3c9](https://github.com/City-of-Helsinki/smbackend/commit/eeff3c944c697774d38179264e864731dfbe6afb))
+* Remove unused lxml dependency ([0cc2ca4](https://github.com/City-of-Helsinki/smbackend/commit/0cc2ca45c38298ebbf54f2ba38034928e978677a))
+* Remove unused python-dateutil dependency ([e1a65ce](https://github.com/City-of-Helsinki/smbackend/commit/e1a65ce625201bc9a24a1212e993a6cb20bcd8e7))
+* Remove unused requests-cache dependency ([7b91948](https://github.com/City-of-Helsinki/smbackend/commit/7b91948e2c53a67e1d1d155f6577c6bba28a3e4f))
+
 ## [4.4.6](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.5...smbackend-v4.4.6) (2026-10-14)
 
 
