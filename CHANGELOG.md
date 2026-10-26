@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.8](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.7...smbackend-v4.4.8) (2026-10-26)
+
+
+### Dependencies
+
+* Bump djangorestframework from 3.18.0 to 3.18.2 ([6169a51](https://github.com/City-of-Helsinki/smbackend/commit/6169a5177e95bc02edfe6b9ce209c785f9db5466))
+
 ## [4.4.7](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.6...smbackend-v4.4.7) (2026-10-23)
 
 
