@@ -41,7 +41,7 @@ def test_department_fields(api_client):
     """
     Test that fields are returned correctly
     """
-    municipality = Municipality.objects.create(id="helsinki", name="Helsinki")
+    municipality = Municipality.objects.create(id="helsinki", name_fi="Helsinki")
     department = Department.objects.create(
         uuid=uuid.uuid4(),
         business_id="1234567-8",

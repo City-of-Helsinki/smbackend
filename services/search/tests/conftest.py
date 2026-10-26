@@ -204,7 +204,7 @@ def addresses(streets, municipality):
         number=1,
         number_end=2,
         letter="A",
-        full_name="Kurrapolku 1A",
+        full_name_fi="Kurrapolku 1A",
         full_name_sv="Kurrastigen 1A",
         full_name_en="Kurrapolku 1A",
     )
@@ -215,7 +215,7 @@ def addresses(streets, municipality):
         street_id=43,
         number=1,
         letter="B",
-        full_name="Markulantie 2B",
+        full_name_fi="Markulantie 2B",
     )
     Address.objects.create(
         municipality_id=municipality.id,
@@ -223,7 +223,7 @@ def addresses(streets, municipality):
         id=3,
         street_id=44,
         number=5,
-        full_name="Yliopistonkatu 5",
+        full_name_fi="Yliopistonkatu 5",
     )
     Address.objects.create(
         municipality_id=municipality.id,
@@ -231,7 +231,7 @@ def addresses(streets, municipality):
         id=4,
         street_id=44,
         number=21,
-        full_name="Yliopistonkatu 21",
+        full_name_fi="Yliopistonkatu 21",
     )
     Address.objects.create(
         municipality_id=municipality.id,
@@ -239,7 +239,7 @@ def addresses(streets, municipality):
         id=5,
         street_id=44,
         number=33,
-        full_name="Yliopistonkatu 33",
+        full_name_fi="Yliopistonkatu 33",
     )
     Address.objects.create(
         municipality_id=municipality.id,
@@ -247,7 +247,7 @@ def addresses(streets, municipality):
         id=6,
         street_id=45,
         number=1,
-        full_name="Tarkk'ampujankatu 1",
+        full_name_fi="Tarkk'ampujankatu 1",
     )
     Address.objects.create(
         municipality_id=municipality.id,
@@ -255,7 +255,7 @@ def addresses(streets, municipality):
         id=7,
         street_id=46,
         number=1,
-        full_name="Kellonsoittajankatu 1",
+        full_name_fi="Kellonsoittajankatu 1",
     )
     generate_syllables(Address)
     Address.objects.update(search_column_fi=get_search_column(Address, "fi"))
@@ -265,7 +265,7 @@ def addresses(streets, municipality):
 @pytest.fixture
 def municipality():
     return Municipality.objects.create(
-        division_id=1, id="helsinki", name="Helsinki", name_sv="Helsingfors"
+        division_id=1, id="helsinki", name_fi="Helsinki", name_sv="Helsingfors"
     )
 
 
@@ -279,7 +279,7 @@ def administrative_division_type():
 @pytest.fixture
 def administrative_division(administrative_division_type):
     adm_div = AdministrativeDivision.objects.get_or_create(
-        id=1, name="Helsinki", origin_id=853, type_id=1
+        id=1, name_fi="Helsinki", origin_id=853, type_id=1
     )
     AdministrativeDivision.objects.update(
         search_column_fi=get_search_column(AdministrativeDivision, "fi")
@@ -290,12 +290,16 @@ def administrative_division(administrative_division_type):
 @pytest.fixture
 def streets():
     Street.objects.create(
-        id=42, name="Kurrapolku", name_sv="Kurrastigen", municipality_id="helsinki"
+        id=42, name_fi="Kurrapolku", name_sv="Kurrastigen", municipality_id="helsinki"
     )
-    Street.objects.create(id=43, name="Markulantie", municipality_id="helsinki")
-    Street.objects.create(id=44, name="Yliopistonkatu", municipality_id="helsinki")
-    Street.objects.create(id=45, name="Tarkk'ampujankatu", municipality_id="helsinki")
-    Street.objects.create(id=46, name="Kellonsoittajankatu", municipality_id="helsinki")
+    Street.objects.create(id=43, name_fi="Markulantie", municipality_id="helsinki")
+    Street.objects.create(id=44, name_fi="Yliopistonkatu", municipality_id="helsinki")
+    Street.objects.create(
+        id=45, name_fi="Tarkk'ampujankatu", municipality_id="helsinki"
+    )
+    Street.objects.create(
+        id=46, name_fi="Kellonsoittajankatu", municipality_id="helsinki"
+    )
     return Street.objects.all()
 
 
