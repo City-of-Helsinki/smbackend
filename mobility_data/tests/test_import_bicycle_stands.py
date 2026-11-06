@@ -98,11 +98,11 @@ def test_gml_importer(
     assert num_created == 3
     assert num_deleted == 0
     assert MobileUnit.objects.all().count() == 3
-    # <GIS:Id>0</GIS:Id> in fixture xml.
+    # <GIS:ObjectId>281516683</GIS:ObjectId> in fixture xml.
     stand_normal = MobileUnit.objects.first()
-    # <GIS:Id>182213917</GIS:Id> in fixture xml.
+    # <GIS:ObjectId>88996599</GIS:ObjectId> in fixture xml.
     stand_covered_hull_lockable = MobileUnit.objects.all()[1]
-    # <GIS:Id>319490982</GIS:Id> in fixture xml
+    # <GIS:ObjectId>0</GIS:ObjectId> in fixture xml
     stand_external = MobileUnit.objects.all()[2]
     assert stand_normal.name_fi == "Pyöräpysäköinti Linnanpuisto"
     assert stand_normal.name_sv == "Cykelparkering Slottsparken"

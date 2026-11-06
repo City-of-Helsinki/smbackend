@@ -33,7 +33,7 @@ NAME_PREFIX = {
 }
 BICYCLE_STANDS_URL = "{}{}".format(
     settings.TURKU_WFS_URL,
-    "?service=WFS&request=GetFeature&typeName=GIS:Polkupyoraparkki&outputFormat=GML3",
+    "?service=WFS&request=GetFeature&typeName=GIS:Polkupyoraparkki&outputFormat=GML3&maxFeatures=10000",
 )
 WFS_SOURCE_DATA_SRID = 3877
 GEOJSON_SOURCE_DATA_SRID = 4326
@@ -132,7 +132,7 @@ class BicyleStand(MobileUnitDataBase):
         self.address["en"] = f"{translated_street_names['en']} {address_number}"
 
     def set_gml_feature(self, feature):
-        object_id = feature["id"].as_string()
+        object_id = feature["ObjectId"].as_string()
         # If ObjectId is set to "0", the bicycle stand is not maintained by Turku
         if object_id == "0":
             self.extra["maintained_by_turku"] = False
@@ -231,6 +231,7 @@ def get_bicycle_stand_objects():
                     # Handle IndexError gracefully, as the field names can change in the source data
                     # and it would prevent importing the GEOJSON data.
                     logger.warning(f"Discarding {feature}, reason: {err}")
+                    continue
             elif data_source[0] == "geojson":
                 bicycle_stand.set_geojson_feature(feature)
             if (

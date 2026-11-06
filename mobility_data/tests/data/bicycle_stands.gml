@@ -10,10 +10,8 @@
     </gml:boundedBy>
     <gml:featureMember>
         <GIS:Polkupyoraparkki>
-            <GIS:Id>0</GIS:Id>
             <GIS:ObjectId>0</GIS:ObjectId>
             <GIS:Hankintavuosi>0</GIS:Hankintavuosi>
-            <GIS:Lukumaara>0</GIS:Lukumaara>
             <GIS:Malli> Ei tietoa</GIS:Malli>
             <GIS:Malli_koodi>0</GIS:Malli_koodi>
             <GIS:Geometry>
@@ -30,7 +28,6 @@
             <GIS:Varustelaji>Polkupyöräkatos</GIS:Varustelaji>
             <GIS:Varustelaji_koodi>03003</GIS:Varustelaji_koodi>
             <GIS:Hankintavuosi>0</GIS:Hankintavuosi>
-            <GIS:Lukumaara>1</GIS:Lukumaara>
             <GIS:Malli> Ei tietoa</GIS:Malli>
             <GIS:Malli_koodi>0</GIS:Malli_koodi>
             <GIS:Pyorapaikkojen_lukumaara>8 runkolukittavaa ja 10 ei runkolukittavaa paikkaa</GIS:Pyorapaikkojen_lukumaara>
@@ -45,13 +42,11 @@
     </gml:featureMember>
     <gml:featureMember>
         <GIS:Polkupyoraparkki>
-            <GIS:Id>319490982</GIS:Id>
             <GIS:ObjectId>281516683</GIS:ObjectId>
             <GIS:Viherosa_nimi>Linnanpuisto</GIS:Viherosa_nimi>
             <GIS:Varustelaji>Pyöräteline</GIS:Varustelaji>
             <GIS:Varustelaji_koodi>04036</GIS:Varustelaji_koodi>
             <GIS:Hankintavuosi>0</GIS:Hankintavuosi>
-            <GIS:Lukumaara>2</GIS:Lukumaara>
             <GIS:Malli>Normaali</GIS:Malli>
             <GIS:Malli_koodi>0</GIS:Malli_koodi>
             <GIS:Pyorapaikkojen_lukumaara>24</GIS:Pyorapaikkojen_lukumaara>

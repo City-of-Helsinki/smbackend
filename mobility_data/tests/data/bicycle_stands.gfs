@@ -12,11 +12,6 @@
       <ExtentYMax>6704068.09000</ExtentYMax>
     </DatasetSpecificInfo>
     <PropertyDefn>
-      <Name>Id</Name>
-      <ElementPath>Id</ElementPath>
-      <Type>Integer</Type>
-    </PropertyDefn>
-    <PropertyDefn>
       <Name>ObjectId</Name>
       <ElementPath>ObjectId</ElementPath>
       <Type>Integer</Type>
@@ -24,11 +19,6 @@
     <PropertyDefn>
       <Name>Hankintavuosi</Name>
       <ElementPath>Hankintavuosi</ElementPath>
-      <Type>Integer</Type>
-    </PropertyDefn>
-    <PropertyDefn>
-      <Name>Lukumaara</Name>
-      <ElementPath>Lukumaara</ElementPath>
       <Type>Integer</Type>
     </PropertyDefn>
     <PropertyDefn>
