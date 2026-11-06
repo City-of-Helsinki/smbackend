@@ -458,7 +458,9 @@ class ServiceSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
         ret["unit_count"] = {"municipality": {}, "organization": {}}
         total = 0
         for unit_count in obj.unit_counts.filter(division_type__type="muni"):
-            div_name = unit_count.division.name.lower() if unit_count.division else None
+            div_name = (
+                unit_count.division.name_fi.lower() if unit_count.division else None
+            )
             if unit_count.count == 0:
                 continue
             total += unit_count.count
@@ -482,7 +484,7 @@ class ServiceSerializer(ServicesTranslatedModelSerializer, JSONAPISerializer):
             ret["unit_count_per_division"] = {}
             div_list = resolve_divisions(divisions)
             for div in div_list:
-                ret["unit_count_per_division"][div.name] = Unit.objects.filter(
+                ret["unit_count_per_division"][div.name_fi] = Unit.objects.filter(
                     services=obj.pk, location__within=div.geometry.boundary
                 ).count()
 
