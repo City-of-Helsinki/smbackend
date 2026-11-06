@@ -11,9 +11,10 @@ import requests
 import yaml
 from django import db
 from django.conf import settings
-from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.db import models as gis_models
 from django.contrib.gis.gdal import DataSource as GDALDataSource
 from django.contrib.gis.geos import GEOSGeometry, Polygon
+from django.db.models import F, FloatField, Func, Value
 from munigeo.models import (
     Address,
     AdministrativeDivision,
@@ -22,6 +23,7 @@ from munigeo.models import (
     PostalCodeArea,
     Street,
 )
+from munigeo.utils import get_default_srid
 
 from mobility_data.importers.constants import (
     SOUTHWEST_FINLAND_BOUNDARY,
@@ -163,13 +165,25 @@ def get_closest_address_full_name(point):
 def get_closest_address(point):
     """
     Return the closest address to the point.
+    Uses the PostGIS KNN distance operator (<->) so that the GiST index on
+    Address.location is used instead of sorting all addresses by distance.
     """
-    address = (
-        Address.objects.annotate(distance=Distance("location", point))
-        .order_by("distance")
-        .first()
+    # The <-> operator requires both geometries to be in the same SRID, unlike
+    # Distance() which transformed them automatically.
+    location_srid = Address._meta.get_field("location").srid
+    if point.srid is None:
+        point = point.clone()
+        point.srid = get_default_srid()
+    if point.srid != location_srid:
+        point = point.transform(location_srid, clone=True)
+    knn_distance = Func(
+        F("location"),
+        Value(point, output_field=gis_models.PointField(srid=location_srid)),
+        arg_joiner=" <-> ",
+        template="(%(expressions)s)",
+        output_field=FloatField(),
     )
-    return address
+    return Address.objects.order_by(knn_distance).first()
 
 
 def get_postal_code(point):
