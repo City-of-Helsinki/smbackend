@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.9](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.8...smbackend-v4.4.9) (2026-11-07)
+
+
+### Dependencies
+
+* Bump oauthlib from 4.0.0 to 4.0.1 ([f399ad6](https://github.com/City-of-Helsinki/smbackend/commit/f399ad6cce62442a2c28bb3bc1b3bb23772ff097))
+
 ## [4.4.8](https://github.com/City-of-Helsinki/smbackend/compare/smbackend-v4.4.7...smbackend-v4.4.8) (2026-10-26)
 
 
