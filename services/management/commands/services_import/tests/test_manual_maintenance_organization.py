@@ -95,9 +95,9 @@ def _call_import_unit(unit, info, municipality=None):
 @pytest.fixture
 def helsinki_municipality(db):
     div_type = AdministrativeDivisionType.objects.create(type="muni")
-    division = AdministrativeDivision.objects.create(type=div_type, name="Helsinki")
+    division = AdministrativeDivision.objects.create(type=div_type, name_fi="Helsinki")
     return Municipality.objects.create(
-        id="helsinki", name="Helsinki", division=division
+        id="helsinki", name_fi="Helsinki", division=division
     )
 
 

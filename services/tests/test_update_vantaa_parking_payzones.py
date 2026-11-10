@@ -94,7 +94,7 @@ def mock_parking_payzones_null_geometry_data():
 )
 def test_import_parking_payzones(get_features_mock, mock_parking_payzones_data):
     get_features_mock.return_value = mock_parking_payzones_data
-    municipality = Municipality.objects.create(id="vantaa", name="Vantaa")
+    municipality = Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     division_type = AdministrativeDivisionType.objects.create(type="parking_payzone")
 
     assert (
@@ -136,7 +136,7 @@ def test_import_parking_payzones(get_features_mock, mock_parking_payzones_data):
 )
 def test_delete_removed_parking_payzones(get_features_mock, mock_parking_payzones_data):
     get_features_mock.return_value = mock_parking_payzones_data
-    municipality = Municipality.objects.create(id="vantaa", name="Vantaa")
+    municipality = Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     division_type = AdministrativeDivisionType.objects.create(type="parking_payzone")
     call_command("update_vantaa_parking_payzones")
 
@@ -170,7 +170,7 @@ def test_skip_parking_payzone_with_no_geometry(
     get_features_mock, mock_parking_payzones_null_geometry_data
 ):
     get_features_mock.return_value = mock_parking_payzones_null_geometry_data
-    Municipality.objects.create(id="vantaa", name="Vantaa")
+    Municipality.objects.create(id="vantaa", name_fi="Vantaa")
     AdministrativeDivisionType.objects.create(type="parking_payzone")
 
     assert AdministrativeDivision.objects.count() == 0
