@@ -7,6 +7,7 @@ from corsheaders.defaults import default_headers
 from csp.constants import NONCE, NONE, SELF
 from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models.signals import post_init
 from environ import Env
 from helusers.defaults import SOCIAL_AUTH_PIPELINE  # noqa
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -367,7 +368,7 @@ if env("SENTRY_DSN"):
         dsn=env.str("SENTRY_DSN"),
         environment=env.str("SENTRY_ENVIRONMENT"),
         release=SENTRY_RELEASE,
-        integrations=[DjangoIntegration()],
+        integrations=[DjangoIntegration(signals_denylist=[post_init])],
         traces_sampler=sentry_traces_sampler,
         profile_session_sample_rate=env.str("SENTRY_PROFILE_SESSION_SAMPLE_RATE"),
         profile_lifecycle="trace",

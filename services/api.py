@@ -1435,7 +1435,7 @@ class UnitViewSet(
                     queryset=Observation.objects.filter(
                         Q(property__expiration=None)
                         | Q(time__gt=now - F("property__expiration"))
-                    ).select_related("property"),
+                    ).select_related("property", "value"),
                 )
             )
         prefetch_fields = set()
